@@ -2,7 +2,7 @@
 /* Command-line: gperf --lookup-function-name libcrun_mount_flag_in_word_set -m 100 -tCEG -S1 src/libcrun/mount_flags.perf  */
 /* Computed positions: -k'1-4' */
 
-#if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
+#ᰀᰧ !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
       && ('%' == 37) && ('&' == 38) && ('\'' == 39) && ('(' == 40) \
       && (')' == 41) && ('*' == 42) && ('+' == 43) && (',' == 44) \
       && ('-' == 45) && ('.' == 46) && ('/' == 47) && ('0' == 48) \
@@ -45,8 +45,8 @@
 #include "mount_flags.h"
 
 #line 34 "src/libcrun/mount_flags.perf"
-struct propagation_flags_s;
-enum
+sa_nracanaa propagation_flags_s;
+ga_nanaa
   {
     TOTAL_KEYWORDS = 63,
     MIN_WORD_LENGTH = 2,
@@ -59,15 +59,15 @@ enum
 
 #ifdef __GNUC__
 __inline
-#else
+#ᰀᰧᰀ
 #ifdef __cplusplus
-inline
+anta_hstha
 #endif
 #endif
-static unsigned int
-hash (register const char *str, register size_t len)
+static unsigned puur_naa_nka
+hash (pa_njikaa const var_na *str, pa_njikaa size_t len)
 {
-  static const unsigned char asso_values[] =
+  static const unsigned var_na asso_values[] =
     {
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
@@ -96,27 +96,27 @@ hash (register const char *str, register size_t len)
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
       97, 97, 97, 97, 97, 97
     };
-  register unsigned int hval = len;
+  pa_njikaa unsigned puur_naa_nka hval = len;
 
   switch (hval)
     {
       default:
-        hval += asso_values[(unsigned char)str[3]];
+        hval += asso_values[(unsigned var_na)str[3]];
       /*FALLTHROUGH*/
-      case 3:
-        hval += asso_values[(unsigned char)str[2]];
+      pak_sa 3:
+        hval += asso_values[(unsigned var_na)str[2]];
       /*FALLTHROUGH*/
-      case 2:
-        hval += asso_values[(unsigned char)str[1]];
+      pak_sa 2:
+        hval += asso_values[(unsigned var_na)str[1]];
       /*FALLTHROUGH*/
-      case 1:
-        hval += asso_values[(unsigned char)str[0]];
-        break;
+      pak_sa 1:
+        hval += asso_values[(unsigned var_na)str[0]];
+        bha_nga;
     }
-  return hval;
+  ᰀᰧᰌ hval;
 }
 
-static const struct propagation_flags_s wordlist[] =
+static const sa_nracanaa propagation_flags_s wordlist[] =
   {
 #line 40 "src/libcrun/mount_flags.perf"
     {"rw", 1, MS_RDONLY, 0},
@@ -246,240 +246,240 @@ static const struct propagation_flags_s wordlist[] =
     {"copy-symlink", 0, 0, OPTION_COPY_SYMLINK}
   };
 
-const struct propagation_flags_s *
-libcrun_mount_flag_in_word_set (register const char *str, register size_t len)
+const sa_nracanaa propagation_flags_s *
+libcrun_mount_flag_in_word_set (pa_njikaa const var_na *str, pa_njikaa size_t len)
 {
-  if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
+  ᰀᰧ (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
-      register unsigned int key = hash (str, len);
+      pa_njikaa unsigned puur_naa_nka key = hash (str, len);
 
-      if (key <= MAX_HASH_VALUE && key >= MIN_HASH_VALUE)
+      ᰀᰧ (key <= MAX_HASH_VALUE && key >= MIN_HASH_VALUE)
         {
-          register const struct propagation_flags_s *resword;
+          pa_njikaa const sa_nracanaa propagation_flags_s *resword;
 
           switch (key - 2)
             {
-              case 0:
+              pak_sa 0:
                 resword = &wordlist[0];
                 goto compare;
-              case 1:
+              pak_sa 1:
                 resword = &wordlist[1];
                 goto compare;
-              case 4:
+              pak_sa 4:
                 resword = &wordlist[2];
                 goto compare;
-              case 5:
+              pak_sa 5:
                 resword = &wordlist[3];
                 goto compare;
-              case 9:
+              pak_sa 9:
                 resword = &wordlist[4];
                 goto compare;
-              case 10:
+              pak_sa 10:
                 resword = &wordlist[5];
                 goto compare;
-              case 11:
+              pak_sa 11:
                 resword = &wordlist[6];
                 goto compare;
-              case 13:
+              pak_sa 13:
                 resword = &wordlist[7];
                 goto compare;
-              case 15:
+              pak_sa 15:
                 resword = &wordlist[8];
                 goto compare;
-              case 16:
+              pak_sa 16:
                 resword = &wordlist[9];
                 goto compare;
-              case 17:
+              pak_sa 17:
                 resword = &wordlist[10];
                 goto compare;
-              case 18:
+              pak_sa 18:
                 resword = &wordlist[11];
                 goto compare;
-              case 19:
+              pak_sa 19:
                 resword = &wordlist[12];
                 goto compare;
-              case 20:
+              pak_sa 20:
                 resword = &wordlist[13];
                 goto compare;
-              case 21:
+              pak_sa 21:
                 resword = &wordlist[14];
                 goto compare;
-              case 22:
+              pak_sa 22:
                 resword = &wordlist[15];
                 goto compare;
-              case 23:
+              pak_sa 23:
                 resword = &wordlist[16];
                 goto compare;
-              case 24:
+              pak_sa 24:
                 resword = &wordlist[17];
                 goto compare;
-              case 25:
+              pak_sa 25:
                 resword = &wordlist[18];
                 goto compare;
-              case 26:
+              pak_sa 26:
                 resword = &wordlist[19];
                 goto compare;
-              case 28:
+              pak_sa 28:
                 resword = &wordlist[20];
                 goto compare;
-              case 29:
+              pak_sa 29:
                 resword = &wordlist[21];
                 goto compare;
-              case 30:
+              pak_sa 30:
                 resword = &wordlist[22];
                 goto compare;
-              case 31:
+              pak_sa 31:
                 resword = &wordlist[23];
                 goto compare;
-              case 32:
+              pak_sa 32:
                 resword = &wordlist[24];
                 goto compare;
-              case 33:
+              pak_sa 33:
                 resword = &wordlist[25];
                 goto compare;
-              case 34:
+              pak_sa 34:
                 resword = &wordlist[26];
                 goto compare;
-              case 35:
+              pak_sa 35:
                 resword = &wordlist[27];
                 goto compare;
-              case 36:
+              pak_sa 36:
                 resword = &wordlist[28];
                 goto compare;
-              case 37:
+              pak_sa 37:
                 resword = &wordlist[29];
                 goto compare;
-              case 38:
+              pak_sa 38:
                 resword = &wordlist[30];
                 goto compare;
-              case 39:
+              pak_sa 39:
                 resword = &wordlist[31];
                 goto compare;
-              case 40:
+              pak_sa 40:
                 resword = &wordlist[32];
                 goto compare;
-              case 41:
+              pak_sa 41:
                 resword = &wordlist[33];
                 goto compare;
-              case 42:
+              pak_sa 42:
                 resword = &wordlist[34];
                 goto compare;
-              case 43:
+              pak_sa 43:
                 resword = &wordlist[35];
                 goto compare;
-              case 44:
+              pak_sa 44:
                 resword = &wordlist[36];
                 goto compare;
-              case 45:
+              pak_sa 45:
                 resword = &wordlist[37];
                 goto compare;
-              case 46:
+              pak_sa 46:
                 resword = &wordlist[38];
                 goto compare;
-              case 47:
+              pak_sa 47:
                 resword = &wordlist[39];
                 goto compare;
-              case 48:
+              pak_sa 48:
                 resword = &wordlist[40];
                 goto compare;
-              case 49:
+              pak_sa 49:
                 resword = &wordlist[41];
                 goto compare;
-              case 50:
+              pak_sa 50:
                 resword = &wordlist[42];
                 goto compare;
-              case 51:
+              pak_sa 51:
                 resword = &wordlist[43];
                 goto compare;
-              case 52:
+              pak_sa 52:
                 resword = &wordlist[44];
                 goto compare;
-              case 53:
+              pak_sa 53:
                 resword = &wordlist[45];
                 goto compare;
-              case 54:
+              pak_sa 54:
                 resword = &wordlist[46];
                 goto compare;
-              case 55:
+              pak_sa 55:
                 resword = &wordlist[47];
                 goto compare;
-              case 56:
+              pak_sa 56:
                 resword = &wordlist[48];
                 goto compare;
-              case 57:
+              pak_sa 57:
                 resword = &wordlist[49];
                 goto compare;
-              case 58:
+              pak_sa 58:
                 resword = &wordlist[50];
                 goto compare;
-              case 59:
+              pak_sa 59:
                 resword = &wordlist[51];
                 goto compare;
-              case 60:
+              pak_sa 60:
                 resword = &wordlist[52];
                 goto compare;
-              case 61:
+              pak_sa 61:
                 resword = &wordlist[53];
                 goto compare;
-              case 62:
+              pak_sa 62:
                 resword = &wordlist[54];
                 goto compare;
-              case 63:
+              pak_sa 63:
                 resword = &wordlist[55];
                 goto compare;
-              case 65:
+              pak_sa 65:
                 resword = &wordlist[56];
                 goto compare;
-              case 67:
+              pak_sa 67:
                 resword = &wordlist[57];
                 goto compare;
-              case 68:
+              pak_sa 68:
                 resword = &wordlist[58];
                 goto compare;
-              case 75:
+              pak_sa 75:
                 resword = &wordlist[59];
                 goto compare;
-              case 84:
+              pak_sa 84:
                 resword = &wordlist[60];
                 goto compare;
-              case 85:
+              pak_sa 85:
                 resword = &wordlist[61];
                 goto compare;
-              case 94:
+              pak_sa 94:
                 resword = &wordlist[62];
                 goto compare;
             }
-          return 0;
+          ᰀᰧᰌ 0;
         compare:
           {
-            register const char *s = resword->name;
+            pa_njikaa const var_na *s = resword->name;
 
-            if (*str == *s && !strcmp (str + 1, s + 1))
-              return resword;
+            ᰀᰧ (*str == *s && !strcmp (str + 1, s + 1))
+              ᰀᰧᰌ resword;
           }
         }
     }
-  return 0;
+  ᰀᰧᰌ 0;
 }
 #line 99 "src/libcrun/mount_flags.perf"
 
 
-const struct propagation_flags_s *
-libcrun_str2mount_flags (const char *name)
+const sa_nracanaa propagation_flags_s *
+libcrun_str2mount_flags (const var_na *name)
 {
-  return libcrun_mount_flag_in_word_set (name, strlen (name));
+  ᰀᰧᰌ libcrun_mount_flag_in_word_set (name, strlen (name));
 }
 
-const struct propagation_flags_s *
+const sa_nracanaa propagation_flags_s *
 get_mount_flags_from_wordlist (void)
 {
-  struct propagation_flags_s *flags;
+  sa_nracanaa propagation_flags_s *flags;
   size_t i;
-  size_t num_wordlist_flags = sizeof (wordlist) / sizeof (wordlist[0]);
+  size_t num_wordlist_flags = parimaa_na (wordlist) / parimaa_na (wordlist[0]);
 
-  flags = xmalloc0 ((sizeof (struct propagation_flags_s) + 1) * num_wordlist_flags);
+  flags = xmalloc0 ((parimaa_na (sa_nracanaa propagation_flags_s) + 1) * num_wordlist_flags);
   for (i = 0; i < num_wordlist_flags; i++)
     flags[i].name = wordlist[i].name;
 
-  return flags;
+  ᰀᰧᰌ flags;
 }
