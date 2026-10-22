@@ -15,11 +15,11 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ GNU_ਸਰੋਤ
 
-#include <config.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <config.h>
 
-#if HAVE_CRIU && HAVE_DLOPEN
+#ਜੇ HAVE_CRIU && HAVE_DLOPEN
 
 #  include <unistd.h>
 #  include <sys/types.h>
@@ -56,25 +56,25 @@
 #  endif
 
 /* Defined in chroot_realpath.c  */
-char *chroot_realpath (const char *chroot, const char *path, char resolved_path[]);
+ਅੱਖਰ *chroot_realpath (ਅਚਲ ਅੱਖਰ *chroot, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਅੱਖਰ resolved_ਰਸਤਾ[]);
 
 /* Map the public cgroups mode (enum libcrun_cr_cgroups_mode) onto the CRIU enum.  */
-static enum criu_cg_mode
-criu_cg_mode_from_public (int mode)
+ਸਥਿਰ ਗਿਣਤੀ criu_cg_ਬਹੁਲਕ
+criu_cg_ਬਹੁਲਕ_from_ਜਨਤਕ (ਪੂਰਨ ਬਹੁਲਕ)
 {
-  switch (mode)
+  ਚੋਣ (ਬਹੁਲਕ)
     {
-    case LIBCRUN_CR_CG_MODE_IGNORE:
-      return CRIU_CG_MODE_IGNORE;
-    case LIBCRUN_CR_CG_MODE_FULL:
-      return CRIU_CG_MODE_FULL;
-    case LIBCRUN_CR_CG_MODE_STRICT:
-      return CRIU_CG_MODE_STRICT;
-    case LIBCRUN_CR_CG_MODE_DEFAULT:
-    case LIBCRUN_CR_CG_MODE_SOFT:
-    default:
+    ਹਾਲਤ LIBCRUN_CR_CG_ਬਹੁਲਕ_IGNORE:
+      ਵਾਪਸ CRIU_CG_ਬਹੁਲਕ_IGNORE;
+    ਹਾਲਤ LIBCRUN_CR_CG_ਬਹੁਲਕ_ਭਰਿਆ:
+      ਵਾਪਸ CRIU_CG_ਬਹੁਲਕ_ਭਰਿਆ;
+    ਹਾਲਤ LIBCRUN_CR_CG_ਬਹੁਲਕ_STRICT:
+      ਵਾਪਸ CRIU_CG_ਬਹੁਲਕ_STRICT;
+    ਹਾਲਤ LIBCRUN_CR_CG_ਬਹੁਲਕ_DEFAULT:
+    ਹਾਲਤ LIBCRUN_CR_CG_ਬਹੁਲਕ_SOFT:
+    ਮੂਲ:
       /* Default to CRIU_CG_MODE_SOFT, just as runc.  */
-      return CRIU_CG_MODE_SOFT;
+      ਵਾਪਸ CRIU_CG_ਬਹੁਲਕ_SOFT;
     }
 }
 
@@ -82,147 +82,147 @@ criu_cg_mode_from_public (int mode)
    CRIU enum.  *LOCK is set to 0 when no explicit method must be set (CRIU default).
    A method that this build cannot honor is an error, never a silent fallback to
    the CRIU default.  */
-static int
-criu_network_lock_from_public (int method, int *lock, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+criu_ਜਾਲ_ਤਾਲਾ_from_ਜਨਤਕ (ਪੂਰਨ ਵਿਧੀ, ਪੂਰਨ *ਤਾਲਾ, libcrun_error_t *err)
 {
-  switch (method)
+  ਚੋਣ (ਵਿਧੀ)
     {
-    case LIBCRUN_CR_NETWORK_LOCK_IPTABLES:
-      *lock = CRIU_NETWORK_LOCK_IPTABLES;
-      return 0;
-    case LIBCRUN_CR_NETWORK_LOCK_NFTABLES:
-      *lock = CRIU_NETWORK_LOCK_NFTABLES;
-      return 0;
-    case LIBCRUN_CR_NETWORK_LOCK_SKIP:
-#  if CRIU_NETWORK_LOCK_SKIP_SUPPORT
-      *lock = CRIU_NETWORK_LOCK_SKIP;
-      return 0;
-#  else
-      return crun_make_error (err, 0, "CRIU: the `skip` network lock method is not supported by this build");
+    ਹਾਲਤ LIBCRUN_CR_ਜਾਲ_ਤਾਲਾ_IPTABLES:
+      *ਤਾਲਾ = CRIU_ਜਾਲ_ਤਾਲਾ_IPTABLES;
+      ਵਾਪਸ 0;
+    ਹਾਲਤ LIBCRUN_CR_ਜਾਲ_ਤਾਲਾ_NFTABLES:
+      *ਤਾਲਾ = CRIU_ਜਾਲ_ਤਾਲਾ_NFTABLES;
+      ਵਾਪਸ 0;
+    ਹਾਲਤ LIBCRUN_CR_ਜਾਲ_ਤਾਲਾ_SKIP:
+#  ਜੇ CRIU_ਜਾਲ_ਤਾਲਾ_SKIP_SUPPORT
+      *ਤਾਲਾ = CRIU_ਜਾਲ_ਤਾਲਾ_SKIP;
+      ਵਾਪਸ 0;
+#  ਨਹੀਂਤਾਂ
+      ਵਾਪਸ crun_make_error (err, 0, "CRIU: the `skip` network lock method is not supported by this build");
 #  endif
-    case LIBCRUN_CR_NETWORK_LOCK_DEFAULT:
-      *lock = 0;
-      return 0;
-    default:
-      return crun_make_error (err, 0, "CRIU: unknown network lock method %d", method);
+    ਹਾਲਤ LIBCRUN_CR_ਜਾਲ_ਤਾਲਾ_DEFAULT:
+      *ਤਾਲਾ = 0;
+      ਵਾਪਸ 0;
+    ਮੂਲ:
+      ਵਾਪਸ crun_make_error (err, 0, "CRIU: unknown network lock method %d", ਵਿਧੀ);
     }
 }
 
-static const char *console_socket = NULL;
+ਸਥਿਰ ਅਚਲ ਅੱਖਰ *console_socket = ਨਿਰਾ;
 
 /* The external mounts CRIU restores, and the flags the configuration asks
    for each of them.  */
-static struct libcrun_mount_flags_s *restored_ext_mounts = NULL;
-static size_t n_restored_ext_mounts = 0;
+ਸਥਿਰ ਬਣਤਰ libcrun_mount_flags_s *restored_ext_mounts = ਨਿਰਾ;
+ਸਥਿਰ size_t n_restored_ext_mounts = 0;
 
-#  define LIBCRIU_MIN_VERSION 31500
+#  define LIBCRIU_MIN_ਸੰਸਕਰਣ 31500
 
-struct libcriu_wrapper_s
+ਬਣਤਰ libcriu_wrapper_s
 {
-  void *handle;
-  int (*criu_add_ext_mount) (const char *key, const char *val);
-  int (*criu_add_external) (const char *key);
-  int (*criu_add_inherit_fd) (int fd, const char *key);
-  int (*criu_check_version) (int minimum);
-  int (*criu_dump) (void);
-  int (*criu_get_orphan_pts_master_fd) (void);
-  int (*criu_init_opts) (void);
-  int (*criu_notify_pid) (criu_notify_arg_t na);
+  ਖਾਲੀ *handle;
+  ਪੂਰਨ (*criu_ਜੋੜੋ_ext_mount) (ਅਚਲ ਅੱਖਰ *ਕੁੰਜੀ, ਅਚਲ ਅੱਖਰ *val);
+  ਪੂਰਨ (*criu_ਜੋੜੋ_external) (ਅਚਲ ਅੱਖਰ *ਕੁੰਜੀ);
+  ਪੂਰਨ (*criu_ਜੋੜੋ_inherit_fd) (ਪੂਰਨ fd, ਅਚਲ ਅੱਖਰ *ਕੁੰਜੀ);
+  ਪੂਰਨ (*criu_check_ਸੰਸਕਰਣ) (ਪੂਰਨ minimum);
+  ਪੂਰਨ (*criu_dump) (ਖਾਲੀ);
+  ਪੂਰਨ (*criu_get_orphan_pts_master_fd) (ਖਾਲੀ);
+  ਪੂਰਨ (*criu_init_opts) (ਖਾਲੀ);
+  ਪੂਰਨ (*criu_notify_pid) (criu_notify_arg_t na);
 #  ifdef CRIU_JOIN_NS_SUPPORT
-  int (*criu_join_ns_add) (const char *ns, const char *ns_file, const char *extra_opt);
+  ਪੂਰਨ (*criu_join_ns_ਜੋੜੋ) (ਅਚਲ ਅੱਖਰ *ns, ਅਚਲ ਅੱਖਰ *ns_file, ਅਚਲ ਅੱਖਰ *extra_opt);
 #  endif
 #  ifdef CRIU_PRE_DUMP_SUPPORT
-  int (*criu_feature_check) (struct criu_feature_check *features, size_t size);
-  int (*criu_pre_dump) (void);
+  ਪੂਰਨ (*criu_feature_check) (ਬਣਤਰ criu_feature_check *features, size_t ਮਾਪ);
+  ਪੂਰਨ (*criu_pre_dump) (ਖਾਲੀ);
 #  endif
-  int (*criu_restore_child) (void);
-  int (*criu_set_freeze_cgroup) (const char *name);
-  void (*criu_set_file_locks) (bool file_locks);
-  void (*criu_set_ext_unix_sk) (bool ext_unix_sk);
-  int (*criu_set_log_file) (const char *log_file);
-  void (*criu_set_log_level) (int log_level);
-  void (*criu_set_leave_running) (bool leave_running);
-  void (*criu_set_manage_cgroups) (bool manage);
-  void (*criu_set_manage_cgroups_mode) (enum criu_cg_mode mode);
-  int (*criu_set_network_lock) (enum criu_network_lock_method method);
-  void (*criu_set_notify_cb) (int (*cb) (char *action, criu_notify_arg_t na));
-  void (*criu_set_orphan_pts_master) (bool orphan_pts_master);
-  void (*criu_set_images_dir_fd) (int fd);
-  int (*criu_set_parent_images) (const char *path);
-  void (*criu_set_pid) (int pid);
-  int (*criu_set_root) (const char *root);
-  int (*criu_add_cg_root) (const char *ctrl, const char *path);
-  void (*criu_set_shell_job) (bool shell_job);
-  void (*criu_set_tcp_established) (bool tcp_established);
-  void (*criu_set_tcp_close) (bool tcp_close);
-  void (*criu_set_track_mem) (bool track_mem);
-  void (*criu_set_work_dir_fd) (int fd);
-  int (*criu_set_lsm_profile) (const char *name);
-  int (*criu_set_lsm_mount_context) (const char *name);
-  int (*criu_set_config_file) (const char *path);
+  ਪੂਰਨ (*criu_restore_ਬੱਚਾ) (ਖਾਲੀ);
+  ਪੂਰਨ (*criu_ਸੈੱਟ_freeze_cgroup) (ਅਚਲ ਅੱਖਰ *name);
+  ਖਾਲੀ (*criu_ਸੈੱਟ_file_locks) (bool file_locks);
+  ਖਾਲੀ (*criu_ਸੈੱਟ_ext_unix_sk) (bool ext_unix_sk);
+  ਪੂਰਨ (*criu_ਸੈੱਟ_log_file) (ਅਚਲ ਅੱਖਰ *log_file);
+  ਖਾਲੀ (*criu_ਸੈੱਟ_log_level) (ਪੂਰਨ log_level);
+  ਖਾਲੀ (*criu_ਸੈੱਟ_leave_running) (bool leave_running);
+  ਖਾਲੀ (*criu_ਸੈੱਟ_manage_cgroups) (bool manage);
+  ਖਾਲੀ (*criu_ਸੈੱਟ_manage_cgroups_ਬਹੁਲਕ) (ਗਿਣਤੀ criu_cg_ਬਹੁਲਕ ਬਹੁਲਕ);
+  ਪੂਰਨ (*criu_ਸੈੱਟ_ਜਾਲ_ਤਾਲਾ) (ਗਿਣਤੀ criu_ਜਾਲ_ਤਾਲਾ_ਵਿਧੀ ਵਿਧੀ);
+  ਖਾਲੀ (*criu_ਸੈੱਟ_notify_cb) (ਪੂਰਨ (*cb) (ਅੱਖਰ *action, criu_notify_arg_t na));
+  ਖਾਲੀ (*criu_ਸੈੱਟ_orphan_pts_master) (bool orphan_pts_master);
+  ਖਾਲੀ (*criu_ਸੈੱਟ_images_dir_fd) (ਪੂਰਨ fd);
+  ਪੂਰਨ (*criu_ਸੈੱਟ_ਮਾਪਾ_images) (ਅਚਲ ਅੱਖਰ *ਰਸਤਾ);
+  ਖਾਲੀ (*criu_ਸੈੱਟ_pid) (ਪੂਰਨ pid);
+  ਪੂਰਨ (*criu_ਸੈੱਟ_ਜੜ੍ਹ) (ਅਚਲ ਅੱਖਰ *ਜੜ੍ਹ);
+  ਪੂਰਨ (*criu_ਜੋੜੋ_cg_ਜੜ੍ਹ) (ਅਚਲ ਅੱਖਰ *ctrl, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ);
+  ਖਾਲੀ (*criu_ਸੈੱਟ_shell_ਕੰਮ) (bool shell_ਕੰਮ);
+  ਖਾਲੀ (*criu_ਸੈੱਟ_tcp_established) (bool tcp_established);
+  ਖਾਲੀ (*criu_ਸੈੱਟ_tcp_close) (bool tcp_close);
+  ਖਾਲੀ (*criu_ਸੈੱਟ_track_mem) (bool track_mem);
+  ਖਾਲੀ (*criu_ਸੈੱਟ_work_dir_fd) (ਪੂਰਨ fd);
+  ਪੂਰਨ (*criu_ਸੈੱਟ_lsm_profile) (ਅਚਲ ਅੱਖਰ *name);
+  ਪੂਰਨ (*criu_ਸੈੱਟ_lsm_mount_context) (ਅਚਲ ਅੱਖਰ *name);
+  ਪੂਰਨ (*criu_ਸੈੱਟ_config_file) (ਅਚਲ ਅੱਖਰ *ਰਸਤਾ);
 };
 
-static struct libcriu_wrapper_s *libcriu_wrapper;
+ਸਥਿਰ ਬਣਤਰ libcriu_wrapper_s *libcriu_wrapper;
 
-static inline void
-cleanup_wrapper (void *p)
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ
+cleanup_wrapper (ਖਾਲੀ *p)
 {
-  struct libcriu_wrapper_s **w;
+  ਬਣਤਰ libcriu_wrapper_s **w;
 
-  w = (struct libcriu_wrapper_s **) p;
-  if (*w == NULL)
-    return;
+  w = (ਬਣਤਰ libcriu_wrapper_s **) p;
+  ਜੇ (*w == ਨਿਰਾ)
+    ਵਾਪਸ;
 
 #  ifndef STATIC
-  if ((*w)->handle)
+  ਜੇ ((*w)->handle)
     dlclose ((*w)->handle);
 #  endif
-  free (*w);
-  libcriu_wrapper = NULL;
+  ਮੁਕਤ (*w);
+  libcriu_wrapper = ਨਿਰਾ;
 
-  while (n_restored_ext_mounts > 0)
-    free (restored_ext_mounts[--n_restored_ext_mounts].target);
-  free (restored_ext_mounts);
-  restored_ext_mounts = NULL;
+  ਜਦੋਂ (n_restored_ext_mounts > 0)
+    ਮੁਕਤ (restored_ext_mounts[--n_restored_ext_mounts].ਨਿਸ਼ਾਨਾ);
+  ਮੁਕਤ (restored_ext_mounts);
+  restored_ext_mounts = ਨਿਰਾ;
 }
 
 #  define cleanup_wrapper __attribute__ ((cleanup (cleanup_wrapper)))
 
-static int
-load_wrapper (struct libcriu_wrapper_s **wrapper_out, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+ਲੱਦੋ_wrapper (ਬਣਤਰ libcriu_wrapper_s **wrapper_ਬਾਹਰਲਾ, libcrun_error_t *err)
 {
-  cleanup_free struct libcriu_wrapper_s *wrapper = xmalloc0 (sizeof (*wrapper));
+  cleanup_free ਬਣਤਰ libcriu_wrapper_s *wrapper = xmalloc0 (ਆਕਾਰ (*wrapper));
 
 #  ifdef STATIC
-#    define LOAD_CRIU_FUNCTION(X, ALLOW_NULL) \
+#    define ਲੱਦੋ_CRIU_FUNCTION(X, ALLOW_NULL) \
       wrapper->X = &X;
-#  else
-#    define LOAD_CRIU_FUNCTION(X, ALLOW_NULL)                                                    \
-      do                                                                                         \
+#  ਨਹੀਂਤਾਂ
+#    define ਲੱਦੋ_CRIU_FUNCTION(X, ALLOW_NULL)                                                    \
+      ਕਰੋ                                                                                         \
         {                                                                                        \
           wrapper->X = dlsym (wrapper->handle, #X);                                              \
-          if (! ALLOW_NULL && wrapper->X == NULL)                                                \
+          ਜੇ (! ALLOW_NULL && wrapper->X == ਨਿਰਾ)                                                \
             {                                                                                    \
               dlclose (wrapper->handle);                                                         \
-              return crun_make_error (err, 0, "could not find symbol `%s` in `libcriu.so`", #X); \
+              ਵਾਪਸ crun_make_error (err, 0, "could not find symbol `%s` in `libcriu.so`", #X); \
             }                                                                                    \
-      } while (0)
+      } ਜਦੋਂ (0)
 #  endif
 
 #  ifndef STATIC
   wrapper->handle = dlopen ("libcriu.so.2", RTLD_NOW);
-  if (wrapper->handle == NULL)
-    return crun_make_error (err, 0, "could not load `libcriu.so.2`: `%s`", dlerror ());
+  ਜੇ (wrapper->handle == ਨਿਰਾ)
+    ਵਾਪਸ crun_make_error (err, 0, "could not load `libcriu.so.2`: `%s`", dlerror ());
 #  endif
 
-  LOAD_CRIU_FUNCTION (criu_add_ext_mount, false);
-  LOAD_CRIU_FUNCTION (criu_add_external, false);
-  LOAD_CRIU_FUNCTION (criu_add_inherit_fd, false);
-  LOAD_CRIU_FUNCTION (criu_check_version, false);
-  LOAD_CRIU_FUNCTION (criu_dump, false);
-  LOAD_CRIU_FUNCTION (criu_get_orphan_pts_master_fd, false);
-  LOAD_CRIU_FUNCTION (criu_init_opts, false);
-  LOAD_CRIU_FUNCTION (criu_notify_pid, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਜੋੜੋ_ext_mount, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਜੋੜੋ_external, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਜੋੜੋ_inherit_fd, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_check_ਸੰਸਕਰਣ, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_dump, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_get_orphan_pts_master_fd, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_init_opts, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_notify_pid, false);
 
 #  ifdef CRIU_JOIN_NS_SUPPORT
   /* criu_join_ns_add() API was introduced with CRIU version 3.16.1
@@ -230,117 +230,117 @@ load_wrapper (struct libcriu_wrapper_s **wrapper_out, libcrun_error_t *err)
    * compiling with older version of CRIU, and at runtime to support
    * running crun with older versions of libcriu.so.2.
    */
-  LOAD_CRIU_FUNCTION (criu_join_ns_add, true);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_join_ns_ਜੋੜੋ, true);
 #  endif
 
 #  ifdef CRIU_PRE_DUMP_SUPPORT
-  LOAD_CRIU_FUNCTION (criu_feature_check, false);
-  LOAD_CRIU_FUNCTION (criu_pre_dump, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_feature_check, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_pre_dump, false);
 #  endif
-  LOAD_CRIU_FUNCTION (criu_restore_child, false);
-  LOAD_CRIU_FUNCTION (criu_set_ext_unix_sk, false);
-  LOAD_CRIU_FUNCTION (criu_set_file_locks, false);
-  LOAD_CRIU_FUNCTION (criu_set_freeze_cgroup, false);
-  LOAD_CRIU_FUNCTION (criu_set_images_dir_fd, false);
-  LOAD_CRIU_FUNCTION (criu_set_leave_running, false);
-  LOAD_CRIU_FUNCTION (criu_set_log_file, false);
-  LOAD_CRIU_FUNCTION (criu_set_log_level, false);
-  LOAD_CRIU_FUNCTION (criu_set_manage_cgroups, false);
-  LOAD_CRIU_FUNCTION (criu_set_manage_cgroups_mode, false);
-  LOAD_CRIU_FUNCTION (criu_set_network_lock, true);
-  LOAD_CRIU_FUNCTION (criu_set_notify_cb, false);
-  LOAD_CRIU_FUNCTION (criu_set_orphan_pts_master, false);
-  LOAD_CRIU_FUNCTION (criu_set_parent_images, false);
-  LOAD_CRIU_FUNCTION (criu_set_pid, false);
-  LOAD_CRIU_FUNCTION (criu_set_root, false);
-  LOAD_CRIU_FUNCTION (criu_add_cg_root, false);
-  LOAD_CRIU_FUNCTION (criu_set_shell_job, false);
-  LOAD_CRIU_FUNCTION (criu_set_tcp_established, false);
-  LOAD_CRIU_FUNCTION (criu_set_tcp_close, false);
-  LOAD_CRIU_FUNCTION (criu_set_track_mem, false);
-  LOAD_CRIU_FUNCTION (criu_set_work_dir_fd, false);
-  LOAD_CRIU_FUNCTION (criu_set_lsm_profile, false);
-  LOAD_CRIU_FUNCTION (criu_set_lsm_mount_context, false);
-#  if ! defined STATIC || defined CRIU_CONFIG_FILE
-  LOAD_CRIU_FUNCTION (criu_set_config_file, true);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_restore_ਬੱਚਾ, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਸੈੱਟ_ext_unix_sk, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਸੈੱਟ_file_locks, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਸੈੱਟ_freeze_cgroup, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਸੈੱਟ_images_dir_fd, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਸੈੱਟ_leave_running, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਸੈੱਟ_log_file, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਸੈੱਟ_log_level, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਸੈੱਟ_manage_cgroups, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਸੈੱਟ_manage_cgroups_ਬਹੁਲਕ, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਸੈੱਟ_ਜਾਲ_ਤਾਲਾ, true);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਸੈੱਟ_notify_cb, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਸੈੱਟ_orphan_pts_master, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਸੈੱਟ_ਮਾਪਾ_images, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਸੈੱਟ_pid, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਸੈੱਟ_ਜੜ੍ਹ, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਜੋੜੋ_cg_ਜੜ੍ਹ, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਸੈੱਟ_shell_ਕੰਮ, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਸੈੱਟ_tcp_established, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਸੈੱਟ_tcp_close, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਸੈੱਟ_track_mem, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਸੈੱਟ_work_dir_fd, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਸੈੱਟ_lsm_profile, false);
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਸੈੱਟ_lsm_mount_context, false);
+#  ਜੇ ! defined STATIC || defined CRIU_CONFIG_FILE
+  ਲੱਦੋ_CRIU_FUNCTION (criu_ਸੈੱਟ_config_file, true);
 #  endif
 
-  libcriu_wrapper = *wrapper_out = wrapper;
-  wrapper = NULL;
-#  undef LOAD_CRIU_FUNCTION
-  return 0;
+  libcriu_wrapper = *wrapper_ਬਾਹਰਲਾ = wrapper;
+  wrapper = ਨਿਰਾ;
+#  undef ਲੱਦੋ_CRIU_FUNCTION
+  ਵਾਪਸ 0;
 }
 
-static void
-add_restored_ext_mount (const char *target, unsigned long flags)
+ਸਥਿਰ ਖਾਲੀ
+ਜੋੜੋ_restored_ext_mount (ਅਚਲ ਅੱਖਰ *ਨਿਸ਼ਾਨਾ, ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ flags)
 {
-  restored_ext_mounts = xrealloc (restored_ext_mounts, sizeof (*restored_ext_mounts) * (n_restored_ext_mounts + 1));
-  restored_ext_mounts[n_restored_ext_mounts].target = xstrdup (target);
+  restored_ext_mounts = xrealloc (restored_ext_mounts, ਆਕਾਰ (*restored_ext_mounts) * (n_restored_ext_mounts + 1));
+  restored_ext_mounts[n_restored_ext_mounts].ਨਿਸ਼ਾਨਾ = xstrdup (ਨਿਸ਼ਾਨਾ);
   restored_ext_mounts[n_restored_ext_mounts].flags = flags;
   n_restored_ext_mounts++;
 }
 
-static int
-criu_notify (char *action, criu_notify_arg_t na)
+ਸਥਿਰ ਪੂਰਨ
+criu_notify (ਅੱਖਰ *action, criu_notify_arg_t na)
 {
-  if (strcmp (action, "post-restore") == 0)
+  ਜੇ (strcmp (action, "post-restore") == 0)
     {
       /* CRIU takes the source of an external mount from us and its flags
        * from the image, i.e. from whatever mount was at that path in the
        * container when it was checkpointed.  The container can move its
        * mount points around, so before it is resumed make sure that each
        * source is mounted with the restrictions the configuration asks for. */
-      libcrun_error_t tmp_err = NULL;
-      int ret;
+      libcrun_error_t tmp_err = ਨਿਰਾ;
+      ਪੂਰਨ ret;
 
-      ret = libcrun_restrict_mounts_in_container (libcriu_wrapper->criu_notify_pid (na), restored_ext_mounts,
+      ret = libcrun_restrict_mounts_ਵਿੱਚ_container (libcriu_wrapper->criu_notify_pid (na), restored_ext_mounts,
                                                   n_restored_ext_mounts, &tmp_err);
-      if (UNLIKELY (ret < 0))
+      ਜੇ (UNLIKELY (ret < 0))
         {
-          libcrun_error (tmp_err->status, "cannot set the flags of the restored mounts: %s", tmp_err->msg);
+          libcrun_error (tmp_err->ਸਥਿਤੀ, "cannot set the flags of the restored mounts: %s", tmp_err->ਸੁਨੇਹਾ);
           libcrun_error_release (&tmp_err);
-          return ret;
+          ਵਾਪਸ ret;
         }
     }
 
-  if (strncmp (action, "orphan-pts-master", 17) == 0)
+  ਜੇ (ਲੜੀ_ਤੁਲਨਾ (action, "orphan-pts-master", 17) == 0)
     {
       /* CRIU sends us the master FD via the 'orphan-pts-master'
        * callback and we are passing it on to the '--console-socket'
        * if it exists. */
-      cleanup_close int console_socket_fd = -1;
-      libcrun_error_t tmp_err = NULL;
-      int master_fd;
-      int ret;
+      cleanup_close ਪੂਰਨ console_socket_fd = -1;
+      libcrun_error_t tmp_err = ਨਿਰਾ;
+      ਪੂਰਨ master_fd;
+      ਪੂਰਨ ret;
 
-      if (! console_socket)
-        return 0;
+      ਜੇ (! console_socket)
+        ਵਾਪਸ 0;
 
       master_fd = libcriu_wrapper->criu_get_orphan_pts_master_fd ();
 
       console_socket_fd = open_unix_domain_client_socket (console_socket, 0, &tmp_err);
-      if (UNLIKELY (console_socket_fd < 0))
+      ਜੇ (UNLIKELY (console_socket_fd < 0))
         {
           libcrun_error_release (&tmp_err);
-          return console_socket_fd;
+          ਵਾਪਸ console_socket_fd;
         }
-      ret = send_fd_to_socket (console_socket_fd, master_fd, &tmp_err);
-      if (UNLIKELY (ret < 0))
+      ret = send_fd_ਮੰਜ਼ਿਲ_socket (console_socket_fd, master_fd, &tmp_err);
+      ਜੇ (UNLIKELY (ret < 0))
         {
           libcrun_error_release (&tmp_err);
-          return ret;
+          ਵਾਪਸ ret;
         }
     }
-  return 0;
+  ਵਾਪਸ 0;
 }
 
 #  ifdef CRIU_PRE_DUMP_SUPPORT
 
-static int
+ਸਥਿਰ ਪੂਰਨ
 criu_check_mem_track (libcrun_error_t *err)
 {
-  struct criu_feature_check features = { 0 };
-  int ret;
+  ਬਣਤਰ criu_feature_check features = { 0 };
+  ਪੂਰਨ ret;
 
   /* Right now we are only interested in checking memory tracking.
    * Memory tracking can be disabled at different levels. aarch64
@@ -350,297 +350,297 @@ criu_check_mem_track (libcrun_error_t *err)
 
   features.mem_track = true;
 
-  ret = libcriu_wrapper->criu_feature_check (&features, sizeof (features));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, 0, "CRIU feature checking failed: %d", ret);
+  ret = libcriu_wrapper->criu_feature_check (&features, ਆਕਾਰ (features));
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ crun_make_error (err, 0, "CRIU feature checking failed: %d", ret);
 
-  if (features.mem_track == true)
-    return 1;
+  ਜੇ (features.mem_track == true)
+    ਵਾਪਸ 1;
 
-  return crun_make_error (err, 0, "CRIU memory tracking not supported");
+  ਵਾਪਸ crun_make_error (err, 0, "CRIU memory tracking not supported");
 }
 
 #  endif
 
-static int
-register_masked_paths_mounts (runtime_spec_schema_config_schema *def, libcrun_container_t *container,
-                              struct libcriu_wrapper_s *libcriu_wrapper, bool is_restore, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+ਰਜਿਸਟਰ_masked_paths_mounts (runtime_spec_schema_config_schema *def, libcrun_container_t *container,
+                              ਬਣਤਰ libcriu_wrapper_s *libcriu_wrapper, bool is_restore, libcrun_error_t *err)
 {
-  cleanup_free char *empty_dir_path = NULL;
+  cleanup_free ਅੱਖਰ *ਖਾਲੀ_ਥਾਵਾਂ_dir_ਰਸਤਾ = ਨਿਰਾ;
   bool shared_dir_registered = false;
   size_t i;
-  int ret;
+  ਪੂਰਨ ret;
 
-  for (i = 0; i < def->linux->masked_paths_len; i++)
+  ਲਈ (i = 0; i < def->linux->masked_paths_len; i++)
     {
-      struct stat statbuf;
+      ਬਣਤਰ stat statbuf;
       ret = stat (def->linux->masked_paths[i], &statbuf);
-      if (ret != 0)
-        continue;
+      ਜੇ (ret != 0)
+        ਜਾਰੀ;
 
-      if (S_ISDIR (statbuf.st_mode))
+      ਜੇ (S_ISDIR (statbuf.st_mode))
         {
-          if (! shared_dir_registered)
+          ਜੇ (! shared_dir_registered)
             {
-              ret = get_shared_empty_directory_path (&empty_dir_path,
-                                                     (container->context ? container->context->state_root : NULL), err);
-              if (UNLIKELY (ret < 0))
-                return ret;
+              ret = get_shared_ਖਾਲੀ_ਥਾਵਾਂ_directory_ਰਸਤਾ (&ਖਾਲੀ_ਥਾਵਾਂ_dir_ਰਸਤਾ,
+                                                     (container->context ? container->context->state_ਜੜ੍ਹ : ਨਿਰਾ), err);
+              ਜੇ (UNLIKELY (ret < 0))
+                ਵਾਪਸ ret;
 
-              ret = libcriu_wrapper->criu_add_ext_mount (empty_dir_path, empty_dir_path);
-              if (UNLIKELY (ret < 0))
-                return crun_make_error (err, -ret, "CRIU: failed adding external mount for shared empty directory `%s`", empty_dir_path);
+              ret = libcriu_wrapper->criu_ਜੋੜੋ_ext_mount (ਖਾਲੀ_ਥਾਵਾਂ_dir_ਰਸਤਾ, ਖਾਲੀ_ਥਾਵਾਂ_dir_ਰਸਤਾ);
+              ਜੇ (UNLIKELY (ret < 0))
+                ਵਾਪਸ crun_make_error (err, -ret, "CRIU: failed adding external mount for shared empty directory `%s`", ਖਾਲੀ_ਥਾਵਾਂ_dir_ਰਸਤਾ);
 
               shared_dir_registered = true;
             }
 
-          ret = libcriu_wrapper->criu_add_ext_mount (def->linux->masked_paths[i], empty_dir_path);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, -ret, "CRIU: failed adding external mount for masked directory `%s`", def->linux->masked_paths[i]);
+          ret = libcriu_wrapper->criu_ਜੋੜੋ_ext_mount (def->linux->masked_paths[i], ਖਾਲੀ_ਥਾਵਾਂ_dir_ਰਸਤਾ);
+          ਜੇ (UNLIKELY (ret < 0))
+            ਵਾਪਸ crun_make_error (err, -ret, "CRIU: failed adding external mount for masked directory `%s`", def->linux->masked_paths[i]);
 
-          if (is_restore)
-            add_restored_ext_mount (def->linux->masked_paths[i], MS_RDONLY);
+          ਜੇ (is_restore)
+            ਜੋੜੋ_restored_ext_mount (def->linux->masked_paths[i], MS_RDONLY);
         }
-      else if (S_ISREG (statbuf.st_mode))
+      ਨਹੀਂਤਾਂ ਜੇ (S_ISREG (statbuf.st_mode))
         {
-          const char *bind_target = is_restore ? "/dev/null" : def->linux->masked_paths[i];
-          ret = libcriu_wrapper->criu_add_ext_mount (def->linux->masked_paths[i], bind_target);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, -ret, "CRIU: failed adding external mount to `%s`", bind_target);
+          ਅਚਲ ਅੱਖਰ *bind_ਨਿਸ਼ਾਨਾ = is_restore ? "/dev/null" : def->linux->masked_paths[i];
+          ret = libcriu_wrapper->criu_ਜੋੜੋ_ext_mount (def->linux->masked_paths[i], bind_ਨਿਸ਼ਾਨਾ);
+          ਜੇ (UNLIKELY (ret < 0))
+            ਵਾਪਸ crun_make_error (err, -ret, "CRIU: failed adding external mount to `%s`", bind_ਨਿਸ਼ਾਨਾ);
 
-          if (is_restore)
-            add_restored_ext_mount (def->linux->masked_paths[i], MS_RDONLY);
+          ਜੇ (is_restore)
+            ਜੋੜੋ_restored_ext_mount (def->linux->masked_paths[i], MS_RDONLY);
         }
     }
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
 /* Parse one /proc/self/cgroup LINE into its subsystem, normalizing the name and
    stripping any "name=" prefix.  When SUBPATH_OUT is not NULL, the in-hierarchy
    path is stored there.  Returns the subsystem, or NULL if the line carries no
    controller and should be skipped.  LINE is modified in place.  */
-static char *
-parse_cgroup_subsystem (char *line, char **subpath_out)
+ਸਥਿਰ ਅੱਖਰ *
+parse_cgroup_subsystem (ਅੱਖਰ *ਸਤਰ, ਅੱਖਰ **subpath_ਬਾਹਰਲਾ)
 {
-  char *subsystem, *subpath, *it;
+  ਅੱਖਰ *subsystem, *subpath, *it;
 
-  subsystem = strchr (line, ':') + 1;
+  subsystem = strchr (ਸਤਰ, ':') + 1;
   subpath = strchr (subsystem, ':') + 1;
   *(subpath - 1) = '\0';
 
-  if (subsystem[0] == '\0')
-    return NULL;
+  ਜੇ (subsystem[0] == '\0')
+    ਵਾਪਸ ਨਿਰਾ;
 
-  it = strstr (subsystem, "name=");
-  if (it)
+  it = ਲੜੀ_ਖੋਜ (subsystem, "name=");
+  ਜੇ (it)
     subsystem = it + 5;
 
-  if (strcmp (subsystem, "net_prio,net_cls") == 0)
+  ਜੇ (strcmp (subsystem, "net_prio,net_cls") == 0)
     subsystem = "net_cls,net_prio";
-  if (strcmp (subsystem, "cpuacct,cpu") == 0)
+  ਜੇ (strcmp (subsystem, "cpuacct,cpu") == 0)
     subsystem = "cpu,cpuacct";
 
-  if (subpath_out)
-    *subpath_out = subpath;
-  return subsystem;
+  ਜੇ (subpath_ਬਾਹਰਲਾ)
+    *subpath_ਬਾਹਰਲਾ = subpath;
+  ਵਾਪਸ subsystem;
 }
 
-static int
+ਸਥਿਰ ਪੂਰਨ
 restore_cgroup_v1_mount (runtime_spec_schema_config_schema *def, libcrun_error_t *err)
 {
-  cleanup_free char *content = NULL;
+  cleanup_free ਅੱਖਰ *content = ਨਿਰਾ;
   bool has_cgroup_mount = false;
-  char *saveptr = NULL;
-  int cgroup_mode;
-  char *from;
-  int ret;
+  ਅੱਖਰ *saveptr = ਨਿਰਾ;
+  ਪੂਰਨ cgroup_ਬਹੁਲਕ;
+  ਅੱਖਰ *from;
+  ਪੂਰਨ ret;
   uint32_t i;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_ਬਹੁਲਕ = libcrun_get_cgroup_ਬਹੁਲਕ (err);
+  ਜੇ (UNLIKELY (cgroup_ਬਹੁਲਕ < 0))
+    ਵਾਪਸ cgroup_ਬਹੁਲਕ;
 
-  if (cgroup_mode == CGROUP_MODE_UNIFIED)
-    return 0;
+  ਜੇ (cgroup_ਬਹੁਲਕ == CGROUP_ਬਹੁਲਕ_UNIFIED)
+    ਵਾਪਸ 0;
 
   /* First check if there is actually a cgroup mount in the container. */
-  for (i = 0; i < def->mounts_len; i++)
+  ਲਈ (i = 0; i < def->mounts_len; i++)
     {
-      char *type = def->mounts[i]->type;
-      if (type && strcmp (type, "cgroup") == 0)
+      ਅੱਖਰ *type = def->mounts[i]->type;
+      ਜੇ (type && strcmp (type, "cgroup") == 0)
         {
           has_cgroup_mount = true;
-          break;
+          ਰੋਕੋ;
         }
     }
 
-  if (! has_cgroup_mount)
-    return 0;
+  ਜੇ (! has_cgroup_mount)
+    ਵਾਪਸ 0;
 
-  ret = read_all_file (PROC_SELF_CGROUP, &content, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file (PROC_SELF_CGROUP, &content, ਨਿਰਾ, err);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
-  if (UNLIKELY (content == NULL || content[0] == '\0'))
-    return crun_make_error (err, 0, "invalid content from `%s`", PROC_SELF_CGROUP);
+  ਜੇ (UNLIKELY (content == ਨਿਰਾ || content[0] == '\0'))
+    ਵਾਪਸ crun_make_error (err, 0, "invalid content from `%s`", PROC_SELF_CGROUP);
 
-  for (from = strtok_r (content, "\n", &saveptr); from; from = strtok_r (NULL, "\n", &saveptr))
+  ਲਈ (from = strtok_r (content, "\n", &saveptr); from; from = strtok_r (ਨਿਰਾ, "\n", &saveptr))
     {
-      cleanup_free char *destination = NULL;
-      cleanup_free char *source = NULL;
-      char *subsystem;
-      char *subpath;
+      cleanup_free ਅੱਖਰ *destination = ਨਿਰਾ;
+      cleanup_free ਅੱਖਰ *ਸਰੋਤ = ਨਿਰਾ;
+      ਅੱਖਰ *subsystem;
+      ਅੱਖਰ *subpath;
 
       subsystem = parse_cgroup_subsystem (from, &subpath);
-      if (subsystem == NULL)
-        continue;
+      ਜੇ (subsystem == ਨਿਰਾ)
+        ਜਾਰੀ;
 
-      ret = append_paths (&source, err, CGROUP_ROOT, subsystem, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&ਸਰੋਤ, err, CGROUP_ਜੜ੍ਹ, subsystem, ਨਿਰਾ);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
 
-      ret = append_paths (&destination, err, source, subpath, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&destination, err, ਸਰੋਤ, subpath, ਨਿਰਾ);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
 
-      ret = libcriu_wrapper->criu_add_ext_mount (source, destination);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, -ret, "CRIU: failed adding external mount to `%s`", destination);
+      ret = libcriu_wrapper->criu_ਜੋੜੋ_ext_mount (ਸਰੋਤ, destination);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ crun_make_error (err, -ret, "CRIU: failed adding external mount to `%s`", destination);
     }
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static int
+ਸਥਿਰ ਪੂਰਨ
 checkpoint_cgroup_v1_mount (runtime_spec_schema_config_schema *def, libcrun_error_t *err)
 {
-  cleanup_free char *content = NULL;
+  cleanup_free ਅੱਖਰ *content = ਨਿਰਾ;
   bool has_cgroup_mount = false;
-  char *saveptr = NULL;
-  char *from;
-  int ret;
+  ਅੱਖਰ *saveptr = ਨਿਰਾ;
+  ਅੱਖਰ *from;
+  ਪੂਰਨ ret;
   uint32_t i;
 
   /* First check if there is actually a cgroup mount in the container. */
-  for (i = 0; i < def->mounts_len; i++)
+  ਲਈ (i = 0; i < def->mounts_len; i++)
     {
-      char *type = def->mounts[i]->type;
-      if (type && strcmp (type, "cgroup") == 0)
+      ਅੱਖਰ *type = def->mounts[i]->type;
+      ਜੇ (type && strcmp (type, "cgroup") == 0)
         {
           has_cgroup_mount = true;
-          break;
+          ਰੋਕੋ;
         }
     }
 
-  if (! has_cgroup_mount)
-    return 0;
+  ਜੇ (! has_cgroup_mount)
+    ਵਾਪਸ 0;
 
-  ret = read_all_file (PROC_SELF_CGROUP, &content, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file (PROC_SELF_CGROUP, &content, ਨਿਰਾ, err);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
-  if (UNLIKELY (content == NULL || content[0] == '\0'))
-    return crun_make_error (err, 0, "invalid content from `%s`", PROC_SELF_CGROUP);
+  ਜੇ (UNLIKELY (content == ਨਿਰਾ || content[0] == '\0'))
+    ਵਾਪਸ crun_make_error (err, 0, "invalid content from `%s`", PROC_SELF_CGROUP);
 
-  for (from = strtok_r (content, "\n", &saveptr); from; from = strtok_r (NULL, "\n", &saveptr))
+  ਲਈ (from = strtok_r (content, "\n", &saveptr); from; from = strtok_r (ਨਿਰਾ, "\n", &saveptr))
     {
-      cleanup_free char *source_path = NULL;
-      char *subsystem;
+      cleanup_free ਅੱਖਰ *ਸਰੋਤ_ਰਸਤਾ = ਨਿਰਾ;
+      ਅੱਖਰ *subsystem;
 
-      subsystem = parse_cgroup_subsystem (from, NULL);
-      if (subsystem == NULL)
-        continue;
+      subsystem = parse_cgroup_subsystem (from, ਨਿਰਾ);
+      ਜੇ (subsystem == ਨਿਰਾ)
+        ਜਾਰੀ;
 
-      ret = append_paths (&source_path, err, CGROUP_ROOT, subsystem, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&ਸਰੋਤ_ਰਸਤਾ, err, CGROUP_ਜੜ੍ਹ, subsystem, ਨਿਰਾ);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
 
-      ret = libcriu_wrapper->criu_add_ext_mount (source_path, source_path);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, -ret, "CRIU: failed adding external mount to `%s`", source_path);
+      ret = libcriu_wrapper->criu_ਜੋੜੋ_ext_mount (ਸਰੋਤ_ਰਸਤਾ, ਸਰੋਤ_ਰਸਤਾ);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ crun_make_error (err, -ret, "CRIU: failed adding external mount to `%s`", ਸਰੋਤ_ਰਸਤਾ);
     }
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static int
+ਸਥਿਰ ਪੂਰਨ
 handle_criu_config_file (libcrun_container_t *container, libcrun_error_t *err)
 {
-  int ret;
-  const char *criu_config_annotation;
-  const char *config_file = CRIU_RUNC_CONFIG_FILE;
+  ਪੂਰਨ ret;
+  ਅਚਲ ਅੱਖਰ *criu_config_annotation;
+  ਅਚਲ ਅੱਖਰ *config_file = CRIU_RUNC_CONFIG_FILE;
 
-  criu_config_annotation = find_annotation (container, "org.criu.config");
+  criu_config_annotation = ਲੱਭੋ_annotation (container, "org.criu.config");
 
   /* Ignore missing criu_set_config_file() API for compatibility with older CRIU versions,
    * and show an error only if config file is explicitly set with annotation.
    */
-  if (libcriu_wrapper->criu_set_config_file == NULL)
+  ਜੇ (libcriu_wrapper->criu_ਸੈੱਟ_config_file == ਨਿਰਾ)
     {
-      if (criu_config_annotation)
-        return crun_make_error (err, 0, "libcriu RPC config files supported in CRIU >= 4.2");
+      ਜੇ (criu_config_annotation)
+        ਵਾਪਸ crun_make_error (err, 0, "libcriu RPC config files supported in CRIU >= 4.2");
 
-      return 0;
+      ਵਾਪਸ 0;
     }
 
-  if (criu_config_annotation)
+  ਜੇ (criu_config_annotation)
     config_file = criu_config_annotation;
-  else if (access (CRIU_CRUN_CONFIG_FILE, F_OK) == 0)
+  ਨਹੀਂਤਾਂ ਜੇ (access (CRIU_CRUN_CONFIG_FILE, F_OK) == 0)
     config_file = CRIU_CRUN_CONFIG_FILE;
 
-  ret = libcriu_wrapper->criu_set_config_file (config_file);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, 0, "failed to set CRIU config file");
+  ret = libcriu_wrapper->criu_ਸੈੱਟ_config_file (config_file);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ crun_make_error (err, 0, "failed to set CRIU config file");
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static int
-validate_criu_version (libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+validate_criu_ਸੰਸਕਰਣ (libcrun_error_t *err)
 {
-  int ret;
+  ਪੂਰਨ ret;
 
   // validate that the libcriu version is at least LIBCRIU_MIN_VERSION
-  ret = libcriu_wrapper->criu_check_version (LIBCRIU_MIN_VERSION);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, -ret, "CRIU: failed checking version");
+  ret = libcriu_wrapper->criu_check_ਸੰਸਕਰਣ (LIBCRIU_MIN_ਸੰਸਕਰਣ);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ crun_make_error (err, -ret, "CRIU: failed checking version");
 
-  if (ret == 0)
-    return crun_make_error (err, 0, "libcriu is too old");
+  ਜੇ (ret == 0)
+    ਵਾਪਸ crun_make_error (err, 0, "libcriu is too old");
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static void
-show_criu_log (const char *work_path, const char *log)
+ਸਥਿਰ ਖਾਲੀ
+show_criu_log (ਅਚਲ ਅੱਖਰ *work_ਰਸਤਾ, ਅਚਲ ਅੱਖਰ *ਲਘੂਗਣਕ)
 {
-  cleanup_free char *log_path = NULL;
-  libcrun_error_t tmp_err = NULL;
-  char line[1024];
+  cleanup_free ਅੱਖਰ *log_ਰਸਤਾ = ਨਿਰਾ;
+  libcrun_error_t tmp_err = ਨਿਰਾ;
+  ਅੱਖਰ ਸਤਰ[1024];
   FILE *f;
 
-  if (UNLIKELY (append_paths (&log_path, &tmp_err, work_path, log, NULL) < 0))
+  ਜੇ (UNLIKELY (append_paths (&log_ਰਸਤਾ, &tmp_err, work_ਰਸਤਾ, ਲਘੂਗਣਕ, ਨਿਰਾ) < 0))
     {
       crun_error_release (&tmp_err);
-      return;
+      ਵਾਪਸ;
     }
 
-  f = fopen (log_path, "r");
-  if (f == NULL)
+  f = fopen (log_ਰਸਤਾ, "r");
+  ਜੇ (f == ਨਿਰਾ)
     {
-      if (errno != ENOENT)
-        libcrun_error (errno, "Can't open CRIU log `%s`", log_path);
-      return;
+      ਜੇ (errno != ENOENT)
+        libcrun_error (errno, "Can't open CRIU log `%s`", log_ਰਸਤਾ);
+      ਵਾਪਸ;
     }
 
   /* Log with error verbosity as this is the default. */
-  libcrun_error (0, "--- excerpt from CRIU log `%s`", log_path);
-  while (fgets (line, sizeof (line), f) != NULL)
-    if (strstr (line, "Error ") != NULL)
+  libcrun_error (0, "--- excerpt from CRIU log `%s`", log_ਰਸਤਾ);
+  ਜਦੋਂ (fgets (ਸਤਰ, ਆਕਾਰ (ਸਤਰ), f) != ਨਿਰਾ)
+    ਜੇ (ਲੜੀ_ਖੋਜ (ਸਤਰ, "Error ") != ਨਿਰਾ)
       {
-        line[strcspn (line, "\n")] = '\0';
-        libcrun_error (0, "%s", line);
+        ਸਤਰ[strcspn (ਸਤਰ, "\n")] = '\0';
+        libcrun_error (0, "%s", ਸਤਰ);
       }
 
   fclose (f);
@@ -650,51 +650,51 @@ show_criu_log (const char *work_path, const char *log)
 /* work_dir is the place CRIU will put its logfiles.  If not explicitly set, CRIU
  * will put the logfiles into the images_dir.  When set, create and open it and
  * hand the fd to CRIU; ownership of the returned fd stays with the caller.  */
-static int
-setup_criu_work_dir (libcrun_checkpoint_restore_t *cr_options, int *work_fd_out, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+ਤਿਆਰੀ_criu_work_dir (libcrun_checkpoint_restore_t *cr_options, ਪੂਰਨ *work_fd_ਬਾਹਰਲਾ, libcrun_error_t *err)
 {
-  int work_fd;
+  ਪੂਰਨ work_fd;
 
-  if (cr_options->work_path == NULL)
+  ਜੇ (cr_options->work_ਰਸਤਾ == ਨਿਰਾ)
     {
       /* This is only for the error message later. */
-      cr_options->work_path = cr_options->image_path;
-      return 0;
+      cr_options->work_ਰਸਤਾ = cr_options->image_ਰਸਤਾ;
+      ਵਾਪਸ 0;
     }
 
-  if (UNLIKELY ((mkdir (cr_options->work_path, 0700) == -1) && (errno != EEXIST)))
-    return crun_make_error (err, errno, "error creating CRIU work directory `%s`", cr_options->work_path);
+  ਜੇ (UNLIKELY ((mkdir (cr_options->work_ਰਸਤਾ, 0700) == -1) && (errno != EEXIST)))
+    ਵਾਪਸ crun_make_error (err, errno, "error creating CRIU work directory `%s`", cr_options->work_ਰਸਤਾ);
 
-  work_fd = open (cr_options->work_path, O_DIRECTORY | O_CLOEXEC);
-  if (UNLIKELY (work_fd == -1))
-    return crun_make_error (err, errno, "error opening CRIU work directory `%s`", cr_options->work_path);
+  work_fd = open (cr_options->work_ਰਸਤਾ, O_DIRECTORY | O_CLOEXEC);
+  ਜੇ (UNLIKELY (work_fd == -1))
+    ਵਾਪਸ crun_make_error (err, errno, "error opening CRIU work directory `%s`", cr_options->work_ਰਸਤਾ);
 
-  libcriu_wrapper->criu_set_work_dir_fd (work_fd);
-  *work_fd_out = work_fd;
-  return 0;
+  libcriu_wrapper->criu_ਸੈੱਟ_work_dir_fd (work_fd);
+  *work_fd_ਬਾਹਰਲਾ = work_fd;
+  ਵਾਪਸ 0;
 }
 
-int
-libcrun_container_checkpoint_linux_criu (libcrun_container_status_t *status, libcrun_container_t *container,
+ਪੂਰਨ
+libcrun_container_checkpoint_linux_criu (libcrun_container_ਸਥਿਤੀ_t *ਸਥਿਤੀ, libcrun_container_t *container,
                                          libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  cleanup_wrapper struct libcriu_wrapper_s *wrapper = NULL;
-  cleanup_free char *descriptors_path = NULL;
-  cleanup_free char *freezer_path = NULL;
-  cleanup_free char *path = NULL;
-  cleanup_close int image_fd = -1;
-  cleanup_close int work_fd = -1;
-  int cgroup_mode;
+  cleanup_wrapper ਬਣਤਰ libcriu_wrapper_s *wrapper = ਨਿਰਾ;
+  cleanup_free ਅੱਖਰ *descriptors_ਰਸਤਾ = ਨਿਰਾ;
+  cleanup_free ਅੱਖਰ *freezer_ਰਸਤਾ = ਨਿਰਾ;
+  cleanup_free ਅੱਖਰ *ਰਸਤਾ = ਨਿਰਾ;
+  cleanup_close ਪੂਰਨ image_fd = -1;
+  cleanup_close ਪੂਰਨ work_fd = -1;
+  ਪੂਰਨ cgroup_ਬਹੁਲਕ;
   size_t i;
-  int ret;
+  ਪੂਰਨ ret;
 
-  ret = load_wrapper (&wrapper, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = ਲੱਦੋ_wrapper (&wrapper, err);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
-  if (geteuid ())
-    return crun_make_error (err, 0, "checkpointing requires root");
+  ਜੇ (geteuid ())
+    ਵਾਪਸ crun_make_error (err, 0, "checkpointing requires root");
 
   /* No CRIU version or feature checking yet. In configure.ac there
    * is a minimum CRIU version listed and so far it is good enough.
@@ -714,157 +714,157 @@ libcrun_container_checkpoint_linux_criu (libcrun_container_status_t *status, lib
    * actually being used. This needs to be added to CRIU upstream. */
 
   ret = libcriu_wrapper->criu_init_opts ();
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, 0, "CRIU init failed with %d", ret);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ crun_make_error (err, 0, "CRIU init failed with %d", ret);
 
-  ret = validate_criu_version (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = validate_criu_ਸੰਸਕਰਣ (err);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
-  if (UNLIKELY (cr_options->image_path == NULL))
-    return crun_make_error (err, 0, "image path not set");
+  ਜੇ (UNLIKELY (cr_options->image_ਰਸਤਾ == ਨਿਰਾ))
+    ਵਾਪਸ crun_make_error (err, 0, "image path not set");
 
-  ret = mkdir (cr_options->image_path, 0700);
-  if (UNLIKELY ((ret == -1) && (errno != EEXIST)))
-    return crun_make_error (err, errno, "error creating checkpoint directory `%s`", cr_options->image_path);
+  ret = mkdir (cr_options->image_ਰਸਤਾ, 0700);
+  ਜੇ (UNLIKELY ((ret == -1) && (errno != EEXIST)))
+    ਵਾਪਸ crun_make_error (err, errno, "error creating checkpoint directory `%s`", cr_options->image_ਰਸਤਾ);
 
-  image_fd = open (cr_options->image_path, O_DIRECTORY | O_CLOEXEC);
-  if (UNLIKELY (image_fd == -1))
-    return crun_make_error (err, errno, "error opening checkpoint directory `%s`", cr_options->image_path);
+  image_fd = open (cr_options->image_ਰਸਤਾ, O_DIRECTORY | O_CLOEXEC);
+  ਜੇ (UNLIKELY (image_fd == -1))
+    ਵਾਪਸ crun_make_error (err, errno, "error opening checkpoint directory `%s`", cr_options->image_ਰਸਤਾ);
 
-  libcriu_wrapper->criu_set_images_dir_fd (image_fd);
+  libcriu_wrapper->criu_ਸੈੱਟ_images_dir_fd (image_fd);
 
   /* Set up logging. */
-  libcriu_wrapper->criu_set_log_level (4);
-  libcriu_wrapper->criu_set_log_file (CRIU_CHECKPOINT_LOG_FILE);
+  libcriu_wrapper->criu_ਸੈੱਟ_log_level (4);
+  libcriu_wrapper->criu_ਸੈੱਟ_log_file (CRIU_CHECKPOINT_LOG_FILE);
 
   /* Set up CRIU config file */
-  if (UNLIKELY (handle_criu_config_file (container, err)))
-    return -1;
+  ਜੇ (UNLIKELY (handle_criu_config_file (container, err)))
+    ਵਾਪਸ -1;
 
   /* Setting the pid early as we can skip a lot of checkpoint setup if
    * we just do a pre-dump. The PID needs to be set always. Do it here.
    * The main process of the container is the process CRIU will checkpoint
    * and all of its children. */
-  libcriu_wrapper->criu_set_pid (status->pid);
+  libcriu_wrapper->criu_ਸੈੱਟ_pid (ਸਥਿਤੀ->pid);
 
-  ret = setup_criu_work_dir (cr_options, &work_fd, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = ਤਿਆਰੀ_criu_work_dir (cr_options, &work_fd, err);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
 #  ifdef CRIU_PRE_DUMP_SUPPORT
 
   {
-    int criu_can_mem_track = 0;
+    ਪੂਰਨ criu_can_mem_track = 0;
     /* If the user uses --pre-dump for the second time or does
      * a final dump from a previous pre-dump, setting parent_path
      * is necessary so that CRIU can find which pages have not
      * changed compared to the previous dump. */
-    if (cr_options->parent_path != NULL)
+    ਜੇ (cr_options->ਮਾਪਾ_ਰਸਤਾ != ਨਿਰਾ)
       {
         criu_can_mem_track = criu_check_mem_track (err);
-        if (UNLIKELY (criu_can_mem_track == -1))
-          return -1;
-        libcriu_wrapper->criu_set_track_mem (true);
+        ਜੇ (UNLIKELY (criu_can_mem_track == -1))
+          ਵਾਪਸ -1;
+        libcriu_wrapper->criu_ਸੈੱਟ_track_mem (true);
 
         /* The parent path must be relative to image path (something like ../previous-dump).
            CRIU will fail with an unclear error message if the path is not right.
          */
-        if (UNLIKELY (cr_options->parent_path[0] == '/'))
-          return crun_make_error (err, 0, "--parent-path must be relative");
-        int is_dir = crun_dir_p_at (image_fd, cr_options->parent_path, false, err);
-        if (UNLIKELY (is_dir <= 0))
+        ਜੇ (UNLIKELY (cr_options->ਮਾਪਾ_ਰਸਤਾ[0] == '/'))
+          ਵਾਪਸ crun_make_error (err, 0, "--parent-path must be relative");
+        ਪੂਰਨ is_dir = crun_dir_p_at (image_fd, cr_options->ਮਾਪਾ_ਰਸਤਾ, false, err);
+        ਜੇ (UNLIKELY (is_dir <= 0))
           {
-            if (is_dir < 0)
-              return crun_error_wrap (err, "invalid --parent-path");
-            return crun_make_error (err, ENOTDIR, "invalid --parent-path");
+            ਜੇ (is_dir < 0)
+              ਵਾਪਸ crun_error_wrap (err, "invalid --parent-path");
+            ਵਾਪਸ crun_make_error (err, ENOTDIR, "invalid --parent-path");
           }
-        ret = libcriu_wrapper->criu_set_parent_images (cr_options->parent_path);
-        if (UNLIKELY (ret != 0))
-          return crun_make_error (err, -ret, "error setting CRIU parent images path to `%s`", cr_options->parent_path);
+        ret = libcriu_wrapper->criu_ਸੈੱਟ_ਮਾਪਾ_images (cr_options->ਮਾਪਾ_ਰਸਤਾ);
+        ਜੇ (UNLIKELY (ret != 0))
+          ਵਾਪਸ crun_make_error (err, -ret, "error setting CRIU parent images path to `%s`", cr_options->ਮਾਪਾ_ਰਸਤਾ);
       }
 
-    if (cr_options->pre_dump)
+    ਜੇ (cr_options->pre_dump)
       {
-        if (criu_can_mem_track != 1)
+        ਜੇ (criu_can_mem_track != 1)
           {
             criu_can_mem_track = criu_check_mem_track (err);
-            if (UNLIKELY (criu_can_mem_track == -1))
-              return -1;
+            ਜੇ (UNLIKELY (criu_can_mem_track == -1))
+              ਵਾਪਸ -1;
           }
-        libcriu_wrapper->criu_set_track_mem (true);
+        libcriu_wrapper->criu_ਸੈੱਟ_track_mem (true);
         ret = libcriu_wrapper->criu_pre_dump ();
-        if (UNLIKELY (ret != 0))
+        ਜੇ (UNLIKELY (ret != 0))
           {
-            show_criu_log (cr_options->work_path, CRIU_CHECKPOINT_LOG_FILE);
-            return crun_make_error (err, 0, "CRIU pre-dump failed: %d", ret);
+            show_criu_log (cr_options->work_ਰਸਤਾ, CRIU_CHECKPOINT_LOG_FILE);
+            ਵਾਪਸ crun_make_error (err, 0, "CRIU pre-dump failed: %d", ret);
           }
-        return 0;
+        ਵਾਪਸ 0;
       }
   }
 #  endif
 
   /* descriptors.json is needed during restore to correctly
    * reconnect stdin, stdout, stderr. */
-  ret = append_paths (&descriptors_path, err, cr_options->image_path, DESCRIPTORS_FILENAME, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&descriptors_ਰਸਤਾ, err, cr_options->image_ਰਸਤਾ, DESCRIPTORS_FILENAME, ਨਿਰਾ);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
-  ret = write_file (descriptors_path, status->external_descriptors, safe_strlen (status->external_descriptors), err);
-  if (UNLIKELY (ret < 0))
-    return crun_error_wrap (err, "error saving CRIU descriptors file");
+  ret = write_file (descriptors_ਰਸਤਾ, ਸਥਿਤੀ->external_descriptors, ਸੁਰੱਖਿਅਤ_strlen (ਸਥਿਤੀ->external_descriptors), err);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ crun_error_wrap (err, "error saving CRIU descriptors file");
 
-  ret = append_paths (&path, err, status->bundle, status->rootfs, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&ਰਸਤਾ, err, ਸਥਿਤੀ->bundle, ਸਥਿਤੀ->rootfs, ਨਿਰਾ);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
-  ret = libcriu_wrapper->criu_set_root (path);
-  if (UNLIKELY (ret != 0))
-    return crun_make_error (err, 0, "error setting CRIU root to `%s`", path);
+  ret = libcriu_wrapper->criu_ਸੈੱਟ_ਜੜ੍ਹ (ਰਸਤਾ);
+  ਜੇ (UNLIKELY (ret != 0))
+    ਵਾਪਸ crun_make_error (err, 0, "error setting CRIU root to `%s`", ਰਸਤਾ);
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_ਬਹੁਲਕ = libcrun_get_cgroup_ਬਹੁਲਕ (err);
+  ਜੇ (UNLIKELY (cgroup_ਬਹੁਲਕ < 0))
+    ਵਾਪਸ cgroup_ਬਹੁਲਕ;
 
   /* For cgroup v1 we need to tell CRIU to handle all cgroup mounts as external mounts. */
-  if (cgroup_mode != CGROUP_MODE_UNIFIED)
+  ਜੇ (cgroup_ਬਹੁਲਕ != CGROUP_ਬਹੁਲਕ_UNIFIED)
     {
       ret = checkpoint_cgroup_v1_mount (def, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
 
   /* Tell CRIU about external bind mounts. */
-  for (i = 0; i < def->mounts_len; i++)
+  ਲਈ (i = 0; i < def->mounts_len; i++)
     {
       bool nofollow = false;
-      if (is_bind_mount (def->mounts[i], NULL, &nofollow))
+      ਜੇ (is_bind_mount (def->mounts[i], ਨਿਰਾ, &nofollow))
         {
           /* We need to resolve mount destination inside container's root for CRIU to handle. */
-          char buf[PATH_MAX];
-          const char *dest_in_root;
+          ਅੱਖਰ buf[PATH_MAX];
+          ਅਚਲ ਅੱਖਰ *dest_ਵਿੱਚ_ਜੜ੍ਹ;
 
-          if (nofollow)
-            return crun_make_error (err, 0, "CRIU does not support `src-nofollow` for bind mounts");
+          ਜੇ (nofollow)
+            ਵਾਪਸ crun_make_error (err, 0, "CRIU does not support `src-nofollow` for bind mounts");
 
-          dest_in_root = chroot_realpath (status->rootfs, def->mounts[i]->destination, buf);
-          if (UNLIKELY (dest_in_root == NULL))
-            return crun_make_error (err, errno, "unable to resolve external bind mount `%s` under rootfs", def->mounts[i]->destination);
+          dest_ਵਿੱਚ_ਜੜ੍ਹ = chroot_realpath (ਸਥਿਤੀ->rootfs, def->mounts[i]->destination, buf);
+          ਜੇ (UNLIKELY (dest_ਵਿੱਚ_ਜੜ੍ਹ == ਨਿਰਾ))
+            ਵਾਪਸ crun_make_error (err, errno, "unable to resolve external bind mount `%s` under rootfs", def->mounts[i]->destination);
 
           /* When the rootfs is "/" or not set, chroot_realpath returns the
              path unchanged, so strip the prefix only when it is there.  */
-          if (has_prefix (dest_in_root, status->rootfs))
-            dest_in_root += safe_strlen (status->rootfs);
+          ਜੇ (has_ਅਗੇਤਰ (dest_ਵਿੱਚ_ਜੜ੍ਹ, ਸਥਿਤੀ->rootfs))
+            dest_ਵਿੱਚ_ਜੜ੍ਹ += ਸੁਰੱਖਿਅਤ_strlen (ਸਥਿਤੀ->rootfs);
 
-          ret = libcriu_wrapper->criu_add_ext_mount (dest_in_root, dest_in_root);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, -ret, "CRIU: failed adding external mount to `%s`", def->mounts[i]->destination);
+          ret = libcriu_wrapper->criu_ਜੋੜੋ_ext_mount (dest_ਵਿੱਚ_ਜੜ੍ਹ, dest_ਵਿੱਚ_ਜੜ੍ਹ);
+          ਜੇ (UNLIKELY (ret < 0))
+            ਵਾਪਸ crun_make_error (err, -ret, "CRIU: failed adding external mount to `%s`", def->mounts[i]->destination);
         }
     }
 
-  ret = register_masked_paths_mounts (def, container, libcriu_wrapper, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = ਰਜਿਸਟਰ_masked_paths_mounts (def, container, libcriu_wrapper, false, err);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
   /* CRIU tries to checkpoint and restore all namespaces. However,
    * namespaces could be shared between containers in a pod.
@@ -882,207 +882,207 @@ libcrun_container_checkpoint_linux_criu (libcrun_container_status_t *status, lib
    * --external <namespace>[<inode>]:<key>
    */
 
-  for (i = 0; i < def->linux->namespaces_len; i++)
+  ਲਈ (i = 0; i < def->linux->namespaces_len; i++)
     {
-      int value = libcrun_find_namespace (def->linux->namespaces[i]->type);
-      if (UNLIKELY (value < 0))
-        return crun_make_error (err, 0, "invalid namespace type: `%s`", def->linux->namespaces[i]->type);
+      ਪੂਰਨ ਮੁੱਲ = libcrun_ਲੱਭੋ_namespace (def->linux->namespaces[i]->type);
+      ਜੇ (UNLIKELY (ਮੁੱਲ < 0))
+        ਵਾਪਸ crun_make_error (err, 0, "invalid namespace type: `%s`", def->linux->namespaces[i]->type);
 
-      if (value == CLONE_NEWNET && def->linux->namespaces[i]->path != NULL)
+      ਜੇ (ਮੁੱਲ == CLONE_NEWNET && def->linux->namespaces[i]->ਰਸਤਾ != ਨਿਰਾ)
         {
-          cleanup_free char *external = NULL;
-          struct stat statbuf;
+          cleanup_free ਅੱਖਰ *external = ਨਿਰਾ;
+          ਬਣਤਰ stat statbuf;
 
-          ret = stat (def->linux->namespaces[i]->path, &statbuf);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "unable to stat(): `%s`", def->linux->namespaces[i]->path);
+          ret = stat (def->linux->namespaces[i]->ਰਸਤਾ, &statbuf);
+          ਜੇ (UNLIKELY (ret < 0))
+            ਵਾਪਸ crun_make_error (err, errno, "unable to stat(): `%s`", def->linux->namespaces[i]->ਰਸਤਾ);
 
           xasprintf (&external, "net[%ld]:" CRIU_EXT_NETNS, statbuf.st_ino);
-          ret = libcriu_wrapper->criu_add_external (external);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, -ret, "CRIU: failed adding external namespace `%s`", external);
+          ret = libcriu_wrapper->criu_ਜੋੜੋ_external (external);
+          ਜੇ (UNLIKELY (ret < 0))
+            ਵਾਪਸ crun_make_error (err, -ret, "CRIU: failed adding external namespace `%s`", external);
         }
 
-      if (value == CLONE_NEWPID && def->linux->namespaces[i]->path != NULL)
+      ਜੇ (ਮੁੱਲ == CLONE_NEWPID && def->linux->namespaces[i]->ਰਸਤਾ != ਨਿਰਾ)
         {
-          cleanup_free char *external = NULL;
-          struct stat statbuf;
+          cleanup_free ਅੱਖਰ *external = ਨਿਰਾ;
+          ਬਣਤਰ stat statbuf;
 
-          ret = stat (def->linux->namespaces[i]->path, &statbuf);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "unable to stat(): `%s`", def->linux->namespaces[i]->path);
+          ret = stat (def->linux->namespaces[i]->ਰਸਤਾ, &statbuf);
+          ਜੇ (UNLIKELY (ret < 0))
+            ਵਾਪਸ crun_make_error (err, errno, "unable to stat(): `%s`", def->linux->namespaces[i]->ਰਸਤਾ);
 
           xasprintf (&external, "pid[%ld]:" CRIU_EXT_PIDNS, statbuf.st_ino);
-          ret = libcriu_wrapper->criu_add_external (external);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, -ret, "CRIU: failed adding external namespace `%s`", external);
+          ret = libcriu_wrapper->criu_ਜੋੜੋ_external (external);
+          ਜੇ (UNLIKELY (ret < 0))
+            ਵਾਪਸ crun_make_error (err, -ret, "CRIU: failed adding external namespace `%s`", external);
         }
     }
 
   /* Tell CRIU to use the freezer to pause all container processes. */
-  if (cgroup_mode == CGROUP_MODE_UNIFIED)
+  ਜੇ (cgroup_ਬਹੁਲਕ == CGROUP_ਬਹੁਲਕ_UNIFIED)
     {
       /* This needs CRIU 3.14. */
-      ret = append_paths (&freezer_path, err, CGROUP_ROOT, status->cgroup_path, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&freezer_ਰਸਤਾ, err, CGROUP_ਜੜ੍ਹ, ਸਥਿਤੀ->cgroup_ਰਸਤਾ, ਨਿਰਾ);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
-  else
+  ਨਹੀਂਤਾਂ
     {
-      ret = append_paths (&freezer_path, err, CGROUP_ROOT "/freezer", status->cgroup_path, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&freezer_ਰਸਤਾ, err, CGROUP_ਜੜ੍ਹ "/freezer", ਸਥਿਤੀ->cgroup_ਰਸਤਾ, ਨਿਰਾ);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
 
-  ret = libcriu_wrapper->criu_set_freeze_cgroup (freezer_path);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, -ret, "CRIU: failed setting freezer %d", ret);
+  ret = libcriu_wrapper->criu_ਸੈੱਟ_freeze_cgroup (freezer_ਰਸਤਾ);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ crun_make_error (err, -ret, "CRIU: failed setting freezer %d", ret);
 
   /* Set boolean options . */
-  libcriu_wrapper->criu_set_leave_running (cr_options->leave_running);
-  libcriu_wrapper->criu_set_ext_unix_sk (cr_options->ext_unix_sk);
-  libcriu_wrapper->criu_set_shell_job (cr_options->shell_job);
-  libcriu_wrapper->criu_set_tcp_established (cr_options->tcp_established);
-  libcriu_wrapper->criu_set_file_locks (cr_options->file_locks);
-  libcriu_wrapper->criu_set_orphan_pts_master (true);
-  libcriu_wrapper->criu_set_manage_cgroups_mode (criu_cg_mode_from_public (cr_options->manage_cgroups_mode));
+  libcriu_wrapper->criu_ਸੈੱਟ_leave_running (cr_options->leave_running);
+  libcriu_wrapper->criu_ਸੈੱਟ_ext_unix_sk (cr_options->ext_unix_sk);
+  libcriu_wrapper->criu_ਸੈੱਟ_shell_ਕੰਮ (cr_options->shell_ਕੰਮ);
+  libcriu_wrapper->criu_ਸੈੱਟ_tcp_established (cr_options->tcp_established);
+  libcriu_wrapper->criu_ਸੈੱਟ_file_locks (cr_options->file_locks);
+  libcriu_wrapper->criu_ਸੈੱਟ_orphan_pts_master (true);
+  libcriu_wrapper->criu_ਸੈੱਟ_manage_cgroups_ਬਹੁਲਕ (criu_cg_ਬਹੁਲਕ_from_ਜਨਤਕ (cr_options->manage_cgroups_ਬਹੁਲਕ));
 
-  libcriu_wrapper->criu_set_manage_cgroups (true);
+  libcriu_wrapper->criu_ਸੈੱਟ_manage_cgroups (true);
 
-  if (libcriu_wrapper->criu_set_network_lock)
+  ਜੇ (libcriu_wrapper->criu_ਸੈੱਟ_ਜਾਲ_ਤਾਲਾ)
     {
-      int lock = 0;
+      ਪੂਰਨ ਤਾਲਾ = 0;
 
-      ret = criu_network_lock_from_public (cr_options->network_lock_method, &lock, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = criu_ਜਾਲ_ਤਾਲਾ_from_ਜਨਤਕ (cr_options->ਜਾਲ_ਤਾਲਾ_ਵਿਧੀ, &ਤਾਲਾ, err);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
 
-      if (lock > 0)
+      ਜੇ (ਤਾਲਾ > 0)
         {
-          ret = libcriu_wrapper->criu_set_network_lock (lock);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, 0, "CRIU: failed setting network lock");
+          ret = libcriu_wrapper->criu_ਸੈੱਟ_ਜਾਲ_ਤਾਲਾ (ਤਾਲਾ);
+          ਜੇ (UNLIKELY (ret < 0))
+            ਵਾਪਸ crun_make_error (err, 0, "CRIU: failed setting network lock");
         }
     }
 
   ret = libcriu_wrapper->criu_dump ();
-  if (UNLIKELY (ret != 0))
+  ਜੇ (UNLIKELY (ret != 0))
     {
-      show_criu_log (cr_options->work_path, CRIU_CHECKPOINT_LOG_FILE);
-      return crun_make_error (err, ret < 0 ? -ret : 0, "CRIU checkpointing failed: %d", ret);
+      show_criu_log (cr_options->work_ਰਸਤਾ, CRIU_CHECKPOINT_LOG_FILE);
+      ਵਾਪਸ crun_make_error (err, ret < 0 ? -ret : 0, "CRIU checkpointing failed: %d", ret);
     }
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static int
-prepare_restore_mounts_internal (runtime_spec_schema_config_schema *def, char *root, const char **mounted,
+ਸਥਿਰ ਪੂਰਨ
+prepare_restore_mounts_ਅੰਦਰੂਨੀ (runtime_spec_schema_config_schema *def, ਅੱਖਰ *ਜੜ੍ਹ, ਅਚਲ ਅੱਖਰ **mounted,
                                  size_t *n_mounted, libcrun_error_t *err)
 {
   uint32_t i;
 
   /* Go through all mountpoints to be able to recreate missing mountpoints. */
-  for (i = 0; i < def->mounts_len; i++)
+  ਲਈ (i = 0; i < def->mounts_len; i++)
     {
-      char *dest = def->mounts[i]->destination;
-      char *type = def->mounts[i]->type;
-      cleanup_close int root_fd = -1;
+      ਅੱਖਰ *dest = def->mounts[i]->destination;
+      ਅੱਖਰ *type = def->mounts[i]->type;
+      cleanup_close ਪੂਰਨ ਜੜ੍ਹ_fd = -1;
       bool nofollow = false;
       bool on_tmpfs = false;
-      int is_dir = 1;
+      ਪੂਰਨ is_dir = 1;
       size_t j;
 
       /* cgroup restore should be handled by CRIU itself */
-      if (type && (strcmp (type, "cgroup") == 0 || strcmp (type, "cgroup2") == 0))
-        continue;
+      ਜੇ (type && (strcmp (type, "cgroup") == 0 || strcmp (type, "cgroup2") == 0))
+        ਜਾਰੀ;
 
       /* Check if the mountpoint is on a tmpfs. CRIU restores
        * all tmpfs. We do need to recreate directories on a tmpfs. */
-      size_t dest_len = strlen (dest);
-      for (j = 0; j < def->mounts_len; j++)
+      size_t dest_len = ਲੜੀ_ਲੰਬਾਈ (dest);
+      ਲਈ (j = 0; j < def->mounts_len; j++)
         {
-          if (def->mounts[j]->type == NULL || strcmp (def->mounts[j]->type, "tmpfs") != 0)
-            continue;
-          size_t mount_len = strlen (def->mounts[j]->destination);
-          if (mount_len < dest_len && dest[mount_len] == '/' && strncmp (dest, def->mounts[j]->destination, mount_len) == 0)
+          ਜੇ (def->mounts[j]->type == ਨਿਰਾ || strcmp (def->mounts[j]->type, "tmpfs") != 0)
+            ਜਾਰੀ;
+          size_t mount_len = ਲੜੀ_ਲੰਬਾਈ (def->mounts[j]->destination);
+          ਜੇ (mount_len < dest_len && dest[mount_len] == '/' && ਲੜੀ_ਤੁਲਨਾ (dest, def->mounts[j]->destination, mount_len) == 0)
             {
               /* This is a mountpoint which is on a tmpfs.*/
               on_tmpfs = true;
-              break;
+              ਰੋਕੋ;
             }
         }
 
-      if (on_tmpfs)
-        continue;
+      ਜੇ (on_tmpfs)
+        ਜਾਰੀ;
 
       /* For bind mounts check if the source is a file or a directory. */
-      if (is_bind_mount (def->mounts[i], NULL, &nofollow))
+      ਜੇ (is_bind_mount (def->mounts[i], ਨਿਰਾ, &nofollow))
         {
-          if (nofollow)
-            return crun_make_error (err, 0, "CRIU does not support `src-nofollow` for bind mounts");
+          ਜੇ (nofollow)
+            ਵਾਪਸ crun_make_error (err, 0, "CRIU does not support `src-nofollow` for bind mounts");
 
-          is_dir = crun_dir_p (def->mounts[i]->source, false, err);
-          if (UNLIKELY (is_dir < 0))
-            return is_dir;
+          is_dir = crun_dir_p (def->mounts[i]->ਸਰੋਤ, false, err);
+          ਜੇ (UNLIKELY (is_dir < 0))
+            ਵਾਪਸ is_dir;
         }
 
-      root_fd = open (root, O_RDONLY | O_CLOEXEC);
-      if (UNLIKELY (root_fd == -1))
-        return crun_make_error (err, errno, "error opening container root directory `%s`", root);
+      ਜੜ੍ਹ_fd = open (ਜੜ੍ਹ, O_RDONLY | O_CLOEXEC);
+      ਜੇ (UNLIKELY (ਜੜ੍ਹ_fd == -1))
+        ਵਾਪਸ crun_make_error (err, errno, "error opening container root directory `%s`", ਜੜ੍ਹ);
 
-      if (is_dir)
+      ਜੇ (is_dir)
         {
-          int ret;
+          ਪੂਰਨ ret;
 
-          ret = crun_safe_ensure_directory_at (root_fd, root, dest, 0755, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = crun_ਸੁਰੱਖਿਅਤ_ensure_directory_at (ਜੜ੍ਹ_fd, ਜੜ੍ਹ, dest, 0755, err);
+          ਜੇ (UNLIKELY (ret < 0))
+            ਵਾਪਸ ret;
         }
-      else
+      ਨਹੀਂਤਾਂ
         {
-          int ret;
+          ਪੂਰਨ ret;
 
-          ret = crun_safe_ensure_file_at (root_fd, root, dest, 0755, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = crun_ਸੁਰੱਖਿਅਤ_ensure_file_at (ਜੜ੍ਹ_fd, ਜੜ੍ਹ, dest, 0755, err);
+          ਜੇ (UNLIKELY (ret < 0))
+            ਵਾਪਸ ret;
         }
 
       /* Mount a bind mount source now, so that the mountpoints of the
        * mounts inside it (e.g. a nested bind mount) are created in the
        * source, where CRIU expects them.  This also happens during the
        * initial container creation, as the mounts are done in order.  */
-      if (is_bind_mount (def->mounts[i], NULL, &nofollow))
+      ਜੇ (is_bind_mount (def->mounts[i], ਨਿਰਾ, &nofollow))
         {
-          cleanup_close int dst_fd = -1;
-          proc_fd_path_t fd_path;
+          cleanup_close ਪੂਰਨ dst_fd = -1;
+          proc_fd_ਰਸਤਾ_t fd_ਰਸਤਾ;
 
-          dst_fd = safe_openat (root_fd, root, dest, O_PATH | O_CLOEXEC, 0, err);
-          if (UNLIKELY (dst_fd < 0))
-            return dst_fd;
+          dst_fd = ਸੁਰੱਖਿਅਤ_openat (ਜੜ੍ਹ_fd, ਜੜ੍ਹ, dest, O_ਰਸਤਾ | O_CLOEXEC, 0, err);
+          ਜੇ (UNLIKELY (dst_fd < 0))
+            ਵਾਪਸ dst_fd;
 
           /* Not recursive: the source might contain ROOT itself (e.g. when
            * it is the bundle directory), and it is not needed anyway.  */
-          get_proc_self_fd_path (fd_path, dst_fd);
-          if (UNLIKELY (mount (def->mounts[i]->source, fd_path, NULL, MS_BIND, NULL) < 0))
-            return crun_make_error (err, errno, "bind mount `%s` to `%s`", def->mounts[i]->source, dest);
+          get_proc_self_fd_ਰਸਤਾ (fd_ਰਸਤਾ, dst_fd);
+          ਜੇ (UNLIKELY (mount (def->mounts[i]->ਸਰੋਤ, fd_ਰਸਤਾ, ਨਿਰਾ, MS_BIND, ਨਿਰਾ) < 0))
+            ਵਾਪਸ crun_make_error (err, errno, "bind mount `%s` to `%s`", def->mounts[i]->ਸਰੋਤ, dest);
 
           mounted[(*n_mounted)++] = dest;
         }
     }
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
 /* Move the current process back to CGROUPS, as read from /proc/self/cgroup.
    A failure is not fatal, so only warn about it.  */
-static void
-move_back_to_cgroups (const char *cgroups)
+ਸਥਿਰ ਖਾਲੀ
+move_ਪਿੱਠ_ਮੰਜ਼ਿਲ_cgroups (ਅਚਲ ਅੱਖਰ *cgroups)
 {
-  libcrun_error_t tmp_err = NULL;
+  libcrun_error_t tmp_err = ਨਿਰਾ;
 
-  if (UNLIKELY (libcrun_move_self_to_cgroups (cgroups, &tmp_err) < 0))
+  ਜੇ (UNLIKELY (libcrun_move_self_ਮੰਜ਼ਿਲ_cgroups (cgroups, &tmp_err) < 0))
     {
-      libcrun_warning ("cannot move back to the original cgroup: %s", tmp_err->msg);
+      libcrun_warning ("cannot move back to the original cgroup: %s", tmp_err->ਸੁਨੇਹਾ);
       crun_error_release (&tmp_err);
     }
 }
@@ -1101,183 +1101,183 @@ move_back_to_cgroups (const char *cgroups)
    before unblocking them, so that no handler of the caller can run there.
    This is a separate function so that no variable of the caller is live
    across the vfork.  */
-static int
-criu_restore_child_in_cgroup (const char *cgroup_path, int *criu_ret, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+criu_restore_ਬੱਚਾ_ਵਿੱਚ_cgroup (ਅਚਲ ਅੱਖਰ *cgroup_ਰਸਤਾ, ਪੂਰਨ *criu_ret, libcrun_error_t *err)
 {
-  sigset_t all_signals, old_mask;
-  int wait_status = 0;
+  sigset_t all_ਸੰਕੇਤ, old_ਨਕਾਬ;
+  ਪੂਰਨ wait_ਸਥਿਤੀ = 0;
   pid_t pid;
-  int ret;
+  ਪੂਰਨ ret;
 
   *criu_ret = -1;
 
-  sigfillset (&all_signals);
-  ret = sigprocmask (SIG_BLOCK, &all_signals, &old_mask);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "sigprocmask");
+  sigfillset (&all_ਸੰਕੇਤ);
+  ret = sigprocmask (SIG_ਖੰਡ, &all_ਸੰਕੇਤ, &old_ਨਕਾਬ);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ crun_make_error (err, errno, "sigprocmask");
 
   /* Must be vfork: the child shares our memory space, so both *criu_ret and
      the error it creates are visible here once it is gone.  */
   pid = vfork ();
-  if (UNLIKELY (pid < 0))
+  ਜੇ (UNLIKELY (pid < 0))
     {
-      int saved_errno = errno;
+      ਪੂਰਨ saved_errno = errno;
 
-      sigprocmask (SIG_SETMASK, &old_mask, NULL);
-      return crun_make_error (err, saved_errno, "vfork");
+      sigprocmask (SIG_SETMASK, &old_ਨਕਾਬ, ਨਿਰਾ);
+      ਵਾਪਸ crun_make_error (err, saved_errno, "vfork");
     }
 
-  if (pid == 0)
+  ਜੇ (pid == 0)
     {
-      struct sigaction act;
-      int i;
+      ਬਣਤਰ sigaction act;
+      ਪੂਰਨ i;
 
       /* The signal dispositions are not shared with the parent, so resetting
          them here does not affect it.  Keep the ignored signals ignored, as
          CRIU would inherit them if it was run directly by the caller.  */
-      for (i = 1; i < NSIG; i++)
+      ਲਈ (i = 1; i < NSIG; i++)
         {
-          if (sigaction (i, NULL, &act) < 0 || act.sa_handler == SIG_IGN || act.sa_handler == SIG_DFL)
-            continue;
+          ਜੇ (sigaction (i, ਨਿਰਾ, &act) < 0 || act.sa_handler == SIG_IGN || act.sa_handler == SIG_DFL)
+            ਜਾਰੀ;
 
-          memset (&act, 0, sizeof (act));
+          memset (&act, 0, ਆਕਾਰ (act));
           act.sa_handler = SIG_DFL;
-          sigaction (i, &act, NULL);
+          sigaction (i, &act, ਨਿਰਾ);
         }
-      sigprocmask (SIG_SETMASK, &old_mask, NULL);
+      sigprocmask (SIG_SETMASK, &old_ਨਕਾਬ, ਨਿਰਾ);
 
-      if (! is_empty_string (cgroup_path))
+      ਜੇ (! is_ਖਾਲੀ_ਥਾਵਾਂ_string (cgroup_ਰਸਤਾ))
         {
-          ret = libcrun_move_process_to_cgroup (0, 0, cgroup_path, false, err);
-          if (UNLIKELY (ret < 0))
-            _safe_exit (EXIT_FAILURE);
+          ret = libcrun_move_process_ਮੰਜ਼ਿਲ_cgroup (0, 0, cgroup_ਰਸਤਾ, false, err);
+          ਜੇ (UNLIKELY (ret < 0))
+            ਸੁਰੱਖਿਅਤ_exit (EXIT_FAILURE);
         }
 
-      *criu_ret = libcriu_wrapper->criu_restore_child ();
-      _safe_exit (EXIT_SUCCESS);
+      *criu_ret = libcriu_wrapper->criu_restore_ਬੱਚਾ ();
+      ਸੁਰੱਖਿਅਤ_exit (EXIT_SUCCESS);
     }
 
   /* The child is gone by now, it is safe to handle signals again.  */
-  sigprocmask (SIG_SETMASK, &old_mask, NULL);
+  sigprocmask (SIG_SETMASK, &old_ਨਕਾਬ, ਨਿਰਾ);
 
-  ret = waitpid_ignore_stopped (pid, &wait_status, 0);
-  if (UNLIKELY (ret < 0))
+  ret = waitpid_ignore_stopped (pid, &wait_ਸਥਿਤੀ, 0);
+  ਜੇ (UNLIKELY (ret < 0))
     {
       /* The caller might have reaped the child already, e.g. when it ignores
          SIGCHLD.  Its result is still visible, so use it.  */
-      if (errno != ECHILD)
-        return crun_make_error (err, errno, "waitpid for the CRIU restore process");
+      ਜੇ (errno != ECHILD)
+        ਵਾਪਸ crun_make_error (err, errno, "waitpid for the CRIU restore process");
 
       /* The child might have failed before calling CRIU, and left an error.  */
-      return *err != NULL ? -1 : 0;
+      ਵਾਪਸ *err != ਨਿਰਾ ? -1 : 0;
     }
 
-  ret = get_process_exit_status (wait_status);
-  if (UNLIKELY (ret != EXIT_SUCCESS))
+  ret = get_process_exit_ਸਥਿਤੀ (wait_ਸਥਿਤੀ);
+  ਜੇ (UNLIKELY (ret != EXIT_SUCCESS))
     {
       /* The child creates the error in the shared memory space, do not
          overwrite it with crun_make_error().  */
-      if (*err == NULL)
-        return crun_make_error (err, 0, "the CRIU restore process exited with status %d", ret);
-      return -1;
+      ਜੇ (*err == ਨਿਰਾ)
+        ਵਾਪਸ crun_make_error (err, 0, "the CRIU restore process exited with status %d", ret);
+      ਵਾਪਸ -1;
     }
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
 /* Recreate the mountpoints which do not exist in the container rootfs
  * mounted at ROOT, the same way it is done on the container creation.  */
-static int
-prepare_restore_mounts (runtime_spec_schema_config_schema *def, char *root, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+prepare_restore_mounts (runtime_spec_schema_config_schema *def, ਅੱਖਰ *ਜੜ੍ਹ, libcrun_error_t *err)
 {
-  cleanup_free const char **mounted = xmalloc0 (sizeof (char *) * (def->mounts_len + 1));
-  cleanup_close int root_fd = -1;
+  cleanup_free ਅਚਲ ਅੱਖਰ **mounted = xmalloc0 (ਆਕਾਰ (ਅੱਖਰ *) * (def->mounts_len + 1));
+  cleanup_close ਪੂਰਨ ਜੜ੍ਹ_fd = -1;
   size_t n_mounted = 0;
-  int ret;
+  ਪੂਰਨ ret;
 
-  ret = prepare_restore_mounts_internal (def, root, mounted, &n_mounted, err);
+  ret = prepare_restore_mounts_ਅੰਦਰੂਨੀ (def, ਜੜ੍ਹ, mounted, &n_mounted, err);
 
   /* The bind mounts done above are only needed to create the mountpoints,
    * and CRIU restores the mounts itself, so undo them, in reverse order. */
-  if (n_mounted > 0)
-    root_fd = open (root, O_PATH | O_CLOEXEC);
-  while (root_fd >= 0 && n_mounted > 0)
+  ਜੇ (n_mounted > 0)
+    ਜੜ੍ਹ_fd = open (ਜੜ੍ਹ, O_ਰਸਤਾ | O_CLOEXEC);
+  ਜਦੋਂ (ਜੜ੍ਹ_fd >= 0 && n_mounted > 0)
     {
-      libcrun_error_t tmp_err = NULL;
-      const char *dest = mounted[--n_mounted];
-      cleanup_close int dst_fd = -1;
-      proc_fd_path_t fd_path;
+      libcrun_error_t tmp_err = ਨਿਰਾ;
+      ਅਚਲ ਅੱਖਰ *dest = mounted[--n_mounted];
+      cleanup_close ਪੂਰਨ dst_fd = -1;
+      proc_fd_ਰਸਤਾ_t fd_ਰਸਤਾ;
 
-      dst_fd = safe_openat (root_fd, root, dest, O_PATH | O_CLOEXEC, 0, &tmp_err);
-      if (UNLIKELY (dst_fd < 0))
+      dst_fd = ਸੁਰੱਖਿਅਤ_openat (ਜੜ੍ਹ_fd, ਜੜ੍ਹ, dest, O_ਰਸਤਾ | O_CLOEXEC, 0, &tmp_err);
+      ਜੇ (UNLIKELY (dst_fd < 0))
         {
           crun_error_release (&tmp_err);
-          continue;
+          ਜਾਰੀ;
         }
-      get_proc_self_fd_path (fd_path, dst_fd);
-      if (UNLIKELY (umount2 (fd_path, MNT_DETACH) < 0 && ret >= 0))
+      get_proc_self_fd_ਰਸਤਾ (fd_ਰਸਤਾ, dst_fd);
+      ਜੇ (UNLIKELY (umount2 (fd_ਰਸਤਾ, MNT_DETACH) < 0 && ret >= 0))
         ret = crun_make_error (err, errno, "unmount `%s`", dest);
     }
 
-  return ret;
+  ਵਾਪਸ ret;
 }
 
-int
-libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcrun_container_t *container,
+ਪੂਰਨ
+libcrun_container_restore_linux_criu (libcrun_container_ਸਥਿਤੀ_t *ਸਥਿਤੀ, libcrun_container_t *container,
                                       libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  cleanup_wrapper struct libcriu_wrapper_s *wrapper = NULL;
-  cleanup_close int inherit_new_net_fd = -1;
-  cleanup_close int inherit_new_pid_fd = -1;
-  cleanup_close int image_fd = -1;
-  cleanup_free char *root = NULL;
-  cleanup_free char *bundle_cleanup = NULL;
-  cleanup_free char *own_cgroups = NULL;
-  cleanup_close int work_fd = -1;
-  int cgroup_mode;
-  int criu_ret;
-  int ret_out;
+  cleanup_wrapper ਬਣਤਰ libcriu_wrapper_s *wrapper = ਨਿਰਾ;
+  cleanup_close ਪੂਰਨ inherit_new_net_fd = -1;
+  cleanup_close ਪੂਰਨ inherit_new_pid_fd = -1;
+  cleanup_close ਪੂਰਨ image_fd = -1;
+  cleanup_free ਅੱਖਰ *ਜੜ੍ਹ = ਨਿਰਾ;
+  cleanup_free ਅੱਖਰ *bundle_cleanup = ਨਿਰਾ;
+  cleanup_free ਅੱਖਰ *own_cgroups = ਨਿਰਾ;
+  cleanup_close ਪੂਰਨ work_fd = -1;
+  ਪੂਰਨ cgroup_ਬਹੁਲਕ;
+  ਪੂਰਨ criu_ret;
+  ਪੂਰਨ ret_ਬਾਹਰਲਾ;
   size_t i;
-  int ret;
+  ਪੂਰਨ ret;
 
-  ret = load_wrapper (&wrapper, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = ਲੱਦੋ_wrapper (&wrapper, err);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
-  if (geteuid ())
-    return crun_make_error (err, 0, "restoring requires root");
+  ਜੇ (geteuid ())
+    ਵਾਪਸ crun_make_error (err, 0, "restoring requires root");
 
   ret = libcriu_wrapper->criu_init_opts ();
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, 0, "CRIU init failed with %d", ret);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ crun_make_error (err, 0, "CRIU init failed with %d", ret);
 
-  ret = validate_criu_version (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = validate_criu_ਸੰਸਕਰਣ (err);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
-  if (UNLIKELY (cr_options->image_path == NULL))
-    return crun_make_error (err, 0, "image path not set");
+  ਜੇ (UNLIKELY (cr_options->image_ਰਸਤਾ == ਨਿਰਾ))
+    ਵਾਪਸ crun_make_error (err, 0, "image path not set");
 
-  image_fd = open (cr_options->image_path, O_DIRECTORY | O_CLOEXEC);
-  if (UNLIKELY (image_fd == -1))
-    return crun_make_error (err, errno, "error opening checkpoint directory `%s`", cr_options->image_path);
+  image_fd = open (cr_options->image_ਰਸਤਾ, O_DIRECTORY | O_CLOEXEC);
+  ਜੇ (UNLIKELY (image_fd == -1))
+    ਵਾਪਸ crun_make_error (err, errno, "error opening checkpoint directory `%s`", cr_options->image_ਰਸਤਾ);
 
-  libcriu_wrapper->criu_set_images_dir_fd (image_fd);
+  libcriu_wrapper->criu_ਸੈੱਟ_images_dir_fd (image_fd);
 
   /* Load descriptors.json to tell CRIU where those FDs should be connected to. */
   {
-    cleanup_free char *descriptors_path = NULL;
-    cleanup_free char *buffer = NULL;
-    json_object *doc = NULL;
+    cleanup_free ਅੱਖਰ *descriptors_ਰਸਤਾ = ਨਿਰਾ;
+    cleanup_free ਅੱਖਰ *ਬਫਰ = ਨਿਰਾ;
+    json_object *doc = ਨਿਰਾ;
 
-    ret = append_paths (&descriptors_path, err, cr_options->image_path, DESCRIPTORS_FILENAME, NULL);
-    if (UNLIKELY (ret < 0))
-      return ret;
+    ret = append_paths (&descriptors_ਰਸਤਾ, err, cr_options->image_ਰਸਤਾ, DESCRIPTORS_FILENAME, ਨਿਰਾ);
+    ਜੇ (UNLIKELY (ret < 0))
+      ਵਾਪਸ ret;
 
-    ret = read_all_file (descriptors_path, &buffer, NULL, err);
-    if (UNLIKELY (ret < 0))
-      return ret;
+    ret = read_all_file (descriptors_ਰਸਤਾ, &ਬਫਰ, ਨਿਰਾ, err);
+    ਜੇ (UNLIKELY (ret < 0))
+      ਵਾਪਸ ret;
 
     /* descriptors.json contains a JSON array with strings
      * telling where 0, 1 and 2 have been initially been
@@ -1285,24 +1285,24 @@ libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcru
      * a pipe 'pipe:' we tell CRIU to reconnect that pipe
      * to the corresponding FD to have (especially) stdout
      * and stderr being correctly redirected. */
-    ret = parse_json_file (&doc, buffer, NULL, err);
-    if (UNLIKELY (ret < 0))
-      return ret;
+    ret = parse_json_file (&doc, ਬਫਰ, ਨਿਰਾ, err);
+    ਜੇ (UNLIKELY (ret < 0))
+      ਵਾਪਸ ret;
 
-    if (json_object_is_type (doc, json_type_array))
+    ਜੇ (json_object_is_type (doc, json_type_array))
       {
-        size_t i, len = json_object_array_length (doc);
+        size_t i, len = json_object_array_ਲੰਮਾਈ (doc);
 
         /* len will probably always be 3 as crun is currently only
          * recording the destination of FD 0, 1 and 2. */
-        for (i = 0; i < len; ++i)
+        ਲਈ (i = 0; i < len; ++i)
           {
             json_object *s = json_object_array_get_idx (doc, i);
-            if (s && json_object_is_type (s, json_type_string))
+            ਜੇ (s && json_object_is_type (s, json_type_string))
               {
-                const char *str = json_object_get_string (s);
-                if (has_prefix (str, "pipe:"))
-                  libcriu_wrapper->criu_add_inherit_fd (i, str);
+                ਅਚਲ ਅੱਖਰ *str = json_object_get_string (s);
+                ਜੇ (has_ਅਗੇਤਰ (str, "pipe:"))
+                  libcriu_wrapper->criu_ਜੋੜੋ_inherit_fd (i, str);
               }
           }
       }
@@ -1313,103 +1313,103 @@ libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcru
    * inherited pipes to them.  Record them now: once the container is
    * restored it is already running, and /proc/PID/fd is under its control. */
   ret = libcrun_save_external_descriptors (container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
-  ret = setup_criu_work_dir (cr_options, &work_fd, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = ਤਿਆਰੀ_criu_work_dir (cr_options, &work_fd, err);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
-  if (cr_options->lsm_profile != NULL)
+  ਜੇ (cr_options->lsm_profile != ਨਿਰਾ)
     {
-      ret = libcriu_wrapper->criu_set_lsm_profile (cr_options->lsm_profile);
-      if (UNLIKELY (ret != 0))
-        return crun_make_error (err, -ret, "error setting LSM profile to `%s`", cr_options->lsm_profile);
+      ret = libcriu_wrapper->criu_ਸੈੱਟ_lsm_profile (cr_options->lsm_profile);
+      ਜੇ (UNLIKELY (ret != 0))
+        ਵਾਪਸ crun_make_error (err, -ret, "error setting LSM profile to `%s`", cr_options->lsm_profile);
     }
 
-  if (cr_options->lsm_mount_context != NULL)
+  ਜੇ (cr_options->lsm_mount_context != ਨਿਰਾ)
     {
-      ret = libcriu_wrapper->criu_set_lsm_mount_context (cr_options->lsm_mount_context);
-      if (UNLIKELY (ret != 0))
-        return crun_make_error (err, -ret, "error setting LSM mount context to `%s`", cr_options->lsm_mount_context);
+      ret = libcriu_wrapper->criu_ਸੈੱਟ_lsm_mount_context (cr_options->lsm_mount_context);
+      ਜੇ (UNLIKELY (ret != 0))
+        ਵਾਪਸ crun_make_error (err, -ret, "error setting LSM mount context to `%s`", cr_options->lsm_mount_context);
     }
 
   /* do realpath on root */
-  bundle_cleanup = realpath (status->bundle, NULL);
-  if (UNLIKELY (bundle_cleanup == NULL))
-    bundle_cleanup = xstrdup (status->bundle);
+  bundle_cleanup = realpath (ਸਥਿਤੀ->bundle, ਨਿਰਾ);
+  ਜੇ (UNLIKELY (bundle_cleanup == ਨਿਰਾ))
+    bundle_cleanup = xstrdup (ਸਥਿਤੀ->bundle);
 
   /* Tell CRIU about external bind mounts. */
-  for (i = 0; i < def->mounts_len; i++)
+  ਲਈ (i = 0; i < def->mounts_len; i++)
     {
       bool nofollow = false;
-      if (is_bind_mount (def->mounts[i], NULL, &nofollow))
+      ਜੇ (is_bind_mount (def->mounts[i], ਨਿਰਾ, &nofollow))
         {
           /* We need to resolve mount destination inside container's root for CRIU to handle. */
-          char buf[PATH_MAX];
-          const char *dest_in_root;
-          const char *source = def->mounts[i]->source;
-          cleanup_free char *abs_source = NULL;
-          unsigned long flags = 0;
+          ਅੱਖਰ buf[PATH_MAX];
+          ਅਚਲ ਅੱਖਰ *dest_ਵਿੱਚ_ਜੜ੍ਹ;
+          ਅਚਲ ਅੱਖਰ *ਸਰੋਤ = def->mounts[i]->ਸਰੋਤ;
+          cleanup_free ਅੱਖਰ *abs_ਸਰੋਤ = ਨਿਰਾ;
+          ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ flags = 0;
           size_t j;
 
-          if (nofollow)
-            return crun_make_error (err, 0, "CRIU does not support `src-nofollow` for bind mounts");
+          ਜੇ (nofollow)
+            ਵਾਪਸ crun_make_error (err, 0, "CRIU does not support `src-nofollow` for bind mounts");
 
-          dest_in_root = chroot_realpath (status->rootfs, def->mounts[i]->destination, buf);
-          if (UNLIKELY (dest_in_root == NULL))
-            return crun_make_error (err, errno, "unable to resolve external bind mount destination `%s` under rootfs", def->mounts[i]->destination);
+          dest_ਵਿੱਚ_ਜੜ੍ਹ = chroot_realpath (ਸਥਿਤੀ->rootfs, def->mounts[i]->destination, buf);
+          ਜੇ (UNLIKELY (dest_ਵਿੱਚ_ਜੜ੍ਹ == ਨਿਰਾ))
+            ਵਾਪਸ crun_make_error (err, errno, "unable to resolve external bind mount destination `%s` under rootfs", def->mounts[i]->destination);
 
           /* When the rootfs is "/" or not set, chroot_realpath returns the
              path unchanged, so strip the prefix only when it is there.  */
-          if (has_prefix (dest_in_root, status->rootfs))
-            dest_in_root += safe_strlen (status->rootfs);
+          ਜੇ (has_ਅਗੇਤਰ (dest_ਵਿੱਚ_ਜੜ੍ਹ, ਸਥਿਤੀ->rootfs))
+            dest_ਵਿੱਚ_ਜੜ੍ਹ += ਸੁਰੱਖਿਅਤ_strlen (ਸਥਿਤੀ->rootfs);
 
           /* A relative source is relative to the bundle, while CRIU would
              resolve it relative to its own working directory.  */
-          if (source && source[0] != '/')
+          ਜੇ (ਸਰੋਤ && ਸਰੋਤ[0] != '/')
             {
-              ret = append_paths (&abs_source, err, bundle_cleanup, source, NULL);
-              if (UNLIKELY (ret < 0))
-                return ret;
-              source = abs_source;
+              ret = append_paths (&abs_ਸਰੋਤ, err, bundle_cleanup, ਸਰੋਤ, ਨਿਰਾ);
+              ਜੇ (UNLIKELY (ret < 0))
+                ਵਾਪਸ ret;
+              ਸਰੋਤ = abs_ਸਰੋਤ;
             }
 
-          ret = libcriu_wrapper->criu_add_ext_mount (dest_in_root, source);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, -ret, "CRIU: failed adding external mount to `%s`", source);
+          ret = libcriu_wrapper->criu_ਜੋੜੋ_ext_mount (dest_ਵਿੱਚ_ਜੜ੍ਹ, ਸਰੋਤ);
+          ਜੇ (UNLIKELY (ret < 0))
+            ਵਾਪਸ crun_make_error (err, -ret, "CRIU: failed adding external mount to `%s`", ਸਰੋਤ);
 
-          for (j = 0; j < def->mounts[i]->options_len; j++)
+          ਲਈ (j = 0; j < def->mounts[i]->options_len; j++)
             {
-              const struct propagation_flags_s *prop = NULL;
+              ਅਚਲ ਬਣਤਰ ਪ੍ਰਸਾਰ_flags_s *prop = ਨਿਰਾ;
 
-              if (def->mounts[i]->options[j])
+              ਜੇ (def->mounts[i]->options[j])
                 prop = libcrun_str2mount_flags (def->mounts[i]->options[j]);
-              if (prop && ! prop->clear)
+              ਜੇ (prop && ! prop->clear)
                 flags |= prop->flags;
             }
-          add_restored_ext_mount (dest_in_root, flags);
+          ਜੋੜੋ_restored_ext_mount (dest_ਵਿੱਚ_ਜੜ੍ਹ, flags);
         }
     }
 
-  ret = register_masked_paths_mounts (def, container, libcriu_wrapper, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = ਰਜਿਸਟਰ_masked_paths_mounts (def, container, libcriu_wrapper, true, err);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
   /* Mount the container rootfs for CRIU. */
-  ret = append_paths (&root, err, bundle_cleanup, "criu-root", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&ਜੜ੍ਹ, err, bundle_cleanup, "criu-root", ਨਿਰਾ);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
-  ret = mkdir (root, 0755);
-  if (UNLIKELY (ret == -1))
-    return crun_make_error (err, errno, "error creating restore directory `%s`", root);
+  ret = mkdir (ਜੜ੍ਹ, 0755);
+  ਜੇ (UNLIKELY (ret == -1))
+    ਵਾਪਸ crun_make_error (err, errno, "error creating restore directory `%s`", ਜੜ੍ਹ);
 
-  ret = mount (status->rootfs, root, NULL, MS_BIND | MS_REC, NULL);
-  if (UNLIKELY (ret == -1))
+  ret = mount (ਸਥਿਤੀ->rootfs, ਜੜ੍ਹ, ਨਿਰਾ, MS_BIND | MS_REC, ਨਿਰਾ);
+  ਜੇ (UNLIKELY (ret == -1))
     {
-      ret = crun_make_error (err, errno, "error mounting restore directory `%s`", root);
-      goto out;
+      ret = crun_make_error (err, errno, "error mounting restore directory `%s`", ਜੜ੍ਹ);
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
 
   /* During initial container creation, crun will create mountpoints
@@ -1419,15 +1419,15 @@ libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcru
    * even if it marked as read-only, but runc already modifies
    * the rootfs in the same way. */
 
-  ret = prepare_restore_mounts (def, root, err);
-  if (UNLIKELY (ret < 0))
-    goto out_umount;
+  ret = prepare_restore_mounts (def, ਜੜ੍ਹ, err);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਜਾਓ ਬਾਹਰਲਾ_umount;
 
-  ret = libcriu_wrapper->criu_set_root (root);
-  if (UNLIKELY (ret != 0))
+  ret = libcriu_wrapper->criu_ਸੈੱਟ_ਜੜ੍ਹ (ਜੜ੍ਹ);
+  ਜੇ (UNLIKELY (ret != 0))
     {
-      ret = crun_make_error (err, -ret, "error setting CRIU root to `%s`", root);
-      goto out_umount;
+      ret = crun_make_error (err, -ret, "error setting CRIU root to `%s`", ਜੜ੍ਹ);
+      ਜਾਓ ਬਾਹਰਲਾ_umount;
     }
 
   /* If a namespace defined in config.json we are telling
@@ -1436,96 +1436,96 @@ libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcru
    * CRIU expects the information about the namespace like this:
    * --inherit-fd fd[<fd>]:<key>
    * The <key> needs to be the same as during checkpointing (extRootNetNS). */
-  for (i = 0; i < def->linux->namespaces_len; i++)
+  ਲਈ (i = 0; i < def->linux->namespaces_len; i++)
     {
-      const int open_flags_for_inherit = O_RDONLY; /* Cannot be O_CLOEXEC as it is passed to the child process. */
-      int value = libcrun_find_namespace (def->linux->namespaces[i]->type);
-      if (UNLIKELY (value < 0))
+      ਅਚਲ ਪੂਰਨ open_flags_for_inherit = O_RDONLY; /* Cannot be O_CLOEXEC as it is passed to the child process. */
+      ਪੂਰਨ ਮੁੱਲ = libcrun_ਲੱਭੋ_namespace (def->linux->namespaces[i]->type);
+      ਜੇ (UNLIKELY (ਮੁੱਲ < 0))
         {
           ret = crun_make_error (err, 0, "invalid namespace type: `%s`", def->linux->namespaces[i]->type);
-          goto out_umount;
+          ਜਾਓ ਬਾਹਰਲਾ_umount;
         }
 
-      if (value == CLONE_NEWNET && def->linux->namespaces[i]->path != NULL)
+      ਜੇ (ਮੁੱਲ == CLONE_NEWNET && def->linux->namespaces[i]->ਰਸਤਾ != ਨਿਰਾ)
         {
-          inherit_new_net_fd = open (def->linux->namespaces[i]->path, open_flags_for_inherit);
-          if (UNLIKELY (inherit_new_net_fd < 0))
+          inherit_new_net_fd = open (def->linux->namespaces[i]->ਰਸਤਾ, open_flags_for_inherit);
+          ਜੇ (UNLIKELY (inherit_new_net_fd < 0))
             {
-              ret = crun_make_error (err, errno, "unable to open(): `%s`", def->linux->namespaces[i]->path);
-              goto out_umount;
+              ret = crun_make_error (err, errno, "unable to open(): `%s`", def->linux->namespaces[i]->ਰਸਤਾ);
+              ਜਾਓ ਬਾਹਰਲਾ_umount;
             }
 
-          ret = libcriu_wrapper->criu_add_inherit_fd (inherit_new_net_fd, CRIU_EXT_NETNS);
-          if (UNLIKELY (ret < 0))
+          ret = libcriu_wrapper->criu_ਜੋੜੋ_inherit_fd (inherit_new_net_fd, CRIU_EXT_NETNS);
+          ਜੇ (UNLIKELY (ret < 0))
             {
               ret = crun_make_error (err, -ret, "CRIU: failed adding fd");
-              goto out_umount;
+              ਜਾਓ ਬਾਹਰਲਾ_umount;
             }
         }
 
-      if (value == CLONE_NEWPID && def->linux->namespaces[i]->path != NULL)
+      ਜੇ (ਮੁੱਲ == CLONE_NEWPID && def->linux->namespaces[i]->ਰਸਤਾ != ਨਿਰਾ)
         {
-          inherit_new_pid_fd = open (def->linux->namespaces[i]->path, open_flags_for_inherit);
-          if (UNLIKELY (inherit_new_pid_fd < 0))
+          inherit_new_pid_fd = open (def->linux->namespaces[i]->ਰਸਤਾ, open_flags_for_inherit);
+          ਜੇ (UNLIKELY (inherit_new_pid_fd < 0))
             {
-              ret = crun_make_error (err, errno, "unable to open(): `%s`", def->linux->namespaces[i]->path);
-              goto out_umount;
+              ret = crun_make_error (err, errno, "unable to open(): `%s`", def->linux->namespaces[i]->ਰਸਤਾ);
+              ਜਾਓ ਬਾਹਰਲਾ_umount;
             }
 
-          ret = libcriu_wrapper->criu_add_inherit_fd (inherit_new_pid_fd, CRIU_EXT_PIDNS);
-          if (UNLIKELY (ret < 0))
+          ret = libcriu_wrapper->criu_ਜੋੜੋ_inherit_fd (inherit_new_pid_fd, CRIU_EXT_PIDNS);
+          ਜੇ (UNLIKELY (ret < 0))
             {
               ret = crun_make_error (err, -ret, "CRIU: failed adding fd");
-              goto out_umount;
+              ਜਾਓ ਬਾਹਰਲਾ_umount;
             }
         }
 
 #  ifdef CRIU_JOIN_NS_SUPPORT
-      if (value == CLONE_NEWTIME && def->linux->namespaces[i]->path != NULL)
+      ਜੇ (ਮੁੱਲ == CLONE_NEWTIME && def->linux->namespaces[i]->ਰਸਤਾ != ਨਿਰਾ)
         {
-          if (libcriu_wrapper->criu_join_ns_add == NULL)
+          ਜੇ (libcriu_wrapper->criu_join_ns_ਜੋੜੋ == ਨਿਰਾ)
             {
               ret = crun_make_error (err, 0, "shared time namespace restore is supported in CRIU >= 3.16.1");
-              goto out_umount;
+              ਜਾਓ ਬਾਹਰਲਾ_umount;
             }
 
-          ret = libcriu_wrapper->criu_join_ns_add ("time", def->linux->namespaces[i]->path, NULL);
-          if (UNLIKELY (ret < 0))
+          ret = libcriu_wrapper->criu_join_ns_ਜੋੜੋ ("time", def->linux->namespaces[i]->ਰਸਤਾ, ਨਿਰਾ);
+          ਜੇ (UNLIKELY (ret < 0))
             {
-              ret = crun_make_error (err, -ret, "CRIU: failed adding external namespace `%s`", def->linux->namespaces[i]->path);
-              goto out_umount;
+              ret = crun_make_error (err, -ret, "CRIU: failed adding external namespace `%s`", def->linux->namespaces[i]->ਰਸਤਾ);
+              ਜਾਓ ਬਾਹਰਲਾ_umount;
             }
         }
 
-      if (value == CLONE_NEWIPC && def->linux->namespaces[i]->path != NULL)
+      ਜੇ (ਮੁੱਲ == CLONE_NEWIPC && def->linux->namespaces[i]->ਰਸਤਾ != ਨਿਰਾ)
         {
-          if (libcriu_wrapper->criu_join_ns_add == NULL)
+          ਜੇ (libcriu_wrapper->criu_join_ns_ਜੋੜੋ == ਨਿਰਾ)
             {
               ret = crun_make_error (err, 0, "shared ipc namespace restore is supported in CRIU >= 3.16.1");
-              goto out_umount;
+              ਜਾਓ ਬਾਹਰਲਾ_umount;
             }
 
-          ret = libcriu_wrapper->criu_join_ns_add ("ipc", def->linux->namespaces[i]->path, NULL);
-          if (UNLIKELY (ret < 0))
+          ret = libcriu_wrapper->criu_join_ns_ਜੋੜੋ ("ipc", def->linux->namespaces[i]->ਰਸਤਾ, ਨਿਰਾ);
+          ਜੇ (UNLIKELY (ret < 0))
             {
-              ret = crun_make_error (err, -ret, "CRIU: failed adding external namespace `%s`", def->linux->namespaces[i]->path);
-              goto out_umount;
+              ret = crun_make_error (err, -ret, "CRIU: failed adding external namespace `%s`", def->linux->namespaces[i]->ਰਸਤਾ);
+              ਜਾਓ ਬਾਹਰਲਾ_umount;
             }
         }
 
-      if (value == CLONE_NEWUTS && def->linux->namespaces[i]->path != NULL)
+      ਜੇ (ਮੁੱਲ == CLONE_NEWUTS && def->linux->namespaces[i]->ਰਸਤਾ != ਨਿਰਾ)
         {
-          if (libcriu_wrapper->criu_join_ns_add == NULL)
+          ਜੇ (libcriu_wrapper->criu_join_ns_ਜੋੜੋ == ਨਿਰਾ)
             {
               ret = crun_make_error (err, 0, "shared uts namespace restore is supported in CRIU >= 3.16.1");
-              goto out_umount;
+              ਜਾਓ ਬਾਹਰਲਾ_umount;
             }
 
-          ret = libcriu_wrapper->criu_join_ns_add ("uts", def->linux->namespaces[i]->path, NULL);
-          if (UNLIKELY (ret < 0))
+          ret = libcriu_wrapper->criu_join_ns_ਜੋੜੋ ("uts", def->linux->namespaces[i]->ਰਸਤਾ, ਨਿਰਾ);
+          ਜੇ (UNLIKELY (ret < 0))
             {
-              ret = crun_make_error (err, -ret, "CRIU: failed adding external namespace `%s`", def->linux->namespaces[i]->path);
-              goto out_umount;
+              ret = crun_make_error (err, -ret, "CRIU: failed adding external namespace `%s`", def->linux->namespaces[i]->ਰਸਤਾ);
+              ਜਾਓ ਬਾਹਰਲਾ_umount;
             }
         }
 #  endif
@@ -1533,32 +1533,32 @@ libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcru
 
   /* Set up CRIU config file */
   ret = handle_criu_config_file (container, err);
-  if (UNLIKELY (ret < 0))
-    goto out_umount;
+  ਜੇ (UNLIKELY (ret < 0))
+    ਜਾਓ ਬਾਹਰਲਾ_umount;
 
   /* Tell CRIU if cgroup v1 needs to be handled. */
   ret = restore_cgroup_v1_mount (def, err);
-  if (UNLIKELY (ret < 0))
-    goto out_umount;
+  ਜੇ (UNLIKELY (ret < 0))
+    ਜਾਓ ਬਾਹਰਲਾ_umount;
 
   console_socket = cr_options->console_socket;
-  libcriu_wrapper->criu_set_notify_cb (criu_notify);
+  libcriu_wrapper->criu_ਸੈੱਟ_notify_cb (criu_notify);
 
   /* Set boolean options . */
-  libcriu_wrapper->criu_set_ext_unix_sk (cr_options->ext_unix_sk);
-  libcriu_wrapper->criu_set_shell_job (cr_options->shell_job);
-  libcriu_wrapper->criu_set_tcp_established (cr_options->tcp_established);
-  libcriu_wrapper->criu_set_tcp_close (cr_options->tcp_close);
-  libcriu_wrapper->criu_set_file_locks (cr_options->file_locks);
-  libcriu_wrapper->criu_set_orphan_pts_master (true);
+  libcriu_wrapper->criu_ਸੈੱਟ_ext_unix_sk (cr_options->ext_unix_sk);
+  libcriu_wrapper->criu_ਸੈੱਟ_shell_ਕੰਮ (cr_options->shell_ਕੰਮ);
+  libcriu_wrapper->criu_ਸੈੱਟ_tcp_established (cr_options->tcp_established);
+  libcriu_wrapper->criu_ਸੈੱਟ_tcp_close (cr_options->tcp_close);
+  libcriu_wrapper->criu_ਸੈੱਟ_file_locks (cr_options->file_locks);
+  libcriu_wrapper->criu_ਸੈੱਟ_orphan_pts_master (true);
 
-  if (status->cgroup_path)
+  ਜੇ (ਸਥਿਤੀ->cgroup_ਰਸਤਾ)
     {
-      cgroup_mode = libcrun_get_cgroup_mode (err);
-      if (UNLIKELY (cgroup_mode < 0))
+      cgroup_ਬਹੁਲਕ = libcrun_get_cgroup_ਬਹੁਲਕ (err);
+      ਜੇ (UNLIKELY (cgroup_ਬਹੁਲਕ < 0))
         {
-          ret = cgroup_mode;
-          goto out_umount;
+          ret = cgroup_ਬਹੁਲਕ;
+          ਜਾਓ ਬਾਹਰਲਾ_umount;
         }
 
       /* With cgroup v2, the cgroup path is only meaningful for the unified
@@ -1568,117 +1568,117 @@ libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcru
          container is in it, which is its root, as crun leaves named
          hierarchies alone, every checkpoint and restore would then copy the
          whole hierarchy into itself.  */
-      ret = libcriu_wrapper->criu_add_cg_root (cgroup_mode == CGROUP_MODE_UNIFIED ? "" : NULL,
-                                               status->cgroup_path);
-      if (UNLIKELY (ret != 0))
+      ret = libcriu_wrapper->criu_ਜੋੜੋ_cg_ਜੜ੍ਹ (cgroup_ਬਹੁਲਕ == CGROUP_ਬਹੁਲਕ_UNIFIED ? "" : ਨਿਰਾ,
+                                               ਸਥਿਤੀ->cgroup_ਰਸਤਾ);
+      ਜੇ (UNLIKELY (ret != 0))
         {
-          ret = crun_make_error (err, 0, "error setting CRIU cgroup root to `%s`", status->cgroup_path);
-          goto out_umount;
+          ret = crun_make_error (err, 0, "error setting CRIU cgroup root to `%s`", ਸਥਿਤੀ->cgroup_ਰਸਤਾ);
+          ਜਾਓ ਬਾਹਰਲਾ_umount;
         }
     }
 
-  libcriu_wrapper->criu_set_manage_cgroups_mode (criu_cg_mode_from_public (cr_options->manage_cgroups_mode));
-  libcriu_wrapper->criu_set_manage_cgroups (true);
+  libcriu_wrapper->criu_ਸੈੱਟ_manage_cgroups_ਬਹੁਲਕ (criu_cg_ਬਹੁਲਕ_from_ਜਨਤਕ (cr_options->manage_cgroups_ਬਹੁਲਕ));
+  libcriu_wrapper->criu_ਸੈੱਟ_manage_cgroups (true);
 
-  if (libcriu_wrapper->criu_set_network_lock)
+  ਜੇ (libcriu_wrapper->criu_ਸੈੱਟ_ਜਾਲ_ਤਾਲਾ)
     {
-      int lock = 0;
+      ਪੂਰਨ ਤਾਲਾ = 0;
 
-      ret = criu_network_lock_from_public (cr_options->network_lock_method, &lock, err);
-      if (UNLIKELY (ret < 0))
-        goto out_umount;
+      ret = criu_ਜਾਲ_ਤਾਲਾ_from_ਜਨਤਕ (cr_options->ਜਾਲ_ਤਾਲਾ_ਵਿਧੀ, &ਤਾਲਾ, err);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਜਾਓ ਬਾਹਰਲਾ_umount;
 
-      if (lock > 0)
+      ਜੇ (ਤਾਲਾ > 0)
         {
-          ret = libcriu_wrapper->criu_set_network_lock (lock);
-          if (UNLIKELY (ret < 0))
+          ret = libcriu_wrapper->criu_ਸੈੱਟ_ਜਾਲ_ਤਾਲਾ (ਤਾਲਾ);
+          ਜੇ (UNLIKELY (ret < 0))
             {
               ret = crun_make_error (err, 0, "CRIU: failed setting network lock");
-              goto out_umount;
+              ਜਾਓ ਬਾਹਰਲਾ_umount;
             }
         }
     }
 
-  libcriu_wrapper->criu_set_log_level (4);
-  ret = libcriu_wrapper->criu_set_log_file (CRIU_RESTORE_LOG_FILE);
-  if (UNLIKELY (ret < 0))
+  libcriu_wrapper->criu_ਸੈੱਟ_log_level (4);
+  ret = libcriu_wrapper->criu_ਸੈੱਟ_log_file (CRIU_RESTORE_LOG_FILE);
+  ਜੇ (UNLIKELY (ret < 0))
     {
       ret = crun_make_error (err, -ret, "error setting CRIU log file to `%s`", CRIU_RESTORE_LOG_FILE);
-      goto out_umount;
+      ਜਾਓ ਬਾਹਰਲਾ_umount;
     }
 
   /* criu_restore() returns the PID of the process of the restored process
    * tree. This PID will not be the same as status->pid if the container is
    * running in a PID namespace. But it will always be > 0. */
-  if (cr_options->detach)
+  ਜੇ (cr_options->detach)
     {
       /* Nothing waits for the container, so there is no reason to take over
          this process: use a throw-away one.  It is used even when there is no
          cgroup to join, so that the container is not left as a child of a
          process which is not going to reap it.  */
-      ret = criu_restore_child_in_cgroup (status->cgroup_path, &criu_ret, err);
-      if (UNLIKELY (ret < 0))
-        goto out_umount;
+      ret = criu_restore_ਬੱਚਾ_ਵਿੱਚ_cgroup (ਸਥਿਤੀ->cgroup_ਰਸਤਾ, &criu_ret, err);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਜਾਓ ਬਾਹਰਲਾ_umount;
 
       ret = criu_ret;
     }
-  else
+  ਨਹੀਂਤਾਂ
     {
       /* Like runc does, put CRIU into the container cgroup for the time of
        * restore, so the restored tasks are created there. It is necessary in
        * the "ignore" mode, where CRIU does not deal with cgroups at all, and
        * does not hurt otherwise. As CRIU is our child, do it by moving
        * ourselves there, and move back once the restore is done. */
-      if (! is_empty_string (status->cgroup_path))
+      ਜੇ (! is_ਖਾਲੀ_ਥਾਵਾਂ_string (ਸਥਿਤੀ->cgroup_ਰਸਤਾ))
         {
-          ret = read_all_file (PROC_SELF_CGROUP, &own_cgroups, NULL, err);
-          if (UNLIKELY (ret < 0))
-            goto out_umount;
+          ret = read_all_file (PROC_SELF_CGROUP, &own_cgroups, ਨਿਰਾ, err);
+          ਜੇ (UNLIKELY (ret < 0))
+            ਜਾਓ ਬਾਹਰਲਾ_umount;
 
-          ret = libcrun_move_process_to_cgroup (0, 0, status->cgroup_path, false, err);
-          if (UNLIKELY (ret < 0))
+          ret = libcrun_move_process_ਮੰਜ਼ਿਲ_cgroup (0, 0, ਸਥਿਤੀ->cgroup_ਰਸਤਾ, false, err);
+          ਜੇ (UNLIKELY (ret < 0))
             {
               /* Some of the cgroups might have been joined already.  */
-              move_back_to_cgroups (own_cgroups);
-              goto out_umount;
+              move_ਪਿੱਠ_ਮੰਜ਼ਿਲ_cgroups (own_cgroups);
+              ਜਾਓ ਬਾਹਰਲਾ_umount;
             }
         }
 
-      ret = libcriu_wrapper->criu_restore_child ();
+      ret = libcriu_wrapper->criu_restore_ਬੱਚਾ ();
 
-      if (own_cgroups)
-        move_back_to_cgroups (own_cgroups);
+      ਜੇ (own_cgroups)
+        move_ਪਿੱਠ_ਮੰਜ਼ਿਲ_cgroups (own_cgroups);
     }
 
-  if (UNLIKELY (ret <= 0))
+  ਜੇ (UNLIKELY (ret <= 0))
     {
-      show_criu_log (cr_options->work_path, CRIU_RESTORE_LOG_FILE);
+      show_criu_log (cr_options->work_ਰਸਤਾ, CRIU_RESTORE_LOG_FILE);
       ret = crun_make_error (err, 0, "CRIU restoring failed: %d", ret);
-      goto out_umount;
+      ਜਾਓ ਬਾਹਰਲਾ_umount;
     }
 
   /* Update the status struct with the newly allocated PID. This will
    * be necessary later when moving the process into its cgroup. */
-  status->pid = ret;
+  ਸਥਿਤੀ->pid = ret;
   ret = 0;
 
-out_umount:
-  ret_out = umount (root);
-  if (UNLIKELY (ret_out == -1))
+ਬਾਹਰਲਾ_umount:
+  ret_ਬਾਹਰਲਾ = umount (ਜੜ੍ਹ);
+  ਜੇ (UNLIKELY (ret_ਬਾਹਰਲਾ == -1))
     {
-      int saved_errno = errno;
-      rmdir (root);
-      if (ret < 0)
-        return crun_error_wrap (err, "error unmounting restore directory `%s`", root);
-      else
-        return crun_make_error (err, saved_errno, "error unmounting restore directory `%s`", root);
+      ਪੂਰਨ saved_errno = errno;
+      rmdir (ਜੜ੍ਹ);
+      ਜੇ (ret < 0)
+        ਵਾਪਸ crun_error_wrap (err, "error unmounting restore directory `%s`", ਜੜ੍ਹ);
+      ਨਹੀਂਤਾਂ
+        ਵਾਪਸ crun_make_error (err, saved_errno, "error unmounting restore directory `%s`", ਜੜ੍ਹ);
     }
-out:
-  ret_out = rmdir (root);
-  if (UNLIKELY (ret < 0))
-    return ret;
-  if (UNLIKELY (ret_out == -1))
-    return crun_make_error (err, errno, "error removing restore directory `%s`", root);
-  return ret;
+ਬਾਹਰਲਾ:
+  ret_ਬਾਹਰਲਾ = rmdir (ਜੜ੍ਹ);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
+  ਜੇ (UNLIKELY (ret_ਬਾਹਰਲਾ == -1))
+    ਵਾਪਸ crun_make_error (err, errno, "error removing restore directory `%s`", ਜੜ੍ਹ);
+  ਵਾਪਸ ret;
 }
-#endif
+#ਜੇ_ਅੰਤ

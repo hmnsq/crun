@@ -15,122 +15,122 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CRUN_UTILS_H
-#define CRUN_UTILS_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CRUN_UTILS_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CRUN_UTILS_H
 
 /* Self-contained helpers for the crun binary so that it does not have to
    include the internal libcrun/utils.h (which pulls in the internal,
    non-public headers).  The binary is a pure consumer of the public
    <libcrun.h> API; everything here is either libc or a trivial inline.  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdlib.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <unistd.h>
 
-#ifdef __GNUC__
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ __GNUC__
 #  define LIKELY(x) __builtin_expect ((x), 1)
 #  define UNLIKELY(x) __builtin_expect ((x), 0)
-#  define arg_unused __attribute__ ((unused))
-#else
+#  define arg_ਅਣਵਰਤਿਆ __attribute__ ((ਅਣਵਰਤਿਆ))
+#ਨਹੀਂਤਾਂ
 #  define LIKELY(x) (x)
 #  define UNLIKELY(x) (x)
-#  define arg_unused
-#endif
+#  define arg_ਅਣਵਰਤਿਆ
+#ਜੇ_ਅੰਤ
 
-#define OOM()                            \
-  do                                     \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ OOM()                            \
+  ਕਰੋ                                     \
     {                                    \
       fprintf (stderr, "out of memory"); \
       _exit (EXIT_FAILURE);              \
-  } while (0)
+  } ਜਦੋਂ (0)
 
-#define crun_make_error libcrun_make_error
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ crun_make_error libcrun_make_error
 
-__attribute__ ((malloc)) static inline void *
-xmalloc (size_t size)
+__attribute__ ((ਸਮ੍ਰਿਤੀ_ਦਿਓ)) ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ *
+xmalloc (size_t ਮਾਪ)
 {
-  void *res = malloc (size);
-  if (UNLIKELY (res == NULL))
+  ਖਾਲੀ *res = ਸਮ੍ਰਿਤੀ_ਦਿਓ (ਮਾਪ);
+  ਜੇ (UNLIKELY (res == ਨਿਰਾ))
     OOM ();
-  return res;
+  ਵਾਪਸ res;
 }
 
-__attribute__ ((malloc)) static inline void *
-xmalloc0 (size_t size)
+__attribute__ ((ਸਮ੍ਰਿਤੀ_ਦਿਓ)) ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ *
+xmalloc0 (size_t ਮਾਪ)
 {
-  void *res = calloc (1, size);
-  if (UNLIKELY (res == NULL))
+  ਖਾਲੀ *res = ਸਿਫਰ_ਸਮ੍ਰਿਤੀ_ਦਿਓ (1, ਮਾਪ);
+  ਜੇ (UNLIKELY (res == ਨਿਰਾ))
     OOM ();
-  return res;
+  ਵਾਪਸ res;
 }
 
-__attribute__ ((malloc)) static inline void *
-xrealloc (void *ptr, size_t size)
+__attribute__ ((ਸਮ੍ਰਿਤੀ_ਦਿਓ)) ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ *
+xrealloc (ਖਾਲੀ *ptr, size_t ਮਾਪ)
 {
-  void *res = realloc (ptr, size);
-  if (UNLIKELY (res == NULL))
+  ਖਾਲੀ *res = realloc (ptr, ਮਾਪ);
+  ਜੇ (UNLIKELY (res == ਨਿਰਾ))
     OOM ();
-  return res;
+  ਵਾਪਸ res;
 }
 
-static inline char *
-xstrdup (const char *str)
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅੱਖਰ *
+xstrdup (ਅਚਲ ਅੱਖਰ *str)
 {
-  char *ret;
-  if (str == NULL)
-    return NULL;
+  ਅੱਖਰ *ret;
+  ਜੇ (str == ਨਿਰਾ)
+    ਵਾਪਸ ਨਿਰਾ;
   ret = strdup (str);
-  if (UNLIKELY (ret == NULL))
+  ਜੇ (UNLIKELY (ret == ਨਿਰਾ))
     OOM ();
-  return ret;
+  ਵਾਪਸ ret;
 }
 
-static inline void
-cleanup_freep (void *p)
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ
+cleanup_freep (ਖਾਲੀ *p)
 {
-  void **pp = (void **) p;
-  free (*pp);
+  ਖਾਲੀ **pp = (ਖਾਲੀ **) p;
+  ਮੁਕਤ (*pp);
 }
 
-static inline void
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ
 cleanup_filep (FILE **f)
 {
   FILE *file = *f;
-  if (file)
-    (void) fclose (file);
+  ਜੇ (file)
+    (ਖਾਲੀ) fclose (file);
 }
 
-static inline void
-cleanup_closep (void *p)
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ
+cleanup_closep (ਖਾਲੀ *p)
 {
-  int *pp = (int *) p;
-  if (*pp >= 0)
+  ਪੂਰਨ *pp = (ਪੂਰਨ *) p;
+  ਜੇ (*pp >= 0)
     close (*pp);
 }
 
-#define cleanup_free __attribute__ ((cleanup (cleanup_freep)))
-#define cleanup_file __attribute__ ((cleanup (cleanup_filep)))
-#define cleanup_close __attribute__ ((cleanup (cleanup_closep)))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ cleanup_free __attribute__ ((cleanup (cleanup_freep)))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ cleanup_file __attribute__ ((cleanup (cleanup_filep)))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ cleanup_close __attribute__ ((cleanup (cleanup_closep)))
 
 /* Relies on <libcrun.h> (included before this header via crun.h) for the
    opaque libcrun_context_t and libcrun_context_free.  */
-static inline void
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ
 cleanup_libcrun_contextp (libcrun_context_t **p)
 {
-  if (*p)
+  ਜੇ (*p)
     libcrun_context_free (*p);
 }
 
-#define cleanup_context __attribute__ ((cleanup (cleanup_libcrun_contextp)))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ cleanup_context __attribute__ ((cleanup (cleanup_libcrun_contextp)))
 
-static inline void
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ
 cleanup_libcrun_containerp (libcrun_container_t **p)
 {
-  if (*p)
+  ਜੇ (*p)
     libcrun_container_free (*p);
 }
 
-#define cleanup_container __attribute__ ((cleanup (cleanup_libcrun_containerp)))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ cleanup_container __attribute__ ((cleanup (cleanup_libcrun_containerp)))
 
-#endif
+#ਜੇ_ਅੰਤ

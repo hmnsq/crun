@@ -15,17 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef RUN_CREATE_H
-#define RUN_CREATE_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਲੜੀਵਾਰ_CREATE_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਲੜੀਵਾਰ_CREATE_H
 
-#include "crun.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "crun.h"
 
-typedef int (*container_run_create_func_t) (libcrun_context_t *, libcrun_container_t *, unsigned int, libcrun_error_t *);
-typedef unsigned int (*get_options_func_t) ();
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਪੂਰਨ (*container_ਲੜੀਵਾਰ_create_func_t) (libcrun_context_t *, libcrun_container_t *, ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ, libcrun_error_t *);
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ (*get_options_func_t) ();
 
-int crun_run_create_internal (struct crun_global_arguments *global_args, int argc, char **argv,
-                              container_run_create_func_t container_run_create_func, get_options_func_t get_options_func,
-                              libcrun_context_t *crun_context, struct argp *run_argp, const char **config_file,
-                              const char **bundle, libcrun_error_t *err);
+ਪੂਰਨ crun_ਲੜੀਵਾਰ_create_ਅੰਦਰੂਨੀ (ਬਣਤਰ crun_global_arguments *global_ਦਲੀਲਾਂ, ਪੂਰਨ argc, ਅੱਖਰ **argv,
+                              container_ਲੜੀਵਾਰ_create_func_t container_ਲੜੀਵਾਰ_create_func, get_options_func_t get_options_func,
+                              libcrun_context_t *crun_context, ਬਣਤਰ argp *ਲੜੀਵਾਰ_argp, ਅਚਲ ਅੱਖਰ **config_file,
+                              ਅਚਲ ਅੱਖਰ **bundle, libcrun_error_t *err);
 
-#endif
+#ਜੇ_ਅੰਤ

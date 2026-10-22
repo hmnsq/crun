@@ -15,11 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SPEC_H
-#define SPEC_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ SPEC_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ SPEC_H
 
-#include "crun.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "crun.h"
 
-int crun_command_spec (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+ਪੂਰਨ crun_command_spec (ਬਣਤਰ crun_global_arguments *global_ਦਲੀਲਾਂ, ਪੂਰਨ argc, ਅੱਖਰ **argv, libcrun_error_t *error);
 
-#endif
+#ਜੇ_ਅੰਤ

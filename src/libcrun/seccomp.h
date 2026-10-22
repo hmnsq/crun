@@ -15,50 +15,50 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SECCOMP_H
-#define SECCOMP_H
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include "error.h"
-#include <errno.h>
-#include <argp.h>
-#include <ocispec/runtime_spec_schema_config_schema.h>
-#include "container.h"
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ SECCOMP_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ SECCOMP_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <config.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdlib.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ "error.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ <errno.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <argp.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <ocispec/runtime_spec_schema_config_schema.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ "container.h"
 
-enum
+ਗਿਣਤੀ
 {
   LIBCRUN_SECCOMP_FAIL_UNKNOWN_SYSCALL = 1 << 0,
   LIBCRUN_SECCOMP_SKIP_CACHE = 1 << 1,
 };
 
-typedef char seccomp_checksum_t[65];
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਅੱਖਰ seccomp_checksum_t[65];
 
-struct libcrun_seccomp_gen_ctx_s
+ਬਣਤਰ libcrun_seccomp_gen_ctx_s
 {
   libcrun_container_t *container;
   seccomp_checksum_t checksum;
-  unsigned int options;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ options;
   bool create;
   bool from_cache;
 
   /* Not owned here, it is the caller responsibility to close it.  */
-  int fd;
+  ਪੂਰਨ fd;
 };
 
-static inline void
-libcrun_seccomp_gen_ctx_init (struct libcrun_seccomp_gen_ctx_s *ctx, libcrun_container_t *container, bool create, unsigned int seccomp_gen_options)
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ
+libcrun_seccomp_gen_ctx_init (ਬਣਤਰ libcrun_seccomp_gen_ctx_s *ctx, libcrun_container_t *container, bool create, ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ seccomp_gen_options)
 {
-  memset (ctx, 0, sizeof (*ctx));
+  memset (ctx, 0, ਆਕਾਰ (*ctx));
   ctx->create = create;
   ctx->container = container;
   ctx->options = seccomp_gen_options;
 }
 
-int libcrun_generate_seccomp (struct libcrun_seccomp_gen_ctx_s *gen_ctx, libcrun_error_t *err);
-int libcrun_copy_seccomp (struct libcrun_seccomp_gen_ctx_s *gen_ctx, const char *b64_bpf, libcrun_error_t *err);
-int libcrun_apply_seccomp (int infd, int listener_receiver_fd, const char *receiver_fd_payload,
-                           size_t receiver_fd_payload_len, char **flags, size_t flags_len, libcrun_error_t *err);
-int libcrun_open_seccomp_bpf (struct libcrun_seccomp_gen_ctx_s *ctx, int *fd, libcrun_error_t *err);
+ਪੂਰਨ libcrun_generate_seccomp (ਬਣਤਰ libcrun_seccomp_gen_ctx_s *gen_ctx, libcrun_error_t *err);
+ਪੂਰਨ libcrun_copy_seccomp (ਬਣਤਰ libcrun_seccomp_gen_ctx_s *gen_ctx, ਅਚਲ ਅੱਖਰ *b64_bpf, libcrun_error_t *err);
+ਪੂਰਨ libcrun_apply_seccomp (ਪੂਰਨ infd, ਪੂਰਨ listener_receiver_fd, ਅਚਲ ਅੱਖਰ *receiver_fd_payload,
+                           size_t receiver_fd_payload_len, ਅੱਖਰ **flags, size_t flags_len, libcrun_error_t *err);
+ਪੂਰਨ libcrun_open_seccomp_bpf (ਬਣਤਰ libcrun_seccomp_gen_ctx_s *ctx, ਪੂਰਨ *fd, libcrun_error_t *err);
 
-#endif
+#ਜੇ_ਅੰਤ

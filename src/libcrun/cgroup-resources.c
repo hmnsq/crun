@@ -16,29 +16,29 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ GNU_ਸਰੋਤ
 
-#include <config.h>
-#include "cgroup.h"
-#include "cgroup-internal.h"
-#include "cgroup-systemd.h"
-#include "cgroup-utils.h"
-#include "cgroup-resources.h"
-#include "ebpf.h"
-#include "utils.h"
-#include "status.h"
-#include <string.h>
-#include <sys/types.h>
-#include <sys/vfs.h>
-#include <inttypes.h>
-#include <time.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <config.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ "cgroup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cgroup-internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cgroup-systemd.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cgroup-utils.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cgroup-resources.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "ebpf.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "utils.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "status.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ <string.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/types.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/vfs.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <inttypes.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <time.h>
 
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <libgen.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/stat.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/types.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <fcntl.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <libgen.h>
 
-struct default_dev_s default_devices[] = {
+ਬਣਤਰ default_dev_s default_devices[] = {
   { 'c', -1, -1, "m" },
   { 'b', -1, -1, "m" },
   { 'c', 1, 3, "rwm" },
@@ -51,831 +51,831 @@ struct default_dev_s default_devices[] = {
   { 'c', 136, -1, "rwm" },
   { 'c', 5, 2, "rwm" },
   { 'c', 10, 200, "rwm" },
-  { 0, 0, 0, NULL }
+  { 0, 0, 0, ਨਿਰਾ }
 };
 
-struct default_dev_s *
+ਬਣਤਰ default_dev_s *
 get_default_devices ()
 {
-  return default_devices;
+  ਵਾਪਸ default_devices;
 }
 
-static int
-write_cgroup_file_or_alias (int dirfd, const char *name, const char *alias, const void *data, size_t len, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+write_cgroup_file_or_alias (ਪੂਰਨ dirfd, ਅਚਲ ਅੱਖਰ *name, ਅਚਲ ਅੱਖਰ *alias, ਅਚਲ ਖਾਲੀ *ਅੰਕੜੇ, size_t len, libcrun_error_t *err)
 {
-  int ret;
+  ਪੂਰਨ ret;
 
-  ret = write_cgroup_file (dirfd, name, data, len, err);
-  if (UNLIKELY (alias != NULL && ret < 0 && crun_error_get_errno (err) == ENOENT))
+  ret = write_cgroup_file (dirfd, name, ਅੰਕੜੇ, len, err);
+  ਜੇ (UNLIKELY (alias != ਨਿਰਾ && ret < 0 && crun_error_get_errno (err) == ENOENT))
     {
       crun_error_release (err);
-      ret = write_cgroup_file (dirfd, alias, data, len, err);
+      ret = write_cgroup_file (dirfd, alias, ਅੰਕੜੇ, len, err);
     }
-  return ret;
+  ਵਾਪਸ ret;
 }
 
-static inline int
-openat_with_alias (int dirfd, const char *name, const char *alias, const char **used_name, int flags, libcrun_error_t *err)
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ
+openat_with_alias (ਪੂਰਨ dirfd, ਅਚਲ ਅੱਖਰ *name, ਅਚਲ ਅੱਖਰ *alias, ਅਚਲ ਅੱਖਰ **ਵਰਤਿਆ_name, ਪੂਰਨ flags, libcrun_error_t *err)
 {
-  int ret;
+  ਪੂਰਨ ret;
 
-  *used_name = name;
+  *ਵਰਤਿਆ_name = name;
 
   ret = openat (dirfd, name, flags);
-  if (UNLIKELY (ret < 0 && alias != NULL && errno == ENOENT))
+  ਜੇ (UNLIKELY (ret < 0 && alias != ਨਿਰਾ && errno == ENOENT))
     {
-      *used_name = alias;
+      *ਵਰਤਿਆ_name = alias;
       ret = openat (dirfd, alias, flags);
     }
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "open `%s`", name);
-  return ret;
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ crun_make_error (err, errno, "open `%s`", name);
+  ਵਾਪਸ ret;
 }
 
-static int
-is_rwm (const char *str, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+is_rwm (ਅਚਲ ਅੱਖਰ *str, libcrun_error_t *err)
 {
-  const char *it;
+  ਅਚਲ ਅੱਖਰ *it;
   bool r = false;
   bool w = false;
   bool m = false;
 
-  if (str == NULL)
+  ਜੇ (str == ਨਿਰਾ)
     str = "";
 
-  for (it = str; *it; it++)
-    switch (*it)
+  ਲਈ (it = str; *it; it++)
+    ਚੋਣ (*it)
       {
-      case 'r':
+      ਹਾਲਤ 'r':
         r = true;
-        break;
+        ਰੋਕੋ;
 
-      case 'w':
+      ਹਾਲਤ 'w':
         w = true;
-        break;
+        ਰੋਕੋ;
 
-      case 'm':
+      ਹਾਲਤ 'm':
         m = true;
-        break;
+        ਰੋਕੋ;
 
-      default:
-        return crun_make_error (err, 0, "invalid mode specified `%s`", str);
+      ਮੂਲ:
+        ਵਾਪਸ crun_make_error (err, 0, "invalid mode specified `%s`", str);
       }
 
-  return r && w && m ? 1 : 0;
+  ਵਾਪਸ r && w && m ? 1 : 0;
 }
 
-static int
-check_cgroup_v2_controller_available_wrapper (int ret, int cgroup_dirfd, const char *name, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+check_cgroup_v2_controller_ਉਪਲਬਧ_wrapper (ਪੂਰਨ ret, ਪੂਰਨ cgroup_dirfd, ਅਚਲ ਅੱਖਰ *name, libcrun_error_t *err)
 {
-  if (ret == 0 || err == NULL)
-    return 0;
+  ਜੇ (ret == 0 || err == ਨਿਰਾ)
+    ਵਾਪਸ 0;
 
   errno = crun_error_get_errno (err);
 
   /* If the file is not found, try to give a more meaningful error message.  */
-  if (errno == ENOENT || errno == EPERM || errno == EACCES)
+  ਜੇ (errno == ENOENT || errno == EPERM || errno == EACCES)
     {
-      cleanup_free char *controllers = NULL;
-      libcrun_error_t tmp_err = NULL;
-      cleanup_free char *key = NULL;
-      char *saveptr = NULL;
-      bool found = false;
-      const char *token;
-      char *it;
+      cleanup_free ਅੱਖਰ *controllers = ਨਿਰਾ;
+      libcrun_error_t tmp_err = ਨਿਰਾ;
+      cleanup_free ਅੱਖਰ *ਕੁੰਜੀ = ਨਿਰਾ;
+      ਅੱਖਰ *saveptr = ਨਿਰਾ;
+      bool ਮਿਲਿਆ = false;
+      ਅਚਲ ਅੱਖਰ *token;
+      ਅੱਖਰ *it;
 
       /* Check if the specified controller is enabled.  */
-      key = xstrdup (name);
+      ਕੁੰਜੀ = xstrdup (name);
 
-      it = strchr (key, '.');
-      if (it == NULL)
+      it = strchr (ਕੁੰਜੀ, '.');
+      ਜੇ (it == ਨਿਰਾ)
         {
           crun_error_release (err);
-          return crun_make_error (err, 0, "the specified key has not the form CONTROLLER.VALUE `%s`", name);
+          ਵਾਪਸ crun_make_error (err, 0, "the specified key has not the form CONTROLLER.VALUE `%s`", name);
         }
       *it = '\0';
 
       /* cgroup. files are not part of a controller.  Return the original error.  */
-      if (strcmp (key, "cgroup") == 0)
-        return ret;
+      ਜੇ (strcmp (ਕੁੰਜੀ, "cgroup") == 0)
+        ਵਾਪਸ ret;
 
       /* If the cgroup.controllers file cannot be read, return the original error.  */
-      if (read_all_file_at (cgroup_dirfd, "cgroup.controllers", &controllers, NULL, &tmp_err) < 0)
+      ਜੇ (read_all_file_at (cgroup_dirfd, "cgroup.controllers", &controllers, ਨਿਰਾ, &tmp_err) < 0)
         {
           crun_error_release (&tmp_err);
-          return ret;
+          ਵਾਪਸ ret;
         }
-      for (token = strtok_r (controllers, " \n", &saveptr); token; token = strtok_r (NULL, " \n", &saveptr))
+      ਲਈ (token = strtok_r (controllers, " \n", &saveptr); token; token = strtok_r (ਨਿਰਾ, " \n", &saveptr))
         {
-          if (strcmp (token, key) == 0)
+          ਜੇ (strcmp (token, ਕੁੰਜੀ) == 0)
             {
-              found = true;
-              break;
+              ਮਿਲਿਆ = true;
+              ਰੋਕੋ;
             }
         }
-      if (! found)
+      ਜੇ (! ਮਿਲਿਆ)
         {
-          cleanup_free char *absolute_path = NULL;
-          libcrun_error_t tmp_err = NULL;
+          cleanup_free ਅੱਖਰ *absolute_ਰਸਤਾ = ਨਿਰਾ;
+          libcrun_error_t tmp_err = ਨਿਰਾ;
 
           crun_error_release (err);
-          ret = get_realpath_to_file (cgroup_dirfd, "cgroup.controllers", &absolute_path, &tmp_err);
-          if (LIKELY (ret >= 0))
-            ret = crun_make_error (err, 0, "controller `%s` is not available under %s", key, absolute_path);
-          else
+          ret = get_realpath_ਮੰਜ਼ਿਲ_file (cgroup_dirfd, "cgroup.controllers", &absolute_ਰਸਤਾ, &tmp_err);
+          ਜੇ (LIKELY (ret >= 0))
+            ret = crun_make_error (err, 0, "controller `%s` is not available under %s", ਕੁੰਜੀ, absolute_ਰਸਤਾ);
+          ਨਹੀਂਤਾਂ
             {
               crun_error_release (&tmp_err);
-              ret = crun_make_error (err, 0, "the requested cgroup controller `%s` is not available", key);
+              ret = crun_make_error (err, 0, "the requested cgroup controller `%s` is not available", ਕੁੰਜੀ);
             }
         }
     }
-  return ret;
+  ਵਾਪਸ ret;
 }
 
-static int
-write_file_and_check_controllers_at (bool cgroup2, int dirfd, const char *name, const char *name_alias,
-                                     const void *data, size_t len, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+write_file_and_check_controllers_at (bool cgroup2, ਪੂਰਨ dirfd, ਅਚਲ ਅੱਖਰ *name, ਅਚਲ ਅੱਖਰ *name_alias,
+                                     ਅਚਲ ਖਾਲੀ *ਅੰਕੜੇ, size_t len, libcrun_error_t *err)
 {
-  int ret;
+  ਪੂਰਨ ret;
 
-  ret = write_cgroup_file_or_alias (dirfd, name, name_alias, data, len, err);
-  if (cgroup2)
-    return check_cgroup_v2_controller_available_wrapper (ret, dirfd, name, err);
-  return ret;
+  ret = write_cgroup_file_or_alias (dirfd, name, name_alias, ਅੰਕੜੇ, len, err);
+  ਜੇ (cgroup2)
+    ਵਾਪਸ check_cgroup_v2_controller_ਉਪਲਬਧ_wrapper (ret, dirfd, name, err);
+  ਵਾਪਸ ret;
 }
 
-static int
-open_file_and_check_controllers_at (bool cgroup2, int dirfd, const char *name, int flags, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+open_file_and_check_controllers_at (bool cgroup2, ਪੂਰਨ dirfd, ਅਚਲ ਅੱਖਰ *name, ਪੂਰਨ flags, libcrun_error_t *err)
 {
-  int ret;
+  ਪੂਰਨ ret;
 
   ret = openat (dirfd, name, flags);
-  if (UNLIKELY (ret < 0))
+  ਜੇ (UNLIKELY (ret < 0))
     {
       ret = crun_make_error (err, errno, "open `%s`", name);
-      if (cgroup2)
-        return check_cgroup_v2_controller_available_wrapper (ret, dirfd, name, err);
+      ਜੇ (cgroup2)
+        ਵਾਪਸ check_cgroup_v2_controller_ਉਪਲਬਧ_wrapper (ret, dirfd, name, err);
     }
-  return ret;
+  ਵਾਪਸ ret;
 }
 
 /* The parser generates different structs but they are really all the same.  */
-typedef runtime_spec_schema_defs_linux_block_io_device_throttle throttling_s;
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ runtime_spec_schema_defs_linux_ਖੰਡ_io_device_throttle throttling_s;
 
-static int
-write_blkio_v1_resources_throttling (int dirfd, const char *name, throttling_s **throttling, size_t throttling_len,
+ਸਥਿਰ ਪੂਰਨ
+write_blkio_v1_resources_throttling (ਪੂਰਨ dirfd, ਅਚਲ ਅੱਖਰ *name, throttling_s **throttling, size_t throttling_len,
                                      libcrun_error_t *err)
 {
-  char fmt_buf[128];
+  ਅੱਖਰ fmt_buf[128];
   size_t i;
-  cleanup_close int fd = -1;
+  cleanup_close ਪੂਰਨ fd = -1;
 
-  if (throttling == NULL)
-    return 0;
+  ਜੇ (throttling == ਨਿਰਾ)
+    ਵਾਪਸ 0;
 
   fd = openat (dirfd, name, O_WRONLY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s`", name);
+  ਜੇ (UNLIKELY (fd < 0))
+    ਵਾਪਸ crun_make_error (err, errno, "open `%s`", name);
 
-  for (i = 0; i < throttling_len; i++)
+  ਲਈ (i = 0; i < throttling_len; i++)
     {
-      int ret;
-      int len;
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64 ":%" PRIu64 " %" PRIu64 "\n", throttling[i]->major, throttling[i]->minor,
-                      throttling[i]->rate);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      ਪੂਰਨ ret;
+      ਪੂਰਨ len;
+      len = snprintf (fmt_buf, ਆਕਾਰ (fmt_buf), "%" PRIu64 ":%" PRIu64 " %" PRIu64 "\n", throttling[i]->major, throttling[i]->minor,
+                      throttling[i]->ਦਰ);
+      ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (fmt_buf)))
+        ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
 
-      ret = TEMP_FAILURE_RETRY (write (fd, fmt_buf, len));
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "write `%s`", name);
+      ret = ਆਰਜ਼ੀ_FAILURE_RETRY (ਲਿਖ (fd, fmt_buf, len));
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ crun_make_error (err, errno, "write `%s`", name);
     }
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static int
-write_blkio_v2_resources_throttling (int fd, const char *name, throttling_s **throttling, size_t throttling_len,
+ਸਥਿਰ ਪੂਰਨ
+write_blkio_v2_resources_throttling (ਪੂਰਨ fd, ਅਚਲ ਅੱਖਰ *name, throttling_s **throttling, size_t throttling_len,
                                      libcrun_error_t *err)
 {
-  char fmt_buf[128];
+  ਅੱਖਰ fmt_buf[128];
   size_t i;
 
-  if (throttling == NULL)
-    return 0;
+  ਜੇ (throttling == ਨਿਰਾ)
+    ਵਾਪਸ 0;
 
-  for (i = 0; i < throttling_len; i++)
+  ਲਈ (i = 0; i < throttling_len; i++)
     {
-      int ret;
-      int len;
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64 ":%" PRIu64 " %s=%" PRIu64 "\n", throttling[i]->major, throttling[i]->minor,
-                      name, throttling[i]->rate);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      ਪੂਰਨ ret;
+      ਪੂਰਨ len;
+      len = snprintf (fmt_buf, ਆਕਾਰ (fmt_buf), "%" PRIu64 ":%" PRIu64 " %s=%" PRIu64 "\n", throttling[i]->major, throttling[i]->minor,
+                      name, throttling[i]->ਦਰ);
+      ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (fmt_buf)))
+        ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
 
-      ret = TEMP_FAILURE_RETRY (write (fd, fmt_buf, len));
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "write `%s`", name);
+      ret = ਆਰਜ਼ੀ_FAILURE_RETRY (ਲਿਖ (fd, fmt_buf, len));
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ crun_make_error (err, errno, "write `%s`", name);
     }
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static int
-write_blkio_resources (int dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_block_io *blkio,
+ਸਥਿਰ ਪੂਰਨ
+write_blkio_resources (ਪੂਰਨ dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_ਖੰਡ_io *blkio,
                        libcrun_error_t *err)
 {
-  char fmt_buf[128];
-  int len;
-  int ret;
+  ਅੱਖਰ fmt_buf[128];
+  ਪੂਰਨ len;
+  ਪੂਰਨ ret;
 
-  if (blkio->weight)
+  ਜੇ (blkio->ਭਾਰ)
     {
-      uint32_t val = blkio->weight;
+      uint32_t val = blkio->ਭਾਰ;
 
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu32, val);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
-      if (! cgroup2)
+      len = snprintf (fmt_buf, ਆਕਾਰ (fmt_buf), "%" PRIu32, val);
+      ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (fmt_buf)))
+        ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
+      ਜੇ (! cgroup2)
         {
           ret = write_cgroup_file_or_alias (dirfd, "blkio.weight", "blkio.bfq.weight", fmt_buf, len, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ਜੇ (UNLIKELY (ret < 0))
+            ਵਾਪਸ ret;
         }
-      else
+      ਨਹੀਂਤਾਂ
         {
           ret = write_cgroup_file (dirfd, "io.bfq.weight", fmt_buf, len, err);
-          if (UNLIKELY (ret < 0))
+          ਜੇ (UNLIKELY (ret < 0))
             {
-              if (crun_error_get_errno (err) == ENOENT)
+              ਜੇ (crun_error_get_errno (err) == ENOENT)
                 {
                   crun_error_release (err);
 
                   /* convert linearly from [10-1000] to [1-10000] */
                   val = 1 + (val - 10) * 9999 / 990;
 
-                  len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu32, val);
-                  if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-                    return crun_make_error (err, 0, "internal error: static buffer too small");
+                  len = snprintf (fmt_buf, ਆਕਾਰ (fmt_buf), "%" PRIu32, val);
+                  ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (fmt_buf)))
+                    ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
 
                   ret = write_cgroup_file (dirfd, "io.weight", fmt_buf, len, err);
                 }
 
-              if (UNLIKELY (ret < 0))
-                return ret;
+              ਜੇ (UNLIKELY (ret < 0))
+                ਵਾਪਸ ret;
             }
         }
     }
-  if (blkio->leaf_weight)
+  ਜੇ (blkio->ਪੱਤੀ_ਭਾਰ)
     {
-      if (cgroup2)
-        return crun_make_error (err, 0, "cannot set leaf_weight with cgroupv2");
+      ਜੇ (cgroup2)
+        ਵਾਪਸ crun_make_error (err, 0, "cannot set leaf_weight with cgroupv2");
 
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%d", blkio->leaf_weight);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, ਆਕਾਰ (fmt_buf), "%d", blkio->ਪੱਤੀ_ਭਾਰ);
+      ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (fmt_buf)))
+        ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
 
       ret = write_cgroup_file (dirfd, "blkio.leaf_weight", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
-  if (blkio->weight_device_len)
+  ਜੇ (blkio->ਭਾਰ_device_len)
     {
-      if (cgroup2)
+      ਜੇ (cgroup2)
         {
-          cleanup_close int wfd = -1;
+          cleanup_close ਪੂਰਨ wfd = -1;
           size_t i;
 
           wfd = openat (dirfd, "io.bfq.weight", O_WRONLY | O_CLOEXEC);
-          if (UNLIKELY (wfd < 0))
-            return crun_make_error (err, errno, "open `io.bfq.weight`");
-          for (i = 0; i < blkio->weight_device_len; i++)
+          ਜੇ (UNLIKELY (wfd < 0))
+            ਵਾਪਸ crun_make_error (err, errno, "open `io.bfq.weight`");
+          ਲਈ (i = 0; i < blkio->ਭਾਰ_device_len; i++)
             {
-              uint32_t w = blkio->weight_device[i]->weight;
+              uint32_t w = blkio->ਭਾਰ_device[i]->ਭਾਰ;
 
-              len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64 ":%" PRIu64 " %i\n", blkio->weight_device[i]->major,
-                              blkio->weight_device[i]->minor, w);
-              if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-                return crun_make_error (err, 0, "internal error: static buffer too small");
+              len = snprintf (fmt_buf, ਆਕਾਰ (fmt_buf), "%" PRIu64 ":%" PRIu64 " %i\n", blkio->ਭਾਰ_device[i]->major,
+                              blkio->ਭਾਰ_device[i]->minor, w);
+              ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (fmt_buf)))
+                ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
 
-              ret = TEMP_FAILURE_RETRY (write (wfd, fmt_buf, len));
-              if (UNLIKELY (ret < 0))
-                return crun_make_error (err, errno, "write `io.bfq.weight`");
+              ret = ਆਰਜ਼ੀ_FAILURE_RETRY (ਲਿਖ (wfd, fmt_buf, len));
+              ਜੇ (UNLIKELY (ret < 0))
+                ਵਾਪਸ crun_make_error (err, errno, "write `io.bfq.weight`");
 
               /* Ignore blkio->weight_device[i]->leaf_weight.  */
             }
         }
-      else
+      ਨਹੀਂਤਾਂ
         {
-          const char *leaf_weight_device_file_name = NULL;
-          const char *weight_device_file_name = NULL;
-          cleanup_close int w_leafdevice_fd = -1;
-          cleanup_close int w_device_fd = -1;
+          ਅਚਲ ਅੱਖਰ *ਪੱਤੀ_ਭਾਰ_device_file_name = ਨਿਰਾ;
+          ਅਚਲ ਅੱਖਰ *ਭਾਰ_device_file_name = ਨਿਰਾ;
+          cleanup_close ਪੂਰਨ w_leafdevice_fd = -1;
+          cleanup_close ਪੂਰਨ w_device_fd = -1;
           size_t i;
 
           w_device_fd = openat_with_alias (dirfd, "blkio.weight_device", "blkio.bfq.weight_device",
-                                           &weight_device_file_name, O_WRONLY | O_CLOEXEC, err);
-          if (UNLIKELY (w_device_fd < 0))
-            return w_device_fd;
+                                           &ਭਾਰ_device_file_name, O_WRONLY | O_CLOEXEC, err);
+          ਜੇ (UNLIKELY (w_device_fd < 0))
+            ਵਾਪਸ w_device_fd;
 
           w_leafdevice_fd = openat_with_alias (dirfd, "blkio.leaf_weight_device", "blkio.bfq.leaf_weight_device",
-                                               &leaf_weight_device_file_name, O_WRONLY | O_CLOEXEC, err);
-          if (UNLIKELY (w_leafdevice_fd < 0))
+                                               &ਪੱਤੀ_ਭਾਰ_device_file_name, O_WRONLY | O_CLOEXEC, err);
+          ਜੇ (UNLIKELY (w_leafdevice_fd < 0))
             {
               /* If the .leaf_weight_device file is missing, just ignore it.  */
               crun_error_release (err);
             }
 
-          for (i = 0; i < blkio->weight_device_len; i++)
+          ਲਈ (i = 0; i < blkio->ਭਾਰ_device_len; i++)
             {
-              len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64 ":%" PRIu64 " %" PRIu16 "\n", blkio->weight_device[i]->major,
-                              blkio->weight_device[i]->minor, blkio->weight_device[i]->weight);
-              if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-                return crun_make_error (err, 0, "internal error: static buffer too small");
+              len = snprintf (fmt_buf, ਆਕਾਰ (fmt_buf), "%" PRIu64 ":%" PRIu64 " %" PRIu16 "\n", blkio->ਭਾਰ_device[i]->major,
+                              blkio->ਭਾਰ_device[i]->minor, blkio->ਭਾਰ_device[i]->ਭਾਰ);
+              ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (fmt_buf)))
+                ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
 
-              ret = TEMP_FAILURE_RETRY (write (w_device_fd, fmt_buf, len));
-              if (UNLIKELY (ret < 0))
-                return crun_make_error (err, errno, "write `%s`", weight_device_file_name);
+              ret = ਆਰਜ਼ੀ_FAILURE_RETRY (ਲਿਖ (w_device_fd, fmt_buf, len));
+              ਜੇ (UNLIKELY (ret < 0))
+                ਵਾਪਸ crun_make_error (err, errno, "write `%s`", ਭਾਰ_device_file_name);
 
-              if (w_leafdevice_fd >= 0)
+              ਜੇ (w_leafdevice_fd >= 0)
                 {
-                  len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64 ":%" PRIu64 " %" PRIu16 "\n", blkio->weight_device[i]->major,
-                                  blkio->weight_device[i]->minor, blkio->weight_device[i]->leaf_weight);
-                  if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-                    return crun_make_error (err, 0, "internal error: static buffer too small");
+                  len = snprintf (fmt_buf, ਆਕਾਰ (fmt_buf), "%" PRIu64 ":%" PRIu64 " %" PRIu16 "\n", blkio->ਭਾਰ_device[i]->major,
+                                  blkio->ਭਾਰ_device[i]->minor, blkio->ਭਾਰ_device[i]->ਪੱਤੀ_ਭਾਰ);
+                  ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (fmt_buf)))
+                    ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
 
-                  ret = TEMP_FAILURE_RETRY (write (w_leafdevice_fd, fmt_buf, len));
-                  if (UNLIKELY (ret < 0))
-                    return crun_make_error (err, errno, "write `%s`", leaf_weight_device_file_name);
+                  ret = ਆਰਜ਼ੀ_FAILURE_RETRY (ਲਿਖ (w_leafdevice_fd, fmt_buf, len));
+                  ਜੇ (UNLIKELY (ret < 0))
+                    ਵਾਪਸ crun_make_error (err, errno, "write `%s`", ਪੱਤੀ_ਭਾਰ_device_file_name);
                 }
             }
         }
     }
-  if (cgroup2)
+  ਜੇ (cgroup2)
     {
-      cleanup_close int wfd = -1;
-      const char *name = "io.max";
+      cleanup_close ਪੂਰਨ wfd = -1;
+      ਅਚਲ ਅੱਖਰ *name = "io.max";
 
       wfd = openat (dirfd, name, O_WRONLY | O_CLOEXEC);
-      if (UNLIKELY (wfd < 0))
+      ਜੇ (UNLIKELY (wfd < 0))
         {
           ret = crun_make_error (err, errno, "open `%s`", name);
-          return check_cgroup_v2_controller_available_wrapper (ret, dirfd, name, err);
+          ਵਾਪਸ check_cgroup_v2_controller_ਉਪਲਬਧ_wrapper (ret, dirfd, name, err);
         }
 
       ret = write_blkio_v2_resources_throttling (wfd, "rbps", (throttling_s **) blkio->throttle_read_bps_device,
                                                  blkio->throttle_read_bps_device_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
 
       ret = write_blkio_v2_resources_throttling (wfd, "wbps", (throttling_s **) blkio->throttle_write_bps_device,
                                                  blkio->throttle_write_bps_device_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
 
       ret = write_blkio_v2_resources_throttling (wfd, "riops", (throttling_s **) blkio->throttle_read_iops_device,
                                                  blkio->throttle_read_iops_device_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
 
       ret = write_blkio_v2_resources_throttling (wfd, "wiops", (throttling_s **) blkio->throttle_write_iops_device,
                                                  blkio->throttle_write_iops_device_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
-  else
+  ਨਹੀਂਤਾਂ
     {
       ret = write_blkio_v1_resources_throttling (dirfd, "blkio.throttle.read_bps_device",
                                                  (throttling_s **) blkio->throttle_read_bps_device,
                                                  blkio->throttle_read_bps_device_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
 
       ret = write_blkio_v1_resources_throttling (dirfd, "blkio.throttle.write_bps_device",
                                                  (throttling_s **) blkio->throttle_write_bps_device,
                                                  blkio->throttle_write_bps_device_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
 
       ret = write_blkio_v1_resources_throttling (dirfd, "blkio.throttle.read_iops_device",
                                                  (throttling_s **) blkio->throttle_read_iops_device,
                                                  blkio->throttle_read_iops_device_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
 
       ret = write_blkio_v1_resources_throttling (dirfd, "blkio.throttle.write_iops_device",
                                                  (throttling_s **) blkio->throttle_write_iops_device,
                                                  blkio->throttle_write_iops_device_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static int
-write_network_resources (int dirfd_netclass, int dirfd_netprio, runtime_spec_schema_config_linux_resources_network *net,
+ਸਥਿਰ ਪੂਰਨ
+write_ਜਾਲ_resources (ਪੂਰਨ dirfd_netclass, ਪੂਰਨ dirfd_netprio, runtime_spec_schema_config_linux_resources_ਜਾਲ *net,
                          libcrun_error_t *err)
 {
-  char fmt_buf[128];
-  int len;
-  int ret;
-  if (net->class_id)
+  ਅੱਖਰ fmt_buf[128];
+  ਪੂਰਨ len;
+  ਪੂਰਨ ret;
+  ਜੇ (net->class_id)
     {
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu32, net->class_id);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, ਆਕਾਰ (fmt_buf), "%" PRIu32, net->class_id);
+      ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (fmt_buf)))
+        ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
 
       ret = write_cgroup_file (dirfd_netclass, "net_cls.classid", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
-  if (net->priorities_len)
+  ਜੇ (net->priorities_len)
     {
       size_t i;
-      cleanup_close int fd = -1;
+      cleanup_close ਪੂਰਨ fd = -1;
       fd = openat (dirfd_netprio, "net_prio.ifpriomap", O_WRONLY | O_CLOEXEC);
-      if (UNLIKELY (fd < 0))
-        return crun_make_error (err, errno, "open `net_prio.ifpriomap`");
+      ਜੇ (UNLIKELY (fd < 0))
+        ਵਾਪਸ crun_make_error (err, errno, "open `net_prio.ifpriomap`");
 
-      for (i = 0; i < net->priorities_len; i++)
+      ਲਈ (i = 0; i < net->priorities_len; i++)
         {
-          len = snprintf (fmt_buf, sizeof (fmt_buf), "%s %" PRIu32 "\n", net->priorities[i]->name,
-                          net->priorities[i]->priority);
-          if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-            return crun_make_error (err, 0, "internal error: static buffer too small");
+          len = snprintf (fmt_buf, ਆਕਾਰ (fmt_buf), "%s %" PRIu32 "\n", net->priorities[i]->name,
+                          net->priorities[i]->ਤਰਜੀਹ);
+          ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (fmt_buf)))
+            ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
 
-          ret = TEMP_FAILURE_RETRY (write (fd, fmt_buf, len));
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "write `net_prio.ifpriomap`");
+          ret = ਆਰਜ਼ੀ_FAILURE_RETRY (ਲਿਖ (fd, fmt_buf, len));
+          ਜੇ (UNLIKELY (ret < 0))
+            ਵਾਪਸ crun_make_error (err, errno, "write `net_prio.ifpriomap`");
         }
     }
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static int
-write_hugetlb_resources (int dirfd, bool cgroup2,
+ਸਥਿਰ ਪੂਰਨ
+write_hugetlb_resources (ਪੂਰਨ dirfd, bool cgroup2,
                          runtime_spec_schema_config_linux_resources_hugepage_limits_element **htlb, size_t htlb_len,
                          libcrun_error_t *err)
 {
-  const char *suffix = cgroup2 ? "max" : "limit_in_bytes";
+  ਅਚਲ ਅੱਖਰ *suffix = cgroup2 ? "max" : "limit_in_bytes";
   bool skip_rsvd = false;
-  char fmt_buf[128];
+  ਅੱਖਰ fmt_buf[128];
   size_t i;
-  for (i = 0; i < htlb_len; i++)
+  ਲਈ (i = 0; i < htlb_len; i++)
     {
-      cleanup_free char *filename = NULL;
-      cleanup_free char *rsvd_filename = NULL;
-      int len;
-      int ret;
+      cleanup_free ਅੱਖਰ *filename = ਨਿਰਾ;
+      cleanup_free ਅੱਖਰ *rsvd_filename = ਨਿਰਾ;
+      ਪੂਰਨ len;
+      ਪੂਰਨ ret;
 
-      xasprintf (&filename, "hugetlb.%s.%s", htlb[i]->page_size, suffix);
+      xasprintf (&filename, "hugetlb.%s.%s", htlb[i]->ਪੰਨਾ_ਮਾਪ, suffix);
 
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, htlb[i]->limit);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
-      ret = write_file_and_check_controllers_at (cgroup2, dirfd, filename, NULL, fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      len = snprintf (fmt_buf, ਆਕਾਰ (fmt_buf), "%" PRIu64, htlb[i]->ਹੱਦਬੰਦੀ);
+      ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (fmt_buf)))
+        ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
+      ret = write_file_and_check_controllers_at (cgroup2, dirfd, filename, ਨਿਰਾ, fmt_buf, len, err);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
 
-      if (skip_rsvd)
-        continue;
+      ਜੇ (skip_rsvd)
+        ਜਾਰੀ;
 
       /* Reservation accounting (Linux >= 5.7) is used when available.  */
-      xasprintf (&rsvd_filename, "hugetlb.%s.rsvd.%s", htlb[i]->page_size, suffix);
+      xasprintf (&rsvd_filename, "hugetlb.%s.rsvd.%s", htlb[i]->ਪੰਨਾ_ਮਾਪ, suffix);
       ret = write_cgroup_file (dirfd, rsvd_filename, fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
+      ਜੇ (UNLIKELY (ret < 0))
         {
-          if (crun_error_get_errno (err) != ENOENT)
-            return ret;
+          ਜੇ (crun_error_get_errno (err) != ENOENT)
+            ਵਾਪਸ ret;
           crun_error_release (err);
           skip_rsvd = true;
         }
     }
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static int
-write_devices_resources_v1 (int dirfd, runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
+ਸਥਿਰ ਪੂਰਨ
+write_devices_resources_v1 (ਪੂਰਨ dirfd, runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
                             libcrun_error_t *err)
 {
   size_t i;
-  int len;
-  int ret;
+  ਪੂਰਨ len;
+  ਪੂਰਨ ret;
 
-  for (i = 0; i < devs_len; i++)
+  ਲਈ (i = 0; i < devs_len; i++)
     {
       /* It is plenty of room for "TYPE MAJOR:MINOR ACCESS", where type is one char, and ACCESS is at most 3.   */
-#define FMT_BUF_LEN 64
-      char fmt_buf[FMT_BUF_LEN];
-      const char *file = devs[i]->allow ? "devices.allow" : "devices.deny";
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ FMT_BUF_LEN 64
+      ਅੱਖਰ fmt_buf[FMT_BUF_LEN];
+      ਅਚਲ ਅੱਖਰ *file = devs[i]->allow ? "devices.allow" : "devices.deny";
 
-      if (devs[i]->type == NULL || devs[i]->type[0] == 'a')
+      ਜੇ (devs[i]->type == ਨਿਰਾ || devs[i]->type[0] == 'a')
         {
           strcpy (fmt_buf, "a");
           len = 1;
         }
-      else
+      ਨਹੀਂਤਾਂ
         {
-          char fmt_buf_major[16];
-          char fmt_buf_minor[16];
+          ਅੱਖਰ fmt_buf_major[16];
+          ਅੱਖਰ fmt_buf_minor[16];
 
-#define FMT_DEV(x, b)                                                                   \
-  do                                                                                    \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ FMT_DEV(x, b)                                                                   \
+  ਕਰੋ                                                                                    \
     {                                                                                   \
-      if (x##_present)                                                                  \
+      ਜੇ (x##_present)                                                                  \
         {                                                                               \
-          len = snprintf (b, sizeof (b), "%" PRIi64, x);                                \
-          if (UNLIKELY (len >= (int) sizeof (b)))                                       \
-            return crun_make_error (err, 0, "internal error: static buffer too small"); \
+          len = snprintf (b, ਆਕਾਰ (b), "%" PRIi64, x);                                \
+          ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (b)))                                       \
+            ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small"); \
         }                                                                               \
-      else                                                                              \
+      ਨਹੀਂਤਾਂ                                                                              \
         strcpy (b, "*");                                                                \
-  } while (0)
+  } ਜਦੋਂ (0)
 
           FMT_DEV (devs[i]->major, fmt_buf_major);
           FMT_DEV (devs[i]->minor, fmt_buf_minor);
-#undef FMT_DEV
+#ਪਰਿਭਾਸ਼ਾ_ਰੱਦ FMT_DEV
 
           /* `access` is optional, and libocispec leaves it NULL when it is not
              specified.  Printing a NULL pointer with %s is undefined.  */
           len = snprintf (fmt_buf, FMT_BUF_LEN, "%s %s:%s %s", devs[i]->type, fmt_buf_major, fmt_buf_minor,
                           devs[i]->access ? devs[i]->access : "");
-          if (UNLIKELY (len >= FMT_BUF_LEN))
-            return crun_make_error (err, 0, "internal error: static buffer too small");
+          ਜੇ (UNLIKELY (len >= FMT_BUF_LEN))
+            ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
         }
       ret = write_cgroup_file (dirfd, file, fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
 
-  for (i = 0; default_devices[i].type; i++)
+  ਲਈ (i = 0; default_devices[i].type; i++)
     {
-      char fmt_buf_major[16];
-      char fmt_buf_minor[16];
-      char device[64];
-      int len;
+      ਅੱਖਰ fmt_buf_major[16];
+      ਅੱਖਰ fmt_buf_minor[16];
+      ਅੱਖਰ device[64];
+      ਪੂਰਨ len;
 
-#define FMT_DEV(x, b)                                                                   \
-  do                                                                                    \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ FMT_DEV(x, b)                                                                   \
+  ਕਰੋ                                                                                    \
     {                                                                                   \
-      if (x != -1)                                                                      \
+      ਜੇ (x != -1)                                                                      \
         {                                                                               \
-          len = snprintf (b, sizeof (b), "%d", x);                                      \
-          if (UNLIKELY (len >= (int) sizeof (b)))                                       \
-            return crun_make_error (err, 0, "internal error: static buffer too small"); \
+          len = snprintf (b, ਆਕਾਰ (b), "%d", x);                                      \
+          ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (b)))                                       \
+            ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small"); \
         }                                                                               \
-      else                                                                              \
+      ਨਹੀਂਤਾਂ                                                                              \
         strcpy (b, "*");                                                                \
-  } while (0)
+  } ਜਦੋਂ (0)
 
       FMT_DEV (default_devices[i].major, fmt_buf_major);
       FMT_DEV (default_devices[i].minor, fmt_buf_minor);
 
-#undef FMT_DEV
+#ਪਰਿਭਾਸ਼ਾ_ਰੱਦ FMT_DEV
 
-      len = snprintf (device, sizeof (device), "%c %s:%s %s", default_devices[i].type, fmt_buf_major, fmt_buf_minor,
+      len = snprintf (device, ਆਕਾਰ (device), "%c %s:%s %s", default_devices[i].type, fmt_buf_major, fmt_buf_minor,
                       default_devices[i].access);
-      if (UNLIKELY (len >= (int) sizeof (device)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (device)))
+        ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
 
-      ret = write_cgroup_file (dirfd, "devices.allow", device, strlen (device), err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = write_cgroup_file (dirfd, "devices.allow", device, ਲੜੀ_ਲੰਬਾਈ (device), err);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-struct bpf_program *
+ਬਣਤਰ bpf_ਪ੍ਰੋਗਰਾਮ *
 create_dev_bpf (runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
                 libcrun_error_t *err)
 {
-  int i;
-  struct bpf_program *program;
+  ਪੂਰਨ i;
+  ਬਣਤਰ bpf_ਪ੍ਰੋਗਰਾਮ *ਪ੍ਰੋਗਰਾਮ;
 
-  program = bpf_program_new (2048);
+  ਪ੍ਰੋਗਰਾਮ = bpf_ਪ੍ਰੋਗਰਾਮ_new (2048);
 
-  program = bpf_program_init_dev (program, err);
-  if (UNLIKELY (program == NULL))
-    return NULL;
+  ਪ੍ਰੋਗਰਾਮ = bpf_ਪ੍ਰੋਗਰਾਮ_init_dev (ਪ੍ਰੋਗਰਾਮ, err);
+  ਜੇ (UNLIKELY (ਪ੍ਰੋਗਰਾਮ == ਨਿਰਾ))
+    ਵਾਪਸ ਨਿਰਾ;
 
-  for (i = (sizeof (default_devices) / sizeof (default_devices[0])) - 1; i >= 0; i--)
+  ਲਈ (i = (ਆਕਾਰ (default_devices) / ਆਕਾਰ (default_devices[0])) - 1; i >= 0; i--)
     {
-      program = bpf_program_append_dev (program, default_devices[i].access, default_devices[i].type,
+      ਪ੍ਰੋਗਰਾਮ = bpf_ਪ੍ਰੋਗਰਾਮ_append_dev (ਪ੍ਰੋਗਰਾਮ, default_devices[i].access, default_devices[i].type,
                                         default_devices[i].major, default_devices[i].minor, true, err);
-      if (UNLIKELY (program == NULL))
-        return NULL;
+      ਜੇ (UNLIKELY (ਪ੍ਰੋਗਰਾਮ == ਨਿਰਾ))
+        ਵਾਪਸ ਨਿਰਾ;
     }
-  for (i = devs_len - 1; i >= 0; i--)
+  ਲਈ (i = devs_len - 1; i >= 0; i--)
     {
-      char type = 'a';
-      int minor = -1, major = -1;
-      if (devs[i]->type != NULL)
+      ਅੱਖਰ type = 'a';
+      ਪੂਰਨ minor = -1, major = -1;
+      ਜੇ (devs[i]->type != ਨਿਰਾ)
         type = devs[i]->type[0];
 
-      if (devs[i]->major_present)
+      ਜੇ (devs[i]->major_present)
         major = devs[i]->major;
-      if (devs[i]->minor_present)
+      ਜੇ (devs[i]->minor_present)
         minor = devs[i]->minor;
 
-      program = bpf_program_append_dev (program, devs[i]->access, type, major, minor, devs[i]->allow, err);
-      if (UNLIKELY (program == NULL))
-        return NULL;
+      ਪ੍ਰੋਗਰਾਮ = bpf_ਪ੍ਰੋਗਰਾਮ_append_dev (ਪ੍ਰੋਗਰਾਮ, devs[i]->access, type, major, minor, devs[i]->allow, err);
+      ਜੇ (UNLIKELY (ਪ੍ਰੋਗਰਾਮ == ਨਿਰਾ))
+        ਵਾਪਸ ਨਿਰਾ;
     }
 
-  program = bpf_program_complete_dev (program, err);
-  if (UNLIKELY (program == NULL))
-    return NULL;
+  ਪ੍ਰੋਗਰਾਮ = bpf_ਪ੍ਰੋਗਰਾਮ_complete_dev (ਪ੍ਰੋਗਰਾਮ, err);
+  ਜੇ (UNLIKELY (ਪ੍ਰੋਗਰਾਮ == ਨਿਰਾ))
+    ਵਾਪਸ ਨਿਰਾ;
 
-  return program;
+  ਵਾਪਸ ਪ੍ਰੋਗਰਾਮ;
 }
 
-static int
-write_devices_resources_v2_internal (int dirfd, runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
+ਸਥਿਰ ਪੂਰਨ
+write_devices_resources_v2_ਅੰਦਰੂਨੀ (ਪੂਰਨ dirfd, runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
                                      libcrun_error_t *err)
 {
-  cleanup_free struct bpf_program *program = NULL;
+  cleanup_free ਬਣਤਰ bpf_ਪ੍ਰੋਗਰਾਮ *ਪ੍ਰੋਗਰਾਮ = ਨਿਰਾ;
 
-  program = create_dev_bpf (devs, devs_len, err);
-  if (UNLIKELY (program == NULL))
-    return -1;
+  ਪ੍ਰੋਗਰਾਮ = create_dev_bpf (devs, devs_len, err);
+  ਜੇ (UNLIKELY (ਪ੍ਰੋਗਰਾਮ == ਨਿਰਾ))
+    ਵਾਪਸ -1;
 
-  return libcrun_ebpf_load (program, dirfd, NULL, err);
+  ਵਾਪਸ libcrun_ebpf_ਲੱਦੋ (ਪ੍ਰੋਗਰਾਮ, dirfd, ਨਿਰਾ, err);
 }
 
-static int
-write_devices_resources_v2 (int dirfd, runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
+ਸਥਿਰ ਪੂਰਨ
+write_devices_resources_v2 (ਪੂਰਨ dirfd, runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
                             libcrun_error_t *err)
 {
-  int ret;
+  ਪੂਰਨ ret;
   size_t i;
   bool can_skip = true;
 
-  ret = write_devices_resources_v2_internal (dirfd, devs, devs_len, err);
-  if (LIKELY (ret == 0))
-    return 0;
+  ret = write_devices_resources_v2_ਅੰਦਰੂਨੀ (dirfd, devs, devs_len, err);
+  ਜੇ (LIKELY (ret == 0))
+    ਵਾਪਸ 0;
 
   /* If writing the resources ebpf failed, check if it is fine to ignore the error.  */
-  for (i = 0; i < devs_len; i++)
+  ਲਈ (i = 0; i < devs_len; i++)
     {
-      if (devs[i]->allow_present && ! devs[i]->allow)
+      ਜੇ (devs[i]->allow_present && ! devs[i]->allow)
         {
           can_skip = false;
-          break;
+          ਰੋਕੋ;
         }
     }
 
-  if (! can_skip)
+  ਜੇ (! can_skip)
     {
-      libcrun_error_t tmp_err = NULL;
-      int rootless;
+      libcrun_error_t tmp_err = ਨਿਰਾ;
+      ਪੂਰਨ rootless;
 
       rootless = is_rootless (&tmp_err);
-      if (UNLIKELY (rootless < 0))
+      ਜੇ (UNLIKELY (rootless < 0))
         {
           crun_error_release (err);
           *err = tmp_err;
-          return ret;
+          ਵਾਪਸ ret;
         }
-      if (rootless)
+      ਜੇ (rootless)
         can_skip = true;
     }
 
-  if (can_skip)
+  ਜੇ (can_skip)
     {
       crun_error_release (err);
       ret = 0;
     }
 
-  return ret;
+  ਵਾਪਸ ret;
 }
 
-static int
-write_devices_resources (int dirfd, bool cgroup2, runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
+ਸਥਿਰ ਪੂਰਨ
+write_devices_resources (ਪੂਰਨ dirfd, bool cgroup2, runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
                          libcrun_error_t *err)
 {
-  int ret;
+  ਪੂਰਨ ret;
 
-  if (cgroup2)
+  ਜੇ (cgroup2)
     ret = write_devices_resources_v2 (dirfd, devs, devs_len, err);
-  else
+  ਨਹੀਂਤਾਂ
     ret = write_devices_resources_v1 (dirfd, devs, devs_len, err);
-  if (UNLIKELY (ret < 0))
+  ਜੇ (UNLIKELY (ret < 0))
     {
-      libcrun_error_t tmp_err = NULL;
-      int rootless;
+      libcrun_error_t tmp_err = ਨਿਰਾ;
+      ਪੂਰਨ rootless;
 
       rootless = is_rootless (&tmp_err);
-      if (UNLIKELY (rootless < 0))
+      ਜੇ (UNLIKELY (rootless < 0))
         {
           crun_error_release (&tmp_err);
-          return ret;
+          ਵਾਪਸ ret;
         }
 
-      if (rootless)
+      ਜੇ (rootless)
         {
           crun_error_release (err);
           ret = 0;
         }
     }
-  return ret;
+  ਵਾਪਸ ret;
 }
 
 /* use for cgroupv2 files with .min, .max, .low, or .high suffix */
-static int
-cg_itoa (char *buf, size_t size, int64_t value, bool use_max, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+cg_itoa (ਅੱਖਰ *buf, size_t ਮਾਪ, int64_t ਮੁੱਲ, bool use_max, libcrun_error_t *err)
 {
-  int len;
+  ਪੂਰਨ len;
 
-  if (use_max && value < 0)
-    len = snprintf (buf, size, "max");
-  else
-    len = snprintf (buf, size, "%" PRIi64, value);
+  ਜੇ (use_max && ਮੁੱਲ < 0)
+    len = snprintf (buf, ਮਾਪ, "max");
+  ਨਹੀਂਤਾਂ
+    len = snprintf (buf, ਮਾਪ, "%" PRIi64, ਮੁੱਲ);
 
-  if (UNLIKELY (len >= (int) size))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਮਾਪ))
+    ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
 
-  return len;
+  ਵਾਪਸ len;
 }
 
-static int
-write_memory (int dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_memory *memory, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+write_ਸਮ੍ਰਿਤੀ (ਪੂਰਨ dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_ਸਮ੍ਰਿਤੀ *ਸਮ੍ਰਿਤੀ, libcrun_error_t *err)
 {
-  char limit_buf[32];
-  int limit_buf_len;
+  ਅੱਖਰ ਹੱਦਬੰਦੀ_buf[32];
+  ਪੂਰਨ ਹੱਦਬੰਦੀ_buf_len;
 
-  if (! memory->limit_present)
-    return 0;
+  ਜੇ (! ਸਮ੍ਰਿਤੀ->ਹੱਦਬੰਦੀ_present)
+    ਵਾਪਸ 0;
 
-  limit_buf_len = cg_itoa (limit_buf, sizeof (limit_buf), memory->limit, cgroup2, err);
-  if (UNLIKELY (limit_buf_len < 0))
-    return limit_buf_len;
+  ਹੱਦਬੰਦੀ_buf_len = cg_itoa (ਹੱਦਬੰਦੀ_buf, ਆਕਾਰ (ਹੱਦਬੰਦੀ_buf), ਸਮ੍ਰਿਤੀ->ਹੱਦਬੰਦੀ, cgroup2, err);
+  ਜੇ (UNLIKELY (ਹੱਦਬੰਦੀ_buf_len < 0))
+    ਵਾਪਸ ਹੱਦਬੰਦੀ_buf_len;
 
-  return write_cgroup_file (dirfd, cgroup2 ? "memory.max" : "memory.limit_in_bytes", limit_buf, limit_buf_len, err);
+  ਵਾਪਸ write_cgroup_file (dirfd, cgroup2 ? "memory.max" : "memory.limit_in_bytes", ਹੱਦਬੰਦੀ_buf, ਹੱਦਬੰਦੀ_buf_len, err);
 }
 
-static int
-write_memory_swap (int dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_memory *memory,
+ਸਥਿਰ ਪੂਰਨ
+write_ਸਮ੍ਰਿਤੀ_ਅਦਲਾ_ਬਦਲੀ (ਪੂਰਨ dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_ਸਮ੍ਰਿਤੀ *ਸਮ੍ਰਿਤੀ,
                    libcrun_error_t *err)
 {
-  int ret;
-  int64_t swap;
-  char swap_buf[32];
-  int len;
-  const char *fname = cgroup2 ? "memory.swap.max" : "memory.memsw.limit_in_bytes";
+  ਪੂਰਨ ret;
+  int64_t ਅਦਲਾ_ਬਦਲੀ;
+  ਅੱਖਰ ਅਦਲਾ_ਬਦਲੀ_buf[32];
+  ਪੂਰਨ len;
+  ਅਚਲ ਅੱਖਰ *fname = cgroup2 ? "memory.swap.max" : "memory.memsw.limit_in_bytes";
 
-  if (! memory->swap_present)
-    return 0;
+  ਜੇ (! ਸਮ੍ਰਿਤੀ->ਅਦਲਾ_ਬਦਲੀ_present)
+    ਵਾਪਸ 0;
 
-  swap = memory->swap;
+  ਅਦਲਾ_ਬਦਲੀ = ਸਮ੍ਰਿਤੀ->ਅਦਲਾ_ਬਦਲੀ;
   // Cgroupv2 apply limit must check if swap > 0, since `0` and `-1` are special case
   // 0: This means process will not be able to use any swap space.
   // -1: This means that the process can use as much swap as it needs.
-  if (cgroup2 && memory->swap > 0)
+  ਜੇ (cgroup2 && ਸਮ੍ਰਿਤੀ->ਅਦਲਾ_ਬਦਲੀ > 0)
     {
-      if (! memory->limit_present)
-        return crun_make_error (err, 0, "cannot set swap limit without the memory limit");
-      if (memory->swap < memory->limit)
-        return crun_make_error (err, 0, "cannot set memory+swap limit less than the memory limit");
+      ਜੇ (! ਸਮ੍ਰਿਤੀ->ਹੱਦਬੰਦੀ_present)
+        ਵਾਪਸ crun_make_error (err, 0, "cannot set swap limit without the memory limit");
+      ਜੇ (ਸਮ੍ਰਿਤੀ->ਅਦਲਾ_ਬਦਲੀ < ਸਮ੍ਰਿਤੀ->ਹੱਦਬੰਦੀ)
+        ਵਾਪਸ crun_make_error (err, 0, "cannot set memory+swap limit less than the memory limit");
 
-      swap -= memory->limit;
+      ਅਦਲਾ_ਬਦਲੀ -= ਸਮ੍ਰਿਤੀ->ਹੱਦਬੰਦੀ;
     }
 
-  len = cg_itoa (swap_buf, sizeof (swap_buf), swap, cgroup2, err);
-  if (UNLIKELY (len < 0))
-    return len;
+  len = cg_itoa (ਅਦਲਾ_ਬਦਲੀ_buf, ਆਕਾਰ (ਅਦਲਾ_ਬਦਲੀ_buf), ਅਦਲਾ_ਬਦਲੀ, cgroup2, err);
+  ਜੇ (UNLIKELY (len < 0))
+    ਵਾਪਸ len;
 
-  ret = write_cgroup_file (dirfd, fname, swap_buf, len, err);
-  if (ret >= 0)
-    return ret;
+  ret = write_cgroup_file (dirfd, fname, ਅਦਲਾ_ਬਦਲੀ_buf, len, err);
+  ਜੇ (ret >= 0)
+    ਵਾਪਸ ret;
 
   /* If swap is not enabled, ignore the error.  */
-  if (crun_error_get_errno (err) == ENOENT)
+  ਜੇ (crun_error_get_errno (err) == ENOENT)
     {
       crun_error_release (err);
-      return 0;
+      ਵਾਪਸ 0;
     }
 
-  return ret;
+  ਵਾਪਸ ret;
 }
 
-static int
-write_memory_resources (int dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_memory *memory,
+ਸਥਿਰ ਪੂਰਨ
+write_ਸਮ੍ਰਿਤੀ_resources (ਪੂਰਨ dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_ਸਮ੍ਰਿਤੀ *ਸਮ੍ਰਿਤੀ,
                         libcrun_error_t *err)
 {
-  int len;
-  int ret;
-  char fmt_buf[32];
-  bool memory_limits_written = false;
+  ਪੂਰਨ len;
+  ਪੂਰਨ ret;
+  ਅੱਖਰ fmt_buf[32];
+  bool ਸਮ੍ਰਿਤੀ_limits_written = false;
 
-  if (memory->limit_present)
+  ਜੇ (ਸਮ੍ਰਿਤੀ->ਹੱਦਬੰਦੀ_present)
     {
-      ret = write_memory (dirfd, cgroup2, memory, err);
-      if (ret >= 0)
-        memory_limits_written = true;
-      else
+      ret = write_ਸਮ੍ਰਿਤੀ (dirfd, cgroup2, ਸਮ੍ਰਿਤੀ, err);
+      ਜੇ (ret >= 0)
+        ਸਮ੍ਰਿਤੀ_limits_written = true;
+      ਨਹੀਂਤਾਂ
         {
-          if (cgroup2 || crun_error_get_errno (err) != EINVAL)
-            return ret;
+          ਜੇ (cgroup2 || crun_error_get_errno (err) != EINVAL)
+            ਵਾਪਸ ret;
 
           /*
             If we get an EINVAL error on cgroup v1 we reverse
@@ -887,194 +887,194 @@ write_memory_resources (int dirfd, bool cgroup2, runtime_spec_schema_config_linu
         }
     }
 
-  ret = write_memory_swap (dirfd, cgroup2, memory, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = write_ਸਮ੍ਰਿਤੀ_ਅਦਲਾ_ਬਦਲੀ (dirfd, cgroup2, ਸਮ੍ਰਿਤੀ, err);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
-  if (memory->limit_present && ! memory_limits_written)
+  ਜੇ (ਸਮ੍ਰਿਤੀ->ਹੱਦਬੰਦੀ_present && ! ਸਮ੍ਰਿਤੀ_limits_written)
     {
-      ret = write_memory (dirfd, cgroup2, memory, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = write_ਸਮ੍ਰਿਤੀ (dirfd, cgroup2, ਸਮ੍ਰਿਤੀ, err);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
 
-  if (memory->kernel_present)
+  ਜੇ (ਸਮ੍ਰਿਤੀ->kernel_present)
     {
-      if (cgroup2)
-        return crun_make_error (err, 0, "cannot set kernel memory with cgroupv2");
+      ਜੇ (cgroup2)
+        ਵਾਪਸ crun_make_error (err, 0, "cannot set kernel memory with cgroupv2");
 
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, memory->kernel);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, ਆਕਾਰ (fmt_buf), "%" PRIu64, ਸਮ੍ਰਿਤੀ->kernel);
+      ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (fmt_buf)))
+        ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
       ret = write_cgroup_file (dirfd, "memory.kmem.limit_in_bytes", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
 
   // allows users set use_hierarchy as 0 when defined as false in spec.
   // if use_hierarchy is not defined in spec value defaults to 1 (True).
   // Note: users can only toggle use_hierarchy if the parent cgroup has use_hierarchy configured as 0.
-  if (memory->use_hierarchy_present)
+  ਜੇ (ਸਮ੍ਰਿਤੀ->use_hierarchy_present)
     {
-      if (cgroup2)
-        return crun_make_error (err, 0, "cannot set useHierarchy memory with cgroupv2");
+      ਜੇ (cgroup2)
+        ਵਾਪਸ crun_make_error (err, 0, "cannot set useHierarchy memory with cgroupv2");
 
-      ret = write_cgroup_file (dirfd, "memory.use_hierarchy", (memory->use_hierarchy) ? "1" : "0", 1, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = write_cgroup_file (dirfd, "memory.use_hierarchy", (ਸਮ੍ਰਿਤੀ->use_hierarchy) ? "1" : "0", 1, err);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
 
-  if (memory->reservation_present)
+  ਜੇ (ਸਮ੍ਰਿਤੀ->reservation_present)
     {
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, memory->reservation);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, ਆਕਾਰ (fmt_buf), "%" PRIu64, ਸਮ੍ਰਿਤੀ->reservation);
+      ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (fmt_buf)))
+        ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
       ret = write_file_and_check_controllers_at (cgroup2, dirfd, cgroup2 ? "memory.low" : "memory.soft_limit_in_bytes",
-                                                 NULL, fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+                                                 ਨਿਰਾ, fmt_buf, len, err);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
-  if (memory->disable_oom_killer)
+  ਜੇ (ਸਮ੍ਰਿਤੀ->disable_oom_killer)
     {
-      if (cgroup2)
-        return crun_make_error (err, 0, "cannot disable OOM killer with cgroupv2");
+      ਜੇ (cgroup2)
+        ਵਾਪਸ crun_make_error (err, 0, "cannot disable OOM killer with cgroupv2");
 
       ret = write_cgroup_file (dirfd, "memory.oom_control", "1", 1, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
-  if (memory->kernel_tcp_present)
+  ਜੇ (ਸਮ੍ਰਿਤੀ->kernel_tcp_present)
     {
-      if (cgroup2)
-        return crun_make_error (err, 0, "cannot set kernel TCP with cgroupv2");
+      ਜੇ (cgroup2)
+        ਵਾਪਸ crun_make_error (err, 0, "cannot set kernel TCP with cgroupv2");
 
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, memory->kernel_tcp);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, ਆਕਾਰ (fmt_buf), "%" PRIu64, ਸਮ੍ਰਿਤੀ->kernel_tcp);
+      ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (fmt_buf)))
+        ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
       ret = write_cgroup_file (dirfd, "memory.kmem.tcp.limit_in_bytes", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
-  if (memory->swappiness_present)
+  ਜੇ (ਸਮ੍ਰਿਤੀ->swappiness_present)
     {
-      if (cgroup2)
-        return crun_make_error (err, 0, "cannot set memory swappiness with cgroupv2");
+      ਜੇ (cgroup2)
+        ਵਾਪਸ crun_make_error (err, 0, "cannot set memory swappiness with cgroupv2");
 
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, memory->swappiness);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, ਆਕਾਰ (fmt_buf), "%" PRIu64, ਸਮ੍ਰਿਤੀ->swappiness);
+      ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (fmt_buf)))
+        ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
       ret = write_cgroup_file (dirfd, "memory.swappiness", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-int
-write_cpu_idle (int cpu_dirfd, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err)
+ਪੂਰਨ
+write_cpu_idle (ਪੂਰਨ cpu_dirfd, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err)
 {
-  char fmt_buf[32];
-  int len;
+  ਅੱਖਰ fmt_buf[32];
+  ਪੂਰਨ len;
 
-  if (! cpu->idle_present)
-    return 0;
+  ਜੇ (! cpu->idle_present)
+    ਵਾਪਸ 0;
 
-  len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIi64, cpu->idle);
-  if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
-  return write_cgroup_file (cpu_dirfd, "cpu.idle", fmt_buf, len, err);
+  len = snprintf (fmt_buf, ਆਕਾਰ (fmt_buf), "%" PRIi64, cpu->idle);
+  ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (fmt_buf)))
+    ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
+  ਵਾਪਸ write_cgroup_file (cpu_dirfd, "cpu.idle", fmt_buf, len, err);
 }
 
-int
-write_cpu_burst (int cpu_dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu,
+ਪੂਰਨ
+write_cpu_ਮਿਆਦ (ਪੂਰਨ cpu_dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu,
                  libcrun_error_t *err)
 {
-  char fmt_buf[32];
-  int len;
+  ਅੱਖਰ fmt_buf[32];
+  ਪੂਰਨ len;
 
-  if (! cpu->burst_present)
-    return 0;
+  ਜੇ (! cpu->ਮਿਆਦ_present)
+    ਵਾਪਸ 0;
 
-  len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIi64, cpu->burst);
-  if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
-  return write_cgroup_file (cpu_dirfd, cgroup2 ? "cpu.max.burst" : "cpu.cfs_burst_us", fmt_buf, len, err);
+  len = snprintf (fmt_buf, ਆਕਾਰ (fmt_buf), "%" PRIi64, cpu->ਮਿਆਦ);
+  ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (fmt_buf)))
+    ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
+  ਵਾਪਸ write_cgroup_file (cpu_dirfd, cgroup2 ? "cpu.max.burst" : "cpu.cfs_burst_us", fmt_buf, len, err);
 }
 
-static int
-write_pids_resources (int dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_pids *pids,
+ਸਥਿਰ ਪੂਰਨ
+write_pids_resources (ਪੂਰਨ dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_pids *pids,
                       libcrun_error_t *err)
 {
-  if (pids->limit)
+  ਜੇ (pids->ਹੱਦਬੰਦੀ)
     {
-      char fmt_buf[32];
-      int len;
-      int ret;
+      ਅੱਖਰ fmt_buf[32];
+      ਪੂਰਨ len;
+      ਪੂਰਨ ret;
 
-      len = cg_itoa (fmt_buf, sizeof (fmt_buf), pids->limit, true, err);
-      if (UNLIKELY (len < 0))
-        return len;
+      len = cg_itoa (fmt_buf, ਆਕਾਰ (fmt_buf), pids->ਹੱਦਬੰਦੀ, true, err);
+      ਜੇ (UNLIKELY (len < 0))
+        ਵਾਪਸ len;
 
-      ret = write_file_and_check_controllers_at (cgroup2, dirfd, "pids.max", NULL, fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = write_file_and_check_controllers_at (cgroup2, dirfd, "pids.max", ਨਿਰਾ, fmt_buf, len, err);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static int
-write_cpu_resources (int dirfd_cpu, bool cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu,
+ਸਥਿਰ ਪੂਰਨ
+write_cpu_resources (ਪੂਰਨ dirfd_cpu, bool cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu,
                      libcrun_error_t *err)
 {
-  int len, period_len = 0;
-  int ret;
-  char fmt_buf[64];
+  ਪੂਰਨ len, period_len = 0;
+  ਪੂਰਨ ret;
+  ਅੱਖਰ fmt_buf[64];
   int64_t period = -1;
   int64_t quota = -1;
-  cleanup_free char *period_str = NULL;
+  cleanup_free ਅੱਖਰ *period_str = ਨਿਰਾ;
 
-  if (cpu->shares)
+  ਜੇ (cpu->shares)
     {
       uint32_t val = cpu->shares;
 
-      if (cgroup2)
+      ਜੇ (cgroup2)
         {
-          val = convert_shares_to_weight (val);
+          val = convert_shares_ਮੰਜ਼ਿਲ_ਭਾਰ (val);
 
           /* The weight cannot be changed while cpu.idle is set, and setting
              it means the cgroup is not idle (this is what systemd does, too),
              so reset cpu.idle unless it is also being set.  The file might
              not exist on older kernels, so ignore errors.  */
-          if (! cpu->idle_present)
+          ਜੇ (! cpu->idle_present)
             {
               ret = write_cgroup_file (dirfd_cpu, "cpu.idle", "0", 1, err);
-              if (UNLIKELY (ret < 0))
+              ਜੇ (UNLIKELY (ret < 0))
                 crun_error_release (err);
             }
         }
 
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%u", val);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, ਆਕਾਰ (fmt_buf), "%u", val);
+      ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (fmt_buf)))
+        ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
 
       ret = write_file_and_check_controllers_at (cgroup2, dirfd_cpu, cgroup2 ? "cpu.weight" : "cpu.shares",
-                                                 NULL, fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+                                                 ਨਿਰਾ, fmt_buf, len, err);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
-  if (cpu->period)
+  ਜੇ (cpu->period)
     {
-      if (cgroup2)
+      ਜੇ (cgroup2)
         period = cpu->period;
-      else
+      ਨਹੀਂਤਾਂ
         {
-          len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, cpu->period);
-          if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-            return crun_make_error (err, 0, "internal error: static buffer too small");
+          len = snprintf (fmt_buf, ਆਕਾਰ (fmt_buf), "%" PRIu64, cpu->period);
+          ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (fmt_buf)))
+            ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
           ret = write_cgroup_file (dirfd_cpu, "cpu.cfs_period_us", fmt_buf, len, err);
-          if (UNLIKELY (ret < 0))
+          ਜੇ (UNLIKELY (ret < 0))
             {
               /*
                 Sometimes when the period to be set is smaller than the current one,
@@ -1082,8 +1082,8 @@ write_cpu_resources (int dirfd_cpu, bool cgroup2, runtime_spec_schema_config_lin
                 the parent cgroup quota limit. If this happens and the quota is going
                 to be set, ignore the error for now and retry after setting the quota.
                */
-              if (! cpu->quota || crun_error_get_errno (err) != EINVAL)
-                return ret;
+              ਜੇ (! cpu->quota || crun_error_get_errno (err) != EINVAL)
+                ਵਾਪਸ ret;
 
               crun_error_release (err);
               period_str = xstrdup (fmt_buf);
@@ -1091,456 +1091,456 @@ write_cpu_resources (int dirfd_cpu, bool cgroup2, runtime_spec_schema_config_lin
             }
         }
     }
-  if (cpu->quota)
+  ਜੇ (cpu->quota)
     {
-      if (cgroup2)
+      ਜੇ (cgroup2)
         quota = cpu->quota;
-      else
+      ਨਹੀਂਤਾਂ
         {
-          len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIi64, cpu->quota);
-          if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-            return crun_make_error (err, 0, "internal error: static buffer too small");
+          len = snprintf (fmt_buf, ਆਕਾਰ (fmt_buf), "%" PRIi64, cpu->quota);
+          ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (fmt_buf)))
+            ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
           ret = write_cgroup_file (dirfd_cpu, "cpu.cfs_quota_us", fmt_buf, len, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
-          if (period_str != NULL)
+          ਜੇ (UNLIKELY (ret < 0))
+            ਵਾਪਸ ret;
+          ਜੇ (period_str != ਨਿਰਾ)
             {
               ret = write_cgroup_file (dirfd_cpu, "cpu.cfs_period_us", period_str, period_len, err);
-              if (UNLIKELY (ret < 0))
-                return ret;
+              ਜੇ (UNLIKELY (ret < 0))
+                ਵਾਪਸ ret;
             }
         }
     }
-  if (cpu->realtime_period)
+  ਜੇ (cpu->realtime_period)
     {
-      if (cgroup2)
-        return crun_make_error (err, 0, "realtime period not supported on cgroupv2");
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, cpu->realtime_period);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      ਜੇ (cgroup2)
+        ਵਾਪਸ crun_make_error (err, 0, "realtime period not supported on cgroupv2");
+      len = snprintf (fmt_buf, ਆਕਾਰ (fmt_buf), "%" PRIu64, cpu->realtime_period);
+      ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (fmt_buf)))
+        ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
       ret = write_cgroup_file (dirfd_cpu, "cpu.rt_period_us", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
-  if (cpu->realtime_runtime)
+  ਜੇ (cpu->realtime_runtime)
     {
-      if (cgroup2)
-        return crun_make_error (err, 0, "realtime runtime not supported on cgroupv2");
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, cpu->realtime_runtime);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      ਜੇ (cgroup2)
+        ਵਾਪਸ crun_make_error (err, 0, "realtime runtime not supported on cgroupv2");
+      len = snprintf (fmt_buf, ਆਕਾਰ (fmt_buf), "%" PRIu64, cpu->realtime_runtime);
+      ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (fmt_buf)))
+        ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
       ret = write_cgroup_file (dirfd_cpu, "cpu.rt_runtime_us", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
   ret = write_cpu_idle (dirfd_cpu, cpu, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
-  if (cgroup2 && (quota > 0 || period > 0))
+  ਜੇ (cgroup2 && (quota > 0 || period > 0))
     {
-      if (period < 0)
+      ਜੇ (period < 0)
         period = 100000;
-      if (quota < 0)
-        len = snprintf (fmt_buf, sizeof (fmt_buf), "max %" PRIi64, period);
-      else
-        len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIi64 " %" PRIi64, quota, period);
+      ਜੇ (quota < 0)
+        len = snprintf (fmt_buf, ਆਕਾਰ (fmt_buf), "max %" PRIi64, period);
+      ਨਹੀਂਤਾਂ
+        len = snprintf (fmt_buf, ਆਕਾਰ (fmt_buf), "%" PRIi64 " %" PRIi64, quota, period);
 
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (fmt_buf)))
+        ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
 
-      ret = write_file_and_check_controllers_at (cgroup2, dirfd_cpu, "cpu.max", NULL, fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = write_file_and_check_controllers_at (cgroup2, dirfd_cpu, "cpu.max", ਨਿਰਾ, fmt_buf, len, err);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
 
-  return write_cpu_burst (dirfd_cpu, cgroup2, cpu, err);
+  ਵਾਪਸ write_cpu_ਮਿਆਦ (dirfd_cpu, cgroup2, cpu, err);
 }
 
-int
-write_cpuset_resources (int dirfd_cpuset, int cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu,
+ਪੂਰਨ
+write_cpuset_resources (ਪੂਰਨ dirfd_cpuset, ਪੂਰਨ cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu,
                         libcrun_error_t *err)
 {
-  int ret;
+  ਪੂਰਨ ret;
 
-  if (cpu == NULL)
-    return 0;
+  ਜੇ (cpu == ਨਿਰਾ)
+    ਵਾਪਸ 0;
 
-  if (cpu->cpus)
+  ਜੇ (cpu->cpus)
     {
       ret = write_file_and_check_controllers_at (cgroup2, dirfd_cpuset, "cpuset.cpus", "cpus",
-                                                 cpu->cpus, strlen (cpu->cpus), err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+                                                 cpu->cpus, ਲੜੀ_ਲੰਬਾਈ (cpu->cpus), err);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
-  if (cpu->mems)
+  ਜੇ (cpu->mems)
     {
-      ret = write_file_and_check_controllers_at (cgroup2, dirfd_cpuset, "cpuset.mems", "mems", cpu->mems, strlen (cpu->mems),
+      ret = write_file_and_check_controllers_at (cgroup2, dirfd_cpuset, "cpuset.mems", "mems", cpu->mems, ਲੜੀ_ਲੰਬਾਈ (cpu->mems),
                                                  err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static int
-open_cgroup_subsystem (const char *subsystem, const char *path, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+open_cgroup_subsystem (ਅਚਲ ਅੱਖਰ *subsystem, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, libcrun_error_t *err)
 {
-  cleanup_free char *full_path = NULL;
-  int ret, dirfd;
+  cleanup_free ਅੱਖਰ *ਭਰਿਆ_ਰਸਤਾ = ਨਿਰਾ;
+  ਪੂਰਨ ret, dirfd;
 
-  ret = append_paths (&full_path, err, CGROUP_ROOT, subsystem, path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&ਭਰਿਆ_ਰਸਤਾ, err, CGROUP_ਜੜ੍ਹ, subsystem, ਰਸਤਾ, ਨਿਰਾ);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
-  dirfd = open (full_path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", full_path);
+  dirfd = open (ਭਰਿਆ_ਰਸਤਾ, O_DIRECTORY | O_ਰਸਤਾ | O_CLOEXEC);
+  ਜੇ (UNLIKELY (dirfd < 0))
+    ਵਾਪਸ crun_make_error (err, errno, "open `%s`", ਭਰਿਆ_ਰਸਤਾ);
 
-  return dirfd;
+  ਵਾਪਸ dirfd;
 }
 
-int
-update_cgroup_v1_resources (runtime_spec_schema_config_linux_resources *resources, const char *path, libcrun_error_t *err)
+ਪੂਰਨ
+update_cgroup_v1_resources (runtime_spec_schema_config_linux_resources *resources, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, libcrun_error_t *err)
 {
-  int ret;
+  ਪੂਰਨ ret;
 
-  if (resources->block_io)
+  ਜੇ (resources->ਖੰਡ_io)
     {
-      cleanup_close int dirfd_blkio = -1;
-      runtime_spec_schema_config_linux_resources_block_io *blkio = resources->block_io;
+      cleanup_close ਪੂਰਨ dirfd_blkio = -1;
+      runtime_spec_schema_config_linux_resources_ਖੰਡ_io *blkio = resources->ਖੰਡ_io;
 
-      dirfd_blkio = open_cgroup_subsystem ("blkio", path, err);
-      if (UNLIKELY (dirfd_blkio < 0))
-        return dirfd_blkio;
+      dirfd_blkio = open_cgroup_subsystem ("blkio", ਰਸਤਾ, err);
+      ਜੇ (UNLIKELY (dirfd_blkio < 0))
+        ਵਾਪਸ dirfd_blkio;
 
       ret = write_blkio_resources (dirfd_blkio, false, blkio, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
 
-  if (resources->network)
+  ਜੇ (resources->ਜਾਲ)
     {
-      cleanup_close int dirfd_netclass = -1;
-      cleanup_close int dirfd_netprio = -1;
-      runtime_spec_schema_config_linux_resources_network *network = resources->network;
+      cleanup_close ਪੂਰਨ dirfd_netclass = -1;
+      cleanup_close ਪੂਰਨ dirfd_netprio = -1;
+      runtime_spec_schema_config_linux_resources_ਜਾਲ *ਜਾਲ = resources->ਜਾਲ;
 
-      dirfd_netclass = open_cgroup_subsystem ("net_cls", path, err);
-      if (UNLIKELY (dirfd_netclass < 0))
-        return dirfd_netclass;
+      dirfd_netclass = open_cgroup_subsystem ("net_cls", ਰਸਤਾ, err);
+      ਜੇ (UNLIKELY (dirfd_netclass < 0))
+        ਵਾਪਸ dirfd_netclass;
 
-      dirfd_netprio = open_cgroup_subsystem ("net_prio", path, err);
-      if (UNLIKELY (dirfd_netprio < 0))
-        return dirfd_netprio;
+      dirfd_netprio = open_cgroup_subsystem ("net_prio", ਰਸਤਾ, err);
+      ਜੇ (UNLIKELY (dirfd_netprio < 0))
+        ਵਾਪਸ dirfd_netprio;
 
-      ret = write_network_resources (dirfd_netclass, dirfd_netprio, network, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = write_ਜਾਲ_resources (dirfd_netclass, dirfd_netprio, ਜਾਲ, err);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
 
-  if (resources->hugepage_limits_len)
+  ਜੇ (resources->hugepage_limits_len)
     {
-      cleanup_close int dirfd_htlb = -1;
+      cleanup_close ਪੂਰਨ dirfd_htlb = -1;
 
-      dirfd_htlb = open_cgroup_subsystem ("hugetlb", path, err);
-      if (UNLIKELY (dirfd_htlb < 0))
-        return dirfd_htlb;
+      dirfd_htlb = open_cgroup_subsystem ("hugetlb", ਰਸਤਾ, err);
+      ਜੇ (UNLIKELY (dirfd_htlb < 0))
+        ਵਾਪਸ dirfd_htlb;
 
       ret = write_hugetlb_resources (dirfd_htlb, false, resources->hugepage_limits, resources->hugepage_limits_len,
                                      err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
 
-  if (resources->devices_len)
+  ਜੇ (resources->devices_len)
     {
-      cleanup_close int dirfd_devs = -1;
+      cleanup_close ਪੂਰਨ dirfd_devs = -1;
 
-      dirfd_devs = open_cgroup_subsystem ("devices", path, err);
-      if (UNLIKELY (dirfd_devs < 0))
-        return dirfd_devs;
+      dirfd_devs = open_cgroup_subsystem ("devices", ਰਸਤਾ, err);
+      ਜੇ (UNLIKELY (dirfd_devs < 0))
+        ਵਾਪਸ dirfd_devs;
 
       ret = write_devices_resources (dirfd_devs, false, resources->devices, resources->devices_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
 
-  if (resources->memory)
+  ਜੇ (resources->ਸਮ੍ਰਿਤੀ)
     {
-      cleanup_close int dirfd_mem = -1;
+      cleanup_close ਪੂਰਨ dirfd_mem = -1;
 
-      dirfd_mem = open_cgroup_subsystem ("memory", path, err);
-      if (UNLIKELY (dirfd_mem < 0))
-        return dirfd_mem;
+      dirfd_mem = open_cgroup_subsystem ("memory", ਰਸਤਾ, err);
+      ਜੇ (UNLIKELY (dirfd_mem < 0))
+        ਵਾਪਸ dirfd_mem;
 
-      ret = write_memory_resources (dirfd_mem, false, resources->memory, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = write_ਸਮ੍ਰਿਤੀ_resources (dirfd_mem, false, resources->ਸਮ੍ਰਿਤੀ, err);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
 
-  if (resources->pids)
+  ਜੇ (resources->pids)
     {
-      cleanup_close int dirfd_pid = -1;
+      cleanup_close ਪੂਰਨ dirfd_pid = -1;
 
-      dirfd_pid = open_cgroup_subsystem ("pids", path, err);
-      if (UNLIKELY (dirfd_pid < 0))
-        return dirfd_pid;
+      dirfd_pid = open_cgroup_subsystem ("pids", ਰਸਤਾ, err);
+      ਜੇ (UNLIKELY (dirfd_pid < 0))
+        ਵਾਪਸ dirfd_pid;
 
       ret = write_pids_resources (dirfd_pid, false, resources->pids, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
 
-  if (resources->cpu)
+  ਜੇ (resources->cpu)
     {
-      cleanup_close int dirfd_cpu = -1;
-      cleanup_close int dirfd_cpuset = -1;
+      cleanup_close ਪੂਰਨ dirfd_cpu = -1;
+      cleanup_close ਪੂਰਨ dirfd_cpuset = -1;
 
-      dirfd_cpu = open_cgroup_subsystem ("cpu", path, err);
-      if (UNLIKELY (dirfd_cpu < 0))
-        return dirfd_cpu;
+      dirfd_cpu = open_cgroup_subsystem ("cpu", ਰਸਤਾ, err);
+      ਜੇ (UNLIKELY (dirfd_cpu < 0))
+        ਵਾਪਸ dirfd_cpu;
 
       ret = write_cpu_resources (dirfd_cpu, false, resources->cpu, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
 
-      if (resources->cpu->cpus == NULL && resources->cpu->mems == NULL)
-        return 0;
+      ਜੇ (resources->cpu->cpus == ਨਿਰਾ && resources->cpu->mems == ਨਿਰਾ)
+        ਵਾਪਸ 0;
 
-      dirfd_cpuset = open_cgroup_subsystem ("cpuset", path, err);
-      if (UNLIKELY (dirfd_cpuset < 0))
-        return dirfd_cpuset;
+      dirfd_cpuset = open_cgroup_subsystem ("cpuset", ਰਸਤਾ, err);
+      ਜੇ (UNLIKELY (dirfd_cpuset < 0))
+        ਵਾਪਸ dirfd_cpuset;
 
       ret = write_cpuset_resources (dirfd_cpuset, false, resources->cpu, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
 
-  if (resources->unified && resources->unified->len > 0)
-    return crun_make_error (err, 0, "invalid configuration: cannot use unified on cgroup v1");
+  ਜੇ (resources->unified && resources->unified->len > 0)
+    ਵਾਪਸ crun_make_error (err, 0, "invalid configuration: cannot use unified on cgroup v1");
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static int
-write_unified_resources (int cgroup_dirfd, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+write_unified_resources (ਪੂਰਨ cgroup_dirfd, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
 {
   size_t i;
-  int ret;
+  ਪੂਰਨ ret;
 
-  for (i = 0; i < resources->unified->len; i++)
+  ਲਈ (i = 0; i < resources->unified->len; i++)
     {
-      cleanup_close int fd = -1;
-      cleanup_free char *value = NULL;
-      char *saveptr = NULL;
-      char *line;
+      cleanup_close ਪੂਰਨ fd = -1;
+      cleanup_free ਅੱਖਰ *ਮੁੱਲ = ਨਿਰਾ;
+      ਅੱਖਰ *saveptr = ਨਿਰਾ;
+      ਅੱਖਰ *ਸਤਰ;
 
-      if (strchr (resources->unified->keys[i], '/'))
-        return crun_make_error (err, 0, "key `%s` must be a file name without any slash", resources->unified->keys[i]);
+      ਜੇ (strchr (resources->unified->ਕੁੰਜੀਆਂ[i], '/'))
+        ਵਾਪਸ crun_make_error (err, 0, "key `%s` must be a file name without any slash", resources->unified->ਕੁੰਜੀਆਂ[i]);
 
-      if (is_empty_string (resources->unified->values[i]))
-        continue;
+      ਜੇ (is_ਖਾਲੀ_ਥਾਵਾਂ_string (resources->unified->ਮੁੱਲਾਂ[i]))
+        ਜਾਰੀ;
 
-      value = xstrdup (resources->unified->values[i]);
+      ਮੁੱਲ = xstrdup (resources->unified->ਮੁੱਲਾਂ[i]);
 
-      fd = open_file_and_check_controllers_at (true, cgroup_dirfd, resources->unified->keys[i], O_WRONLY, err);
-      if (UNLIKELY (fd < 0))
-        return fd;
+      fd = open_file_and_check_controllers_at (true, cgroup_dirfd, resources->unified->ਕੁੰਜੀਆਂ[i], O_WRONLY, err);
+      ਜੇ (UNLIKELY (fd < 0))
+        ਵਾਪਸ fd;
 
-      for (line = strtok_r (value, "\n", &saveptr); line; line = strtok_r (NULL, "\n", &saveptr))
+      ਲਈ (ਸਤਰ = strtok_r (ਮੁੱਲ, "\n", &saveptr); ਸਤਰ; ਸਤਰ = strtok_r (ਨਿਰਾ, "\n", &saveptr))
         {
-          ret = TEMP_FAILURE_RETRY (write (fd, line, strlen (line)));
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "write to `%s`", resources->unified->keys[i]);
+          ret = ਆਰਜ਼ੀ_FAILURE_RETRY (ਲਿਖ (fd, ਸਤਰ, ਲੜੀ_ਲੰਬਾਈ (ਸਤਰ)));
+          ਜੇ (UNLIKELY (ret < 0))
+            ਵਾਪਸ crun_make_error (err, errno, "write to `%s`", resources->unified->ਕੁੰਜੀਆਂ[i]);
         }
     }
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static int
-update_cgroup_v2_resources (runtime_spec_schema_config_linux_resources *resources, const char *path, bool need_bpf_dev, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+update_cgroup_v2_resources (runtime_spec_schema_config_linux_resources *resources, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, bool need_bpf_dev, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
-  cleanup_close int cgroup_dirfd = -1;
-  int ret;
+  cleanup_free ਅੱਖਰ *cgroup_ਰਸਤਾ = ਨਿਰਾ;
+  cleanup_close ਪੂਰਨ cgroup_dirfd = -1;
+  ਪੂਰਨ ret;
 
-  if (resources->network)
-    return crun_make_error (err, 0, "network limits not supported on cgroupv2");
+  ਜੇ (resources->ਜਾਲ)
+    ਵਾਪਸ crun_make_error (err, 0, "network limits not supported on cgroupv2");
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_ਰਸਤਾ, err, CGROUP_ਜੜ੍ਹ, ਰਸਤਾ, ਨਿਰਾ);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
-  cgroup_dirfd = open (cgroup_path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (cgroup_dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", cgroup_path);
+  cgroup_dirfd = open (cgroup_ਰਸਤਾ, O_DIRECTORY | O_ਰਸਤਾ | O_CLOEXEC);
+  ਜੇ (UNLIKELY (cgroup_dirfd < 0))
+    ਵਾਪਸ crun_make_error (err, errno, "open `%s`", cgroup_ਰਸਤਾ);
 
-  if (need_bpf_dev && resources->devices_len)
+  ਜੇ (need_bpf_dev && resources->devices_len)
     {
       ret = write_devices_resources (cgroup_dirfd, true, resources->devices, resources->devices_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
 
-  if (resources->memory)
+  ਜੇ (resources->ਸਮ੍ਰਿਤੀ)
     {
-      ret = write_memory_resources (cgroup_dirfd, true, resources->memory, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = write_ਸਮ੍ਰਿਤੀ_resources (cgroup_dirfd, true, resources->ਸਮ੍ਰਿਤੀ, err);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
-  if (resources->pids)
+  ਜੇ (resources->pids)
     {
       ret = write_pids_resources (cgroup_dirfd, true, resources->pids, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
-  if (resources->cpu)
+  ਜੇ (resources->cpu)
     {
       ret = write_cpu_resources (cgroup_dirfd, true, resources->cpu, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
 
       ret = write_cpuset_resources (cgroup_dirfd, true, resources->cpu, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
-  if (resources->block_io)
+  ਜੇ (resources->ਖੰਡ_io)
     {
-      ret = write_blkio_resources (cgroup_dirfd, true, resources->block_io, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = write_blkio_resources (cgroup_dirfd, true, resources->ਖੰਡ_io, err);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
 
-  if (resources->hugepage_limits_len)
+  ਜੇ (resources->hugepage_limits_len)
     {
       ret = write_hugetlb_resources (cgroup_dirfd, true, resources->hugepage_limits, resources->hugepage_limits_len,
                                      err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
 
   /* Write unified resources if any.  They have higher precedence and override any previous setting.  */
-  if (resources->unified)
+  ਜੇ (resources->unified)
     {
       ret = write_unified_resources (cgroup_dirfd, resources, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
 /* With checkBeforeUpdate, refuse to set the memory limit lower than the
    current usage.  This must be done before any of the resources is updated,
    including by the cgroup manager (e.g. the systemd unit properties).  */
-int
-check_memory_before_update (const char *path, runtime_spec_schema_config_linux_resources *resources,
+ਪੂਰਨ
+check_ਸਮ੍ਰਿਤੀ_before_update (ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, runtime_spec_schema_config_linux_resources *resources,
                             libcrun_error_t *err)
 {
-  runtime_spec_schema_config_linux_resources_memory *memory = resources->memory;
-  cleanup_free char *swap_current = NULL;
-  cleanup_free char *cgroup_path = NULL;
-  cleanup_free char *current = NULL;
-  cleanup_close int dirfd = -1;
-  uint64_t limit = 0;
-  uint64_t val, val_swap;
-  int cgroup_mode;
-  int ret;
+  runtime_spec_schema_config_linux_resources_ਸਮ੍ਰਿਤੀ *ਸਮ੍ਰਿਤੀ = resources->ਸਮ੍ਰਿਤੀ;
+  cleanup_free ਅੱਖਰ *ਅਦਲਾ_ਬਦਲੀ_current = ਨਿਰਾ;
+  cleanup_free ਅੱਖਰ *cgroup_ਰਸਤਾ = ਨਿਰਾ;
+  cleanup_free ਅੱਖਰ *current = ਨਿਰਾ;
+  cleanup_close ਪੂਰਨ dirfd = -1;
+  uint64_t ਹੱਦਬੰਦੀ = 0;
+  uint64_t val, val_ਅਦਲਾ_ਬਦਲੀ;
+  ਪੂਰਨ cgroup_ਬਹੁਲਕ;
+  ਪੂਰਨ ret;
 
-  if (path == NULL || memory == NULL || ! (memory->check_before_update_present && memory->check_before_update))
-    return 0;
+  ਜੇ (ਰਸਤਾ == ਨਿਰਾ || ਸਮ੍ਰਿਤੀ == ਨਿਰਾ || ! (ਸਮ੍ਰਿਤੀ->check_before_update_present && ਸਮ੍ਰਿਤੀ->check_before_update))
+    ਵਾਪਸ 0;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_ਬਹੁਲਕ = libcrun_get_cgroup_ਬਹੁਲਕ (err);
+  ਜੇ (UNLIKELY (cgroup_ਬਹੁਲਕ < 0))
+    ਵਾਪਸ cgroup_ਬਹੁਲਕ;
 
-  if (cgroup_mode != CGROUP_MODE_UNIFIED)
-    return 0;
+  ਜੇ (cgroup_ਬਹੁਲਕ != CGROUP_ਬਹੁਲਕ_UNIFIED)
+    ਵਾਪਸ 0;
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_ਰਸਤਾ, err, CGROUP_ਜੜ੍ਹ, ਰਸਤਾ, ਨਿਰਾ);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
-  dirfd = open (cgroup_path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", cgroup_path);
+  dirfd = open (cgroup_ਰਸਤਾ, O_DIRECTORY | O_ਰਸਤਾ | O_CLOEXEC);
+  ਜੇ (UNLIKELY (dirfd < 0))
+    ਵਾਪਸ crun_make_error (err, errno, "open `%s`", cgroup_ਰਸਤਾ);
 
-  ret = read_all_file_at (dirfd, "memory.current", &current, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file_at (dirfd, "memory.current", &current, ਨਿਰਾ, err);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
-  ret = read_all_file_at (dirfd, "memory.swap.current", &swap_current, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file_at (dirfd, "memory.swap.current", &ਅਦਲਾ_ਬਦਲੀ_current, ਨਿਰਾ, err);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
   errno = 0;
-  val = strtoll (current, NULL, 10);
-  if (UNLIKELY (errno))
-    return crun_make_error (err, errno, "parse memory.current");
+  val = strtoll (current, ਨਿਰਾ, 10);
+  ਜੇ (UNLIKELY (errno))
+    ਵਾਪਸ crun_make_error (err, errno, "parse memory.current");
 
-  val_swap = strtoll (swap_current, NULL, 10);
-  if (UNLIKELY (errno))
-    return crun_make_error (err, errno, "parse memory.swap.current");
+  val_ਅਦਲਾ_ਬਦਲੀ = strtoll (ਅਦਲਾ_ਬਦਲੀ_current, ਨਿਰਾ, 10);
+  ਜੇ (UNLIKELY (errno))
+    ਵਾਪਸ crun_make_error (err, errno, "parse memory.swap.current");
 
-  if (memory->limit_present && memory->limit >= 0)
-    limit = memory->limit;
-  if (memory->swap_present && memory->swap >= 0)
-    limit += memory->swap;
+  ਜੇ (ਸਮ੍ਰਿਤੀ->ਹੱਦਬੰਦੀ_present && ਸਮ੍ਰਿਤੀ->ਹੱਦਬੰਦੀ >= 0)
+    ਹੱਦਬੰਦੀ = ਸਮ੍ਰਿਤੀ->ਹੱਦਬੰਦੀ;
+  ਜੇ (ਸਮ੍ਰਿਤੀ->ਅਦਲਾ_ਬਦਲੀ_present && ਸਮ੍ਰਿਤੀ->ਅਦਲਾ_ਬਦਲੀ >= 0)
+    ਹੱਦਬੰਦੀ += ਸਮ੍ਰਿਤੀ->ਅਦਲਾ_ਬਦਲੀ;
 
-  if (limit <= val + val_swap)
-    return crun_make_error (err, 0, "cannot set the memory limit lower than its current usage");
+  ਜੇ (ਹੱਦਬੰਦੀ <= val + val_ਅਦਲਾ_ਬਦਲੀ)
+    ਵਾਪਸ crun_make_error (err, 0, "cannot set the memory limit lower than its current usage");
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-int
-update_cgroup_resources (const char *path,
-                         const char *state_root,
+ਪੂਰਨ
+update_cgroup_resources (ਅਚਲ ਅੱਖਰ *ਰਸਤਾ,
+                         ਅਚਲ ਅੱਖਰ *state_ਜੜ੍ਹ,
                          runtime_spec_schema_config_linux_resources *resources,
                          bool need_bpf_dev,
                          libcrun_error_t *err)
 {
-  int cgroup_mode;
+  ਪੂਰਨ cgroup_ਬਹੁਲਕ;
 
-  (void) state_root;
+  (ਖਾਲੀ) state_ਜੜ੍ਹ;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_ਬਹੁਲਕ = libcrun_get_cgroup_ਬਹੁਲਕ (err);
+  ਜੇ (UNLIKELY (cgroup_ਬਹੁਲਕ < 0))
+    ਵਾਪਸ cgroup_ਬਹੁਲਕ;
 
-  if (path == NULL)
+  ਜੇ (ਰਸਤਾ == ਨਿਰਾ)
     {
       size_t i;
 
-      if (resources->block_io || resources->network || resources->hugepage_limits_len || resources->memory
+      ਜੇ (resources->ਖੰਡ_io || resources->ਜਾਲ || resources->hugepage_limits_len || resources->ਸਮ੍ਰਿਤੀ
           || resources->pids || resources->cpu)
-        return crun_make_error (err, 0, "cannot set limits without cgroups");
+        ਵਾਪਸ crun_make_error (err, 0, "cannot set limits without cgroups");
 
-      for (i = 0; i < resources->devices_len; i++)
+      ਲਈ (i = 0; i < resources->devices_len; i++)
         {
-          int rwm;
+          ਪੂਰਨ rwm;
 
           rwm = is_rwm (resources->devices[i]->access, err);
-          if (UNLIKELY (rwm < 0))
-            return rwm;
+          ਜੇ (UNLIKELY (rwm < 0))
+            ਵਾਪਸ rwm;
 
-          if (rwm == 0)
-            return crun_make_error (err, 0, "cannot set limits without cgroups");
+          ਜੇ (rwm == 0)
+            ਵਾਪਸ crun_make_error (err, 0, "cannot set limits without cgroups");
         }
 
-      return 0;
+      ਵਾਪਸ 0;
     }
-  switch (cgroup_mode)
+  ਚੋਣ (cgroup_ਬਹੁਲਕ)
     {
-    case CGROUP_MODE_UNIFIED:
-      return update_cgroup_v2_resources (resources, path, need_bpf_dev, err);
+    ਹਾਲਤ CGROUP_ਬਹੁਲਕ_UNIFIED:
+      ਵਾਪਸ update_cgroup_v2_resources (resources, ਰਸਤਾ, need_bpf_dev, err);
 
-    case CGROUP_MODE_LEGACY:
-    case CGROUP_MODE_HYBRID:
-      return update_cgroup_v1_resources (resources, path, err);
+    ਹਾਲਤ CGROUP_ਬਹੁਲਕ_LEGACY:
+    ਹਾਲਤ CGROUP_ਬਹੁਲਕ_HYBRID:
+      ਵਾਪਸ update_cgroup_v1_resources (resources, ਰਸਤਾ, err);
 
-    default:
-      return crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_mode);
+    ਮੂਲ:
+      ਵਾਪਸ crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_ਬਹੁਲਕ);
     }
 }

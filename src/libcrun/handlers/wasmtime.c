@@ -15,90 +15,90 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ GNU_ਸਰੋਤ
 
-#include <config.h>
-#include "../custom-handler.h"
-#include "../container.h"
-#include "../utils.h"
-#include "../linux.h"
-#include "handler-utils.h"
-#include <unistd.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <sched.h>
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <config.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ "../custom-handler.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "../container.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "../utils.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "../linux.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "handler-utils.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ <unistd.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/stat.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <errno.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/types.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <fcntl.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sched.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <assert.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdlib.h>
 
-#ifdef HAVE_DLOPEN
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_DLOPEN
 #  include <dlfcn.h>
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifdef HAVE_WASMTIME
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_WASMTIME
 #  include <wasm.h>
 #  include <wasi.h>
 #  include <wasmtime.h>
-#endif
+#ਜੇ_ਅੰਤ
 
-#if HAVE_DLOPEN && HAVE_WASMTIME
-static int
-libwasmtime_exec (void *cookie, libcrun_container_t *container arg_unused,
-                  const char *pathname, char *const argv[])
+#ਜੇ HAVE_DLOPEN && HAVE_WASMTIME
+ਸਥਿਰ ਪੂਰਨ
+libwasmtime_exec (ਖਾਲੀ *cookie, libcrun_container_t *container arg_ਅਣਵਰਤਿਆ,
+                  ਅਚਲ ਅੱਖਰ *pathname, ਅੱਖਰ *ਅਚਲ argv[])
 {
-  size_t args_size = 0;
-  char *const *arg;
-  wasm_byte_vec_t error_message;
-  wasm_byte_vec_t wasm_bytes;
+  size_t ਦਲੀਲਾਂ_ਮਾਪ = 0;
+  ਅੱਖਰ *ਅਚਲ *arg;
+  wasm_byte_vec_t error_ਸੁਨੇਹਾ;
+  wasm_byte_vec_t wasm_ਬਾਈਟਾਂ;
   wasm_engine_t *(*wasm_engine_new) ();
-  wasmtime_error_t *(*wasmtime_wat2wasm) (const char *wat, size_t wat_len, wasm_byte_vec_t *out);
-  void (*wasm_engine_delete) (wasm_engine_t *);
-  void (*wasm_byte_vec_delete) (wasm_byte_vec_t *);
-  void (*wasm_byte_vec_new_uninitialized) (wasm_byte_vec_t *, size_t);
-  wasi_config_t *(*wasi_config_new) (const char *);
-  wasmtime_store_t *(*wasmtime_store_new) (wasm_engine_t *engine, void *data, void (*finalizer) (void *));
+  wasmtime_error_t *(*wasmtime_wat2wasm) (ਅਚਲ ਅੱਖਰ *wat, size_t wat_len, wasm_byte_vec_t *ਬਾਹਰਲਾ);
+  ਖਾਲੀ (*wasm_engine_delete) (wasm_engine_t *);
+  ਖਾਲੀ (*wasm_byte_vec_delete) (wasm_byte_vec_t *);
+  ਖਾਲੀ (*wasm_byte_vec_new_uninitialized) (wasm_byte_vec_t *, size_t);
+  wasi_config_t *(*wasi_config_new) (ਅਚਲ ਅੱਖਰ *);
+  wasmtime_store_t *(*wasmtime_store_new) (wasm_engine_t *engine, ਖਾਲੀ *ਅੰਕੜੇ, ਖਾਲੀ (*finalizer) (ਖਾਲੀ *));
   wasmtime_context_t *(*wasmtime_store_context) (wasmtime_store_t *store);
   wasmtime_linker_t *(*wasmtime_linker_new) (wasm_engine_t *engine);
   wasmtime_error_t *(*wasmtime_linker_define_wasi) (wasmtime_linker_t *linker);
   wasmtime_error_t *(*wasmtime_module_new) (
       wasm_engine_t *engine,
-      const uint8_t *wasm,
+      ਅਚਲ uint8_t *wasm,
       size_t wasm_len,
       wasmtime_module_t **ret);
-  void (*wasi_config_inherit_argv) (wasi_config_t *config);
-  void (*wasi_config_inherit_env) (wasi_config_t *config);
-  void (*wasi_config_set_argv) (wasi_config_t *config, int argc, const char *argv[]);
-  void (*wasi_config_inherit_stdin) (wasi_config_t *config);
-  void (*wasi_config_inherit_stdout) (wasi_config_t *config);
-  void (*wasi_config_inherit_stderr) (wasi_config_t *config);
-  wasmtime_error_t *(*wasmtime_context_set_wasi) (wasmtime_context_t *context, wasi_config_t *wasi);
+  ਖਾਲੀ (*wasi_config_inherit_argv) (wasi_config_t *config);
+  ਖਾਲੀ (*wasi_config_inherit_env) (wasi_config_t *config);
+  ਖਾਲੀ (*wasi_config_ਸੈੱਟ_argv) (wasi_config_t *config, ਪੂਰਨ argc, ਅਚਲ ਅੱਖਰ *argv[]);
+  ਖਾਲੀ (*wasi_config_inherit_stdin) (wasi_config_t *config);
+  ਖਾਲੀ (*wasi_config_inherit_stdout) (wasi_config_t *config);
+  ਖਾਲੀ (*wasi_config_inherit_stderr) (wasi_config_t *config);
+  wasmtime_error_t *(*wasmtime_context_ਸੈੱਟ_wasi) (wasmtime_context_t *context, wasi_config_t *wasi);
   wasmtime_error_t *(*wasmtime_linker_module) (
       wasmtime_linker_t *linker,
       wasmtime_context_t *store,
-      const char *name,
+      ਅਚਲ ਅੱਖਰ *name,
       size_t name_len,
-      const wasmtime_module_t *module);
+      ਅਚਲ wasmtime_module_t *module);
   wasmtime_error_t *(*wasmtime_linker_get_default) (
-      const wasmtime_linker_t *linker,
+      ਅਚਲ wasmtime_linker_t *linker,
       wasmtime_context_t *store,
-      const char *name,
+      ਅਚਲ ਅੱਖਰ *name,
       size_t name_len,
       wasmtime_func_t *func);
   wasmtime_error_t *(*wasmtime_func_call) (
       wasmtime_context_t *store,
-      const wasmtime_func_t *func,
-      const wasmtime_val_t *args,
+      ਅਚਲ wasmtime_func_t *func,
+      ਅਚਲ wasmtime_val_t *ਦਲੀਲਾਂ,
       size_t nargs,
       wasmtime_val_t *results,
       size_t nresults,
       wasm_trap_t **trap);
-  void (*wasmtime_module_delete) (wasmtime_module_t *m);
-  void (*wasmtime_store_delete) (wasmtime_store_t *store);
-  void (*wasmtime_error_message) (const wasmtime_error_t *error, wasm_name_t *message);
-  void (*wasmtime_error_delete) (wasmtime_error_t *error);
-  bool (*wasi_config_preopen_dir) (wasi_config_t *config, const char *path, const char *guest_path);
+  ਖਾਲੀ (*wasmtime_module_delete) (wasmtime_module_t *m);
+  ਖਾਲੀ (*wasmtime_store_delete) (wasmtime_store_t *store);
+  ਖਾਲੀ (*wasmtime_error_ਸੁਨੇਹਾ) (ਅਚਲ wasmtime_error_t *error, wasm_name_t *ਸੁਨੇਹਾ_2);
+  ਖਾਲੀ (*wasmtime_error_delete) (wasmtime_error_t *error);
+  bool (*wasi_config_preopen_dir) (wasi_config_t *config, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਅਚਲ ਅੱਖਰ *guest_ਰਸਤਾ);
 
   wasmtime_wat2wasm = dlsym (cookie, "wasmtime_wat2wasm");
   wasm_engine_new = dlsym (cookie, "wasm_engine_new");
@@ -106,7 +106,7 @@ libwasmtime_exec (void *cookie, libcrun_container_t *container arg_unused,
   wasm_byte_vec_delete = dlsym (cookie, "wasm_byte_vec_delete");
   wasm_byte_vec_new_uninitialized = dlsym (cookie, "wasm_byte_vec_new_uninitialized");
   wasi_config_new = dlsym (cookie, "wasi_config_new");
-  wasi_config_set_argv = dlsym (cookie, "wasi_config_set_argv");
+  wasi_config_ਸੈੱਟ_argv = dlsym (cookie, "wasi_config_set_argv");
   wasmtime_store_new = dlsym (cookie, "wasmtime_store_new");
   wasmtime_store_context = dlsym (cookie, "wasmtime_store_context");
   wasmtime_linker_new = dlsym (cookie, "wasmtime_linker_new");
@@ -117,132 +117,132 @@ libwasmtime_exec (void *cookie, libcrun_container_t *container arg_unused,
   wasi_config_inherit_stdin = dlsym (cookie, "wasi_config_inherit_stdin");
   wasi_config_inherit_stderr = dlsym (cookie, "wasi_config_inherit_stderr");
   wasi_config_inherit_env = dlsym (cookie, "wasi_config_inherit_env");
-  wasmtime_context_set_wasi = dlsym (cookie, "wasmtime_context_set_wasi");
+  wasmtime_context_ਸੈੱਟ_wasi = dlsym (cookie, "wasmtime_context_set_wasi");
   wasmtime_linker_module = dlsym (cookie, "wasmtime_linker_module");
   wasmtime_linker_get_default = dlsym (cookie, "wasmtime_linker_get_default");
   wasmtime_func_call = dlsym (cookie, "wasmtime_func_call");
   wasmtime_module_delete = dlsym (cookie, "wasmtime_module_delete");
   wasmtime_store_delete = dlsym (cookie, "wasmtime_store_delete");
   wasmtime_error_delete = dlsym (cookie, "wasmtime_error_delete");
-  wasmtime_error_message = dlsym (cookie, "wasmtime_error_message");
+  wasmtime_error_ਸੁਨੇਹਾ = dlsym (cookie, "wasmtime_error_message");
   wasi_config_preopen_dir = dlsym (cookie, "wasi_config_preopen_dir");
 
-  if (wasm_engine_new == NULL || wasm_engine_delete == NULL || wasm_byte_vec_delete == NULL
-      || wasm_byte_vec_new_uninitialized == NULL || wasi_config_new == NULL || wasmtime_store_new == NULL
-      || wasmtime_store_context == NULL || wasmtime_linker_new == NULL || wasmtime_linker_define_wasi == NULL
-      || wasmtime_module_new == NULL || wasi_config_inherit_argv == NULL || wasi_config_inherit_stdout == NULL
-      || wasi_config_inherit_stdin == NULL || wasi_config_inherit_stderr == NULL
-      || wasi_config_inherit_env == NULL || wasmtime_context_set_wasi == NULL
-      || wasmtime_linker_module == NULL || wasmtime_linker_get_default == NULL || wasmtime_func_call == NULL
-      || wasmtime_module_delete == NULL || wasmtime_store_delete == NULL || wasi_config_set_argv == NULL
-      || wasmtime_error_delete == NULL || wasmtime_error_message == NULL || wasi_config_preopen_dir == NULL
-      || wasmtime_wat2wasm == NULL)
+  ਜੇ (wasm_engine_new == ਨਿਰਾ || wasm_engine_delete == ਨਿਰਾ || wasm_byte_vec_delete == ਨਿਰਾ
+      || wasm_byte_vec_new_uninitialized == ਨਿਰਾ || wasi_config_new == ਨਿਰਾ || wasmtime_store_new == ਨਿਰਾ
+      || wasmtime_store_context == ਨਿਰਾ || wasmtime_linker_new == ਨਿਰਾ || wasmtime_linker_define_wasi == ਨਿਰਾ
+      || wasmtime_module_new == ਨਿਰਾ || wasi_config_inherit_argv == ਨਿਰਾ || wasi_config_inherit_stdout == ਨਿਰਾ
+      || wasi_config_inherit_stdin == ਨਿਰਾ || wasi_config_inherit_stderr == ਨਿਰਾ
+      || wasi_config_inherit_env == ਨਿਰਾ || wasmtime_context_ਸੈੱਟ_wasi == ਨਿਰਾ
+      || wasmtime_linker_module == ਨਿਰਾ || wasmtime_linker_get_default == ਨਿਰਾ || wasmtime_func_call == ਨਿਰਾ
+      || wasmtime_module_delete == ਨਿਰਾ || wasmtime_store_delete == ਨਿਰਾ || wasi_config_ਸੈੱਟ_argv == ਨਿਰਾ
+      || wasmtime_error_delete == ਨਿਰਾ || wasmtime_error_ਸੁਨੇਹਾ == ਨਿਰਾ || wasi_config_preopen_dir == ਨਿਰਾ
+      || wasmtime_wat2wasm == ਨਿਰਾ)
     error (EXIT_FAILURE, 0, "could not find symbol in `libwasmtime.so`");
 
   // Set up wasmtime context
   wasm_engine_t *engine = wasm_engine_new ();
-  assert (engine != NULL);
-  wasmtime_store_t *store = wasmtime_store_new (engine, NULL, NULL);
-  assert (store != NULL);
+  ਪ੍ਰਤਿਜ੍ਞਾ (engine != ਨਿਰਾ);
+  wasmtime_store_t *store = wasmtime_store_new (engine, ਨਿਰਾ, ਨਿਰਾ);
+  ਪ੍ਰਤਿਜ੍ਞਾ (store != ਨਿਰਾ);
   wasmtime_context_t *context = wasmtime_store_context (store);
 
   // Link with wasi functions defined
   wasmtime_linker_t *linker = wasmtime_linker_new (engine);
   wasmtime_error_t *err = wasmtime_linker_define_wasi (linker);
-  if (err != NULL)
+  ਜੇ (err != ਨਿਰਾ)
     {
-      wasmtime_error_message (err, &error_message);
+      wasmtime_error_ਸੁਨੇਹਾ (err, &error_ਸੁਨੇਹਾ);
       wasmtime_error_delete (err);
-      error (EXIT_FAILURE, 0, "failed to link wasi: %.*s", (int) error_message.size, error_message.data);
+      error (EXIT_FAILURE, 0, "failed to link wasi: %.*s", (ਪੂਰਨ) error_ਸੁਨੇਹਾ.ਮਾਪ, error_ਸੁਨੇਹਾ.ਅੰਕੜੇ);
     }
 
   wasm_byte_vec_t wasm;
   // Load and parse container entrypoint
   FILE *file = fopen (pathname, "rbe");
-  if (! file)
+  ਜੇ (! file)
     error (EXIT_FAILURE, 0, "error loading entrypoint");
   fseek (file, 0L, SEEK_END);
-  size_t file_size = ftell (file);
-  wasm_byte_vec_new_uninitialized (&wasm, file_size);
+  size_t file_ਮਾਪ = ftell (file);
+  wasm_byte_vec_new_uninitialized (&wasm, file_ਮਾਪ);
   fseek (file, 0L, SEEK_SET);
-  if (fread (wasm.data, file_size, 1, file) != 1)
+  ਜੇ (fread (wasm.ਅੰਕੜੇ, file_ਮਾਪ, 1, file) != 1)
     error (EXIT_FAILURE, 0, "error load");
   fclose (file);
 
   // If entrypoint contains a webassembly text format
   // compile it on the fly and convert to equivalent
   // binary format.
-  if (has_suffix (pathname, "wat") > 0)
+  ਜੇ (has_suffix (pathname, "wat") > 0)
     {
-      wasmtime_error_t *err = wasmtime_wat2wasm ((char *) &wasm_bytes, file_size, &wasm);
-      if (err != NULL)
+      wasmtime_error_t *err = wasmtime_wat2wasm ((ਅੱਖਰ *) &wasm_ਬਾਈਟਾਂ, file_ਮਾਪ, &wasm);
+      ਜੇ (err != ਨਿਰਾ)
         {
-          wasmtime_error_message (err, &error_message);
+          wasmtime_error_ਸੁਨੇਹਾ (err, &error_ਸੁਨੇਹਾ);
           wasmtime_error_delete (err);
-          error (EXIT_FAILURE, 0, "failed while compiling wat to wasm binary : %.*s", (int) error_message.size, error_message.data);
+          error (EXIT_FAILURE, 0, "failed while compiling wat to wasm binary : %.*s", (ਪੂਰਨ) error_ਸੁਨੇਹਾ.ਮਾਪ, error_ਸੁਨੇਹਾ.ਅੰਕੜੇ);
         }
-      wasm = wasm_bytes;
+      wasm = wasm_ਬਾਈਟਾਂ;
     }
 
   // Compile wasm modules
-  wasmtime_module_t *module = NULL;
-  err = wasmtime_module_new (engine, (uint8_t *) wasm.data, wasm.size, &module);
-  if (! module)
+  wasmtime_module_t *module = ਨਿਰਾ;
+  err = wasmtime_module_new (engine, (uint8_t *) wasm.ਅੰਕੜੇ, wasm.ਮਾਪ, &module);
+  ਜੇ (! module)
     {
-      wasmtime_error_message (err, &error_message);
+      wasmtime_error_ਸੁਨੇਹਾ (err, &error_ਸੁਨੇਹਾ);
       wasmtime_error_delete (err);
-      error (EXIT_FAILURE, 0, "failed to compile module: %.*s", (int) error_message.size, error_message.data);
+      error (EXIT_FAILURE, 0, "failed to compile module: %.*s", (ਪੂਰਨ) error_ਸੁਨੇਹਾ.ਮਾਪ, error_ਸੁਨੇਹਾ.ਅੰਕੜੇ);
     }
   wasm_byte_vec_delete (&wasm);
 
   // Init WASI program
   wasi_config_t *wasi_config = wasi_config_new ("crun_wasi_program");
-  assert (wasi_config);
+  ਪ੍ਰਤਿਜ੍ਞਾ (wasi_config);
 
   // Calculate argc for `wasi_config_set_argv`
-  for (arg = argv; *arg != NULL; ++arg)
-    args_size++;
+  ਲਈ (arg = argv; *arg != ਨਿਰਾ; ++arg)
+    ਦਲੀਲਾਂ_ਮਾਪ++;
 
-  wasi_config_set_argv (wasi_config, args_size, (const char **) argv);
+  wasi_config_ਸੈੱਟ_argv (wasi_config, ਦਲੀਲਾਂ_ਮਾਪ, (ਅਚਲ ਅੱਖਰ **) argv);
   wasi_config_inherit_env (wasi_config);
   wasi_config_inherit_stdin (wasi_config);
   wasi_config_inherit_stdout (wasi_config);
   wasi_config_inherit_stderr (wasi_config);
   wasi_config_preopen_dir (wasi_config, ".", ".");
-  wasm_trap_t *trap = NULL;
-  err = wasmtime_context_set_wasi (context, wasi_config);
-  if (err != NULL)
+  wasm_trap_t *trap = ਨਿਰਾ;
+  err = wasmtime_context_ਸੈੱਟ_wasi (context, wasi_config);
+  ਜੇ (err != ਨਿਰਾ)
     {
-      wasmtime_error_message (err, &error_message);
+      wasmtime_error_ਸੁਨੇਹਾ (err, &error_ਸੁਨੇਹਾ);
       wasmtime_error_delete (err);
-      error (EXIT_FAILURE, 0, "failed to instantiate WASI: %.*s", (int) error_message.size, error_message.data);
+      error (EXIT_FAILURE, 0, "failed to instantiate WASI: %.*s", (ਪੂਰਨ) error_ਸੁਨੇਹਾ.ਮਾਪ, error_ਸੁਨੇਹਾ.ਅੰਕੜੇ);
     }
 
   // Init module
   err = wasmtime_linker_module (linker, context, "", 0, module);
-  if (err != NULL)
+  ਜੇ (err != ਨਿਰਾ)
     {
-      wasmtime_error_message (err, &error_message);
+      wasmtime_error_ਸੁਨੇਹਾ (err, &error_ਸੁਨੇਹਾ);
       wasmtime_error_delete (err);
-      error (EXIT_FAILURE, 0, "failed to instantiate module: %.*s", (int) error_message.size, error_message.data);
+      error (EXIT_FAILURE, 0, "failed to instantiate module: %.*s", (ਪੂਰਨ) error_ਸੁਨੇਹਾ.ਮਾਪ, error_ਸੁਨੇਹਾ.ਅੰਕੜੇ);
     }
 
   // Actually run our .wasm
   wasmtime_func_t func;
   err = wasmtime_linker_get_default (linker, context, "", 0, &func);
-  if (err != NULL)
+  ਜੇ (err != ਨਿਰਾ)
     {
-      wasmtime_error_message (err, &error_message);
+      wasmtime_error_ਸੁਨੇਹਾ (err, &error_ਸੁਨੇਹਾ);
       wasmtime_error_delete (err);
-      error (EXIT_FAILURE, 0, "failed to locate default export for module %.*s", (int) error_message.size, error_message.data);
+      error (EXIT_FAILURE, 0, "failed to locate default export for module %.*s", (ਪੂਰਨ) error_ਸੁਨੇਹਾ.ਮਾਪ, error_ਸੁਨੇਹਾ.ਅੰਕੜੇ);
     }
 
-  err = wasmtime_func_call (context, &func, NULL, 0, NULL, 0, &trap);
-  if (err != NULL || trap != NULL)
+  err = wasmtime_func_call (context, &func, ਨਿਰਾ, 0, ਨਿਰਾ, 0, &trap);
+  ਜੇ (err != ਨਿਰਾ || trap != ਨਿਰਾ)
     {
-      wasmtime_error_message (err, &error_message);
+      wasmtime_error_ਸੁਨੇਹਾ (err, &error_ਸੁਨੇਹਾ);
       wasmtime_error_delete (err);
-      error (EXIT_FAILURE, 0, "error calling default export: %.*s", (int) error_message.size, error_message.data);
+      error (EXIT_FAILURE, 0, "error calling default export: %.*s", (ਪੂਰਨ) error_ਸੁਨੇਹਾ.ਮਾਪ, error_ਸੁਨੇਹਾ.ਅੰਕੜੇ);
     }
 
   // Clean everything
@@ -250,51 +250,51 @@ libwasmtime_exec (void *cookie, libcrun_container_t *container arg_unused,
   wasmtime_store_delete (store);
   wasm_engine_delete (engine);
 
-  exit (EXIT_SUCCESS);
+  ਬਾਹਰ_ਨਿਕਲੋ (EXIT_SUCCESS);
 }
 
-static int
-libwasmtime_load (void **cookie, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+libwasmtime_ਲੱਦੋ (ਖਾਲੀ **cookie, libcrun_error_t *err)
 {
-  void *handle;
+  ਖਾਲੀ *handle;
 
   handle = dlopen ("libwasmtime.so", RTLD_NOW);
-  if (handle == NULL)
-    return crun_make_error (err, 0, "could not load `libwasmtime.so`: %s", dlerror ());
+  ਜੇ (handle == ਨਿਰਾ)
+    ਵਾਪਸ crun_make_error (err, 0, "could not load `libwasmtime.so`: %s", dlerror ());
   *cookie = handle;
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static int
-libwasmtime_unload (void *cookie, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+libwasmtime_unload (ਖਾਲੀ *cookie, libcrun_error_t *err)
 {
-  int r;
+  ਪੂਰਨ r;
 
-  if (cookie)
+  ਜੇ (cookie)
     {
       r = dlclose (cookie);
-      if (UNLIKELY (r < 0))
-        return crun_make_error (err, 0, "could not unload handle: %s", dlerror ());
+      ਜੇ (UNLIKELY (r < 0))
+        ਵਾਪਸ crun_make_error (err, 0, "could not unload handle: %s", dlerror ());
     }
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static int
+ਸਥਿਰ ਪੂਰਨ
 libwasmtime_can_handle_container (libcrun_container_t *container, libcrun_error_t *err)
 {
-  return wasm_can_handle_container (container, err);
+  ਵਾਪਸ wasm_can_handle_container (container, err);
 }
 
-struct custom_handler_s handler_wasmtime = {
+ਬਣਤਰ custom_handler_s handler_wasmtime = {
   .name = "wasmtime",
   .alias = "wasm",
   .feature_string = "WASM:wasmtime",
-  .supports_open_tree_namespace = false,
-  .load = libwasmtime_load,
+  .supports_open_ਰੁੱਖ_namespace = false,
+  .ਲੱਦੋ = libwasmtime_ਲੱਦੋ,
   .unload = libwasmtime_unload,
-  .run_func = libwasmtime_exec,
+  .ਲੜੀਵਾਰ_func = libwasmtime_exec,
   .can_handle_container = libwasmtime_can_handle_container,
 };
 
-#endif
+#ਜੇ_ਅੰਤ

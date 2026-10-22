@@ -15,11 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef UNPAUSE_H
-#define UNPAUSE_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ UNPAUSE_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UNPAUSE_H
 
-#include "crun.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "crun.h"
 
-int crun_command_unpause (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+ਪੂਰਨ crun_command_unpause (ਬਣਤਰ crun_global_arguments *global_ਦਲੀਲਾਂ, ਪੂਰਨ argc, ਅੱਖਰ **argv, libcrun_error_t *error);
 
-#endif
+#ਜੇ_ਅੰਤ

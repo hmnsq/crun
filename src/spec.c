@@ -16,131 +16,131 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <config.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdlib.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <argp.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <unistd.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <errno.h>
 
-#include "crun.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "crun.h"
 
-static char doc[] = "OCI runtime";
+ਸਥਿਰ ਅੱਖਰ doc[] = "OCI runtime";
 
-struct spec_options_s
+ਬਣਤਰ spec_options_s
 {
   bool rootless;
 };
 
-enum
+ਗਿਣਤੀ
 {
   OPTION_ROOTLESS = 1000
 };
 
-static const char *bundle;
-static const char *fname;
+ਸਥਿਰ ਅਚਲ ਅੱਖਰ *bundle;
+ਸਥਿਰ ਅਚਲ ਅੱਖਰ *fname;
 
-static struct spec_options_s spec_options;
+ਸਥਿਰ ਬਣਤਰ spec_options_s spec_options;
 
-static struct argp_option options[] = { { "bundle", 'b', "DIR", 0, "path to the root of the bundle dir (default \".\")", 0 },
+ਸਥਿਰ ਬਣਤਰ argp_option options[] = { { "bundle", 'b', "DIR", 0, "path to the root of the bundle dir (default \".\")", 0 },
                                         { "file", 'f', "PATH", 0, "destination file", 0 },
                                         { "rootless", OPTION_ROOTLESS, 0, 0, "spec for the rootless case", 0 },
                                         {
                                             0,
                                         } };
 
-static char args_doc[] = "spec";
+ਸਥਿਰ ਅੱਖਰ ਦਲੀਲਾਂ_doc[] = "spec";
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+ਸਥਿਰ error_t
+parse_opt (ਪੂਰਨ ਕੁੰਜੀ, ਅੱਖਰ *arg, ਬਣਤਰ argp_state *state)
 {
-  switch (key)
+  ਚੋਣ (ਕੁੰਜੀ)
     {
-    case 'b':
-      bundle = argp_mandatory_argument (arg, state);
-      break;
+    ਹਾਲਤ 'b':
+      bundle = argp_mandatory_ਦਲੀਲ (arg, state);
+      ਰੋਕੋ;
 
-    case 'f':
-      fname = argp_mandatory_argument (arg, state);
-      break;
+    ਹਾਲਤ 'f':
+      fname = argp_mandatory_ਦਲੀਲ (arg, state);
+      ਰੋਕੋ;
 
-    case OPTION_ROOTLESS:
+    ਹਾਲਤ OPTION_ROOTLESS:
       spec_options.rootless = true;
-      break;
+      ਰੋਕੋ;
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    ਮੂਲ:
+      ਵਾਪਸ ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+ਸਥਿਰ ਬਣਤਰ argp ਲੜੀਵਾਰ_argp = { options, parse_opt, ਦਲੀਲਾਂ_doc, doc, ਨਿਰਾ, ਨਿਰਾ, ਨਿਰਾ };
 
-int
-crun_command_spec (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+ਪੂਰਨ
+crun_command_spec (ਬਣਤਰ crun_global_arguments *global_ਦਲੀਲਾਂ, ਪੂਰਨ argc, ਅੱਖਰ **argv, libcrun_error_t *err)
 {
-  int first_arg;
-  cleanup_context libcrun_context_t *crun_context = NULL;
-  cleanup_file FILE *f = NULL;
-  cleanup_free char *bundle_cleanup = NULL;
-  cleanup_free char *spec = NULL;
-  const char *where;
-  int ret;
-  int close_ret;
+  ਪੂਰਨ ਪਹਿਲਾ_arg;
+  cleanup_context libcrun_context_t *crun_context = ਨਿਰਾ;
+  cleanup_file FILE *f = ਨਿਰਾ;
+  cleanup_free ਅੱਖਰ *bundle_cleanup = ਨਿਰਾ;
+  cleanup_free ਅੱਖਰ *spec = ਨਿਰਾ;
+  ਅਚਲ ਅੱਖਰ *where;
+  ਪੂਰਨ ret;
+  ਪੂਰਨ close_ret;
 
-  argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &spec_options);
-  crun_assert_n_args (argc - first_arg, 0, 0);
+  argp_parse (&ਲੜੀਵਾਰ_argp, argc, argv, ARGP_ਵਿੱਚ_ਕ੍ਰਮ, &ਪਹਿਲਾ_arg, &spec_options);
+  crun_assert_n_ਦਲੀਲਾਂ (argc - ਪਹਿਲਾ_arg, 0, 0);
 
-  crun_context = new_libcrun_context (global_args);
+  crun_context = new_libcrun_context (global_ਦਲੀਲਾਂ);
 
-  ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = init_libcrun_context (crun_context, argv[ਪਹਿਲਾ_arg], global_ਦਲੀਲਾਂ, err);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
   /* Change dir only if -b or --bundle is defined and make sure the bundle is an absolute path.  */
-  if (bundle != NULL)
+  ਜੇ (bundle != ਨਿਰਾ)
     {
-      if (bundle[0] != '/')
+      ਜੇ (bundle[0] != '/')
         {
-          bundle_cleanup = realpath (bundle, NULL);
-          if (bundle_cleanup == NULL)
+          bundle_cleanup = realpath (bundle, ਨਿਰਾ);
+          ਜੇ (bundle_cleanup == ਨਿਰਾ)
             libcrun_fail_with_error (errno, "realpath `%s` failed", bundle);
           bundle = bundle_cleanup;
         }
 
-      if (chdir (bundle) < 0)
+      ਜੇ (chdir (bundle) < 0)
         libcrun_fail_with_error (errno, "chdir `%s` failed", bundle);
     }
 
   where = fname ? fname : "config.json";
 
-  if (fname == NULL)
+  ਜੇ (fname == ਨਿਰਾ)
     {
       ret = access (where, F_OK);
-      if (ret == 0)
-        return libcrun_make_error (err, 0, "`%s` already exists", where);
+      ਜੇ (ret == 0)
+        ਵਾਪਸ libcrun_make_error (err, 0, "`%s` already exists", where);
     }
 
   f = fopen (where, "w+e");
-  if (f == NULL)
-    return libcrun_make_error (err, errno, "cannot open `%s`", where);
+  ਜੇ (f == ਨਿਰਾ)
+    ਵਾਪਸ libcrun_make_error (err, errno, "cannot open `%s`", where);
 
   ret = libcrun_container_spec_json (! spec_options.rootless, &spec, err);
-  if (UNLIKELY (ret < 0))
-    goto out;
+  ਜੇ (UNLIKELY (ret < 0))
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  if (fputs (spec, f) == EOF)
+  ਜੇ (fputs (spec, f) == EOF)
     ret = libcrun_make_error (err, errno, "cannot write to `%s`", where);
-  else
+  ਨਹੀਂਤਾਂ
     ret = 0;
 
-out:
+ਬਾਹਰਲਾ:
   close_ret = fclose (f);
-  f = NULL;
-  if (close_ret < 0 && ret >= 0)
-    return libcrun_make_error (err, errno, "cannot close `%s`", where);
+  f = ਨਿਰਾ;
+  ਜੇ (close_ret < 0 && ret >= 0)
+    ਵਾਪਸ libcrun_make_error (err, errno, "cannot close `%s`", where);
 
-  return ret;
+  ਵਾਪਸ ret;
 }

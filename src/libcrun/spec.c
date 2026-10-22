@@ -15,32 +15,32 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ GNU_ਸਰੋਤ
 
-#include <config.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <errno.h>
-#include "spec.h"
-#include "utils.h"
-#include "cgroup.h"
-#include "cgroup-utils.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ <config.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdbool.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <errno.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ "spec.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "utils.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cgroup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cgroup-utils.h"
 
-static const char spec_file[] = "\
+ਸਥਿਰ ਅਚਲ ਅੱਖਰ spec_file[] = "\
 {\n\
-	\"ociVersion\": \"1.0.0\",\n\
+	\"oci_ਸੰਸਕਰਣ\": \"1.0.0\",\n\
 	\"process\": {\n\
 		\"terminal\": true,\n\
 		\"user\": {\n\
 			\"uid\": 0,\n\
 			\"gid\": 0\n\
 		},\n\
-		\"args\": [\n\
+		\"ਦਲੀਲਾਂ\": [\n\
 			\"sh\"\n\
 		],\n\
 		\"env\": [\n\
-			\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\",\n\
-			\"TERM=xterm\"\n\
+			\"ਰਸਤਾ_3=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\",\n\
+			\"ਪਦ=xterm\"\n\
 		],\n\
 		\"cwd\": \"/\",\n\
 		\"capabilities\": {\n\
@@ -76,8 +76,8 @@ static const char spec_file[] = "\
 		],\n\
 		\"noNewPrivileges\": true\n\
 	},\n\
-	\"root\": {\n\
-		\"path\": \"rootfs\",\n\
+	\"ਜੜ੍ਹ\": {\n\
+		\"ਰਸਤਾ\": \"rootfs\",\n\
 		\"readonly\": true\n\
 	},\n\
 	\"hostname\": \"crun\",\n\
@@ -85,48 +85,48 @@ static const char spec_file[] = "\
 		{\n\
 			\"destination\": \"/proc\",\n\
 			\"type\": \"proc\",\n\
-			\"source\": \"proc\"\n\
+			\"ਸਰੋਤ\": \"proc\"\n\
 		},\n\
 		{\n\
 			\"destination\": \"/dev\",\n\
 			\"type\": \"tmpfs\",\n\
-			\"source\": \"tmpfs\",\n\
+			\"ਸਰੋਤ\": \"tmpfs\",\n\
 			\"options\": [\n\
 				\"nosuid\",\n\
 				\"strictatime\",\n\
-				\"mode=755\",\n\
-				\"size=65536k\"\n\
+				\"ਬਹੁਲਕ=755\",\n\
+				\"ਮਾਪ=65536k\"\n\
 			]\n\
 		},\n\
 		{\n\
 			\"destination\": \"/dev/pts\",\n\
 			\"type\": \"devpts\",\n\
-			\"source\": \"devpts\",\n\
+			\"ਸਰੋਤ\": \"devpts\",\n\
 			\"options\": [\n\
 				\"nosuid\",\n\
 				\"noexec\",\n\
 				\"newinstance\",\n\
 				\"ptmxmode=0666\",\n\
-				\"mode=0620\"\
+				\"ਬਹੁਲਕ=0620\"\
 %s\
 			]\n\
 		},\n\
 		{\n\
 			\"destination\": \"/dev/shm\",\n\
 			\"type\": \"tmpfs\",\n\
-			\"source\": \"shm\",\n\
+			\"ਸਰੋਤ\": \"shm\",\n\
 			\"options\": [\n\
 				\"nosuid\",\n\
 				\"noexec\",\n\
 				\"nodev\",\n\
-				\"mode=1777\",\n\
-				\"size=65536k\"\n\
+				\"ਬਹੁਲਕ=1777\",\n\
+				\"ਮਾਪ=65536k\"\n\
 			]\n\
 		},\n\
 		{\n\
 			\"destination\": \"/dev/mqueue\",\n\
 			\"type\": \"mqueue\",\n\
-			\"source\": \"mqueue\",\n\
+			\"ਸਰੋਤ\": \"mqueue\",\n\
 			\"options\": [\n\
 				\"nosuid\",\n\
 				\"noexec\",\n\
@@ -136,7 +136,7 @@ static const char spec_file[] = "\
 		{\n\
 			\"destination\": \"/sys\",\n\
 			\"type\": \"sysfs\",\n\
-			\"source\": \"sysfs\",\n\
+			\"ਸਰੋਤ\": \"sysfs\",\n\
 			\"options\": [\n\
 				\"nosuid\",\n\
 				\"noexec\",\n\
@@ -147,7 +147,7 @@ static const char spec_file[] = "\
 		{\n\
 			\"destination\": \"/sys/fs/cgroup\",\n\
 			\"type\": \"cgroup\",\n\
-			\"source\": \"cgroup\",\n\
+			\"ਸਰੋਤ\": \"cgroup\",\n\
 			\"options\": [\n\
 				\"nosuid\",\n\
 				\"noexec\",\n\
@@ -171,7 +171,7 @@ static const char spec_file[] = "\
 				\"type\": \"pid\"\n\
 			},\n\
 			{\n\
-				\"type\": \"network\"\n\
+				\"type\": \"ਜਾਲ\"\n\
 			},\n\
 			{\n\
 				\"type\": \"ipc\"\n\
@@ -189,7 +189,7 @@ static const char spec_file[] = "\
 			\"/proc/acpi\",\n\
 			\"/proc/asound\",\n\
 			\"/proc/kcore\",\n\
-			\"/proc/keys\",\n\
+			\"/proc/ਕੁੰਜੀਆਂ\",\n\
 			\"/proc/latency_stats\",\n\
 			\"/proc/timer_list\",\n\
 			\"/proc/timer_stats\",\n\
@@ -207,59 +207,59 @@ static const char spec_file[] = "\
 	}\n\
 }\n";
 
-static const char *spec_pts_tty_group = ",\n\
+ਸਥਿਰ ਅਚਲ ਅੱਖਰ *spec_pts_tty_ਸਮੂਹ = ",\n\
 				\"gid=5\"\n";
 
-static const char *spec_user = "\
+ਸਥਿਰ ਅਚਲ ਅੱਖਰ *spec_user = "\
 			{\n\
 				\"type\": \"user\"\n\
 			},\n";
 
-static const char *spec_cgroupns = "\
+ਸਥਿਰ ਅਚਲ ਅੱਖਰ *spec_cgroupns = "\
 			{\n\
 				\"type\": \"cgroup\"\n\
 			},\n";
 
-int
-libcrun_container_spec (bool root, FILE *out, libcrun_error_t *err)
+ਪੂਰਨ
+libcrun_container_spec (bool ਜੜ੍ਹ, FILE *ਬਾਹਰਲਾ, libcrun_error_t *err)
 {
-  int ret;
-  int cgroup_mode;
+  ਪੂਰਨ ret;
+  ਪੂਰਨ cgroup_ਬਹੁਲਕ;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_ਬਹੁਲਕ = libcrun_get_cgroup_ਬਹੁਲਕ (err);
+  ਜੇ (UNLIKELY (cgroup_ਬਹੁਲਕ < 0))
+    ਵਾਪਸ cgroup_ਬਹੁਲਕ;
 
-  ret = fprintf (out, spec_file,
-                 root ? spec_pts_tty_group : "\n",
-                 root ? "" : spec_user,
-                 cgroup_mode == CGROUP_MODE_UNIFIED ? spec_cgroupns : "");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fprintf failed");
+  ret = fprintf (ਬਾਹਰਲਾ, spec_file,
+                 ਜੜ੍ਹ ? spec_pts_tty_ਸਮੂਹ : "\n",
+                 ਜੜ੍ਹ ? "" : spec_user,
+                 cgroup_ਬਹੁਲਕ == CGROUP_ਬਹੁਲਕ_UNIFIED ? spec_cgroupns : "");
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ crun_make_error (err, errno, "fprintf failed");
 
-  return ret;
+  ਵਾਪਸ ret;
 }
 
-int
-libcrun_container_spec_json (bool root, char **out, libcrun_error_t *err)
+ਪੂਰਨ
+libcrun_container_spec_json (bool ਜੜ੍ਹ, ਅੱਖਰ **ਬਾਹਰਲਾ, libcrun_error_t *err)
 {
-  char *buffer = NULL;
+  ਅੱਖਰ *ਬਫਰ = ਨਿਰਾ;
   size_t len = 0;
   FILE *f;
-  int ret;
+  ਪੂਰਨ ret;
 
-  f = open_memstream (&buffer, &len);
-  if (f == NULL)
-    return crun_make_error (err, errno, "open_memstream");
+  f = open_memstream (&ਬਫਰ, &len);
+  ਜੇ (f == ਨਿਰਾ)
+    ਵਾਪਸ crun_make_error (err, errno, "open_memstream");
 
-  ret = libcrun_container_spec (root, f, err);
+  ret = libcrun_container_spec (ਜੜ੍ਹ, f, err);
   fclose (f);
-  if (UNLIKELY (ret < 0))
+  ਜੇ (UNLIKELY (ret < 0))
     {
-      free (buffer);
-      return ret;
+      ਮੁਕਤ (ਬਫਰ);
+      ਵਾਪਸ ret;
     }
 
-  *out = buffer;
-  return 0;
+  *ਬਾਹਰਲਾ = ਬਫਰ;
+  ਵਾਪਸ 0;
 }

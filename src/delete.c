@@ -16,20 +16,20 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <regex.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <config.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdlib.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <argp.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <unistd.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <errno.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <regex.h>
 
-#include "crun.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "crun.h"
 
-static char doc[] = "OCI runtime";
+ਸਥਿਰ ਅੱਖਰ doc[] = "OCI runtime";
 
-enum
+ਗਿਣਤੀ
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -38,91 +38,91 @@ enum
   OPTION_PRESERVE_FDS
 };
 
-struct delete_options_s
+ਬਣਤਰ delete_options_s
 {
-  int regex;
+  ਪੂਰਨ regex;
   bool force;
 };
 
-static struct delete_options_s delete_options;
+ਸਥਿਰ ਬਣਤਰ delete_options_s delete_options;
 
-static struct argp_option options[]
+ਸਥਿਰ ਬਣਤਰ argp_option options[]
     = { { "force", 'f', 0, 0, "delete the container even if it is still running", 0 },
         { "regex", 'r', 0, 0, "the specified CONTAINER is a regular expression (delete multiple containers)", 0 },
         {
             0,
         } };
 
-static char args_doc[] = "delete CONTAINER";
+ਸਥਿਰ ਅੱਖਰ ਦਲੀਲਾਂ_doc[] = "delete CONTAINER";
 
-static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+ਸਥਿਰ error_t
+parse_opt (ਪੂਰਨ ਕੁੰਜੀ, ਅੱਖਰ *arg arg_ਅਣਵਰਤਿਆ, ਬਣਤਰ argp_state *state arg_ਅਣਵਰਤਿਆ)
 {
-  switch (key)
+  ਚੋਣ (ਕੁੰਜੀ)
     {
-    case 'f':
+    ਹਾਲਤ 'f':
       delete_options.force = true;
-      break;
+      ਰੋਕੋ;
 
-    case 'r':
+    ਹਾਲਤ 'r':
       delete_options.regex = true;
-      break;
+      ਰੋਕੋ;
 
-    case ARGP_KEY_NO_ARGS:
+    ਹਾਲਤ ARGP_ਕੁੰਜੀ_NO_ਦਲੀਲਾਂ:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    ਮੂਲ:
+      ਵਾਪਸ ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+ਸਥਿਰ ਬਣਤਰ argp ਲੜੀਵਾਰ_argp = { options, parse_opt, ਦਲੀਲਾਂ_doc, doc, ਨਿਰਾ, ਨਿਰਾ, ਨਿਰਾ };
 
-int
-crun_command_delete (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+ਪੂਰਨ
+crun_command_delete (ਬਣਤਰ crun_global_arguments *global_ਦਲੀਲਾਂ, ਪੂਰਨ argc, ਅੱਖਰ **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
-  cleanup_context libcrun_context_t *crun_context = NULL;
+  ਪੂਰਨ ਪਹਿਲਾ_arg = 0, ret;
+  cleanup_context libcrun_context_t *crun_context = ਨਿਰਾ;
 
-  argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &delete_options);
-  crun_assert_n_args (argc - first_arg, 1, 1);
+  argp_parse (&ਲੜੀਵਾਰ_argp, argc, argv, ARGP_ਵਿੱਚ_ਕ੍ਰਮ, &ਪਹਿਲਾ_arg, &delete_options);
+  crun_assert_n_ਦਲੀਲਾਂ (argc - ਪਹਿਲਾ_arg, 1, 1);
 
-  crun_context = new_libcrun_context (global_args);
+  crun_context = new_libcrun_context (global_ਦਲੀਲਾਂ);
 
-  ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = init_libcrun_context (crun_context, argv[ਪਹਿਲਾ_arg], global_ਦਲੀਲਾਂ, err);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
-  if (delete_options.regex)
+  ਜੇ (delete_options.regex)
     {
       regex_t re;
       libcrun_container_list_t *list;
       libcrun_container_iter_t *it;
-      const char *name;
+      ਅਚਲ ਅੱਖਰ *name;
 
-      ret = regcomp (&re, argv[first_arg], REG_EXTENDED | REG_NOSUB);
-      if (UNLIKELY (ret < 0))
-        libcrun_fail_with_error (0, "invalid regular expression %s", argv[first_arg]);
+      ret = regcomp (&re, argv[ਪਹਿਲਾ_arg], REG_EXTENDED | REG_NOSUB);
+      ਜੇ (UNLIKELY (ret < 0))
+        libcrun_fail_with_error (0, "invalid regular expression %s", argv[ਪਹਿਲਾ_arg]);
 
       ret = libcrun_container_list (crun_context, &list, err);
-      if (UNLIKELY (ret < 0))
+      ਜੇ (UNLIKELY (ret < 0))
         libcrun_fail_with_error (0, "cannot read containers list");
 
-      for (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
-        if (regexec (&re, name, 0, NULL, 0) == 0)
+      ਲਈ (it = libcrun_container_list_iter (list); libcrun_container_iter_ਅਗਲਾ (it, &name);)
+        ਜੇ (regexec (&re, name, 0, ਨਿਰਾ, 0) == 0)
           {
             ret = libcrun_container_delete (crun_context, name, delete_options.force, err);
-            if (UNLIKELY (ret < 0))
+            ਜੇ (UNLIKELY (ret < 0))
               libcrun_error_report_and_release (err);
           }
 
       libcrun_container_iter_free (it);
       libcrun_container_list_free (list);
       regfree (&re);
-      return 0;
+      ਵਾਪਸ 0;
     }
 
-  return libcrun_container_delete (crun_context, argv[first_arg], delete_options.force, err);
+  ਵਾਪਸ libcrun_container_delete (crun_context, argv[ਪਹਿਲਾ_arg], delete_options.force, err);
 }

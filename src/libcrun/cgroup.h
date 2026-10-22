@@ -15,104 +15,104 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CGROUP_H
-#define CGROUP_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CGROUP_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CGROUP_H
 
-#include "container.h"
-#include "string_map.h"
-#include <unistd.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ "container.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "string_map.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ <unistd.h>
 
-#ifndef CGROUP_ROOT
-#  define CGROUP_ROOT "/sys/fs/cgroup"
-#endif
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CGROUP_ਜੜ੍ਹ
+#  define CGROUP_ਜੜ੍ਹ "/sys/fs/cgroup"
+#ਜੇ_ਅੰਤ
 
-#ifndef SELF_CGROUP
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ SELF_CGROUP
 #  define SELF_CGROUP "self/cgroup"
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifndef PROC_SELF_CGROUP
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ PROC_SELF_CGROUP
 #  define PROC_SELF_CGROUP "/proc/" SELF_CGROUP
-#endif
+#ਜੇ_ਅੰਤ
 
-enum
+ਗਿਣਤੀ
 {
-  CGROUP_MODE_UNIFIED = 1,
-  CGROUP_MODE_LEGACY,
-  CGROUP_MODE_HYBRID
+  CGROUP_ਬਹੁਲਕ_UNIFIED = 1,
+  CGROUP_ਬਹੁਲਕ_LEGACY,
+  CGROUP_ਬਹੁਲਕ_HYBRID
 };
 
-enum
+ਗਿਣਤੀ
 {
   CGROUP_MANAGER_CGROUPFS = 1,
   CGROUP_MANAGER_SYSTEMD,
   CGROUP_MANAGER_DISABLED
 };
 
-struct libcrun_cgroup_status;
+ਬਣਤਰ libcrun_cgroup_ਸਥਿਤੀ;
 
-struct libcrun_cgroup_args
+ਬਣਤਰ libcrun_cgroup_ਦਲੀਲਾਂ
 {
   runtime_spec_schema_config_linux_resources *resources;
   string_map *annotations;
-  const char *cgroup_path;
-  int manager;
+  ਅਚਲ ਅੱਖਰ *cgroup_ਰਸਤਾ;
+  ਪੂਰਨ manager;
   pid_t pid;
-  uid_t root_uid;
-  gid_t root_gid;
-  const char *id;
+  uid_t ਜੜ੍ਹ_uid;
+  gid_t ਜੜ੍ਹ_gid;
+  ਅਚਲ ਅੱਖਰ *id;
   bool joined;
   /* The path of the cgroup created by libcrun_cgroup_preenter, when there
      is no status for it yet.  */
-  char *precreated_path;
+  ਅੱਖਰ *precreated_ਰਸਤਾ;
 
-  const char *state_root;
+  ਅਚਲ ਅੱਖਰ *state_ਜੜ੍ਹ;
   libcrun_container_t *container;
 };
 
 /* cgroup life-cycle management.  */
-int libcrun_cgroup_preenter (struct libcrun_cgroup_args *args, int *dirfd, libcrun_error_t *err);
-void libcrun_cgroup_preenter_cleanup (struct libcrun_cgroup_args *args);
-int libcrun_cgroup_enter (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status **out, libcrun_error_t *err);
-int libcrun_cgroup_enter_finalize (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status *cgroup_status, libcrun_error_t *err);
-int libcrun_cgroup_destroy (struct libcrun_cgroup_status *cgroup_status, libcrun_error_t *err);
+ਪੂਰਨ libcrun_cgroup_preenter (ਬਣਤਰ libcrun_cgroup_ਦਲੀਲਾਂ *ਦਲੀਲਾਂ, ਪੂਰਨ *dirfd, libcrun_error_t *err);
+ਖਾਲੀ libcrun_cgroup_preenter_cleanup (ਬਣਤਰ libcrun_cgroup_ਦਲੀਲਾਂ *ਦਲੀਲਾਂ);
+ਪੂਰਨ libcrun_cgroup_enter (ਬਣਤਰ libcrun_cgroup_ਦਲੀਲਾਂ *ਦਲੀਲਾਂ, ਬਣਤਰ libcrun_cgroup_ਸਥਿਤੀ **ਬਾਹਰਲਾ, libcrun_error_t *err);
+ਪੂਰਨ libcrun_cgroup_enter_finalize (ਬਣਤਰ libcrun_cgroup_ਦਲੀਲਾਂ *ਦਲੀਲਾਂ, ਬਣਤਰ libcrun_cgroup_ਸਥਿਤੀ *cgroup_ਸਥਿਤੀ, libcrun_error_t *err);
+ਪੂਰਨ libcrun_cgroup_destroy (ਬਣਤਰ libcrun_cgroup_ਸਥਿਤੀ *cgroup_ਸਥਿਤੀ, libcrun_error_t *err);
 
 /* Handle the cgroup status.  */
-int libcrun_cgroup_get_status (struct libcrun_cgroup_status *cgroup_status, libcrun_container_status_t *status,
+ਪੂਰਨ libcrun_cgroup_get_ਸਥਿਤੀ (ਬਣਤਰ libcrun_cgroup_ਸਥਿਤੀ *cgroup_ਸਥਿਤੀ, libcrun_container_ਸਥਿਤੀ_t *ਸਥਿਤੀ,
                                libcrun_error_t *err);
-void libcrun_cgroup_status_free (struct libcrun_cgroup_status *cgroup_status);
+ਖਾਲੀ libcrun_cgroup_ਸਥਿਤੀ_free (ਬਣਤਰ libcrun_cgroup_ਸਥਿਤੀ *cgroup_ਸਥਿਤੀ);
 
-struct libcrun_cgroup_status *libcrun_cgroup_make_status (libcrun_container_status_t *status);
+ਬਣਤਰ libcrun_cgroup_ਸਥਿਤੀ *libcrun_cgroup_make_ਸਥਿਤੀ (libcrun_container_ਸਥਿਤੀ_t *ਸਥਿਤੀ);
 
-static inline void
-cgroup_status_freep (struct libcrun_cgroup_status **p)
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ
+cgroup_ਸਥਿਤੀ_freep (ਬਣਤਰ libcrun_cgroup_ਸਥਿਤੀ **p)
 {
-  struct libcrun_cgroup_status *s = *p;
-  if (s)
-    libcrun_cgroup_status_free (s);
+  ਬਣਤਰ libcrun_cgroup_ਸਥਿਤੀ *s = *p;
+  ਜੇ (s)
+    libcrun_cgroup_ਸਥਿਤੀ_free (s);
 }
-#define cleanup_cgroup_status __attribute__ ((cleanup (cgroup_status_freep)))
-#define cleanup_cgroup_preenter __attribute__ ((cleanup (libcrun_cgroup_preenter_cleanup)))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ cleanup_cgroup_ਸਥਿਤੀ __attribute__ ((cleanup (cgroup_ਸਥਿਤੀ_freep)))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ cleanup_cgroup_preenter __attribute__ ((cleanup (libcrun_cgroup_preenter_cleanup)))
 
 /* Operations on the cgroup.  */
 
-int libcrun_cgroup_killall (struct libcrun_cgroup_status *cgroup_status, int signal, libcrun_error_t *err);
+ਪੂਰਨ libcrun_cgroup_killall (ਬਣਤਰ libcrun_cgroup_ਸਥਿਤੀ *cgroup_ਸਥਿਤੀ, ਪੂਰਨ ਸੰਕੇਤ, libcrun_error_t *err);
 
-int libcrun_cgroup_has_oom (struct libcrun_cgroup_status *status, libcrun_error_t *err);
+ਪੂਰਨ libcrun_cgroup_has_oom (ਬਣਤਰ libcrun_cgroup_ਸਥਿਤੀ *ਸਥਿਤੀ, libcrun_error_t *err);
 
-int libcrun_cgroup_read_pids (struct libcrun_cgroup_status *status, bool recurse, pid_t **pids, libcrun_error_t *err);
+ਪੂਰਨ libcrun_cgroup_read_pids (ਬਣਤਰ libcrun_cgroup_ਸਥਿਤੀ *ਸਥਿਤੀ, bool recurse, pid_t **pids, libcrun_error_t *err);
 
-int libcrun_update_cgroup_resources (struct libcrun_cgroup_status *status,
-                                     const char *state_root,
+ਪੂਰਨ libcrun_update_cgroup_resources (ਬਣਤਰ libcrun_cgroup_ਸਥਿਤੀ *ਸਥਿਤੀ,
+                                     ਅਚਲ ਅੱਖਰ *state_ਜੜ੍ਹ,
                                      runtime_spec_schema_config_linux_resources *resources,
                                      libcrun_error_t *err);
 
-int libcrun_cgroup_is_container_paused (struct libcrun_cgroup_status *status, bool *paused, libcrun_error_t *err);
+ਪੂਰਨ libcrun_cgroup_is_container_paused (ਬਣਤਰ libcrun_cgroup_ਸਥਿਤੀ *ਸਥਿਤੀ, bool *paused, libcrun_error_t *err);
 
 /* Move PID to the cgroup PATH, which is the container cgroup described by STATUS
    or its sub-cgroup.  */
-int libcrun_cgroup_join_process (struct libcrun_cgroup_status *status, const char *path, pid_t pid, pid_t init_pid,
+ਪੂਰਨ libcrun_cgroup_join_process (ਬਣਤਰ libcrun_cgroup_ਸਥਿਤੀ *ਸਥਿਤੀ, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, pid_t pid, pid_t init_pid,
                                  libcrun_error_t *err);
 
-int libcrun_cgroup_pause_unpause (struct libcrun_cgroup_status *status, const bool pause, libcrun_error_t *err);
+ਪੂਰਨ libcrun_cgroup_pause_unpause (ਬਣਤਰ libcrun_cgroup_ਸਥਿਤੀ *ਸਥਿਤੀ, ਅਚਲ bool pause, libcrun_error_t *err);
 
-#endif
+#ਜੇ_ਅੰਤ

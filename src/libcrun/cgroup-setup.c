@@ -16,98 +16,98 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ GNU_ਸਰੋਤ
 
-#include <config.h>
-#include "cgroup.h"
-#include "cgroup-internal.h"
-#include "cgroup-systemd.h"
-#include "cgroup-utils.h"
-#include "ebpf.h"
-#include "utils.h"
-#include "status.h"
-#include <string.h>
-#include <sys/types.h>
-#include <signal.h>
-#include <sys/vfs.h>
-#include <inttypes.h>
-#include <time.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <config.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ "cgroup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cgroup-internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cgroup-systemd.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cgroup-utils.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "ebpf.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "utils.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "status.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ <string.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/types.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <signal.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/vfs.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <inttypes.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <time.h>
 
-#include <sched.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <libgen.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sched.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/stat.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/types.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <fcntl.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <libgen.h>
 
-static int
-initialize_cpuset_subsystem_rec (char *path, size_t path_len, char *cpus, char *mems, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+initialize_cpuset_subsystem_rec (ਅੱਖਰ *ਰਸਤਾ, size_t ਰਸਤਾ_len, ਅੱਖਰ *cpus, ਅੱਖਰ *mems, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
 {
-  cleanup_free char *allocated_cpus = NULL;
-  cleanup_free char *allocated_mems = NULL;
-  cleanup_close int dirfd = -1;
-  cleanup_close int mems_fd = -1;
-  cleanup_close int cpus_fd = -1;
+  cleanup_free ਅੱਖਰ *allocated_cpus = ਨਿਰਾ;
+  cleanup_free ਅੱਖਰ *allocated_mems = ਨਿਰਾ;
+  cleanup_close ਪੂਰਨ dirfd = -1;
+  cleanup_close ਪੂਰਨ mems_fd = -1;
+  cleanup_close ਪੂਰਨ cpus_fd = -1;
   bool has_cpus = false, has_mems = false;
-  int b_len;
+  ਪੂਰਨ b_len;
 
-  dirfd = open (path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", path);
+  dirfd = open (ਰਸਤਾ, O_DIRECTORY | O_ਰਸਤਾ | O_CLOEXEC);
+  ਜੇ (UNLIKELY (dirfd < 0))
+    ਵਾਪਸ crun_make_error (err, errno, "open `%s`", ਰਸਤਾ);
 
   /* If we don't yet have a cpu/mem value to base the child off of, we attempt to read it.
    * Either, it's the newly created cgroup (and thus is still empty), or it's a parent that's been
    * prepopulated. */
-  if (cpus[0] == '\0')
+  ਜੇ (cpus[0] == '\0')
     {
       cpus_fd = openat (dirfd, "cpuset.cpus", O_RDWR | O_CLOEXEC);
-      if (UNLIKELY (cpus_fd < 0 && errno == ENOENT))
+      ਜੇ (UNLIKELY (cpus_fd < 0 && errno == ENOENT))
         cpus_fd = openat (dirfd, "cpus", O_RDWR | O_CLOEXEC);
-      if (UNLIKELY (cpus_fd < 0))
-        return crun_make_error (err, errno, "open `%s/%s`", path, "cpuset.cpus");
+      ਜੇ (UNLIKELY (cpus_fd < 0))
+        ਵਾਪਸ crun_make_error (err, errno, "open `%s/%s`", ਰਸਤਾ, "cpuset.cpus");
 
-      b_len = TEMP_FAILURE_RETRY (read (cpus_fd, cpus, 256));
-      if (UNLIKELY (b_len < 0))
-        return crun_make_error (err, errno, "read from `cpuset.cpus`");
+      b_len = ਆਰਜ਼ੀ_FAILURE_RETRY (ਪਠ (cpus_fd, cpus, 256));
+      ਜੇ (UNLIKELY (b_len < 0))
+        ਵਾਪਸ crun_make_error (err, errno, "read from `cpuset.cpus`");
       cpus[b_len] = '\0';
-      if (cpus[0] == '\n')
+      ਜੇ (cpus[0] == '\n')
         cpus[0] = '\0';
-      if (cpus[0] != '\0')
+      ਜੇ (cpus[0] != '\0')
         has_cpus = true;
     }
 
-  if (mems[0] == '\0')
+  ਜੇ (mems[0] == '\0')
     {
       mems_fd = openat (dirfd, "cpuset.mems", O_RDWR | O_CLOEXEC);
-      if (UNLIKELY (mems_fd < 0 && errno == ENOENT))
+      ਜੇ (UNLIKELY (mems_fd < 0 && errno == ENOENT))
         mems_fd = openat (dirfd, "mems", O_RDWR | O_CLOEXEC);
-      if (UNLIKELY (mems_fd < 0))
-        return crun_make_error (err, errno, "open `%s/%s`", path, "cpuset.mems");
+      ਜੇ (UNLIKELY (mems_fd < 0))
+        ਵਾਪਸ crun_make_error (err, errno, "open `%s/%s`", ਰਸਤਾ, "cpuset.mems");
 
-      b_len = TEMP_FAILURE_RETRY (read (mems_fd, mems, 256));
-      if (UNLIKELY (b_len < 0))
-        return crun_make_error (err, errno, "read from `cpuset.mems`");
+      b_len = ਆਰਜ਼ੀ_FAILURE_RETRY (ਪਠ (mems_fd, mems, 256));
+      ਜੇ (UNLIKELY (b_len < 0))
+        ਵਾਪਸ crun_make_error (err, errno, "read from `cpuset.mems`");
       mems[b_len] = '\0';
-      if (mems[0] == '\n')
+      ਜੇ (mems[0] == '\n')
         mems[0] = '\0';
-      if (mems[0] != '\0')
+      ਜੇ (mems[0] != '\0')
         has_mems = true;
     }
 
   /* If we fail to find one, we should continue searching up until we find one */
-  if (cpus[0] == '\0' || mems[0] == '\0')
+  ਜੇ (cpus[0] == '\0' || mems[0] == '\0')
     {
-      size_t parent_path_len;
-      int ret;
+      size_t ਮਾਪਾ_ਰਸਤਾ_len;
+      ਪੂਰਨ ret;
 
-      for (parent_path_len = path_len - 1; parent_path_len > 1 && path[parent_path_len] != '/'; parent_path_len--)
+      ਲਈ (ਮਾਪਾ_ਰਸਤਾ_len = ਰਸਤਾ_len - 1; ਮਾਪਾ_ਰਸਤਾ_len > 1 && ਰਸਤਾ[ਮਾਪਾ_ਰਸਤਾ_len] != '/'; ਮਾਪਾ_ਰਸਤਾ_len--)
         ;
-      if (parent_path_len == 1)
-        return 0;
+      ਜੇ (ਮਾਪਾ_ਰਸਤਾ_len == 1)
+        ਵਾਪਸ 0;
 
-      path[parent_path_len] = '\0';
-      ret = initialize_cpuset_subsystem_rec (path, parent_path_len, cpus, mems, resources, err);
-      path[parent_path_len] = '/';
-      if (UNLIKELY (ret < 0))
+      ਰਸਤਾ[ਮਾਪਾ_ਰਸਤਾ_len] = '\0';
+      ret = initialize_cpuset_subsystem_rec (ਰਸਤਾ, ਮਾਪਾ_ਰਸਤਾ_len, cpus, mems, resources, err);
+      ਰਸਤਾ[ਮਾਪਾ_ਰਸਤਾ_len] = '/';
+      ਜੇ (UNLIKELY (ret < 0))
         {
           /* Ignore errors here and try to write the configuration we want later on.  */
           crun_error_release (err);
@@ -117,336 +117,336 @@ initialize_cpuset_subsystem_rec (char *path, size_t path_len, char *cpus, char *
   /* If we know the resources, use them, instead of initializing with the full set, only to revert it later.
    * Only do so if we didn't read the cpus and mems we have from this cgroup.
    * Otherwise, we'll clobber existing values, which is problematic when there are multiple containers in a cgroup. */
-  if (resources && resources->cpu)
+  ਜੇ (resources && resources->cpu)
     {
-      if (resources->cpu->cpus && ! has_cpus)
+      ਜੇ (resources->cpu->cpus && ! has_cpus)
         cpus = allocated_cpus = xstrdup (resources->cpu->cpus);
-      if (resources->cpu->mems && ! has_mems)
+      ਜੇ (resources->cpu->mems && ! has_mems)
         mems = allocated_mems = xstrdup (resources->cpu->mems);
     }
 
   /* Finally, if we have a fd to populate, write the value chosen. If we have a value from the resources struct to base it off of,
    * use that, otherwise use the parent's. */
-  if (cpus_fd >= 0)
+  ਜੇ (cpus_fd >= 0)
     {
-      b_len = TEMP_FAILURE_RETRY (write (cpus_fd, cpus, strlen (cpus)));
-      if (UNLIKELY (b_len < 0))
-        return crun_make_error (err, errno, "write `cpuset.cpus`");
+      b_len = ਆਰਜ਼ੀ_FAILURE_RETRY (ਲਿਖ (cpus_fd, cpus, ਲੜੀ_ਲੰਬਾਈ (cpus)));
+      ਜੇ (UNLIKELY (b_len < 0))
+        ਵਾਪਸ crun_make_error (err, errno, "write `cpuset.cpus`");
     }
 
-  if (mems_fd >= 0)
+  ਜੇ (mems_fd >= 0)
     {
-      b_len = TEMP_FAILURE_RETRY (write (mems_fd, mems, strlen (mems)));
-      if (UNLIKELY (b_len < 0))
-        return crun_make_error (err, errno, "write `cpuset.mems`");
+      b_len = ਆਰਜ਼ੀ_FAILURE_RETRY (ਲਿਖ (mems_fd, mems, ਲੜੀ_ਲੰਬਾਈ (mems)));
+      ਜੇ (UNLIKELY (b_len < 0))
+        ਵਾਪਸ crun_make_error (err, errno, "write `cpuset.mems`");
     }
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-int
-initialize_cpuset_subsystem (const char *path, libcrun_error_t *err)
+ਪੂਰਨ
+initialize_cpuset_subsystem (ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, libcrun_error_t *err)
 {
-  cleanup_free char *tmp_path = xstrdup (path);
-  char cpus_buf[257];
-  char mems_buf[257];
+  cleanup_free ਅੱਖਰ *tmp_ਰਸਤਾ = xstrdup (ਰਸਤਾ);
+  ਅੱਖਰ cpus_buf[257];
+  ਅੱਖਰ mems_buf[257];
 
   cpus_buf[0] = mems_buf[0] = '\0';
-  return initialize_cpuset_subsystem_rec (tmp_path, strlen (tmp_path), cpus_buf, mems_buf, NULL, err);
+  ਵਾਪਸ initialize_cpuset_subsystem_rec (tmp_ਰਸਤਾ, ਲੜੀ_ਲੰਬਾਈ (tmp_ਰਸਤਾ), cpus_buf, mems_buf, ਨਿਰਾ, err);
 }
 
-int
-initialize_cpuset_subsystem_resources (const char *path, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
+ਪੂਰਨ
+initialize_cpuset_subsystem_resources (ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
 {
-  cleanup_free char *tmp_path = xstrdup (path);
-  char cpus_buf[257];
-  char mems_buf[257];
+  cleanup_free ਅੱਖਰ *tmp_ਰਸਤਾ = xstrdup (ਰਸਤਾ);
+  ਅੱਖਰ cpus_buf[257];
+  ਅੱਖਰ mems_buf[257];
 
   cpus_buf[0] = mems_buf[0] = '\0';
-  return initialize_cpuset_subsystem_rec (tmp_path, strlen (tmp_path), cpus_buf, mems_buf, resources, err);
+  ਵਾਪਸ initialize_cpuset_subsystem_rec (tmp_ਰਸਤਾ, ਲੜੀ_ਲੰਬਾਈ (tmp_ਰਸਤਾ), cpus_buf, mems_buf, resources, err);
 }
 
-static int
-initialize_memory_subsystem (const char *path, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+initialize_ਸਮ੍ਰਿਤੀ_subsystem (ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, libcrun_error_t *err)
 {
-  const char *const files[]
-      = { "memory.limit_in_bytes", "memory.kmem.limit_in_bytes", "memory.memsw.limit_in_bytes", NULL };
-  cleanup_close int dirfd = -1;
-  int i;
+  ਅਚਲ ਅੱਖਰ *ਅਚਲ files[]
+      = { "memory.limit_in_bytes", "memory.kmem.limit_in_bytes", "memory.memsw.limit_in_bytes", ਨਿਰਾ };
+  cleanup_close ਪੂਰਨ dirfd = -1;
+  ਪੂਰਨ i;
 
-  dirfd = open (path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", path);
+  dirfd = open (ਰਸਤਾ, O_DIRECTORY | O_ਰਸਤਾ | O_CLOEXEC);
+  ਜੇ (UNLIKELY (dirfd < 0))
+    ਵਾਪਸ crun_make_error (err, errno, "open `%s`", ਰਸਤਾ);
 
-  for (i = 0; files[i]; i++)
+  ਲਈ (i = 0; files[i]; i++)
     {
-      int ret;
+      ਪੂਰਨ ret;
 
       ret = write_cgroup_file (dirfd, files[i], "-1", 2, err);
-      if (UNLIKELY (ret < 0))
+      ਜੇ (UNLIKELY (ret < 0))
         {
           /* Ignore any error here.  */
           crun_error_release (err);
         }
     }
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-int
-enter_cgroup_v1_subsystem (pid_t pid, const char *subsystem, const char *path, bool create_if_missing,
+ਪੂਰਨ
+enter_cgroup_v1_subsystem (pid_t pid, ਅਚਲ ਅੱਖਰ *subsystem, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, bool create_if_missing,
                            libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
-  int ret;
+  cleanup_free ਅੱਖਰ *cgroup_ਰਸਤਾ = ਨਿਰਾ;
+  ਪੂਰਨ ret;
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, subsystem, path ? path : "", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_ਰਸਤਾ, err, CGROUP_ਜੜ੍ਹ, subsystem, ਰਸਤਾ ? ਰਸਤਾ : "", ਨਿਰਾ);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
-  if (create_if_missing)
+  ਜੇ (create_if_missing)
     {
-      ret = crun_ensure_directory (cgroup_path, 0755, false, err);
-      if (UNLIKELY (ret < 0))
+      ret = crun_ensure_directory (cgroup_ਰਸਤਾ, 0755, false, err);
+      ਜੇ (UNLIKELY (ret < 0))
         {
-          if (crun_error_get_errno (err) != EROFS)
-            return crun_error_wrap (err, "creating cgroup directory `%s`", cgroup_path);
+          ਜੇ (crun_error_get_errno (err) != EROFS)
+            ਵਾਪਸ crun_error_wrap (err, "creating cgroup directory `%s`", cgroup_ਰਸਤਾ);
 
           crun_error_release (err);
-          return 0;
+          ਵਾਪਸ 0;
         }
 
-      if (strcmp (subsystem, "cpuset") == 0)
+      ਜੇ (strcmp (subsystem, "cpuset") == 0)
         {
-          ret = initialize_cpuset_subsystem (cgroup_path, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = initialize_cpuset_subsystem (cgroup_ਰਸਤਾ, err);
+          ਜੇ (UNLIKELY (ret < 0))
+            ਵਾਪਸ ret;
         }
-      if (strcmp (subsystem, "memory") == 0)
+      ਜੇ (strcmp (subsystem, "memory") == 0)
         {
-          ret = initialize_memory_subsystem (cgroup_path, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = initialize_ਸਮ੍ਰਿਤੀ_subsystem (cgroup_ਰਸਤਾ, err);
+          ਜੇ (UNLIKELY (ret < 0))
+            ਵਾਪਸ ret;
         }
     }
-  else
+  ਨਹੀਂਤਾਂ
     {
-      ret = crun_path_exists (cgroup_path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      if (ret == 0)
-        return 0;
+      ret = crun_ਰਸਤਾ_exists (cgroup_ਰਸਤਾ, err);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
+      ਜੇ (ret == 0)
+        ਵਾਪਸ 0;
     }
 
-  return move_process_to_cgroup (pid, subsystem, path, err);
+  ਵਾਪਸ move_process_ਮੰਜ਼ਿਲ_cgroup (pid, subsystem, ਰਸਤਾ, err);
 }
 
-static int
-get_file_owner (const char *path, uid_t *uid, gid_t *gid)
+ਸਥਿਰ ਪੂਰਨ
+get_file_owner (ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, uid_t *uid, gid_t *gid)
 {
-  struct stat st;
-  int ret;
+  ਬਣਤਰ stat st;
+  ਪੂਰਨ ret;
 
-#ifdef HAVE_STATX
-  struct statx stx;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_STATX
+  ਬਣਤਰ statx stx;
 
-  ret = statx (AT_FDCWD, path, AT_STATX_DONT_SYNC, STATX_UID | STATX_GID, &stx);
-  if (UNLIKELY (ret < 0))
+  ret = statx (AT_FDCWD, ਰਸਤਾ, AT_STATX_DONT_SYNC, STATX_UID | STATX_GID, &stx);
+  ਜੇ (UNLIKELY (ret < 0))
     {
-      if (errno == ENOSYS || errno == EINVAL)
-        goto fallback;
+      ਜੇ (errno == ENOSYS || errno == EINVAL)
+        ਜਾਓ fallback;
 
-      return ret;
+      ਵਾਪਸ ret;
     }
   *uid = stx.stx_uid;
   *gid = stx.stx_gid;
-  return ret;
+  ਵਾਪਸ ret;
 
 fallback:
-#endif
-  ret = stat (path, &st);
-  if (UNLIKELY (ret < 0))
-    return ret;
+#ਜੇ_ਅੰਤ
+  ret = stat (ਰਸਤਾ, &st);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
   *uid = st.st_uid;
   *gid = st.st_gid;
-  return ret;
+  ਵਾਪਸ ret;
 }
 
-static int
-copy_owner (const char *from, const char *to, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+copy_owner (ਅਚਲ ਅੱਖਰ *from, ਅਚਲ ਅੱਖਰ *ਮੰਜ਼ਿਲ, libcrun_error_t *err)
 {
   uid_t uid = 0;
   gid_t gid = 0;
-  int ret;
+  ਪੂਰਨ ret;
 
   ret = get_file_owner (from, &uid, &gid);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "cannot get file owner for `%s`", from);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ crun_make_error (err, errno, "cannot get file owner for `%s`", from);
 
-  if (uid == 0 && gid == 0)
-    return 0;
+  ਜੇ (uid == 0 && gid == 0)
+    ਵਾਪਸ 0;
 
-  return chown_cgroups (to, uid, gid, err);
+  ਵਾਪਸ chown_cgroups (ਮੰਜ਼ਿਲ, uid, gid, err);
 }
 
-static int
-read_unified_cgroup_pid (pid_t pid, char **path, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+read_unified_cgroup_pid (pid_t pid, ਅੱਖਰ **ਰਸਤਾ, libcrun_error_t *err)
 {
-  int ret;
-  char cgroup_path[32];
-  char *from, *to;
-  cleanup_free char *content = NULL;
-  int len;
+  ਪੂਰਨ ret;
+  ਅੱਖਰ cgroup_ਰਸਤਾ[32];
+  ਅੱਖਰ *from, *ਮੰਜ਼ਿਲ;
+  cleanup_free ਅੱਖਰ *content = ਨਿਰਾ;
+  ਪੂਰਨ len;
 
-  len = snprintf (cgroup_path, sizeof (cgroup_path), "/proc/%d/cgroup", pid);
-  if (UNLIKELY (len >= (int) sizeof (cgroup_path)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  len = snprintf (cgroup_ਰਸਤਾ, ਆਕਾਰ (cgroup_ਰਸਤਾ), "/proc/%d/cgroup", pid);
+  ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (cgroup_ਰਸਤਾ)))
+    ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
 
-  cgroup_path[len] = '\0';
+  cgroup_ਰਸਤਾ[len] = '\0';
 
-  ret = read_all_file (cgroup_path, &content, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file (cgroup_ਰਸਤਾ, &content, ਨਿਰਾ, err);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
-  from = strstr (content, "0::");
-  if (UNLIKELY (from == NULL))
-    return crun_make_error (err, 0, "cannot find cgroup2 for the process `%d`", pid);
+  from = ਲੜੀ_ਖੋਜ (content, "0::");
+  ਜੇ (UNLIKELY (from == ਨਿਰਾ))
+    ਵਾਪਸ crun_make_error (err, 0, "cannot find cgroup2 for the process `%d`", pid);
 
   from += 3;
 
-  to = strchr (from, '\n');
-  if (UNLIKELY (to == NULL))
-    return crun_make_error (err, 0, "cannot parse `%s`", cgroup_path);
-  *to = '\0';
+  ਮੰਜ਼ਿਲ = strchr (from, '\n');
+  ਜੇ (UNLIKELY (ਮੰਜ਼ਿਲ == ਨਿਰਾ))
+    ਵਾਪਸ crun_make_error (err, 0, "cannot parse `%s`", cgroup_ਰਸਤਾ);
+  *ਮੰਜ਼ਿਲ = '\0';
 
-  *path = xstrdup (from);
-  return 0;
+  *ਰਸਤਾ = xstrdup (from);
+  ਵਾਪਸ 0;
 }
 
-static int
-enter_cgroup_v1 (pid_t pid, const char *path, bool create_if_missing, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+enter_cgroup_v1 (pid_t pid, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, bool create_if_missing, libcrun_error_t *err)
 {
-  cleanup_free char *content = NULL;
+  cleanup_free ਅੱਖਰ *content = ਨਿਰਾ;
   bool entered_any = false;
-  size_t content_size;
-  char *controller;
-  char *saveptr;
-  bool has_data;
-  int rootless;
-  int ret;
+  size_t content_ਮਾਪ;
+  ਅੱਖਰ *controller;
+  ਅੱਖਰ *saveptr;
+  bool has_ਅੰਕੜੇ;
+  ਪੂਰਨ rootless;
+  ਪੂਰਨ ret;
 
   rootless = is_rootless (err);
-  if (UNLIKELY (rootless < 0))
-    return rootless;
+  ਜੇ (UNLIKELY (rootless < 0))
+    ਵਾਪਸ rootless;
 
-  ret = read_all_file (PROC_SELF_CGROUP, &content, &content_size, err);
-  if (UNLIKELY (ret < 0))
+  ret = read_all_file (PROC_SELF_CGROUP, &content, &content_ਮਾਪ, err);
+  ਜੇ (UNLIKELY (ret < 0))
     {
-      if (crun_error_get_errno (err) == ENOENT)
+      ਜੇ (crun_error_get_errno (err) == ENOENT)
         {
           crun_error_release (err);
-          return 0;
+          ਵਾਪਸ 0;
         }
-      return ret;
+      ਵਾਪਸ ret;
     }
 
-  for (has_data = read_proc_cgroup (content, &saveptr, NULL, &controller, NULL);
-       has_data;
-       has_data = read_proc_cgroup (NULL, &saveptr, NULL, &controller, NULL))
+  ਲਈ (has_ਅੰਕੜੇ = read_proc_cgroup (content, &saveptr, ਨਿਰਾ, &controller, ਨਿਰਾ);
+       has_ਅੰਕੜੇ;
+       has_ਅੰਕੜੇ = read_proc_cgroup (ਨਿਰਾ, &saveptr, ਨਿਰਾ, &controller, ਨਿਰਾ))
     {
-      char subsystem_path[64];
-      char *subsystem;
+      ਅੱਖਰ subsystem_ਰਸਤਾ[64];
+      ਅੱਖਰ *subsystem;
       size_t len;
 
-      if (has_prefix (controller, "name="))
+      ਜੇ (has_ਅਗੇਤਰ (controller, "name="))
         controller += 5;
 
       subsystem = controller[0] == '\0' ? "unified" : controller;
 
-      if (strcmp (subsystem, "net_prio,net_cls") == 0)
+      ਜੇ (strcmp (subsystem, "net_prio,net_cls") == 0)
         subsystem = "net_cls,net_prio";
-      if (strcmp (subsystem, "cpuacct,cpu") == 0)
+      ਜੇ (strcmp (subsystem, "cpuacct,cpu") == 0)
         subsystem = "cpu,cpuacct";
 
-      len = snprintf (subsystem_path, sizeof (subsystem_path), CGROUP_ROOT "/%s", subsystem);
-      if (UNLIKELY (len >= (int) sizeof (subsystem_path)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (subsystem_ਰਸਤਾ, ਆਕਾਰ (subsystem_ਰਸਤਾ), CGROUP_ਜੜ੍ਹ "/%s", subsystem);
+      ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (subsystem_ਰਸਤਾ)))
+        ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
 
-      ret = crun_path_exists (subsystem_path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      if (ret == 0)
-        continue;
+      ret = crun_ਰਸਤਾ_exists (subsystem_ਰਸਤਾ, err);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
+      ਜੇ (ret == 0)
+        ਜਾਰੀ;
 
       entered_any = true;
-      ret = enter_cgroup_v1_subsystem (pid, subsystem, path, create_if_missing, err);
-      if (UNLIKELY (ret < 0))
+      ret = enter_cgroup_v1_subsystem (pid, subsystem, ਰਸਤਾ, create_if_missing, err);
+      ਜੇ (UNLIKELY (ret < 0))
         {
-          int errcode = crun_error_get_errno (err);
-          if (rootless && (errcode == EACCES || errcode == EPERM))
+          ਪੂਰਨ errcode = crun_error_get_errno (err);
+          ਜੇ (rootless && (errcode == EACCES || errcode == EPERM))
             {
               crun_error_release (err);
-              continue;
+              ਜਾਰੀ;
             }
-          return ret;
+          ਵਾਪਸ ret;
         }
     }
 
-  if (entered_any)
-    return 0;
+  ਜੇ (entered_any)
+    ਵਾਪਸ 0;
 
-  return crun_make_error (err, 0, "could not join cgroup");
+  ਵਾਪਸ crun_make_error (err, 0, "could not join cgroup");
 }
 
-static int
-enter_cgroup_v2 (pid_t pid, pid_t init_pid, const char *path, bool create_if_missing, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+enter_cgroup_v2 (pid_t pid, pid_t init_pid, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, bool create_if_missing, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path_procs = NULL;
-  cleanup_free char *cgroup_path = NULL;
-  char pid_str[16];
-  int repeat;
-  int len;
-  int ret;
+  cleanup_free ਅੱਖਰ *cgroup_ਰਸਤਾ_procs = ਨਿਰਾ;
+  cleanup_free ਅੱਖਰ *cgroup_ਰਸਤਾ = ਨਿਰਾ;
+  ਅੱਖਰ pid_str[16];
+  ਪੂਰਨ repeat;
+  ਪੂਰਨ len;
+  ਪੂਰਨ ret;
 
-  len = snprintf (pid_str, sizeof (pid_str), "%d", pid);
-  if (UNLIKELY (len >= (int) sizeof (pid_str)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  len = snprintf (pid_str, ਆਕਾਰ (pid_str), "%d", pid);
+  ਜੇ (UNLIKELY (len >= (ਪੂਰਨ) ਆਕਾਰ (pid_str)))
+    ਵਾਪਸ crun_make_error (err, 0, "internal error: static buffer too small");
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_ਰਸਤਾ, err, CGROUP_ਜੜ੍ਹ, ਰਸਤਾ, ਨਿਰਾ);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
-  if (create_if_missing)
+  ਜੇ (create_if_missing)
     {
-      ret = crun_ensure_directory (cgroup_path, 0755, false, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = crun_ensure_directory (cgroup_ਰਸਤਾ, 0755, false, err);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
 
-  ret = append_paths (&cgroup_path_procs, err, cgroup_path, "cgroup.procs", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_ਰਸਤਾ_procs, err, cgroup_ਰਸਤਾ, "cgroup.procs", ਨਿਰਾ);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
-  ret = write_cgroup_file (AT_FDCWD, cgroup_path_procs, pid_str, strlen (pid_str), err);
-  if (LIKELY (ret >= 0))
-    return ret;
+  ret = write_cgroup_file (AT_FDCWD, cgroup_ਰਸਤਾ_procs, pid_str, ਲੜੀ_ਲੰਬਾਈ (pid_str), err);
+  ਜੇ (LIKELY (ret >= 0))
+    ਵਾਪਸ ret;
 
-  if (UNLIKELY (crun_error_get_errno (err) == EOPNOTSUPP))
+  ਜੇ (UNLIKELY (crun_error_get_errno (err) == EOPNOTSUPP))
     {
       crun_error_release (err);
 
-      ret = maybe_make_cgroup_threaded (path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = maybe_make_cgroup_threaded (ਰਸਤਾ, err);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
 
-      ret = write_cgroup_file (AT_FDCWD, cgroup_path_procs, pid_str, strlen (pid_str), err);
-      if (LIKELY (ret >= 0))
-        return ret;
+      ret = write_cgroup_file (AT_FDCWD, cgroup_ਰਸਤਾ_procs, pid_str, ਲੜੀ_ਲੰਬਾਈ (pid_str), err);
+      ਜੇ (LIKELY (ret >= 0))
+        ਵਾਪਸ ret;
     }
 
-  if (create_if_missing || crun_error_get_errno (err) != EBUSY)
-    return ret;
+  ਜੇ (create_if_missing || crun_error_get_errno (err) != EBUSY)
+    ਵਾਪਸ ret;
 
   crun_error_release (err);
 
@@ -454,72 +454,72 @@ enter_cgroup_v2 (pid_t pid, pid_t init_pid, const char *path, bool create_if_mis
      cgroup.  Create a subdirectory and use that.
      It can still fail if the container creates a subdirectory under
      /sys/fs/cgroup/../crun-exec/  */
-  for (repeat = 0;; repeat++)
+  ਲਈ (repeat = 0;; repeat++)
     {
-      cleanup_free char *cgroup_crun_exec_path = NULL;
-      cleanup_free char *cgroup_sub_path_procs = NULL;
+      cleanup_free ਅੱਖਰ *cgroup_crun_exec_ਰਸਤਾ = ਨਿਰਾ;
+      cleanup_free ਅੱਖਰ *cgroup_sub_ਰਸਤਾ_procs = ਨਿਰਾ;
 
       /* There is an init pid, try to join its cgroup.  */
-      if (init_pid > 0)
+      ਜੇ (init_pid > 0)
         {
-          ret = read_unified_cgroup_pid (init_pid, &cgroup_crun_exec_path, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = read_unified_cgroup_pid (init_pid, &cgroup_crun_exec_ਰਸਤਾ, err);
+          ਜੇ (UNLIKELY (ret < 0))
+            ਵਾਪਸ ret;
 
           /* Make sure the cgroup is below the initial cgroup specified for the container.  */
-          if (strncmp (path, cgroup_crun_exec_path, strlen (path)))
+          ਜੇ (ਲੜੀ_ਤੁਲਨਾ (ਰਸਤਾ, cgroup_crun_exec_ਰਸਤਾ, ਲੜੀ_ਲੰਬਾਈ (ਰਸਤਾ)))
             {
-              free (cgroup_crun_exec_path);
-              cgroup_crun_exec_path = NULL;
+              ਮੁਕਤ (cgroup_crun_exec_ਰਸਤਾ);
+              cgroup_crun_exec_ਰਸਤਾ = ਨਿਰਾ;
             }
         }
 
       /* There is no init_pid to lookup, try a static path.  */
-      if (cgroup_crun_exec_path == NULL)
-        xasprintf (&cgroup_crun_exec_path, "%s/crun-exec", path);
+      ਜੇ (cgroup_crun_exec_ਰਸਤਾ == ਨਿਰਾ)
+        xasprintf (&cgroup_crun_exec_ਰਸਤਾ, "%s/crun-exec", ਰਸਤਾ);
 
       /* The sub-cgroup is managed by the container, make sure it is not
          frozen or the process would never run once moved there.  */
-      ret = libcrun_cgroup_ensure_not_frozen (cgroup_crun_exec_path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_cgroup_ensure_not_frozen (cgroup_crun_exec_ਰਸਤਾ, err);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
 
-      ret = append_paths (&cgroup_sub_path_procs, err, CGROUP_ROOT, cgroup_crun_exec_path, "cgroup.procs", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&cgroup_sub_ਰਸਤਾ_procs, err, CGROUP_ਜੜ੍ਹ, cgroup_crun_exec_ਰਸਤਾ, "cgroup.procs", ਨਿਰਾ);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
 
-      ret = write_cgroup_file (AT_FDCWD, cgroup_sub_path_procs, pid_str, strlen (pid_str), err);
-      if (UNLIKELY (ret < 0))
+      ret = write_cgroup_file (AT_FDCWD, cgroup_sub_ਰਸਤਾ_procs, pid_str, ਲੜੀ_ਲੰਬਾਈ (pid_str), err);
+      ਜੇ (UNLIKELY (ret < 0))
         {
           /* The init process might have moved to a different cgroup, try again.  */
-          if (crun_error_get_errno (err) == EBUSY && init_pid && repeat < 20)
+          ਜੇ (crun_error_get_errno (err) == EBUSY && init_pid && repeat < 20)
             {
               crun_error_release (err);
-              continue;
+              ਜਾਰੀ;
             }
-          return ret;
+          ਵਾਪਸ ret;
         }
-      return copy_owner (cgroup_path_procs, cgroup_crun_exec_path, err);
+      ਵਾਪਸ copy_owner (cgroup_ਰਸਤਾ_procs, cgroup_crun_exec_ਰਸਤਾ, err);
     }
-  return ret;
+  ਵਾਪਸ ret;
 }
 
-int
-enter_cgroup (int cgroup_mode, pid_t pid, pid_t init_pid, const char *path,
+ਪੂਰਨ
+enter_cgroup (ਪੂਰਨ cgroup_ਬਹੁਲਕ, pid_t pid, pid_t init_pid, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ,
               bool create_if_missing, libcrun_error_t *err)
 {
-  int ret;
-  if (cgroup_mode == CGROUP_MODE_UNIFIED)
+  ਪੂਰਨ ret;
+  ਜੇ (cgroup_ਬਹੁਲਕ == CGROUP_ਬਹੁਲਕ_UNIFIED)
     {
-      ret = enter_cgroup_v2 (pid, init_pid, path, create_if_missing, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = enter_cgroup_v2 (pid, init_pid, ਰਸਤਾ, create_if_missing, err);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
-  else
+  ਨਹੀਂਤਾਂ
     {
-      ret = enter_cgroup_v1 (pid, path, create_if_missing, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = enter_cgroup_v1 (pid, ਰਸਤਾ, create_if_missing, err);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
-  return 0;
+  ਵਾਪਸ 0;
 }

@@ -15,11 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef START_H
-#define START_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸ਼ੁਰੂ_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸ਼ੁਰੂ_H
 
-#include "crun.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "crun.h"
 
-int crun_command_start (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+ਪੂਰਨ crun_command_ਸ਼ੁਰੂ (ਬਣਤਰ crun_global_arguments *global_ਦਲੀਲਾਂ, ਪੂਰਨ argc, ਅੱਖਰ **argv, libcrun_error_t *error);
 
-#endif
+#ਜੇ_ਅੰਤ

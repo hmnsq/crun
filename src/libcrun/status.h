@@ -16,112 +16,112 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STATUS_H
-#define STATUS_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਥਿਤੀ_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਥਿਤੀ_H
 
-#include <config.h>
-#include <ocispec/runtime_spec_schema_config_schema.h>
-#include "error.h"
-#include "container.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ <config.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <ocispec/runtime_spec_schema_config_schema.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ "error.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "container.h"
 
-struct libcrun_container_list_s
+ਬਣਤਰ libcrun_container_list_s
 {
-  struct libcrun_container_list_s *next;
-  char *name;
+  ਬਣਤਰ libcrun_container_list_s *ਅਗਲਾ;
+  ਅੱਖਰ *name;
 };
-typedef struct libcrun_container_list_s libcrun_container_list_t;
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਬਣਤਰ libcrun_container_list_s libcrun_container_list_t;
 
-struct libcrun_container_status_s
+ਬਣਤਰ libcrun_container_ਸਥਿਤੀ_s
 {
   pid_t pid;
-  unsigned long long process_start_time;
-  char *bundle;
-  char *rootfs;
-  char *cgroup_path;
-  char *scope;
-  int systemd_cgroup;
-  char *created;
-  int detached;
-  int no_new_keyring;
-  char *external_descriptors;
-  char *owner;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ ਲੰਮਾ process_ਸ਼ੁਰੂ_ਸਮਾਂ;
+  ਅੱਖਰ *bundle;
+  ਅੱਖਰ *rootfs;
+  ਅੱਖਰ *cgroup_ਰਸਤਾ;
+  ਅੱਖਰ *scope;
+  ਪੂਰਨ systemd_cgroup;
+  ਅੱਖਰ *created;
+  ਪੂਰਨ detached;
+  ਪੂਰਨ no_new_keyring;
+  ਅੱਖਰ *external_descriptors;
+  ਅੱਖਰ *owner;
 };
-typedef struct libcrun_container_status_s libcrun_container_status_t;
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਬਣਤਰ libcrun_container_ਸਥਿਤੀ_s libcrun_container_ਸਥਿਤੀ_t;
 
-LIBCRUN_PUBLIC void libcrun_free_container_status (libcrun_container_status_t *status);
-LIBCRUN_PUBLIC int libcrun_write_container_status (const char *state_root, const char *id,
-                                                   libcrun_container_status_t *status, libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_read_container_status (libcrun_container_status_t *status, const char *state_root,
-                                                  const char *id, libcrun_error_t *err);
-LIBCRUN_PUBLIC void libcrun_free_containers_list (libcrun_container_list_t *list);
-LIBCRUN_PUBLIC int libcrun_is_container_running (libcrun_container_status_t *status, libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_get_state_directory (char **out, const char *state_root, const char *id, libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_container_delete_status (const char *state_root, const char *id, libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_get_containers_list (libcrun_container_list_t **ret, const char *state_root,
+LIBCRUN_ਜਨਤਕ ਖਾਲੀ libcrun_free_container_ਸਥਿਤੀ (libcrun_container_ਸਥਿਤੀ_t *ਸਥਿਤੀ);
+LIBCRUN_ਜਨਤਕ ਪੂਰਨ libcrun_write_container_ਸਥਿਤੀ (ਅਚਲ ਅੱਖਰ *state_ਜੜ੍ਹ, ਅਚਲ ਅੱਖਰ *id,
+                                                   libcrun_container_ਸਥਿਤੀ_t *ਸਥਿਤੀ, libcrun_error_t *err);
+LIBCRUN_ਜਨਤਕ ਪੂਰਨ libcrun_read_container_ਸਥਿਤੀ (libcrun_container_ਸਥਿਤੀ_t *ਸਥਿਤੀ, ਅਚਲ ਅੱਖਰ *state_ਜੜ੍ਹ,
+                                                  ਅਚਲ ਅੱਖਰ *id, libcrun_error_t *err);
+LIBCRUN_ਜਨਤਕ ਖਾਲੀ libcrun_free_containers_list (libcrun_container_list_t *list);
+LIBCRUN_ਜਨਤਕ ਪੂਰਨ libcrun_is_container_running (libcrun_container_ਸਥਿਤੀ_t *ਸਥਿਤੀ, libcrun_error_t *err);
+LIBCRUN_ਜਨਤਕ ਪੂਰਨ libcrun_get_state_directory (ਅੱਖਰ **ਬਾਹਰਲਾ, ਅਚਲ ਅੱਖਰ *state_ਜੜ੍ਹ, ਅਚਲ ਅੱਖਰ *id, libcrun_error_t *err);
+LIBCRUN_ਜਨਤਕ ਪੂਰਨ libcrun_container_delete_ਸਥਿਤੀ (ਅਚਲ ਅੱਖਰ *state_ਜੜ੍ਹ, ਅਚਲ ਅੱਖਰ *id, libcrun_error_t *err);
+LIBCRUN_ਜਨਤਕ ਪੂਰਨ libcrun_get_containers_list (libcrun_container_list_t **ret, ਅਚਲ ਅੱਖਰ *state_ਜੜ੍ਹ,
                                                 libcrun_error_t *err);
 
-struct libcrun_container_iter_s
+ਬਣਤਰ libcrun_container_iter_s
 {
   libcrun_container_list_t *cur;
 };
-typedef struct libcrun_container_iter_s libcrun_container_iter_t;
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਬਣਤਰ libcrun_container_iter_s libcrun_container_iter_t;
 
-LIBCRUN_PUBLIC int libcrun_container_list (libcrun_context_t *context, libcrun_container_list_t **out,
+LIBCRUN_ਜਨਤਕ ਪੂਰਨ libcrun_container_list (libcrun_context_t *context, libcrun_container_list_t **ਬਾਹਰਲਾ,
                                            libcrun_error_t *err);
-LIBCRUN_PUBLIC libcrun_container_iter_t *libcrun_container_list_iter (libcrun_container_list_t *l);
-LIBCRUN_PUBLIC bool libcrun_container_iter_next (libcrun_container_iter_t *it, const char **id);
-LIBCRUN_PUBLIC void libcrun_container_iter_free (libcrun_container_iter_t *it);
-LIBCRUN_PUBLIC void libcrun_container_list_free (libcrun_container_list_t *l);
+LIBCRUN_ਜਨਤਕ libcrun_container_iter_t *libcrun_container_list_iter (libcrun_container_list_t *l);
+LIBCRUN_ਜਨਤਕ bool libcrun_container_iter_ਅਗਲਾ (libcrun_container_iter_t *it, ਅਚਲ ਅੱਖਰ **id);
+LIBCRUN_ਜਨਤਕ ਖਾਲੀ libcrun_container_iter_free (libcrun_container_iter_t *it);
+LIBCRUN_ਜਨਤਕ ਖਾਲੀ libcrun_container_list_free (libcrun_container_list_t *l);
 
-typedef enum
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ
 {
-  LIBCRUN_CONTAINER_STATUS_CREATING = 0,
-  LIBCRUN_CONTAINER_STATUS_CREATED,
-  LIBCRUN_CONTAINER_STATUS_RUNNING,
-  LIBCRUN_CONTAINER_STATUS_STOPPED,
-  LIBCRUN_CONTAINER_STATUS_PAUSED,
+  LIBCRUN_CONTAINER_ਸਥਿਤੀ_CREATING = 0,
+  LIBCRUN_CONTAINER_ਸਥਿਤੀ_CREATED,
+  LIBCRUN_CONTAINER_ਸਥਿਤੀ_RUNNING,
+  LIBCRUN_CONTAINER_ਸਥਿਤੀ_STOPPED,
+  LIBCRUN_CONTAINER_ਸਥਿਤੀ_PAUSED,
 } libcrun_container_state_t;
 
-struct libcrun_status_s;
-typedef struct libcrun_status_s libcrun_status_t;
+ਬਣਤਰ libcrun_ਸਥਿਤੀ_s;
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਬਣਤਰ libcrun_ਸਥਿਤੀ_s libcrun_ਸਥਿਤੀ_t;
 
-LIBCRUN_PUBLIC int libcrun_container_status_load (libcrun_context_t *context, const char *id, libcrun_status_t **out,
+LIBCRUN_ਜਨਤਕ ਪੂਰਨ libcrun_container_ਸਥਿਤੀ_ਲੱਦੋ (libcrun_context_t *context, ਅਚਲ ਅੱਖਰ *id, libcrun_ਸਥਿਤੀ_t **ਬਾਹਰਲਾ,
                                                   libcrun_error_t *err);
-LIBCRUN_PUBLIC void libcrun_container_status_free (libcrun_status_t *st);
+LIBCRUN_ਜਨਤਕ ਖਾਲੀ libcrun_container_ਸਥਿਤੀ_free (libcrun_ਸਥਿਤੀ_t *st);
 /* Resolve the live state of the container described by ST.  The state is
    probed on the first call and cached afterwards; STATE and RUNNING can be
    NULL.  */
-LIBCRUN_PUBLIC int libcrun_status_get_state (libcrun_status_t *st, libcrun_container_state_t *state, int *running,
+LIBCRUN_ਜਨਤਕ ਪੂਰਨ libcrun_ਸਥਿਤੀ_get_state (libcrun_ਸਥਿਤੀ_t *st, libcrun_container_state_t *state, ਪੂਰਨ *running,
                                              libcrun_error_t *err);
-LIBCRUN_PUBLIC const char *libcrun_container_state_to_string (libcrun_container_state_t state);
-LIBCRUN_PUBLIC pid_t libcrun_status_get_pid (libcrun_status_t *st);
-LIBCRUN_PUBLIC const char *libcrun_status_get_bundle (libcrun_status_t *st);
-LIBCRUN_PUBLIC const char *libcrun_status_get_rootfs (libcrun_status_t *st);
-LIBCRUN_PUBLIC const char *libcrun_status_get_created (libcrun_status_t *st);
-LIBCRUN_PUBLIC const char *libcrun_status_get_owner (libcrun_status_t *st);
-LIBCRUN_PUBLIC const char *libcrun_status_get_scope (libcrun_status_t *st);
-LIBCRUN_PUBLIC const char *libcrun_status_get_external_descriptors (libcrun_status_t *st);
-LIBCRUN_PUBLIC int libcrun_container_get_state_string (libcrun_context_t *context, const char *id, const char **out,
-                                                       int *running, libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_get_state_dir (char **out, const char *state_root, const char *id, libcrun_error_t *err);
+LIBCRUN_ਜਨਤਕ ਅਚਲ ਅੱਖਰ *libcrun_container_state_ਮੰਜ਼ਿਲ_string (libcrun_container_state_t state);
+LIBCRUN_ਜਨਤਕ pid_t libcrun_ਸਥਿਤੀ_get_pid (libcrun_ਸਥਿਤੀ_t *st);
+LIBCRUN_ਜਨਤਕ ਅਚਲ ਅੱਖਰ *libcrun_ਸਥਿਤੀ_get_bundle (libcrun_ਸਥਿਤੀ_t *st);
+LIBCRUN_ਜਨਤਕ ਅਚਲ ਅੱਖਰ *libcrun_ਸਥਿਤੀ_get_rootfs (libcrun_ਸਥਿਤੀ_t *st);
+LIBCRUN_ਜਨਤਕ ਅਚਲ ਅੱਖਰ *libcrun_ਸਥਿਤੀ_get_created (libcrun_ਸਥਿਤੀ_t *st);
+LIBCRUN_ਜਨਤਕ ਅਚਲ ਅੱਖਰ *libcrun_ਸਥਿਤੀ_get_owner (libcrun_ਸਥਿਤੀ_t *st);
+LIBCRUN_ਜਨਤਕ ਅਚਲ ਅੱਖਰ *libcrun_ਸਥਿਤੀ_get_scope (libcrun_ਸਥਿਤੀ_t *st);
+LIBCRUN_ਜਨਤਕ ਅਚਲ ਅੱਖਰ *libcrun_ਸਥਿਤੀ_get_external_descriptors (libcrun_ਸਥਿਤੀ_t *st);
+LIBCRUN_ਜਨਤਕ ਪੂਰਨ libcrun_container_get_state_string (libcrun_context_t *context, ਅਚਲ ਅੱਖਰ *id, ਅਚਲ ਅੱਖਰ **ਬਾਹਰਲਾ,
+                                                       ਪੂਰਨ *running, libcrun_error_t *err);
+LIBCRUN_ਜਨਤਕ ਪੂਰਨ libcrun_get_state_dir (ਅੱਖਰ **ਬਾਹਰਲਾ, ਅਚਲ ਅੱਖਰ *state_ਜੜ੍ਹ, ਅਚਲ ਅੱਖਰ *id, libcrun_error_t *err);
 
-int libcrun_status_check_directories (const char *state_root, const char *id, libcrun_error_t *err);
-int libcrun_status_create_exec_fifo (const char *state_root, const char *id, libcrun_error_t *err);
-int libcrun_status_write_exec_fifo (const char *state_root, const char *id, libcrun_error_t *err);
-int libcrun_status_has_read_exec_fifo (const char *state_root, const char *id, libcrun_error_t *err);
-int libcrun_check_pid_valid (libcrun_container_status_t *status, libcrun_error_t *err);
-int get_run_directory (char **out, const char *state_root, libcrun_error_t *err);
-int get_shared_empty_directory_path (char **out, const char *state_root, libcrun_error_t *err);
+ਪੂਰਨ libcrun_ਸਥਿਤੀ_check_directories (ਅਚਲ ਅੱਖਰ *state_ਜੜ੍ਹ, ਅਚਲ ਅੱਖਰ *id, libcrun_error_t *err);
+ਪੂਰਨ libcrun_ਸਥਿਤੀ_create_exec_fifo (ਅਚਲ ਅੱਖਰ *state_ਜੜ੍ਹ, ਅਚਲ ਅੱਖਰ *id, libcrun_error_t *err);
+ਪੂਰਨ libcrun_ਸਥਿਤੀ_write_exec_fifo (ਅਚਲ ਅੱਖਰ *state_ਜੜ੍ਹ, ਅਚਲ ਅੱਖਰ *id, libcrun_error_t *err);
+ਪੂਰਨ libcrun_ਸਥਿਤੀ_has_read_exec_fifo (ਅਚਲ ਅੱਖਰ *state_ਜੜ੍ਹ, ਅਚਲ ਅੱਖਰ *id, libcrun_error_t *err);
+ਪੂਰਨ libcrun_check_pid_valid (libcrun_container_ਸਥਿਤੀ_t *ਸਥਿਤੀ, libcrun_error_t *err);
+ਪੂਰਨ get_ਲੜੀਵਾਰ_directory (ਅੱਖਰ **ਬਾਹਰਲਾ, ਅਚਲ ਅੱਖਰ *state_ਜੜ੍ਹ, libcrun_error_t *err);
+ਪੂਰਨ get_shared_ਖਾਲੀ_ਥਾਵਾਂ_directory_ਰਸਤਾ (ਅੱਖਰ **ਬਾਹਰਲਾ, ਅਚਲ ਅੱਖਰ *state_ਜੜ੍ਹ, libcrun_error_t *err);
 
-static inline void
-libcrun_free_container_listp (void *p)
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ
+libcrun_free_container_listp (ਖਾਲੀ *p)
 {
   libcrun_container_list_t **l = (libcrun_container_list_t **) p;
-  if (*l != NULL)
+  ਜੇ (*l != ਨਿਰਾ)
     libcrun_free_containers_list (*l);
 }
 
-#define cleanup_container_status __attribute__ ((cleanup (libcrun_free_container_status)))
-#define cleanup_container_list __attribute__ ((cleanup (libcrun_free_container_listp)))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ cleanup_container_ਸਥਿਤੀ __attribute__ ((cleanup (libcrun_free_container_ਸਥਿਤੀ)))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ cleanup_container_list __attribute__ ((cleanup (libcrun_free_container_listp)))
 
-#endif
+#ਜੇ_ਅੰਤ

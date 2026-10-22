@@ -16,19 +16,19 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <config.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdlib.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <argp.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <unistd.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <errno.h>
 
-#include "crun.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "crun.h"
 
-static char doc[] = "OCI runtime";
+ਸਥਿਰ ਅੱਖਰ doc[] = "OCI runtime";
 
-enum
+ਗਿਣਤੀ
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -37,143 +37,143 @@ enum
   OPTION_PRESERVE_FDS
 };
 
-struct list_options_s
+ਬਣਤਰ list_options_s
 {
   bool quiet;
-  int format;
+  ਪੂਰਨ format;
 };
 
-enum
+ਗਿਣਤੀ
 {
-  LIST_TABLE = 100,
+  LIST_ਸਾਰਣੀ = 100,
   LIST_JSON,
 };
 
-static struct list_options_s list_options;
+ਸਥਿਰ ਬਣਤਰ list_options_s list_options;
 
-static struct argp_option options[]
+ਸਥਿਰ ਬਣਤਰ argp_option options[]
     = { { "quiet", 'q', 0, 0, "show only IDs", 0 },
         { "format", 'f', "FORMAT", 0, "select one of: table or json (default: \"table\")", 0 },
         {
             0,
         } };
 
-static char args_doc[] = "list";
+ਸਥਿਰ ਅੱਖਰ ਦਲੀਲਾਂ_doc[] = "list";
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state arg_unused)
+ਸਥਿਰ error_t
+parse_opt (ਪੂਰਨ ਕੁੰਜੀ, ਅੱਖਰ *arg, ਬਣਤਰ argp_state *state arg_ਅਣਵਰਤਿਆ)
 {
-  switch (key)
+  ਚੋਣ (ਕੁੰਜੀ)
     {
-    case 'q':
+    ਹਾਲਤ 'q':
       list_options.quiet = true;
-      break;
-    case 'f':
-      if (strcmp (arg, "table") == 0)
-        list_options.format = LIST_TABLE;
-      else if (strcmp (arg, "json") == 0)
+      ਰੋਕੋ;
+    ਹਾਲਤ 'f':
+      ਜੇ (strcmp (arg, "table") == 0)
+        list_options.format = LIST_ਸਾਰਣੀ;
+      ਨਹੀਂਤਾਂ ਜੇ (strcmp (arg, "json") == 0)
         list_options.format = LIST_JSON;
-      else
+      ਨਹੀਂਤਾਂ
         libcrun_fail_with_error (0, "invalid format `%s`", arg);
-      break;
+      ਰੋਕੋ;
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    ਮੂਲ:
+      ਵਾਪਸ ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+ਸਥਿਰ ਬਣਤਰ argp ਲੜੀਵਾਰ_argp = { options, parse_opt, ਦਲੀਲਾਂ_doc, doc, ਨਿਰਾ, ਨਿਰਾ, ਨਿਰਾ };
 
-int
-crun_command_list (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+ਪੂਰਨ
+crun_command_list (ਬਣਤਰ crun_global_arguments *global_ਦਲੀਲਾਂ, ਪੂਰਨ argc, ਅੱਖਰ **argv, libcrun_error_t *err)
 {
-  int first_arg;
-  int ret, max_length = 4;
-  cleanup_context libcrun_context_t *crun_context = NULL;
-  libcrun_container_list_t *list = NULL;
+  ਪੂਰਨ ਪਹਿਲਾ_arg;
+  ਪੂਰਨ ret, max_ਲੰਮਾਈ = 4;
+  cleanup_context libcrun_context_t *crun_context = ਨਿਰਾ;
+  libcrun_container_list_t *list = ਨਿਰਾ;
   libcrun_container_iter_t *it;
-  const char *name;
+  ਅਚਲ ਅੱਖਰ *name;
 
-  list_options.format = LIST_TABLE;
+  list_options.format = LIST_ਸਾਰਣੀ;
 
-  argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &list_options);
-  crun_assert_n_args (argc - first_arg, 0, 0);
+  argp_parse (&ਲੜੀਵਾਰ_argp, argc, argv, ARGP_ਵਿੱਚ_ਕ੍ਰਮ, &ਪਹਿਲਾ_arg, &list_options);
+  crun_assert_n_ਦਲੀਲਾਂ (argc - ਪਹਿਲਾ_arg, 0, 0);
 
-  crun_context = new_libcrun_context (global_args);
+  crun_context = new_libcrun_context (global_ਦਲੀਲਾਂ);
 
-  ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = init_libcrun_context (crun_context, argv[ਪਹਿਲਾ_arg], global_ਦਲੀਲਾਂ, err);
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
-  if (list_options.format == LIST_JSON)
+  ਜੇ (list_options.format == LIST_JSON)
     {
-      cleanup_free char *json = NULL;
+      cleanup_free ਅੱਖਰ *json = ਨਿਰਾ;
 
       ret = libcrun_container_list_json (crun_context, &json, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
 
       fputs (json, stdout);
-      return 0;
+      ਵਾਪਸ 0;
     }
 
   ret = libcrun_container_list (crun_context, &list, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ ret;
 
-  for (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
+  ਲਈ (it = libcrun_container_list_iter (list); libcrun_container_iter_ਅਗਲਾ (it, &name);)
     {
-      int l = strlen (name);
-      if (l > max_length)
-        max_length = l;
+      ਪੂਰਨ l = ਲੜੀ_ਲੰਬਾਈ (name);
+      ਜੇ (l > max_ਲੰਮਾਈ)
+        max_ਲੰਮਾਈ = l;
     }
   libcrun_container_iter_free (it);
 
-  max_length++;
+  max_ਲੰਮਾਈ++;
 
-  if (! list_options.quiet)
-    printf ("%-*s%-10s%-8s %-39s %-30s %s\n", max_length, "NAME", "PID", "STATUS", "BUNDLE PATH", "CREATED", "OWNER");
+  ਜੇ (! list_options.quiet)
+    ਲਿਖੋ ("%-*s%-10s%-8s %-39s %-30s %s\n", max_ਲੰਮਾਈ, "NAME", "PID", "STATUS", "BUNDLE PATH", "CREATED", "OWNER");
 
-  for (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
+  ਲਈ (it = libcrun_container_list_iter (list); libcrun_container_iter_ਅਗਲਾ (it, &name);)
     {
-      libcrun_status_t *status = NULL;
+      libcrun_ਸਥਿਤੀ_t *ਸਥਿਤੀ = ਨਿਰਾ;
 
-      ret = libcrun_container_status_load (crun_context, name, &status, err);
-      if (UNLIKELY (ret < 0))
+      ret = libcrun_container_ਸਥਿਤੀ_ਲੱਦੋ (crun_context, name, &ਸਥਿਤੀ, err);
+      ਜੇ (UNLIKELY (ret < 0))
         {
           libcrun_error_report_and_release (err);
-          continue;
+          ਜਾਰੀ;
         }
-      if (list_options.quiet)
-        printf ("%s\n", name);
-      else
+      ਜੇ (list_options.quiet)
+        ਲਿਖੋ ("%s\n", name);
+      ਨਹੀਂਤਾਂ
         {
           libcrun_container_state_t state;
-          int running = 0;
-          int pid = libcrun_status_get_pid (status);
+          ਪੂਰਨ running = 0;
+          ਪੂਰਨ pid = libcrun_ਸਥਿਤੀ_get_pid (ਸਥਿਤੀ);
 
-          ret = libcrun_status_get_state (status, &state, &running, err);
-          if (UNLIKELY (ret < 0))
+          ret = libcrun_ਸਥਿਤੀ_get_state (ਸਥਿਤੀ, &state, &running, err);
+          ਜੇ (UNLIKELY (ret < 0))
             {
               libcrun_error_report_and_release (err);
-              libcrun_container_status_free (status);
-              continue;
+              libcrun_container_ਸਥਿਤੀ_free (ਸਥਿਤੀ);
+              ਜਾਰੀ;
             }
 
-          if (! running)
+          ਜੇ (! running)
             pid = 0;
 
-          printf ("%-*s%-10d%-8s %-39s %-30s %s\n", max_length, name, pid,
-                  libcrun_container_state_to_string (state), libcrun_status_get_bundle (status),
-                  libcrun_status_get_created (status), libcrun_status_get_owner (status));
+          ਲਿਖੋ ("%-*s%-10d%-8s %-39s %-30s %s\n", max_ਲੰਮਾਈ, name, pid,
+                  libcrun_container_state_ਮੰਜ਼ਿਲ_string (state), libcrun_ਸਥਿਤੀ_get_bundle (ਸਥਿਤੀ),
+                  libcrun_ਸਥਿਤੀ_get_created (ਸਥਿਤੀ), libcrun_ਸਥਿਤੀ_get_owner (ਸਥਿਤੀ));
         }
 
-      libcrun_container_status_free (status);
+      libcrun_container_ਸਥਿਤੀ_free (ਸਥਿਤੀ);
     }
   libcrun_container_iter_free (it);
 
   libcrun_container_list_free (list);
-  return ret >= 0 ? 0 : ret;
+  ਵਾਪਸ ret >= 0 ? 0 : ret;
 }

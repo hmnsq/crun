@@ -15,63 +15,63 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ GNU_ਸਰੋਤ
 
-#include <config.h>
-#include "../custom-handler.h"
-#include "../linux.h"
-#include <sys/stat.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <config.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ "../custom-handler.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "../linux.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/stat.h>
 
-#ifdef HAVE_DLOPEN
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_DLOPEN
 #  include <dlfcn.h>
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifdef HAVE_SPIN
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_SPIN
 
-#endif
+#ਜੇ_ਅੰਤ
 
-#if HAVE_DLOPEN && HAVE_SPIN
-static int
-spin_exec (void *cookie arg_unused, libcrun_container_t *container arg_unused,
-           const char *pathname arg_unused, char *const argv[] arg_unused)
+#ਜੇ HAVE_DLOPEN && HAVE_SPIN
+ਸਥਿਰ ਪੂਰਨ
+spin_exec (ਖਾਲੀ *cookie arg_ਅਣਵਰਤਿਆ, libcrun_container_t *container arg_ਅਣਵਰਤਿਆ,
+           ਅਚਲ ਅੱਖਰ *pathname arg_ਅਣਵਰਤਿਆ, ਅੱਖਰ *ਅਚਲ argv[] arg_ਅਣਵਰਤਿਆ)
 {
   // wasmtime fails to determine default config path if $HOME is not set
-  char *newenviron[] = { "HOME=/root", NULL };
-  char *newargv[] = { "/bin/spin", "up", "--listen", "0.0.0.0:80", NULL };
+  ਅੱਖਰ *newenviron[] = { "HOME=/root", ਨਿਰਾ };
+  ਅੱਖਰ *newargv[] = { "/bin/spin", "up", "--listen", "0.0.0.0:80", ਨਿਰਾ };
 
   // spin up needs a /tmp folder
-  int dir_result = mkdir ("/tmp", 0777);
-  if (dir_result != 0 && errno != EEXIST)
+  ਪੂਰਨ dir_ਨਤੀਜਾ = mkdir ("/tmp", 0777);
+  ਜੇ (dir_ਨਤੀਜਾ != 0 && errno != EEXIST)
     {
       error (EXIT_FAILURE, errno, "failed to execute mkdir `/tmp`");
     }
 
   execve (newargv[0], newargv, newenviron);
   perror ("execve");
-  exit (EXIT_FAILURE);
+  ਬਾਹਰ_ਨਿਕਲੋ (EXIT_FAILURE);
 }
 
-static int
-spin_load (void **cookie arg_unused, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+spin_ਲੱਦੋ (ਖਾਲੀ **cookie arg_ਅਣਵਰਤਿਆ, libcrun_error_t *err)
 {
-  struct stat st = { 0 };
-  if (stat ("/usr/local/bin/spin", &st) == -1)
+  ਬਣਤਰ stat st = { 0 };
+  ਜੇ (stat ("/usr/local/bin/spin", &st) == -1)
     {
-      return crun_make_error (err, 0, "Could not find statically linked spin cli at `/usr/local/bin/spin` on host file system");
+      ਵਾਪਸ crun_make_error (err, 0, "Could not find statically linked spin cli at `/usr/local/bin/spin` on host file system");
     }
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static int
-spin_configure_container (void *cookie arg_unused, enum handler_configure_phase phase,
-                          libcrun_context_t *context arg_unused, libcrun_container_t *container,
-                          const char *rootfs arg_unused, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+spin_configure_container (ਖਾਲੀ *cookie arg_ਅਣਵਰਤਿਆ, ਗਿਣਤੀ handler_configure_phase phase,
+                          libcrun_context_t *context arg_ਅਣਵਰਤਿਆ, libcrun_container_t *container,
+                          ਅਚਲ ਅੱਖਰ *rootfs arg_ਅਣਵਰਤਿਆ, libcrun_error_t *err)
 {
-  int ret;
-  if (phase != HANDLER_CONFIGURE_MOUNTS)
-    return 0;
+  ਪੂਰਨ ret;
+  ਜੇ (phase != HANDLER_CONFIGURE_MOUNTS)
+    ਵਾਪਸ 0;
 
-  char *options[] = {
+  ਅੱਖਰ *options[] = {
     "ro",
     "rprivate",
     "nosuid",
@@ -80,43 +80,43 @@ spin_configure_container (void *cookie arg_unused, enum handler_configure_phase 
   };
 
   ret = libcrun_container_do_bind_mount (container, "/usr/local/bin/spin", "/bin/spin", options, 5, err);
-  if (ret != 0)
-    return ret;
+  ਜੇ (ret != 0)
+    ਵਾਪਸ ret;
 
   /* release any error if set since we are going to be returning from here */
   crun_error_release (err);
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static int
-spin_unload (void *cookie arg_unused, libcrun_error_t *err arg_unused)
+ਸਥਿਰ ਪੂਰਨ
+spin_unload (ਖਾਲੀ *cookie arg_ਅਣਵਰਤਿਆ, libcrun_error_t *err arg_ਅਣਵਰਤਿਆ)
 {
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static int
-spin_can_handle_container (libcrun_container_t *container, libcrun_error_t *err arg_unused)
+ਸਥਿਰ ਪੂਰਨ
+spin_can_handle_container (libcrun_container_t *container, libcrun_error_t *err arg_ਅਣਵਰਤਿਆ)
 {
-  const char *entrypoint_executable;
+  ਅਚਲ ਅੱਖਰ *entrypoint_executable;
 
-  if (container->container_def->process == NULL || container->container_def->process->args == NULL)
-    return 0;
+  ਜੇ (container->container_def->process == ਨਿਰਾ || container->container_def->process->ਦਲੀਲਾਂ == ਨਿਰਾ)
+    ਵਾਪਸ 0;
 
-  entrypoint_executable = container->container_def->process->args[0];
-  return strcmp (entrypoint_executable, "/") ? 0 : 1;
+  entrypoint_executable = container->container_def->process->ਦਲੀਲਾਂ[0];
+  ਵਾਪਸ strcmp (entrypoint_executable, "/") ? 0 : 1;
 }
 
-struct custom_handler_s handler_spin = {
+ਬਣਤਰ custom_handler_s handler_spin = {
   .name = "spin",
-  .alias = NULL,
+  .alias = ਨਿਰਾ,
   .feature_string = "WASM:spin",
-  .supports_open_tree_namespace = false,
-  .load = spin_load,
+  .supports_open_ਰੁੱਖ_namespace = false,
+  .ਲੱਦੋ = spin_ਲੱਦੋ,
   .unload = spin_unload,
-  .run_func = spin_exec,
+  .ਲੜੀਵਾਰ_func = spin_exec,
   .can_handle_container = spin_can_handle_container,
   .configure_container = spin_configure_container,
 };
 
-#endif
+#ਜੇ_ਅੰਤ

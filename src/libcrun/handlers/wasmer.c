@@ -15,91 +15,91 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ GNU_ਸਰੋਤ
 
-#include <config.h>
-#include "../custom-handler.h"
-#include "../container.h"
-#include "../utils.h"
-#include "../linux.h"
-#include "handler-utils.h"
-#include <unistd.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <sched.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <config.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ "../custom-handler.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "../container.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "../utils.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "../linux.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "handler-utils.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ <unistd.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/stat.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <errno.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/types.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <fcntl.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sched.h>
 
-#ifdef HAVE_DLOPEN
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_DLOPEN
 #  include <dlfcn.h>
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifdef HAVE_WASMER
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_WASMER
 #  include <wasmer.h>
-#endif
+#ਜੇ_ਅੰਤ
 
-#if HAVE_DLOPEN && HAVE_WASMER
-#  define WASMER_BUF_SIZE 128
-static int
-libwasmer_exec (void *cookie, libcrun_container_t *container arg_unused,
-                const char *pathname, char *const argv[])
+#ਜੇ HAVE_DLOPEN && HAVE_WASMER
+#  define WASMER_BUF_ਮਾਪ 128
+ਸਥਿਰ ਪੂਰਨ
+libwasmer_exec (ਖਾਲੀ *cookie, libcrun_container_t *container arg_ਅਣਵਰਤਿਆ,
+                ਅਚਲ ਅੱਖਰ *pathname, ਅੱਖਰ *ਅਚਲ argv[])
 {
-  int ret;
-  char buffer[WASMER_BUF_SIZE] = { 0 };
-  size_t data_read_size = WASMER_BUF_SIZE;
-  const wasm_func_t *core_func;
+  ਪੂਰਨ ret;
+  ਅੱਖਰ ਬਫਰ[WASMER_BUF_ਮਾਪ] = { 0 };
+  size_t ਅੰਕੜੇ_read_ਮਾਪ = WASMER_BUF_ਮਾਪ;
+  ਅਚਲ wasm_func_t *core_func;
   FILE *wat_wasm_file;
-  size_t file_size;
+  size_t file_ਮਾਪ;
   wasm_byte_vec_t wat;
-  wasm_byte_vec_t binary_bytes;
-  wasm_byte_vec_t wasm_bytes;
+  wasm_byte_vec_t ਦੁਆਧਾਰੀ_ਬਾਈਟਾਂ;
+  wasm_byte_vec_t wasm_ਬਾਈਟਾਂ;
   wasm_engine_t *engine;
   wasm_val_t results_val[1] = { WASM_INIT_VAL };
   wasm_store_t *store;
   wasm_module_t *module;
   wasm_instance_t *instance;
   wasm_extern_vec_t exports;
-  size_t args_size = 0;
-  cleanup_free char *wasi_args = NULL;
+  size_t ਦਲੀਲਾਂ_ਮਾਪ = 0;
+  cleanup_free ਅੱਖਰ *wasi_ਦਲੀਲਾਂ = ਨਿਰਾ;
   wasi_config_t *config;
-  char *const *arg;
+  ਅੱਖਰ *ਅਚਲ *arg;
   wasi_env_t *wasi_env;
   wasm_importtype_vec_t import_types;
   wasm_extern_vec_t imports;
-  wasm_func_t *run_func;
-  wasm_val_vec_t args = WASM_EMPTY_VEC;
-  wasm_val_vec_t res = WASM_EMPTY_VEC;
+  wasm_func_t *ਲੜੀਵਾਰ_func;
+  wasm_val_vec_t ਦਲੀਲਾਂ = WASM_ਖਾਲੀ_ਥਾਵਾਂ_VEC;
+  wasm_val_vec_t res = WASM_ਖਾਲੀ_ਥਾਵਾਂ_VEC;
 
   wasm_engine_t *(*wasm_engine_new) ();
-  void (*wat2wasm) (const wasm_byte_vec_t *wat, wasm_byte_vec_t *out);
-  wasm_module_t *(*wasm_module_new) (wasm_store_t *, const wasm_byte_vec_t *binary);
+  ਖਾਲੀ (*wat2wasm) (ਅਚਲ wasm_byte_vec_t *wat, wasm_byte_vec_t *ਬਾਹਰਲਾ);
+  wasm_module_t *(*wasm_module_new) (wasm_store_t *, ਅਚਲ wasm_byte_vec_t *ਦੁਆਧਾਰੀ);
   wasm_store_t *(*wasm_store_new) (wasm_engine_t *);
-  wasm_instance_t *(*wasm_instance_new) (wasm_store_t *, const wasm_module_t *, const wasm_extern_vec_t *imports, wasm_trap_t **);
-  void (*wasm_instance_exports) (const wasm_instance_t *, wasm_extern_vec_t *out);
+  wasm_instance_t *(*wasm_instance_new) (wasm_store_t *, ਅਚਲ wasm_module_t *, ਅਚਲ wasm_extern_vec_t *imports, wasm_trap_t **);
+  ਖਾਲੀ (*wasm_instance_exports) (ਅਚਲ wasm_instance_t *, wasm_extern_vec_t *ਬਾਹਰਲਾ);
   wasm_func_t *(*wasm_extern_as_func) (wasm_extern_t *);
-  void (*wasm_module_delete) (wasm_module_t *);
-  void (*wasm_instance_delete) (wasm_instance_t *);
-  void (*wasm_store_delete) (wasm_store_t *);
-  void (*wasm_engine_delete) (wasm_engine_t *);
-  void (*wasm_byte_vec_new) (wasm_byte_vec_t *, size_t, const char *);
-  void (*wasm_byte_vec_delete) (wasm_byte_vec_t *);
-  void (*wasm_importtype_vec_delete) (wasm_importtype_vec_t *);
-  void (*wasm_extern_vec_delete) (wasm_extern_vec_t *);
-  void (*wasm_byte_vec_new_uninitialized) (wasm_byte_vec_t *, size_t);
-  void (*wasm_extern_vec_new_uninitialized) (wasm_extern_vec_t *, size_t);
-  void (*wasi_config_capture_stdout) (struct wasi_config_t *);
-  void (*wasi_config_inherit_stdout) (struct wasi_config_t *);
-  void (*wasm_module_imports) (const wasm_module_t *, wasm_importtype_vec_t *);
-  void (*wasm_func_delete) (wasm_func_t *);
-  wasm_trap_t *(*wasm_func_call) (const wasm_func_t *, const wasm_val_vec_t *args, wasm_val_vec_t *results);
-  wasi_config_t *(*wasi_config_new) (const char *);
-  wasi_env_t *(*wasi_env_new) (wasm_store_t *, struct wasi_config_t *);
-  bool (*wasi_get_imports) (const wasm_store_t *, const struct wasi_env_t *, const wasm_module_t *, wasm_extern_vec_t *);
-  wasm_func_t *(*wasi_get_start_function) (wasm_instance_t *);
-  intptr_t (*wasi_env_read_stdout) (struct wasi_env_t *, char *, uintptr_t);
-  void (*wasi_env_delete) (struct wasi_env_t *);
-  void (*wasi_config_arg) (struct wasi_config_t *config, const char *arg);
-  bool (*wasi_env_initialize_instance) (struct wasi_env_t *, wasm_store_t *, wasm_instance_t *);
+  ਖਾਲੀ (*wasm_module_delete) (wasm_module_t *);
+  ਖਾਲੀ (*wasm_instance_delete) (wasm_instance_t *);
+  ਖਾਲੀ (*wasm_store_delete) (wasm_store_t *);
+  ਖਾਲੀ (*wasm_engine_delete) (wasm_engine_t *);
+  ਖਾਲੀ (*wasm_byte_vec_new) (wasm_byte_vec_t *, size_t, ਅਚਲ ਅੱਖਰ *);
+  ਖਾਲੀ (*wasm_byte_vec_delete) (wasm_byte_vec_t *);
+  ਖਾਲੀ (*wasm_importtype_vec_delete) (wasm_importtype_vec_t *);
+  ਖਾਲੀ (*wasm_extern_vec_delete) (wasm_extern_vec_t *);
+  ਖਾਲੀ (*wasm_byte_vec_new_uninitialized) (wasm_byte_vec_t *, size_t);
+  ਖਾਲੀ (*wasm_extern_vec_new_uninitialized) (wasm_extern_vec_t *, size_t);
+  ਖਾਲੀ (*wasi_config_capture_stdout) (ਬਣਤਰ wasi_config_t *);
+  ਖਾਲੀ (*wasi_config_inherit_stdout) (ਬਣਤਰ wasi_config_t *);
+  ਖਾਲੀ (*wasm_module_imports) (ਅਚਲ wasm_module_t *, wasm_importtype_vec_t *);
+  ਖਾਲੀ (*wasm_func_delete) (wasm_func_t *);
+  wasm_trap_t *(*wasm_func_call) (ਅਚਲ wasm_func_t *, ਅਚਲ wasm_val_vec_t *ਦਲੀਲਾਂ, wasm_val_vec_t *results);
+  wasi_config_t *(*wasi_config_new) (ਅਚਲ ਅੱਖਰ *);
+  wasi_env_t *(*wasi_env_new) (wasm_store_t *, ਬਣਤਰ wasi_config_t *);
+  bool (*wasi_get_imports) (ਅਚਲ wasm_store_t *, ਅਚਲ ਬਣਤਰ wasi_env_t *, ਅਚਲ wasm_module_t *, wasm_extern_vec_t *);
+  wasm_func_t *(*wasi_get_ਸ਼ੁਰੂ_function) (wasm_instance_t *);
+  intptr_t (*wasi_env_read_stdout) (ਬਣਤਰ wasi_env_t *, ਅੱਖਰ *, uintptr_t);
+  ਖਾਲੀ (*wasi_env_delete) (ਬਣਤਰ wasi_env_t *);
+  ਖਾਲੀ (*wasi_config_arg) (ਬਣਤਰ wasi_config_t *config, ਅਚਲ ਅੱਖਰ *arg);
+  bool (*wasi_env_initialize_instance) (ਬਣਤਰ wasi_env_t *, wasm_store_t *, wasm_instance_t *);
 
   wat2wasm = dlsym (cookie, "wat2wasm");
   wasm_module_delete = dlsym (cookie, "wasm_module_delete");
@@ -126,97 +126,97 @@ libwasmer_exec (void *cookie, libcrun_container_t *container arg_unused,
   wasm_module_imports = dlsym (cookie, "wasm_module_imports");
   wasm_extern_vec_new_uninitialized = dlsym (cookie, "wasm_extern_vec_new_uninitialized");
   wasi_get_imports = dlsym (cookie, "wasi_get_imports");
-  wasi_get_start_function = dlsym (cookie, "wasi_get_start_function");
+  wasi_get_ਸ਼ੁਰੂ_function = dlsym (cookie, "wasi_get_start_function");
   wasi_env_read_stdout = dlsym (cookie, "wasi_env_read_stdout");
   wasi_env_delete = dlsym (cookie, "wasi_env_delete");
   wasm_func_delete = dlsym (cookie, "wasm_func_delete");
   wasi_env_initialize_instance = dlsym (cookie, "wasi_env_initialize_instance");
 
-  if (wat2wasm == NULL || wasm_module_delete == NULL || wasm_instance_delete == NULL
-      || wasm_engine_delete == NULL || wasm_store_delete == NULL || wasm_func_call == NULL
-      || wasm_extern_as_func == NULL || wasm_instance_exports == NULL || wasm_instance_new == NULL
-      || wasm_store_new == NULL || wasm_engine_new == NULL || wasm_byte_vec_new == NULL
-      || wasm_byte_vec_delete == NULL || wasm_extern_vec_delete == NULL
-      || wasm_byte_vec_new_uninitialized == NULL || wasi_config_new == NULL
-      || wasi_config_capture_stdout == NULL || wasi_env_new == NULL || wasm_module_imports == NULL
-      || wasi_env_read_stdout == NULL || wasi_env_delete == NULL || wasm_func_delete == NULL
-      || wasm_importtype_vec_delete == NULL || wasm_extern_vec_new_uninitialized == NULL
-      || wasi_get_imports == NULL || wasi_get_start_function == NULL || wasi_config_inherit_stdout == NULL)
+  ਜੇ (wat2wasm == ਨਿਰਾ || wasm_module_delete == ਨਿਰਾ || wasm_instance_delete == ਨਿਰਾ
+      || wasm_engine_delete == ਨਿਰਾ || wasm_store_delete == ਨਿਰਾ || wasm_func_call == ਨਿਰਾ
+      || wasm_extern_as_func == ਨਿਰਾ || wasm_instance_exports == ਨਿਰਾ || wasm_instance_new == ਨਿਰਾ
+      || wasm_store_new == ਨਿਰਾ || wasm_engine_new == ਨਿਰਾ || wasm_byte_vec_new == ਨਿਰਾ
+      || wasm_byte_vec_delete == ਨਿਰਾ || wasm_extern_vec_delete == ਨਿਰਾ
+      || wasm_byte_vec_new_uninitialized == ਨਿਰਾ || wasi_config_new == ਨਿਰਾ
+      || wasi_config_capture_stdout == ਨਿਰਾ || wasi_env_new == ਨਿਰਾ || wasm_module_imports == ਨਿਰਾ
+      || wasi_env_read_stdout == ਨਿਰਾ || wasi_env_delete == ਨਿਰਾ || wasm_func_delete == ਨਿਰਾ
+      || wasm_importtype_vec_delete == ਨਿਰਾ || wasm_extern_vec_new_uninitialized == ਨਿਰਾ
+      || wasi_get_imports == ਨਿਰਾ || wasi_get_ਸ਼ੁਰੂ_function == ਨਿਰਾ || wasi_config_inherit_stdout == ਨਿਰਾ)
     error (EXIT_FAILURE, 0, "could not find symbol in `libwasmer.so`");
 
   wat_wasm_file = fopen (pathname, "rbe");
 
-  if (! wat_wasm_file)
+  ਜੇ (! wat_wasm_file)
     error (EXIT_FAILURE, errno, "error opening wat/wasm module");
 
   fseek (wat_wasm_file, 0L, SEEK_END);
-  file_size = ftell (wat_wasm_file);
+  file_ਮਾਪ = ftell (wat_wasm_file);
   fseek (wat_wasm_file, 0L, SEEK_SET);
 
-  wasm_byte_vec_new_uninitialized (&binary_bytes, file_size);
+  wasm_byte_vec_new_uninitialized (&ਦੁਆਧਾਰੀ_ਬਾਈਟਾਂ, file_ਮਾਪ);
 
-  if (fread (binary_bytes.data, file_size, 1, wat_wasm_file) != 1)
+  ਜੇ (fread (ਦੁਆਧਾਰੀ_ਬਾਈਟਾਂ.ਅੰਕੜੇ, file_ਮਾਪ, 1, wat_wasm_file) != 1)
     error (EXIT_FAILURE, errno, "error loading wat/wasm module");
 
   /* We can close entrypoint file.   */
   fclose (wat_wasm_file);
 
   /* We have received a wat file: convert wat to wasm.   */
-  if (has_suffix (pathname, "wat") > 0)
+  ਜੇ (has_suffix (pathname, "wat") > 0)
     {
-      wat2wasm (&binary_bytes, &wasm_bytes);
-      binary_bytes = wasm_bytes;
+      wat2wasm (&ਦੁਆਧਾਰੀ_ਬਾਈਟਾਂ, &wasm_ਬਾਈਟਾਂ);
+      ਦੁਆਧਾਰੀ_ਬਾਈਟਾਂ = wasm_ਬਾਈਟਾਂ;
     }
 
   engine = wasm_engine_new ();
   store = wasm_store_new (engine);
 
-  module = wasm_module_new (store, &binary_bytes);
+  module = wasm_module_new (store, &ਦੁਆਧਾਰੀ_ਬਾਈਟਾਂ);
 
-  if (! module)
+  ਜੇ (! module)
     error (EXIT_FAILURE, 0, "error compiling wasm module");
 
   config = wasi_config_new ("crun_wasi_program");
 
   /* Count number of external arguments given.  */
-  for (arg = argv; *arg != NULL; ++arg)
-    args_size++;
+  ਲਈ (arg = argv; *arg != ਨਿਰਾ; ++arg)
+    ਦਲੀਲਾਂ_ਮਾਪ++;
 
-  if (args_size > 1)
+  ਜੇ (ਦਲੀਲਾਂ_ਮਾਪ > 1)
     {
-      wasi_args = str_join_array (1, args_size, argv, " ");
-      wasi_config_arg (config, wasi_args);
+      wasi_ਦਲੀਲਾਂ = str_join_array (1, ਦਲੀਲਾਂ_ਮਾਪ, argv, " ");
+      wasi_config_arg (config, wasi_ਦਲੀਲਾਂ);
     }
 
   wasi_config_inherit_stdout (config);
   wasi_env = wasi_env_new (store, config);
-  if (! wasi_env)
+  ਜੇ (! wasi_env)
     {
       error (EXIT_FAILURE, 0, "error building wasi env");
     }
 
   /* Instantiate.  */
-  if (! wasi_get_imports (store, wasi_env, module, &imports))
+  ਜੇ (! wasi_get_imports (store, wasi_env, module, &imports))
     error (EXIT_FAILURE, 0, "error getting WASI imports");
 
-  instance = wasm_instance_new (store, module, &imports, NULL);
+  instance = wasm_instance_new (store, module, &imports, ਨਿਰਾ);
 
-  if (! instance)
+  ਜੇ (! instance)
     error (EXIT_FAILURE, 0, "error instantiating module");
 
-  if (! wasi_env_initialize_instance (wasi_env, store, instance))
+  ਜੇ (! wasi_env_initialize_instance (wasi_env, store, instance))
     error (EXIT_FAILURE, 0, "error init wasi env");
 
   /* Extract export.  */
   wasm_instance_exports (instance, &exports);
-  if (exports.size == 0)
+  ਜੇ (exports.ਮਾਪ == 0)
     error (EXIT_FAILURE, 0, "error getting instance exports");
 
-  run_func = wasi_get_start_function (instance);
-  if (run_func == NULL)
+  ਲੜੀਵਾਰ_func = wasi_get_ਸ਼ੁਰੂ_function (instance);
+  ਜੇ (ਲੜੀਵਾਰ_func == ਨਿਰਾ)
     error (EXIT_FAILURE, 0, "error accessing export");
 
-  if (wasm_func_call (run_func, &args, &res))
+  ਜੇ (wasm_func_call (ਲੜੀਵਾਰ_func, &ਦਲੀਲਾਂ, &res))
     error (EXIT_FAILURE, 0, "error calling wasm function");
 
   wasm_extern_vec_delete (&exports);
@@ -225,56 +225,56 @@ libwasmer_exec (void *cookie, libcrun_container_t *container arg_unused,
   /* Shut down.  */
   wasm_module_delete (module);
   wasm_instance_delete (instance);
-  wasm_func_delete (run_func);
+  wasm_func_delete (ਲੜੀਵਾਰ_func);
   wasi_env_delete (wasi_env);
   wasm_store_delete (store);
   wasm_engine_delete (engine);
 
-  exit (EXIT_SUCCESS);
+  ਬਾਹਰ_ਨਿਕਲੋ (EXIT_SUCCESS);
 }
 
-static int
-libwasmer_load (void **cookie, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+libwasmer_ਲੱਦੋ (ਖਾਲੀ **cookie, libcrun_error_t *err)
 {
-  void *handle;
+  ਖਾਲੀ *handle;
 
   handle = dlopen ("libwasmer.so", RTLD_NOW);
-  if (handle == NULL)
-    return crun_make_error (err, 0, "could not load `libwasmer.so`: %s", dlerror ());
+  ਜੇ (handle == ਨਿਰਾ)
+    ਵਾਪਸ crun_make_error (err, 0, "could not load `libwasmer.so`: %s", dlerror ());
   *cookie = handle;
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static int
-libwasmer_unload (void *cookie, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+libwasmer_unload (ਖਾਲੀ *cookie, libcrun_error_t *err)
 {
-  int r;
+  ਪੂਰਨ r;
 
-  if (cookie)
+  ਜੇ (cookie)
     {
       r = dlclose (cookie);
-      if (UNLIKELY (r < 0))
-        return crun_make_error (err, 0, "could not unload handle: %s", dlerror ());
+      ਜੇ (UNLIKELY (r < 0))
+        ਵਾਪਸ crun_make_error (err, 0, "could not unload handle: %s", dlerror ());
     }
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static int
+ਸਥਿਰ ਪੂਰਨ
 libwasmer_can_handle_container (libcrun_container_t *container, libcrun_error_t *err)
 {
-  return wasm_can_handle_container (container, err);
+  ਵਾਪਸ wasm_can_handle_container (container, err);
 }
 
-struct custom_handler_s handler_wasmer = {
+ਬਣਤਰ custom_handler_s handler_wasmer = {
   .name = "wasmer",
   .alias = "wasm",
   .feature_string = "WASM:wasmer",
-  .supports_open_tree_namespace = false,
-  .load = libwasmer_load,
+  .supports_open_ਰੁੱਖ_namespace = false,
+  .ਲੱਦੋ = libwasmer_ਲੱਦੋ,
   .unload = libwasmer_unload,
-  .run_func = libwasmer_exec,
+  .ਲੜੀਵਾਰ_func = libwasmer_exec,
   .can_handle_container = libwasmer_can_handle_container,
 };
 
-#endif
+#ਜੇ_ਅੰਤ

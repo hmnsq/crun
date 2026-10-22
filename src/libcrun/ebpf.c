@@ -16,118 +16,118 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ GNU_ਸਰੋਤ
 
-#include <config.h>
-#include "ebpf.h"
-#include "utils.h"
-#include <unistd.h>
-#include <sys/syscall.h>
-#include <sys/resource.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <config.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ "ebpf.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "utils.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ <unistd.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/syscall.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/resource.h>
 
-#ifdef HAVE_EBPF
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_EBPF
 #  include <linux/bpf.h>
 
 #  ifndef HAVE_BPF
-static int
-syscall_bpf (int cmd, union bpf_attr *attr, unsigned int size)
+ਸਥਿਰ ਪੂਰਨ
+syscall_bpf (ਪੂਰਨ cmd, ਸੰਘ bpf_attr *attr, ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ ਮਾਪ)
 {
-  return (int) syscall (__NR_bpf, cmd, attr, size);
+  ਵਾਪਸ (ਪੂਰਨ) syscall (__NR_bpf, cmd, attr, ਮਾਪ);
 }
 #    define bpf syscall_bpf
 #  endif
 
-#endif
+#ਜੇ_ਅੰਤ
 
-static inline uint64_t
-ptr_to_u64 (const void *ptr)
+ਸਥਿਰ ਸਤਰਅੰਦਰ uint64_t
+ptr_ਮੰਜ਼ਿਲ_u64 (ਅਚਲ ਖਾਲੀ *ptr)
 {
-  return (uint64_t) (unsigned long) ptr;
+  ਵਾਪਸ (uint64_t) (ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ) ptr;
 }
 
-enum
+ਗਿਣਤੀ
 {
   HAS_WILDCARD = 1
 };
 
-struct bpf_program
+ਬਣਤਰ bpf_ਪ੍ਰੋਗਰਾਮ
 {
   size_t allocated;
-  size_t used;
-  unsigned int private;
-  char program[];
+  size_t ਵਰਤਿਆ;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ ਨਿਜੀ;
+  ਅੱਖਰ ਪ੍ਰੋਗਰਾਮ[];
 };
 
-#ifdef HAVE_EBPF
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_EBPF
 
 #  define BPF_ALU32_IMM(OP, DST, IMM) \
-    ((struct bpf_insn) { .code = BPF_ALU | BPF_OP (OP) | BPF_K, .dst_reg = DST, .src_reg = 0, .off = 0, .imm = IMM })
+    ((ਬਣਤਰ bpf_insn) { .ਕੋਡ = BPF_ALU | BPF_OP (OP) | BPF_K, .dst_reg = DST, .src_reg = 0, .off = 0, .imm = IMM })
 
-#  define BPF_LDX_MEM(SIZE, DST, SRC, OFF) \
-    ((struct bpf_insn) {                   \
-        .code = BPF_LDX | BPF_SIZE (SIZE) | BPF_MEM, .dst_reg = DST, .src_reg = SRC, .off = OFF, .imm = 0 })
+#  define BPF_LDX_MEM(ਮਾਪ_2, DST, SRC, OFF) \
+    ((ਬਣਤਰ bpf_insn) {                   \
+        .ਕੋਡ = BPF_LDX | BPF_ਮਾਪ (ਮਾਪ_2) | BPF_MEM, .dst_reg = DST, .src_reg = SRC, .off = OFF, .imm = 0 })
 
 #  define BPF_MOV64_REG(DST, SRC) \
-    ((struct bpf_insn) { .code = BPF_ALU64 | BPF_MOV | BPF_X, .dst_reg = DST, .src_reg = SRC, .off = 0, .imm = 0 })
+    ((ਬਣਤਰ bpf_insn) { .ਕੋਡ = BPF_ALU64 | BPF_MOV | BPF_X, .dst_reg = DST, .src_reg = SRC, .off = 0, .imm = 0 })
 
 #  define BPF_JMP_A(OFF) \
-    ((struct bpf_insn) { .code = BPF_JMP | BPF_JA, .dst_reg = 0, .src_reg = 0, .off = OFF, .imm = 0 })
+    ((ਬਣਤਰ bpf_insn) { .ਕੋਡ = BPF_JMP | BPF_JA, .dst_reg = 0, .src_reg = 0, .off = OFF, .imm = 0 })
 
 #  define BPF_JMP_IMM(OP, DST, IMM, OFF) \
-    ((struct bpf_insn) { .code = BPF_JMP | BPF_OP (OP) | BPF_K, .dst_reg = DST, .src_reg = 0, .off = OFF, .imm = IMM })
+    ((ਬਣਤਰ bpf_insn) { .ਕੋਡ = BPF_JMP | BPF_OP (OP) | BPF_K, .dst_reg = DST, .src_reg = 0, .off = OFF, .imm = IMM })
 
 #  define BPF_JMP_REG(OP, DST, SRC, OFF) \
-    ((struct bpf_insn) { .code = BPF_JMP | BPF_OP (OP) | BPF_X, .dst_reg = DST, .src_reg = SRC, .off = OFF, .imm = 0 })
+    ((ਬਣਤਰ bpf_insn) { .ਕੋਡ = BPF_JMP | BPF_OP (OP) | BPF_X, .dst_reg = DST, .src_reg = SRC, .off = OFF, .imm = 0 })
 
 #  define BPF_MOV64_IMM(DST, IMM) \
-    ((struct bpf_insn) { .code = BPF_ALU64 | BPF_MOV | BPF_K, .dst_reg = DST, .src_reg = 0, .off = 0, .imm = IMM })
+    ((ਬਣਤਰ bpf_insn) { .ਕੋਡ = BPF_ALU64 | BPF_MOV | BPF_K, .dst_reg = DST, .src_reg = 0, .off = 0, .imm = IMM })
 
 #  define BPF_MOV32_REG(DST, SRC) \
-    ((struct bpf_insn) { .code = BPF_ALU | BPF_MOV | BPF_X, .dst_reg = DST, .src_reg = SRC, .off = 0, .imm = 0 })
+    ((ਬਣਤਰ bpf_insn) { .ਕੋਡ = BPF_ALU | BPF_MOV | BPF_X, .dst_reg = DST, .src_reg = SRC, .off = 0, .imm = 0 })
 
 #  define BPF_EXIT_INSN() \
-    ((struct bpf_insn) { .code = BPF_JMP | BPF_EXIT, .dst_reg = 0, .src_reg = 0, .off = 0, .imm = 0 })
-#endif
+    ((ਬਣਤਰ bpf_insn) { .ਕੋਡ = BPF_JMP | BPF_EXIT, .dst_reg = 0, .src_reg = 0, .off = 0, .imm = 0 })
+#ਜੇ_ਅੰਤ
 
-#ifdef HAVE_EBPF
-static size_t
-bpf_program_instructions (struct bpf_program *program)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_EBPF
+ਸਥਿਰ size_t
+bpf_ਪ੍ਰੋਗਰਾਮ_instructions (ਬਣਤਰ bpf_ਪ੍ਰੋਗਰਾਮ *ਪ੍ਰੋਗਰਾਮ)
 {
-  return program->used / (sizeof (struct bpf_insn));
+  ਵਾਪਸ ਪ੍ਰੋਗਰਾਮ->ਵਰਤਿਆ / (ਆਕਾਰ (ਬਣਤਰ bpf_insn));
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-struct bpf_program *
-bpf_program_new (size_t size)
+ਬਣਤਰ bpf_ਪ੍ਰੋਗਰਾਮ *
+bpf_ਪ੍ਰੋਗਰਾਮ_new (size_t ਮਾਪ)
 {
-  struct bpf_program *p = xmalloc (size + sizeof (struct bpf_program));
+  ਬਣਤਰ bpf_ਪ੍ਰੋਗਰਾਮ *p = xmalloc (ਮਾਪ + ਆਕਾਰ (ਬਣਤਰ bpf_ਪ੍ਰੋਗਰਾਮ));
 
-  p->used = 0;
-  p->private = 0;
-  p->allocated = size;
+  p->ਵਰਤਿਆ = 0;
+  p->ਨਿਜੀ = 0;
+  p->allocated = ਮਾਪ;
 
-  return p;
+  ਵਾਪਸ p;
 }
 
-struct bpf_program *
-bpf_program_append (struct bpf_program *p, void *data, size_t size)
+ਬਣਤਰ bpf_ਪ੍ਰੋਗਰਾਮ *
+bpf_ਪ੍ਰੋਗਰਾਮ_append (ਬਣਤਰ bpf_ਪ੍ਰੋਗਰਾਮ *p, ਖਾਲੀ *ਅੰਕੜੇ, size_t ਮਾਪ)
 {
-  if (p->allocated <= p->used + size)
+  ਜੇ (p->allocated <= p->ਵਰਤਿਆ + ਮਾਪ)
     {
-      p->allocated += size * 2;
-      p = xrealloc (p, p->allocated + sizeof (struct bpf_program));
+      p->allocated += ਮਾਪ * 2;
+      p = xrealloc (p, p->allocated + ਆਕਾਰ (ਬਣਤਰ bpf_ਪ੍ਰੋਗਰਾਮ));
     }
-  memcpy (p->program + p->used, data, size);
-  p->used += size;
-  return p;
+  ਸਮ੍ਰਿਤੀ_ਨਕਲ (p->ਪ੍ਰੋਗਰਾਮ + p->ਵਰਤਿਆ, ਅੰਕੜੇ, ਮਾਪ);
+  p->ਵਰਤਿਆ += ਮਾਪ;
+  ਵਾਪਸ p;
 }
 
-struct bpf_program *
-bpf_program_init_dev (struct bpf_program *program, libcrun_error_t *err arg_unused)
+ਬਣਤਰ bpf_ਪ੍ਰੋਗਰਾਮ *
+bpf_ਪ੍ਰੋਗਰਾਮ_init_dev (ਬਣਤਰ bpf_ਪ੍ਰੋਗਰਾਮ *ਪ੍ਰੋਗਰਾਮ, libcrun_error_t *err arg_ਅਣਵਰਤਿਆ)
 {
-#ifdef HAVE_EBPF
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_EBPF
   /* taken from systemd.  */
-  struct bpf_insn pre_insn[] = {
+  ਬਣਤਰ bpf_insn pre_insn[] = {
     /* type -> R2.  */
     BPF_LDX_MEM (BPF_W, BPF_REG_2, BPF_REG_1, 0),
     BPF_ALU32_IMM (BPF_AND, BPF_REG_2, 0xFFFF),
@@ -142,50 +142,50 @@ bpf_program_init_dev (struct bpf_program *program, libcrun_error_t *err arg_unus
     /* minor -> R5.  */
     BPF_LDX_MEM (BPF_W, BPF_REG_5, BPF_REG_1, 8),
   };
-  program = bpf_program_append (program, pre_insn, sizeof (pre_insn));
-#endif
-  return program;
+  ਪ੍ਰੋਗਰਾਮ = bpf_ਪ੍ਰੋਗਰਾਮ_append (ਪ੍ਰੋਗਰਾਮ, pre_insn, ਆਕਾਰ (pre_insn));
+#ਜੇ_ਅੰਤ
+  ਵਾਪਸ ਪ੍ਰੋਗਰਾਮ;
 }
 
-struct bpf_program *
-bpf_program_append_dev (struct bpf_program *program, const char *access, char type, int major, int minor, bool accept,
-                        libcrun_error_t *err arg_unused)
+ਬਣਤਰ bpf_ਪ੍ਰੋਗਰਾਮ *
+bpf_ਪ੍ਰੋਗਰਾਮ_append_dev (ਬਣਤਰ bpf_ਪ੍ਰੋਗਰਾਮ *ਪ੍ਰੋਗਰਾਮ, ਅਚਲ ਅੱਖਰ *access, ਅੱਖਰ type, ਪੂਰਨ major, ਪੂਰਨ minor, bool accept,
+                        libcrun_error_t *err arg_ਅਣਵਰਤਿਆ)
 {
-#ifdef HAVE_EBPF
-  int i;
-  int bpf_access = 0;
-  int bpf_type = type == 'b' ? BPF_DEVCG_DEV_BLOCK : BPF_DEVCG_DEV_CHAR;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_EBPF
+  ਪੂਰਨ i;
+  ਪੂਰਨ bpf_access = 0;
+  ਪੂਰਨ bpf_type = type == 'b' ? BPF_DEVCG_DEV_ਖੰਡ : BPF_DEVCG_DEV_CHAR;
   bool has_type = type != 'a';
   bool has_major = major >= 0;
   bool has_minor = minor >= 0;
   bool has_access = false;
-  int number_instructions = 0;
-  struct bpf_insn accept_block[] = {
+  ਪੂਰਨ ਸੰਖਿਆ_instructions = 0;
+  ਬਣਤਰ bpf_insn accept_ਖੰਡ[] = {
     BPF_MOV64_IMM (BPF_REG_0, accept ? 1 : 0),
     BPF_EXIT_INSN (),
   };
 
-  if (access == NULL)
+  ਜੇ (access == ਨਿਰਾ)
     access = "";
 
-  if (program->private & HAS_WILDCARD)
-    return program;
+  ਜੇ (ਪ੍ਰੋਗਰਾਮ->ਨਿਜੀ & HAS_WILDCARD)
+    ਵਾਪਸ ਪ੍ਰੋਗਰਾਮ;
 
-  for (i = 0; access[i]; i++)
+  ਲਈ (i = 0; access[i]; i++)
     {
-      switch (access[i])
+      ਚੋਣ (access[i])
         {
-        case 'r':
+        ਹਾਲਤ 'r':
           bpf_access |= BPF_DEVCG_ACC_READ;
-          break;
+          ਰੋਕੋ;
 
-        case 'w':
+        ਹਾਲਤ 'w':
           bpf_access |= BPF_DEVCG_ACC_WRITE;
-          break;
+          ਰੋਕੋ;
 
-        case 'm':
+        ਹਾਲਤ 'm':
           bpf_access |= BPF_DEVCG_ACC_MKNOD;
-          break;
+          ਰੋਕੋ;
         }
     }
 
@@ -208,432 +208,432 @@ bpf_program_append_dev (struct bpf_program *program, const char *access, char ty
   has_access = bpf_access != (BPF_DEVCG_ACC_READ | BPF_DEVCG_ACC_WRITE | BPF_DEVCG_ACC_MKNOD);
 
   /* Number of instructions to skip the ACCEPT BLOCK.  */
-  number_instructions = (has_type ? 1 : 0) + (has_access ? 3 : 0) + (has_major ? 1 : 0) + (has_minor ? 1 : 0) + 1;
+  ਸੰਖਿਆ_instructions = (has_type ? 1 : 0) + (has_access ? 3 : 0) + (has_major ? 1 : 0) + (has_minor ? 1 : 0) + 1;
 
-  if (has_type)
+  ਜੇ (has_type)
     {
-      struct bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_2, bpf_type, number_instructions) };
-      number_instructions--;
-      program = bpf_program_append (program, i, sizeof (i));
+      ਬਣਤਰ bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_2, bpf_type, ਸੰਖਿਆ_instructions) };
+      ਸੰਖਿਆ_instructions--;
+      ਪ੍ਰੋਗਰਾਮ = bpf_ਪ੍ਰੋਗਰਾਮ_append (ਪ੍ਰੋਗਰਾਮ, i, ਆਕਾਰ (i));
     }
-  if (has_access)
+  ਜੇ (has_access)
     {
-      struct bpf_insn i[] = {
+      ਬਣਤਰ bpf_insn i[] = {
         BPF_MOV32_REG (BPF_REG_1, BPF_REG_3),
         BPF_ALU32_IMM (BPF_AND, BPF_REG_1, bpf_access),
-        accept ? BPF_JMP_REG (BPF_JNE, BPF_REG_1, BPF_REG_3, number_instructions - 2)
-               : BPF_JMP_IMM (BPF_JEQ, BPF_REG_1, 0, number_instructions - 2),
+        accept ? BPF_JMP_REG (BPF_JNE, BPF_REG_1, BPF_REG_3, ਸੰਖਿਆ_instructions - 2)
+               : BPF_JMP_IMM (BPF_JEQ, BPF_REG_1, 0, ਸੰਖਿਆ_instructions - 2),
       };
-      number_instructions -= 3;
-      program = bpf_program_append (program, i, sizeof (i));
+      ਸੰਖਿਆ_instructions -= 3;
+      ਪ੍ਰੋਗਰਾਮ = bpf_ਪ੍ਰੋਗਰਾਮ_append (ਪ੍ਰੋਗਰਾਮ, i, ਆਕਾਰ (i));
     }
-  if (has_major)
+  ਜੇ (has_major)
     {
-      struct bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_4, major, number_instructions) };
-      number_instructions--;
-      program = bpf_program_append (program, i, sizeof (i));
+      ਬਣਤਰ bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_4, major, ਸੰਖਿਆ_instructions) };
+      ਸੰਖਿਆ_instructions--;
+      ਪ੍ਰੋਗਰਾਮ = bpf_ਪ੍ਰੋਗਰਾਮ_append (ਪ੍ਰੋਗਰਾਮ, i, ਆਕਾਰ (i));
     }
-  if (has_minor)
+  ਜੇ (has_minor)
     {
-      struct bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_5, minor, number_instructions) };
-      number_instructions--;
-      program = bpf_program_append (program, i, sizeof (i));
+      ਬਣਤਰ bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_5, minor, ਸੰਖਿਆ_instructions) };
+      ਸੰਖਿਆ_instructions--;
+      ਪ੍ਰੋਗਰਾਮ = bpf_ਪ੍ਰੋਗਰਾਮ_append (ਪ੍ਰੋਗਰਾਮ, i, ਆਕਾਰ (i));
     }
 
-  if (has_type == 0 && has_access == 0 && has_major == 0 && has_minor == 0)
-    program->private |= HAS_WILDCARD;
+  ਜੇ (has_type == 0 && has_access == 0 && has_major == 0 && has_minor == 0)
+    ਪ੍ਰੋਗਰਾਮ->ਨਿਜੀ |= HAS_WILDCARD;
 
-  program = bpf_program_append (program, accept_block, sizeof (accept_block));
-#endif
-  (void) access;
-  (void) type;
-  (void) major;
-  (void) minor;
-  (void) accept;
+  ਪ੍ਰੋਗਰਾਮ = bpf_ਪ੍ਰੋਗਰਾਮ_append (ਪ੍ਰੋਗਰਾਮ, accept_ਖੰਡ, ਆਕਾਰ (accept_ਖੰਡ));
+#ਜੇ_ਅੰਤ
+  (ਖਾਲੀ) access;
+  (ਖਾਲੀ) type;
+  (ਖਾਲੀ) major;
+  (ਖਾਲੀ) minor;
+  (ਖਾਲੀ) accept;
 
-  return program;
+  ਵਾਪਸ ਪ੍ਰੋਗਰਾਮ;
 }
 
-struct bpf_program *
-bpf_program_complete_dev (struct bpf_program *program, libcrun_error_t *err arg_unused)
+ਬਣਤਰ bpf_ਪ੍ਰੋਗਰਾਮ *
+bpf_ਪ੍ਰੋਗਰਾਮ_complete_dev (ਬਣਤਰ bpf_ਪ੍ਰੋਗਰਾਮ *ਪ੍ਰੋਗਰਾਮ, libcrun_error_t *err arg_ਅਣਵਰਤਿਆ)
 {
-#ifdef HAVE_EBPF
-  struct bpf_insn i[] = {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_EBPF
+  ਬਣਤਰ bpf_insn i[] = {
     BPF_MOV64_IMM (BPF_REG_0, 0),
     BPF_EXIT_INSN (),
   };
 
-  if (program->private & HAS_WILDCARD)
-    return program;
+  ਜੇ (ਪ੍ਰੋਗਰਾਮ->ਨਿਜੀ & HAS_WILDCARD)
+    ਵਾਪਸ ਪ੍ਰੋਗਰਾਮ;
 
-  program = bpf_program_append (program, &i, sizeof (i));
-#endif
-  return program;
+  ਪ੍ਰੋਗਰਾਮ = bpf_ਪ੍ਰੋਗਰਾਮ_append (ਪ੍ਰੋਗਰਾਮ, &i, ਆਕਾਰ (i));
+#ਜੇ_ਅੰਤ
+  ਵਾਪਸ ਪ੍ਰੋਗਰਾਮ;
 }
 
-static int
-read_all_progs (int dirfd, uint32_t **progs_out, size_t *n_progs_out, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+read_all_progs (ਪੂਰਨ dirfd, uint32_t **progs_ਬਾਹਰਲਾ, size_t *n_progs_ਬਾਹਰਲਾ, libcrun_error_t *err)
 {
-#ifdef HAVE_EBPF
-  cleanup_free uint32_t *progs = NULL;
-  union bpf_attr attr;
-  int ret;
-  size_t cur_size;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_EBPF
+  cleanup_free uint32_t *progs = ਨਿਰਾ;
+  ਸੰਘ bpf_attr attr;
+  ਪੂਰਨ ret;
+  size_t cur_ਮਾਪ;
 
   /* The kernel 5.7 has a hard limit of 64, let's be safe if the limit
      will be increased in future and attempt up to 4096.  */
-  for (cur_size = 64; cur_size <= 4096; cur_size *= 2)
+  ਲਈ (cur_ਮਾਪ = 64; cur_ਮਾਪ <= 4096; cur_ਮਾਪ *= 2)
     {
-      progs = xrealloc (progs, sizeof (uint32_t) * cur_size);
+      progs = xrealloc (progs, ਆਕਾਰ (uint32_t) * cur_ਮਾਪ);
 
-      memset (&attr, 0, sizeof (attr));
-      attr.query.target_fd = dirfd;
+      memset (&attr, 0, ਆਕਾਰ (attr));
+      attr.query.ਨਿਸ਼ਾਨਾ_fd = dirfd;
       attr.query.attach_type = BPF_CGROUP_DEVICE;
-      attr.query.prog_cnt = cur_size;
-      attr.query.prog_ids = ptr_to_u64 (progs);
+      attr.query.prog_cnt = cur_ਮਾਪ;
+      attr.query.prog_ids = ptr_ਮੰਜ਼ਿਲ_u64 (progs);
 
-      ret = bpf (BPF_PROG_QUERY, &attr, sizeof (attr));
+      ret = bpf (BPF_PROG_QUERY, &attr, ਆਕਾਰ (attr));
     }
-  while (ret < 0 && errno == ENOSPC)
+  ਜਦੋਂ (ret < 0 && errno == ENOSPC)
     ;
 
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "bpf query");
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ crun_make_error (err, errno, "bpf query");
 
-  *progs_out = progs;
-  progs = NULL;
-  *n_progs_out = attr.query.prog_cnt;
-  return 0;
-#else
-  (void) dirfd;
+  *progs_ਬਾਹਰਲਾ = progs;
+  progs = ਨਿਰਾ;
+  *n_progs_ਬਾਹਰਲਾ = attr.query.prog_cnt;
+  ਵਾਪਸ 0;
+#ਨਹੀਂਤਾਂ
+  (ਖਾਲੀ) dirfd;
 
-  *progs_out = NULL;
-  *n_progs_out = 0;
+  *progs_ਬਾਹਰਲਾ = ਨਿਰਾ;
+  *n_progs_ਬਾਹਰਲਾ = 0;
 
-  return crun_make_error (err, 0, "eBPF not supported");
-#endif
+  ਵਾਪਸ crun_make_error (err, 0, "eBPF not supported");
+#ਜੇ_ਅੰਤ
 }
 
-static int
-remove_all_progs (int dirfd, uint32_t *progs, size_t n_progs, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+remove_all_progs (ਪੂਰਨ dirfd, uint32_t *progs, size_t n_progs, libcrun_error_t *err)
 {
-#ifdef HAVE_EBPF
-  union bpf_attr attr;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_EBPF
+  ਸੰਘ bpf_attr attr;
   size_t i;
 
-  for (i = 0; i < n_progs; i++)
+  ਲਈ (i = 0; i < n_progs; i++)
     {
-      cleanup_close int fd = -1;
-      int ret;
+      cleanup_close ਪੂਰਨ fd = -1;
+      ਪੂਰਨ ret;
 
-      memset (&attr, 0, sizeof (attr));
+      memset (&attr, 0, ਆਕਾਰ (attr));
       attr.prog_id = progs[i];
-      fd = bpf (BPF_PROG_GET_FD_BY_ID, &attr, sizeof (attr));
-      if (UNLIKELY (fd < 0))
+      fd = bpf (BPF_PROG_GET_FD_BY_ID, &attr, ਆਕਾਰ (attr));
+      ਜੇ (UNLIKELY (fd < 0))
         {
           /* Already removed.  Nothing to do.  */
-          if (errno == ENOENT)
-            continue;
+          ਜੇ (errno == ENOENT)
+            ਜਾਰੀ;
 
-          return crun_make_error (err, errno, "cannot open existing eBPF program");
+          ਵਾਪਸ crun_make_error (err, errno, "cannot open existing eBPF program");
         }
 
-      memset (&attr, 0, sizeof (attr));
+      memset (&attr, 0, ਆਕਾਰ (attr));
       attr.attach_type = BPF_CGROUP_DEVICE;
-      attr.target_fd = dirfd;
+      attr.ਨਿਸ਼ਾਨਾ_fd = dirfd;
       attr.attach_bpf_fd = fd;
 
-      ret = bpf (BPF_PROG_DETACH, &attr, sizeof (attr));
-      if (UNLIKELY (ret < 0))
+      ret = bpf (BPF_PROG_DETACH, &attr, ਆਕਾਰ (attr));
+      ਜੇ (UNLIKELY (ret < 0))
         {
           /* Already removed.  Nothing to do.  */
-          if (errno == ENOENT)
-            continue;
+          ਜੇ (errno == ENOENT)
+            ਜਾਰੀ;
 
-          return crun_make_error (err, errno, "cannot detach eBPF program");
+          ਵਾਪਸ crun_make_error (err, errno, "cannot detach eBPF program");
         }
     }
-  return 0;
-#else
-  (void) dirfd;
-  (void) progs;
-  (void) n_progs;
-  return crun_make_error (err, 0, "eBPF not supported");
-#endif
+  ਵਾਪਸ 0;
+#ਨਹੀਂਤਾਂ
+  (ਖਾਲੀ) dirfd;
+  (ਖਾਲੀ) progs;
+  (ਖਾਲੀ) n_progs;
+  ਵਾਪਸ crun_make_error (err, 0, "eBPF not supported");
+#ਜੇ_ਅੰਤ
 }
 
-static int
-ebpf_attach_program (int fd, int dirfd, libcrun_error_t *err)
+ਸਥਿਰ ਪੂਰਨ
+ebpf_attach_ਪ੍ਰੋਗਰਾਮ (ਪੂਰਨ fd, ਪੂਰਨ dirfd, libcrun_error_t *err)
 {
-#ifndef HAVE_EBPF
-  (void) fd;
-  (void) dirfd;
-  (void) read_all_progs;
-  (void) remove_all_progs;
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ HAVE_EBPF
+  (ਖਾਲੀ) fd;
+  (ਖਾਲੀ) dirfd;
+  (ਖਾਲੀ) read_all_progs;
+  (ਖਾਲੀ) remove_all_progs;
 
-  return crun_make_error (err, 0, "eBPF not supported");
-#else
+  ਵਾਪਸ crun_make_error (err, 0, "eBPF not supported");
+#ਨਹੀਂਤਾਂ
 #  ifdef BPF_F_REPLACE
   bool skip_replace = false;
 #  endif
-  const int MAX_ATTEMPTS = 20;
-  int attempt;
+  ਅਚਲ ਪੂਰਨ MAX_ATTEMPTS = 20;
+  ਪੂਰਨ attempt;
 
-  for (attempt = 0;; attempt++)
+  ਲਈ (attempt = 0;; attempt++)
     {
-      cleanup_free uint32_t *progs = NULL;
-      cleanup_close int replacefd = -1;
-      union bpf_attr attr;
+      cleanup_free uint32_t *progs = ਨਿਰਾ;
+      cleanup_close ਪੂਰਨ replacefd = -1;
+      ਸੰਘ bpf_attr attr;
       size_t n_progs = 0;
-      int ret;
+      ਪੂਰਨ ret;
 
       ret = read_all_progs (dirfd, &progs, &n_progs, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
 
 #  ifdef BPF_F_REPLACE
       /* There is just one program installed, let's attempt an atomic replace if supported.  */
-      if (! skip_replace && n_progs == 1)
+      ਜੇ (! skip_replace && n_progs == 1)
         {
-          memset (&attr, 0, sizeof (attr));
+          memset (&attr, 0, ਆਕਾਰ (attr));
           attr.prog_id = progs[0];
-          replacefd = bpf (BPF_PROG_GET_FD_BY_ID, &attr, sizeof (attr));
-          if (UNLIKELY (replacefd < 0))
+          replacefd = bpf (BPF_PROG_GET_FD_BY_ID, &attr, ਆਕਾਰ (attr));
+          ਜੇ (UNLIKELY (replacefd < 0))
             {
-              if (errno == ENOENT && attempt < MAX_ATTEMPTS)
+              ਜੇ (errno == ENOENT && attempt < MAX_ATTEMPTS)
                 {
                   /* Another update might have raced and updated, try again.  */
-                  continue;
+                  ਜਾਰੀ;
                 }
-              return crun_make_error (err, errno, "cannot open existing eBPF program");
+              ਵਾਪਸ crun_make_error (err, errno, "cannot open existing eBPF program");
             }
         }
 #  endif
 
-      memset (&attr, 0, sizeof (attr));
+      memset (&attr, 0, ਆਕਾਰ (attr));
       attr.attach_type = BPF_CGROUP_DEVICE;
-      attr.target_fd = dirfd;
+      attr.ਨਿਸ਼ਾਨਾ_fd = dirfd;
       attr.attach_bpf_fd = fd;
       attr.attach_flags = BPF_F_ALLOW_MULTI;
 #  ifdef BPF_F_REPLACE
-      if (replacefd >= 0)
+      ਜੇ (replacefd >= 0)
         {
           attr.attach_flags = BPF_F_ALLOW_MULTI | BPF_F_REPLACE;
           attr.replace_bpf_fd = replacefd;
         }
 #  endif
 
-      ret = bpf (BPF_PROG_ATTACH, &attr, sizeof (attr));
-      if (UNLIKELY (ret < 0))
+      ret = bpf (BPF_PROG_ATTACH, &attr, ਆਕਾਰ (attr));
+      ਜੇ (UNLIKELY (ret < 0))
         {
-          if (errno == ENOENT && replacefd >= 0 && attempt < MAX_ATTEMPTS)
+          ਜੇ (errno == ENOENT && replacefd >= 0 && attempt < MAX_ATTEMPTS)
             {
               /* Another update might have already updated the cgroup, try again.  */
-              continue;
+              ਜਾਰੀ;
             }
 #  ifdef BPF_F_REPLACE
-          if (errno == EINVAL && replacefd >= 0)
+          ਜੇ (errno == EINVAL && replacefd >= 0)
             {
               skip_replace = true;
-              continue;
+              ਜਾਰੀ;
             }
 #  endif
-          return crun_make_error (err, errno, "bpf attach");
+          ਵਾਪਸ crun_make_error (err, errno, "bpf attach");
         }
 
       /* Now that the new program is installed, remove all the programs that were previously installed.  */
-      if (replacefd < 0 && n_progs)
-        return remove_all_progs (dirfd, progs, n_progs, err);
+      ਜੇ (replacefd < 0 && n_progs)
+        ਵਾਪਸ remove_all_progs (dirfd, progs, n_progs, err);
 
-      return 0;
+      ਵਾਪਸ 0;
     }
-#endif
+#ਜੇ_ਅੰਤ
 }
 
-static void
+ਸਥਿਰ ਖਾਲੀ
 bump_memlock ()
 {
-  struct rlimit limit;
-  int ret;
+  ਬਣਤਰ rlimit ਹੱਦਬੰਦੀ;
+  ਪੂਰਨ ret;
 
-  limit.rlim_cur = RLIM_INFINITY;
-  limit.rlim_max = RLIM_INFINITY;
+  ਹੱਦਬੰਦੀ.rlim_cur = RLIM_INFINITY;
+  ਹੱਦਬੰਦੀ.rlim_max = RLIM_INFINITY;
 
-  ret = setrlimit (RLIMIT_MEMLOCK, &limit);
-  if (ret == 0)
-    return;
+  ret = setrlimit (RLIMIT_MEMLOCK, &ਹੱਦਬੰਦੀ);
+  ਜੇ (ret == 0)
+    ਵਾਪਸ;
 
   /* If the above failed, try to set the current limit
      to the max configured.  */
-  ret = getrlimit (RLIMIT_MEMLOCK, &limit);
-  if (ret < 0)
-    return;
+  ret = getrlimit (RLIMIT_MEMLOCK, &ਹੱਦਬੰਦੀ);
+  ਜੇ (ret < 0)
+    ਵਾਪਸ;
 
-  limit.rlim_cur = limit.rlim_max;
+  ਹੱਦਬੰਦੀ.rlim_cur = ਹੱਦਬੰਦੀ.rlim_max;
   /* Best effort, ignore errors.  */
-  (void) setrlimit (RLIMIT_MEMLOCK, &limit);
+  (ਖਾਲੀ) setrlimit (RLIMIT_MEMLOCK, &ਹੱਦਬੰਦੀ);
 }
 
-int
-libcrun_ebpf_load (struct bpf_program *program, int dirfd, const char *pin, libcrun_error_t *err)
+ਪੂਰਨ
+libcrun_ebpf_ਲੱਦੋ (ਬਣਤਰ bpf_ਪ੍ਰੋਗਰਾਮ *ਪ੍ਰੋਗਰਾਮ, ਪੂਰਨ dirfd, ਅਚਲ ਅੱਖਰ *pin, libcrun_error_t *err)
 {
-#ifndef HAVE_EBPF
-  (void) dirfd;
-  (void) program;
-  (void) pin;
-  (void) ebpf_attach_program;
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ HAVE_EBPF
+  (ਖਾਲੀ) dirfd;
+  (ਖਾਲੀ) ਪ੍ਰੋਗਰਾਮ;
+  (ਖਾਲੀ) pin;
+  (ਖਾਲੀ) ebpf_attach_ਪ੍ਰੋਗਰਾਮ;
 
-  return crun_make_error (err, 0, "eBPF not supported");
-#else
-  cleanup_close int fd = -1;
-  union bpf_attr attr;
-  int ret;
+  ਵਾਪਸ crun_make_error (err, 0, "eBPF not supported");
+#ਨਹੀਂਤਾਂ
+  cleanup_close ਪੂਰਨ fd = -1;
+  ਸੰਘ bpf_attr attr;
+  ਪੂਰਨ ret;
 
-  memset (&attr, 0, sizeof (attr));
+  memset (&attr, 0, ਆਕਾਰ (attr));
   attr.prog_type = BPF_PROG_TYPE_CGROUP_DEVICE;
-  attr.insns = ptr_to_u64 (program->program);
-  attr.insn_cnt = bpf_program_instructions (program);
-  attr.license = ptr_to_u64 ("GPL");
+  attr.insns = ptr_ਮੰਜ਼ਿਲ_u64 (ਪ੍ਰੋਗਰਾਮ->ਪ੍ਰੋਗਰਾਮ);
+  attr.insn_cnt = bpf_ਪ੍ਰੋਗਰਾਮ_instructions (ਪ੍ਰੋਗਰਾਮ);
+  attr.license = ptr_ਮੰਜ਼ਿਲ_u64 ("GPL");
 
   /* First try without log.  */
-  fd = bpf (BPF_PROG_LOAD, &attr, sizeof (attr));
-  if (fd < 0)
+  fd = bpf (BPF_PROG_ਲੱਦੋ, &attr, ਆਕਾਰ (attr));
+  ਜੇ (fd < 0)
     {
       /* Prior to Linux 5.11, eBPF programs were accounted to the memlock
          prlimit.  Attempt to bump the limit, if possible.  */
       bump_memlock ();
-      fd = bpf (BPF_PROG_LOAD, &attr, sizeof (attr));
+      fd = bpf (BPF_PROG_ਲੱਦੋ, &attr, ਆਕਾਰ (attr));
     }
-  if (fd < 0)
+  ਜੇ (fd < 0)
     {
-      const size_t max_log_size = 1 << 20;
-      cleanup_free char *log = NULL;
-      size_t log_size = 8192;
+      ਅਚਲ size_t max_log_ਮਾਪ = 1 << 20;
+      cleanup_free ਅੱਖਰ *ਲਘੂਗਣਕ = ਨਿਰਾ;
+      size_t log_ਮਾਪ = 8192;
 
     retry:
-      log = xrealloc (log, log_size);
-      log[0] = '\0';
+      ਲਘੂਗਣਕ = xrealloc (ਲਘੂਗਣਕ, log_ਮਾਪ);
+      ਲਘੂਗਣਕ[0] = '\0';
       attr.log_level = 1;
-      attr.log_buf = ptr_to_u64 (log);
-      attr.log_size = log_size;
+      attr.log_buf = ptr_ਮੰਜ਼ਿਲ_u64 (ਲਘੂਗਣਕ);
+      attr.log_ਮਾਪ = log_ਮਾਪ;
 
-      fd = bpf (BPF_PROG_LOAD, &attr, sizeof (attr));
-      if (fd < 0)
+      fd = bpf (BPF_PROG_ਲੱਦੋ, &attr, ਆਕਾਰ (attr));
+      ਜੇ (fd < 0)
         {
-          if (errno == ENOSPC && log_size < max_log_size)
+          ਜੇ (errno == ENOSPC && log_ਮਾਪ < max_log_ਮਾਪ)
             {
               /* The provided buffer was not big enough.  */
-              log_size *= 2;
-              goto retry;
+              log_ਮਾਪ *= 2;
+              ਜਾਓ retry;
             }
-          return crun_make_error (err, errno, "bpf create `%s`", log);
+          ਵਾਪਸ crun_make_error (err, errno, "bpf create `%s`", ਲਘੂਗਣਕ);
         }
     }
 
-  if (dirfd >= 0)
+  ਜੇ (dirfd >= 0)
     {
-      ret = ebpf_attach_program (fd, dirfd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = ebpf_attach_ਪ੍ਰੋਗਰਾਮ (fd, dirfd, err);
+      ਜੇ (UNLIKELY (ret < 0))
+        ਵਾਪਸ ret;
     }
 
   /* Optionally pin the program to the specified path.  */
-  if (pin)
+  ਜੇ (pin)
     {
       unlink (pin);
 
-      memset (&attr, 0, sizeof (attr));
-      attr.pathname = ptr_to_u64 (pin);
+      memset (&attr, 0, ਆਕਾਰ (attr));
+      attr.pathname = ptr_ਮੰਜ਼ਿਲ_u64 (pin);
       attr.bpf_fd = fd;
-      ret = bpf (BPF_OBJ_PIN, &attr, sizeof (attr));
-      if (ret < 0)
-        return crun_make_error (err, errno, "bpf pin to `%s`", pin);
+      ret = bpf (BPF_OBJ_PIN, &attr, ਆਕਾਰ (attr));
+      ਜੇ (ret < 0)
+        ਵਾਪਸ crun_make_error (err, errno, "bpf pin to `%s`", pin);
     }
 
-  return 0;
-#endif
+  ਵਾਪਸ 0;
+#ਜੇ_ਅੰਤ
 }
 
-int
-libcrun_ebpf_read_program (struct bpf_program **program_ret, const char *path, libcrun_error_t *err)
+ਪੂਰਨ
+libcrun_ebpf_read_ਪ੍ਰੋਗਰਾਮ (ਬਣਤਰ bpf_ਪ੍ਰੋਗਰਾਮ **ਪ੍ਰੋਗਰਾਮ_ret, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, libcrun_error_t *err)
 {
-#ifndef HAVE_EBPF
-  (void) program_ret;
-  (void) path;
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ HAVE_EBPF
+  (ਖਾਲੀ) ਪ੍ਰੋਗਰਾਮ_ret;
+  (ਖਾਲੀ) ਰਸਤਾ;
 
-  return crun_make_error (err, 0, "eBPF not supported");
-#else
-  cleanup_free struct bpf_program *program = NULL;
-  cleanup_free char *buffer = NULL;
-  cleanup_close int prog_fd = -1;
-  size_t buffer_size = 0;
-  struct bpf_prog_info info;
-  union bpf_attr attr;
-  int ret;
+  ਵਾਪਸ crun_make_error (err, 0, "eBPF not supported");
+#ਨਹੀਂਤਾਂ
+  cleanup_free ਬਣਤਰ bpf_ਪ੍ਰੋਗਰਾਮ *ਪ੍ਰੋਗਰਾਮ = ਨਿਰਾ;
+  cleanup_free ਅੱਖਰ *ਬਫਰ = ਨਿਰਾ;
+  cleanup_close ਪੂਰਨ prog_fd = -1;
+  size_t ਬਫਰ_ਮਾਪ = 0;
+  ਬਣਤਰ bpf_prog_info info;
+  ਸੰਘ bpf_attr attr;
+  ਪੂਰਨ ret;
 
-  memset (&attr, 0, sizeof (attr));
-  attr.pathname = ptr_to_u64 (path);
+  memset (&attr, 0, ਆਕਾਰ (attr));
+  attr.pathname = ptr_ਮੰਜ਼ਿਲ_u64 (ਰਸਤਾ);
 
-  prog_fd = bpf (BPF_OBJ_GET, &attr, sizeof (attr));
-  if (UNLIKELY (prog_fd < 0))
-    return crun_make_error (err, errno, "bpf get `%s`", path);
+  prog_fd = bpf (BPF_OBJ_GET, &attr, ਆਕਾਰ (attr));
+  ਜੇ (UNLIKELY (prog_fd < 0))
+    ਵਾਪਸ crun_make_error (err, errno, "bpf get `%s`", ਰਸਤਾ);
 
-  memset (&info, 0, sizeof (info));
+  memset (&info, 0, ਆਕਾਰ (info));
 
-  memset (&attr, 0, sizeof (attr));
+  memset (&attr, 0, ਆਕਾਰ (attr));
   attr.info.bpf_fd = prog_fd;
-  attr.info.info = ptr_to_u64 (&info);
-  attr.info.info_len = sizeof (info);
+  attr.info.info = ptr_ਮੰਜ਼ਿਲ_u64 (&info);
+  attr.info.info_len = ਆਕਾਰ (info);
 
-  ret = bpf (BPF_OBJ_GET_INFO_BY_FD, &attr, sizeof (attr));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "bpf get info `%s`", path);
+  ret = bpf (BPF_OBJ_GET_INFO_BY_FD, &attr, ਆਕਾਰ (attr));
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ crun_make_error (err, errno, "bpf get info `%s`", ਰਸਤਾ);
 
-  buffer_size = info.xlated_prog_len;
-  buffer = xmalloc (buffer_size);
+  ਬਫਰ_ਮਾਪ = info.xlated_prog_len;
+  ਬਫਰ = xmalloc (ਬਫਰ_ਮਾਪ);
 
-  memset (&info, 0, sizeof (info));
-  info.xlated_prog_insns = ptr_to_u64 (buffer);
-  info.xlated_prog_len = buffer_size;
+  memset (&info, 0, ਆਕਾਰ (info));
+  info.xlated_prog_insns = ptr_ਮੰਜ਼ਿਲ_u64 (ਬਫਰ);
+  info.xlated_prog_len = ਬਫਰ_ਮਾਪ;
 
-  ret = bpf (BPF_OBJ_GET_INFO_BY_FD, &attr, sizeof (attr));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "bpf get info `%s`", path);
+  ret = bpf (BPF_OBJ_GET_INFO_BY_FD, &attr, ਆਕਾਰ (attr));
+  ਜੇ (UNLIKELY (ret < 0))
+    ਵਾਪਸ crun_make_error (err, errno, "bpf get info `%s`", ਰਸਤਾ);
 
-  program = bpf_program_new (buffer_size);
-  program = bpf_program_append (program, buffer, buffer_size);
+  ਪ੍ਰੋਗਰਾਮ = bpf_ਪ੍ਰੋਗਰਾਮ_new (ਬਫਰ_ਮਾਪ);
+  ਪ੍ਰੋਗਰਾਮ = bpf_ਪ੍ਰੋਗਰਾਮ_append (ਪ੍ਰੋਗਰਾਮ, ਬਫਰ, ਬਫਰ_ਮਾਪ);
 
-  *program_ret = program;
-  program = NULL;
+  *ਪ੍ਰੋਗਰਾਮ_ret = ਪ੍ਰੋਗਰਾਮ;
+  ਪ੍ਰੋਗਰਾਮ = ਨਿਰਾ;
 
-  return 0;
-#endif
+  ਵਾਪਸ 0;
+#ਜੇ_ਅੰਤ
 }
 
-int
-libcrun_ebpf_query_cgroup_progs (const char *cgroup_path, uint32_t **progs_out, size_t *n_progs_out, libcrun_error_t *err)
+ਪੂਰਨ
+libcrun_ebpf_query_cgroup_progs (ਅਚਲ ਅੱਖਰ *cgroup_ਰਸਤਾ, uint32_t **progs_ਬਾਹਰਲਾ, size_t *n_progs_ਬਾਹਰਲਾ, libcrun_error_t *err)
 {
-#ifndef HAVE_EBPF
-  (void) cgroup_path;
-  *progs_out = NULL;
-  *n_progs_out = 0;
-  return crun_make_error (err, 0, "eBPF not supported");
-#else
-  cleanup_close int cgroup_fd = -1;
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ HAVE_EBPF
+  (ਖਾਲੀ) cgroup_ਰਸਤਾ;
+  *progs_ਬਾਹਰਲਾ = ਨਿਰਾ;
+  *n_progs_ਬਾਹਰਲਾ = 0;
+  ਵਾਪਸ crun_make_error (err, 0, "eBPF not supported");
+#ਨਹੀਂਤਾਂ
+  cleanup_close ਪੂਰਨ cgroup_fd = -1;
 
-  cgroup_fd = open (cgroup_path, O_PATH | O_CLOEXEC);
-  if (UNLIKELY (cgroup_fd < 0))
-    return crun_make_error (err, errno, "open cgroup path `%s`", cgroup_path);
+  cgroup_fd = open (cgroup_ਰਸਤਾ, O_ਰਸਤਾ | O_CLOEXEC);
+  ਜੇ (UNLIKELY (cgroup_fd < 0))
+    ਵਾਪਸ crun_make_error (err, errno, "open cgroup path `%s`", cgroup_ਰਸਤਾ);
 
-  return read_all_progs (cgroup_fd, progs_out, n_progs_out, err);
-#endif
+  ਵਾਪਸ read_all_progs (cgroup_fd, progs_ਬਾਹਰਲਾ, n_progs_ਬਾਹਰਲਾ, err);
+#ਜੇ_ਅੰਤ
 }
 
 bool
-libcrun_ebpf_cmp_programs (struct bpf_program *program1, struct bpf_program *program2)
+libcrun_ebpf_cmp_programs (ਬਣਤਰ bpf_ਪ੍ਰੋਗਰਾਮ *program1, ਬਣਤਰ bpf_ਪ੍ਰੋਗਰਾਮ *program2)
 {
-  if (program1->used != program2->used)
-    return false;
+  ਜੇ (program1->ਵਰਤਿਆ != program2->ਵਰਤਿਆ)
+    ਵਾਪਸ false;
 
-  return memcmp (program1->program, program2->program, program1->used) == 0;
+  ਵਾਪਸ memcmp (program1->ਪ੍ਰੋਗਰਾਮ, program2->ਪ੍ਰੋਗਰਾਮ, program1->ਵਰਤਿਆ) == 0;
 }

@@ -15,223 +15,223 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE
-#include <config.h>
-#include <sys/uio.h>
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ GNU_ਸਰੋਤ
+#ਅਨ੍ਤਰ੍ਭਾਵ <config.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/uio.h>
 
-#include "ring_buffer.h"
-#include "utils.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "ring_buffer.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "utils.h"
 
-struct ring_buffer
+ਬਣਤਰ ring_ਬਫਰ
 {
-  char *buffer;
-  size_t size;
-  size_t head;
-  size_t tail;
+  ਅੱਖਰ *ਬਫਰ;
+  size_t ਮਾਪ;
+  size_t ਸਿਰ;
+  size_t ਪੂਛ;
 };
 
 /*
  * It returns up to two regions in `iov` that can be read from.
  */
-static int
-ring_buffer_get_read_iov (struct ring_buffer *rb, struct iovec *iov)
+ਸਥਿਰ ਪੂਰਨ
+ring_ਬਫਰ_get_read_iov (ਬਣਤਰ ring_ਬਫਰ *rb, ਬਣਤਰ iovec *iov)
 {
-  int iov_count = 0;
+  ਪੂਰਨ iov_ਗਿਣਤੀ = 0;
 
   /* Buffer is empty.  */
-  if (rb->head == rb->tail)
-    return 0;
+  ਜੇ (rb->ਸਿਰ == rb->ਪੂਛ)
+    ਵਾਪਸ 0;
 
   /* Head before tail.  There is only one region to read from, up to tail.  */
-  if (rb->tail > rb->head)
+  ਜੇ (rb->ਪੂਛ > rb->ਸਿਰ)
     {
-      iov[iov_count].iov_base = rb->buffer + rb->head;
-      iov[iov_count].iov_len = rb->tail - rb->head;
-      iov_count++;
+      iov[iov_ਗਿਣਤੀ].iov_base = rb->ਬਫਰ + rb->ਸਿਰ;
+      iov[iov_ਗਿਣਤੀ].iov_len = rb->ਪੂਛ - rb->ਸਿਰ;
+      iov_ਗਿਣਤੀ++;
     }
   /* Head after tail.  There are two regions to read from, up to the
    * end of the buffer and from the beginning of the buffer to tail.  */
-  else
+  ਨਹੀਂਤਾਂ
     {
-      iov[iov_count].iov_base = rb->buffer + rb->head;
-      iov[iov_count].iov_len = rb->size - rb->head;
-      iov_count++;
+      iov[iov_ਗਿਣਤੀ].iov_base = rb->ਬਫਰ + rb->ਸਿਰ;
+      iov[iov_ਗਿਣਤੀ].iov_len = rb->ਮਾਪ - rb->ਸਿਰ;
+      iov_ਗਿਣਤੀ++;
 
-      if (rb->tail > 0)
+      ਜੇ (rb->ਪੂਛ > 0)
         {
-          iov[iov_count].iov_base = rb->buffer;
-          iov[iov_count].iov_len = rb->tail;
-          iov_count++;
+          iov[iov_ਗਿਣਤੀ].iov_base = rb->ਬਫਰ;
+          iov[iov_ਗਿਣਤੀ].iov_len = rb->ਪੂਛ;
+          iov_ਗਿਣਤੀ++;
         }
     }
-  return iov_count;
+  ਵਾਪਸ iov_ਗਿਣਤੀ;
 }
 
 /*
  * It returns up to two regions in `iov` that can be written to without overwriting
  * existing data.
  */
-static int
-ring_buffer_get_write_iov (struct ring_buffer *rb, struct iovec *iov)
+ਸਥਿਰ ਪੂਰਨ
+ring_ਬਫਰ_get_write_iov (ਬਣਤਰ ring_ਬਫਰ *rb, ਬਣਤਰ iovec *iov)
 {
-  int iov_count = 0;
+  ਪੂਰਨ iov_ਗਿਣਤੀ = 0;
 
   /* Buffer is full.  */
-  if ((rb->tail + 1) % rb->size == rb->head)
-    return 0;
+  ਜੇ ((rb->ਪੂਛ + 1) % rb->ਮਾਪ == rb->ਸਿਰ)
+    ਵਾਪਸ 0;
 
   /* Tail before head.  There is only one region to write to, up to head.  */
-  if (rb->head > rb->tail + 1)
+  ਜੇ (rb->ਸਿਰ > rb->ਪੂਛ + 1)
     {
-      iov[iov_count].iov_base = rb->buffer + rb->tail;
-      iov[iov_count].iov_len = rb->head - rb->tail - 1;
-      iov_count++;
+      iov[iov_ਗਿਣਤੀ].iov_base = rb->ਬਫਰ + rb->ਪੂਛ;
+      iov[iov_ਗਿਣਤੀ].iov_len = rb->ਸਿਰ - rb->ਪੂਛ - 1;
+      iov_ਗਿਣਤੀ++;
     }
   /* Tail after or equal to head.  There are two regions to write to, up to the
    * end of the buffer and from the beginning of the buffer to head.  */
-  else
+  ਨਹੀਂਤਾਂ
     {
-      iov[iov_count].iov_base = rb->buffer + rb->tail;
-      iov[iov_count].iov_len = rb->head == 0 ? rb->size - rb->tail - 1 : rb->size - rb->tail;
-      iov_count++;
+      iov[iov_ਗਿਣਤੀ].iov_base = rb->ਬਫਰ + rb->ਪੂਛ;
+      iov[iov_ਗਿਣਤੀ].iov_len = rb->ਸਿਰ == 0 ? rb->ਮਾਪ - rb->ਪੂਛ - 1 : rb->ਮਾਪ - rb->ਪੂਛ;
+      iov_ਗਿਣਤੀ++;
 
-      if (rb->head > 1)
+      ਜੇ (rb->ਸਿਰ > 1)
         {
-          iov[iov_count].iov_base = rb->buffer;
-          iov[iov_count].iov_len = rb->head - 1;
-          iov_count++;
+          iov[iov_ਗਿਣਤੀ].iov_base = rb->ਬਫਰ;
+          iov[iov_ਗਿਣਤੀ].iov_len = rb->ਸਿਰ - 1;
+          iov_ਗਿਣਤੀ++;
         }
     }
-  return iov_count;
+  ਵਾਪਸ iov_ਗਿਣਤੀ;
 }
 
 /* manually advance the head after a successful read.  */
-static void
-ring_buffer_advance_nocheck_head (struct ring_buffer *rb, size_t amount)
+ਸਥਿਰ ਖਾਲੀ
+ring_ਬਫਰ_advance_nocheck_ਸਿਰ (ਬਣਤਰ ring_ਬਫਰ *rb, size_t amount)
 {
-  rb->head = (rb->head + amount) % rb->size;
+  rb->ਸਿਰ = (rb->ਸਿਰ + amount) % rb->ਮਾਪ;
 }
 
 /* manually advance the tail after a successful write.  */
-static void
-ring_buffer_advance_nocheck_tail (struct ring_buffer *rb, size_t amount)
+ਸਥਿਰ ਖਾਲੀ
+ring_ਬਫਰ_advance_nocheck_ਪੂਛ (ਬਣਤਰ ring_ਬਫਰ *rb, size_t amount)
 {
-  rb->tail = (rb->tail + amount) % rb->size;
+  rb->ਪੂਛ = (rb->ਪੂਛ + amount) % rb->ਮਾਪ;
 }
 
 size_t
-ring_buffer_get_data_available (struct ring_buffer *rb)
+ring_ਬਫਰ_get_ਅੰਕੜੇ_ਉਪਲਬਧ (ਬਣਤਰ ring_ਬਫਰ *rb)
 {
-  if (rb->head <= rb->tail)
-    return rb->tail - rb->head;
+  ਜੇ (rb->ਸਿਰ <= rb->ਪੂਛ)
+    ਵਾਪਸ rb->ਪੂਛ - rb->ਸਿਰ;
 
-  return rb->size - rb->head + rb->tail;
+  ਵਾਪਸ rb->ਮਾਪ - rb->ਸਿਰ + rb->ਪੂਛ;
 }
 
 size_t
-ring_buffer_get_size (struct ring_buffer *rb)
+ring_ਬਫਰ_get_ਮਾਪ (ਬਣਤਰ ring_ਬਫਰ *rb)
 {
-  return rb->size - 1;
+  ਵਾਪਸ rb->ਮਾਪ - 1;
 }
 
 size_t
-ring_buffer_get_space_available (struct ring_buffer *rb)
+ring_ਬਫਰ_get_space_ਉਪਲਬਧ (ਬਣਤਰ ring_ਬਫਰ *rb)
 {
-  return rb->size - ring_buffer_get_data_available (rb) - 1;
+  ਵਾਪਸ rb->ਮਾਪ - ring_ਬਫਰ_get_ਅੰਕੜੇ_ਉਪਲਬਧ (rb) - 1;
 }
 
-int
-ring_buffer_read (struct ring_buffer *rb, int fd, bool *is_eagain, libcrun_error_t *err)
+ਪੂਰਨ
+ring_ਬਫਰ_read (ਬਣਤਰ ring_ਬਫਰ *rb, ਪੂਰਨ fd, bool *is_eagain, libcrun_error_t *err)
 {
-  struct iovec iov[2];
-  int iov_count = 0;
+  ਬਣਤਰ iovec iov[2];
+  ਪੂਰਨ iov_ਗਿਣਤੀ = 0;
   ssize_t ret;
 
   *is_eagain = false;
 
-  iov_count = ring_buffer_get_write_iov (rb, iov);
-  if (iov_count == 0)
+  iov_ਗਿਣਤੀ = ring_ਬਫਰ_get_write_iov (rb, iov);
+  ਜੇ (iov_ਗਿਣਤੀ == 0)
     {
       *is_eagain = true;
-      return 0;
+      ਵਾਪਸ 0;
     }
 
-  ret = readv (fd, iov, iov_count);
-  if (UNLIKELY (ret < 0))
+  ret = readv (fd, iov, iov_ਗਿਣਤੀ);
+  ਜੇ (UNLIKELY (ret < 0))
     {
       /* A terminal that was hung up fails with EIO.  As with EAGAIN, there
          is nothing to read until the state of the fd changes.  */
-      if (errno == EIO || errno == EAGAIN || errno == EWOULDBLOCK)
+      ਜੇ (errno == EIO || errno == EAGAIN || errno == EWOULDBLOCK)
         {
           *is_eagain = true;
-          return 0;
+          ਵਾਪਸ 0;
         }
-      return crun_make_error (err, errno, "readv");
+      ਵਾਪਸ crun_make_error (err, errno, "readv");
     }
   /* The same holds at EOF.  */
-  if (ret == 0)
+  ਜੇ (ret == 0)
     *is_eagain = true;
-  ring_buffer_advance_nocheck_tail (rb, ret);
-  return ret;
+  ring_ਬਫਰ_advance_nocheck_ਪੂਛ (rb, ret);
+  ਵਾਪਸ ret;
 }
 
-int
-ring_buffer_write (struct ring_buffer *rb, int fd, bool *is_eagain, libcrun_error_t *err)
+ਪੂਰਨ
+ring_ਬਫਰ_write (ਬਣਤਰ ring_ਬਫਰ *rb, ਪੂਰਨ fd, bool *is_eagain, libcrun_error_t *err)
 {
   ssize_t ret;
-  struct iovec iov[2];
-  int iov_count = 0;
+  ਬਣਤਰ iovec iov[2];
+  ਪੂਰਨ iov_ਗਿਣਤੀ = 0;
 
   *is_eagain = false;
 
-  iov_count = ring_buffer_get_read_iov (rb, iov);
-  if (iov_count == 0)
+  iov_ਗਿਣਤੀ = ring_ਬਫਰ_get_read_iov (rb, iov);
+  ਜੇ (iov_ਗਿਣਤੀ == 0)
     {
       *is_eagain = true;
-      return 0;
+      ਵਾਪਸ 0;
     }
 
-  ret = writev (fd, iov, iov_count);
-  if (UNLIKELY (ret < 0))
+  ret = writev (fd, iov, iov_ਗਿਣਤੀ);
+  ਜੇ (UNLIKELY (ret < 0))
     {
       /* A terminal that was hung up fails with EIO.  As with EAGAIN, there
          is nothing to write until the state of the fd changes.  */
-      if (errno == EIO || errno == EAGAIN || errno == EWOULDBLOCK)
+      ਜੇ (errno == EIO || errno == EAGAIN || errno == EWOULDBLOCK)
         {
           *is_eagain = true;
-          return 0;
+          ਵਾਪਸ 0;
         }
-      return crun_make_error (err, errno, "writev");
+      ਵਾਪਸ crun_make_error (err, errno, "writev");
     }
-  ring_buffer_advance_nocheck_head (rb, ret);
+  ring_ਬਫਰ_advance_nocheck_ਸਿਰ (rb, ret);
   /* If the buffer is empty, reset the head and tail.  */
-  if (rb->head == rb->tail)
+  ਜੇ (rb->ਸਿਰ == rb->ਪੂਛ)
     {
-      rb->head = 0;
-      rb->tail = 0;
+      rb->ਸਿਰ = 0;
+      rb->ਪੂਛ = 0;
     }
-  return ret;
+  ਵਾਪਸ ret;
 }
 
-struct ring_buffer *
-ring_buffer_make (size_t size)
+ਬਣਤਰ ring_ਬਫਰ *
+ring_ਬਫਰ_make (size_t ਮਾਪ)
 {
-  struct ring_buffer *rb = xmalloc (sizeof (struct ring_buffer));
+  ਬਣਤਰ ring_ਬਫਰ *rb = xmalloc (ਆਕਾਰ (ਬਣਤਰ ring_ਬਫਰ));
 
   /* The extra byte is used to distinguish between full and empty buffer.  */
-  rb->size = size + 1;
-  rb->buffer = xmalloc (rb->size);
-  rb->head = 0;
-  rb->tail = 0;
+  rb->ਮਾਪ = ਮਾਪ + 1;
+  rb->ਬਫਰ = xmalloc (rb->ਮਾਪ);
+  rb->ਸਿਰ = 0;
+  rb->ਪੂਛ = 0;
 
-  return rb;
+  ਵਾਪਸ rb;
 }
 
-void
-ring_buffer_free (struct ring_buffer *rb)
+ਖਾਲੀ
+ring_ਬਫਰ_free (ਬਣਤਰ ring_ਬਫਰ *rb)
 {
-  if (rb == NULL)
-    return;
-  free (rb->buffer);
-  free (rb);
+  ਜੇ (rb == ਨਿਰਾ)
+    ਵਾਪਸ;
+  ਮੁਕਤ (rb->ਬਫਰ);
+  ਮੁਕਤ (rb);
 }

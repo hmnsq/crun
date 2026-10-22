@@ -16,39 +16,39 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CRIU_H
-#define CRIU_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CRIU_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CRIU_H
 
-#include <config.h>
-#include "container.h"
-#include "error.h"
-#include "utils.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ <config.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ "container.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "error.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "utils.h"
 
-#if HAVE_CRIU && HAVE_DLOPEN
+#ਜੇ HAVE_CRIU && HAVE_DLOPEN
 
-int libcrun_container_checkpoint_linux_criu (libcrun_container_status_t *status, libcrun_container_t *container,
+ਪੂਰਨ libcrun_container_checkpoint_linux_criu (libcrun_container_ਸਥਿਤੀ_t *ਸਥਿਤੀ, libcrun_container_t *container,
                                              libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err);
 
-int libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcrun_container_t *container,
+ਪੂਰਨ libcrun_container_restore_linux_criu (libcrun_container_ਸਥਿਤੀ_t *ਸਥਿਤੀ, libcrun_container_t *container,
                                           libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err);
 
-#else
+#ਨਹੀਂਤਾਂ
 
-static inline int
-libcrun_container_checkpoint_linux_criu (arg_unused libcrun_container_status_t *status,
-                                         arg_unused libcrun_container_t *container,
-                                         arg_unused libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ
+libcrun_container_checkpoint_linux_criu (arg_ਅਣਵਰਤਿਆ libcrun_container_ਸਥਿਤੀ_t *ਸਥਿਤੀ,
+                                         arg_ਅਣਵਰਤਿਆ libcrun_container_t *container,
+                                         arg_ਅਣਵਰਤਿਆ libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
 {
-  return crun_make_error (err, 0, "compiled without CRIU support. Checkpointing not available");
+  ਵਾਪਸ crun_make_error (err, 0, "compiled without CRIU support. Checkpointing not available");
 }
 
-static inline int
-libcrun_container_restore_linux_criu (arg_unused libcrun_container_status_t *status,
-                                      arg_unused libcrun_container_t *container,
-                                      arg_unused libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ
+libcrun_container_restore_linux_criu (arg_ਅਣਵਰਤਿਆ libcrun_container_ਸਥਿਤੀ_t *ਸਥਿਤੀ,
+                                      arg_ਅਣਵਰਤਿਆ libcrun_container_t *container,
+                                      arg_ਅਣਵਰਤਿਆ libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
 {
-  return crun_make_error (err, 0, "compiled without CRIU support. Restore not available");
+  ਵਾਪਸ crun_make_error (err, 0, "compiled without CRIU support. Restore not available");
 }
 
-#endif
-#endif
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅੰਤ

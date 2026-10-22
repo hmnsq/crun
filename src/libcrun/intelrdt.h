@@ -16,20 +16,20 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef INTEL_RDT_H
-#define INTEL_RDT_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ INTEL_RDT_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ INTEL_RDT_H
 
-#include <config.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include "error.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ <config.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdbool.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ "error.h"
 
-int resctl_create (const char *name, bool explicit_clos_id, bool *created, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err);
-int resctl_move_task_to (const char *name, const char *monitoring_name, pid_t pid, libcrun_error_t *err);
-int resctl_update (const char *name, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err);
-int resctl_destroy (const char *name, libcrun_error_t *err);
+ਪੂਰਨ resctl_create (ਅਚਲ ਅੱਖਰ *name, bool explicit_clos_id, bool *created, ਅਚਲ ਅੱਖਰ *l3_cache_schema, ਅਚਲ ਅੱਖਰ *mem_bw_schema, ਅੱਖਰ *ਅਚਲ *schemata, libcrun_error_t *err);
+ਪੂਰਨ resctl_move_task_ਮੰਜ਼ਿਲ (ਅਚਲ ਅੱਖਰ *name, ਅਚਲ ਅੱਖਰ *monitoring_name, pid_t pid, libcrun_error_t *err);
+ਪੂਰਨ resctl_update (ਅਚਲ ਅੱਖਰ *name, ਅਚਲ ਅੱਖਰ *l3_cache_schema, ਅਚਲ ਅੱਖਰ *mem_bw_schema, ਅੱਖਰ *ਅਚਲ *schemata, libcrun_error_t *err);
+ਪੂਰਨ resctl_destroy (ਅਚਲ ਅੱਖਰ *name, libcrun_error_t *err);
 
-int resctl_destroy_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err);
-int resctl_create_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err);
+ਪੂਰਨ resctl_destroy_monitoring_ਸਮੂਹ (ਅਚਲ ਅੱਖਰ *resctrl_ਸਮੂਹ_name, ਅਚਲ ਅੱਖਰ *container_id, libcrun_error_t *err);
+ਪੂਰਨ resctl_create_monitoring_ਸਮੂਹ (ਅਚਲ ਅੱਖਰ *resctrl_ਸਮੂਹ_name, ਅਚਲ ਅੱਖਰ *container_id, libcrun_error_t *err);
 
-#endif
+#ਜੇ_ਅੰਤ

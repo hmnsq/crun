@@ -15,33 +15,33 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CRUN_CLI_H
-#define CRUN_CLI_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CRUN_CLI_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CRUN_CLI_H
 
-#include <stdbool.h>
-#include <libcrun/libcrun.h>
-#include "crun_utils.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdbool.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <libcrun/libcrun.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ "crun_utils.h"
 
-struct crun_global_arguments
+ਬਣਤਰ crun_global_arguments
 {
-  char *root;
-  char *log;
-  char *log_format;
-  const char *handler;
+  ਅੱਖਰ *ਜੜ੍ਹ;
+  ਅੱਖਰ *ਲਘੂਗਣਕ;
+  ਅੱਖਰ *log_format;
+  ਅਚਲ ਅੱਖਰ *handler;
 
-  int argc;
-  int verbosity;
-  char **argv;
+  ਪੂਰਨ argc;
+  ਪੂਰਨ verbosity;
+  ਅੱਖਰ **argv;
 
   bool command;
   bool option_systemd_cgroup;
   bool option_force_no_cgroup;
 };
 
-char *argp_mandatory_argument (char *arg, struct argp_state *state);
-int parse_id_or_fail (const char *str, char **endptr, const char *kind);
-int init_libcrun_context (libcrun_context_t *con, const char *id, struct crun_global_arguments *glob,
+ਅੱਖਰ *argp_mandatory_ਦਲੀਲ (ਅੱਖਰ *arg, ਬਣਤਰ argp_state *state);
+ਪੂਰਨ parse_id_or_fail (ਅਚਲ ਅੱਖਰ *str, ਅੱਖਰ **endptr, ਅਚਲ ਅੱਖਰ *ਕਿਸਮ);
+ਪੂਰਨ init_libcrun_context (libcrun_context_t *con, ਅਚਲ ਅੱਖਰ *id, ਬਣਤਰ crun_global_arguments *glob,
                           libcrun_error_t *err);
-libcrun_context_t *new_libcrun_context (struct crun_global_arguments *glob);
-void crun_assert_n_args (int n, int min, int max);
-#endif
+libcrun_context_t *new_libcrun_context (ਬਣਤਰ crun_global_arguments *glob);
+ਖਾਲੀ crun_assert_n_ਦਲੀਲਾਂ (ਪੂਰਨ n, ਪੂਰਨ min, ਪੂਰਨ max);
+#ਜੇ_ਅੰਤ

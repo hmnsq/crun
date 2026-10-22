@@ -2,7 +2,7 @@
 /* Command-line: gperf --lookup-function-name libcrun_signal_in_word_set -m 100 --null-strings --pic -tCEG -S1 src/libcrun/signals.perf  */
 /* Computed positions: -k'2,4,$' */
 
-#if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
+#ਜੇ !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
       && ('%' == 37) && ('&' == 38) && ('\'' == 39) && ('(' == 40) \
       && (')' == 41) && ('*' == 42) && ('+' == 43) && (',' == 44) \
       && ('-' == 45) && ('.' == 46) && ('/' == 47) && ('0' == 48) \
@@ -26,45 +26,45 @@
       && ('w' == 119) && ('x' == 120) && ('y' == 121) && ('z' == 122) \
       && ('{' == 123) && ('|' == 124) && ('}' == 125) && ('~' == 126))
 /* The character set is not based on ISO-646.  */
-#error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gperf@gnu.org>."
-#endif
+#ਗਲਤੀ "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gperf@gnu.org>."
+#ਜੇ_ਅੰਤ
 
-#line 19 "src/libcrun/signals.perf"
+#ਸਤਰ 19 "src/libcrun/signals.perf"
 
-#define _GNU_SOURCE
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ GNU_ਸਰੋਤ
 
-#include <config.h>
-#include <stddef.h>
-#include <stdlib.h>
-#include "utils.h"
-#line 27 "src/libcrun/signals.perf"
-struct signal_s
+#ਅਨ੍ਤਰ੍ਭਾਵ <config.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stddef.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdlib.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ "utils.h"
+#ਸਤਰ 27 "src/libcrun/signals.perf"
+ਬਣਤਰ signal_s
 {
-  int name;
-  int value;
+  ਪੂਰਨ name;
+  ਪੂਰਨ ਮੁੱਲ;
 };
-enum
+ਗਿਣਤੀ
   {
-    TOTAL_KEYWORDS = 62,
-    MIN_WORD_LENGTH = 2,
-    MAX_WORD_LENGTH = 8,
-    MIN_HASH_VALUE = 13,
-    MAX_HASH_VALUE = 86
+    ਕੁੱਲ_KEYWORDS = 62,
+    MIN_ਸ਼ਬਦ_ਲੰਮਾਈ = 2,
+    MAX_ਸ਼ਬਦ_ਲੰਮਾਈ = 8,
+    MIN_HASH_ਮੁੱਲ = 13,
+    MAX_HASH_ਮੁੱਲ = 86
   };
 
 /* maximum key range = 74, duplicates = 0 */
 
-#ifdef __GNUC__
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ __GNUC__
 __inline
-#else
-#ifdef __cplusplus
-inline
-#endif
-#endif
-static unsigned int
-hash (register const char *str, register size_t len)
+#ਨਹੀਂਤਾਂ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ __cplusplus
+ਸਤਰਅੰਦਰ
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅੰਤ
+ਸਥਿਰ ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ
+hash (ਰਜਿਸਟਰ ਅਚਲ ਅੱਖਰ *str, ਰਜਿਸਟਰ size_t len)
 {
-  static const unsigned char asso_values[] =
+  ਸਥਿਰ ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ asso_ਮੁੱਲਾਂ[] =
     {
       87, 87, 87, 87, 87, 87, 87, 87, 87, 87,
       87, 87, 87, 87, 87, 87, 87, 87, 87, 87,
@@ -93,87 +93,87 @@ hash (register const char *str, register size_t len)
       87, 87, 87, 87, 87, 87, 87, 87, 87, 87,
       87, 87, 87, 87, 87, 87
     };
-  register unsigned int hval = len;
+  ਰਜਿਸਟਰ ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ hval = len;
 
-  switch (hval)
+  ਚੋਣ (hval)
     {
-      default:
-        hval += asso_values[(unsigned char)str[3]];
+      ਮੂਲ:
+        hval += asso_ਮੁੱਲਾਂ[(ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)str[3]];
       /*FALLTHROUGH*/
-      case 3:
-      case 2:
-        hval += asso_values[(unsigned char)str[1]];
-        break;
+      ਹਾਲਤ 3:
+      ਹਾਲਤ 2:
+        hval += asso_ਮੁੱਲਾਂ[(ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)str[1]];
+        ਰੋਕੋ;
     }
-  return hval + asso_values[(unsigned char)str[len - 1]];
+  ਵਾਪਸ hval + asso_ਮੁੱਲਾਂ[(ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)str[len - 1]];
 }
 
-struct stringpool_t
+ਬਣਤਰ stringpool_t
   {
-    char stringpool_str0[sizeof("ILL")];
-    char stringpool_str1[sizeof("HUP")];
-    char stringpool_str2[sizeof("KILL")];
-    char stringpool_str3[sizeof("TTOU")];
-    char stringpool_str4[sizeof("QUIT")];
-    char stringpool_str5[sizeof("STOP")];
-    char stringpool_str6[sizeof("RTMIN+2")];
-    char stringpool_str7[sizeof("RTMIN+12")];
-    char stringpool_str8[sizeof("RTMAX-2")];
-    char stringpool_str9[sizeof("RTMAX-12")];
-    char stringpool_str10[sizeof("RTMIN+1")];
-    char stringpool_str11[sizeof("RTMIN+11")];
-    char stringpool_str12[sizeof("RTMAX-1")];
-    char stringpool_str13[sizeof("RTMAX-11")];
-    char stringpool_str14[sizeof("RTMIN+4")];
-    char stringpool_str15[sizeof("RTMIN+14")];
-    char stringpool_str16[sizeof("RTMAX-4")];
-    char stringpool_str17[sizeof("RTMAX-14")];
-    char stringpool_str18[sizeof("RTMIN+3")];
-    char stringpool_str19[sizeof("RTMIN+13")];
-    char stringpool_str20[sizeof("RTMAX-3")];
-    char stringpool_str21[sizeof("RTMAX-13")];
-    char stringpool_str22[sizeof("BUS")];
-    char stringpool_str23[sizeof("VTALRM")];
-    char stringpool_str24[sizeof("INT")];
-    char stringpool_str25[sizeof("FPE")];
-    char stringpool_str26[sizeof("CONT")];
-    char stringpool_str27[sizeof("STKFLT")];
-    char stringpool_str28[sizeof("USR2")];
-    char stringpool_str29[sizeof("TRAP")];
-    char stringpool_str30[sizeof("TSTP")];
-    char stringpool_str31[sizeof("RTMIN")];
-    char stringpool_str32[sizeof("RTMIN+5")];
-    char stringpool_str33[sizeof("RTMIN+15")];
-    char stringpool_str34[sizeof("RTMAX-5")];
-    char stringpool_str35[sizeof("RTMIN+9")];
-    char stringpool_str36[sizeof("USR1")];
-    char stringpool_str37[sizeof("RTMAX-9")];
-    char stringpool_str38[sizeof("ALRM")];
-    char stringpool_str39[sizeof("IO")];
-    char stringpool_str40[sizeof("RTMIN+8")];
-    char stringpool_str41[sizeof("RTMIN+7")];
-    char stringpool_str42[sizeof("RTMAX-8")];
-    char stringpool_str43[sizeof("RTMAX-7")];
-    char stringpool_str44[sizeof("RTMIN+6")];
-    char stringpool_str45[sizeof("RTMIN+10")];
-    char stringpool_str46[sizeof("RTMAX-6")];
-    char stringpool_str47[sizeof("RTMAX-10")];
-    char stringpool_str48[sizeof("SYS")];
-    char stringpool_str49[sizeof("XFSZ")];
-    char stringpool_str50[sizeof("RTMAX")];
-    char stringpool_str51[sizeof("PWR")];
-    char stringpool_str52[sizeof("SEGV")];
-    char stringpool_str53[sizeof("XCPU")];
-    char stringpool_str54[sizeof("WINCH")];
-    char stringpool_str55[sizeof("URG")];
-    char stringpool_str56[sizeof("CHLD")];
-    char stringpool_str57[sizeof("TTIN")];
-    char stringpool_str58[sizeof("PIPE")];
-    char stringpool_str59[sizeof("ABRT")];
-    char stringpool_str60[sizeof("TERM")];
-    char stringpool_str61[sizeof("PROF")];
+    ਅੱਖਰ stringpool_str0[ਆਕਾਰ("ILL")];
+    ਅੱਖਰ stringpool_str1[ਆਕਾਰ("HUP")];
+    ਅੱਖਰ stringpool_str2[ਆਕਾਰ("KILL")];
+    ਅੱਖਰ stringpool_str3[ਆਕਾਰ("TTOU")];
+    ਅੱਖਰ stringpool_str4[ਆਕਾਰ("QUIT")];
+    ਅੱਖਰ stringpool_str5[ਆਕਾਰ("STOP")];
+    ਅੱਖਰ stringpool_str6[ਆਕਾਰ("RTMIN+2")];
+    ਅੱਖਰ stringpool_str7[ਆਕਾਰ("RTMIN+12")];
+    ਅੱਖਰ stringpool_str8[ਆਕਾਰ("RTMAX-2")];
+    ਅੱਖਰ stringpool_str9[ਆਕਾਰ("RTMAX-12")];
+    ਅੱਖਰ stringpool_str10[ਆਕਾਰ("RTMIN+1")];
+    ਅੱਖਰ stringpool_str11[ਆਕਾਰ("RTMIN+11")];
+    ਅੱਖਰ stringpool_str12[ਆਕਾਰ("RTMAX-1")];
+    ਅੱਖਰ stringpool_str13[ਆਕਾਰ("RTMAX-11")];
+    ਅੱਖਰ stringpool_str14[ਆਕਾਰ("RTMIN+4")];
+    ਅੱਖਰ stringpool_str15[ਆਕਾਰ("RTMIN+14")];
+    ਅੱਖਰ stringpool_str16[ਆਕਾਰ("RTMAX-4")];
+    ਅੱਖਰ stringpool_str17[ਆਕਾਰ("RTMAX-14")];
+    ਅੱਖਰ stringpool_str18[ਆਕਾਰ("RTMIN+3")];
+    ਅੱਖਰ stringpool_str19[ਆਕਾਰ("RTMIN+13")];
+    ਅੱਖਰ stringpool_str20[ਆਕਾਰ("RTMAX-3")];
+    ਅੱਖਰ stringpool_str21[ਆਕਾਰ("RTMAX-13")];
+    ਅੱਖਰ stringpool_str22[ਆਕਾਰ("BUS")];
+    ਅੱਖਰ stringpool_str23[ਆਕਾਰ("VTALRM")];
+    ਅੱਖਰ stringpool_str24[ਆਕਾਰ("INT")];
+    ਅੱਖਰ stringpool_str25[ਆਕਾਰ("FPE")];
+    ਅੱਖਰ stringpool_str26[ਆਕਾਰ("CONT")];
+    ਅੱਖਰ stringpool_str27[ਆਕਾਰ("STKFLT")];
+    ਅੱਖਰ stringpool_str28[ਆਕਾਰ("USR2")];
+    ਅੱਖਰ stringpool_str29[ਆਕਾਰ("TRAP")];
+    ਅੱਖਰ stringpool_str30[ਆਕਾਰ("TSTP")];
+    ਅੱਖਰ stringpool_str31[ਆਕਾਰ("RTMIN")];
+    ਅੱਖਰ stringpool_str32[ਆਕਾਰ("RTMIN+5")];
+    ਅੱਖਰ stringpool_str33[ਆਕਾਰ("RTMIN+15")];
+    ਅੱਖਰ stringpool_str34[ਆਕਾਰ("RTMAX-5")];
+    ਅੱਖਰ stringpool_str35[ਆਕਾਰ("RTMIN+9")];
+    ਅੱਖਰ stringpool_str36[ਆਕਾਰ("USR1")];
+    ਅੱਖਰ stringpool_str37[ਆਕਾਰ("RTMAX-9")];
+    ਅੱਖਰ stringpool_str38[ਆਕਾਰ("ALRM")];
+    ਅੱਖਰ stringpool_str39[ਆਕਾਰ("IO")];
+    ਅੱਖਰ stringpool_str40[ਆਕਾਰ("RTMIN+8")];
+    ਅੱਖਰ stringpool_str41[ਆਕਾਰ("RTMIN+7")];
+    ਅੱਖਰ stringpool_str42[ਆਕਾਰ("RTMAX-8")];
+    ਅੱਖਰ stringpool_str43[ਆਕਾਰ("RTMAX-7")];
+    ਅੱਖਰ stringpool_str44[ਆਕਾਰ("RTMIN+6")];
+    ਅੱਖਰ stringpool_str45[ਆਕਾਰ("RTMIN+10")];
+    ਅੱਖਰ stringpool_str46[ਆਕਾਰ("RTMAX-6")];
+    ਅੱਖਰ stringpool_str47[ਆਕਾਰ("RTMAX-10")];
+    ਅੱਖਰ stringpool_str48[ਆਕਾਰ("SYS")];
+    ਅੱਖਰ stringpool_str49[ਆਕਾਰ("XFSZ")];
+    ਅੱਖਰ stringpool_str50[ਆਕਾਰ("RTMAX")];
+    ਅੱਖਰ stringpool_str51[ਆਕਾਰ("PWR")];
+    ਅੱਖਰ stringpool_str52[ਆਕਾਰ("SEGV")];
+    ਅੱਖਰ stringpool_str53[ਆਕਾਰ("XCPU")];
+    ਅੱਖਰ stringpool_str54[ਆਕਾਰ("WINCH")];
+    ਅੱਖਰ stringpool_str55[ਆਕਾਰ("URG")];
+    ਅੱਖਰ stringpool_str56[ਆਕਾਰ("CHLD")];
+    ਅੱਖਰ stringpool_str57[ਆਕਾਰ("TTIN")];
+    ਅੱਖਰ stringpool_str58[ਆਕਾਰ("PIPE")];
+    ਅੱਖਰ stringpool_str59[ਆਕਾਰ("ABRT")];
+    ਅੱਖਰ stringpool_str60[ਆਕਾਰ("TERM")];
+    ਅੱਖਰ stringpool_str61[ਆਕਾਰ("PROF")];
   };
-static const struct stringpool_t stringpool_contents =
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ stringpool_t stringpool_contents =
   {
     "ILL",
     "HUP",
@@ -238,376 +238,376 @@ static const struct stringpool_t stringpool_contents =
     "TERM",
     "PROF"
   };
-#define stringpool ((const char *) &stringpool_contents)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ stringpool ((ਅਚਲ ਅੱਖਰ *) &stringpool_contents)
 
-static const struct signal_s wordlist[] =
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ signal_s wordlist[] =
   {
-#line 36 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str0, 4},
-#line 33 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str1, 1},
-#line 41 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str2, 9},
-#line 54 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str3, 22},
-#line 35 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str4, 3},
-#line 51 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str5, 19},
-#line 66 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str6, 36},
-#line 76 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str7, 46},
-#line 92 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str8, 62},
-#line 82 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str9, 52},
-#line 65 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str10, 35},
-#line 75 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str11, 45},
-#line 93 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str12, 63},
-#line 83 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str13, 53},
-#line 68 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str14, 38},
-#line 78 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str15, 48},
-#line 90 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str16, 60},
-#line 80 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str17, 50},
-#line 67 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str18, 37},
-#line 77 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str19, 47},
-#line 91 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str20, 61},
-#line 81 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str21, 51},
-#line 39 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str22, 7},
-#line 58 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str23, 26},
-#line 34 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str24, 2},
-#line 40 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str25, 8},
-#line 50 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str26, 18},
-#line 48 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str27, 16},
-#line 44 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str28, 12},
-#line 37 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str29, 5},
-#line 52 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str30, 20},
-#line 64 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str31, 34},
-#line 69 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str32, 39},
-#line 79 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str33, 49},
-#line 89 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str34, 59},
-#line 73 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str35, 43},
-#line 42 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str36, 10},
-#line 85 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str37, 55},
-#line 46 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str38, 14},
-#line 61 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str39, 29},
-#line 72 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str40, 42},
-#line 71 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str41, 41},
-#line 86 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str42, 56},
-#line 87 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str43, 57},
-#line 70 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str44, 40},
-#line 74 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str45, 44},
-#line 88 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str46, 58},
-#line 84 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str47, 54},
-#line 63 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str48, 31},
-#line 57 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str49, 25},
-#line 94 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str50, 64},
-#line 62 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str51, 30},
-#line 43 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str52, 11},
-#line 56 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str53, 24},
-#line 60 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str54, 28},
-#line 55 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str55, 23},
-#line 49 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str56, 17},
-#line 53 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str57, 21},
-#line 45 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str58, 13},
-#line 38 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str59, 6},
-#line 47 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str60, 15},
-#line 59 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str61, 27}
+#ਸਤਰ 36 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str0, 4},
+#ਸਤਰ 33 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str1, 1},
+#ਸਤਰ 41 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str2, 9},
+#ਸਤਰ 54 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str3, 22},
+#ਸਤਰ 35 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str4, 3},
+#ਸਤਰ 51 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str5, 19},
+#ਸਤਰ 66 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str6, 36},
+#ਸਤਰ 76 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str7, 46},
+#ਸਤਰ 92 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str8, 62},
+#ਸਤਰ 82 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str9, 52},
+#ਸਤਰ 65 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str10, 35},
+#ਸਤਰ 75 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str11, 45},
+#ਸਤਰ 93 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str12, 63},
+#ਸਤਰ 83 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str13, 53},
+#ਸਤਰ 68 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str14, 38},
+#ਸਤਰ 78 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str15, 48},
+#ਸਤਰ 90 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str16, 60},
+#ਸਤਰ 80 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str17, 50},
+#ਸਤਰ 67 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str18, 37},
+#ਸਤਰ 77 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str19, 47},
+#ਸਤਰ 91 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str20, 61},
+#ਸਤਰ 81 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str21, 51},
+#ਸਤਰ 39 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str22, 7},
+#ਸਤਰ 58 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str23, 26},
+#ਸਤਰ 34 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str24, 2},
+#ਸਤਰ 40 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str25, 8},
+#ਸਤਰ 50 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str26, 18},
+#ਸਤਰ 48 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str27, 16},
+#ਸਤਰ 44 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str28, 12},
+#ਸਤਰ 37 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str29, 5},
+#ਸਤਰ 52 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str30, 20},
+#ਸਤਰ 64 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str31, 34},
+#ਸਤਰ 69 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str32, 39},
+#ਸਤਰ 79 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str33, 49},
+#ਸਤਰ 89 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str34, 59},
+#ਸਤਰ 73 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str35, 43},
+#ਸਤਰ 42 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str36, 10},
+#ਸਤਰ 85 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str37, 55},
+#ਸਤਰ 46 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str38, 14},
+#ਸਤਰ 61 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str39, 29},
+#ਸਤਰ 72 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str40, 42},
+#ਸਤਰ 71 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str41, 41},
+#ਸਤਰ 86 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str42, 56},
+#ਸਤਰ 87 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str43, 57},
+#ਸਤਰ 70 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str44, 40},
+#ਸਤਰ 74 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str45, 44},
+#ਸਤਰ 88 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str46, 58},
+#ਸਤਰ 84 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str47, 54},
+#ਸਤਰ 63 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str48, 31},
+#ਸਤਰ 57 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str49, 25},
+#ਸਤਰ 94 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str50, 64},
+#ਸਤਰ 62 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str51, 30},
+#ਸਤਰ 43 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str52, 11},
+#ਸਤਰ 56 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str53, 24},
+#ਸਤਰ 60 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str54, 28},
+#ਸਤਰ 55 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str55, 23},
+#ਸਤਰ 49 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str56, 17},
+#ਸਤਰ 53 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str57, 21},
+#ਸਤਰ 45 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str58, 13},
+#ਸਤਰ 38 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str59, 6},
+#ਸਤਰ 47 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str60, 15},
+#ਸਤਰ 59 "src/libcrun/signals.perf"
+    {(ਪੂਰਨ)(size_t)&((ਬਣਤਰ stringpool_t *)0)->stringpool_str61, 27}
   };
 
-const struct signal_s *
-libcrun_signal_in_word_set (register const char *str, register size_t len)
+ਅਚਲ ਬਣਤਰ signal_s *
+libcrun_signal_ਵਿੱਚ_ਸ਼ਬਦ_ਸੈੱਟ (ਰਜਿਸਟਰ ਅਚਲ ਅੱਖਰ *str, ਰਜਿਸਟਰ size_t len)
 {
-  if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
+  ਜੇ (len <= MAX_ਸ਼ਬਦ_ਲੰਮਾਈ && len >= MIN_ਸ਼ਬਦ_ਲੰਮਾਈ)
     {
-      register unsigned int key = hash (str, len);
+      ਰਜਿਸਟਰ ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ ਕੁੰਜੀ = hash (str, len);
 
-      if (key <= MAX_HASH_VALUE && key >= MIN_HASH_VALUE)
+      ਜੇ (ਕੁੰਜੀ <= MAX_HASH_ਮੁੱਲ && ਕੁੰਜੀ >= MIN_HASH_ਮੁੱਲ)
         {
-          register const struct signal_s *resword;
+          ਰਜਿਸਟਰ ਅਚਲ ਬਣਤਰ signal_s *resword;
 
-          switch (key - 13)
+          ਚੋਣ (ਕੁੰਜੀ - 13)
             {
-              case 0:
+              ਹਾਲਤ 0:
                 resword = &wordlist[0];
-                goto compare;
-              case 1:
+                ਜਾਓ compare;
+              ਹਾਲਤ 1:
                 resword = &wordlist[1];
-                goto compare;
-              case 6:
+                ਜਾਓ compare;
+              ਹਾਲਤ 6:
                 resword = &wordlist[2];
-                goto compare;
-              case 7:
+                ਜਾਓ compare;
+              ਹਾਲਤ 7:
                 resword = &wordlist[3];
-                goto compare;
-              case 8:
+                ਜਾਓ compare;
+              ਹਾਲਤ 8:
                 resword = &wordlist[4];
-                goto compare;
-              case 9:
+                ਜਾਓ compare;
+              ਹਾਲਤ 9:
                 resword = &wordlist[5];
-                goto compare;
-              case 10:
+                ਜਾਓ compare;
+              ਹਾਲਤ 10:
                 resword = &wordlist[6];
-                goto compare;
-              case 11:
+                ਜਾਓ compare;
+              ਹਾਲਤ 11:
                 resword = &wordlist[7];
-                goto compare;
-              case 12:
+                ਜਾਓ compare;
+              ਹਾਲਤ 12:
                 resword = &wordlist[8];
-                goto compare;
-              case 13:
+                ਜਾਓ compare;
+              ਹਾਲਤ 13:
                 resword = &wordlist[9];
-                goto compare;
-              case 14:
+                ਜਾਓ compare;
+              ਹਾਲਤ 14:
                 resword = &wordlist[10];
-                goto compare;
-              case 15:
+                ਜਾਓ compare;
+              ਹਾਲਤ 15:
                 resword = &wordlist[11];
-                goto compare;
-              case 16:
+                ਜਾਓ compare;
+              ਹਾਲਤ 16:
                 resword = &wordlist[12];
-                goto compare;
-              case 17:
+                ਜਾਓ compare;
+              ਹਾਲਤ 17:
                 resword = &wordlist[13];
-                goto compare;
-              case 18:
+                ਜਾਓ compare;
+              ਹਾਲਤ 18:
                 resword = &wordlist[14];
-                goto compare;
-              case 19:
+                ਜਾਓ compare;
+              ਹਾਲਤ 19:
                 resword = &wordlist[15];
-                goto compare;
-              case 20:
+                ਜਾਓ compare;
+              ਹਾਲਤ 20:
                 resword = &wordlist[16];
-                goto compare;
-              case 21:
+                ਜਾਓ compare;
+              ਹਾਲਤ 21:
                 resword = &wordlist[17];
-                goto compare;
-              case 22:
+                ਜਾਓ compare;
+              ਹਾਲਤ 22:
                 resword = &wordlist[18];
-                goto compare;
-              case 23:
+                ਜਾਓ compare;
+              ਹਾਲਤ 23:
                 resword = &wordlist[19];
-                goto compare;
-              case 24:
+                ਜਾਓ compare;
+              ਹਾਲਤ 24:
                 resword = &wordlist[20];
-                goto compare;
-              case 25:
+                ਜਾਓ compare;
+              ਹਾਲਤ 25:
                 resword = &wordlist[21];
-                goto compare;
-              case 26:
+                ਜਾਓ compare;
+              ਹਾਲਤ 26:
                 resword = &wordlist[22];
-                goto compare;
-              case 27:
+                ਜਾਓ compare;
+              ਹਾਲਤ 27:
                 resword = &wordlist[23];
-                goto compare;
-              case 28:
+                ਜਾਓ compare;
+              ਹਾਲਤ 28:
                 resword = &wordlist[24];
-                goto compare;
-              case 29:
+                ਜਾਓ compare;
+              ਹਾਲਤ 29:
                 resword = &wordlist[25];
-                goto compare;
-              case 30:
+                ਜਾਓ compare;
+              ਹਾਲਤ 30:
                 resword = &wordlist[26];
-                goto compare;
-              case 31:
+                ਜਾਓ compare;
+              ਹਾਲਤ 31:
                 resword = &wordlist[27];
-                goto compare;
-              case 32:
+                ਜਾਓ compare;
+              ਹਾਲਤ 32:
                 resword = &wordlist[28];
-                goto compare;
-              case 33:
+                ਜਾਓ compare;
+              ਹਾਲਤ 33:
                 resword = &wordlist[29];
-                goto compare;
-              case 34:
+                ਜਾਓ compare;
+              ਹਾਲਤ 34:
                 resword = &wordlist[30];
-                goto compare;
-              case 35:
+                ਜਾਓ compare;
+              ਹਾਲਤ 35:
                 resword = &wordlist[31];
-                goto compare;
-              case 36:
+                ਜਾਓ compare;
+              ਹਾਲਤ 36:
                 resword = &wordlist[32];
-                goto compare;
-              case 37:
+                ਜਾਓ compare;
+              ਹਾਲਤ 37:
                 resword = &wordlist[33];
-                goto compare;
-              case 38:
+                ਜਾਓ compare;
+              ਹਾਲਤ 38:
                 resword = &wordlist[34];
-                goto compare;
-              case 39:
+                ਜਾਓ compare;
+              ਹਾਲਤ 39:
                 resword = &wordlist[35];
-                goto compare;
-              case 40:
+                ਜਾਓ compare;
+              ਹਾਲਤ 40:
                 resword = &wordlist[36];
-                goto compare;
-              case 41:
+                ਜਾਓ compare;
+              ਹਾਲਤ 41:
                 resword = &wordlist[37];
-                goto compare;
-              case 42:
+                ਜਾਓ compare;
+              ਹਾਲਤ 42:
                 resword = &wordlist[38];
-                goto compare;
-              case 43:
+                ਜਾਓ compare;
+              ਹਾਲਤ 43:
                 resword = &wordlist[39];
-                goto compare;
-              case 44:
+                ਜਾਓ compare;
+              ਹਾਲਤ 44:
                 resword = &wordlist[40];
-                goto compare;
-              case 45:
+                ਜਾਓ compare;
+              ਹਾਲਤ 45:
                 resword = &wordlist[41];
-                goto compare;
-              case 46:
+                ਜਾਓ compare;
+              ਹਾਲਤ 46:
                 resword = &wordlist[42];
-                goto compare;
-              case 47:
+                ਜਾਓ compare;
+              ਹਾਲਤ 47:
                 resword = &wordlist[43];
-                goto compare;
-              case 48:
+                ਜਾਓ compare;
+              ਹਾਲਤ 48:
                 resword = &wordlist[44];
-                goto compare;
-              case 49:
+                ਜਾਓ compare;
+              ਹਾਲਤ 49:
                 resword = &wordlist[45];
-                goto compare;
-              case 50:
+                ਜਾਓ compare;
+              ਹਾਲਤ 50:
                 resword = &wordlist[46];
-                goto compare;
-              case 51:
+                ਜਾਓ compare;
+              ਹਾਲਤ 51:
                 resword = &wordlist[47];
-                goto compare;
-              case 52:
+                ਜਾਓ compare;
+              ਹਾਲਤ 52:
                 resword = &wordlist[48];
-                goto compare;
-              case 53:
+                ਜਾਓ compare;
+              ਹਾਲਤ 53:
                 resword = &wordlist[49];
-                goto compare;
-              case 54:
+                ਜਾਓ compare;
+              ਹਾਲਤ 54:
                 resword = &wordlist[50];
-                goto compare;
-              case 55:
+                ਜਾਓ compare;
+              ਹਾਲਤ 55:
                 resword = &wordlist[51];
-                goto compare;
-              case 56:
+                ਜਾਓ compare;
+              ਹਾਲਤ 56:
                 resword = &wordlist[52];
-                goto compare;
-              case 57:
+                ਜਾਓ compare;
+              ਹਾਲਤ 57:
                 resword = &wordlist[53];
-                goto compare;
-              case 58:
+                ਜਾਓ compare;
+              ਹਾਲਤ 58:
                 resword = &wordlist[54];
-                goto compare;
-              case 59:
+                ਜਾਓ compare;
+              ਹਾਲਤ 59:
                 resword = &wordlist[55];
-                goto compare;
-              case 60:
+                ਜਾਓ compare;
+              ਹਾਲਤ 60:
                 resword = &wordlist[56];
-                goto compare;
-              case 61:
+                ਜਾਓ compare;
+              ਹਾਲਤ 61:
                 resword = &wordlist[57];
-                goto compare;
-              case 62:
+                ਜਾਓ compare;
+              ਹਾਲਤ 62:
                 resword = &wordlist[58];
-                goto compare;
-              case 63:
+                ਜਾਓ compare;
+              ਹਾਲਤ 63:
                 resword = &wordlist[59];
-                goto compare;
-              case 70:
+                ਜਾਓ compare;
+              ਹਾਲਤ 70:
                 resword = &wordlist[60];
-                goto compare;
-              case 73:
+                ਜਾਓ compare;
+              ਹਾਲਤ 73:
                 resword = &wordlist[61];
-                goto compare;
+                ਜਾਓ compare;
             }
-          return 0;
+          ਵਾਪਸ 0;
         compare:
           {
-            register const char *s = resword->name + stringpool;
+            ਰਜਿਸਟਰ ਅਚਲ ਅੱਖਰ *s = resword->name + stringpool;
 
-            if (*str == *s && !strcmp (str + 1, s + 1))
-              return resword;
+            ਜੇ (*str == *s && !strcmp (str + 1, s + 1))
+              ਵਾਪਸ resword;
           }
         }
     }
-  return 0;
+  ਵਾਪਸ 0;
 }
-#line 95 "src/libcrun/signals.perf"
+#ਸਤਰ 95 "src/libcrun/signals.perf"
 
-int
-str2sig (const char *name)
+ਪੂਰਨ
+str2sig (ਅਚਲ ਅੱਖਰ *name)
 {
-  const struct signal_s *s;
+  ਅਚਲ ਬਣਤਰ signal_s *s;
 
-  if (has_prefix (name, "SIG"))
+  ਜੇ (has_ਅਗੇਤਰ (name, "SIG"))
     name += 3;
 
-  s = libcrun_signal_in_word_set (name, strlen (name));
-  if (s == NULL)
+  s = libcrun_signal_ਵਿੱਚ_ਸ਼ਬਦ_ਸੈੱਟ (name, ਲੜੀ_ਲੰਬਾਈ (name));
+  ਜੇ (s == ਨਿਰਾ)
     {
-      long int value;
+      ਲੰਮਾ ਪੂਰਨ ਮੁੱਲ;
 
-      if (!isdigit(name[0]))
+      ਜੇ (!ਅੰਕ_ਹੈ(name[0]))
         {
           errno = EINVAL;
-          return -1;
+          ਵਾਪਸ -1;
         }
 
       errno = 0;
-      value = strtol (name, NULL, 10);
-      if (errno != 0)
-        return -1;
+      ਮੁੱਲ = strtol (name, ਨਿਰਾ, 10);
+      ਜੇ (errno != 0)
+        ਵਾਪਸ -1;
 
-      return value;
+      ਵਾਪਸ ਮੁੱਲ;
     }
 
-  return s->value;
+  ਵਾਪਸ s->ਮੁੱਲ;
 }
