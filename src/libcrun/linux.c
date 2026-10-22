@@ -18,65 +18,65 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "linux.h"
-#include "utils.h"
-#include "status.h"
-#include <string.h>
-#include <sched.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/mount.h>
+#ଅନ୍ତର୍ଭାଵ <config.h>
+#ଅନ୍ତର୍ଭାଵ "linux.h"
+#ଅନ୍ତର୍ଭାଵ "utils.h"
+#ଅନ୍ତର୍ଭାଵ "status.h"
+#ଅନ୍ତର୍ଭାଵ <string.h>
+#ଅନ୍ତର୍ଭାଵ <sched.h>
+#ଅନ୍ତର୍ଭାଵ <fcntl.h>
+#ଅନ୍ତର୍ଭାଵ <unistd.h>
+#ଅନ୍ତର୍ଭାଵ <sys/mount.h>
 #ifdef HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H
 #  include <linux/mount.h>
 #endif
-#if defined HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H || defined HAVE_FSCONFIG_CMD_CREATE_SYS_MOUNT_H
+#ଯଦି defined HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H || defined HAVE_FSCONFIG_CMD_CREATE_SYS_MOUNT_H
 #  define HAVE_NEW_MOUNT_API
 #endif
 
-#include <sys/prctl.h>
+#ଅନ୍ତର୍ଭାଵ <sys/prctl.h>
 #ifdef HAVE_CAP
 #  include <sys/capability.h>
 #endif
-#include <sys/time.h>
-#include <sys/resource.h>
-#include <sys/sysmacros.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <grp.h>
-#include <signal.h>
-#include "terminal.h"
-#include "cgroup.h"
-#include "cgroup-utils.h"
-#include "status.h"
-#include "criu.h"
-#include "scheduler.h"
-#include "intelrdt.h"
-#include "io_priority.h"
-#include "net_device.h"
+#ଅନ୍ତର୍ଭାଵ <sys/time.h>
+#ଅନ୍ତର୍ଭାଵ <sys/resource.h>
+#ଅନ୍ତର୍ଭାଵ <sys/sysmacros.h>
+#ଅନ୍ତର୍ଭାଵ <sys/types.h>
+#ଅନ୍ତର୍ଭାଵ <sys/stat.h>
+#ଅନ୍ତର୍ଭାଵ <grp.h>
+#ଅନ୍ତର୍ଭାଵ <signal.h>
+#ଅନ୍ତର୍ଭାଵ "terminal.h"
+#ଅନ୍ତର୍ଭାଵ "cgroup.h"
+#ଅନ୍ତର୍ଭାଵ "cgroup-utils.h"
+#ଅନ୍ତର୍ଭାଵ "status.h"
+#ଅନ୍ତର୍ଭାଵ "criu.h"
+#ଅନ୍ତର୍ଭାଵ "scheduler.h"
+#ଅନ୍ତର୍ଭାଵ "intelrdt.h"
+#ଅନ୍ତର୍ଭାଵ "io_priority.h"
+#ଅନ୍ତର୍ଭାଵ "net_device.h"
 
-#include <sys/socket.h>
-#include <libgen.h>
-#include <sys/wait.h>
-#include <sys/vfs.h>
-#include <sys/statvfs.h>
-#include <limits.h>
-#include <inttypes.h>
-#include <sys/personality.h>
-#include <net/if.h>
-#include <sys/xattr.h>
-#include <linux/netlink.h>
-#include <linux/rtnetlink.h>
-#include <sched.h>
-#include <linux/sched.h>
-#include <linux/magic.h>
-#include <linux/nsfs.h>
+#ଅନ୍ତର୍ଭାଵ <sys/socket.h>
+#ଅନ୍ତର୍ଭାଵ <libgen.h>
+#ଅନ୍ତର୍ଭାଵ <sys/wait.h>
+#ଅନ୍ତର୍ଭାଵ <sys/vfs.h>
+#ଅନ୍ତର୍ଭାଵ <sys/statvfs.h>
+#ଅନ୍ତର୍ଭାଵ <limits.h>
+#ଅନ୍ତର୍ଭାଵ <inttypes.h>
+#ଅନ୍ତର୍ଭାଵ <sys/personality.h>
+#ଅନ୍ତର୍ଭାଵ <net/if.h>
+#ଅନ୍ତର୍ଭାଵ <sys/xattr.h>
+#ଅନ୍ତର୍ଭାଵ <linux/netlink.h>
+#ଅନ୍ତର୍ଭାଵ <linux/rtnetlink.h>
+#ଅନ୍ତର୍ଭାଵ <sched.h>
+#ଅନ୍ତର୍ଭାଵ <linux/sched.h>
+#ଅନ୍ତର୍ଭାଵ <linux/magic.h>
+#ଅନ୍ତର୍ଭାଵ <linux/nsfs.h>
 
-#include <json-c/json.h>
-#include <ocispec/json_common.h>
+#ଅନ୍ତର୍ଭାଵ <json-c/json.h>
+#ଅନ୍ତର୍ଭାଵ <ocispec/json_common.h>
 
-#include "mount_flags.h"
-#include "syscalls.h"
+#ଅନ୍ତର୍ଭାଵ "mount_flags.h"
+#ଅନ୍ତର୍ଭାଵ "syscalls.h"
 
 #ifndef RLIMIT_RTTIME
 #  define RLIMIT_RTTIME 15
@@ -90,8 +90,8 @@
 #  define OPEN_TREE_CLOEXEC O_CLOEXEC
 #endif
 
-#ifndef OPEN_TREE_NAMESPACE
-#  define OPEN_TREE_NAMESPACE 2
+#ifndef OPEN_ବୃକ୍ଷ_NAMESPACE
+#  define OPEN_ବୃକ୍ଷ_NAMESPACE 2
 #endif
 
 #ifndef MOVE_MOUNT_F_EMPTY_PATH
@@ -127,83 +127,83 @@
 #define MOUNT_ATIME_FLAGS (MS_NOATIME | MS_NODIRATIME | MS_RELATIME | MS_STRICTATIME)
 
 /* Convert the ST_ flags reported by statfs(2) to the MS_ flags of mount(2).  */
-static unsigned long
+ସ୍ଥିର unsigned long
 mount_flags_from_statfs (unsigned long f_flags)
 {
   unsigned long flags = 0;
 
-  if (f_flags & ST_RDONLY)
+  ଯଦି (f_flags & ST_RDONLY)
     flags |= MS_RDONLY;
-  if (f_flags & ST_NOSUID)
+  ଯଦି (f_flags & ST_NOSUID)
     flags |= MS_NOSUID;
-  if (f_flags & ST_NODEV)
+  ଯଦି (f_flags & ST_NODEV)
     flags |= MS_NODEV;
-  if (f_flags & ST_NOEXEC)
+  ଯଦି (f_flags & ST_NOEXEC)
     flags |= MS_NOEXEC;
-  if (f_flags & ST_NOSYMFOLLOW)
+  ଯଦି (f_flags & ST_NOSYMFOLLOW)
     flags |= MS_NOSYMFOLLOW;
-  if (f_flags & ST_NOATIME)
+  ଯଦି (f_flags & ST_NOATIME)
     flags |= MS_NOATIME;
-  if (f_flags & ST_NODIRATIME)
+  ଯଦି (f_flags & ST_NODIRATIME)
     flags |= MS_NODIRATIME;
-  if (f_flags & ST_RELATIME)
+  ଯଦି (f_flags & ST_RELATIME)
     flags |= MS_RELATIME;
   /* There is no ST_ flag for strictatime: it is the mode when neither noatime
      nor relatime is set.  */
-  if (! (flags & (MS_NOATIME | MS_RELATIME)))
+  ଯଦି (! (flags & (MS_NOATIME | MS_RELATIME)))
     flags |= MS_STRICTATIME;
 
-  return flags;
+  ଫେରନ୍ତୁ flags;
 }
 
-struct remount_s
+ସଂରଚନା remount_s
 {
-  struct remount_s *next;
-  char *target;
-  int targetfd;
+  ସଂରଚନା remount_s *next;
+  ଅକ୍ଷର *target;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା targetfd;
   unsigned long flags;
-  char *data;
+  ଅକ୍ଷର *data;
 };
 
-struct private_data_s
+ସଂରଚନା private_data_s
 {
-  struct remount_s *remounts;
+  ସଂରଚନା remount_s *remounts;
 
   /* Filled by libcrun_run_linux_container().  Useful to query what
      namespaces are available.  */
-  int unshare_flags;
-  int unshare_cgroupns;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା unshare_flags;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା unshare_cgroupns;
 
-  char *host_notify_socket_path;
-  char *container_notify_socket_path;
-  char *unified_cgroup_path;
+  ଅକ୍ଷର *host_notify_socket_path;
+  ଅକ୍ଷର *container_notify_socket_path;
+  ଅକ୍ଷର *unified_cgroup_path;
 
   bool mount_dev_from_host;
   unsigned long rootfs_propagation;
   bool deny_setgroups;
 
-  int procfd;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା procfd;
 
-  const char *rootfs;
-  int rootfsfd;
+  ଅଚଳ ଅକ୍ଷର *rootfs;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା rootfsfd;
 
-  int notify_socket_tree_fd;
-  int old_root_fd;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା notify_socket_ବୃକ୍ଷ_fd;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା old_ମୂଳ_fd;
 
-  struct libcrun_fd_map *mount_fds;
-  struct libcrun_fd_map *dev_fds;
-  struct libcrun_fd_map *needed_devs_fds;
+  ସଂରଚନା libcrun_fd_map *mount_fds;
+  ସଂରଚନା libcrun_fd_map *dev_fds;
+  ସଂରଚନା libcrun_fd_map *needed_devs_fds;
 
-  char **copy_symlink_targets;
+  ଅକ୍ଷର **copy_symlink_targets;
   size_t n_copy_symlink_targets;
 
   /* Used to save stdin, stdout, stderr during checkpointing to descriptors.json
    * and needed during restore. */
-  char *external_descriptors;
+  ଅକ୍ଷର *external_descriptors;
 
   /* Cached shared empty directory for masked paths optimization */
-  int maskdir_fd;
-  char *maskdir_proc_path;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା maskdir_fd;
+  ଅକ୍ଷର *maskdir_proc_path;
   bool maskdir_bind_failed;
   bool maskdir_move_failed;
   bool maskdir_warned;
@@ -212,73 +212,73 @@ struct private_data_s
   bool no_pivot;
   /* Set once the process root is the container rootfs and the host root
      can no longer be reached by path.  */
-  bool host_root_switched;
+  bool host_ମୂଳ_switched;
   /* The process joining an existing PID namespace is created only once
      the container root is in place.  */
   bool delayed_pidns_fork;
   /* The rootfs path on the host, used to recognize bind mount sources
      inside the container rootfs.  */
-  char *host_rootfs;
+  ଅକ୍ଷର *host_rootfs;
 };
 
-struct linux_namespace_s
+ସଂରଚନା linux_namespace_s
 {
-  const char *name;
-  const char *ns_file;
-  int value;
+  ଅଚଳ ଅକ୍ଷର *name;
+  ଅଚଳ ଅକ୍ଷର *ns_file;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ମୂଲ୍ୟ;
 };
 
-static void
-cleanup_private_data (void *private_data)
+ସ୍ଥିର ଶୂନ୍ୟ
+cleanup_private_data (ଶୂନ୍ୟ *private_data)
 {
-  struct private_data_s *p = private_data;
+  ସଂରଚନା private_data_s *p = private_data;
 
-  if (p->rootfsfd >= 0)
+  ଯଦି (p->rootfsfd >= 0)
     TEMP_FAILURE_RETRY (close (p->rootfsfd));
-  if (p->procfd >= 0)
+  ଯଦି (p->procfd >= 0)
     TEMP_FAILURE_RETRY (close (p->procfd));
-  if (p->maskdir_fd >= 0)
+  ଯଦି (p->maskdir_fd >= 0)
     TEMP_FAILURE_RETRY (close (p->maskdir_fd));
-  if (p->old_root_fd >= 0)
-    TEMP_FAILURE_RETRY (close (p->old_root_fd));
-  if (p->mount_fds)
+  ଯଦି (p->old_ମୂଳ_fd >= 0)
+    TEMP_FAILURE_RETRY (close (p->old_ମୂଳ_fd));
+  ଯଦି (p->mount_fds)
     cleanup_close_mapp (&(p->mount_fds));
-  if (p->dev_fds)
+  ଯଦି (p->dev_fds)
     cleanup_close_mapp (&(p->dev_fds));
-  if (p->needed_devs_fds)
+  ଯଦି (p->needed_devs_fds)
     cleanup_close_mapp (&(p->needed_devs_fds));
 
-  if (p->copy_symlink_targets)
+  ଯଦି (p->copy_symlink_targets)
     {
       size_t i;
-      for (i = 0; i < p->n_copy_symlink_targets; i++)
-        free (p->copy_symlink_targets[i]);
-      free (p->copy_symlink_targets);
+      ପାଇଁ (i = 0; i < p->n_copy_symlink_targets; i++)
+        ମୁକ୍ତ (p->copy_symlink_targets[i]);
+      ମୁକ୍ତ (p->copy_symlink_targets);
     }
-  free (p->unified_cgroup_path);
-  free (p->host_notify_socket_path);
-  free (p->container_notify_socket_path);
-  free (p->external_descriptors);
-  free (p->maskdir_proc_path);
-  free (p->host_rootfs);
-  free (p);
+  ମୁକ୍ତ (p->unified_cgroup_path);
+  ମୁକ୍ତ (p->host_notify_socket_path);
+  ମୁକ୍ତ (p->container_notify_socket_path);
+  ମୁକ୍ତ (p->external_descriptors);
+  ମୁକ୍ତ (p->maskdir_proc_path);
+  ମୁକ୍ତ (p->host_rootfs);
+  ମୁକ୍ତ (p);
 }
 
-static struct private_data_s *
-get_private_data (struct libcrun_container_s *container)
+ସ୍ଥିର ସଂରଚନା private_data_s *
+get_private_data (ସଂରଚନା libcrun_container_s *container)
 {
-  if (container->private_data == NULL)
+  ଯଦି (container->private_data == ଖାଲି)
     {
-      struct private_data_s *p = xmalloc0 (sizeof (*p));
+      ସଂରଚନା private_data_s *p = xmalloc0 (ଆକାର (*p));
       container->private_data = p;
       p->rootfsfd = -1;
       p->procfd = -1;
-      p->notify_socket_tree_fd = -1;
-      p->old_root_fd = -1;
+      p->notify_socket_ବୃକ୍ଷ_fd = -1;
+      p->old_ମୂଳ_fd = -1;
       p->maskdir_fd = -1;
       container->cleanup_private_data = cleanup_private_data;
     }
-  return container->private_data;
+  ଫେରନ୍ତୁ container->private_data;
 }
 
 #ifndef CLONE_NEWTIME
@@ -291,7 +291,7 @@ get_private_data (struct libcrun_container_s *container)
 #  define AT_RECURSIVE 0x8000
 #endif
 
-static struct linux_namespace_s namespaces[] = { { "mount", "mnt", CLONE_NEWNS },
+ସ୍ଥିର ସଂରଚନା linux_namespace_s namespaces[] = { { "mount", "mnt", CLONE_NEWNS },
                                                  { "network", "net", CLONE_NEWNET },
                                                  { "ipc", "ipc", CLONE_NEWIPC },
                                                  { "pid", "pid", CLONE_NEWPID },
@@ -299,94 +299,94 @@ static struct linux_namespace_s namespaces[] = { { "mount", "mnt", CLONE_NEWNS }
                                                  { "user", "user", CLONE_NEWUSER },
                                                  { "cgroup", "cgroup", CLONE_NEWCGROUP },
                                                  { "time", "time", CLONE_NEWTIME },
-                                                 { NULL, NULL, 0 } };
+                                                 { ଖାଲି, ଖାଲି, 0 } };
 
-static int
-get_and_reset (int *old)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+get_and_reset (ପୂର୍ଣ୍ଣସଂଖ୍ୟା *old)
 {
-  int tmp = *old;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା tmp = *old;
   *old = -1;
-  return tmp;
+  ଫେରନ୍ତୁ tmp;
 }
 
-int
-libcrun_find_namespace (const char *name)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+libcrun_find_namespace (ଅଚଳ ଅକ୍ଷର *name)
 {
-  struct linux_namespace_s *it;
-  for (it = namespaces; it->name; it++)
-    if (strcmp (it->name, name) == 0)
-      return it->value;
-  return -1;
+  ସଂରଚନା linux_namespace_s *it;
+  ପାଇଁ (it = namespaces; it->name; it++)
+    ଯଦି (strcmp (it->name, name) == 0)
+      ଫେରନ୍ତୁ it->ମୂଲ୍ୟ;
+  ଫେରନ୍ତୁ -1;
 }
 
-static int
-syscall_keyctl_join (const char *name)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+syscall_keyctl_join (ଅଚଳ ଅକ୍ଷର *name)
 {
 #define KEYCTL_JOIN_SESSION_KEYRING 0x1
-  return (int) syscall (__NR_keyctl, KEYCTL_JOIN_SESSION_KEYRING, name, 0);
+  ଫେରନ୍ତୁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା) syscall (__NR_keyctl, KEYCTL_JOIN_SESSION_KEYRING, name, 0);
 }
 
-static int
-syscall_pidfd_open (pid_t pid, unsigned int flags)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+syscall_pidfd_open (pid_t pid, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags)
 {
-#if defined __NR_pidfd_open
-  return (int) syscall (__NR_pidfd_open, pid, flags);
-#else
-  (void) pid;
-  (void) flags;
+#ଯଦି defined __NR_pidfd_open
+  ଫେରନ୍ତୁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା) syscall (__NR_pidfd_open, pid, flags);
+#ଅନ୍ୟଥା
+  (ଶୂନ୍ୟ) pid;
+  (ଶୂନ୍ୟ) flags;
   errno = ENOSYS;
-  return -1;
+  ଫେରନ୍ତୁ -1;
 #endif
 }
 
-static int
-syscall_pidfd_send_signal (int pidfd, int sig, siginfo_t *info, unsigned int flags)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+syscall_pidfd_send_signal (ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidfd, ପୂର୍ଣ୍ଣସଂଖ୍ୟା sig, siginfo_t *info, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags)
 {
-#if defined __NR_pidfd_send_signal
-  return (int) syscall (__NR_pidfd_send_signal, pidfd, sig, info, flags);
-#else
-  (void) pidfd;
-  (void) sig;
-  (void) info;
-  (void) flags;
+#ଯଦି defined __NR_pidfd_send_signal
+  ଫେରନ୍ତୁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା) syscall (__NR_pidfd_send_signal, pidfd, sig, info, flags);
+#ଅନ୍ୟଥା
+  (ଶୂନ୍ୟ) pidfd;
+  (ଶୂନ୍ୟ) sig;
+  (ଶୂନ୍ୟ) info;
+  (ଶୂନ୍ୟ) flags;
   errno = ENOSYS;
-  return -1;
+  ଫେରନ୍ତୁ -1;
 #endif
 }
 
 /* Translate MS_* mount flags to MOUNT_ATTR_* values for mount_setattr().  */
-static uint64_t
+ସ୍ଥିର uint64_t
 ms_flags_to_mount_attr (uint64_t ms_flags)
 {
   uint64_t attr = 0;
 
-  if (ms_flags & MS_RDONLY)
+  ଯଦି (ms_flags & MS_RDONLY)
     attr |= MOUNT_ATTR_RDONLY;
-  if (ms_flags & MS_NOSUID)
+  ଯଦି (ms_flags & MS_NOSUID)
     attr |= MOUNT_ATTR_NOSUID;
-  if (ms_flags & MS_NODEV)
+  ଯଦି (ms_flags & MS_NODEV)
     attr |= MOUNT_ATTR_NODEV;
-  if (ms_flags & MS_NOEXEC)
+  ଯଦି (ms_flags & MS_NOEXEC)
     attr |= MOUNT_ATTR_NOEXEC;
-  if (ms_flags & MS_NOATIME)
+  ଯଦି (ms_flags & MS_NOATIME)
     attr |= MOUNT_ATTR_NOATIME;
-  if (ms_flags & MS_STRICTATIME)
+  ଯଦି (ms_flags & MS_STRICTATIME)
     attr |= MOUNT_ATTR_STRICTATIME;
-  if (ms_flags & MS_NODIRATIME)
+  ଯଦି (ms_flags & MS_NODIRATIME)
     attr |= MOUNT_ATTR_NODIRATIME;
-  if (ms_flags & MS_NOSYMFOLLOW)
+  ଯଦି (ms_flags & MS_NOSYMFOLLOW)
     attr |= MOUNT_ATTR_NOSYMFOLLOW;
 
-  return attr;
+  ଫେରନ୍ତୁ attr;
 }
 
-static int
-do_mount_setattr (bool recursive, const char *target, int targetfd, uint64_t clear, uint64_t set, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+do_mount_setattr (bool recursive, ଅଚଳ ଅକ୍ଷର *target, ପୂର୍ଣ୍ଣସଂଖ୍ୟା targetfd, uint64_t clear, uint64_t set, libcrun_error_t *err)
 {
-  struct mount_attr_s attr = {
+  ସଂରଚନା mount_attr_s attr = {
     0,
   };
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   set &= ~MS_BIND;
   clear &= ~MS_BIND;
@@ -399,151 +399,151 @@ do_mount_setattr (bool recursive, const char *target, int targetfd, uint64_t cle
      anew: relatime is the default, noatime and strictatime override it
      (strictatime wins), and nodiratime is independent.  Otherwise, the
      atime flags of the mount are kept.  */
-  if (set & (MS_NOATIME | MS_NODIRATIME | MS_RELATIME | MS_STRICTATIME))
+  ଯଦି (set & (MS_NOATIME | MS_NODIRATIME | MS_RELATIME | MS_STRICTATIME))
     {
       attr.attr_set &= ~(MOUNT_ATTR__ATIME | MOUNT_ATTR_NODIRATIME);
-      if (set & MS_STRICTATIME)
+      ଯଦି (set & MS_STRICTATIME)
         attr.attr_set |= MOUNT_ATTR_STRICTATIME;
-      else if (set & MS_NOATIME)
+      ଅନ୍ୟଥା ଯଦି (set & MS_NOATIME)
         attr.attr_set |= MOUNT_ATTR_NOATIME;
-      else
+      ଅନ୍ୟଥା
         attr.attr_set |= MOUNT_ATTR_RELATIME;
-      if (set & MS_NODIRATIME)
+      ଯଦି (set & MS_NODIRATIME)
         attr.attr_set |= MOUNT_ATTR_NODIRATIME;
       attr.attr_clr |= MOUNT_ATTR__ATIME | MOUNT_ATTR_NODIRATIME;
     }
   /* The kernel rejects a partial MOUNT_ATTR__ATIME in attr_clr, so clearing
      any of the atime modes resets the mount to the relatime default.  */
-  else if (clear & (MS_NOATIME | MS_RELATIME | MS_STRICTATIME))
+  ଅନ୍ୟଥା ଯଦି (clear & (MS_NOATIME | MS_RELATIME | MS_STRICTATIME))
     attr.attr_clr |= MOUNT_ATTR__ATIME;
 
   ret = syscall_mount_setattr (targetfd, "", (recursive ? AT_RECURSIVE : 0) | AT_EMPTY_PATH, &attr);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "mount_setattr `/%s`", target);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "mount_setattr `/%s`", target);
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-int
-get_bind_mount (int dirfd, const char *src, bool recursive, bool rdonly, bool nofollow, unsigned long propagation, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+get_bind_mount (ପୂର୍ଣ୍ଣସଂଖ୍ୟା dirfd, ଅଚଳ ଅକ୍ଷର *src, bool recursive, bool rdonly, bool nofollow, unsigned long propagation, libcrun_error_t *err)
 {
-  cleanup_close int open_tree_fd = -1;
-  struct mount_attr_s attr = {
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା open_ବୃକ୍ଷ_fd = -1;
+  ସଂରଚନା mount_attr_s attr = {
     0,
   };
-  int recursive_flag = (recursive ? AT_RECURSIVE : 0);
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା recursive_flag = (recursive ? AT_RECURSIVE : 0);
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   /* Several callers pass a source straight from the configuration, where it
      is optional, so it can be missing altogether.  Callers that mean the
      directory referred to by dirfd pass an empty string, never NULL.  */
-  if (UNLIKELY (src == NULL))
-    return crun_make_error (err, EINVAL, "mount source is not specified");
+  ଯଦି (UNLIKELY (src == ଖାଲି))
+    ଫେରନ୍ତୁ crun_make_error (err, EINVAL, "mount source is not specified");
 
-  if (rdonly)
+  ଯଦି (rdonly)
     attr.attr_set = MS_RDONLY;
 
   attr.propagation = propagation;
 
-  if (dirfd < 0)
+  ଯଦି (dirfd < 0)
     dirfd = AT_FDCWD;
 
   errno = 0;
-  open_tree_fd = syscall_open_tree (dirfd, src,
+  open_ବୃକ୍ଷ_fd = syscall_open_ବୃକ୍ଷ (dirfd, src,
                                     AT_NO_AUTOMOUNT | OPEN_TREE_CLOEXEC
                                         | OPEN_TREE_CLONE | recursive_flag
                                         | (src[0] == '\0' ? AT_EMPTY_PATH : 0)
                                         | (nofollow ? AT_SYMLINK_NOFOLLOW : 0));
-  if (UNLIKELY (open_tree_fd < 0))
-    return crun_make_error (err, errno, "open_tree `%s`", src);
+  ଯଦି (UNLIKELY (open_ବୃକ୍ଷ_fd < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "open_tree `%s`", src);
 
-  ret = syscall_mount_setattr (open_tree_fd, "", AT_EMPTY_PATH | recursive_flag, &attr);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "mount_setattr `%s`", src);
+  ret = syscall_mount_setattr (open_ବୃକ୍ଷ_fd, "", AT_EMPTY_PATH | recursive_flag, &attr);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "mount_setattr `%s`", src);
 
-  return get_and_reset (&open_tree_fd);
+  ଫେରନ୍ତୁ get_and_reset (&open_ବୃକ୍ଷ_fd);
 }
 
-int
-parse_idmapped_mount_option (runtime_spec_schema_config_schema *def, bool is_uids, char *option, char **out, size_t *len, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+parse_idmapped_mount_option (runtime_spec_schema_config_schema *def, bool is_uids, ଅକ୍ଷର *option, ଅକ୍ଷର **out, size_t *len, libcrun_error_t *err)
 {
   size_t written = 0, allocated = 256;
-  cleanup_free char *mappings = NULL;
-  const char *it;
-  int ret;
+  cleanup_free ଅକ୍ଷର *mappings = ଖାଲି;
+  ଅଚଳ ଅକ୍ଷର *it;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   mappings = xmalloc (allocated);
 
-  for (it = option; *it;)
+  ପାଇଁ (it = option; *it;)
     {
       bool relative = false;
-      long value[3];
+      long ମୂଲ୍ୟ[3];
       size_t i;
 
-      if (*it == '\0')
-        break;
+      ଯଦି (*it == '\0')
+        ଭାଙ୍ଗ;
 
-      if (*it == '#')
+      ଯଦି (*it == '#')
         it++;
 
-      if (*it == '@')
+      ଯଦି (*it == '@')
         {
           relative = true;
           it++;
         }
 
       /* read a triplet: file system id - host id - size.  */
-      for (i = 0; i < 3; i++)
+      ପାଇଁ (i = 0; i < 3; i++)
         {
-          char *endptr = NULL;
+          ଅକ୍ଷର *endptr = ଖାଲି;
 
-          if (i > 0 && *it == '-')
+          ଯଦି (i > 0 && *it == '-')
             it++;
 
-          if (*it == '\0')
-            return crun_make_error (err, 0, "invalid mapping specified `%s`", option);
+          ଯଦି (*it == '\0')
+            ଫେରନ୍ତୁ crun_make_error (err, 0, "invalid mapping specified `%s`", option);
 
           errno = 0;
-          value[i] = strtol (it, &endptr, 10);
-          if (errno || endptr == it)
-            return crun_make_error (err, errno, "invalid mapping specified `%s`", option);
+          ମୂଲ୍ୟ[i] = strtol (it, &endptr, 10);
+          ଯଦି (errno || endptr == it)
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "invalid mapping specified `%s`", option);
 
           it = endptr;
         }
 
-      if (relative)
+      ଯଦି (relative)
         {
           runtime_spec_schema_defs_id_mapping **mappings;
           size_t mappings_len;
 
-          if (def == NULL
-              || def->linux == NULL
+          ଯଦି (def == ଖାଲି
+              || def->linux == ଖାଲି
               || (is_uids && def->linux->uid_mappings_len == 0)
               || (! is_uids && def->linux->gid_mappings_len == 0))
-            return crun_make_error (err, 0, "specified a relative mapping without user namespace mappings");
+            ଫେରନ୍ତୁ crun_make_error (err, 0, "specified a relative mapping without user namespace mappings");
 
           mappings_len = (is_uids ? def->linux->uid_mappings_len : def->linux->gid_mappings_len);
           mappings = is_uids ? def->linux->uid_mappings : def->linux->gid_mappings;
 
-          for (i = 0; i < mappings_len; i++)
-            if (value[1] >= (int64_t) mappings[i]->container_id
-                && value[1] < (int64_t) mappings[i]->container_id + (int64_t) mappings[i]->size)
-              break;
+          ପାଇଁ (i = 0; i < mappings_len; i++)
+            ଯଦି (ମୂଲ୍ୟ[1] >= (int64_t) mappings[i]->container_id
+                && ମୂଲ୍ୟ[1] < (int64_t) mappings[i]->container_id + (int64_t) mappings[i]->size)
+              ଭାଙ୍ଗ;
 
-          if (i == mappings_len)
-            return crun_make_error (err, 0, "could not find a user namespace mapping for the relative mapping `%s`", option);
+          ଯଦି (i == mappings_len)
+            ଫେରନ୍ତୁ crun_make_error (err, 0, "could not find a user namespace mapping for the relative mapping `%s`", option);
 
-          value[1] += mappings[i]->host_id - mappings[i]->container_id;
+          ମୂଲ୍ୟ[1] += mappings[i]->host_id - mappings[i]->container_id;
         }
-      if (written > allocated - 64)
+      ଯଦି (written > allocated - 64)
         {
           allocated += 256;
           mappings = xrealloc (mappings, allocated);
         }
 
-      ret = snprintf (mappings + written, allocated - written, "%ld %ld %ld\n", value[0], value[1], value[2]);
-      if (UNLIKELY (ret >= (int) (allocated - written)))
-        return crun_make_error (err, 0, "internal error: allocated buffer too small");
+      ret = snprintf (mappings + written, allocated - written, "%ld %ld %ld\n", ମୂଲ୍ୟ[0], ମୂଲ୍ୟ[1], ମୂଲ୍ୟ[2]);
+      ଯଦି (UNLIKELY (ret >= (ପୂର୍ଣ୍ଣସଂଖ୍ୟା) (allocated - written)))
+        ଫେରନ୍ତୁ crun_make_error (err, 0, "internal error: allocated buffer too small");
 
       written += ret;
     }
@@ -552,27 +552,27 @@ parse_idmapped_mount_option (runtime_spec_schema_config_schema *def, bool is_uid
   *len = written;
 
   *out = mappings;
-  mappings = NULL;
+  mappings = ଖାଲି;
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-format_mount_mappings (char **out,
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+format_mount_mappings (ଅକ୍ଷର **out,
                        runtime_spec_schema_defs_id_mapping **mappings,
                        size_t mappings_len,
                        size_t *written,
                        libcrun_error_t *err)
 {
   /* 64 is more than enough room to print 3 uint32.  */
-  const size_t max_len_mapping = 64;
-  cleanup_free char *ret = NULL;
+  ଅଚଳ size_t max_len_mapping = 64;
+  cleanup_free ଅକ୍ଷର *ret = ଖାଲି;
   size_t s;
 
   *written = 0;
 
   ret = xmalloc (max_len_mapping * mappings_len + 1);
-  for (s = 0; s < mappings_len; s++)
+  ପାଇଁ (s = 0; s < mappings_len; s++)
     {
       size_t len;
 
@@ -580,18 +580,18 @@ format_mount_mappings (char **out,
                       mappings[s]->container_id,
                       mappings[s]->host_id,
                       mappings[s]->size);
-      if (UNLIKELY (len >= max_len_mapping))
-        return crun_make_error (err, 0, "internal error: allocated buffer too small");
+      ଯଦି (UNLIKELY (len >= max_len_mapping))
+        ଫେରନ୍ତୁ crun_make_error (err, 0, "internal error: allocated buffer too small");
 
       *written += len;
     }
   *out = ret;
-  ret = NULL;
-  return 0;
+  ret = ଖାଲି;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-format_mount_mapping (char **ret, uint32_t container_id, uint32_t host_id,
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+format_mount_mapping (ଅକ୍ଷର **ret, uint32_t container_id, uint32_t host_id,
                       uint32_t size, size_t *written, libcrun_error_t *err)
 {
   runtime_spec_schema_defs_id_mapping mapping = {
@@ -601,365 +601,365 @@ format_mount_mapping (char **ret, uint32_t container_id, uint32_t host_id,
   };
   runtime_spec_schema_defs_id_mapping *mappings[] = {
     &mapping,
-    NULL,
+    ଖାଲି,
   };
 
-  return format_mount_mappings (ret, mappings, 1, written, err);
+  ଫେରନ୍ତୁ format_mount_mappings (ret, mappings, 1, written, err);
 }
 
-static bool
+ସ୍ଥିର bool
 has_same_mappings (runtime_spec_schema_config_schema *def, runtime_spec_schema_defs_mount *mnt)
 {
   size_t s;
 
-  if (def->linux == NULL)
-    return mnt->uid_mappings_len == 0 && mnt->gid_mappings_len == 0;
+  ଯଦି (def->linux == ଖାଲି)
+    ଫେରନ୍ତୁ mnt->uid_mappings_len == 0 && mnt->gid_mappings_len == 0;
 
-  if (mnt->uid_mappings_len != def->linux->uid_mappings_len)
-    return false;
+  ଯଦି (mnt->uid_mappings_len != def->linux->uid_mappings_len)
+    ଫେରନ୍ତୁ false;
 
-  if (mnt->gid_mappings_len != def->linux->gid_mappings_len)
-    return false;
+  ଯଦି (mnt->gid_mappings_len != def->linux->gid_mappings_len)
+    ଫେରନ୍ତୁ false;
 
-  for (s = 0; s < mnt->uid_mappings_len; s++)
+  ପାଇଁ (s = 0; s < mnt->uid_mappings_len; s++)
     {
-      if (mnt->uid_mappings[s]->container_id != def->linux->uid_mappings[s]->container_id)
-        return false;
-      if (mnt->uid_mappings[s]->host_id != def->linux->uid_mappings[s]->host_id)
-        return false;
-      if (mnt->uid_mappings[s]->size != def->linux->uid_mappings[s]->size)
-        return false;
+      ଯଦି (mnt->uid_mappings[s]->container_id != def->linux->uid_mappings[s]->container_id)
+        ଫେରନ୍ତୁ false;
+      ଯଦି (mnt->uid_mappings[s]->host_id != def->linux->uid_mappings[s]->host_id)
+        ଫେରନ୍ତୁ false;
+      ଯଦି (mnt->uid_mappings[s]->size != def->linux->uid_mappings[s]->size)
+        ଫେରନ୍ତୁ false;
     }
 
-  for (s = 0; s < mnt->gid_mappings_len; s++)
+  ପାଇଁ (s = 0; s < mnt->gid_mappings_len; s++)
     {
-      if (mnt->gid_mappings[s]->container_id != def->linux->gid_mappings[s]->container_id)
-        return false;
-      if (mnt->gid_mappings[s]->host_id != def->linux->gid_mappings[s]->host_id)
-        return false;
-      if (mnt->gid_mappings[s]->size != def->linux->gid_mappings[s]->size)
-        return false;
+      ଯଦି (mnt->gid_mappings[s]->container_id != def->linux->gid_mappings[s]->container_id)
+        ଫେରନ୍ତୁ false;
+      ଯଦି (mnt->gid_mappings[s]->host_id != def->linux->gid_mappings[s]->host_id)
+        ଫେରନ୍ତୁ false;
+      ଯଦି (mnt->gid_mappings[s]->size != def->linux->gid_mappings[s]->size)
+        ଫେରନ୍ତୁ false;
     }
 
-  return true;
+  ଫେରନ୍ତୁ true;
 }
 
-static pid_t
+ସ୍ଥିର pid_t
 maybe_create_userns_for_idmapped_mount (libcrun_container_t *container,
                                         runtime_spec_schema_config_schema *def,
                                         runtime_spec_schema_defs_mount *mnt,
-                                        const char *options, pid_t *pid_out,
+                                        ଅଚଳ ଅକ୍ଷର *options, pid_t *pid_out,
                                         libcrun_error_t *err)
 {
   cleanup_pid pid_t pid = -1;
-  bool need_new_userns = mnt->uid_mappings_len ? ! has_same_mappings (def, mnt) : options != NULL;
+  bool need_new_userns = mnt->uid_mappings_len ? ! has_same_mappings (def, mnt) : options != ଖାଲି;
 
-  if (! need_new_userns)
-    return 0;
+  ଯଦି (! need_new_userns)
+    ଫେରନ୍ତୁ 0;
 
-  pid = syscall_clone (CLONE_NEWUSER | SIGCHLD, NULL);
-  if (UNLIKELY (pid < 0))
-    return crun_make_error (err, errno, "clone");
+  pid = syscall_clone (CLONE_NEWUSER | SIGCHLD, ଖାଲି);
+  ଯଦି (UNLIKELY (pid < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "clone");
 
-  if (pid == 0)
+  ଯଦି (pid == 0)
     {
       prctl (PR_SET_PDEATHSIG, SIGKILL);
-      while (1)
+      ଯେତେବେଳେ (1)
         pause ();
       _safe_exit (EXIT_SUCCESS);
     }
 
-  if (mnt->uid_mappings_len)
+  ଯଦି (mnt->uid_mappings_len)
     {
-      cleanup_free char *uid_map = NULL;
-      cleanup_free char *gid_map = NULL;
+      cleanup_free ଅକ୍ଷର *uid_map = ଖାଲି;
+      cleanup_free ଅକ୍ଷର *gid_map = ଖାଲି;
       size_t written = 0;
-      int ret;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
       ret = format_mount_mappings (&uid_map, mnt->uid_mappings, mnt->uid_mappings_len, &written, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
-      cleanup_close int fd = -1;
+      cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -1;
 
       fd = libcrun_open_proc_pid_file (container, pid, "uid_map", O_WRONLY, err);
-      if (UNLIKELY (fd < 0))
-        return fd;
+      ଯଦି (UNLIKELY (fd < 0))
+        ଫେରନ୍ତୁ fd;
 
       ret = safe_write (fd, "uid_map", uid_map, written, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       ret = format_mount_mappings (&gid_map, mnt->gid_mappings, mnt->gid_mappings_len, &written, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       close_and_reset (&fd);
 
       fd = libcrun_open_proc_pid_file (container, pid, "gid_map", O_WRONLY, err);
-      if (UNLIKELY (fd < 0))
-        return fd;
+      ଯଦି (UNLIKELY (fd < 0))
+        ଫେରନ୍ତୁ fd;
 
       ret = safe_write (fd, "gid_map", gid_map, written, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
-  else
+  ଅନ୍ୟଥା
     {
-      cleanup_free char *dup_options = NULL;
-      char *option, *saveptr = NULL;
+      cleanup_free ଅକ୍ଷର *dup_options = ଖାଲି;
+      ଅକ୍ଷର *option, *saveptr = ଖାଲି;
 
-      if (! options)
-        return crun_make_error (err, 0, "internal error: no mappings found");
+      ଯଦି (! options)
+        ଫେରନ୍ତୁ crun_make_error (err, 0, "internal error: no mappings found");
 
       dup_options = xstrdup (options);
 
       /* If there are no OCI mappings specified, then parse the annotation.  */
-      for (option = strtok_r (dup_options, ";", &saveptr); option; option = strtok_r (NULL, ";", &saveptr))
+      ପାଇଁ (option = strtok_r (dup_options, ";", &saveptr); option; option = strtok_r (ଖାଲି, ";", &saveptr))
         {
-          cleanup_free char *mappings = NULL;
-          cleanup_close int map_fd = -1;
+          cleanup_free ଅକ୍ଷର *mappings = ଖାଲି;
+          cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା map_fd = -1;
           bool is_uids = false;
           size_t len = 0;
-          int ret;
+          ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-          if (has_prefix (option, "uids="))
+          ଯଦି (has_prefix (option, "uids="))
             {
               is_uids = true;
               map_fd = libcrun_open_proc_pid_file (container, pid, "uid_map", O_WRONLY, err);
-              if (UNLIKELY (map_fd < 0))
-                return map_fd;
+              ଯଦି (UNLIKELY (map_fd < 0))
+                ଫେରନ୍ତୁ map_fd;
             }
-          else if (has_prefix (option, "gids="))
+          ଅନ୍ୟଥା ଯଦି (has_prefix (option, "gids="))
             {
               map_fd = libcrun_open_proc_pid_file (container, pid, "gid_map", O_WRONLY, err);
-              if (UNLIKELY (map_fd < 0))
-                return map_fd;
+              ଯଦି (UNLIKELY (map_fd < 0))
+                ଫେରନ୍ତୁ map_fd;
             }
-          else
-            return crun_make_error (err, 0, "invalid option `%s` specified", option);
+          ଅନ୍ୟଥା
+            ଫେରନ୍ତୁ crun_make_error (err, 0, "invalid option `%s` specified", option);
 
           ret = parse_idmapped_mount_option (def, is_uids, option + 5 /* strlen ("uids="), strlen ("gids=")*/, &mappings, &len, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
 
           ret = safe_write (map_fd, is_uids ? "uid_map" : "gid_map", mappings, len, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
         }
     }
 
   *pid_out = pid;
   pid = -1;
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-int
-libcrun_create_keyring (libcrun_container_t *container, const char *name, const char *label, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+libcrun_create_keyring (libcrun_container_t *container, ଅଚଳ ଅକ୍ଷର *name, ଅଚଳ ଅକ୍ଷର *label, libcrun_error_t *err)
 {
-  cleanup_close int labelfd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା labelfd = -1;
   bool label_set = false;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (label)
+  ଯଦି (label)
     {
       labelfd = libcrun_open_proc_file (container, "self/attr/keycreate", O_WRONLY, err);
-      if (UNLIKELY (labelfd < 0))
+      ଯଦି (UNLIKELY (labelfd < 0))
         {
-          if (crun_error_get_errno (err) != ENOENT)
-            return labelfd;
+          ଯଦି (crun_error_get_errno (err) != ENOENT)
+            ଫେରନ୍ତୁ labelfd;
 
           crun_error_release (err);
         }
 
-      if (labelfd >= 0)
+      ଯଦି (labelfd >= 0)
         {
-          ret = write (labelfd, label, strlen (label));
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "write to `/proc/self/attr/keycreate`");
+          ret = ଲିଖ (labelfd, label, strlen (label));
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "write to `/proc/self/attr/keycreate`");
 
           label_set = true;
         }
     }
 
   ret = syscall_keyctl_join (name);
-  if (UNLIKELY (ret < 0))
+  ଯଦି (UNLIKELY (ret < 0))
     {
-      if (errno == ENOSYS)
+      ଯଦି (errno == ENOSYS)
         {
           libcrun_warning ("could not create a new keyring: keyctl_join is not supported");
           ret = 0;
-          goto out;
+          ଯାଅ out;
         }
       ret = crun_make_error (err, errno, "join keyctl `%s`", name ? name : "");
-      goto out;
+      ଯାଅ out;
     }
 
 out:
   /* Best effort attempt to reset the SELinux label used for new keyrings.  */
-  if (label_set && write (labelfd, "", 0) < 0)
+  ଯଦି (label_set && ଲିଖ (labelfd, "", 0) < 0)
     {
       /* Braces around empty body, to fix warning for [-Wunused-result] and error for [-Werror=empty-body]. */
     }
-  return ret;
+  ଫେରନ୍ତୁ ret;
 }
 
-static void
+ସ୍ଥିର ଶୂନ୍ୟ
 get_uid_gid_from_def (runtime_spec_schema_config_schema *def, uid_t *uid, gid_t *gid)
 {
   *uid = 0;
   *gid = 0;
 
-  if (def->process && def->process->user)
+  ଯଦି (def->process && def->process->user)
     {
-      if (def->process->user->uid)
+      ଯଦି (def->process->user->uid)
         *uid = def->process->user->uid;
-      if (def->process->user->gid)
+      ଯଦି (def->process->user->gid)
         *gid = def->process->user->gid;
     }
 }
 
-static unsigned long
-get_mount_flags (const char *name, int current_flags, int *found, unsigned long *extra_flags, uint64_t *rec_clear, uint64_t *rec_set)
+ସ୍ଥିର unsigned long
+get_mount_flags (ଅଚଳ ଅକ୍ଷର *name, ପୂର୍ଣ୍ଣସଂଖ୍ୟା current_flags, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *found, unsigned long *extra_flags, uint64_t *rec_clear, uint64_t *rec_set)
 {
-  const struct propagation_flags_s *prop;
+  ଅଚଳ ସଂରଚନା propagation_flags_s *prop;
 
   prop = libcrun_str2mount_flags (name);
 
-  if (found)
+  ଯଦି (found)
     *found = prop ? 1 : 0;
 
-  if (prop == NULL)
-    return 0;
+  ଯଦି (prop == ଖାଲି)
+    ଫେରନ୍ତୁ 0;
 
-  if (prop->extra_flags & OPTION_RECURSIVE)
+  ଯଦି (prop->extra_flags & OPTION_RECURSIVE)
     {
-      if (rec_clear && prop->clear)
+      ଯଦି (rec_clear && prop->clear)
         *rec_clear |= prop->flags;
 
-      if (rec_set && ! prop->clear)
+      ଯଦି (rec_set && ! prop->clear)
         *rec_set |= prop->flags;
     }
 
-  if (extra_flags)
+  ଯଦି (extra_flags)
     *extra_flags |= prop->extra_flags;
 
-  if (prop->clear)
-    return current_flags & ~prop->flags;
+  ଯଦି (prop->clear)
+    ଫେରନ୍ତୁ current_flags & ~prop->flags;
 
-  return current_flags | prop->flags;
+  ଫେରନ୍ତୁ current_flags | prop->flags;
 }
 
 /* Whether any of the mount options sets or clears a mount flag, other
    than MS_BIND, MS_REC and the propagation ones.  */
-static bool
+ସ୍ଥିର bool
 has_mount_flag_options (runtime_spec_schema_defs_mount *mount)
 {
   size_t i;
 
-  for (i = 0; i < mount->options_len; i++)
+  ପାଇଁ (i = 0; i < mount->options_len; i++)
     {
-      const struct propagation_flags_s *prop;
+      ଅଚଳ ସଂରଚନା propagation_flags_s *prop;
 
-      if (mount->options[i] == NULL)
-        continue;
+      ଯଦି (mount->options[i] == ଖାଲି)
+        ଜାରି;
 
       prop = libcrun_str2mount_flags (mount->options[i]);
-      if (prop && (prop->flags & ~(MS_BIND | ALL_PROPAGATIONS)))
-        return true;
+      ଯଦି (prop && (prop->flags & ~(MS_BIND | ALL_PROPAGATIONS)))
+        ଫେରନ୍ତୁ true;
     }
 
-  return false;
+  ଫେରନ୍ତୁ false;
 }
 
-static unsigned long
-get_mount_flags_or_option (const char *name, int current_flags, unsigned long *extra_flags, char **option, uint64_t *rec_clear, uint64_t *rec_set)
+ସ୍ଥିର unsigned long
+get_mount_flags_or_option (ଅଚଳ ଅକ୍ଷର *name, ପୂର୍ଣ୍ଣସଂଖ୍ୟା current_flags, unsigned long *extra_flags, ଅକ୍ଷର **option, uint64_t *rec_clear, uint64_t *rec_set)
 {
-  int found;
-  __attribute__ ((unused)) cleanup_free char *prev = NULL;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା found;
+  __attribute__ ((unused)) cleanup_free ଅକ୍ଷର *prev = ଖାଲି;
   unsigned long flags;
 
   /* A null element of the array of options in the configuration is parsed
      into a NULL, which is not an option to be honored.  */
-  if (name == NULL)
-    return 0;
+  ଯଦି (name == ଖାଲି)
+    ଫେରନ୍ତୁ 0;
 
   flags = get_mount_flags (name, current_flags, &found, extra_flags, rec_clear, rec_set);
-  if (found)
+  ଯଦି (found)
     {
       /* MS_SYNCHRONOUS and MS_DIRSYNC cannot be set through fsmount()
          attr_flags.  Pass them also as data so that fsconfig(SET_FLAG)
          can set SB_SYNCHRONOUS / SB_DIRSYNC on the superblock.  */
-      const char *data_flag = NULL;
-      if ((flags & MS_SYNCHRONOUS) && ! (current_flags & MS_SYNCHRONOUS))
+      ଅଚଳ ଅକ୍ଷର *data_flag = ଖାଲି;
+      ଯଦି ((flags & MS_SYNCHRONOUS) && ! (current_flags & MS_SYNCHRONOUS))
         data_flag = "sync";
-      else if ((flags & MS_DIRSYNC) && ! (current_flags & MS_DIRSYNC))
+      ଅନ୍ୟଥା ଯଦି ((flags & MS_DIRSYNC) && ! (current_flags & MS_DIRSYNC))
         data_flag = "dirsync";
 
-      if (data_flag)
+      ଯଦି (data_flag)
         {
           prev = *option;
-          if (*option && **option)
+          ଯଦି (*option && **option)
             xasprintf (option, "%s,%s", *option, data_flag);
-          else
+          ଅନ୍ୟଥା
             *option = xstrdup (data_flag);
         }
-      return flags;
+      ଫେରନ୍ତୁ flags;
     }
 
   prev = *option;
-  if (*option && **option)
+  ଯଦି (*option && **option)
     xasprintf (option, "%s,%s", *option, name);
-  else
+  ଅନ୍ୟଥା
     *option = xstrdup (name);
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-int
-pivot_root (const char *new_root, const char *put_old)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+pivot_ମୂଳ (ଅଚଳ ଅକ୍ଷର *new_ମୂଳ, ଅଚଳ ଅକ୍ଷର *put_old)
 {
-  return syscall (__NR_pivot_root, new_root, put_old);
+  ଫେରନ୍ତୁ syscall (__NR_pivot_root, new_ମୂଳ, put_old);
 }
 
-static void
-free_remount (struct remount_s *r)
+ସ୍ଥିର ଶୂନ୍ୟ
+free_remount (ସଂରଚନା remount_s *r)
 {
-  if (r == NULL)
-    return;
-  if (r->targetfd >= 0)
+  ଯଦି (r == ଖାଲି)
+    ଫେରନ୍ତୁ;
+  ଯଦି (r->targetfd >= 0)
     close (r->targetfd);
-  free (r->data);
-  free (r->target);
-  free (r);
+  ମୁକ୍ତ (r->data);
+  ମୁକ୍ତ (r->target);
+  ମୁକ୍ତ (r);
 }
 
-static struct remount_s *
-make_remount (int targetfd, const char *target, unsigned long flags, const char *data, struct remount_s *next)
+ସ୍ଥିର ସଂରଚନା remount_s *
+make_remount (ପୂର୍ଣ୍ଣସଂଖ୍ୟା targetfd, ଅଚଳ ଅକ୍ଷର *target, unsigned long flags, ଅଚଳ ଅକ୍ଷର *data, ସଂରଚନା remount_s *next)
 {
-  struct remount_s *ret = xmalloc (sizeof (*ret));
+  ସଂରଚନା remount_s *ret = xmalloc (ଆକାର (*ret));
   ret->target = xstrdup (target);
   ret->flags = flags;
-  ret->data = data ? xstrdup (data) : NULL;
+  ret->data = data ? xstrdup (data) : ଖାଲି;
   ret->next = next;
   ret->targetfd = targetfd;
-  return ret;
+  ଫେରନ୍ତୁ ret;
 }
 
-static int
-do_remount (int targetfd, const char *target, unsigned long flags, const char *data, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+do_remount (ପୂର୍ଣ୍ଣସଂଖ୍ୟା targetfd, ଅଚଳ ଅକ୍ଷର *target, unsigned long flags, ଅଚଳ ଅକ୍ଷର *data, libcrun_error_t *err)
 {
   proc_fd_path_t target_buffer;
-  int ret;
-  const char *real_target = target;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
+  ଅଚଳ ଅକ୍ଷର *real_target = target;
 
-  if (targetfd >= 0)
+  ଯଦି (targetfd >= 0)
     {
       unsigned long set_flags = flags & ~(MS_REMOUNT | MS_BIND);
       unsigned long clear_flags = REMOUNT_CLEAR_FLAGS & ~set_flags;
       ret = do_mount_setattr (false, target, targetfd, clear_flags, flags & ~MS_REMOUNT, err);
-      if (LIKELY (ret == 0))
-        return 0;
+      ଯଦି (LIKELY (ret == 0))
+        ଫେରନ୍ତୁ 0;
       crun_error_release (err);
 
       get_proc_self_fd_path (target_buffer, targetfd);
@@ -968,207 +968,207 @@ do_remount (int targetfd, const char *target, unsigned long flags, const char *d
 
   /* Older kernels (seen on 4.18) fail with EINVAL if data is set when
      setting MS_RDONLY.  */
-  if (flags & (MS_REMOUNT | MS_RDONLY))
-    data = NULL;
+  ଯଦି (flags & (MS_REMOUNT | MS_RDONLY))
+    data = ଖାଲି;
 
-  ret = mount (NULL, real_target, NULL, flags, data);
-  if (UNLIKELY (ret < 0))
+  ret = mount (ଖାଲି, real_target, ଖାଲି, flags, data);
+  ଯଦି (UNLIKELY (ret < 0))
     {
       unsigned long current_flags, remount_flags;
-      struct statfs sfs;
+      ସଂରଚନା statfs sfs;
 
       ret = statfs (real_target, &sfs);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "statfs `%s`", real_target);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "statfs `%s`", real_target);
 
       current_flags = mount_flags_from_statfs (sfs.f_flags);
 
       remount_flags = current_flags & (MS_NOSUID | MS_NODEV | MS_NOEXEC | MS_NOSYMFOLLOW);
-      if (! (flags & MOUNT_ATIME_FLAGS))
+      ଯଦି (! (flags & MOUNT_ATIME_FLAGS))
         remount_flags |= current_flags & MOUNT_ATIME_FLAGS;
 
-      if ((flags | remount_flags) != flags)
+      ଯଦି ((flags | remount_flags) != flags)
         {
-          ret = mount (NULL, real_target, NULL, flags | remount_flags, data);
-          if (LIKELY (ret == 0))
-            return 0;
+          ret = mount (ଖାଲି, real_target, ଖାଲି, flags | remount_flags, data);
+          ଯଦି (LIKELY (ret == 0))
+            ଫେରନ୍ତୁ 0;
 
           /* If it still fails and MS_RDONLY is present in the mount, try adding it.  */
-          if (current_flags & MS_RDONLY)
-            ret = mount (NULL, real_target, NULL, flags | remount_flags | MS_RDONLY, data);
+          ଯଦି (current_flags & MS_RDONLY)
+            ret = mount (ଖାଲି, real_target, ଖାଲି, flags | remount_flags | MS_RDONLY, data);
         }
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "remount `%s`", target);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "remount `%s`", target);
     }
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 finalize_mounts (libcrun_container_t *container, libcrun_error_t *err)
 {
-  int ret = 0;
-  struct remount_s *r = get_private_data (container)->remounts;
-  while (r)
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret = 0;
+  ସଂରଚନା remount_s *r = get_private_data (container)->remounts;
+  ଯେତେବେଳେ (r)
     {
-      struct remount_s *next = r->next;
+      ସଂରଚନା remount_s *next = r->next;
 
       /* Try mount_setattr() first to avoid the statfs+retry fallback.  */
-      if (r->targetfd >= 0 && (r->flags & MS_RDONLY))
+      ଯଦି (r->targetfd >= 0 && (r->flags & MS_RDONLY))
         {
           /* Clear the flags which are not set, like do_remount does.  */
           unsigned long set_flags = r->flags & ~(MS_REMOUNT | MS_BIND);
           unsigned long clear_flags = REMOUNT_CLEAR_FLAGS & ~set_flags;
 
           ret = do_mount_setattr (false, r->target, r->targetfd, clear_flags, r->flags & ~MS_REMOUNT, err);
-          if (LIKELY (ret == 0))
+          ଯଦି (LIKELY (ret == 0))
             {
               free_remount (r);
               r = next;
-              continue;
+              ଜାରି;
             }
           crun_error_release (err);
         }
 
       ret = do_remount (r->targetfd, r->target, r->flags, r->data, err);
-      if (UNLIKELY (ret < 0))
-        goto cleanup;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଯାଅ cleanup;
 
       free_remount (r);
       r = next;
     }
 
 cleanup:
-  while (r)
+  ଯେତେବେଳେ (r)
     {
-      struct remount_s *next = r->next;
+      ସଂରଚନା remount_s *next = r->next;
       free_remount (r);
       r = next;
     }
 
-  get_private_data (container)->remounts = NULL;
-  return ret;
+  get_private_data (container)->remounts = ଖାଲି;
+  ଫେରନ୍ତୁ ret;
 }
 
-static int
-open_mount_target (libcrun_container_t *container, const char *target_rel, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+open_mount_target (libcrun_container_t *container, ଅଚଳ ଅକ୍ଷର *target_rel, libcrun_error_t *err)
 {
-  const char *rootfs = get_private_data (container)->rootfs;
-  int rootfsfd = get_private_data (container)->rootfsfd;
+  ଅଚଳ ଅକ୍ଷର *rootfs = get_private_data (container)->rootfs;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା rootfsfd = get_private_data (container)->rootfsfd;
 
-  if (rootfsfd < 0)
-    return crun_make_error (err, 0, "invalid rootfs state");
+  ଯଦି (rootfsfd < 0)
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "invalid rootfs state");
 
-  return safe_openat (rootfsfd, rootfs, target_rel, O_PATH | O_CLOEXEC, 0, err);
+  ଫେରନ୍ତୁ safe_openat (rootfsfd, rootfs, target_rel, O_PATH | O_CLOEXEC, 0, err);
 }
 
 /* Attempt to open a mount of the specified type.  */
-static int
-fsopen_mount (const char *type, const char *source_name, const char *labeltype, const char *label, const char *data)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+fsopen_mount (ଅଚଳ ଅକ୍ଷର *type, ଅଚଳ ଅକ୍ଷର *source_name, ଅଚଳ ଅକ୍ଷର *labeltype, ଅଚଳ ଅକ୍ଷର *label, ଅଚଳ ଅକ୍ଷର *data)
 {
 #ifdef HAVE_NEW_MOUNT_API
-  cleanup_close int fsfd = -1;
-  int ret;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା fsfd = -1;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   fsfd = syscall_fsopen (type, FSOPEN_CLOEXEC);
-  if (UNLIKELY (fsfd < 0))
-    return fsfd;
+  ଯଦି (UNLIKELY (fsfd < 0))
+    ଫେରନ୍ତୁ fsfd;
 
   /* Best-effort: pseudo file systems (tmpfs, proc, ...) ignore "source",
      so a failure here is expected and harmless.  Real failures surface
      at FSCONFIG_CMD_CREATE below.  */
-  (void) syscall_fsconfig (fsfd, FSCONFIG_SET_STRING, "source", source_name ? source_name : type, 0);
+  (ଶୂନ୍ୟ) syscall_fsconfig (fsfd, FSCONFIG_SET_STRING, "source", source_name ? source_name : type, 0);
 
-  if (labeltype)
+  ଯଦି (labeltype)
     {
       ret = syscall_fsconfig (fsfd, FSCONFIG_SET_STRING, labeltype, label, 0);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
-  if (data && data[0])
+  ଯଦି (data && data[0])
     {
-      cleanup_free char *data_copy = xstrdup (data);
-      char *saveptr = NULL;
-      char *token;
+      cleanup_free ଅକ୍ଷର *data_copy = xstrdup (data);
+      ଅକ୍ଷର *saveptr = ଖାଲି;
+      ଅକ୍ଷର *token;
 
-      for (token = strtok_r (data_copy, ",", &saveptr); token; token = strtok_r (NULL, ",", &saveptr))
+      ପାଇଁ (token = strtok_r (data_copy, ",", &saveptr); token; token = strtok_r (ଖାଲି, ",", &saveptr))
         {
-          char *eq = strchr (token, '=');
-          if (eq)
+          ଅକ୍ଷର *eq = strchr (token, '=');
+          ଯଦି (eq)
             {
               *eq = '\0';
 
               ret = syscall_fsconfig (fsfd, FSCONFIG_SET_STRING, token, eq + 1, 0);
             }
-          else
-            ret = syscall_fsconfig (fsfd, FSCONFIG_SET_FLAG, token, NULL, 0);
+          ଅନ୍ୟଥା
+            ret = syscall_fsconfig (fsfd, FSCONFIG_SET_FLAG, token, ଖାଲି, 0);
 
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
         }
     }
 
-  ret = syscall_fsconfig (fsfd, FSCONFIG_CMD_CREATE, NULL, NULL, 0);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = syscall_fsconfig (fsfd, FSCONFIG_CMD_CREATE, ଖାଲି, ଖାଲି, 0);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  return syscall_fsmount (fsfd, FSMOUNT_CLOEXEC, 0);
-#else
-  (void) type;
-  (void) source_name;
-  (void) data;
+  ଫେରନ୍ତୁ syscall_fsmount (fsfd, FSMOUNT_CLOEXEC, 0);
+#ଅନ୍ୟଥା
+  (ଶୂନ୍ୟ) type;
+  (ଶୂନ୍ୟ) source_name;
+  (ଶୂନ୍ୟ) data;
   errno = ENOSYS;
-  return -1;
+  ଫେରନ୍ତୁ -1;
 #endif
 }
 
-static int
-get_procfd (struct private_data_s *data, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+get_procfd (ସଂରଚନା private_data_s *data, libcrun_error_t *err)
 {
-  int fd;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd;
 
-  if (data->procfd >= 0)
-    return data->procfd;
+  ଯଦି (data->procfd >= 0)
+    ଫେରନ୍ତୁ data->procfd;
 
-  fd = fsopen_mount ("proc", NULL, NULL, NULL, NULL);
-  if (fd < 0)
+  fd = fsopen_mount ("proc", ଖାଲି, ଖାଲି, ଖାଲି, ଖାଲି);
+  ଯଦି (fd < 0)
     fd = open ("/proc", O_DIRECTORY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `/proc`");
+  ଯଦି (UNLIKELY (fd < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "open `/proc`");
 
   data->procfd = fd;
-  return fd;
+  ଫେରନ୍ତୁ fd;
 }
 
-static int
-get_old_root_fd (struct private_data_s *data)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+get_old_ମୂଳ_fd (ସଂରଚନା private_data_s *data)
 {
-  if (data->old_root_fd >= 0)
-    return data->old_root_fd;
+  ଯଦି (data->old_ମୂଳ_fd >= 0)
+    ଫେରନ୍ତୁ data->old_ମୂଳ_fd;
 
-  data->old_root_fd = open ("/", O_PATH | O_CLOEXEC);
-  return data->old_root_fd;
+  data->old_ମୂଳ_fd = open ("/", O_PATH | O_CLOEXEC);
+  ଫେରନ୍ତୁ data->old_ମୂଳ_fd;
 }
 
-static int
-fs_move_mount_to (int fd, int dirfd, const char *name)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+fs_move_mount_to (ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, ପୂର୍ଣ୍ଣସଂଖ୍ୟା dirfd, ଅଚଳ ଅକ୍ଷର *name)
 {
 #ifdef HAVE_NEW_MOUNT_API
-  if (name)
-    return syscall_move_mount (fd, "", dirfd, name, MOVE_MOUNT_F_EMPTY_PATH);
+  ଯଦି (name)
+    ଫେରନ୍ତୁ syscall_move_mount (fd, "", dirfd, name, MOVE_MOUNT_F_EMPTY_PATH);
 
-  return syscall_move_mount (fd, "", dirfd, "", MOVE_MOUNT_T_EMPTY_PATH | MOVE_MOUNT_F_EMPTY_PATH);
-#else
-  (void) fd;
-  (void) dirfd;
-  (void) name;
-  (void) syscall_move_mount;
+  ଫେରନ୍ତୁ syscall_move_mount (fd, "", dirfd, "", MOVE_MOUNT_T_EMPTY_PATH | MOVE_MOUNT_F_EMPTY_PATH);
+#ଅନ୍ୟଥା
+  (ଶୂନ୍ୟ) fd;
+  (ଶୂନ୍ୟ) dirfd;
+  (ଶୂନ୍ୟ) name;
+  (ଶୂନ୍ୟ) syscall_move_mount;
   errno = ENOSYS;
-  return -1;
+  ଫେରନ୍ତୁ -1;
 #endif
 }
 
-enum
+ଗଣନା
 {
   /* Do not apply any label to the mount.  */
   LABEL_NONE = 0,
@@ -1186,38 +1186,38 @@ enum
   MOUNT_NO_REMOUNT = 0x20,
 };
 
-static int do_mount (libcrun_container_t *container, const char *source, int targetfd,
-                     const char *target, const char *fstype, unsigned long mountflags,
-                     const void *data, int extra_flags, libcrun_error_t *err);
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା do_mount (libcrun_container_t *container, ଅଚଳ ଅକ୍ଷର *source, ପୂର୍ଣ୍ଣସଂଖ୍ୟା targetfd,
+                     ଅଚଳ ଅକ୍ଷର *target, ଅଚଳ ଅକ୍ଷର *fstype, unsigned long mountflags,
+                     ଅଚଳ ଶୂନ୍ୟ *data, ପୂର୍ଣ୍ଣସଂଖ୍ୟା extra_flags, libcrun_error_t *err);
 
-static bool
-mount_option_exists (runtime_spec_schema_defs_mount *mnt, const char *option)
+ସ୍ଥିର bool
+mount_option_exists (runtime_spec_schema_defs_mount *mnt, ଅଚଳ ଅକ୍ଷର *option)
 {
   size_t i;
-  for (i = 0; i < mnt->options_len; i++)
-    if (mnt->options[i] != NULL && strcmp (mnt->options[i], option) == 0)
-      return true;
-  return false;
+  ପାଇଁ (i = 0; i < mnt->options_len; i++)
+    ଯଦି (mnt->options[i] != ଖାଲି && strcmp (mnt->options[i], option) == 0)
+      ଫେରନ୍ତୁ true;
+  ଫେରନ୍ତୁ false;
 }
 
-static runtime_spec_schema_defs_mount *
-find_mount_for (libcrun_container_t *container, const char *destination)
+ସ୍ଥିର runtime_spec_schema_defs_mount *
+find_mount_for (libcrun_container_t *container, ଅଚଳ ଅକ୍ଷର *destination)
 {
   size_t i;
   runtime_spec_schema_config_schema *def = container->container_def;
 
-  for (i = 0; i < def->mounts_len; i++)
+  ପାଇଁ (i = 0; i < def->mounts_len; i++)
     {
-      if (strcmp (def->mounts[i]->destination, destination) == 0)
-        return def->mounts[i];
+      ଯଦି (strcmp (def->mounts[i]->destination, destination) == 0)
+        ଫେରନ୍ତୁ def->mounts[i];
     }
-  return NULL;
+  ଫେରନ୍ତୁ ଖାଲି;
 }
 
-static void
-warn_tmpfs_fallback_once (struct private_data_s *private_data, const char *reason)
+ସ୍ଥିର ଶୂନ୍ୟ
+warn_tmpfs_fallback_once (ସଂରଚନା private_data_s *private_data, ଅଚଳ ଅକ୍ଷର *reason)
 {
-  if (! private_data->maskdir_warned)
+  ଯଦି (! private_data->maskdir_warned)
     {
       libcrun_warning ("Falling back to tmpfs for masked dirs (reason: %s)", reason);
       private_data->maskdir_warned = true;
@@ -1227,32 +1227,32 @@ warn_tmpfs_fallback_once (struct private_data_s *private_data, const char *reaso
 /* Get or create the cached shared empty directory for masked paths optimization.
  * Creates directory and FD once per container, caches /proc/self/fd path for fast mounting.
  */
-static int
-get_shared_empty_dir_cached (libcrun_container_t *container, char **proc_fd_path, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+get_shared_empty_dir_cached (libcrun_container_t *container, ଅକ୍ଷର **proc_fd_path, libcrun_error_t *err)
 {
-  struct private_data_s *private_data = get_private_data (container);
-  cleanup_close int fd = -1;
-  cleanup_free char *empty_dir_path = NULL;
+  ସଂରଚନା private_data_s *private_data = get_private_data (container);
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -1;
+  cleanup_free ଅକ୍ଷର *empty_dir_path = ଖାଲି;
   proc_fd_path_t fd_path;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   /* Fast path: return cached proc fd path if already set up */
-  if (private_data->maskdir_proc_path != NULL)
+  ଯଦି (private_data->maskdir_proc_path != ଖାଲି)
     {
-      if (proc_fd_path)
+      ଯଦି (proc_fd_path)
         *proc_fd_path = private_data->maskdir_proc_path;
-      return 0;
+      ଫେରନ୍ତୁ 0;
     }
 
   /* Slow path: create directory and cache everything once */
-  ret = get_shared_empty_directory_path (&empty_dir_path, container->context->state_root, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_shared_empty_directory_path (&empty_dir_path, container->context->state_ମୂଳ, err);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   /* Open directory and cache FD (once per container) */
   fd = get_bind_mount (-1, empty_dir_path, true, true, false, MS_PRIVATE, err);
-  if (fd < 0)
-    return fd;
+  ଯଦି (fd < 0)
+    ଫେରନ୍ତୁ fd;
 
   get_self_fd_path (fd_path, fd);
   private_data->maskdir_proc_path = xstrdup (fd_path);
@@ -1260,98 +1260,98 @@ get_shared_empty_dir_cached (libcrun_container_t *container, char **proc_fd_path
   private_data->maskdir_fd = fd;
   fd = -1; /* Don't auto-close */
 
-  if (proc_fd_path)
+  ଯଦି (proc_fd_path)
     *proc_fd_path = private_data->maskdir_proc_path;
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static bool
-is_dev_null (const struct stat *st)
+ସ୍ଥିର bool
+is_dev_null (ଅଚଳ ସଂରଚନା stat *st)
 {
   /* 1:3 is the null device, see Documentation/admin-guide/devices.txt.  */
-  return S_ISCHR (st->st_mode) && st->st_rdev == makedev (1, 3);
+  ଫେରନ୍ତୁ S_ISCHR (st->st_mode) && st->st_rdev == makedev (1, 3);
 }
 
 /* Check that fd refers to the null device.  Once the root is the container
    rootfs, /dev/null is whatever the rootfs provides there.  */
-static int
-ensure_dev_null (int fd, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+ensure_dev_null (ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, libcrun_error_t *err)
 {
-  struct stat st;
+  ସଂରଚନା stat st;
 
-  if (UNLIKELY (fstat (fd, &st) < 0))
-    return crun_make_error (err, errno, "stat `/dev/null`");
+  ଯଦି (UNLIKELY (fstat (fd, &st) < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "stat `/dev/null`");
 
-  if (UNLIKELY (! is_dev_null (&st)))
-    return crun_make_error (err, 0, "`/dev/null` is not the null device");
+  ଯଦି (UNLIKELY (! is_dev_null (&st)))
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "`/dev/null` is not the null device");
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 /* Whether FD is the root of a read-only tmpfs that can hold no inode
    other than its root, so it is safe to show in place of any directory.  */
-static bool
-is_empty_ro_tmpfs (int fd)
+ସ୍ଥିର bool
+is_empty_ro_tmpfs (ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd)
 {
-  struct statfs sfs;
+  ସଂରଚନା statfs sfs;
 
-  if (fstatfs (fd, &sfs) < 0)
-    return false;
+  ଯଦି (fstatfs (fd, &sfs) < 0)
+    ଫେରନ୍ତୁ false;
 
-  return sfs.f_type == TMPFS_MAGIC && (sfs.f_flags & ST_RDONLY) && sfs.f_files == 1;
+  ଫେରନ୍ତୁ sfs.f_type == TMPFS_MAGIC && (sfs.f_flags & ST_RDONLY) && sfs.f_files == 1;
 }
 
-static int
-mount_masked_dir (libcrun_container_t *container, int pathfd, const char *rel_path, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+mount_masked_dir (libcrun_container_t *container, ପୂର୍ଣ୍ଣସଂଖ୍ୟା pathfd, ଅଚଳ ଅକ୍ଷର *rel_path, libcrun_error_t *err)
 {
-  struct private_data_s *private_data = get_private_data (container);
-  cleanup_close int newfd = -1;
-  libcrun_error_t tmp_err = NULL;
-  int ret;
+  ସଂରଚନା private_data_s *private_data = get_private_data (container);
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା newfd = -1;
+  libcrun_error_t tmp_err = ଖାଲି;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (private_data->maskdir_fd < 0)
+  ଯଦି (private_data->maskdir_fd < 0)
     {
-      if (private_data->maskdir_bind_failed)
-        goto fallback_to_tmpfs;
+      ଯଦି (private_data->maskdir_bind_failed)
+        ଯାଅ fallback_to_tmpfs;
 
-      ret = get_shared_empty_dir_cached (container, NULL, &tmp_err);
-      if (ret < 0)
+      ret = get_shared_empty_dir_cached (container, ଖାଲି, &tmp_err);
+      ଯଦି (ret < 0)
         {
           private_data->maskdir_bind_failed = true;
-          warn_tmpfs_fallback_once (private_data, tmp_err->msg);
+          warn_tmpfs_fallback_once (private_data, tmp_err->ସନ୍ଦେଶ);
           crun_error_release (&tmp_err);
-          goto fallback_to_tmpfs;
+          ଯାଅ fallback_to_tmpfs;
         }
     }
 
-  if (private_data->maskdir_fd >= 0)
+  ଯଦି (private_data->maskdir_fd >= 0)
     {
-      int rootfsfd = private_data->rootfsfd;
-      struct stat before, after;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା rootfsfd = private_data->rootfsfd;
+      ସଂରଚନା stat before, after;
 
       ret = fstat (private_data->maskdir_fd, &before);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "fstat masked dir `%s`", rel_path);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "fstat masked dir `%s`", rel_path);
 
-      ret = fs_move_mount_to (private_data->maskdir_fd, pathfd, NULL);
-      if (LIKELY (ret == 0))
+      ret = fs_move_mount_to (private_data->maskdir_fd, pathfd, ଖାଲି);
+      ଯଦି (LIKELY (ret == 0))
         {
           newfd = get_bind_mount (rootfsfd, rel_path, true, true, false, MS_PRIVATE, err);
-          if (UNLIKELY (newfd < 0))
-            return newfd;
+          ଯଦି (UNLIKELY (newfd < 0))
+            ଫେରନ୍ତୁ newfd;
 
           ret = fstat (newfd, &after);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "fstat masked dir `%s`", rel_path);
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "fstat masked dir `%s`", rel_path);
 
-          if (before.st_dev != after.st_dev || before.st_ino != after.st_ino)
-            return crun_make_error (err, 0, "race condition detected remounting masked path `/%s`", rel_path);
+          ଯଦି (before.st_dev != after.st_dev || before.st_ino != after.st_ino)
+            ଫେରନ୍ତୁ crun_make_error (err, 0, "race condition detected remounting masked path `/%s`", rel_path);
 
           TEMP_FAILURE_RETRY (close (private_data->maskdir_fd));
           private_data->maskdir_fd = newfd;
           newfd = -1;
 
-          return 0;
+          ଫେରନ୍ତୁ 0;
         }
 
       /* tmp_err is NULL here: get_shared_empty_dir_cached() succeeded and did not set it. */
@@ -1363,105 +1363,105 @@ mount_masked_dir (libcrun_container_t *container, int pathfd, const char *rel_pa
     }
 
   private_data->maskdir_bind_failed = true;
-  warn_tmpfs_fallback_once (private_data, tmp_err ? tmp_err->msg : "unknown error");
+  warn_tmpfs_fallback_once (private_data, tmp_err ? tmp_err->ସନ୍ଦେଶ : "unknown error");
   crun_error_release (&tmp_err);
 
 fallback_to_tmpfs:
   libcrun_debug ("using tmpfs fallback for %s", rel_path);
   ret = do_mount (container, "tmpfs", pathfd, rel_path, "tmpfs", MS_RDONLY, "nr_blocks=1,nr_inodes=1",
                   LABEL_MOUNT | MOUNT_NO_DEFERRED_REMOUNT, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   /* Reuse this tmpfs for the other masked directories, so that they do not
      need a tmpfs instance each.  */
-  if (! private_data->maskdir_move_failed)
+  ଯଦି (! private_data->maskdir_move_failed)
     {
       ret = get_bind_mount (private_data->rootfsfd, rel_path, true, true, false, MS_PRIVATE, &tmp_err);
-      if (ret >= 0 && is_empty_ro_tmpfs (ret))
+      ଯଦି (ret >= 0 && is_empty_ro_tmpfs (ret))
         private_data->maskdir_fd = ret;
-      else
+      ଅନ୍ୟଥା
         {
-          if (ret >= 0)
+          ଯଦି (ret >= 0)
             TEMP_FAILURE_RETRY (close (ret));
           private_data->maskdir_move_failed = true;
           crun_error_release (&tmp_err);
         }
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-do_masked_or_readonly_path (libcrun_container_t *container, const char *rel_path, bool readonly, bool keep_flags,
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+do_masked_or_readonly_path (libcrun_container_t *container, ଅଚଳ ଅକ୍ଷର *rel_path, bool readonly, bool keep_flags,
                             libcrun_error_t *err)
 {
   unsigned long mount_flags = 0;
-  const char *rootfs = get_private_data (container)->rootfs;
-  cleanup_close int pathfd = -1;
-  struct statfs sfs;
-  int ret;
+  ଅଚଳ ଅକ୍ଷର *rootfs = get_private_data (container)->rootfs;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା pathfd = -1;
+  ସଂରଚନା statfs sfs;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
   mode_t mode;
 
   /* The paths come from linux.maskedPaths and linux.readonlyPaths, so a null
      entry in either array reaches us as a NULL pointer.  */
-  if (UNLIKELY (rel_path == NULL))
-    return crun_make_error (err, EINVAL, "invalid null path in `maskedPaths` or `readonlyPaths`");
+  ଯଦି (UNLIKELY (rel_path == ଖାଲି))
+    ଫେରନ୍ତୁ crun_make_error (err, EINVAL, "invalid null path in `maskedPaths` or `readonlyPaths`");
 
-  if (rel_path[0] == '/')
+  ଯଦି (rel_path[0] == '/')
     rel_path++;
 
   pathfd = safe_openat (get_private_data (container)->rootfsfd, rootfs, rel_path, O_PATH | O_CLOEXEC, 0, err);
-  if (UNLIKELY (pathfd < 0))
+  ଯଦି (UNLIKELY (pathfd < 0))
     {
       errno = crun_error_get_errno (err);
-      if (errno != ENOENT && errno != EACCES)
-        return pathfd;
+      ଯଦି (errno != ENOENT && errno != EACCES)
+        ଫେରନ୍ତୁ pathfd;
 
-      if (errno == EACCES)
+      ଯଦି (errno == EACCES)
         libcrun_debug ("skipping inaccessible path `%s`", rel_path);
       crun_error_release (err);
-      return 0;
+      ଫେରନ୍ତୁ 0;
     }
 
-  if (readonly)
+  ଯଦି (readonly)
     {
-      int procfd = get_procfd (get_private_data (container), err);
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା procfd = get_procfd (get_private_data (container), err);
       proc_fd_path_t source_buffer;
-      cleanup_close int mountfd = -1;
+      cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା mountfd = -1;
 
-      if (UNLIKELY (procfd < 0))
-        return procfd;
+      ଯଦି (UNLIKELY (procfd < 0))
+        ଫେରନ୍ତୁ procfd;
 
       get_self_fd_path (source_buffer, pathfd);
 
       /* Try open_tree + mount_setattr to apply MS_RDONLY atomically.
          Only when keep_flags is false, since keep_flags needs statfs
          to inherit parent mount flags.  */
-      if (! keep_flags)
+      ଯଦି (! keep_flags)
         {
           mountfd = get_bind_mount (procfd, source_buffer, true, true, false, MS_PRIVATE, err);
-          if (mountfd >= 0)
-            ret = fs_move_mount_to (mountfd, pathfd, NULL);
-          else
+          ଯଦି (mountfd >= 0)
+            ret = fs_move_mount_to (mountfd, pathfd, ଖାଲି);
+          ଅନ୍ୟଥା
             ret = -1;
 
-          if (ret < 0)
+          ଯଦି (ret < 0)
             crun_error_release (err);
         }
 
-      if (keep_flags || ret < 0)
+      ଯଦି (keep_flags || ret < 0)
         {
           mount_flags = MS_BIND | MS_PRIVATE | MS_RDONLY | MS_REC;
-          if (keep_flags)
+          ଯଦି (keep_flags)
             {
-              cleanup_close int sfd = openat (procfd, source_buffer, O_PATH | O_CLOEXEC);
-              if (UNLIKELY (sfd < 0))
-                return crun_make_error (err, errno, "openat procfd for `%s`", rel_path);
+              cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା sfd = openat (procfd, source_buffer, O_PATH | O_CLOEXEC);
+              ଯଦି (UNLIKELY (sfd < 0))
+                ଫେରନ୍ତୁ crun_make_error (err, errno, "openat procfd for `%s`", rel_path);
 
               ret = fstatfs (sfd, &sfs);
-              if (UNLIKELY (ret < 0))
-                return crun_make_error (err, errno, "fstatfs `%s`", rel_path);
+              ଯଦି (UNLIKELY (ret < 0))
+                ଫେରନ୍ତୁ crun_make_error (err, errno, "fstatfs `%s`", rel_path);
               mount_flags = mount_flags | sfs.f_flags;
 
               /* Parent might contain MS_REMOUNT but the new readonly path is not
@@ -1473,241 +1473,241 @@ do_masked_or_readonly_path (libcrun_container_t *container, const char *rel_path
 
           close_and_reset (&mountfd);
           mountfd = get_bind_mount (procfd, source_buffer, true, true, false, MS_PRIVATE, err);
-          if (mountfd >= 0)
+          ଯଦି (mountfd >= 0)
             {
               ret = do_mount_setattr (true, rel_path, mountfd, 0, mount_flags & ~(MS_BIND | MS_PRIVATE), err);
-              if (UNLIKELY (ret < 0))
-                return ret;
+              ଯଦି (UNLIKELY (ret < 0))
+                ଫେରନ୍ତୁ ret;
 
-              ret = fs_move_mount_to (mountfd, pathfd, NULL);
-              if (UNLIKELY (ret < 0))
-                return crun_make_error (err, errno, "move mount for readonly path `%s`", rel_path);
+              ret = fs_move_mount_to (mountfd, pathfd, ଖାଲି);
+              ଯଦି (UNLIKELY (ret < 0))
+                ଫେରନ୍ତୁ crun_make_error (err, errno, "move mount for readonly path `%s`", rel_path);
             }
-          else
+          ଅନ୍ୟଥା
             {
               proc_fd_path_t abs_source;
 
               crun_error_release (err);
               get_proc_self_fd_path (abs_source, pathfd);
-              ret = do_mount (container, abs_source, pathfd, rel_path, NULL, mount_flags, NULL,
+              ret = do_mount (container, abs_source, pathfd, rel_path, ଖାଲି, mount_flags, ଖାଲି,
                               LABEL_NONE, err);
-              if (UNLIKELY (ret < 0))
-                return ret;
+              ଯଦି (UNLIKELY (ret < 0))
+                ଫେରନ୍ତୁ ret;
             }
         }
     }
-  else
+  ଅନ୍ୟଥା
     {
       ret = get_file_type_fd (pathfd, &mode);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "cannot stat `%s`", rel_path);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "cannot stat `%s`", rel_path);
 
-      if ((mode & S_IFMT) == S_IFDIR)
+      ଯଦି ((mode & S_IFMT) == S_IFDIR)
         ret = mount_masked_dir (container, pathfd, rel_path, err);
-      else
+      ଅନ୍ୟଥା
         {
-          cleanup_close int nullfd = -1;
-          cleanup_close int mountfd = -1;
+          cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା nullfd = -1;
+          cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା mountfd = -1;
 
           /* If the root is already the container rootfs, this is its
              /dev/null: mask with it only if it is the null device.  */
           nullfd = open ("/dev/null", O_PATH | O_CLOEXEC);
-          if (UNLIKELY (nullfd < 0))
-            return crun_make_error (err, errno, "open `/dev/null`");
+          ଯଦି (UNLIKELY (nullfd < 0))
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "open `/dev/null`");
 
           ret = ensure_dev_null (nullfd, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
 
           mountfd = get_bind_mount (nullfd, "", false, true, false, MS_PRIVATE, err);
-          if (mountfd >= 0)
-            ret = fs_move_mount_to (mountfd, pathfd, NULL);
+          ଯଦି (mountfd >= 0)
+            ret = fs_move_mount_to (mountfd, pathfd, ଖାଲି);
 
-          if (mountfd < 0 || ret < 0)
+          ଯଦି (mountfd < 0 || ret < 0)
             {
               proc_fd_path_t null_path;
 
               crun_error_release (err);
               get_proc_self_fd_path (null_path, nullfd);
-              ret = do_mount (container, null_path, pathfd, rel_path, NULL, MS_BIND | MS_RDONLY, NULL,
+              ret = do_mount (container, null_path, pathfd, rel_path, ଖାଲି, MS_BIND | MS_RDONLY, ଖାଲି,
                               LABEL_MOUNT | MOUNT_NO_DEFERRED_REMOUNT, err);
             }
         }
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static const char *
+ସ୍ଥିର ଅଚଳ ଅକ୍ଷର *
 get_selinux_context_type (libcrun_container_t *container, libcrun_error_t *err)
 {
-  const char *context_type;
+  ଅଚଳ ଅକ୍ଷର *context_type;
 
   context_type = find_annotation (container, "run.oci.mount_context_type");
-  if (context_type)
+  ଯଦି (context_type)
     {
-      if (strcmp (context_type, "context") != 0
+      ଯଦି (strcmp (context_type, "context") != 0
           && strcmp (context_type, "fscontext") != 0
           && strcmp (context_type, "defcontext") != 0
           && strcmp (context_type, "rootcontext") != 0)
         {
           crun_make_error (err, 0, "invalid mount context type `%s` (must be one of: context, fscontext, defcontext, rootcontext)", context_type);
-          return NULL;
+          ଫେରନ୍ତୁ ଖାଲି;
         }
-      return context_type;
+      ଫେରନ୍ତୁ context_type;
     }
 
-  return "context";
+  ଫେରନ୍ତୁ "context";
 }
 
 /* improve the error message on mount(2) failures.  It always returns the original ret.  */
-static int
-diagnose_mount_failure (int ret, libcrun_error_t *err, libcrun_container_t *container,
-                        const char *fstype)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+diagnose_mount_failure (ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret, libcrun_error_t *err, libcrun_container_t *container,
+                        ଅଚଳ ଅକ୍ଷର *fstype)
 {
-  if (fstype && strcmp (fstype, "cgroup2") == 0 && get_private_data (container)->unified_cgroup_path)
+  ଯଦି (fstype && strcmp (fstype, "cgroup2") == 0 && get_private_data (container)->unified_cgroup_path)
     {
-      if (access (get_private_data (container)->unified_cgroup_path, R_OK) < 0 && errno == EACCES)
+      ଯଦି (access (get_private_data (container)->unified_cgroup_path, R_OK) < 0 && errno == EACCES)
         {
           /* The current cgroup is not accessible.  */
           crun_error_wrap (err, "the current cgroup is not accessible (too restrictive umask?)");
-          return ret;
+          ଫେରନ୍ତୁ ret;
         }
     }
-  return ret;
+  ଫେରନ୍ତୁ ret;
 }
 
 /* When creating a fresh sysfs mount fails inside a user namespace, fall back to
    bind mounting the host /sys.  Returns 0 when the fallback handled the mount,
    > 0 when it does not apply (the caller must report the original failure),
    < 0 on error.  */
-static int
-sysfs_userns_fallback (libcrun_container_t *container, const char *target,
-                       const char *real_target, int targetfd,
-                       unsigned long mountflags, const char *fstype,
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+sysfs_userns_fallback (libcrun_container_t *container, ଅଚଳ ଅକ୍ଷର *target,
+                       ଅଚଳ ଅକ୍ଷର *real_target, ପୂର୍ଣ୍ଣସଂଖ୍ୟା targetfd,
+                       unsigned long mountflags, ଅଚଳ ଅକ୍ଷର *fstype,
                        libcrun_error_t *err)
 {
   runtime_spec_schema_defs_mount *cgroup_mount;
-  cleanup_close int mountfd = -1;
-  cleanup_close int sysfd = -1;
-  int sys_old_root_fd = -1;
-  int ret;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା mountfd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା sysfd = -1;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା sys_old_ମୂଳ_fd = -1;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (! ((mountflags & MS_RDONLY) && targetfd > 0 && fstype && strcmp (fstype, "sysfs") == 0))
-    return 1;
+  ଯଦି (! ((mountflags & MS_RDONLY) && targetfd > 0 && fstype && strcmp (fstype, "sysfs") == 0))
+    ଫେରନ୍ତୁ 1;
 
   /* If we are running in an user namespace, just bind mount /sys if creating
      sysfs failed.  */
   ret = check_running_in_user_namespace (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  if (ret == 0)
-    return 1;
+  ଯଦି (ret == 0)
+    ଫେରନ୍ତୁ 1;
 
   cgroup_mount = find_mount_for (container, "/sys/fs/cgroup");
-  sys_old_root_fd = get_old_root_fd (get_private_data (container));
+  sys_old_ମୂଳ_fd = get_old_ମୂଳ_fd (get_private_data (container));
 
   /* The bind brings the host mounts below /sys along.  The later do_remount
      only affects the top mount, so make the whole tree read-only here.  */
-  if (sys_old_root_fd >= 0)
-    mountfd = get_bind_mount (sys_old_root_fd, "sys", true, true, false, MS_PRIVATE, err);
-  if (mountfd < 0)
+  ଯଦି (sys_old_ମୂଳ_fd >= 0)
+    mountfd = get_bind_mount (sys_old_ମୂଳ_fd, "sys", true, true, false, MS_PRIVATE, err);
+  ଯଦି (mountfd < 0)
     {
       crun_error_release (err);
       mountfd = get_bind_mount (AT_FDCWD, "/sys", true, true, false, MS_PRIVATE, err);
     }
 
-  if (cgroup_mount == NULL)
+  ଯଦି (cgroup_mount == ଖାଲି)
     {
-      if (mountfd >= 0)
+      ଯଦି (mountfd >= 0)
         {
-          ret = fs_move_mount_to (mountfd, targetfd, NULL);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "move mount `/sys` to `%s`", real_target);
+          ret = fs_move_mount_to (mountfd, targetfd, ଖାଲି);
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "move mount `/sys` to `%s`", real_target);
         }
-      else
+      ଅନ୍ୟଥା
         {
           crun_error_release (err);
-          if (sys_old_root_fd >= 0)
+          ଯଦି (sys_old_ମୂଳ_fd >= 0)
             {
-              cleanup_free char *sys_path = NULL;
-              proc_fd_path_t sys_root_path;
+              cleanup_free ଅକ୍ଷର *sys_path = ଖାଲି;
+              proc_fd_path_t sys_ମୂଳ_path;
 
-              get_proc_self_fd_path (sys_root_path, sys_old_root_fd);
-              xasprintf (&sys_path, "%s/sys", sys_root_path);
-              ret = mount (sys_path, real_target, NULL, MS_BIND | MS_REC, NULL);
+              get_proc_self_fd_path (sys_ମୂଳ_path, sys_old_ମୂଳ_fd);
+              xasprintf (&sys_path, "%s/sys", sys_ମୂଳ_path);
+              ret = mount (sys_path, real_target, ଖାଲି, MS_BIND | MS_REC, ଖାଲି);
             }
-          else
-            ret = mount ("/sys", real_target, NULL, MS_BIND | MS_REC, NULL);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "bind mount `/sys` from the host");
+          ଅନ୍ୟଥା
+            ret = mount ("/sys", real_target, ଖାଲି, MS_BIND | MS_REC, ଖାଲି);
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "bind mount `/sys` from the host");
         }
 
       sysfd = open_mount_target (container, target, err);
-      if (UNLIKELY (sysfd < 0))
-        return sysfd;
+      ଯଦି (UNLIKELY (sysfd < 0))
+        ଫେରନ୍ତୁ sysfd;
 
       ret = do_remount (sysfd, target,
                         MS_REMOUNT | MS_BIND | (mountflags & ~ALL_PROPAGATIONS),
-                        NULL, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+                        ଖାଲି, err);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
-      return do_masked_or_readonly_path (container, "/sys/fs/cgroup", true, false, err);
+      ଫେରନ୍ତୁ do_masked_or_readonly_path (container, "/sys/fs/cgroup", true, false, err);
     }
 
-  if (UNLIKELY (mountfd < 0))
-    return mountfd;
+  ଯଦି (UNLIKELY (mountfd < 0))
+    ଫେରନ୍ତୁ mountfd;
 
-  ret = fs_move_mount_to (mountfd, targetfd, NULL);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "move mount to `%s`", real_target);
+  ret = fs_move_mount_to (mountfd, targetfd, ଖାଲି);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "move mount to `%s`", real_target);
 
   sysfd = open_mount_target (container, target, err);
-  if (UNLIKELY (sysfd < 0))
-    return sysfd;
+  ଯଦି (UNLIKELY (sysfd < 0))
+    ଫେରନ୍ତୁ sysfd;
 
   ret = do_remount (sysfd, target,
                     MS_REMOUNT | MS_BIND | (mountflags & ~ALL_PROPAGATIONS),
-                    NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+                    ଖାଲି, err);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  if (mount_option_exists (cgroup_mount, "ro") || mount_option_exists (cgroup_mount, "rro"))
+  ଯଦି (mount_option_exists (cgroup_mount, "ro") || mount_option_exists (cgroup_mount, "rro"))
     {
       ret = do_masked_or_readonly_path (container, "/sys/fs/cgroup", true, false, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 #ifdef HAVE_FGETXATTR
 /* Best-effort application of the SELinux security.selinux xattr to a
    freshly mounted target when LABEL_XATTR labeling is requested.  */
-static void
-apply_selinux_xattr (libcrun_container_t *container, int fd, int extra_flags, const char *label)
+ସ୍ଥିର ଶୂନ୍ୟ
+apply_selinux_xattr (libcrun_container_t *container, ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, ପୂର୍ଣ୍ଣସଂଖ୍ୟା extra_flags, ଅଚଳ ଅକ୍ଷର *label)
 {
-  libcrun_error_t tmp_err = NULL;
-  int procfd;
+  libcrun_error_t tmp_err = ଖାଲି;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା procfd;
 
-  if ((extra_flags & LABEL_MASK) != LABEL_XATTR)
-    return;
+  ଯଦି ((extra_flags & LABEL_MASK) != LABEL_XATTR)
+    ଫେରନ୍ତୁ;
 
   /* Best-effort: swallow any error so it does not leak into the caller.  */
   procfd = get_procfd (get_private_data (container), &tmp_err);
-  if (procfd >= 0)
+  ଯଦି (procfd >= 0)
     {
       proc_fd_path_t proc_self_path;
-      cleanup_close int xfd = -1;
+      cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା xfd = -1;
 
       get_self_fd_path (proc_self_path, fd);
       xfd = openat (procfd, proc_self_path, O_RDONLY | O_CLOEXEC);
-      if (xfd >= 0)
-        (void) fsetxattr (xfd, "security.selinux", label, strlen (label), 0);
+      ଯଦି (xfd >= 0)
+        (ଶୂନ୍ୟ) fsetxattr (xfd, "security.selinux", label, strlen (label), 0);
     }
   crun_error_release (&tmp_err);
 }
@@ -1716,248 +1716,248 @@ apply_selinux_xattr (libcrun_container_t *container, int fd, int extra_flags, co
 /* After a mount replaced the rootfs (target is empty), the current
    targetfd sits underneath the new mount.  Re-enter the mount namespace
    and reopen the rootfs, refreshing both *fd and the cached rootfsfd.  */
-static int
-do_mount_replace_rootfs (libcrun_container_t *container, int *fd, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+do_mount_replace_rootfs (libcrun_container_t *container, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *fd, libcrun_error_t *err)
 {
-  int procfd = get_procfd (get_private_data (container), err);
-  int tmp;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା procfd = get_procfd (get_private_data (container), err);
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା tmp;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (UNLIKELY (procfd < 0))
-    return procfd;
+  ଯଦି (UNLIKELY (procfd < 0))
+    ଫେରନ୍ତୁ procfd;
 
   {
-    cleanup_close int nsfd = openat (procfd, "self/ns/mnt", O_RDONLY | O_CLOEXEC);
-    if (UNLIKELY (nsfd < 0))
-      return crun_make_error (err, errno, "open `/proc/self/ns/mnt`");
+    cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା nsfd = openat (procfd, "self/ns/mnt", O_RDONLY | O_CLOEXEC);
+    ଯଦି (UNLIKELY (nsfd < 0))
+      ଫେରନ୍ତୁ crun_make_error (err, errno, "open `/proc/self/ns/mnt`");
 
     ret = setns (nsfd, CLONE_NEWNS);
-    if (UNLIKELY (ret < 0))
-      return crun_make_error (err, errno, "setns `CLONE_NEWNS`");
+    ଯଦି (UNLIKELY (ret < 0))
+      ଫେରନ୍ତୁ crun_make_error (err, errno, "setns `CLONE_NEWNS`");
   }
 
   close_and_reset (fd);
   *fd = open (get_private_data (container)->rootfs, O_PATH | O_CLOEXEC);
-  if (UNLIKELY (*fd < 0))
-    return crun_make_error (err, errno, "reopen rootfs after mount on /");
+  ଯଦି (UNLIKELY (*fd < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "reopen rootfs after mount on /");
 
   tmp = dup (*fd);
-  if (UNLIKELY (tmp < 0))
-    return crun_make_error (err, errno, "dup");
+  ଯଦି (UNLIKELY (tmp < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "dup");
 
   TEMP_FAILURE_RETRY (close (get_private_data (container)->rootfsfd));
   get_private_data (container)->rootfsfd = tmp;
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 /* Apply the propagation flags (MS_SHARED, MS_SLAVE, ...) to a mount,
    preferring mount_setattr when a target fd is available and falling
    back to mount(2).  */
-static int
-apply_propagation_flags (const char *target, int targetfd, const char *real_target,
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+apply_propagation_flags (ଅଚଳ ଅକ୍ଷର *target, ପୂର୍ଣ୍ଣସଂଖ୍ୟା targetfd, ଅଚଳ ଅକ୍ଷର *real_target,
                          unsigned long mountflags, libcrun_error_t *err)
 {
   bool propagation_done = false;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (targetfd >= 0)
+  ଯଦି (targetfd >= 0)
     {
-      libcrun_error_t tmp_err = NULL;
+      libcrun_error_t tmp_err = ଖାଲି;
       ret = do_mount_setattr ((mountflags & MS_REC) != 0, target, targetfd, 0, mountflags & ALL_PROPAGATIONS, &tmp_err);
-      if (LIKELY (ret == 0))
+      ଯଦି (LIKELY (ret == 0))
         propagation_done = true;
-      else
+      ଅନ୍ୟଥା
         crun_error_release (&tmp_err);
     }
 
-  if (! propagation_done)
+  ଯଦି (! propagation_done)
     {
-      ret = mount (NULL, real_target, NULL, mountflags & ALL_PROPAGATIONS, NULL);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "set propagation for `%s`", target);
+      ret = mount (ଖାଲି, real_target, ଖାଲି, mountflags & ALL_PROPAGATIONS, ଖାଲି);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "set propagation for `%s`", target);
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 /* Perform (or defer) the remount needed to apply bind/read-only/single
    instance flags.  A read-write remount and MOUNT_NO_DEFERRED_REMOUNT are
    done immediately; otherwise the remount is queued to run later.  *fd is
    consumed when the remount is deferred.  */
-static int
-schedule_or_do_remount (libcrun_container_t *container, int *fd, int targetfd,
-                        const char *target, const char *real_target,
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+schedule_or_do_remount (libcrun_container_t *container, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *fd, ପୂର୍ଣ୍ଣସଂଖ୍ୟା targetfd,
+                        ଅଚଳ ଅକ୍ଷର *target, ଅଚଳ ଅକ୍ଷର *real_target,
                         bool single_instance, unsigned long mountflags,
-                        const void *data, int extra_flags, libcrun_error_t *err)
+                        ଅଚଳ ଶୂନ୍ୟ *data, ପୂର୍ଣ୍ଣସଂଖ୍ୟା extra_flags, libcrun_error_t *err)
 {
   unsigned long remount_flags = MS_REMOUNT | (single_instance ? 0 : MS_BIND) | (mountflags & ~ALL_PROPAGATIONS);
-  struct remount_s *r;
+  ସଂରଚନା remount_s *r;
 
-  if ((remount_flags & MS_RDONLY) == 0 || (extra_flags & MOUNT_NO_DEFERRED_REMOUNT))
-    return do_remount (*fd >= 0 ? *fd : targetfd, real_target, remount_flags, data, err);
+  ଯଦି ((remount_flags & MS_RDONLY) == 0 || (extra_flags & MOUNT_NO_DEFERRED_REMOUNT))
+    ଫେରନ୍ତୁ do_remount (*fd >= 0 ? *fd : targetfd, real_target, remount_flags, data, err);
 
-  if (*fd < 0)
+  ଯଦି (*fd < 0)
     {
       *fd = dup (targetfd);
-      if (UNLIKELY (*fd < 0))
-        return crun_make_error (err, errno, "dup `%d`", targetfd);
+      ଯଦି (UNLIKELY (*fd < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "dup `%d`", targetfd);
     }
 
   /* The remount owns the fd.  */
   r = make_remount (get_and_reset (fd), target, remount_flags, data, get_private_data (container)->remounts);
   get_private_data (container)->remounts = r;
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-do_mount (libcrun_container_t *container, const char *source, int targetfd,
-          const char *target, const char *fstype, unsigned long mountflags, const void *data,
-          int extra_flags, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+do_mount (libcrun_container_t *container, ଅଚଳ ଅକ୍ଷର *source, ପୂର୍ଣ୍ଣସଂଖ୍ୟା targetfd,
+          ଅଚଳ ଅକ୍ଷର *target, ଅଚଳ ଅକ୍ଷର *fstype, unsigned long mountflags, ଅଚଳ ଶୂନ୍ୟ *data,
+          ପୂର୍ଣ୍ଣସଂଖ୍ୟା extra_flags, libcrun_error_t *err)
 {
-  cleanup_free char *data_with_label = NULL;
-  const char *data_without_label = data;
+  cleanup_free ଅକ୍ଷର *data_with_label = ଖାଲି;
+  ଅଚଳ ଅକ୍ଷର *data_without_label = data;
   proc_fd_path_t target_buffer;
-  const char *context_type = NULL;
-  cleanup_close int ms_move_fd = -1;
-  const char *real_target = target;
+  ଅଚଳ ଅକ୍ଷର *context_type = ଖାଲି;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା ms_move_fd = -1;
+  ଅଚଳ ଅକ୍ଷର *real_target = target;
   bool single_instance = false;
   bool needs_remount = false;
-  cleanup_close int fd = -1;
-  const char *label = NULL;
-  int ret = 0;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -1;
+  ଅଚଳ ଅକ୍ଷର *label = ଖାଲି;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret = 0;
 
-  if (container->container_def->linux && container->container_def->linux->mount_label)
+  ଯଦି (container->container_def->linux && container->container_def->linux->mount_label)
     label = container->container_def->linux->mount_label;
-  else
+  ଅନ୍ୟଥା
     extra_flags = (extra_flags & ~LABEL_MASK) | LABEL_NONE;
 
-  if (targetfd >= 0)
+  ଯଦି (targetfd >= 0)
     {
       get_proc_self_fd_path (target_buffer, targetfd);
       real_target = target_buffer;
       needs_remount = true;
     }
 
-  if ((extra_flags & LABEL_MASK) == LABEL_MOUNT)
+  ଯଦି ((extra_flags & LABEL_MASK) == LABEL_MOUNT)
     {
       context_type = get_selinux_context_type (container, err);
-      if (UNLIKELY (context_type == NULL))
-        return -1;
+      ଯଦି (UNLIKELY (context_type == ଖାଲି))
+        ଫେରନ୍ତୁ -1;
 
       ret = add_selinux_mount_label (&data_with_label, data, label, context_type, err);
-      if (ret < 0)
-        return ret;
+      ଯଦି (ret < 0)
+        ଫେରନ୍ତୁ ret;
       data = data_with_label;
     }
 
-  if (mountflags & MS_MOVE)
+  ଯଦି (mountflags & MS_MOVE)
     {
-      if ((mountflags & MS_BIND) || fstype)
-        return crun_make_error (err, 0, "internal error: cannot use MS_MOVE with MS_BIND or fstype");
+      ଯଦି ((mountflags & MS_BIND) || fstype)
+        ଫେରନ୍ତୁ crun_make_error (err, 0, "internal error: cannot use MS_MOVE with MS_BIND or fstype");
 
-      ret = mount (source, real_target, NULL, MS_MOVE, NULL);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "move mount `%s` to `%s`", source, target);
+      ret = mount (source, real_target, ଖାଲି, MS_MOVE, ଖାଲି);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "move mount `%s` to `%s`", source, target);
       mountflags &= ~MS_MOVE;
 
       /* We need to reopen the path as the previous targetfd is underneath the new mountpoint.  */
       ms_move_fd = open_mount_target (container, target, err);
-      if (UNLIKELY (ms_move_fd < 0))
-        return ms_move_fd;
+      ଯଦି (UNLIKELY (ms_move_fd < 0))
+        ଫେରନ୍ତୁ ms_move_fd;
       targetfd = ms_move_fd;
     }
 
-  if ((fstype && fstype[0]) || (mountflags & MS_BIND))
+  ଯଦି ((fstype && fstype[0]) || (mountflags & MS_BIND))
     {
       unsigned long flags = mountflags & ~(ALL_PROPAGATIONS_NO_REC | MS_RDONLY);
 
       ret = -1;
 
-      if (targetfd >= 0)
+      ଯଦି (targetfd >= 0)
         {
-          if (mountflags & MS_BIND)
+          ଯଦି (mountflags & MS_BIND)
             {
-              cleanup_close int bindfd = -1;
-              libcrun_error_t tmp_err = NULL;
+              cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା bindfd = -1;
+              libcrun_error_t tmp_err = ଖାଲି;
 
               bindfd = get_bind_mount (AT_FDCWD, source,
                                        (mountflags & MS_REC) != 0,
                                        false, false, 0, &tmp_err);
-              if (bindfd < 0)
+              ଯଦି (bindfd < 0)
                 {
-                  int old_root_fd = get_old_root_fd (get_private_data (container));
+                  ପୂର୍ଣ୍ଣସଂଖ୍ୟା old_ମୂଳ_fd = get_old_ମୂଳ_fd (get_private_data (container));
 
-                  if (old_root_fd >= 0 && source && source[0] == '/')
+                  ଯଦି (old_ମୂଳ_fd >= 0 && source && source[0] == '/')
                     {
                       crun_error_release (&tmp_err);
-                      bindfd = get_bind_mount (old_root_fd, (source[1] == '\0') ? "." : source + 1,
+                      bindfd = get_bind_mount (old_ମୂଳ_fd, (source[1] == '\0') ? "." : source + 1,
                                                (mountflags & MS_REC) != 0,
                                                false, false, 0, &tmp_err);
                     }
                 }
-              if (bindfd >= 0)
-                ret = fs_move_mount_to (bindfd, targetfd, NULL);
-              if (ret < 0)
+              ଯଦି (bindfd >= 0)
+                ret = fs_move_mount_to (bindfd, targetfd, ଖାଲି);
+              ଯଦି (ret < 0)
                 crun_error_release (&tmp_err);
             }
-          else
+          ଅନ୍ୟଥା
             {
-              cleanup_close int newfs = fsopen_mount (fstype, source, context_type, label, data_without_label);
-              if (newfs >= 0)
-                ret = fs_move_mount_to (newfs, targetfd, NULL);
+              cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା newfs = fsopen_mount (fstype, source, context_type, label, data_without_label);
+              ଯଦି (newfs >= 0)
+                ret = fs_move_mount_to (newfs, targetfd, ଖାଲି);
             }
         }
 
-      if (ret < 0)
+      ଯଦି (ret < 0)
         {
           ret = mount (source, real_target, fstype, flags, data);
-          if (ret < 0 && (mountflags & MS_BIND) && source && source[0] == '/')
+          ଯଦି (ret < 0 && (mountflags & MS_BIND) && source && source[0] == '/')
             {
-              int old_root_fd = get_old_root_fd (get_private_data (container));
+              ପୂର୍ଣ୍ଣସଂଖ୍ୟା old_ମୂଳ_fd = get_old_ମୂଳ_fd (get_private_data (container));
 
-              if (old_root_fd >= 0)
+              ଯଦି (old_ମୂଳ_fd >= 0)
                 {
-                  cleanup_free char *proc_source_buf = NULL;
-                  proc_fd_path_t old_root_path;
+                  cleanup_free ଅକ୍ଷର *proc_source_buf = ଖାଲି;
+                  proc_fd_path_t old_ମୂଳ_path;
 
-                  get_proc_self_fd_path (old_root_path, old_root_fd);
-                  xasprintf (&proc_source_buf, "%s/%s", old_root_path, source + 1);
+                  get_proc_self_fd_path (old_ମୂଳ_path, old_ମୂଳ_fd);
+                  xasprintf (&proc_source_buf, "%s/%s", old_ମୂଳ_path, source + 1);
                   ret = mount (proc_source_buf, real_target, fstype, flags, data);
                 }
             }
         }
-      if (UNLIKELY (ret < 0))
+      ଯଦି (UNLIKELY (ret < 0))
         {
-          int saved_errno = errno;
+          ପୂର୍ଣ୍ଣସଂଖ୍ୟା saved_errno = errno;
 
           ret = sysfs_userns_fallback (container, target, real_target, targetfd,
                                        mountflags, fstype, err);
-          if (ret == 0)
-            return 0;
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (ret == 0)
+            ଫେରନ୍ତୁ 0;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
 
           /* ret > 0: the fallback does not apply, report the original failure.  */
           ret = crun_make_error (err, saved_errno, "mount `%s` to `%s`", source, target);
 
-          return diagnose_mount_failure (ret, err, container, fstype);
+          ଫେରନ୍ତୁ diagnose_mount_failure (ret, err, container, fstype);
         }
 
-      if (targetfd >= 0)
+      ଯଦି (targetfd >= 0)
         {
           /* We need to reopen the path as the previous targetfd is underneath the new mountpoint.  */
           fd = open_mount_target (container, target, err);
-          if (UNLIKELY (fd < 0))
-            return fd;
+          ଯଦି (UNLIKELY (fd < 0))
+            ଫେରନ୍ତୁ fd;
 
           /* We are replacing the rootfs, reopen it.  */
-          if (is_empty_string (target))
+          ଯଦି (is_empty_string (target))
             {
               ret = do_mount_replace_rootfs (container, &fd, err);
-              if (UNLIKELY (ret < 0))
-                return ret;
+              ଯଦି (UNLIKELY (ret < 0))
+                ଫେରନ୍ତୁ ret;
             }
 
 #ifdef HAVE_FGETXATTR
@@ -1976,40 +1976,40 @@ do_mount (libcrun_container_t *container, const char *source, int targetfd,
         }
     }
 
-  if (mountflags & ALL_PROPAGATIONS_NO_REC)
+  ଯଦି (mountflags & ALL_PROPAGATIONS_NO_REC)
     {
       ret = apply_propagation_flags (target, targetfd, real_target, mountflags, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
-  if (mountflags & (MS_BIND | MS_RDONLY))
+  ଯଦି (mountflags & (MS_BIND | MS_RDONLY))
     needs_remount = true;
 
-  if (data && fstype && strcmp (fstype, "proc") == 0)
+  ଯଦି (data && fstype && strcmp (fstype, "proc") == 0)
     {
       single_instance = true;
       needs_remount = true;
     }
 
-  if (needs_remount && ! (extra_flags & MOUNT_NO_REMOUNT))
+  ଯଦି (needs_remount && ! (extra_flags & MOUNT_NO_REMOUNT))
     {
       ret = schedule_or_do_remount (container, &fd, targetfd, target, real_target,
                                     single_instance, mountflags, data, extra_flags, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
-  return ret;
+  ଫେରନ୍ତୁ ret;
 }
 
-static void
-try_umount (int targetfd, const char *target)
+ସ୍ଥିର ଶୂନ୍ୟ
+try_umount (ପୂର୍ଣ୍ଣସଂଖ୍ୟା targetfd, ଅଚଳ ଅକ୍ଷର *target)
 {
   proc_fd_path_t target_buffer;
-  const char *real_target = target;
+  ଅଚଳ ଅକ୍ଷର *real_target = target;
 
-  if (targetfd >= 0)
+  ଯଦି (targetfd >= 0)
     {
       get_proc_self_fd_path (target_buffer, targetfd);
       real_target = target_buffer;
@@ -2018,45 +2018,45 @@ try_umount (int targetfd, const char *target)
   umount2 (real_target, MNT_DETACH);
 }
 
-static bool
+ସ୍ଥିର bool
 container_has_cgroupns (libcrun_container_t *container)
 {
-  return get_private_data (container)->unshare_flags & CLONE_NEWCGROUP;
+  ଫେରନ୍ତୁ get_private_data (container)->unshare_flags & CLONE_NEWCGROUP;
 }
 
-static int
-do_mount_cgroup_v2 (libcrun_container_t *container, int targetfd, const char *target,
-                    unsigned long mountflags, const char *data, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+do_mount_cgroup_v2 (libcrun_container_t *container, ପୂର୍ଣ୍ଣସଂଖ୍ୟା targetfd, ଅଚଳ ଅକ୍ଷର *target,
+                    unsigned long mountflags, ଅଚଳ ଅକ୍ଷର *data, libcrun_error_t *err)
 {
-  int ret;
-  int cgroup_mode;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା cgroup_mode;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  ଯଦି (UNLIKELY (cgroup_mode < 0))
+    ଫେରନ୍ତୁ cgroup_mode;
 
   ret = do_mount (container, "cgroup2", targetfd, target, "cgroup2", mountflags, data, LABEL_NONE, err);
-  if (UNLIKELY (ret < 0))
+  ଯଦି (UNLIKELY (ret < 0))
     {
-      int saved_errno = crun_error_get_errno (err);
-      if (saved_errno == EPERM || saved_errno == EBUSY)
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା saved_errno = crun_error_get_errno (err);
+      ଯଦି (saved_errno == EPERM || saved_errno == EBUSY)
         {
-          const char *unified_cgroup_path;
-          const char *src_cgroup;
+          ଅଚଳ ଅକ୍ଷର *unified_cgroup_path;
+          ଅଚଳ ଅକ୍ଷର *src_cgroup;
 
           crun_error_release (err);
 
-          if (saved_errno == EBUSY)
+          ଯଦି (saved_errno == EBUSY)
             {
               /* If we got EBUSY it means the cgroup file system is already mounted at the targetfd and we
                  cannot stack another one on top of it.  Attempt mounting a tmpfs below the cgroup mount.  */
 
               ret = do_mount (container, "tmpfs", targetfd, target, "tmpfs", MS_PRIVATE, "nr_blocks=1,nr_inodes=1", LABEL_NONE, err);
-              if (LIKELY (ret == 0))
+              ଯଦି (LIKELY (ret == 0))
                 {
                   ret = do_mount (container, "cgroup2", targetfd, target, "cgroup2", mountflags, data, LABEL_NONE, err);
-                  if (LIKELY (ret == 0))
-                    return ret;
+                  ଯଦି (LIKELY (ret == 0))
+                    ଫେରନ୍ତୁ ret;
 
                   /* Best-effort cleanup for the tmpfs, if it fails there is nothing to worry about.  */
                   try_umount (targetfd, target);
@@ -2069,173 +2069,173 @@ do_mount_cgroup_v2 (libcrun_container_t *container, int targetfd, const char *ta
           unified_cgroup_path = get_private_data (container)->unified_cgroup_path;
 
           /* If everything else failed, bind mount from the current cgroup.  */
-          src_cgroup = unified_cgroup_path && container_has_cgroupns (container) ? unified_cgroup_path : CGROUP_ROOT;
-          return do_mount (container, src_cgroup, targetfd, target, NULL,
-                           MS_BIND | mountflags, NULL, LABEL_NONE, err);
+          src_cgroup = unified_cgroup_path && container_has_cgroupns (container) ? unified_cgroup_path : CGROUP_ମୂଳ;
+          ଫେରନ୍ତୁ do_mount (container, src_cgroup, targetfd, target, ଖାଲି,
+                           MS_BIND | mountflags, ଖାଲି, LABEL_NONE, err);
         }
 
-      return ret;
+      ଫେରନ୍ତୁ ret;
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-do_mount_cgroup_systemd_v1 (libcrun_container_t *container, const char *source, int targetfd, const char *target,
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+do_mount_cgroup_systemd_v1 (libcrun_container_t *container, ଅଚଳ ଅକ୍ଷର *source, ପୂର୍ଣ୍ଣସଂଖ୍ୟା targetfd, ଅଚଳ ଅକ୍ଷର *target,
                             unsigned long mountflags, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_close int fd = -1;
-  const char *subsystem = "systemd";
-  cleanup_free char *subsystem_path = NULL;
-  cleanup_close int tmpfsdirfd = -1;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -1;
+  ଅଚଳ ଅକ୍ଷର *subsystem = "systemd";
+  cleanup_free ଅକ୍ଷର *subsystem_path = ଖାଲି;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା tmpfsdirfd = -1;
 
   mountflags = mountflags & ~MS_BIND;
 
   ret = do_mount (container, source, targetfd, target, "tmpfs", mountflags, "size=1024k", LABEL_NONE, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   /* Get a reference to the newly created cgroup directory.  */
   tmpfsdirfd = open_mount_target (container, target, err);
-  if (UNLIKELY (tmpfsdirfd < 0))
-    return tmpfsdirfd;
+  ଯଦି (UNLIKELY (tmpfsdirfd < 0))
+    ଫେରନ୍ତୁ tmpfsdirfd;
   targetfd = tmpfsdirfd;
 
   ret = mkdirat (targetfd, subsystem, 0755);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "mkdirat `%s`", subsystem);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "mkdirat `%s`", subsystem);
 
-  ret = append_paths (&subsystem_path, err, target, subsystem, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&subsystem_path, err, target, subsystem, ଖାଲି);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   fd = openat (targetfd, subsystem, O_CLOEXEC | O_PATH | O_DIRECTORY | O_NOFOLLOW);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "openat `%s`", subsystem_path);
+  ଯଦି (UNLIKELY (fd < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "openat `%s`", subsystem_path);
 
-  return do_mount (container, "cgroup", fd, subsystem_path, "cgroup", mountflags, "none,name=systemd,xattr", LABEL_NONE,
+  ଫେରନ୍ତୁ do_mount (container, "cgroup", fd, subsystem_path, "cgroup", mountflags, "none,name=systemd,xattr", LABEL_NONE,
                    err);
 }
 
-static int
-do_mount_cgroup_v1 (libcrun_container_t *container, const char *source, int targetfd, const char *target,
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+do_mount_cgroup_v1 (libcrun_container_t *container, ଅଚଳ ଅକ୍ଷର *source, ପୂର୍ଣ୍ଣସଂଖ୍ୟା targetfd, ଅଚଳ ଅକ୍ଷର *target,
                     unsigned long mountflags, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_free char *content = NULL;
-  char *from;
-  cleanup_close int tmpfsdirfd = -1;
-  char *saveptr = NULL;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
+  cleanup_free ଅକ୍ଷର *content = ଖାଲି;
+  ଅକ୍ଷର *from;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା tmpfsdirfd = -1;
+  ଅକ୍ଷର *saveptr = ଖାଲି;
 
   ret = do_mount (container, source, targetfd, target, "tmpfs", mountflags & ~MS_RDONLY, "size=1024k", LABEL_MOUNT,
                   err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   tmpfsdirfd = open_mount_target (container, target, err);
-  if (UNLIKELY (tmpfsdirfd < 0))
-    return tmpfsdirfd;
+  ଯଦି (UNLIKELY (tmpfsdirfd < 0))
+    ଫେରନ୍ତୁ tmpfsdirfd;
   targetfd = tmpfsdirfd;
 
   {
-    int procfd = get_procfd (get_private_data (container), err);
-    if (UNLIKELY (procfd < 0))
-      return procfd;
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା procfd = get_procfd (get_private_data (container), err);
+    ଯଦି (UNLIKELY (procfd < 0))
+      ଫେରନ୍ତୁ procfd;
 
-    ret = read_all_file_at (procfd, SELF_CGROUP, &content, NULL, err);
+    ret = read_all_file_at (procfd, SELF_CGROUP, &content, ଖାଲି, err);
   }
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  if (UNLIKELY (content == NULL || content[0] == '\0'))
-    return crun_make_error (err, 0, "invalid content from `%s`", PROC_SELF_CGROUP);
+  ଯଦି (UNLIKELY (content == ଖାଲି || content[0] == '\0'))
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "invalid content from `%s`", PROC_SELF_CGROUP);
 
-  for (from = strtok_r (content, "\n", &saveptr); from; from = strtok_r (NULL, "\n", &saveptr))
+  ପାଇଁ (from = strtok_r (content, "\n", &saveptr); from; from = strtok_r (ଖାଲି, "\n", &saveptr))
     {
-      cleanup_free char *source_path = NULL;
-      cleanup_free char *source_subsystem = NULL;
-      cleanup_free char *subsystem_path = NULL;
-      char *subpath, *subsystem, *subsystem_fqn, *it;
-      cleanup_close int subsystemfd = -1;
+      cleanup_free ଅକ୍ଷର *source_path = ଖାଲି;
+      cleanup_free ଅକ୍ଷର *source_subsystem = ଖାଲି;
+      cleanup_free ଅକ୍ଷର *subsystem_path = ଖାଲି;
+      ଅକ୍ଷର *subpath, *subsystem, *subsystem_fqn, *it;
+      cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା subsystemfd = -1;
       subsystem = strchr (from, ':') + 1;
       subpath = strchr (subsystem, ':') + 1;
       *(subpath - 1) = '\0';
 
-      if (subsystem[0] == '\0')
-        continue;
+      ଯଦି (subsystem[0] == '\0')
+        ଜାରି;
 
       /* subsystem_fqn includes name= for named hierarchies.  */
       subsystem_fqn = subsystem;
 
       it = strstr (subsystem, "name=");
-      if (it)
+      ଯଦି (it)
         subsystem = it + 5;
 
-      if (strcmp (subsystem, "net_prio,net_cls") == 0)
+      ଯଦି (strcmp (subsystem, "net_prio,net_cls") == 0)
         subsystem = "net_cls,net_prio";
-      if (strcmp (subsystem, "cpuacct,cpu") == 0)
+      ଯଦି (strcmp (subsystem, "cpuacct,cpu") == 0)
         subsystem = "cpu,cpuacct";
 
-      ret = append_paths (&source_subsystem, err, CGROUP_ROOT, subsystem, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&source_subsystem, err, CGROUP_ମୂଳ, subsystem, ଖାଲି);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       /* if there is already a mount specified, do not add a default one.  */
-      if (find_mount_for (container, source_subsystem) != NULL)
-        continue;
+      ଯଦି (find_mount_for (container, source_subsystem) != ଖାଲି)
+        ଜାରି;
 
-      ret = append_paths (&source_path, err, source_subsystem, subpath, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&source_path, err, source_subsystem, subpath, ଖାଲି);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
-      ret = append_paths (&subsystem_path, err, target, subsystem, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&subsystem_path, err, target, subsystem, ଖାଲି);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       ret = mkdirat (targetfd, subsystem, 0755);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "mkdirat `%s`", subsystem_path);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "mkdirat `%s`", subsystem_path);
 
       subsystemfd = openat (targetfd, subsystem, O_CLOEXEC | O_PATH | O_DIRECTORY | O_NOFOLLOW);
-      if (UNLIKELY (subsystemfd < 0))
-        return crun_make_error (err, errno, "open `%s`", subsystem_path);
+      ଯଦି (UNLIKELY (subsystemfd < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "open `%s`", subsystem_path);
 
-      if (container_has_cgroupns (container))
+      ଯଦି (container_has_cgroupns (container))
         {
           ret = do_mount (container, source_path, subsystemfd, subsystem_path, "cgroup", mountflags, subsystem_fqn,
                           LABEL_NONE, err);
-          if (UNLIKELY (ret < 0))
+          ଯଦି (UNLIKELY (ret < 0))
             {
-              if (crun_error_get_errno (err) == ENOENT || crun_error_get_errno (err) == ENODEV)
+              ଯଦି (crun_error_get_errno (err) == ENOENT || crun_error_get_errno (err) == ENODEV)
                 {
                   /* We are trying to mount a subsystem that is not present.  */
                   crun_error_release (err);
-                  continue;
+                  ଜାରି;
                 }
-              return ret;
+              ଫେରନ୍ତୁ ret;
             }
         }
-      else
+      ଅନ୍ୟଥା
         {
-          ret = do_mount (container, source_path, subsystemfd, subsystem_path, NULL, MS_BIND | mountflags, NULL,
+          ret = do_mount (container, source_path, subsystemfd, subsystem_path, ଖାଲି, MS_BIND | mountflags, ଖାଲି,
                           LABEL_NONE, err);
-          if (UNLIKELY (ret < 0))
+          ଯଦି (UNLIKELY (ret < 0))
             {
-              if (crun_error_get_errno (err) != ENOENT)
-                return ret;
+              ଯଦି (crun_error_get_errno (err) != ENOENT)
+                ଫେରନ୍ତୁ ret;
 
               crun_error_release (err);
 
               /* We might already be in a container.  Mount the source subsystem.  */
-              ret = do_mount (container, source_subsystem, subsystemfd, subsystem_path, NULL, MS_BIND | mountflags,
-                              NULL, LABEL_NONE, err);
-              if (UNLIKELY (ret < 0))
+              ret = do_mount (container, source_subsystem, subsystemfd, subsystem_path, ଖାଲି, MS_BIND | mountflags,
+                              ଖାଲି, LABEL_NONE, err);
+              ଯଦି (UNLIKELY (ret < 0))
                 {
                   /* If it still fails with ENOENT, ignore the error as the controller might have been
                      dropped and doesn't exist.  */
-                  if (crun_error_get_errno (err) != ENOENT)
-                    return ret;
+                  ଯଦି (crun_error_get_errno (err) != ENOENT)
+                    ଫେରନ୍ତୁ ret;
 
                   crun_error_release (err);
                 }
@@ -2244,35 +2244,35 @@ do_mount_cgroup_v1 (libcrun_container_t *container, const char *source, int targ
     }
 
   ret = libcrun_cgroups_create_symlinks (targetfd, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-do_mount_cgroup (libcrun_container_t *container, const char *source, int targetfd, const char *target,
-                 unsigned long mountflags, const char *data, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+do_mount_cgroup (libcrun_container_t *container, ଅଚଳ ଅକ୍ଷର *source, ପୂର୍ଣ୍ଣସଂଖ୍ୟା targetfd, ଅଚଳ ଅକ୍ଷର *target,
+                 unsigned long mountflags, ଅଚଳ ଅକ୍ଷର *data, libcrun_error_t *err)
 {
-  int cgroup_mode;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା cgroup_mode;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  ଯଦି (UNLIKELY (cgroup_mode < 0))
+    ଫେରନ୍ତୁ cgroup_mode;
 
-  switch (cgroup_mode)
+  ବାଛ (cgroup_mode)
     {
-    case CGROUP_MODE_UNIFIED:
-      return do_mount_cgroup_v2 (container, targetfd, target, mountflags, data, err);
-    case CGROUP_MODE_LEGACY:
-    case CGROUP_MODE_HYBRID:
-      return do_mount_cgroup_v1 (container, source, targetfd, target, mountflags, err);
+    ସ୍ଥିତି CGROUP_MODE_UNIFIED:
+      ଫେରନ୍ତୁ do_mount_cgroup_v2 (container, targetfd, target, mountflags, data, err);
+    ସ୍ଥିତି CGROUP_MODE_LEGACY:
+    ସ୍ଥିତି CGROUP_MODE_HYBRID:
+      ଫେରନ୍ତୁ do_mount_cgroup_v1 (container, source, targetfd, target, mountflags, err);
     }
 
-  return crun_make_error (err, 0, "unknown cgroup mode `%d`", cgroup_mode);
+  ଫେରନ୍ତୁ crun_make_error (err, 0, "unknown cgroup mode `%d`", cgroup_mode);
 }
 
-struct device_s needed_devs[] = { { "/dev/null", "c", 1, 3, 0666, 0, 0 },
+ସଂରଚନା device_s needed_devs[] = { { "/dev/null", "c", 1, 3, 0666, 0, 0 },
                                   { "/dev/zero", "c", 1, 5, 0666, 0, 0 },
                                   { "/dev/full", "c", 1, 7, 0666, 0, 0 },
                                   { "/dev/tty", "c", 5, 0, 0666, 0, 0 },
@@ -2284,73 +2284,73 @@ struct device_s needed_devs[] = { { "/dev/null", "c", 1, 3, 0666, 0, 0 },
    while the host file system is still reachable.  Failures are ignored:
    the fds are optional optimizations and a later mount(2) fallback
    handles the missing entries.  */
-static void
+ସ୍ଥିର ଶୂନ୍ୟ
 preopen_needed_devs_and_notify (libcrun_container_t *container)
 {
-  struct private_data_s *private_data = get_private_data (container);
+  ସଂରଚନା private_data_s *private_data = get_private_data (container);
   size_t i;
 
-  if (private_data->needed_devs_fds)
+  ଯଦି (private_data->needed_devs_fds)
     {
-      struct libcrun_fd_map *dev_fds = private_data->needed_devs_fds;
+      ସଂରଚନା libcrun_fd_map *dev_fds = private_data->needed_devs_fds;
 
-      for (i = 0; needed_devs[i].path; i++)
+      ପାଇଁ (i = 0; needed_devs[i].path; i++)
         {
-          if (i < dev_fds->nfds && dev_fds->fds[i] >= 0)
-            continue;
+          ଯଦି (i < dev_fds->nfds && dev_fds->fds[i] >= 0)
+            ଜାରି;
 
-          int fd = syscall_open_tree (AT_FDCWD, needed_devs[i].path,
+          ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = syscall_open_ବୃକ୍ଷ (AT_FDCWD, needed_devs[i].path,
                                       OPEN_TREE_CLONE | OPEN_TREE_CLOEXEC);
-          if (fd >= 0 && i < dev_fds->nfds)
+          ଯଦି (fd >= 0 && i < dev_fds->nfds)
             dev_fds->fds[i] = fd;
-          else if (fd >= 0)
+          ଅନ୍ୟଥା ଯଦି (fd >= 0)
             close (fd);
         }
     }
 
-  if (private_data->notify_socket_tree_fd < 0
+  ଯଦି (private_data->notify_socket_ବୃକ୍ଷ_fd < 0
       && private_data->host_notify_socket_path)
     {
-      int fd = syscall_open_tree (AT_FDCWD, private_data->host_notify_socket_path,
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = syscall_open_ବୃକ୍ଷ (AT_FDCWD, private_data->host_notify_socket_path,
                                   OPEN_TREE_CLONE | AT_RECURSIVE | OPEN_TREE_CLOEXEC);
-      if (fd >= 0)
-        private_data->notify_socket_tree_fd = fd;
+      ଯଦି (fd >= 0)
+        private_data->notify_socket_ବୃକ୍ଷ_fd = fd;
     }
 }
 
 /* Check if the specified path is a direct child of /dev.  If it is
  return a pointer to the basename.  */
-static const char *
-relative_path_under_dev (const char *path)
+ସ୍ଥିର ଅଚଳ ଅକ୍ଷର *
+relative_path_under_dev (ଅଚଳ ଅକ୍ଷର *path)
 {
-  if (path[0] != '/')
-    return path;
-  if (strncmp (path, "/dev/", 5) == 0)
+  ଯଦି (path[0] != '/')
+    ଫେରନ୍ତୁ path;
+  ଯଦି (strncmp (path, "/dev/", 5) == 0)
     {
-      if (strchr (path + 5, '/'))
-        return NULL;
-      return path + 5;
+      ଯଦି (strchr (path + 5, '/'))
+        ଫେରନ୍ତୁ ଖାଲି;
+      ଫେରନ୍ତୁ path + 5;
     }
-  return NULL;
+  ଫେରନ୍ତୁ ଖାଲି;
 }
 
-static int
-mknod_and_set_attrs (libcrun_container_t *container, int dirfd, const char *name, struct device_s *device,
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+mknod_and_set_attrs (libcrun_container_t *container, ପୂର୍ଣ୍ଣସଂଖ୍ୟା dirfd, ଅଚଳ ଅକ୍ଷର *name, ସଂରଚନା device_s *device,
                      mode_t type, dev_t dev, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -1;
   proc_fd_path_t fd_path;
-  const char *what = "new";
+  ଅଚଳ ଅକ୍ଷର *what = "new";
   bool exists = false;
-  struct stat st;
-  int procfd;
-  int ret;
+  ସଂରଚନା stat st;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା procfd;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   ret = mknodat (dirfd, name, device->mode | type, dev);
-  if (UNLIKELY (ret < 0))
+  ଯଦି (UNLIKELY (ret < 0))
     {
-      if (errno != EEXIST)
-        return crun_make_error (err, errno, "mknodat `%s`", device->path);
+      ଯଦି (errno != EEXIST)
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "mknodat `%s`", device->path);
       /* The runtime spec requires an error if the existing file
          does not match the requested device, so check it below.  */
       exists = true;
@@ -2360,126 +2360,126 @@ mknod_and_set_attrs (libcrun_container_t *container, int dirfd, const char *name
   /* Get a handle and verify that it matches the expected inode type
      and major:minor before operating on it.  */
   fd = openat (dirfd, name, O_PATH | O_NOFOLLOW | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open %s device `%s`", what, device->path);
+  ଯଦି (UNLIKELY (fd < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "open %s device `%s`", what, device->path);
 
   ret = fstat (fd, &st);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fstat %s device `%s`", what, device->path);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "fstat %s device `%s`", what, device->path);
 
-  if (UNLIKELY ((st.st_mode & S_IFMT) != type))
-    return crun_make_error (err, 0, "%s device `%s` has incorrect file type %#o, expected %#o",
+  ଯଦି (UNLIKELY ((st.st_mode & S_IFMT) != type))
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "%s device `%s` has incorrect file type %#o, expected %#o",
                             what, device->path, st.st_mode & S_IFMT, type);
 
-  if (UNLIKELY (type != S_IFIFO && st.st_rdev != dev))
-    return crun_make_error (err, 0, "%s device `%s` has incorrect major:minor %u:%u, expected %u:%u",
+  ଯଦି (UNLIKELY (type != S_IFIFO && st.st_rdev != dev))
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "%s device `%s` has incorrect major:minor %u:%u, expected %u:%u",
                             what, device->path, major (st.st_rdev), minor (st.st_rdev),
                             major (dev), minor (dev));
 
   /* Leave the existing inode's mode and owner as is.  */
-  if (exists)
-    return 0;
+  ଯଦି (exists)
+    ଫେରନ୍ତୁ 0;
 
   /* fchmod(2) does not work on O_PATH fds, so go through /proc.  */
   procfd = get_procfd (get_private_data (container), err);
-  if (UNLIKELY (procfd < 0))
-    return procfd;
+  ଯଦି (UNLIKELY (procfd < 0))
+    ଫେରନ୍ତୁ procfd;
 
   get_self_fd_path (fd_path, fd);
   ret = fchmodat (procfd, fd_path, device->mode, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fchmod `%s`", device->path);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "fchmod `%s`", device->path);
 
   ret = fchownat (fd, "", device->uid, device->gid, AT_EMPTY_PATH);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fchown `%s`", device->path);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "fchown `%s`", device->path);
 
-  return 1;
+  ଫେରନ୍ତୁ 1;
 }
 
-int
-libcrun_create_dev (libcrun_container_t *container, int devfd, int srcfd,
-                    struct device_s *device, bool binds, bool ensure_parent_dir,
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+libcrun_create_dev (libcrun_container_t *container, ପୂର୍ଣ୍ଣସଂଖ୍ୟା devfd, ପୂର୍ଣ୍ଣସଂଖ୍ୟା srcfd,
+                    ସଂରଚନା device_s *device, bool binds, bool ensure_parent_dir,
                     libcrun_error_t *err)
 {
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
   dev_t dev;
   mode_t type = (device->type[0] == 'b') ? S_IFBLK : ((device->type[0] == 'p') ? S_IFIFO : S_IFCHR);
-  const char *fullname = device->path;
-  const char *rootfs = get_private_data (container)->rootfs;
-  if (is_empty_string (fullname))
-    return crun_make_error (err, EINVAL, "device path is empty");
+  ଅଚଳ ଅକ୍ଷର *fullname = device->path;
+  ଅଚଳ ଅକ୍ଷର *rootfs = get_private_data (container)->rootfs;
+  ଯଦି (is_empty_string (fullname))
+    ଫେରନ୍ତୁ crun_make_error (err, EINVAL, "device path is empty");
   // Normalize the path by removing trailing slashes.
-  cleanup_free char *normalized_path = xstrdup (fullname);
+  cleanup_free ଅକ୍ଷର *normalized_path = xstrdup (fullname);
   consume_trailing_slashes (normalized_path);
-  if (normalized_path[0] == '\0')
+  ଯଦି (normalized_path[0] == '\0')
     strcpy (normalized_path, "/");
-  const char *rel_dev = relative_path_under_dev (normalized_path);
+  ଅଚଳ ଅକ୍ଷର *rel_dev = relative_path_under_dev (normalized_path);
 
-  if (binds)
+  ଯଦି (binds)
     {
-      cleanup_close int fd = -1;
+      cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -1;
 
-      if (rel_dev)
+      ଯଦି (rel_dev)
         {
           fd = openat (devfd, rel_dev, O_NOFOLLOW | O_CLOEXEC | O_PATH | O_NONBLOCK);
-          if (UNLIKELY (fd < 0))
+          ଯଦି (UNLIKELY (fd < 0))
             {
-              if (errno == ENOENT)
+              ଯଦି (errno == ENOENT)
                 fd = openat (devfd, rel_dev, O_CREAT | O_NOFOLLOW | O_CLOEXEC | O_NONBLOCK, 0700);
 
-              if (UNLIKELY (fd < 0))
-                return crun_make_error (err, errno, "openat `%s`", device->path);
+              ଯଦି (UNLIKELY (fd < 0))
+                ଫେରନ୍ତୁ crun_make_error (err, errno, "openat `%s`", device->path);
             }
         }
-      else
+      ଅନ୍ୟଥା
         {
-          const char *rel_path = consume_slashes (normalized_path);
+          ଅଚଳ ଅକ୍ଷର *rel_path = consume_slashes (normalized_path);
 
           fd = crun_safe_create_and_open_ref_at (false, get_private_data (container)->rootfsfd, rootfs, rel_path, 0755, err);
-          if (UNLIKELY (fd < 0))
-            return fd;
+          ଯଦି (UNLIKELY (fd < 0))
+            ଫେରନ୍ତୁ fd;
         }
 
-      if (srcfd >= 0)
+      ଯଦି (srcfd >= 0)
         {
           ret = do_mount_setattr (false, normalized_path, srcfd, 0, MS_NOSUID | MS_NOEXEC, err);
-          if (LIKELY (ret == 0))
+          ଯଦି (LIKELY (ret == 0))
             {
               ret = syscall_move_mount (srcfd, "", fd, "", MOVE_MOUNT_T_EMPTY_PATH | MOVE_MOUNT_F_EMPTY_PATH);
-              if (LIKELY (ret >= 0))
-                return 0;
+              ଯଦି (LIKELY (ret >= 0))
+                ଫେରନ୍ତୁ 0;
             }
-          else
+          ଅନ୍ୟଥା
             crun_error_release (err);
         }
 
       {
-        cleanup_close int mountfd = -1;
+        cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା mountfd = -1;
 
         /* Try open_tree+mount_setattr to apply flags atomically.  */
         mountfd = get_bind_mount (-1, fullname, false, false, false, MS_PRIVATE, err);
-        if (mountfd >= 0)
+        ଯଦି (mountfd >= 0)
           {
             ret = do_mount_setattr (false, normalized_path, mountfd, 0, MS_NOSUID | MS_NOEXEC, err);
-            if (LIKELY (ret == 0))
+            ଯଦି (LIKELY (ret == 0))
               {
-                ret = fs_move_mount_to (mountfd, fd, NULL);
-                if (LIKELY (ret == 0))
-                  return 0;
+                ret = fs_move_mount_to (mountfd, fd, ଖାଲି);
+                ଯଦି (LIKELY (ret == 0))
+                  ଫେରନ୍ତୁ 0;
               }
-            else
+            ଅନ୍ୟଥା
               crun_error_release (err);
           }
-        else
+        ଅନ୍ୟଥା
           crun_error_release (err);
       }
 
-      ret = do_mount (container, fullname, fd, normalized_path, NULL, MS_BIND | MS_PRIVATE | MS_NOEXEC | MS_NOSUID, NULL, LABEL_MOUNT, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = do_mount (container, fullname, fd, normalized_path, ଖାଲି, MS_BIND | MS_PRIVATE | MS_NOEXEC | MS_NOSUID, ଖାଲି, LABEL_MOUNT, err);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
-  else
+  ଅନ୍ୟଥା
     {
       dev = makedev (device->major, device->minor);
 
@@ -2487,96 +2487,96 @@ libcrun_create_dev (libcrun_container_t *container, int devfd, int srcfd,
          fails when the destination already exists or is a symlink, it is safe to use it directly.
          If it is not a direct child, then first get a fd to the dirfd.
       */
-      if (rel_dev)
+      ଯଦି (rel_dev)
         {
           ret = mknod_and_set_attrs (container, devfd, rel_dev, device, type, dev, err);
-          if (ret <= 0)
-            return ret;
+          ଯଦି (ret <= 0)
+            ଫେରନ୍ତୁ ret;
         }
-      else
+      ଅନ୍ୟଥା
         {
-          cleanup_close int dirfd = -1;
-          cleanup_free char *dirname = NULL;
-          char *basename, *found;
+          cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା dirfd = -1;
+          cleanup_free ଅକ୍ଷର *dirname = ଖାଲି;
+          ଅକ୍ଷର *basename, *found;
 
           dirname = xstrdup (normalized_path);
 
           found = strrchr (dirname, '/');
-          if (found)
+          ଯଦି (found)
             *found = '\0';
 
           basename = found ? found + 1 : dirname;
 
-          if (dirname[0] == '\0')
+          ଯଦି (dirname[0] == '\0')
             {
               dirfd = dup (get_private_data (container)->rootfsfd);
-              if (UNLIKELY (dirfd < 0))
-                return crun_make_error (err, errno, "dup fd for `%s`", rootfs);
+              ଯଦି (UNLIKELY (dirfd < 0))
+                ଫେରନ୍ତୁ crun_make_error (err, errno, "dup fd for `%s`", rootfs);
             }
-          else
+          ଅନ୍ୟଥା
             {
               dirfd = safe_openat (get_private_data (container)->rootfsfd, rootfs, dirname, O_DIRECTORY | O_PATH | O_CLOEXEC, 0, err);
-              if (dirfd < 0 && ensure_parent_dir)
+              ଯଦି (dirfd < 0 && ensure_parent_dir)
                 {
                   crun_error_release (err);
 
                   dirfd = crun_safe_create_and_open_ref_at (true, get_private_data (container)->rootfsfd, rootfs, dirname, 0755, err);
                 }
-              if (UNLIKELY (dirfd < 0))
-                return dirfd;
+              ଯଦି (UNLIKELY (dirfd < 0))
+                ଫେରନ୍ତୁ dirfd;
             }
 
           ret = mknod_and_set_attrs (container, dirfd, basename, device, type, dev, err);
-          if (ret <= 0)
-            return ret;
+          ଯଦି (ret <= 0)
+            ଫେରନ୍ତୁ ret;
         }
     }
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-struct symlink_s
+ସଂରଚନା symlink_s
 {
-  const char *path;
-  const char *target;
+  ଅଚଳ ଅକ୍ଷର *path;
+  ଅଚଳ ଅକ୍ଷର *target;
   bool force;
 };
 
-static struct symlink_s symlinks[] = { { "/proc/self/fd", "fd", false },
+ସ୍ଥିର ସଂରଚନା symlink_s symlinks[] = { { "/proc/self/fd", "fd", false },
                                        { "/proc/self/fd/0", "stdin", false },
                                        { "/proc/self/fd/1", "stdout", false },
                                        { "/proc/self/fd/2", "stderr", false },
                                        { "/proc/kcore", "core", false },
                                        { "pts/ptmx", "ptmx", true },
-                                       { NULL, NULL, false } };
+                                       { ଖାଲି, ଖାଲି, false } };
 
-static int
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 create_missing_devs (libcrun_container_t *container, bool binds, libcrun_error_t *err)
 {
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
   size_t i;
-  struct device_s *it;
-  cleanup_close int devfd = -1;
+  ସଂରଚନା device_s *it;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା devfd = -1;
   runtime_spec_schema_config_schema *def = container->container_def;
-  const char *rootfs = get_private_data (container)->rootfs;
-  cleanup_close_map struct libcrun_fd_map *dev_fds = NULL;
-  cleanup_close_map struct libcrun_fd_map *needed_fds = NULL;
+  ଅଚଳ ଅକ୍ଷର *rootfs = get_private_data (container)->rootfs;
+  cleanup_close_map ସଂରଚନା libcrun_fd_map *dev_fds = ଖାଲି;
+  cleanup_close_map ସଂରଚନା libcrun_fd_map *needed_fds = ଖାଲି;
 
   dev_fds = get_private_data (container)->dev_fds;
-  get_private_data (container)->dev_fds = NULL;
+  get_private_data (container)->dev_fds = ଖାଲି;
 
   needed_fds = get_private_data (container)->needed_devs_fds;
-  get_private_data (container)->needed_devs_fds = NULL;
+  get_private_data (container)->needed_devs_fds = ଖାଲି;
 
-  if (! def || ! def->linux)
-    return 0;
+  ଯଦି (! def || ! def->linux)
+    ଫେରନ୍ତୁ 0;
 
   devfd = safe_openat (get_private_data (container)->rootfsfd, rootfs, "dev", O_CLOEXEC | O_PATH | O_DIRECTORY, 0, err);
-  if (UNLIKELY (devfd < 0))
-    return devfd;
+  ଯଦି (UNLIKELY (devfd < 0))
+    ଫେରନ୍ତୁ devfd;
 
-  for (i = 0; i < def->linux->devices_len; i++)
+  ପାଇଁ (i = 0; i < def->linux->devices_len; i++)
     {
-      struct device_s device = {
+      ସଂରଚନା device_s device = {
         def->linux->devices[i]->path,
         def->linux->devices[i]->type,
         def->linux->devices[i]->major,
@@ -2586,82 +2586,82 @@ create_missing_devs (libcrun_container_t *container, bool binds, libcrun_error_t
         def->linux->devices[i]->gid,
       };
 
-      if (! def->linux->devices[i]->file_mode_present)
+      ଯଦି (! def->linux->devices[i]->file_mode_present)
         device.mode = 0666;
       ret = libcrun_create_dev (container, devfd, dev_fds->fds[i], &device, binds, true, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
-  for (it = needed_devs, i = 0; it->path; it++, i++)
+  ପାଇଁ (it = needed_devs, i = 0; it->path; it++, i++)
     {
-      cleanup_close int srcfd = (needed_fds && i < needed_fds->nfds) ? needed_fds->fds[i] : -1;
+      cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା srcfd = (needed_fds && i < needed_fds->nfds) ? needed_fds->fds[i] : -1;
 
       /* make sure the parent directory exists only on the first iteration.  */
       ret = libcrun_create_dev (container, devfd, srcfd, it, binds, it == needed_devs, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      if (srcfd >= 0)
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
+      ଯଦି (srcfd >= 0)
         needed_fds->fds[i] = -1;
     }
 
-  for (i = 0; symlinks[i].target; i++)
+  ପାଇଁ (i = 0; symlinks[i].target; i++)
     {
     retry_symlink:
       ret = symlinkat (symlinks[i].path, devfd, symlinks[i].target);
-      if (UNLIKELY (ret < 0))
+      ଯଦି (UNLIKELY (ret < 0))
         {
-          int saved_errno = errno;
+          ପୂର୍ଣ୍ଣସଂଖ୍ୟା saved_errno = errno;
 
-          if (errno == EEXIST && ! symlinks[i].force)
-            continue;
+          ଯଦି (errno == EEXIST && ! symlinks[i].force)
+            ଜାରି;
 
           /* If the symlink should be forced, make sure to unlink any existing file at the same path.  */
-          if (errno == EEXIST)
+          ଯଦି (errno == EEXIST)
             {
             retry_unlink:
               ret = unlinkat (devfd, symlinks[i].target, 0);
-              if (ret < 0 && errno == EISDIR)
+              ଯଦି (ret < 0 && errno == EISDIR)
                 ret = unlinkat (devfd, symlinks[i].target, AT_REMOVEDIR);
-              if (ret < 0 && errno == EBUSY)
+              ଯଦି (ret < 0 && errno == EBUSY)
                 {
-                  cleanup_close int tfd = openat (devfd, symlinks[i].target, O_CLOEXEC | O_PATH | O_NOFOLLOW);
-                  if (tfd >= 0)
+                  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା tfd = openat (devfd, symlinks[i].target, O_CLOEXEC | O_PATH | O_NOFOLLOW);
+                  ଯଦି (tfd >= 0)
                     {
                       proc_fd_path_t procpath;
 
                       get_proc_self_fd_path (procpath, tfd);
-                      if (umount2 (procpath, MNT_DETACH) == 0)
-                        goto retry_unlink;
+                      ଯଦି (umount2 (procpath, MNT_DETACH) == 0)
+                        ଯାଅ retry_unlink;
                     }
                 }
-              if (ret == 0)
-                goto retry_symlink;
+              ଯଦି (ret == 0)
+                ଯାଅ retry_symlink;
             }
-          return crun_make_error (err, saved_errno, "symlinkat `/dev/%s`", symlinks[i].target);
+          ଫେରନ୍ତୁ crun_make_error (err, saved_errno, "symlinkat `/dev/%s`", symlinks[i].target);
         }
     }
 
-  if (container->container_def->process && container->container_def->process->terminal)
+  ଯଦି (container->container_def->process && container->container_def->process->terminal)
     {
       ret = create_file_if_missing_at (devfd, "console", 0620, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 /* Advance to the next path component, skipping empty and "." ones.  */
-static const char *
-next_path_component (const char *p, size_t *len)
+ସ୍ଥିର ଅଚଳ ଅକ୍ଷର *
+next_path_component (ଅଚଳ ଅକ୍ଷର *p, size_t *len)
 {
-  for (;;)
+  ପାଇଁ (;;)
     {
       p = consume_slashes (p);
       *len = strcspn (p, "/");
-      if (*len != 1 || p[0] != '.')
-        return p;
+      ଯଦି (*len != 1 || p[0] != '.')
+        ଫେରନ୍ତୁ p;
       p++;
     }
 }
@@ -2671,350 +2671,350 @@ next_path_component (const char *p, size_t *len)
    as they are, not resolved lexically: if a path component before them
    is a symlink, the path may refer to something else entirely, and
    treating it as a duplicate would leave it unmasked.  */
-static bool
-same_path (const char *a, const char *b)
+ସ୍ଥିର bool
+same_path (ଅଚଳ ଅକ୍ଷର *a, ଅଚଳ ଅକ୍ଷର *b)
 {
   size_t la, lb;
 
-  for (;;)
+  ପାଇଁ (;;)
     {
       a = next_path_component (a, &la);
       b = next_path_component (b, &lb);
-      if (la != lb || memcmp (a, b, la) != 0)
-        return false;
-      if (la == 0)
-        return true;
+      ଯଦି (la != lb || memcmp (a, b, la) != 0)
+        ଫେରନ୍ତୁ false;
+      ଯଦି (la == 0)
+        ଫେରନ୍ତୁ true;
       a += la;
       b += lb;
     }
 }
 
 /* Whether paths[i] is the same as one of the paths before it.  */
-static bool
-is_duplicate_path (char **paths, size_t i)
+ସ୍ଥିର bool
+is_duplicate_path (ଅକ୍ଷର **paths, size_t i)
 {
   size_t j;
 
-  if (paths[i] == NULL)
-    return false;
+  ଯଦି (paths[i] == ଖାଲି)
+    ଫେରନ୍ତୁ false;
 
-  for (j = 0; j < i; j++)
-    if (paths[j] && same_path (paths[j], paths[i]))
-      return true;
+  ପାଇଁ (j = 0; j < i; j++)
+    ଯଦି (paths[j] && same_path (paths[j], paths[i]))
+      ଫେରନ୍ତୁ true;
 
-  return false;
+  ଫେରନ୍ତୁ false;
 }
 
-static int
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 do_masked_and_readonly_paths (libcrun_container_t *container, libcrun_error_t *err)
 {
   size_t i;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
   runtime_spec_schema_config_schema *def = container->container_def;
 
-  if (! def || ! def->linux)
-    return 0;
+  ଯଦି (! def || ! def->linux)
+    ଫେରନ୍ତୁ 0;
 
-  for (i = 0; i < def->linux->masked_paths_len; i++)
+  ପାଇଁ (i = 0; i < def->linux->masked_paths_len; i++)
     {
-      if (is_duplicate_path (def->linux->masked_paths, i))
-        continue;
+      ଯଦି (is_duplicate_path (def->linux->masked_paths, i))
+        ଜାରି;
 
       ret = do_masked_or_readonly_path (container, def->linux->masked_paths[i], false, false, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
-  for (i = 0; i < def->linux->readonly_paths_len; i++)
+  ପାଇଁ (i = 0; i < def->linux->readonly_paths_len; i++)
     {
       ret = do_masked_or_readonly_path (container, def->linux->readonly_paths[i], true, true, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-do_pivot (libcrun_container_t *container, const char *rootfs, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+do_pivot (libcrun_container_t *container, ଅଚଳ ଅକ୍ଷର *rootfs, libcrun_error_t *err)
 {
-  cleanup_close int oldrootfd = -1;
-  cleanup_close int newrootfd = -1;
-  int ret;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା oldrootfd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା newrootfd = -1;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   oldrootfd = open ("/", O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (oldrootfd < 0))
-    return crun_make_error (err, errno, "open `/`");
+  ଯଦି (UNLIKELY (oldrootfd < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "open `/`");
 
   newrootfd = open (rootfs, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (newrootfd < 0))
-    return crun_make_error (err, errno, "open `%s`", rootfs);
+  ଯଦି (UNLIKELY (newrootfd < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "open `%s`", rootfs);
 
   ret = fchdir (newrootfd);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fchdir `%s`", rootfs);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "fchdir `%s`", rootfs);
 
-  ret = pivot_root (".", ".");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "pivot_root");
+  ret = pivot_ମୂଳ (".", ".");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "pivot_root");
 
   ret = fchdir (oldrootfd);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fchdir `%s`", rootfs);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "fchdir `%s`", rootfs);
 
-  ret = do_mount (container, NULL, -1, ".", NULL, MS_REC | MS_PRIVATE, NULL, LABEL_MOUNT, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = do_mount (container, ଖାଲି, -1, ".", ଖାଲି, MS_REC | MS_PRIVATE, ଖାଲି, LABEL_MOUNT, err);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ret = umount2 (".", MNT_DETACH);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "umount2 oldroot");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "umount2 oldroot");
 
-  do
+  କର
     {
       ret = umount2 (".", MNT_DETACH);
-      if (ret < 0 && errno == EINVAL)
-        break;
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "umount2 oldroot");
-  } while (ret == 0);
+      ଯଦି (ret < 0 && errno == EINVAL)
+        ଭାଙ୍ଗ;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "umount2 oldroot");
+  } ଯେତେବେଳେ (ret == 0);
 
   ret = chdir ("/");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "chdir to newroot");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "chdir to newroot");
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-append_tmpfs_mode_if_missing (libcrun_container_t *container, runtime_spec_schema_defs_mount *mount, char **data, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+append_tmpfs_mode_if_missing (libcrun_container_t *container, runtime_spec_schema_defs_mount *mount, ଅକ୍ଷର **data, libcrun_error_t *err)
 {
-  const char *rootfs = get_private_data (container)->rootfs;
+  ଅଚଳ ଅକ୍ଷର *rootfs = get_private_data (container)->rootfs;
   bool empty_data = is_empty_string (*data);
-  cleanup_close int fd = -1;
-  struct stat st;
-  int ret;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -1;
+  ସଂରଚନା stat st;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (*data != NULL && strstr (*data, "mode="))
-    return 0;
+  ଯଦି (*data != ଖାଲି && strstr (*data, "mode="))
+    ଫେରନ୍ତୁ 0;
 
   fd = safe_openat (get_private_data (container)->rootfsfd, rootfs, mount->destination, O_CLOEXEC | O_PATH, 0, err);
-  if (fd < 0)
+  ଯଦି (fd < 0)
     {
-      if (crun_error_get_errno (err) != ENOENT)
-        return fd;
+      ଯଦି (crun_error_get_errno (err) != ENOENT)
+        ଫେରନ୍ତୁ fd;
 
       crun_error_release (err);
-      return 0;
+      ଫେରନ୍ତୁ 0;
     }
   ret = fstat (fd, &st);
-  if (ret < 0)
-    return crun_make_error (err, errno, "fstat `%s`", mount->destination);
+  ଯଦି (ret < 0)
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "fstat `%s`", mount->destination);
 
   xasprintf (data, "%s%smode=%o", empty_data ? "" : *data, empty_data ? "" : ",", st.st_mode & 07777);
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-get_default_flags (libcrun_container_t *container, const char *destination, char **data)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+get_default_flags (libcrun_container_t *container, ଅଚଳ ଅକ୍ଷର *destination, ଅକ୍ଷର **data)
 {
-  if (strcmp (destination, "/proc") == 0)
-    return 0;
-  if (strcmp (destination, "/dev/cgroup") == 0 || strcmp (destination, "/sys/fs/cgroup") == 0)
+  ଯଦି (strcmp (destination, "/proc") == 0)
+    ଫେରନ୍ତୁ 0;
+  ଯଦି (strcmp (destination, "/dev/cgroup") == 0 || strcmp (destination, "/sys/fs/cgroup") == 0)
     {
       *data = xstrdup ("none,name=");
-      return MS_NOEXEC | MS_NOSUID | MS_STRICTATIME;
+      ଫେରନ୍ତୁ MS_NOEXEC | MS_NOSUID | MS_STRICTATIME;
     }
-  if (strcmp (destination, "/dev") == 0)
+  ଯଦି (strcmp (destination, "/dev") == 0)
     {
       *data = xstrdup ("mode=755");
-      return MS_NOEXEC | MS_STRICTATIME;
+      ଫେରନ୍ତୁ MS_NOEXEC | MS_STRICTATIME;
     }
-  if (strcmp (destination, "/dev/shm") == 0)
+  ଯଦି (strcmp (destination, "/dev/shm") == 0)
     {
       *data = xstrdup ("mode=1777,size=65536k");
-      return MS_NOEXEC | MS_NOSUID | MS_NODEV;
+      ଫେରନ୍ତୁ MS_NOEXEC | MS_NOSUID | MS_NODEV;
     }
-  if (strcmp (destination, "/dev/mqueue") == 0)
-    return MS_NOEXEC | MS_NOSUID | MS_NODEV;
-  if (strcmp (destination, "/dev/pts") == 0)
+  ଯଦି (strcmp (destination, "/dev/mqueue") == 0)
+    ଫେରନ୍ତୁ MS_NOEXEC | MS_NOSUID | MS_NODEV;
+  ଯଦି (strcmp (destination, "/dev/pts") == 0)
     {
-      if (container->host_uid == 0)
+      ଯଦି (container->host_uid == 0)
         *data = xstrdup ("newinstance,ptmxmode=0666,mode=620,gid=5");
-      else
+      ଅନ୍ୟଥା
         *data = xstrdup ("newinstance,ptmxmode=0666,mode=620");
-      return MS_NOEXEC | MS_NOSUID;
+      ଫେରନ୍ତୁ MS_NOEXEC | MS_NOSUID;
     }
-  if (strcmp (destination, "/sys") == 0)
-    return MS_NOEXEC | MS_NOSUID | MS_NODEV;
+  ଯଦି (strcmp (destination, "/sys") == 0)
+    ଫେରନ୍ତୁ MS_NOEXEC | MS_NOSUID | MS_NODEV;
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static const char *
+ସ୍ଥିର ଅଚଳ ଅକ୍ଷର *
 get_force_cgroup_v1_annotation (libcrun_container_t *container)
 {
-  return find_annotation (container, "run.oci.systemd.force_cgroup_v1");
+  ଫେରନ୍ତୁ find_annotation (container, "run.oci.systemd.force_cgroup_v1");
 }
 
-static int
-check_valid_no_follow_file_system (int fd, const char *destination, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+check_valid_no_follow_file_system (ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, ଅଚଳ ଅକ୍ଷର *destination, libcrun_error_t *err)
 {
-  struct statfs sfs;
+  ସଂରଚନା statfs sfs;
 
-  int ret = fstatfs (fd, &sfs);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "statfs `%s`", destination);
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret = fstatfs (fd, &sfs);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "statfs `%s`", destination);
 
-  switch (sfs.f_type)
+  ବାଛ (sfs.f_type)
     {
-    case PROC_SUPER_MAGIC:
-    case SYSFS_MAGIC:
-    case DEVPTS_SUPER_MAGIC:
-      return crun_make_error (err, 0, "override of the mount destination `/%s` is not allowed", destination);
+    ସ୍ଥିତି PROC_SUPER_MAGIC:
+    ସ୍ଥିତି SYSFS_MAGIC:
+    ସ୍ଥିତି DEVPTS_SUPER_MAGIC:
+      ଫେରନ୍ତୁ crun_make_error (err, 0, "override of the mount destination `/%s` is not allowed", destination);
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-safe_create_symlink (int rootfsfd, const char *rootfs, const char *target, const char *destination, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+safe_create_symlink (ପୂର୍ଣ୍ଣସଂଖ୍ୟା rootfsfd, ଅଚଳ ଅକ୍ଷର *rootfs, ଅଚଳ ଅକ୍ଷର *target, ଅଚଳ ଅକ୍ଷର *destination, libcrun_error_t *err)
 {
-  cleanup_close int parent_dir_fd = -1;
-  cleanup_free char *buffer = NULL;
-  char *part;
-  int ret;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା parent_dir_fd = -1;
+  cleanup_free ଅକ୍ଷର *buffer = ଖାଲି;
+  ଅକ୍ଷର *part;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (is_empty_string (destination))
-    return crun_make_error (err, 0, "empty destination for symlink `%s`", target);
+  ଯଦି (is_empty_string (destination))
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "empty destination for symlink `%s`", target);
 
   buffer = xstrdup (destination);
   part = dirname (buffer);
 
   parent_dir_fd = crun_safe_create_and_open_ref_at (true, rootfsfd, rootfs, part, 0755, err);
-  if (UNLIKELY (parent_dir_fd < 0))
-    return parent_dir_fd;
+  ଯଦି (UNLIKELY (parent_dir_fd < 0))
+    ଫେରନ୍ତୁ parent_dir_fd;
 
   /* It is safe to reuse the buffer since it was created with xstrdup (destination).  */
   strcpy (buffer, destination);
   part = basename (buffer);
 
   ret = symlinkat (target, parent_dir_fd, part);
-  if (UNLIKELY (ret < 0))
+  ଯଦି (UNLIKELY (ret < 0))
     {
       /* If it exists, check if it has the same content, if so just ignore the error.  */
-      if (errno == EEXIST)
+      ଯଦି (errno == EEXIST)
         {
-          cleanup_free char *link = NULL;
+          cleanup_free ଅକ୍ଷର *link = ଖାଲି;
           ssize_t len;
 
           len = safe_readlinkat (parent_dir_fd, part, &link, 0, err);
-          if (UNLIKELY (len < 0))
-            return len;
+          ଯଦି (UNLIKELY (len < 0))
+            ଫେରନ୍ତୁ len;
 
-          if ((((size_t) len) == strlen (target)) && strncmp (link, target, len) == 0)
-            return 0;
+          ଯଦି ((((size_t) len) == strlen (target)) && strncmp (link, target, len) == 0)
+            ଫେରନ୍ତୁ 0;
 
-          return crun_make_error (err, 0, "symlink `%s` already exists with a different content", destination);
+          ଫେରନ୍ତୁ crun_make_error (err, 0, "symlink `%s` already exists with a different content", destination);
         }
-      return crun_make_error (err, errno, "symlinkat `%s`", target);
+      ଫେରନ୍ତୁ crun_make_error (err, errno, "symlinkat `%s`", target);
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-handle_copy_symlink (libcrun_container_t *container, const char *rootfs,
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+handle_copy_symlink (libcrun_container_t *container, ଅଚଳ ଅକ୍ଷର *rootfs,
                      runtime_spec_schema_defs_mount *mount,
-                     const char *link_target, libcrun_error_t *err)
+                     ଅଚଳ ଅକ୍ଷର *link_target, libcrun_error_t *err)
 {
-  cleanup_free char *target = NULL;
+  cleanup_free ଅକ୍ଷର *target = ଖାଲି;
 
-  if (link_target == NULL)
+  ଯଦି (link_target == ଖାଲି)
     {
-      int old_root_fd = get_old_root_fd (get_private_data (container));
-      const char *source = mount->source;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା old_ମୂଳ_fd = get_old_ମୂଳ_fd (get_private_data (container));
+      ଅଚଳ ଅକ୍ଷର *source = mount->source;
       ssize_t len;
 
-      if (old_root_fd >= 0 && source[0] == '/')
-        len = safe_readlinkat (old_root_fd, source + 1, &target, 0, err);
-      else
+      ଯଦି (old_ମୂଳ_fd >= 0 && source[0] == '/')
+        len = safe_readlinkat (old_ମୂଳ_fd, source + 1, &target, 0, err);
+      ଅନ୍ୟଥା
         len = safe_readlinkat (AT_FDCWD, source, &target, 0, err);
-      if (UNLIKELY (len < 0))
-        return len;
+      ଯଦି (UNLIKELY (len < 0))
+        ଫେରନ୍ତୁ len;
       link_target = target;
     }
 
-  return safe_create_symlink (get_private_data (container)->rootfsfd, rootfs,
+  ଫେରନ୍ତୁ safe_create_symlink (get_private_data (container)->rootfsfd, rootfs,
                               link_target, mount->destination, err);
 }
 
-static int
-prepare_sysfs_or_proc_mount (libcrun_container_t *container, const char *target,
-                             int *targetfd, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+prepare_sysfs_or_proc_mount (libcrun_container_t *container, ଅଚଳ ଅକ୍ଷର *target,
+                             ପୂର୍ଣ୍ଣସଂଖ୍ୟା *targetfd, libcrun_error_t *err)
 {
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   /* Enforce sysfs and proc to be mounted on a regular directory.  */
   ret = openat (get_private_data (container)->rootfsfd, target,
                 O_CLOEXEC | O_NOFOLLOW | O_DIRECTORY);
-  if (UNLIKELY (ret < 0))
+  ଯଦି (UNLIKELY (ret < 0))
     {
-      if (errno == ENOENT)
+      ଯଦି (errno == ENOENT)
         {
-          if (strchr (target, '/'))
-            return crun_make_error (err, 0, "invalid target `%s`: it must be mounted at the root", target);
+          ଯଦି (strchr (target, '/'))
+            ଫେରନ୍ତୁ crun_make_error (err, 0, "invalid target `%s`: it must be mounted at the root", target);
 
           ret = mkdirat (get_private_data (container)->rootfsfd, target, 0755);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "mkdirat `%s`", target);
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "mkdirat `%s`", target);
 
           /* Try opening it again.  */
           ret = openat (get_private_data (container)->rootfsfd, target,
                         O_CLOEXEC | O_NOFOLLOW | O_DIRECTORY);
         }
-      else if (errno == ENOTDIR)
-        return crun_make_error (err, errno, "the target `/%s` is invalid", target);
+      ଅନ୍ୟଥା ଯଦି (errno == ENOTDIR)
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "the target `/%s` is invalid", target);
 
-      if (ret < 0)
-        return crun_make_error (err, errno, "open `%s`", target);
+      ଯଦି (ret < 0)
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "open `%s`", target);
     }
 
   *targetfd = ret;
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-handle_tmpcopyup (libcrun_container_t *container, const char *rootfs, const char *target,
-                  int copy_from_fd, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+handle_tmpcopyup (libcrun_container_t *container, ଅଚଳ ଅକ୍ଷର *rootfs, ଅଚଳ ଅକ୍ଷର *target,
+                  ପୂର୍ଣ୍ଣସଂଖ୍ୟା copy_from_fd, libcrun_error_t *err)
 {
-  int destfd, ret;
-  cleanup_close int tmpfd = copy_from_fd;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା destfd, ret;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା tmpfd = copy_from_fd;
 
   target = consume_slashes (target);
 
-  if (is_empty_string (target))
-    return crun_make_error (err, 0, "tmpcopyup on `/` is not supported");
+  ଯଦି (is_empty_string (target))
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "tmpcopyup on `/` is not supported");
 
   destfd = safe_openat (get_private_data (container)->rootfsfd, rootfs, target,
                         O_CLOEXEC | O_DIRECTORY, 0, err);
-  if (UNLIKELY (destfd < 0))
-    return crun_error_wrap (err, "open `%s` to write for tmpcopyup", target);
+  ଯଦି (UNLIKELY (destfd < 0))
+    ଫେରନ୍ତୁ crun_error_wrap (err, "open `%s` to write for tmpcopyup", target);
 
   // copy_recursive_fd_to_fd closes tmpfd and destfd
   ret = copy_recursive_fd_to_fd (tmpfd, destfd, target, target, err);
   tmpfd = -1;
-  return ret;
+  ଫେରନ୍ତୁ ret;
 }
 
-static int
-get_mount_label_how (const char *type, bool is_sysfs_or_proc)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+get_mount_label_how (ଅଚଳ ଅକ୍ଷର *type, bool is_sysfs_or_proc)
 {
-  if (is_sysfs_or_proc)
-    return LABEL_NONE;
+  ଯଦି (is_sysfs_or_proc)
+    ଫେରନ୍ତୁ LABEL_NONE;
 
-  if (strcmp (type, "mqueue") == 0)
-    return LABEL_XATTR;
+  ଯଦି (strcmp (type, "mqueue") == 0)
+    ଫେରନ୍ତୁ LABEL_XATTR;
 
-  return LABEL_MOUNT;
+  ଫେରନ୍ତୁ LABEL_MOUNT;
 }
 
 /* The kernel does not let a mount inherited from a more privileged mount
@@ -3023,158 +3023,158 @@ get_mount_label_how (const char *type, bool is_sysfs_or_proc)
    that, so, for a container with a user namespace, return the flags of
    SOURCE that are to be kept, i.e. those not explicitly cleared by the
    mount options.  */
-static unsigned long
-get_bind_mount_locked_flags (int source_mountfd, const char *source, runtime_spec_schema_defs_mount *mount)
+ସ୍ଥିର unsigned long
+get_bind_mount_locked_flags (ପୂର୍ଣ୍ଣସଂଖ୍ୟା source_mountfd, ଅଚଳ ଅକ୍ଷର *source, runtime_spec_schema_defs_mount *mount)
 {
   unsigned long cleared = 0;
-  struct statfs sfs;
+  ସଂରଚନା statfs sfs;
   size_t i;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (source_mountfd >= 0)
+  ଯଦି (source_mountfd >= 0)
     ret = fstatfs (source_mountfd, &sfs);
-  else
+  ଅନ୍ୟଥା
     ret = statfs (source, &sfs);
-  if (UNLIKELY (ret < 0))
-    return 0;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ 0;
 
-  for (i = 0; i < mount->options_len; i++)
+  ପାଇଁ (i = 0; i < mount->options_len; i++)
     {
-      const struct propagation_flags_s *prop;
+      ଅଚଳ ସଂରଚନା propagation_flags_s *prop;
 
-      if (mount->options[i] == NULL)
-        continue;
+      ଯଦି (mount->options[i] == ଖାଲି)
+        ଜାରି;
 
       prop = libcrun_str2mount_flags (mount->options[i]);
-      if (prop == NULL || (prop->extra_flags & OPTION_RECURSIVE))
-        continue;
+      ଯଦି (prop == ଖାଲି || (prop->extra_flags & OPTION_RECURSIVE))
+        ଜାରି;
 
-      if (prop->clear)
+      ଯଦି (prop->clear)
         cleared |= prop->flags;
-      else
+      ଅନ୍ୟଥା
         cleared &= ~prop->flags;
     }
 
-  return sfs.f_flags & (MS_RDONLY | MS_NOSUID | MS_NODEV | MS_NOEXEC) & ~cleared;
+  ଫେରନ୍ତୁ sfs.f_flags & (MS_RDONLY | MS_NOSUID | MS_NODEV | MS_NOEXEC) & ~cleared;
 }
 
 /* If PATH is lexically inside the container rootfs ROOTFS, return the part
    of it relative to ROOTFS, otherwise NULL.  Such a bind mount source refers
    to what is in the container rootfs at the time of the mount, including the
    mounts done before it, so it cannot be opened beforehand.  */
-static const char *
-get_path_in_rootfs (const char *rootfs, const char *path)
+ସ୍ଥିର ଅଚଳ ଅକ୍ଷର *
+get_path_in_rootfs (ଅଚଳ ଅକ୍ଷର *rootfs, ଅଚଳ ଅକ୍ଷର *path)
 {
   size_t len;
 
-  if (rootfs == NULL || path == NULL)
-    return NULL;
+  ଯଦି (rootfs == ଖାଲି || path == ଖାଲି)
+    ଫେରନ୍ତୁ ଖାଲି;
 
   len = strlen (rootfs);
-  while (len > 0 && rootfs[len - 1] == '/')
+  ଯେତେବେଳେ (len > 0 && rootfs[len - 1] == '/')
     len--;
 
   /* With "/" as the rootfs, every path is in it, and there is nothing to
      do differently.  */
-  if (len == 0)
-    return NULL;
+  ଯଦି (len == 0)
+    ଫେରନ୍ତୁ ଖାଲି;
 
-  if (strncmp (path, rootfs, len) != 0 || (path[len] != '/' && path[len] != '\0'))
-    return NULL;
+  ଯଦି (strncmp (path, rootfs, len) != 0 || (path[len] != '/' && path[len] != '\0'))
+    ଫେରନ୍ତୁ ଖାଲି;
 
-  return consume_slashes (path + len);
+  ଫେରନ୍ତୁ consume_slashes (path + len);
 }
 
-static int
-process_single_mount (libcrun_container_t *container, const char *rootfs,
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+process_single_mount (libcrun_container_t *container, ଅଚଳ ଅକ୍ଷର *rootfs,
                       runtime_spec_schema_defs_mount *mount,
-                      struct libcrun_fd_map *mount_fds, size_t mount_index,
-                      const char *systemd_cgroup_v1, libcrun_error_t *err)
+                      ସଂରଚନା libcrun_fd_map *mount_fds, size_t mount_index,
+                      ଅଚଳ ଅକ୍ଷର *systemd_cgroup_v1, libcrun_error_t *err)
 {
-  const char *target = consume_slashes (mount->destination);
-  cleanup_close int source_mountfd = -1;
-  cleanup_free char *data = NULL;
-  char *type;
-  char *source;
+  ଅଚଳ ଅକ୍ଷର *target = consume_slashes (mount->destination);
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା source_mountfd = -1;
+  cleanup_free ଅକ୍ଷର *data = ଖାଲି;
+  ଅକ୍ଷର *type;
+  ଅକ୍ଷର *source;
   unsigned long flags = 0;
   unsigned long extra_flags = 0;
   mode_t src_mode = S_IFDIR;
-  cleanup_close int copy_from_fd = -1;
-  cleanup_close int targetfd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା copy_from_fd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା targetfd = -1;
   bool mounted = false;
   bool is_sysfs_or_proc;
   uint64_t rec_clear = 0;
   uint64_t rec_set = 0;
-  int no_remount = 0;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା no_remount = 0;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (mount_fds)
+  ଯଦି (mount_fds)
     source_mountfd = get_and_reset (&(mount_fds->fds[mount_index]));
 
   type = mount->type;
 
-  if (mount->options == NULL)
+  ଯଦି (mount->options == ଖାଲି)
     flags = get_default_flags (container, mount->destination, &data);
-  else
+  ଅନ୍ୟଥା
     {
       size_t j;
 
-      for (j = 0; j < mount->options_len; j++)
+      ପାଇଁ (j = 0; j < mount->options_len; j++)
         flags |= get_mount_flags_or_option (mount->options[j], flags, &extra_flags, &data, &rec_clear, &rec_set);
     }
 
-  if (type == NULL && (flags & MS_BIND) == 0)
-    return crun_make_error (err, 0, "invalid mount type for `%s`", mount->destination);
+  ଯଦି (type == ଖାଲି && (flags & MS_BIND) == 0)
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "invalid mount type for `%s`", mount->destination);
 
-  if ((flags & MS_BIND) && source_mountfd < 0 && ! (extra_flags & OPTION_COPY_SYMLINK))
+  ଯଦି ((flags & MS_BIND) && source_mountfd < 0 && ! (extra_flags & OPTION_COPY_SYMLINK))
     {
-      const char *rel_source = get_path_in_rootfs (get_private_data (container)->host_rootfs, mount->source);
+      ଅଚଳ ଅକ୍ଷର *rel_source = get_path_in_rootfs (get_private_data (container)->host_rootfs, mount->source);
 
-      if (rel_source)
+      ଯଦି (rel_source)
         {
           unsigned long propagation = (flags & (MS_SHARED | MS_SLAVE | MS_UNBINDABLE)) ? 0 : MS_PRIVATE;
 
           source_mountfd = get_bind_mount (get_private_data (container)->rootfsfd, rel_source, (flags & MS_REC) != 0,
                                            false, (extra_flags & OPTION_SRC_NOFOLLOW) != 0, propagation, err);
-          if (UNLIKELY (source_mountfd < 0))
-            return crun_error_wrap (err, "open mount source `%s`", mount->source);
+          ଯଦି (UNLIKELY (source_mountfd < 0))
+            ଫେରନ୍ତୁ crun_error_wrap (err, "open mount source `%s`", mount->source);
         }
     }
 
-  if ((flags & MS_BIND) && mount->source && has_mount_flag_options (mount)
+  ଯଦି ((flags & MS_BIND) && mount->source && has_mount_flag_options (mount)
       && (get_private_data (container)->unshare_flags & CLONE_NEWUSER))
     flags |= get_bind_mount_locked_flags (source_mountfd, mount->source, mount);
 
-  if (flags & MS_BIND)
+  ଯଦି (flags & MS_BIND)
     {
       /* A remount sets exactly the requested flags and clears any other
          one.  A bind mount without mount flag options (e.g. "bind",
          "rbind,rprivate") keeps the flags of the source, so it must not
          be remounted.  */
-      if (! has_mount_flag_options (mount))
+      ଯଦି (! has_mount_flag_options (mount))
         no_remount = MOUNT_NO_REMOUNT;
 
-      if (path_is_slash_dev (mount->destination))
+      ଯଦି (path_is_slash_dev (mount->destination))
         get_private_data (container)->mount_dev_from_host = true;
       /* It is used only for error messages.  */
       type = "bind";
     }
   is_sysfs_or_proc = strcmp (type, "sysfs") == 0 || strcmp (type, "proc") == 0;
 
-  if (strcmp (type, "tmpfs") == 0)
+  ଯଦି (strcmp (type, "tmpfs") == 0)
     {
       ret = append_tmpfs_mode_if_missing (container, mount, &data, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
-  if (mount->source && (flags & MS_BIND))
+  ଯଦି (mount->source && (flags & MS_BIND))
     {
       proc_fd_path_t proc_buf;
-      const char *path = mount->source;
+      ଅଚଳ ଅକ୍ଷର *path = mount->source;
 
-      if ((extra_flags & OPTION_COPY_SYMLINK) && (extra_flags & (OPTION_SRC_NOFOLLOW | OPTION_DEST_NOFOLLOW)))
-        return crun_make_error (err, 0, "`copy-symlink` is mutually exclusive with `src-nofollow` and `dest-nofollow`");
+      ଯଦି ((extra_flags & OPTION_COPY_SYMLINK) && (extra_flags & (OPTION_SRC_NOFOLLOW | OPTION_DEST_NOFOLLOW)))
+        ଫେରନ୍ତୁ crun_make_error (err, 0, "`copy-symlink` is mutually exclusive with `src-nofollow` and `dest-nofollow`");
 
       bool is_cached_symlink = (extra_flags & OPTION_COPY_SYMLINK)
                                && get_private_data (container)->copy_symlink_targets
@@ -3184,159 +3184,159 @@ process_single_mount (libcrun_container_t *container, const char *rootfs,
       /* When the source is a cached symlink, skip the pre-opened fd since
          get_bind_mount() followed the symlink and the fd points to the target.
          For regular files with copy-symlink, the pre-opened fd is still valid.  */
-      if (source_mountfd >= 0 && ! is_cached_symlink)
+      ଯଦି (source_mountfd >= 0 && ! is_cached_symlink)
         {
           get_self_fd_path (proc_buf, source_mountfd);
           path = proc_buf;
 
-          ret = get_file_type_at (source_mountfd, &src_mode, true, NULL);
+          ret = get_file_type_at (source_mountfd, &src_mode, true, ଖାଲି);
         }
-      else if (is_cached_symlink)
+      ଅନ୍ୟଥା ଯଦି (is_cached_symlink)
         {
           src_mode = S_IFLNK;
           ret = 0;
         }
-      else if (path[0] == '/')
+      ଅନ୍ୟଥା ଯଦି (path[0] == '/')
         {
-          int old_root_fd = get_old_root_fd (get_private_data (container));
+          ପୂର୍ଣ୍ଣସଂଖ୍ୟା old_ମୂଳ_fd = get_old_ମୂଳ_fd (get_private_data (container));
           bool nofollow = (extra_flags & (OPTION_SRC_NOFOLLOW | OPTION_COPY_SYMLINK)) ? true : false;
 
-          if (old_root_fd >= 0)
-            ret = get_file_type_at (old_root_fd, &src_mode, nofollow, (path[1] == '\0') ? NULL : path + 1);
-          else
+          ଯଦି (old_ମୂଳ_fd >= 0)
+            ret = get_file_type_at (old_ମୂଳ_fd, &src_mode, nofollow, (path[1] == '\0') ? ଖାଲି : path + 1);
+          ଅନ୍ୟଥା
             ret = get_file_type_at (AT_FDCWD, &src_mode, nofollow, path);
         }
-      else
+      ଅନ୍ୟଥା
         ret = get_file_type (&src_mode, (extra_flags & (OPTION_SRC_NOFOLLOW | OPTION_COPY_SYMLINK)) ? true : false, path);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "cannot stat `%s`", path);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "cannot stat `%s`", path);
 
-      if (S_ISLNK (src_mode) && (extra_flags & OPTION_DEST_NOFOLLOW) && source_mountfd < 0)
+      ଯଦି (S_ISLNK (src_mode) && (extra_flags & OPTION_DEST_NOFOLLOW) && source_mountfd < 0)
         {
-          int bind_dirfd = AT_FDCWD;
-          const char *bind_source = mount->source;
-          int old_root_fd = get_old_root_fd (get_private_data (container));
+          ପୂର୍ଣ୍ଣସଂଖ୍ୟା bind_dirfd = AT_FDCWD;
+          ଅଚଳ ଅକ୍ଷର *bind_source = mount->source;
+          ପୂର୍ଣ୍ଣସଂଖ୍ୟା old_ମୂଳ_fd = get_old_ମୂଳ_fd (get_private_data (container));
 
-          if (old_root_fd >= 0 && mount->source && mount->source[0] == '/')
+          ଯଦି (old_ମୂଳ_fd >= 0 && mount->source && mount->source[0] == '/')
             {
-              bind_dirfd = old_root_fd;
+              bind_dirfd = old_ମୂଳ_fd;
               bind_source = (mount->source[1] == '\0') ? "." : mount->source + 1;
             }
           ret = get_bind_mount (bind_dirfd, bind_source, true, true, extra_flags & OPTION_SRC_NOFOLLOW, MS_PRIVATE, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
 
           source_mountfd = ret;
         }
     }
 
-  if (S_ISLNK (src_mode) && (extra_flags & OPTION_COPY_SYMLINK))
+  ଯଦି (S_ISLNK (src_mode) && (extra_flags & OPTION_COPY_SYMLINK))
     {
-      const char *cached_target = NULL;
+      ଅଚଳ ଅକ୍ଷର *cached_target = ଖାଲି;
 
-      if (get_private_data (container)->copy_symlink_targets
+      ଯଦି (get_private_data (container)->copy_symlink_targets
           && mount_index < get_private_data (container)->n_copy_symlink_targets)
         cached_target = get_private_data (container)->copy_symlink_targets[mount_index];
 
       ret = handle_copy_symlink (container, rootfs, mount, cached_target, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       mounted = true;
     }
-  else if (is_sysfs_or_proc)
+  ଅନ୍ୟଥା ଯଦି (is_sysfs_or_proc)
     {
       ret = prepare_sysfs_or_proc_mount (container, target, &targetfd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
-  else
+  ଅନ୍ୟଥା
     {
       bool is_dir = S_ISDIR (src_mode);
 
-      if (extra_flags & OPTION_DEST_NOFOLLOW)
+      ଯଦି (extra_flags & OPTION_DEST_NOFOLLOW)
         {
           /* If dest-nofollow is specified, expect the target to exist.  */
           ret = safe_openat (get_private_data (container)->rootfsfd, rootfs, target, O_PATH | O_NOFOLLOW | O_CLOEXEC, 0, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
           targetfd = ret;
 
           ret = check_valid_no_follow_file_system (targetfd, target, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
         }
-      else
+      ଅନ୍ୟଥା
         {
           /* Make sure any other directory/file is created and take a O_PATH reference to it.  */
           ret = crun_safe_create_and_open_ref_at (is_dir, get_private_data (container)->rootfsfd, rootfs, target, 0755, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
           targetfd = ret;
         }
     }
 
-  if (extra_flags & OPTION_TMPCOPYUP)
+  ଯଦି (extra_flags & OPTION_TMPCOPYUP)
     {
-      if (strcmp (type, "tmpfs") != 0)
-        return crun_make_error (err, 0, "tmpcopyup can be used only with tmpfs");
+      ଯଦି (strcmp (type, "tmpfs") != 0)
+        ଫେରନ୍ତୁ crun_make_error (err, 0, "tmpcopyup can be used only with tmpfs");
 
       /* targetfd is opened with O_PATH, reopen the fd so it can read.  */
       copy_from_fd = openat (targetfd, ".", O_CLOEXEC | O_RDONLY | O_DIRECTORY);
-      if (UNLIKELY (copy_from_fd < 0))
+      ଯଦି (UNLIKELY (copy_from_fd < 0))
         {
-          if (errno != ENOTDIR)
-            return crun_make_error (err, errno, "cannot reopen `%s`", target);
+          ଯଦି (errno != ENOTDIR)
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "cannot reopen `%s`", target);
         }
     }
 
   source = mount->source ? mount->source : type;
 
   /* Check if there is already a mount for the requested file system.  */
-  if (! mounted && source_mountfd >= 0)
+  ଯଦି (! mounted && source_mountfd >= 0)
     {
-      ret = fs_move_mount_to (source_mountfd, targetfd, NULL);
-      if (LIKELY (ret == 0))
+      ret = fs_move_mount_to (source_mountfd, targetfd, ଖାଲି);
+      ଯଦି (LIKELY (ret == 0))
         {
           unsigned long remaining_flags = flags & ~MS_BIND;
 
           /* A remount is needed not only to set some flags, but also to
              clear the ones set on the source (e.g. "bind,dev" on a nodev
              source), in which case remaining_flags might be empty.  */
-          if (remaining_flags || has_mount_flag_options (mount))
+          ଯଦି (remaining_flags || has_mount_flag_options (mount))
             {
-              ret = do_mount (container, NULL, source_mountfd, target, NULL, remaining_flags, data, LABEL_NONE | no_remount, err);
-              if (UNLIKELY (ret < 0))
-                return ret;
+              ret = do_mount (container, ଖାଲି, source_mountfd, target, ଖାଲି, remaining_flags, data, LABEL_NONE | no_remount, err);
+              ଯଦି (UNLIKELY (ret < 0))
+                ଫେରନ୍ତୁ ret;
             }
 
           mounted = true;
 
-          if (is_empty_string (target))
+          ଯଦି (is_empty_string (target))
             {
-              int new_rootfsfd = open (rootfs, O_PATH | O_CLOEXEC);
-              if (UNLIKELY (new_rootfsfd < 0))
-                return crun_make_error (err, errno, "reopen rootfs after mount on /");
+              ପୂର୍ଣ୍ଣସଂଖ୍ୟା new_rootfsfd = open (rootfs, O_PATH | O_CLOEXEC);
+              ଯଦି (UNLIKELY (new_rootfsfd < 0))
+                ଫେରନ୍ତୁ crun_make_error (err, errno, "reopen rootfs after mount on /");
 
               TEMP_FAILURE_RETRY (close (get_private_data (container)->rootfsfd));
               get_private_data (container)->rootfsfd = new_rootfsfd;
             }
         }
-      else if (get_private_data (container)->delayed_pidns_fork && strcmp (type, "proc") == 0)
+      ଅନ୍ୟଥା ଯଦି (get_private_data (container)->delayed_pidns_fork && strcmp (type, "proc") == 0)
         {
           /* The process is not in the container PID namespace yet, so
              mount(2) would create a proc instance for the wrong one.  */
-          return crun_make_error (err, 0, "the proc mount `%s` was not opened in the target PID namespace", target);
+          ଫେରନ୍ତୁ crun_make_error (err, 0, "the proc mount `%s` was not opened in the target PID namespace", target);
         }
-      else if (get_private_data (container)->host_root_switched)
+      ଅନ୍ୟଥା ଯଦି (get_private_data (container)->host_ମୂଳ_switched)
         {
           /* The host root is unreachable now -- even through a fd, since
              mount(2) requires the source to live in the current mount
              namespace.  The path-based fallback below would resolve SOURCE
              inside the container and bind the wrong tree.  */
-          return crun_make_error (err, errno, "move_mount `%s` to `%s`", source, target);
+          ଫେରନ୍ତୁ crun_make_error (err, errno, "move_mount `%s` to `%s`", source, target);
         }
-      else if (errno != ENOSYS)
+      ଅନ୍ୟଥା ଯଦି (errno != ENOSYS)
         {
           /* ENOSYS only means the kernel lacks the new mount API.  Anything
              else is worth reporting: it is otherwise invisible, and it decides
@@ -3347,76 +3347,76 @@ process_single_mount (libcrun_container_t *container, const char *rootfs,
         }
     }
 
-  if (! mounted)
+  ଯଦି (! mounted)
     {
-      if (systemd_cgroup_v1 && strcmp (mount->destination, systemd_cgroup_v1) == 0)
+      ଯଦି (systemd_cgroup_v1 && strcmp (mount->destination, systemd_cgroup_v1) == 0)
         {
           /* Override the cgroup mount with a single named cgroup name=systemd.  */
           ret = do_mount_cgroup_systemd_v1 (container, source, targetfd, target, flags, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
         }
-      else if (strcmp (type, "cgroup") == 0)
+      ଅନ୍ୟଥା ଯଦି (strcmp (type, "cgroup") == 0)
         {
           ret = do_mount_cgroup (container, source, targetfd, target, flags, data, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
         }
-      else
+      ଅନ୍ୟଥା
         {
-          int extra_flags = get_mount_label_how (type, is_sysfs_or_proc) | no_remount;
+          ପୂର୍ଣ୍ଣସଂଖ୍ୟା extra_flags = get_mount_label_how (type, is_sysfs_or_proc) | no_remount;
 
           ret = do_mount (container, source, targetfd, target, type, flags, data, extra_flags, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
         }
     }
 
-  if (copy_from_fd >= 0)
+  ଯଦି (copy_from_fd >= 0)
     {
       // handle_tmpcopyup closes copy_from_fd
       ret = handle_tmpcopyup (container, rootfs, target, copy_from_fd, err);
       copy_from_fd = -1;
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
-  if (rec_clear || rec_set)
+  ଯଦି (rec_clear || rec_set)
     {
-      const bool is_dir = S_ISDIR (src_mode);
-      cleanup_close int dfd = -1;
+      ଅଚଳ bool is_dir = S_ISDIR (src_mode);
+      cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା dfd = -1;
 
       dfd = safe_openat (get_private_data (container)->rootfsfd, rootfs, target, O_RDONLY | O_PATH | O_CLOEXEC | (is_dir ? O_DIRECTORY : 0), 0, err);
-      if (UNLIKELY (dfd < 0))
-        return crun_error_wrap (err, "open mount target `/%s`", target);
+      ଯଦି (UNLIKELY (dfd < 0))
+        ଫେରନ୍ତୁ crun_error_wrap (err, "open mount target `/%s`", target);
 
       ret = do_mount_setattr (true, target, dfd, rec_clear, rec_set, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-do_mounts (libcrun_container_t *container, const char *rootfs, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+do_mounts (libcrun_container_t *container, ଅଚଳ ଅକ୍ଷର *rootfs, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  const char *systemd_cgroup_v1 = get_force_cgroup_v1_annotation (container);
-  cleanup_close_map struct libcrun_fd_map *mount_fds = NULL;
+  ଅଚଳ ଅକ୍ଷର *systemd_cgroup_v1 = get_force_cgroup_v1_annotation (container);
+  cleanup_close_map ସଂରଚନା libcrun_fd_map *mount_fds = ଖାଲି;
   size_t i;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   mount_fds = get_private_data (container)->mount_fds;
-  get_private_data (container)->mount_fds = NULL;
+  get_private_data (container)->mount_fds = ଖାଲି;
 
-  for (i = 0; i < def->mounts_len; i++)
+  ପାଇଁ (i = 0; i < def->mounts_len; i++)
     {
       ret = process_single_mount (container, rootfs, def->mounts[i], mount_fds, i, systemd_cgroup_v1, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 /*
@@ -3425,192 +3425,192 @@ do_mounts (libcrun_container_t *container, const char *rootfs, libcrun_error_t *
  *  Allows external plugins and handlers to perform bind `mounts` on container.
  *  returns: 0 if successful anything else states `error` and configures `err` with relevant error.
  */
-int
-libcrun_container_do_bind_mount (libcrun_container_t *container, char *mount_source, char *mount_destination, char **mount_options, size_t mount_options_len, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+libcrun_container_do_bind_mount (libcrun_container_t *container, ଅକ୍ଷର *mount_source, ଅକ୍ଷର *mount_destination, ଅକ୍ଷର **mount_options, size_t mount_options_len, libcrun_error_t *err)
 {
-  const char *target = consume_slashes (mount_destination);
-  cleanup_free char *data = NULL;
+  ଅଚଳ ଅକ୍ଷର *target = consume_slashes (mount_destination);
+  cleanup_free ଅକ୍ଷର *data = ଖାଲି;
   unsigned long flags = 0;
   unsigned long extra_flags = 0;
-  cleanup_close int targetfd = -1;
-  int is_dir = 1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା targetfd = -1;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା is_dir = 1;
   uint64_t rec_clear = 0;
   uint64_t rec_set = 0;
-  const char *rootfs = get_private_data (container)->rootfs;
-  int ret;
+  ଅଚଳ ଅକ୍ଷର *rootfs = get_private_data (container)->rootfs;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if ((get_private_data (container)->rootfsfd < 0) || (rootfs == NULL))
-    return crun_make_error (err, 0, "invalid rootfs state while performing bind mount from external plugin or handler");
+  ଯଦି ((get_private_data (container)->rootfsfd < 0) || (rootfs == ଖାଲି))
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "invalid rootfs state while performing bind mount from external plugin or handler");
 
-  if (mount_options == NULL)
+  ଯଦି (mount_options == ଖାଲି)
     flags = get_default_flags (container, mount_destination, &data);
-  else
+  ଅନ୍ୟଥା
     {
       size_t j;
 
-      for (j = 0; j < mount_options_len; j++)
+      ପାଇଁ (j = 0; j < mount_options_len; j++)
         flags |= get_mount_flags_or_option (mount_options[j], flags, &extra_flags, &data, &rec_clear, &rec_set);
     }
 
-  if (path_is_slash_dev (mount_destination))
+  ଯଦି (path_is_slash_dev (mount_destination))
     get_private_data (container)->mount_dev_from_host = true;
 
-  if (mount_source && (flags & MS_BIND))
+  ଯଦି (mount_source && (flags & MS_BIND))
     {
       is_dir = crun_dir_p (mount_source, false, err);
-      if (UNLIKELY (is_dir < 0))
-        return is_dir;
+      ଯଦି (UNLIKELY (is_dir < 0))
+        ଫେରନ୍ତୁ is_dir;
     }
 
   /* Make sure any other directory/file is created and take a O_PATH reference to it.  */
   ret = crun_safe_create_and_open_ref_at (is_dir, get_private_data (container)->rootfsfd, rootfs, target, 0755, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   targetfd = ret;
 
   ret = do_mount (container, mount_source, targetfd, target, "bind", flags, data, LABEL_MOUNT, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 /*
   Open a fd to the NOTIFY_SOCKET end on the host.  If CONTAINER is NULL, then CONTEXT
   is used to retrieve the path to the socket.
 */
-int
-get_notify_fd (libcrun_context_t *context, libcrun_container_t *container, int *notify_socket_out, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+get_notify_fd (libcrun_context_t *context, libcrun_container_t *container, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *notify_socket_out, libcrun_error_t *err)
 {
 #ifdef HAVE_SYSTEMD
-  cleanup_close int notify_fd = -1;
-  cleanup_free char *host_notify_socket_path = NULL;
-  cleanup_free char *state_dir = NULL;
-  char *host_path = NULL;
-  int ret;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା notify_fd = -1;
+  cleanup_free ଅକ୍ଷର *host_notify_socket_path = ଖାଲି;
+  cleanup_free ଅକ୍ଷର *state_dir = ଖାଲି;
+  ଅକ୍ଷର *host_path = ଖାଲି;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (container && get_private_data (container)->host_notify_socket_path)
+  ଯଦି (container && get_private_data (container)->host_notify_socket_path)
     {
-      const char *parent_dir;
+      ଅଚଳ ଅକ୍ଷର *parent_dir;
 
       parent_dir = get_private_data (container)->host_notify_socket_path;
 
-      ret = append_paths (&host_notify_socket_path, err, parent_dir, "notify", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&host_notify_socket_path, err, parent_dir, "notify", ଖାଲି);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       host_path = host_notify_socket_path;
     }
 
   *notify_socket_out = -1;
 
-  if (host_path == NULL)
+  ଯଦି (host_path == ଖାଲି)
     {
-      ret = libcrun_get_state_directory (&state_dir, context->state_root, context->id, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_get_state_directory (&state_dir, context->state_ମୂଳ, context->id, err);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
-      ret = append_paths (&host_notify_socket_path, err, state_dir, "notify/notify", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&host_notify_socket_path, err, state_dir, "notify/notify", ଖାଲି);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       host_path = host_notify_socket_path;
     }
 
   notify_fd = open_unix_domain_socket (host_path, 1, err);
-  if (UNLIKELY (notify_fd < 0))
-    return notify_fd;
+  ଯଦି (UNLIKELY (notify_fd < 0))
+    ଫେରନ୍ତୁ notify_fd;
 
-  if (UNLIKELY (chmod (host_path, 0777) < 0))
-    return crun_make_error (err, errno, "chmod `%s`", host_path);
+  ଯଦି (UNLIKELY (chmod (host_path, 0777) < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "chmod `%s`", host_path);
 
 #  ifdef HAVE_FGETXATTR
-  if (container && container->container_def->linux && container->container_def->linux->mount_label)
+  ଯଦି (container && container->container_def->linux && container->container_def->linux->mount_label)
     {
       /* Ignore the error. The worst that can happen is that the container fails to notify it is ready.  */
-      (void) setxattr (host_path, "security.selinux", container->container_def->linux->mount_label,
+      (ଶୂନ୍ୟ) setxattr (host_path, "security.selinux", container->container_def->linux->mount_label,
                        strlen (container->container_def->linux->mount_label), 0);
     }
 #  endif
 
   *notify_socket_out = get_and_reset (&notify_fd);
-  return 1;
-#else
-  (void) context;
-  (void) container;
-  (void) err;
+  ଫେରନ୍ତୁ 1;
+#ଅନ୍ୟଥା
+  (ଶୂନ୍ୟ) context;
+  (ଶୂନ୍ୟ) container;
+  (ଶୂନ୍ୟ) err;
   *notify_socket_out = -1;
-  return 0;
+  ଫେରନ୍ତୁ 0;
 #endif
 }
 
 #ifdef HAVE_SYSTEMD
-static int
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 do_notify_socket (libcrun_container_t *container, libcrun_error_t *err)
 {
-  int ret;
-  const char *notify_socket = container->context->notify_socket;
-  cleanup_free char *host_notify_socket_path = NULL;
-  cleanup_free char *container_notify_socket_path = NULL;
-  cleanup_free char *state_dir = NULL;
-  uid_t container_root_uid = -1;
-  gid_t container_root_gid = -1;
-  int notify_socket_tree_fd;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
+  ଅଚଳ ଅକ୍ଷର *notify_socket = container->context->notify_socket;
+  cleanup_free ଅକ୍ଷର *host_notify_socket_path = ଖାଲି;
+  cleanup_free ଅକ୍ଷର *container_notify_socket_path = ଖାଲି;
+  cleanup_free ଅକ୍ଷର *state_dir = ଖାଲି;
+  uid_t container_ମୂଳ_uid = -1;
+  gid_t container_ମୂଳ_gid = -1;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା notify_socket_ବୃକ୍ଷ_fd;
 
-  if (notify_socket == NULL)
-    return 0;
+  ଯଦି (notify_socket == ଖାଲି)
+    ଫେରନ୍ତୁ 0;
 
   ret = libcrun_get_state_directory (&state_dir,
-                                     (container->context ? container->context->state_root : NULL),
-                                     (container->context ? container->context->id : NULL), err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+                                     (container->context ? container->context->state_ମୂଳ : ଖାଲି),
+                                     (container->context ? container->context->id : ଖାଲି), err);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  ret = append_paths (&container_notify_socket_path, err, "/", notify_socket, "notify", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&container_notify_socket_path, err, "/", notify_socket, "notify", ଖାଲି);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  ret = append_paths (&host_notify_socket_path, err, state_dir, "notify", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&host_notify_socket_path, err, state_dir, "notify", ଖାଲି);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ret = mkdir (host_notify_socket_path, 0700);
-  if (ret < 0)
-    return crun_make_error (err, errno, "mkdir `%s`", host_notify_socket_path);
+  ଯଦି (ret < 0)
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "mkdir `%s`", host_notify_socket_path);
 
-  if (get_private_data (container)->unshare_flags & CLONE_NEWUSER)
+  ଯଦି (get_private_data (container)->unshare_flags & CLONE_NEWUSER)
     {
-      get_root_in_the_userns (container->container_def, 0, 0, &container_root_uid, &container_root_gid);
-      if (container_root_uid != ((uid_t) -1) && container_root_gid != ((gid_t) -1))
+      get_ମୂଳ_in_the_userns (container->container_def, 0, 0, &container_ମୂଳ_uid, &container_ମୂଳ_gid);
+      ଯଦି (container_ମୂଳ_uid != ((uid_t) -1) && container_ମୂଳ_gid != ((gid_t) -1))
         {
-          ret = chown (host_notify_socket_path, container_root_uid, container_root_gid);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "chown `%s` to `%d:%d`", host_notify_socket_path, container_root_uid, container_root_gid);
+          ret = chown (host_notify_socket_path, container_ମୂଳ_uid, container_ମୂଳ_gid);
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "chown `%s` to `%d:%d`", host_notify_socket_path, container_ମୂଳ_uid, container_ମୂଳ_gid);
         }
     }
 
-  notify_socket_tree_fd = syscall_open_tree (AT_FDCWD, host_notify_socket_path, OPEN_TREE_CLONE | AT_RECURSIVE | OPEN_TREE_CLOEXEC);
-  if (notify_socket_tree_fd >= 0)
+  notify_socket_ବୃକ୍ଷ_fd = syscall_open_ବୃକ୍ଷ (AT_FDCWD, host_notify_socket_path, OPEN_TREE_CLONE | AT_RECURSIVE | OPEN_TREE_CLOEXEC);
+  ଯଦି (notify_socket_ବୃକ୍ଷ_fd >= 0)
     /* open_tree worked */
-    get_private_data (container)->notify_socket_tree_fd = notify_socket_tree_fd;
-  else if (errno == EPERM)
+    get_private_data (container)->notify_socket_ବୃକ୍ଷ_fd = notify_socket_ବୃକ୍ଷ_fd;
+  ଅନ୍ୟଥା ଯଦି (errno == EPERM)
     /* this can happen when trying to run a rootless container; this function is called
        in the original namespace where the caller is _not_ CAP_SYS_ADMIN - in that case,
        do nothing, because the bind mount of host_notify_socket_path directly should succeed
        since it will be readable by the container user. */
     ;
-  else if (errno == ENOSYS)
+  ଅନ୍ୟଥା ଯଦି (errno == ENOSYS)
     /* if open_tree(2) is not available, do nothing; we will try mount(2) in do_finalize_notify_socket */
     ;
-  else
+  ଅନ୍ୟଥା
     /* some other error */
-    return crun_make_error (err, errno, "open_tree `%s`", host_notify_socket_path);
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "open_tree `%s`", host_notify_socket_path);
 
   get_private_data (container)->host_notify_socket_path = host_notify_socket_path;
   get_private_data (container)->container_notify_socket_path = container_notify_socket_path;
-  host_notify_socket_path = container_notify_socket_path = NULL;
-  return 0;
+  host_notify_socket_path = container_notify_socket_path = ଖାଲି;
+  ଫେରନ୍ତୁ 0;
 }
 #endif
 
@@ -3618,39 +3618,39 @@ do_notify_socket (libcrun_container_t *container, libcrun_error_t *err)
    before pivot_root, while the host path is still reachable for the
    mount(2) fallback, and the destination is resolved inside the rootfs so
    that a symlink in the container image cannot point it elsewhere.  */
-static int
-do_finalize_notify_socket (libcrun_container_t *container, const char *rootfs, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+do_finalize_notify_socket (libcrun_container_t *container, ଅଚଳ ଅକ୍ଷର *rootfs, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_free char *host_notify_socket_path = NULL;
-  cleanup_free char *container_notify_socket_path = NULL;
-  cleanup_free char *container_notify_socket_path_dir_alloc = NULL;
-  const char *container_notify_socket_path_dir = NULL;
-  cleanup_close int notify_socket_tree_fd = -1;
-  cleanup_close int targetfd = -1;
-  int did_mount_with_move_mount = 0;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
+  cleanup_free ଅକ୍ଷର *host_notify_socket_path = ଖାଲି;
+  cleanup_free ଅକ୍ଷର *container_notify_socket_path = ଖାଲି;
+  cleanup_free ଅକ୍ଷର *container_notify_socket_path_dir_alloc = ଖାଲି;
+  ଅଚଳ ଅକ୍ଷର *container_notify_socket_path_dir = ଖାଲି;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା notify_socket_ବୃକ୍ଷ_fd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା targetfd = -1;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା did_mount_with_move_mount = 0;
 
   host_notify_socket_path = get_private_data (container)->host_notify_socket_path;
-  get_private_data (container)->host_notify_socket_path = NULL;
+  get_private_data (container)->host_notify_socket_path = ଖାଲି;
 
   container_notify_socket_path = get_private_data (container)->container_notify_socket_path;
-  get_private_data (container)->container_notify_socket_path = NULL;
+  get_private_data (container)->container_notify_socket_path = ଖାଲି;
 
-  if (host_notify_socket_path == NULL || container_notify_socket_path == NULL)
-    return 0;
+  ଯଦି (host_notify_socket_path == ଖାଲି || container_notify_socket_path == ଖାଲି)
+    ଫେରନ୍ତୁ 0;
 
-  if (rootfs == NULL)
+  ଯଦି (rootfs == ଖାଲି)
     rootfs = "/";
 
   container_notify_socket_path_dir_alloc = xstrdup (container_notify_socket_path);
   container_notify_socket_path_dir = consume_slashes (dirname (container_notify_socket_path_dir_alloc));
 
   /* libcrun_set_mounts does not open the rootfs when there are no mounts.  */
-  if (get_private_data (container)->rootfsfd < 0)
+  ଯଦି (get_private_data (container)->rootfsfd < 0)
     {
       ret = open (rootfs, O_PATH | O_CLOEXEC);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "open `%s`", rootfs);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "open `%s`", rootfs);
 
       get_private_data (container)->rootfsfd = ret;
       get_private_data (container)->rootfs = rootfs;
@@ -3658,19 +3658,19 @@ do_finalize_notify_socket (libcrun_container_t *container, const char *rootfs, l
 
   ret = crun_safe_create_and_open_ref_at (true, get_private_data (container)->rootfsfd, rootfs,
                                           container_notify_socket_path_dir, 0755, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   targetfd = ret;
 
-  notify_socket_tree_fd = get_private_data (container)->notify_socket_tree_fd;
+  notify_socket_ବୃକ୍ଷ_fd = get_private_data (container)->notify_socket_ବୃକ୍ଷ_fd;
   /* the FD will be unconditionally closed at the end of this function due to cleanup_close above */
-  get_private_data (container)->notify_socket_tree_fd = -1;
+  get_private_data (container)->notify_socket_ବୃକ୍ଷ_fd = -1;
 
-  if (notify_socket_tree_fd >= 0)
+  ଯଦି (notify_socket_ବୃକ୍ଷ_fd >= 0)
     {
-      ret = fs_move_mount_to (notify_socket_tree_fd, targetfd, NULL);
-      if (ret >= 0)
+      ret = fs_move_mount_to (notify_socket_ବୃକ୍ଷ_fd, targetfd, ଖାଲି);
+      ଯଦି (ret >= 0)
         {
           /* if move_mount(2) worked, make sure we don't try mount(2) */
           did_mount_with_move_mount = 1;
@@ -3681,381 +3681,381 @@ do_finalize_notify_socket (libcrun_container_t *container, const char *rootfs, l
              so reopen the target.  */
           close_and_reset (&targetfd);
           targetfd = open_mount_target (container, container_notify_socket_path_dir, err);
-          if (UNLIKELY (targetfd < 0))
-            return targetfd;
+          ଯଦି (UNLIKELY (targetfd < 0))
+            ଫେରନ୍ତୁ targetfd;
 
-          ret = do_mount (container, NULL, targetfd, container_notify_socket_path_dir, NULL,
-                          MS_REC | MS_PRIVATE, NULL, LABEL_NONE, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = do_mount (container, ଖାଲି, targetfd, container_notify_socket_path_dir, ଖାଲି,
+                          MS_REC | MS_PRIVATE, ଖାଲି, LABEL_NONE, err);
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
         }
-      else if (errno == ENOSYS)
+      ଅନ୍ୟଥା ଯଦି (errno == ENOSYS)
         /* do nothing; we will try mount(2) next */
         ;
-      else
-        return crun_make_error (err, errno, "move_mount `%d` to `%s`", notify_socket_tree_fd,
+      ଅନ୍ୟଥା
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "move_mount `%d` to `%s`", notify_socket_ବୃକ୍ଷ_fd,
                                 container_notify_socket_path_dir);
     }
 
-  if (! did_mount_with_move_mount)
+  ଯଦି (! did_mount_with_move_mount)
     {
-      ret = do_mount (container, host_notify_socket_path, targetfd, container_notify_socket_path_dir, NULL,
-                      MS_BIND | MS_REC | MS_PRIVATE, NULL, LABEL_MOUNT, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = do_mount (container, host_notify_socket_path, targetfd, container_notify_socket_path_dir, ଖାଲି,
+                      MS_BIND | MS_REC | MS_PRIVATE, ଖାଲି, LABEL_MOUNT, err);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-make_parent_mount_private (const char *rootfs, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+make_parent_mount_private (ଅଚଳ ଅକ୍ଷର *rootfs, libcrun_error_t *err)
 {
-  cleanup_close int rootfsfd = -1;
-  struct stat prev_st;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା rootfsfd = -1;
+  ସଂରଚନା stat prev_st;
   proc_fd_path_t proc_path;
 
   /* rootfs could be a relative path.  */
   rootfsfd = open (rootfs, O_PATH | O_CLOEXEC);
-  if (UNLIKELY (rootfsfd < 0))
-    return crun_make_error (err, errno, "open `%s`", rootfs);
+  ଯଦି (UNLIKELY (rootfsfd < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "open `%s`", rootfs);
 
-  if (UNLIKELY (fstat (rootfsfd, &prev_st) < 0))
-    return crun_make_error (err, errno, "fstat `%s`", rootfs);
+  ଯଦି (UNLIKELY (fstat (rootfsfd, &prev_st) < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "fstat `%s`", rootfs);
 
-  for (;;)
+  ପାଇଁ (;;)
     {
-      struct stat cur_st;
-      libcrun_error_t tmp_err = NULL;
-      int ret;
-      cleanup_close int parentfd = -1;
+      ସଂରଚନା stat cur_st;
+      libcrun_error_t tmp_err = ଖାଲି;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
+      cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା parentfd = -1;
 
       ret = do_mount_setattr (false, rootfs, rootfsfd, 0, MS_PRIVATE, &tmp_err);
-      if (ret == 0)
-        return 0;
+      ଯଦି (ret == 0)
+        ଫେରନ୍ତୁ 0;
       crun_error_release (&tmp_err);
 
       get_proc_self_fd_path (proc_path, rootfsfd);
-      ret = mount (NULL, proc_path, NULL, MS_PRIVATE, NULL);
-      if (ret == 0)
-        return 0;
+      ret = mount (ଖାଲି, proc_path, ଖାଲି, MS_PRIVATE, ଖାଲି);
+      ଯଦି (ret == 0)
+        ଫେରନ୍ତୁ 0;
 
       parentfd = openat (rootfsfd, "..", O_PATH | O_CLOEXEC);
-      if (parentfd < 0)
+      ଯଦି (parentfd < 0)
         {
-          int saved_errno = errno;
+          ପୂର୍ଣ୍ଣସଂଖ୍ୟା saved_errno = errno;
           ret = faccessat (rootfsfd, "..", X_OK, AT_EACCESS);
-          if (ret != 0)
-            return crun_make_error (err, EACCES, "make `%s` private: a component is not accessible", rootfs);
-          return crun_make_error (err, saved_errno, "make `%s` private: cannot open component", rootfs);
+          ଯଦି (ret != 0)
+            ଫେରନ୍ତୁ crun_make_error (err, EACCES, "make `%s` private: a component is not accessible", rootfs);
+          ଫେରନ୍ତୁ crun_make_error (err, saved_errno, "make `%s` private: cannot open component", rootfs);
         }
 
-      if (UNLIKELY (fstat (parentfd, &cur_st) < 0))
-        return crun_make_error (err, errno, "fstat parent of `%s`", rootfs);
+      ଯଦି (UNLIKELY (fstat (parentfd, &cur_st) < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "fstat parent of `%s`", rootfs);
 
       /* Reached the root of the file system: ".." points to itself.  */
-      if (cur_st.st_dev == prev_st.st_dev && cur_st.st_ino == prev_st.st_ino)
-        break;
+      ଯଦି (cur_st.st_dev == prev_st.st_dev && cur_st.st_ino == prev_st.st_ino)
+        ଭାଙ୍ଗ;
 
       prev_st = cur_st;
       close_and_reset (&rootfsfd);
       rootfsfd = get_and_reset (&parentfd);
     }
 
-  return crun_make_error (err, 0, "make `%s` private", rootfs);
+  ଫେରନ୍ତୁ crun_make_error (err, 0, "make `%s` private", rootfs);
 }
 
-int
-libcrun_set_mounts (struct container_entrypoint_s *entrypoint_args, libcrun_container_t *container, const char *rootfs, set_mounts_cb_t cb, void *cb_data, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+libcrun_set_mounts (ସଂରଚନା container_entrypoint_s *entrypoint_args, libcrun_container_t *container, ଅଚଳ ଅକ୍ଷର *rootfs, set_mounts_cb_t cb, ଶୂନ୍ୟ *cb_data, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  int is_user_ns = 0;
-  int ret = 0;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା is_user_ns = 0;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret = 0;
 
-  if (rootfs == NULL || def->mounts == NULL)
-    return 0;
+  ଯଦି (rootfs == ଖାଲି || def->mounts == ଖାଲି)
+    ଫେରନ୍ତୁ 0;
 
   ret = open (rootfs, O_PATH | O_CLOEXEC);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "open `%s`", rootfs);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "open `%s`", rootfs);
 
   get_private_data (container)->rootfsfd = ret;
   get_private_data (container)->rootfs = rootfs;
 
   // configure handler mounts
   ret = libcrun_container_notify_handler (entrypoint_args, HANDLER_CONFIGURE_MOUNTS, container, rootfs, err);
-  if (UNLIKELY (ret < 0))
-    return crun_error_wrap (err, "failed configuring mounts for handler at phase: HANDLER_CONFIGURE_MOUNTS");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_error_wrap (err, "failed configuring mounts for handler at phase: HANDLER_CONFIGURE_MOUNTS");
 
-  if (def->root->readonly)
+  ଯଦି (def->ମୂଳ->readonly)
     {
-      struct remount_s *r;
+      ସଂରଚନା remount_s *r;
       unsigned long remount_flags = MS_REMOUNT | MS_BIND | MS_RDONLY;
-      int fd;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd;
 
       fd = dup (get_private_data (container)->rootfsfd);
-      if (UNLIKELY (fd < 0))
-        return crun_make_error (err, errno, "dup fd for `%s`", rootfs);
+      ଯଦି (UNLIKELY (fd < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "dup fd for `%s`", rootfs);
 
-      r = make_remount (fd, rootfs, remount_flags, NULL, get_private_data (container)->remounts);
+      r = make_remount (fd, rootfs, remount_flags, ଖାଲି, get_private_data (container)->remounts);
       get_private_data (container)->remounts = r;
     }
 
   /* Mounts are already done before pivot_root in setup_mount_namespace.  */
 
   is_user_ns = (get_private_data (container)->unshare_flags & CLONE_NEWUSER);
-  if (! is_user_ns)
+  ଯଦି (! is_user_ns)
     {
       is_user_ns = check_running_in_user_namespace (err);
-      if (UNLIKELY (is_user_ns < 0))
-        return is_user_ns;
+      ଯଦି (UNLIKELY (is_user_ns < 0))
+        ଫେରନ୍ତୁ is_user_ns;
     }
 
-  if (! get_private_data (container)->mount_dev_from_host)
+  ଯଦି (! get_private_data (container)->mount_dev_from_host)
     {
       ret = create_missing_devs (container, is_user_ns ? true : false, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
   /* Notify the callback after all the mounts are ready but before making them read-only.  */
-  if (cb)
+  ଯଦି (cb)
     {
       ret = cb (cb_data, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
-  if (def->process && def->process->cwd)
+  ଯଦି (def->process && def->process->cwd)
     {
-      libcrun_error_t tmp_err = NULL;
-      const char *rel_cwd = consume_slashes (def->process->cwd);
+      libcrun_error_t tmp_err = ଖାଲି;
+      ଅଚଳ ଅକ୍ଷର *rel_cwd = consume_slashes (def->process->cwd);
       /* Ignore errors here and let it fail later.  */
-      (void) crun_safe_ensure_directory_at (get_private_data (container)->rootfsfd, rootfs, rel_cwd, 0755, &tmp_err);
+      (ଶୂନ୍ୟ) crun_safe_ensure_directory_at (get_private_data (container)->rootfsfd, rootfs, rel_cwd, 0755, &tmp_err);
       crun_error_release (&tmp_err);
     }
 
   ret = do_masked_and_readonly_paths (container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-umount_or_hide (const char *target, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+umount_or_hide (ଅଚଳ ଅକ୍ଷର *target, libcrun_error_t *err)
 {
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   ret = umount2 (target, MNT_DETACH);
-  if (UNLIKELY (ret < 0))
+  ଯଦି (UNLIKELY (ret < 0))
     {
-      int saved_errno = errno;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା saved_errno = errno;
 
       /* If the umount2 failed with EINVAL then the mount could
          be locked.  Hide it by mounting a tmpfs on top of it.  */
-      if (errno == EINVAL)
+      ଯଦି (errno == EINVAL)
         {
-          ret = mount (NULL, target, "tmpfs", 0, "size=0k");
-          if (LIKELY (ret == 0))
-            return 0;
+          ret = mount (ଖାଲି, target, "tmpfs", 0, "size=0k");
+          ଯଦି (LIKELY (ret == 0))
+            ଫେରନ୍ତୁ 0;
         }
 
-      return crun_make_error (err, saved_errno, "umount `%s`", target);
+      ଫେରନ୍ତୁ crun_make_error (err, saved_errno, "umount `%s`", target);
     }
 
-  return ret;
+  ଫେରନ୍ତୁ ret;
 }
 
-static int
-move_root (const char *rootfs, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+move_ମୂଳ (ଅଚଳ ଅକ୍ଷର *rootfs, libcrun_error_t *err)
 {
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   ret = chdir (rootfs);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "chdir to `%s`", rootfs);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "chdir to `%s`", rootfs);
 
   ret = umount_or_hide ("/sys", err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ret = umount_or_hide ("/proc", err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ret = mount (rootfs, "/", "", MS_MOVE, "");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "mount MS_MOVE to `/`");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "mount MS_MOVE to `/`");
 
   ret = chroot (".");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "chroot to `%s`", rootfs);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "chroot to `%s`", rootfs);
 
   ret = chdir ("/");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "chdir to `%s`", rootfs);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "chdir to `%s`", rootfs);
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-int
-libcrun_finalize_mounts (struct container_entrypoint_s *entrypoint_args, libcrun_container_t *container, const char *rootfs,
-                         set_mounts_cb_t after_pivot_cb, void *cb_data, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+libcrun_finalize_mounts (ସଂରଚନା container_entrypoint_s *entrypoint_args, libcrun_container_t *container, ଅଚଳ ଅକ୍ଷର *rootfs,
+                         set_mounts_cb_t after_pivot_cb, ଶୂନ୍ୟ *cb_data, libcrun_error_t *err)
 {
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   // configure handler mounts for phase: HANDLER_CONFIGURE_AFTER_MOUNTS
   ret = libcrun_container_notify_handler (entrypoint_args, HANDLER_CONFIGURE_AFTER_MOUNTS, container, rootfs, err);
-  if (UNLIKELY (ret < 0))
-    return crun_error_wrap (err, "failed configuring mounts for handler at phase: HANDLER_CONFIGURE_AFTER_MOUNTS");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_error_wrap (err, "failed configuring mounts for handler at phase: HANDLER_CONFIGURE_AFTER_MOUNTS");
 
   ret = do_finalize_notify_socket (container, rootfs, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   close_and_reset (&(get_private_data (container)->rootfsfd));
 
   /* The host root must not stay reachable through /proc/self/fd once the
      container rootfs becomes the root: every path resolved by name from now
      on is controlled by the container image.  */
-  close_and_reset (&(get_private_data (container)->old_root_fd));
+  close_and_reset (&(get_private_data (container)->old_ମୂଳ_fd));
 
-  if (get_private_data (container)->needs_pivot)
+  ଯଦି (get_private_data (container)->needs_pivot)
     {
       get_private_data (container)->needs_pivot = false;
 
-      if (get_private_data (container)->no_pivot)
+      ଯଦି (get_private_data (container)->no_pivot)
         {
-          ret = move_root (rootfs, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = move_ମୂଳ (rootfs, err);
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
         }
-      else
+      ଅନ୍ୟଥା
         {
           ret = do_pivot (container, rootfs, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
         }
 
-      ret = do_mount (container, NULL, -1, "/", NULL,
+      ret = do_mount (container, ଖାଲି, -1, "/", ଖାଲି,
                       get_private_data (container)->rootfs_propagation,
-                      NULL, LABEL_MOUNT, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+                      ଖାଲି, LABEL_MOUNT, err);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       ret = chdir ("/");
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "chdir to `/`");
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "chdir to `/`");
     }
 
-  if (after_pivot_cb)
+  ଯଦି (after_pivot_cb)
     {
       ret = after_pivot_cb (cb_data, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
   ret = finalize_mounts (container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-maybe_open_tree_namespace (const char *rootfs, int *out_fd, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+maybe_open_ବୃକ୍ଷ_namespace (ଅଚଳ ଅକ୍ଷର *rootfs, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *out_fd, libcrun_error_t *err)
 {
-  cleanup_close int rootfs_fd = -1;
-  int tree_fd;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା rootfs_fd = -1;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ବୃକ୍ଷ_fd;
 
   *out_fd = -1;
 
   rootfs_fd = open (rootfs, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (rootfs_fd < 0))
-    return crun_make_error (err, errno, "open `%s`", rootfs);
+  ଯଦି (UNLIKELY (rootfs_fd < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "open `%s`", rootfs);
 
-  tree_fd = syscall_open_tree (rootfs_fd, "",
-                               OPEN_TREE_NAMESPACE | OPEN_TREE_CLOEXEC
+  ବୃକ୍ଷ_fd = syscall_open_ବୃକ୍ଷ (rootfs_fd, "",
+                               OPEN_ବୃକ୍ଷ_NAMESPACE | OPEN_TREE_CLOEXEC
                                    | AT_EMPTY_PATH | AT_RECURSIVE);
-  if (tree_fd < 0)
+  ଯଦି (ବୃକ୍ଷ_fd < 0)
     {
-      if (errno == EINVAL || errno == ENOSYS || errno == EPERM)
-        return 0;
-      return crun_make_error (err, errno, "open_tree `%s`", rootfs);
+      ଯଦି (errno == EINVAL || errno == ENOSYS || errno == EPERM)
+        ଫେରନ୍ତୁ 0;
+      ଫେରନ୍ତୁ crun_make_error (err, errno, "open_tree `%s`", rootfs);
     }
 
-  *out_fd = tree_fd;
-  return 0;
+  *out_fd = ବୃକ୍ଷ_fd;
+  ଫେରନ୍ତୁ 0;
 }
 
-static struct libcrun_fd_map *
+ସ୍ଥିର ସଂରଚନା libcrun_fd_map *
 get_fd_map (libcrun_container_t *container)
 {
-  struct libcrun_fd_map *mount_fds = get_private_data (container)->mount_fds;
+  ସଂରଚନା libcrun_fd_map *mount_fds = get_private_data (container)->mount_fds;
 
-  if (mount_fds == NULL)
+  ଯଦି (mount_fds == ଖାଲି)
     {
       runtime_spec_schema_config_schema *def = container->container_def;
       mount_fds = make_libcrun_fd_map (def->mounts_len);
       get_private_data (container)->mount_fds = mount_fds;
     }
-  return mount_fds;
+  ଫେରନ୍ତୁ mount_fds;
 }
 
-static int
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 open_mount_of_type (libcrun_container_t *container,
                     runtime_spec_schema_defs_mount *mount,
                     libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  cleanup_free char *mnt_data = NULL;
+  cleanup_free ଅକ୍ଷର *mnt_data = ଖାଲି;
   unsigned long mnt_flags = 0, mnt_extra = 0;
   uint64_t mnt_rec_clear = 0, mnt_rec_set = 0;
-  const char *label_type = NULL;
-  const char *label_val = NULL;
-  const char *fstype;
-  int mnt_fd;
+  ଅଚଳ ଅକ୍ଷର *label_type = ଖାଲି;
+  ଅଚଳ ଅକ୍ଷର *label_val = ଖାଲି;
+  ଅଚଳ ଅକ୍ଷର *fstype;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା mnt_fd;
   size_t j;
 
-  if (mount->type == NULL)
-    return -1;
+  ଯଦି (mount->type == ଖାଲି)
+    ଫେରନ୍ତୁ -1;
 
   fstype = mount->type;
 
-  for (j = 0; j < mount->options_len; j++)
+  ପାଇଁ (j = 0; j < mount->options_len; j++)
     mnt_flags |= get_mount_flags_or_option (mount->options[j],
                                             mnt_flags, &mnt_extra, &mnt_data,
                                             &mnt_rec_clear, &mnt_rec_set);
 
-  if (def->linux && def->linux->mount_label)
+  ଯଦି (def->linux && def->linux->mount_label)
     {
       bool is_sysfs_or_proc = strcmp (fstype, "sysfs") == 0
                               || strcmp (fstype, "proc") == 0;
-      int extra_flags = get_mount_label_how (fstype, is_sysfs_or_proc);
-      if (extra_flags == LABEL_MOUNT)
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା extra_flags = get_mount_label_how (fstype, is_sysfs_or_proc);
+      ଯଦି (extra_flags == LABEL_MOUNT)
         {
           label_type = get_selinux_context_type (container, err);
-          if (label_type == NULL)
+          ଯଦି (label_type == ଖାଲି)
             crun_error_release (err);
-          else
+          ଅନ୍ୟଥା
             label_val = def->linux->mount_label;
         }
     }
 
-  if (strcmp (fstype, "cgroup") == 0)
+  ଯଦି (strcmp (fstype, "cgroup") == 0)
     {
-      int cgroup_mode = libcrun_get_cgroup_mode (err);
-      if (cgroup_mode == CGROUP_MODE_UNIFIED)
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା cgroup_mode = libcrun_get_cgroup_mode (err);
+      ଯଦି (cgroup_mode == CGROUP_MODE_UNIFIED)
         fstype = "cgroup2";
       crun_error_release (err);
     }
 
   mnt_fd = fsopen_mount (fstype, mount->source, label_type, label_val, mnt_data);
-  if (mnt_fd < 0 && label_type)
-    mnt_fd = fsopen_mount (fstype, mount->source, NULL, NULL, mnt_data);
+  ଯଦି (mnt_fd < 0 && label_type)
+    mnt_fd = fsopen_mount (fstype, mount->source, ଖାଲି, ଖାଲି, mnt_data);
 
-  return mnt_fd;
+  ଫେରନ୍ତୁ mnt_fd;
 }
 
 #ifndef LSMT_ROOT
@@ -4073,7 +4073,7 @@ open_mount_of_type (libcrun_container_t *container,
 
 /* Declared here so that the build does not depend on the UAPI headers being
    recent enough; the layout is stable.  */
-struct mnt_id_req_s
+ସଂରଚନା mnt_id_req_s
 {
   uint32_t size;
   uint32_t spare;
@@ -4082,7 +4082,7 @@ struct mnt_id_req_s
   uint64_t mnt_ns_id;
 };
 
-struct statmount_s
+ସଂରଚନା statmount_s
 {
   uint32_t size;
   uint32_t mnt_opts;
@@ -4105,36 +4105,36 @@ struct statmount_s
   uint32_t mnt_point;
   uint64_t mnt_ns_id;
   uint64_t __spare2[49];
-  char str[];
+  ଅକ୍ଷର str[];
 };
 
-static int
-syscall_listmount (struct mnt_id_req_s *req, uint64_t *ids, size_t nr, unsigned int flags)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+syscall_listmount (ସଂରଚନା mnt_id_req_s *req, uint64_t *ids, size_t nr, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags)
 {
 #ifdef __NR_listmount
-  return (int) syscall (__NR_listmount, req, ids, nr, flags);
-#else
-  (void) req;
-  (void) ids;
-  (void) nr;
-  (void) flags;
+  ଫେରନ୍ତୁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା) syscall (__NR_listmount, req, ids, nr, flags);
+#ଅନ୍ୟଥା
+  (ଶୂନ୍ୟ) req;
+  (ଶୂନ୍ୟ) ids;
+  (ଶୂନ୍ୟ) nr;
+  (ଶୂନ୍ୟ) flags;
   errno = ENOSYS;
-  return -1;
+  ଫେରନ୍ତୁ -1;
 #endif
 }
 
-static int
-syscall_statmount (struct mnt_id_req_s *req, struct statmount_s *buf, size_t size, unsigned int flags)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+syscall_statmount (ସଂରଚନା mnt_id_req_s *req, ସଂରଚନା statmount_s *buf, size_t size, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags)
 {
 #ifdef __NR_statmount
-  return (int) syscall (__NR_statmount, req, buf, size, flags);
-#else
-  (void) req;
-  (void) buf;
-  (void) size;
-  (void) flags;
+  ଫେରନ୍ତୁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା) syscall (__NR_statmount, req, buf, size, flags);
+#ଅନ୍ୟଥା
+  (ଶୂନ୍ୟ) req;
+  (ଶୂନ୍ୟ) buf;
+  (ଶୂନ୍ୟ) size;
+  (ଶୂନ୍ୟ) flags;
   errno = ENOSYS;
-  return -1;
+  ଫେରନ୍ତୁ -1;
 #endif
 }
 
@@ -4151,156 +4151,156 @@ syscall_statmount (struct mnt_id_req_s *req, struct statmount_s *buf, size_t siz
    /proc/self/mountinfo, which escapes characters such as spaces in the paths
    being compared; they predate OPEN_TREE_NAMESPACE, so they are available
    wherever this code path can be taken at all.  */
-static bool
+ସ୍ଥିର bool
 mounts_hit_pinned_mount_namespace (runtime_spec_schema_config_schema *def)
 {
-  cleanup_free uint64_t *ids = NULL;
+  cleanup_free uint64_t *ids = ଖାଲି;
   size_t i, n_ids = 0, capacity = 128;
   bool has_absolute_bind = false;
   uint64_t last = 0;
 
-  for (i = 0; i < def->mounts_len; i++)
+  ପାଇଁ (i = 0; i < def->mounts_len; i++)
     {
       bool recursive = false, nofollow = false;
 
-      if (is_bind_mount (def->mounts[i], &recursive, &nofollow)
-          && def->mounts[i]->source != NULL && def->mounts[i]->source[0] == '/')
+      ଯଦି (is_bind_mount (def->mounts[i], &recursive, &nofollow)
+          && def->mounts[i]->source != ଖାଲି && def->mounts[i]->source[0] == '/')
         {
           has_absolute_bind = true;
-          break;
+          ଭାଙ୍ଗ;
         }
     }
-  if (! has_absolute_bind)
-    return false;
+  ଯଦି (! has_absolute_bind)
+    ଫେରନ୍ତୁ false;
 
-  ids = xmalloc (capacity * sizeof (uint64_t));
-  for (;;)
+  ids = xmalloc (capacity * ଆକାର (uint64_t));
+  ପାଇଁ (;;)
     {
-      struct mnt_id_req_s req = {
-        .size = sizeof (req),
+      ସଂରଚନା mnt_id_req_s req = {
+        .size = ଆକାର (req),
         .mnt_id = LSMT_ROOT,
         .param = last,
       };
-      int ret;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-      if (n_ids == capacity)
+      ଯଦି (n_ids == capacity)
         {
           capacity *= 2;
-          ids = xrealloc (ids, capacity * sizeof (uint64_t));
+          ids = xrealloc (ids, capacity * ଆକାର (uint64_t));
         }
 
       ret = syscall_listmount (&req, ids + n_ids, capacity - n_ids, 0);
-      if (ret < 0)
+      ଯଦି (ret < 0)
         /* Without the mount table there is no way to tell; the kernel would
            reject the move_mount() anyway, so stay on the traditional path.  */
-        return true;
-      if (ret == 0)
-        break;
+        ଫେରନ୍ତୁ true;
+      ଯଦି (ret == 0)
+        ଭାଙ୍ଗ;
 
       n_ids += (size_t) ret;
       last = ids[n_ids - 1];
     }
 
-  for (i = 0; i < n_ids; i++)
+  ପାଇଁ (i = 0; i < n_ids; i++)
     {
-      char buffer[4096] __attribute__ ((aligned (8)));
-      struct statmount_s *sm = (struct statmount_s *) buffer;
-      struct mnt_id_req_s req = {
-        .size = sizeof (req),
+      ଅକ୍ଷର buffer[4096] __attribute__ ((aligned (8)));
+      ସଂରଚନା statmount_s *sm = (ସଂରଚନା statmount_s *) buffer;
+      ସଂରଚନା mnt_id_req_s req = {
+        .size = ଆକାର (req),
         .mnt_id = ids[i],
         .param = STATMOUNT_FS_TYPE | STATMOUNT_MNT_ROOT | STATMOUNT_MNT_POINT,
       };
-      const char *root, *point;
+      ଅଚଳ ଅକ୍ଷର *ମୂଳ, *point;
       size_t j;
 
-      if (syscall_statmount (&req, sm, sizeof (buffer), 0) < 0)
-        continue;
-      if ((sm->mask & (STATMOUNT_MNT_ROOT | STATMOUNT_MNT_POINT)) != (STATMOUNT_MNT_ROOT | STATMOUNT_MNT_POINT))
-        continue;
+      ଯଦି (syscall_statmount (&req, sm, ଆକାର (buffer), 0) < 0)
+        ଜାରି;
+      ଯଦି ((sm->mask & (STATMOUNT_MNT_ROOT | STATMOUNT_MNT_POINT)) != (STATMOUNT_MNT_ROOT | STATMOUNT_MNT_POINT))
+        ଜାରି;
 
       /* The root of a pinned mount namespace reads as "mnt:[...]"; the other
          namespace types cannot create a loop.  */
-      root = sm->str + sm->mnt_root;
-      if (! has_prefix (root, "mnt:["))
-        continue;
+      ମୂଳ = sm->str + sm->mnt_root;
+      ଯଦି (! has_prefix (ମୂଳ, "mnt:["))
+        ଜାରି;
 
       point = sm->str + sm->mnt_point;
 
-      for (j = 0; j < def->mounts_len; j++)
+      ପାଇଁ (j = 0; j < def->mounts_len; j++)
         {
           bool recursive = false, nofollow = false;
-          const char *source = def->mounts[j]->source;
+          ଅଚଳ ଅକ୍ଷର *source = def->mounts[j]->source;
           size_t source_len;
 
-          if (! is_bind_mount (def->mounts[j], &recursive, &nofollow))
-            continue;
-          if (source == NULL || source[0] != '/')
-            continue;
+          ଯଦି (! is_bind_mount (def->mounts[j], &recursive, &nofollow))
+            ଜାରି;
+          ଯଦି (source == ଖାଲି || source[0] != '/')
+            ଜାରି;
 
           source_len = strlen (source);
-          while (source_len > 1 && source[source_len - 1] == '/')
+          ଯେତେବେଳେ (source_len > 1 && source[source_len - 1] == '/')
             source_len--;
 
-          if (strncmp (point, source, source_len) != 0)
-            continue;
+          ଯଦି (strncmp (point, source, source_len) != 0)
+            ଜାରି;
 
           /* The source itself is a pinned mount namespace.  */
-          if (point[source_len] == '\0')
-            return true;
+          ଯଦି (point[source_len] == '\0')
+            ଫେରନ୍ତୁ true;
 
           /* A recursive bind clones the subtree below the source as well, so
              a pin anywhere under it is picked up.  A plain bind clones the
              single mount, and cannot pick one up.  */
-          if (recursive && (source_len == 1 || point[source_len] == '/'))
-            return true;
+          ଯଦି (recursive && (source_len == 1 || point[source_len] == '/'))
+            ଫେରନ୍ତୁ true;
         }
     }
 
-  return false;
+  ଫେରନ୍ତୁ false;
 }
 
-static bool
-can_use_open_tree_namespace (libcrun_container_t *container)
+ସ୍ଥିର bool
+can_use_open_ବୃକ୍ଷ_namespace (libcrun_container_t *container)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  struct libcrun_fd_map *mount_fds;
+  ସଂରଚନା libcrun_fd_map *mount_fds;
   bool has_hooks = def->hooks
                    && (def->hooks->prestart_len || def->hooks->create_runtime_len
                        || def->hooks->create_container_len);
   bool has_userns = get_private_data (container)->unshare_flags & CLONE_NEWUSER;
   size_t i;
 
-  if (has_hooks || has_userns)
-    return false;
+  ଯଦି (has_hooks || has_userns)
+    ଫେରନ୍ତୁ false;
 
-  if (mounts_hit_pinned_mount_namespace (def))
-    return false;
+  ଯଦି (mounts_hit_pinned_mount_namespace (def))
+    ଫେରନ୍ତୁ false;
 
-  if (container->context->no_open_tree_namespace)
-    return false;
+  ଯଦି (container->context->no_open_ବୃକ୍ଷ_namespace)
+    ଫେରନ୍ତୁ false;
 
   {
-    libcrun_error_t tmp_err = NULL;
-    int in_userns = check_running_in_user_namespace (&tmp_err);
+    libcrun_error_t tmp_err = ଖାଲି;
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା in_userns = check_running_in_user_namespace (&tmp_err);
     crun_error_release (&tmp_err);
-    if (in_userns != 0)
-      return false;
+    ଯଦି (in_userns != 0)
+      ଫେରନ୍ତୁ false;
   }
 
   mount_fds = get_fd_map (container);
-  for (i = 0; i < def->mounts_len; i++)
+  ପାଇଁ (i = 0; i < def->mounts_len; i++)
     {
-      if (mount_fds->fds[i] < 0)
+      ଯଦି (mount_fds->fds[i] < 0)
         {
           bool has_cached_target = get_private_data (container)->copy_symlink_targets
                                    && i < get_private_data (container)->n_copy_symlink_targets
                                    && get_private_data (container)->copy_symlink_targets[i];
-          if (! has_cached_target)
-            return false;
+          ଯଦି (! has_cached_target)
+            ଫେରନ୍ତୁ false;
         }
     }
 
-  return true;
+  ଫେରନ୍ତୁ true;
 }
 
 /* Only tmpfs mounts inherit the mode of the directory they are mounted
@@ -4308,151 +4308,151 @@ can_use_open_tree_namespace (libcrun_container_t *container)
    option.  This mirrors append_tmpfs_mode_if_missing() used by the fallback
    mount() path.  File systems such as proc, sysfs and mqueue have a root
    inode mode defined by the kernel that must not be overridden.  */
-static bool
+ସ୍ଥିର bool
 mount_inherits_mountpoint_mode (runtime_spec_schema_defs_mount *mount)
 {
   size_t i;
 
-  if (mount->type == NULL || strcmp (mount->type, "tmpfs") != 0)
-    return false;
+  ଯଦି (mount->type == ଖାଲି || strcmp (mount->type, "tmpfs") != 0)
+    ଫେରନ୍ତୁ false;
 
-  for (i = 0; i < mount->options_len; i++)
-    if (mount->options[i] != NULL && has_prefix (mount->options[i], "mode="))
-      return false;
+  ପାଇଁ (i = 0; i < mount->options_len; i++)
+    ଯଦି (mount->options[i] != ଖାଲି && has_prefix (mount->options[i], "mode="))
+      ଫେରନ୍ତୁ false;
 
-  return true;
+  ଫେରନ୍ତୁ true;
 }
 
-static int
-setup_mount_namespace (libcrun_container_t *container, bool no_pivot, char **rootfs, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+setup_mount_namespace (libcrun_container_t *container, bool no_pivot, ଅକ୍ଷର **rootfs, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
   unsigned long rootfs_propagation = 0;
-  cleanup_close int rootfsfd = -1;
-  cleanup_close int tree_fd = -1;
-  libcrun_error_t tmp_err = NULL;
-  bool use_open_tree = false;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା rootfsfd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା ବୃକ୍ଷ_fd = -1;
+  libcrun_error_t tmp_err = ଖାଲି;
+  bool use_open_ବୃକ୍ଷ = false;
   size_t i;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (def->linux && def->linux->rootfs_propagation)
-    rootfs_propagation = get_mount_flags (def->linux->rootfs_propagation, 0, NULL, NULL, NULL, NULL);
+  ଯଦି (def->linux && def->linux->rootfs_propagation)
+    rootfs_propagation = get_mount_flags (def->linux->rootfs_propagation, 0, ଖାଲି, ଖାଲି, ଖାଲି, ଖାଲି);
 
-  if ((rootfs_propagation & ALL_PROPAGATIONS_NO_REC) == 0)
+  ଯଦି ((rootfs_propagation & ALL_PROPAGATIONS_NO_REC) == 0)
     rootfs_propagation = MS_REC | MS_PRIVATE;
 
   get_private_data (container)->rootfs_propagation = rootfs_propagation;
 
   ret = libcrun_container_enter_cgroup_ns (container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  free (get_private_data (container)->host_rootfs);
+  ମୁକ୍ତ (get_private_data (container)->host_rootfs);
   get_private_data (container)->host_rootfs = xstrdup (*rootfs);
 
   /* Pre-create mounts and cache paths before pivot_root,
      while the host file system is still reachable.  */
-  for (i = 0; i < def->mounts_len; i++)
+  ପାଇଁ (i = 0; i < def->mounts_len; i++)
     {
-      struct libcrun_fd_map *mount_fds = get_fd_map (container);
-      cleanup_close int mnt_fd = -1;
+      ସଂରଚନା libcrun_fd_map *mount_fds = get_fd_map (container);
+      cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା mnt_fd = -1;
       bool recursive_bind, nofollow;
       unsigned long mnt_flags = 0;
 
-      if (mount_fds && mount_fds->fds[i] >= 0)
-        continue;
+      ଯଦି (mount_fds && mount_fds->fds[i] >= 0)
+        ଜାରି;
 
       /* Pre-read symlink targets for copy-symlink mounts while the host file system is still reachable.  */
-      if (def->mounts[i]->source != NULL
+      ଯଦି (def->mounts[i]->source != ଖାଲି
           && def->mounts[i]->source[0] == '/')
         {
-          cleanup_free char *mnt_data = NULL;
+          cleanup_free ଅକ୍ଷର *mnt_data = ଖାଲି;
           unsigned long mnt_extra = 0;
           uint64_t mnt_rec_clear = 0, mnt_rec_set = 0;
           size_t j;
 
-          for (j = 0; j < def->mounts[i]->options_len; j++)
+          ପାଇଁ (j = 0; j < def->mounts[i]->options_len; j++)
             mnt_flags |= get_mount_flags_or_option (def->mounts[i]->options[j],
                                                     mnt_flags, &mnt_extra, &mnt_data,
                                                     &mnt_rec_clear, &mnt_rec_set);
 
-          if (mnt_extra & OPTION_COPY_SYMLINK)
+          ଯଦି (mnt_extra & OPTION_COPY_SYMLINK)
             {
-              cleanup_free char *target = NULL;
-              libcrun_error_t tmp_err = NULL;
+              cleanup_free ଅକ୍ଷର *target = ଖାଲି;
+              libcrun_error_t tmp_err = ଖାଲି;
               ssize_t len;
 
               len = safe_readlinkat (AT_FDCWD, def->mounts[i]->source, &target, 0, &tmp_err);
-              if (UNLIKELY (len < 0))
+              ଯଦି (UNLIKELY (len < 0))
                 crun_error_release (&tmp_err);
 
-              if (get_private_data (container)->copy_symlink_targets == NULL)
+              ଯଦି (get_private_data (container)->copy_symlink_targets == ଖାଲି)
                 {
                   get_private_data (container)->copy_symlink_targets
-                      = xmalloc0 (def->mounts_len * sizeof (char *));
+                      = xmalloc0 (def->mounts_len * ଆକାର (ଅକ୍ଷର *));
                   get_private_data (container)->n_copy_symlink_targets = def->mounts_len;
                 }
               get_private_data (container)->copy_symlink_targets[i] = target;
-              target = NULL;
+              target = ଖାଲି;
             }
         }
 
-      if (is_bind_mount (def->mounts[i], &recursive_bind, &nofollow))
+      ଯଦି (is_bind_mount (def->mounts[i], &recursive_bind, &nofollow))
         {
           bool has_cached_target = get_private_data (container)->copy_symlink_targets
                                    && i < get_private_data (container)->n_copy_symlink_targets
                                    && get_private_data (container)->copy_symlink_targets[i];
 
-          if (mount_fds && def->mounts[i]->source != NULL && ! has_cached_target
-              && get_path_in_rootfs (*rootfs, def->mounts[i]->source) == NULL)
+          ଯଦି (mount_fds && def->mounts[i]->source != ଖାଲି && ! has_cached_target
+              && get_path_in_rootfs (*rootfs, def->mounts[i]->source) == ଖାଲି)
             {
-              libcrun_error_t tmp_err = NULL;
+              libcrun_error_t tmp_err = ଖାଲି;
               unsigned long propagation = MS_PRIVATE;
 
-              if (mnt_flags & (MS_SHARED | MS_SLAVE | MS_UNBINDABLE))
+              ଯଦି (mnt_flags & (MS_SHARED | MS_SLAVE | MS_UNBINDABLE))
                 propagation = 0;
 
               mount_fds->fds[i] = get_bind_mount (AT_FDCWD, def->mounts[i]->source,
                                                   recursive_bind, false, nofollow,
                                                   propagation, &tmp_err);
-              if (mount_fds->fds[i] < 0)
+              ଯଦି (mount_fds->fds[i] < 0)
                 crun_error_release (&tmp_err);
             }
-          continue;
+          ଜାରି;
         }
 
       mnt_fd = open_mount_of_type (container, def->mounts[i], err);
-      if (mnt_fd < 0)
+      ଯଦି (mnt_fd < 0)
         {
           crun_error_release (err);
-          continue;
+          ଜାରି;
         }
 
-      if (mount_inherits_mountpoint_mode (def->mounts[i]))
+      ଯଦି (mount_inherits_mountpoint_mode (def->mounts[i]))
         {
-          cleanup_close int destfd = -1;
-          struct stat st;
+          cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା destfd = -1;
+          ସଂରଚନା stat st;
 
-          if (rootfsfd < 0)
+          ଯଦି (rootfsfd < 0)
             {
               rootfsfd = open (*rootfs, O_PATH | O_CLOEXEC);
-              if (UNLIKELY (rootfsfd < 0))
-                return crun_make_error (err, errno, "open `%s`", *rootfs);
+              ଯଦି (UNLIKELY (rootfsfd < 0))
+                ଫେରନ୍ତୁ crun_make_error (err, errno, "open `%s`", *rootfs);
             }
 
           destfd = safe_openat (rootfsfd, *rootfs, def->mounts[i]->destination, O_PATH | O_CLOEXEC, 0, &tmp_err);
-          if (destfd < 0)
+          ଯଦି (destfd < 0)
             crun_error_release (&tmp_err);
-          else if (fstat (destfd, &st) == 0)
+          ଅନ୍ୟଥା ଯଦି (fstat (destfd, &st) == 0)
             {
               proc_fd_path_t fd_path;
-              int procfd = get_procfd (get_private_data (container), err);
-              if (UNLIKELY (procfd < 0))
-                return procfd;
+              ପୂର୍ଣ୍ଣସଂଖ୍ୟା procfd = get_procfd (get_private_data (container), err);
+              ଯଦି (UNLIKELY (procfd < 0))
+                ଫେରନ୍ତୁ procfd;
 
               get_self_fd_path (fd_path, mnt_fd);
               ret = fchmodat (procfd, fd_path, st.st_mode & 07777, 0);
-              (void) ret;
+              (ଶୂନ୍ୟ) ret;
             }
         }
 
@@ -4461,22 +4461,22 @@ setup_mount_namespace (libcrun_container_t *container, bool no_pivot, char **roo
     }
   close_and_reset (&rootfsfd);
 
-  ret = get_shared_empty_dir_cached (container, NULL, &tmp_err);
-  if (ret < 0)
+  ret = get_shared_empty_dir_cached (container, ଖାଲି, &tmp_err);
+  ଯଦି (ret < 0)
     {
       crun_error_release (&tmp_err);
       get_private_data (container)->maskdir_bind_failed = true;
     }
 
-  if (! get_private_data (container)->joined_mount_ns
-      && can_use_open_tree_namespace (container))
-    use_open_tree = true;
+  ଯଦି (! get_private_data (container)->joined_mount_ns
+      && can_use_open_ବୃକ୍ଷ_namespace (container))
+    use_open_ବୃକ୍ଷ = true;
 
-  if (use_open_tree)
+  ଯଦି (use_open_ବୃକ୍ଷ)
     {
-      ret = maybe_open_tree_namespace (*rootfs, &tree_fd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = maybe_open_ବୃକ୍ଷ_namespace (*rootfs, &ବୃକ୍ଷ_fd, err);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
   /* Pre-open needed device fds and the notify socket while the host
@@ -4485,55 +4485,55 @@ setup_mount_namespace (libcrun_container_t *container, bool no_pivot, char **roo
      OPEN_TREE_NAMESPACE), this is retried after unshare(CLONE_NEWNS)
      below since open_tree needs CAP_SYS_ADMIN in the user namespace
      that owns the mount namespace.  */
-  if (tree_fd >= 0)
+  ଯଦି (ବୃକ୍ଷ_fd >= 0)
     preopen_needed_devs_and_notify (container);
 
-  if (tree_fd >= 0)
+  ଯଦି (ବୃକ୍ଷ_fd >= 0)
     {
-      ret = setns (tree_fd, CLONE_NEWNS);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "setns `CLONE_NEWNS`");
+      ret = setns (ବୃକ୍ଷ_fd, CLONE_NEWNS);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "setns `CLONE_NEWNS`");
 
-      ret = mount (NULL, "/", NULL, MS_REMOUNT | MS_BIND, NULL);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "remount `/`");
+      ret = mount (ଖାଲି, "/", ଖାଲି, MS_REMOUNT | MS_BIND, ଖାଲି);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "remount `/`");
 
-      ret = do_mount (container, NULL, -1, "/", NULL, MS_REC | MS_PRIVATE, NULL, LABEL_MOUNT, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = do_mount (container, ଖାଲି, -1, "/", ଖାଲି, MS_REC | MS_PRIVATE, ଖାଲି, LABEL_MOUNT, err);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
-      ret = do_mount (container, NULL, -1, "/", NULL, rootfs_propagation, NULL, LABEL_MOUNT, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = do_mount (container, ଖାଲି, -1, "/", ଖାଲି, rootfs_propagation, ଖାଲି, LABEL_MOUNT, err);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       get_private_data (container)->needs_pivot = false;
       get_private_data (container)->no_pivot = no_pivot;
       /* setns() made the container rootfs the process root, so an absolute
          source path no longer refers to the host.  */
-      get_private_data (container)->host_root_switched = true;
-      free (*rootfs);
+      get_private_data (container)->host_ମୂଳ_switched = true;
+      ମୁକ୍ତ (*rootfs);
       *rootfs = xstrdup ("/");
     }
-  else
+  ଅନ୍ୟଥା
     {
-      if (! get_private_data (container)->joined_mount_ns)
+      ଯଦି (! get_private_data (container)->joined_mount_ns)
         {
           ret = unshare (CLONE_NEWNS);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "unshare `CLONE_NEWNS`");
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "unshare `CLONE_NEWNS`");
         }
 
-      ret = do_mount (container, NULL, -1, "/", NULL, rootfs_propagation, NULL, LABEL_MOUNT, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = do_mount (container, ଖାଲି, -1, "/", ଖାଲି, rootfs_propagation, ଖାଲି, LABEL_MOUNT, err);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       ret = make_parent_mount_private (*rootfs, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
-      ret = do_mount (container, *rootfs, -1, *rootfs, NULL, MS_BIND | MS_REC | MS_PRIVATE, NULL, LABEL_MOUNT, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = do_mount (container, *rootfs, -1, *rootfs, ଖାଲି, MS_BIND | MS_REC | MS_PRIVATE, ଖାଲି, LABEL_MOUNT, err);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       get_private_data (container)->needs_pivot = true;
       get_private_data (container)->no_pivot = no_pivot;
@@ -4542,430 +4542,430 @@ setup_mount_namespace (libcrun_container_t *container, bool no_pivot, char **roo
   /* Mount everything before pivot_root while host paths are still reachable.
      Use the pre-created fd when available, fall back to mount().  */
   ret = open (*rootfs, O_PATH | O_CLOEXEC);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "open `%s`", *rootfs);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "open `%s`", *rootfs);
   get_private_data (container)->rootfsfd = ret;
   get_private_data (container)->rootfs = *rootfs;
 
-  if (! container->context->force_no_cgroup)
+  ଯଦି (! container->context->force_no_cgroup)
     {
-      int cgroup_mode = libcrun_get_cgroup_mode (err);
-      if (UNLIKELY (cgroup_mode < 0))
-        return cgroup_mode;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା cgroup_mode = libcrun_get_cgroup_mode (err);
+      ଯଦି (UNLIKELY (cgroup_mode < 0))
+        ଫେରନ୍ତୁ cgroup_mode;
 
-      if (cgroup_mode == CGROUP_MODE_UNIFIED)
+      ଯଦି (cgroup_mode == CGROUP_MODE_UNIFIED)
         {
-          char *unified_cgroup_path = NULL;
-          int procfd = get_procfd (get_private_data (container), err);
-          if (UNLIKELY (procfd < 0))
-            return procfd;
+          ଅକ୍ଷର *unified_cgroup_path = ଖାଲି;
+          ପୂର୍ଣ୍ଣସଂଖ୍ୟା procfd = get_procfd (get_private_data (container), err);
+          ଯଦି (UNLIKELY (procfd < 0))
+            ଫେରନ୍ତୁ procfd;
 
           ret = libcrun_get_cgroup_process_at (procfd, &unified_cgroup_path, true, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
 
           get_private_data (container)->unified_cgroup_path = unified_cgroup_path;
         }
     }
 
   ret = do_mounts (container, *rootfs, err);
-  if (UNLIKELY (ret < 0))
+  ଯଦି (UNLIKELY (ret < 0))
     {
       close_and_reset (&get_private_data (container)->rootfsfd);
-      get_private_data (container)->rootfs = NULL;
-      return ret;
+      get_private_data (container)->rootfs = ଖାଲି;
+      ଫେରନ୍ତୁ ret;
     }
 
   close_and_reset (&get_private_data (container)->rootfsfd);
-  get_private_data (container)->rootfs = NULL;
+  get_private_data (container)->rootfs = ଖାଲି;
 
-  if (tree_fd < 0)
+  ଯଦି (ବୃକ୍ଷ_fd < 0)
     preopen_needed_devs_and_notify (container);
 
   /* After pivot_root, /proc is not yet mounted.  */
   ret = get_procfd (get_private_data (container), &tmp_err);
-  if (ret < 0)
+  ଯଦି (ret < 0)
     crun_error_release (&tmp_err);
 
   check_running_in_user_namespace (&tmp_err);
   crun_error_release (&tmp_err);
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-int
-libcrun_do_pivot_root (libcrun_container_t *container, bool no_pivot, char **rootfs, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+libcrun_do_pivot_ମୂଳ (libcrun_container_t *container, bool no_pivot, ଅକ୍ଷର **rootfs, libcrun_error_t *err)
 {
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (*rootfs == NULL)
-    return 0;
+  ଯଦି (*rootfs == ଖାଲି)
+    ଫେରନ୍ତୁ 0;
 
-  if (get_private_data (container)->unshare_flags & CLONE_NEWNS)
+  ଯଦି (get_private_data (container)->unshare_flags & CLONE_NEWNS)
     {
       ret = setup_mount_namespace (container, no_pivot, rootfs, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       /* If setup_mount_namespace used OPEN_TREE_NAMESPACE, rootfs is
          already set to "/".  Otherwise pivot_root is deferred until
          after the mounts are created.  */
-      if (strcmp (*rootfs, "/") == 0)
+      ଯଦି (strcmp (*rootfs, "/") == 0)
         {
           ret = chdir ("/");
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "chdir to `/`");
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "chdir to `/`");
         }
     }
-  else
+  ଅନ୍ୟଥା
     {
       ret = chroot (*rootfs);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "chroot to `%s`", *rootfs);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "chroot to `%s`", *rootfs);
 
       ret = chdir ("/");
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "chdir to `/`");
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "chdir to `/`");
 
-      free (*rootfs);
+      ମୁକ୍ତ (*rootfs);
       *rootfs = xstrdup ("/");
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 /* If one of stdin, stdout, stderr are pointing to /dev/null on
  * the outside of the container, this moves it to /dev/null inside
  * of the container. This needs to run after pivot/chroot-ing. */
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_reopen_dev_null (libcrun_error_t *err)
 {
-  struct stat statbuf;
-  cleanup_close int fd;
-  int ret;
-  int i;
+  ସଂରଚନା stat statbuf;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା i;
 
   /* Open /dev/null inside of the container. */
   fd = open ("/dev/null", O_RDWR | O_CLOEXEC | O_NOFOLLOW);
-  if (UNLIKELY (fd == -1))
-    return crun_make_error (err, errno, "open `/dev/null`");
+  ଯଦି (UNLIKELY (fd == -1))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "open `/dev/null`");
 
   ret = ensure_dev_null (fd, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  for (i = 0; i <= 2; i++)
+  ପାଇଁ (i = 0; i <= 2; i++)
     {
-      if (UNLIKELY (fstat (i, &statbuf) == -1))
-        return crun_make_error (err, errno, "stat fd `%d`", i);
-      if (is_dev_null (&statbuf))
+      ଯଦି (UNLIKELY (fstat (i, &statbuf) == -1))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "stat fd `%d`", i);
+      ଯଦି (is_dev_null (&statbuf))
         {
           /* This FD is pointing to /dev/null. Point it to /dev/null inside
            * of the container. */
-          if (UNLIKELY (dup2 (fd, i) == -1))
-            return crun_make_error (err, errno, "dup2 `%d`", i);
+          ଯଦି (UNLIKELY (dup2 (fd, i) == -1))
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "dup2 `%d`", i);
         }
     }
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-uidgidmap_helper (char *helper, pid_t pid, const char *map_file, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+uidgidmap_helper (ଅକ୍ଷର *helper, pid_t pid, ଅଚଳ ଅକ୍ଷର *map_file, libcrun_error_t *err)
 {
 #define MAX_ARGS 20
-  char pid_fmt[16];
-  char *args[MAX_ARGS + 1];
-  char *next;
-  cleanup_free char *map_file_copy = xstrdup (map_file);
+  ଅକ୍ଷର pid_fmt[16];
+  ଅକ୍ଷର *args[MAX_ARGS + 1];
+  ଅକ୍ଷର *next;
+  cleanup_free ଅକ୍ଷର *map_file_copy = xstrdup (map_file);
   size_t nargs = 0;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   args[nargs++] = helper;
 
-  ret = snprintf (pid_fmt, sizeof (pid_fmt), "%d", pid);
-  if (UNLIKELY (ret >= (int) sizeof (pid_fmt)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  ret = snprintf (pid_fmt, ଆକାର (pid_fmt), "%d", pid);
+  ଯଦି (UNLIKELY (ret >= (ପୂର୍ଣ୍ଣସଂଖ୍ୟା) ଆକାର (pid_fmt)))
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "internal error: static buffer too small");
 
   args[nargs++] = pid_fmt;
   next = map_file_copy;
-  while (nargs < MAX_ARGS)
+  ଯେତେବେଳେ (nargs < MAX_ARGS)
     {
-      char *p = strsep (&next, " \n");
-      if (next == NULL)
-        break;
+      ଅକ୍ଷର *p = strsep (&next, " \n");
+      ଯଦି (next == ଖାଲି)
+        ଭାଙ୍ଗ;
       args[nargs++] = p;
     }
-  args[nargs++] = NULL;
+  args[nargs++] = ଖାଲି;
 
   ret = run_process (args, err);
-  if (ret < 0)
-    return ret;
-  if (ret > 0)
-    return crun_make_error (err, 0, "`%s` exited with status %d", helper, ret);
-  return 0;
+  ଯଦି (ret < 0)
+    ଫେରନ୍ତୁ ret;
+  ଯଦି (ret > 0)
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "`%s` exited with status %d", helper, ret);
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-newgidmap (pid_t pid, const char *map_file, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+newgidmap (pid_t pid, ଅଚଳ ଅକ୍ଷର *map_file, libcrun_error_t *err)
 {
-  return uidgidmap_helper ("newgidmap", pid, map_file, err);
+  ଫେରନ୍ତୁ uidgidmap_helper ("newgidmap", pid, map_file, err);
 }
 
-static int
-newuidmap (pid_t pid, const char *map_file, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+newuidmap (pid_t pid, ଅଚଳ ଅକ୍ଷର *map_file, libcrun_error_t *err)
 {
-  return uidgidmap_helper ("newuidmap", pid, map_file, err);
+  ଫେରନ୍ତୁ uidgidmap_helper ("newuidmap", pid, map_file, err);
 }
 
-static int
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 deny_setgroups (libcrun_container_t *container, pid_t pid, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_close int fd = -1;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -1;
 
   fd = libcrun_open_proc_pid_file (container, pid, "setgroups", O_WRONLY, err);
-  if (UNLIKELY (fd < 0))
-    return fd;
+  ଯଦି (UNLIKELY (fd < 0))
+    ଫେରନ୍ତୁ fd;
 
-  ret = TEMP_FAILURE_RETRY (write (fd, "deny", 4));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "write to `/proc/%d/setgroups`", pid);
+  ret = TEMP_FAILURE_RETRY (ଲିଖ (fd, "deny", 4));
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "write to `/proc/%d/setgroups`", pid);
 
   get_private_data (container)->deny_setgroups = true;
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 can_setgroups (libcrun_container_t *container, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_free char *content = NULL;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
+  cleanup_free ଅକ୍ଷର *content = ଖାଲି;
 
-  if (get_private_data (container)->deny_setgroups)
-    return 0;
+  ଯଦି (get_private_data (container)->deny_setgroups)
+    ଫେରନ୍ତୁ 0;
 
-  if (container->container_def->annotations)
+  ଯଦି (container->container_def->annotations)
     {
-      const char *annotation;
+      ଅଚଳ ଅକ୍ଷର *annotation;
 
       /* Skip setgroups if the annotation is set to anything different than "0".  */
       annotation = find_annotation (container, "run.oci.keep_original_groups");
-      if (annotation)
-        return strcmp (annotation, "0") == 0 ? 1 : 0;
+      ଯଦି (annotation)
+        ଫେରନ୍ତୁ strcmp (annotation, "0") == 0 ? 1 : 0;
     }
 
   {
-    cleanup_close int fd = -1;
+    cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -1;
     fd = libcrun_open_proc_file (container, "self/setgroups", O_RDONLY, err);
-    if (fd < 0)
+    ଯଦି (fd < 0)
       ret = fd;
-    else
-      ret = read_all_fd (fd, "self/setgroups", &content, NULL, err);
+    ଅନ୍ୟଥା
+      ret = read_all_fd (fd, "self/setgroups", &content, ଖାଲି, err);
   }
-  if (ret < 0)
+  ଯଦି (ret < 0)
     {
       /* If the file does not exist, then the kernel does not support /proc/self/setgroups and setgroups can always be used.  */
-      if (crun_error_get_errno (err) == ENOENT)
+      ଯଦି (crun_error_get_errno (err) == ENOENT)
         {
           crun_error_release (err);
-          return 1;
+          ଫେରନ୍ତୁ 1;
         }
-      return ret;
+      ଫେରନ୍ତୁ ret;
     }
 
-  return strncmp (content, "deny", 4) == 0 ? 0 : 1;
+  ଫେରନ୍ତୁ strncmp (content, "deny", 4) == 0 ? 0 : 1;
 }
 
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_container_setgroups (libcrun_container_t *container,
                              runtime_spec_schema_config_schema_process *process,
                              libcrun_error_t *err)
 {
-  gid_t *additional_gids = NULL;
+  gid_t *additional_gids = ଖାଲି;
   size_t additional_gids_len = 0;
-  int can_do_setgroups;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା can_do_setgroups;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (process != NULL && process->user != NULL)
+  ଯଦି (process != ଖାଲି && process->user != ଖାଲି)
     {
       additional_gids = process->user->additional_gids;
       additional_gids_len = process->user->additional_gids_len;
     }
 
   can_do_setgroups = can_setgroups (container, err);
-  if (UNLIKELY (can_do_setgroups < 0))
-    return can_do_setgroups;
+  ଯଦି (UNLIKELY (can_do_setgroups < 0))
+    ଫେରନ୍ତୁ can_do_setgroups;
 
-  if (can_do_setgroups == 0)
+  ଯଦି (can_do_setgroups == 0)
     {
-      const char *annotation;
+      ଅଚଳ ଅକ୍ଷର *annotation;
       size_t i;
 
       annotation = find_annotation (container, "run.oci.keep_original_groups");
-      if (annotation && strcmp (annotation, "0") != 0)
-        return 0;
+      ଯଦି (annotation && strcmp (annotation, "0") != 0)
+        ଫେରନ୍ତୁ 0;
 
       /* The supplementary groups cannot be changed.  Fail if any of the
          requested additional gids would not be in effect, but tolerate
          the primary gid since it is already granted by setgid.  */
-      for (i = 0; i < additional_gids_len; i++)
-        if (additional_gids[i] != process->user->gid)
-          return crun_make_error (err, EPERM, "cannot set additional gid `%d`: setgroups is denied in the user namespace",
-                                  (int) additional_gids[i]);
-      return 0;
+      ପାଇଁ (i = 0; i < additional_gids_len; i++)
+        ଯଦି (additional_gids[i] != process->user->gid)
+          ଫେରନ୍ତୁ crun_make_error (err, EPERM, "cannot set additional gid `%d`: setgroups is denied in the user namespace",
+                                  (ପୂର୍ଣ୍ଣସଂଖ୍ୟା) additional_gids[i]);
+      ଫେରନ୍ତୁ 0;
     }
 
   ret = setgroups (additional_gids_len, additional_gids);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "setgroups");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "setgroups");
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_container_enter_cgroup_ns (libcrun_container_t *container, libcrun_error_t *err)
 {
-  if (get_private_data (container)->unshare_cgroupns)
+  ଯଦି (get_private_data (container)->unshare_cgroupns)
     {
-      int ret = unshare (CLONE_NEWCGROUP);
-      if (UNLIKELY (ret < 0))
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret = unshare (CLONE_NEWCGROUP);
+      ଯଦି (UNLIKELY (ret < 0))
         {
-          if (errno != EINVAL)
-            return crun_make_error (err, errno, "unshare (CLONE_NEWCGROUP)");
+          ଯଦି (errno != EINVAL)
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "unshare (CLONE_NEWCGROUP)");
         }
     }
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 // determine whether the uid/gid mappings only contain a single entry
 // that maps the host uid/gid on the process->user->uid/gid
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 is_single_mapping (runtime_spec_schema_defs_id_mapping **mappings, size_t len,
                    uint32_t host_id, uint32_t container_id)
 {
-  if (len != 1)
-    return 0;
+  ଯଦି (len != 1)
+    ଫେରନ୍ତୁ 0;
 
-  if (mappings[0]->size != 1)
-    return 0;
+  ଯଦି (mappings[0]->size != 1)
+    ଫେରନ୍ତୁ 0;
 
-  if (mappings[0]->container_id != container_id || mappings[0]->host_id != host_id)
-    return 0;
+  ଯଦି (mappings[0]->container_id != container_id || mappings[0]->host_id != host_id)
+    ଫେରନ୍ତୁ 0;
 
-  return 1;
+  ଫେରନ୍ତୁ 1;
 }
 
-static int
-write_id_map (libcrun_container_t *container, pid_t pid, const char *map_name,
-              int (*idmap_helper) (pid_t, const char *, libcrun_error_t *), const char *helper_name,
-              bool warn_on_failure, const char *map, size_t map_len,
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+write_id_map (libcrun_container_t *container, pid_t pid, ଅଚଳ ଅକ୍ଷର *map_name,
+              ପୂର୍ଣ୍ଣସଂଖ୍ୟା (*idmap_helper) (pid_t, ଅଚଳ ଅକ୍ଷର *, libcrun_error_t *), ଅଚଳ ଅକ୍ଷର *helper_name,
+              bool warn_on_failure, ଅଚଳ ଅକ୍ଷର *map, size_t map_len,
               runtime_spec_schema_defs_id_mapping **mappings, size_t mappings_len,
               uint32_t host_id, uint32_t container_id, bool skip_if_setgroups_denied,
               libcrun_error_t *err)
 {
-  int ret = 0;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret = 0;
 
-  if (container->host_uid)
+  ଯଦି (container->host_uid)
     ret = idmap_helper (pid, map, err);
-  if (container->host_uid == 0 || ret < 0)
+  ଯଦି (container->host_uid == 0 || ret < 0)
     {
-      cleanup_close int fd = -1;
+      cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -1;
 
-      if (ret < 0)
+      ଯଦି (ret < 0)
         {
-          if (warn_on_failure)
+          ଯଦି (warn_on_failure)
             libcrun_warning ("unable to invoke `%s`, will try creating a user namespace with single mapping as an alternative", helper_name);
           crun_error_release (err);
         }
 
       fd = libcrun_open_proc_pid_file (container, pid, map_name, O_WRONLY, err);
-      if (UNLIKELY (fd < 0))
-        return fd;
+      ଯଦି (UNLIKELY (fd < 0))
+        ଫେରନ୍ତୁ fd;
 
       ret = safe_write (fd, map_name, map, map_len, err);
-      if (ret < 0 && (! mappings_len || is_single_mapping (mappings, mappings_len, host_id, container_id)))
+      ଯଦି (ret < 0 && (! mappings_len || is_single_mapping (mappings, mappings_len, host_id, container_id)))
         {
           size_t single_mapping_len;
-          cleanup_free char *single_mapping = NULL;
+          cleanup_free ଅକ୍ଷର *single_mapping = ଖାଲି;
           crun_error_release (err);
 
-          if (! skip_if_setgroups_denied || ! get_private_data (container)->deny_setgroups)
+          ଯଦି (! skip_if_setgroups_denied || ! get_private_data (container)->deny_setgroups)
             {
               ret = deny_setgroups (container, pid, err);
-              if (UNLIKELY (ret < 0))
-                return ret;
+              ଯଦି (UNLIKELY (ret < 0))
+                ଫେରନ୍ତୁ ret;
             }
 
           ret = format_mount_mapping (&single_mapping, container_id, host_id, 1, &single_mapping_len, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
 
           close_and_reset (&fd);
 
           fd = libcrun_open_proc_pid_file (container, pid, map_name, O_WRONLY, err);
-          if (UNLIKELY (fd < 0))
-            return fd;
+          ଯଦି (UNLIKELY (fd < 0))
+            ଫେରନ୍ତୁ fd;
 
           ret = safe_write (fd, map_name, single_mapping, single_mapping_len, err);
         }
     }
-  return ret;
+  ଫେରନ୍ତୁ ret;
 }
 
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_set_usernamespace (libcrun_container_t *container, pid_t pid, libcrun_error_t *err)
 {
-  cleanup_free char *uid_map = NULL;
-  cleanup_free char *gid_map = NULL;
+  cleanup_free ଅକ୍ଷର *uid_map = ଖାଲି;
+  cleanup_free ଅକ୍ଷର *gid_map = ଖାଲି;
   size_t uid_map_len = 0, gid_map_len = 0;
-  int ret = 0;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret = 0;
   runtime_spec_schema_config_schema *def = container->container_def;
 
-  if ((get_private_data (container)->unshare_flags & CLONE_NEWUSER) == 0)
-    return 0;
+  ଯଦି ((get_private_data (container)->unshare_flags & CLONE_NEWUSER) == 0)
+    ଫେରନ୍ତୁ 0;
 
-  if (! def || ! def->linux)
-    return 0;
+  ଯଦି (! def || ! def->linux)
+    ଫେରନ୍ତୁ 0;
 
-  if (def->linux->uid_mappings_len)
+  ଯଦି (def->linux->uid_mappings_len)
     {
       ret = format_mount_mappings (&uid_map, def->linux->uid_mappings, def->linux->uid_mappings_len, &uid_map_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
-  else
+  ଅନ୍ୟଥା
     {
       ret = format_default_id_mapping (&uid_map, container->container_uid, container->host_uid, container->host_uid, 1, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       uid_map_len = (size_t) ret;
-      if (uid_map == NULL)
+      ଯଦି (uid_map == ଖାଲି)
         {
           ret = format_mount_mapping (&uid_map, 0, container->host_uid, container->host_uid + 1, &uid_map_len, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
         }
     }
 
-  if (def->linux->gid_mappings_len)
+  ଯଦି (def->linux->gid_mappings_len)
     {
       ret = format_mount_mappings (&gid_map, def->linux->gid_mappings, def->linux->gid_mappings_len, &gid_map_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
-  else
+  ଅନ୍ୟଥା
     {
       ret = format_default_id_mapping (&gid_map, container->container_gid, container->host_uid, container->host_gid, 0, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       gid_map_len = (size_t) ret;
-      if (gid_map == NULL)
+      ଯଦି (gid_map == ଖାଲି)
         {
           ret = format_mount_mapping (&gid_map, 0, container->host_gid, container->host_gid + 1, &gid_map_len, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
         }
     }
 
@@ -4973,23 +4973,23 @@ libcrun_set_usernamespace (libcrun_container_t *container, pid_t pid, libcrun_er
                       ! def->linux->uid_mappings_len, gid_map, gid_map_len,
                       def->linux->gid_mappings, def->linux->gid_mappings_len,
                       container->host_gid, container->container_gid, /* skip_if_setgroups_denied */ false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ret = write_id_map (container, pid, "uid_map", newuidmap, "newuidmap",
                       ! def->linux->uid_mappings_len, uid_map, uid_map_len,
                       def->linux->uid_mappings, def->linux->uid_mappings_len,
                       container->host_uid, container->container_uid, /* skip_if_setgroups_denied */ true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 #define CAP_TO_MASK_0(x) (1L << ((x) & 31))
 #define CAP_TO_MASK_1(x) CAP_TO_MASK_0 (x - 32)
 
-struct all_caps_s
+ସଂରଚନା all_caps_s
 {
   unsigned long effective[2];
   unsigned long permitted[2];
@@ -4998,55 +4998,55 @@ struct all_caps_s
   unsigned long bounding[2];
 };
 
-static int
-has_cap_on (int cap, long unsigned *caps)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+has_cap_on (ପୂର୍ଣ୍ଣସଂଖ୍ୟା cap, long unsigned *caps)
 {
-  if (cap < 32)
-    return CAP_TO_MASK_0 (cap) & caps[0];
-  return (CAP_TO_MASK_1 (cap) & caps[1]);
+  ଯଦି (cap < 32)
+    ଫେରନ୍ତୁ CAP_TO_MASK_0 (cap) & caps[0];
+  ଫେରନ୍ତୁ (CAP_TO_MASK_1 (cap) & caps[1]);
 }
 
-static unsigned long cap_last_cap;
+ସ୍ଥିର unsigned long cap_last_cap;
 
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_init_caps (libcrun_container_t *container, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
-  int ret;
-  char buffer[32];
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -1;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
+  ଅକ୍ଷର buffer[32];
   fd = libcrun_open_proc_file (container, "sys/kernel/cap_last_cap", O_RDONLY, err);
-  if (fd < 0)
-    return fd;
-  ret = TEMP_FAILURE_RETRY (read (fd, buffer, sizeof (buffer) - 1));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "read from `/proc/sys/kernel/cap_last_cap`");
+  ଯଦି (fd < 0)
+    ଫେରନ୍ତୁ fd;
+  ret = TEMP_FAILURE_RETRY (ପଠ (fd, buffer, ଆକାର (buffer) - 1));
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "read from `/proc/sys/kernel/cap_last_cap`");
   buffer[ret] = '\0';
 
   errno = 0;
-  cap_last_cap = strtoul (buffer, NULL, 10);
-  if (errno != 0)
-    return crun_make_error (err, errno, "strtoul `%s` from `/proc/sys/kernel/cap_last_cap`", buffer);
-  return 0;
+  cap_last_cap = strtoul (buffer, ଖାଲି, 10);
+  ଯଦି (errno != 0)
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "strtoul `%s` from `/proc/sys/kernel/cap_last_cap`", buffer);
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-set_required_caps (struct all_caps_s *caps, uid_t uid, gid_t gid, int no_new_privs, bool no_exec, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+set_required_caps (ସଂରଚନା all_caps_s *caps, uid_t uid, gid_t gid, ପୂର୍ଣ୍ଣସଂଖ୍ୟା no_new_privs, bool no_exec, libcrun_error_t *err)
 {
 #ifdef HAVE_CAP
   unsigned long cap;
-  int ret;
-  struct __user_cap_header_struct hdr = { _LINUX_CAPABILITY_VERSION_3, 0 };
-  struct __user_cap_data_struct data[2] = { { 0 } };
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
+  ସଂରଚନା __user_cap_header_struct hdr = { _LINUX_CAPABILITY_VERSION_3, 0 };
+  ସଂରଚନା __user_cap_data_struct data[2] = { { 0 } };
 
-  if (cap_last_cap == 0)
-    return crun_make_error (err, 0, "internal error: max number of capabilities not initialized");
+  ଯଦି (cap_last_cap == 0)
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "internal error: max number of capabilities not initialized");
 
-  for (cap = 0; cap <= cap_last_cap; cap++)
-    if (! has_cap_on (cap, caps->bounding))
+  ପାଇଁ (cap = 0; cap <= cap_last_cap; cap++)
+    ଯଦି (! has_cap_on (cap, caps->bounding))
       {
         ret = prctl (PR_CAPBSET_DROP, cap, 0, 0, 0);
-        if (UNLIKELY (ret < 0 && ! (errno == EINVAL)))
-          return crun_make_error (err, errno, "prctl drop bounding");
+        ଯଦି (UNLIKELY (ret < 0 && ! (errno == EINVAL)))
+          ଫେରନ୍ତୁ crun_make_error (err, errno, "prctl drop bounding");
       }
 
   data[0].effective = caps->effective[0];
@@ -5057,151 +5057,151 @@ set_required_caps (struct all_caps_s *caps, uid_t uid, gid_t gid, int no_new_pri
   data[1].permitted = caps->permitted[1];
 
   ret = prctl (PR_SET_KEEPCAPS, 1, 0, 0, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "prctl set KEEPCAPS");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "prctl set KEEPCAPS");
 
   /* -1 means "leave unchanged" for setresgid and setresuid.  */
-  if (UNLIKELY (uid == (uid_t) -1 || gid == (gid_t) -1))
-    return crun_make_error (err, EINVAL, "invalid user `%u:%u`", uid, gid);
+  ଯଦି (UNLIKELY (uid == (uid_t) -1 || gid == (gid_t) -1))
+    ଫେରନ୍ତୁ crun_make_error (err, EINVAL, "invalid user `%u:%u`", uid, gid);
 
   ret = setresgid (gid, gid, gid);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "setresgid to `%d`", gid);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "setresgid to `%d`", gid);
 
   ret = setresuid (uid, uid, uid);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "setresuid to `%d`", uid);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "setresuid to `%d`", uid);
 
   ret = capset (&hdr, data);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "capset");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "capset");
 
 #  ifdef PR_CAP_AMBIENT
   ret = prctl (PR_CAP_AMBIENT, PR_CAP_AMBIENT_CLEAR_ALL, 0, 0, 0);
-  if (UNLIKELY (ret < 0 && ! (errno == EINVAL || errno == EPERM)))
-    return crun_make_error (err, errno, "prctl reset ambient");
+  ଯଦି (UNLIKELY (ret < 0 && ! (errno == EINVAL || errno == EPERM)))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "prctl reset ambient");
 
-  for (cap = 0; cap <= cap_last_cap; cap++)
-    if (has_cap_on (cap, caps->ambient))
+  ପାଇଁ (cap = 0; cap <= cap_last_cap; cap++)
+    ଯଦି (has_cap_on (cap, caps->ambient))
       {
         ret = prctl (PR_CAP_AMBIENT, PR_CAP_AMBIENT_RAISE, cap, 0, 0);
-        if (UNLIKELY (ret < 0 && ! (errno == EINVAL || errno == EPERM)))
-          return crun_make_error (err, errno, "prctl ambient raise");
+        ଯଦି (UNLIKELY (ret < 0 && ! (errno == EINVAL || errno == EPERM)))
+          ଫେରନ୍ତୁ crun_make_error (err, errno, "prctl ambient raise");
       }
 #  endif
 
   /* If the workload runs in the current process, there is no execve(2) that resets KEEPCAPS and,
      for a non-root user, leaves only the ambient set in the permitted and effective sets.  */
-  if (no_exec)
+  ଯଦି (no_exec)
     {
       ret = prctl (PR_SET_KEEPCAPS, 0, 0, 0, 0);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "prctl reset KEEPCAPS");
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "prctl reset KEEPCAPS");
 
-      if (uid != 0)
+      ଯଦି (uid != 0)
         {
           data[0].permitted = data[1].permitted = 0;
 #  ifdef PR_CAP_AMBIENT
-          for (cap = 0; cap <= cap_last_cap; cap++)
-            if (prctl (PR_CAP_AMBIENT, PR_CAP_AMBIENT_IS_SET, cap, 0, 0) > 0)
+          ପାଇଁ (cap = 0; cap <= cap_last_cap; cap++)
+            ଯଦି (prctl (PR_CAP_AMBIENT, PR_CAP_AMBIENT_IS_SET, cap, 0, 0) > 0)
               data[cap / 32].permitted |= CAP_TO_MASK_0 (cap);
 #  endif
           data[0].effective = data[0].permitted;
           data[1].effective = data[1].permitted;
 
           ret = capset (&hdr, data);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "capset");
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "capset");
         }
     }
 #endif
 
-  if (no_new_privs)
-    if (UNLIKELY (prctl (PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) < 0))
-      return crun_make_error (err, errno, "prctl set no new privs");
+  ଯଦି (no_new_privs)
+    ଯଦି (UNLIKELY (prctl (PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) < 0))
+      ଫେରନ୍ତୁ crun_make_error (err, errno, "prctl set no new privs");
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-read_caps (unsigned long caps[2], char **values, size_t len, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+read_caps (unsigned long caps[2], ଅକ୍ଷର **ମୂଲ୍ୟଗୁଡ଼ିକ, size_t len, libcrun_error_t *err)
 {
 #ifdef HAVE_CAP
   size_t i;
-  for (i = 0; i < len; i++)
+  ପାଇଁ (i = 0; i < len; i++)
     {
-      cap_value_t cap;
-      if (cap_from_name (values[i], &cap) < 0)
-        return crun_make_error (err, 0, "unknown capability `%s`", values[i]);
+      cap_ମୂଲ୍ୟ_t cap;
+      ଯଦି (cap_from_name (ମୂଲ୍ୟଗୁଡ଼ିକ[i], &cap) < 0)
+        ଫେରନ୍ତୁ crun_make_error (err, 0, "unknown capability `%s`", ମୂଲ୍ୟଗୁଡ଼ିକ[i]);
 
-      if (cap < 32)
+      ଯଦି (cap < 32)
         caps[0] |= CAP_TO_MASK_0 (cap);
-      else
+      ଅନ୍ୟଥା
         caps[1] |= CAP_TO_MASK_1 (cap);
     }
-#else
+#ଅନ୍ୟଥା
   caps[0] = 0;
   caps[1] = 0;
 #endif
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_set_selinux_label (libcrun_container_t *container, runtime_spec_schema_config_schema_process *proc, bool now, libcrun_error_t *err)
 {
-  if (proc->selinux_label)
-    return set_selinux_label (container, proc->selinux_label, now, err);
+  ଯଦି (proc->selinux_label)
+    ଫେରନ୍ତୁ set_selinux_label (container, proc->selinux_label, now, err);
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_set_apparmor_profile (libcrun_container_t *container, runtime_spec_schema_config_schema_process *proc, bool now, libcrun_error_t *err)
 {
-  if (proc->apparmor_profile)
-    return set_apparmor_profile (container, proc->apparmor_profile, proc->no_new_privileges, now, err);
-  return 0;
+  ଯଦି (proc->apparmor_profile)
+    ଫେରନ୍ତୁ set_apparmor_profile (container, proc->apparmor_profile, proc->no_new_privileges, now, err);
+  ଫେରନ୍ତୁ 0;
 }
 
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_set_caps (runtime_spec_schema_config_schema_process_capabilities *capabilities, uid_t uid, gid_t gid,
-                  int no_new_privileges, bool no_exec, libcrun_error_t *err)
+                  ପୂର୍ଣ୍ଣସଂଖ୍ୟା no_new_privileges, bool no_exec, libcrun_error_t *err)
 {
-  struct all_caps_s caps = {};
-  int ret;
+  ସଂରଚନା all_caps_s caps = {};
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (capabilities)
+  ଯଦି (capabilities)
     {
       ret = read_caps (caps.effective, capabilities->effective, capabilities->effective_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       ret = read_caps (caps.inheritable, capabilities->inheritable, capabilities->inheritable_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       ret = read_caps (caps.ambient, capabilities->ambient, capabilities->ambient_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       ret = read_caps (caps.bounding, capabilities->bounding, capabilities->bounding_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       ret = read_caps (caps.permitted, capabilities->permitted, capabilities->permitted_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
-  return set_required_caps (&caps, uid, gid, no_new_privileges, no_exec, err);
+  ଫେରନ୍ତୁ set_required_caps (&caps, uid, gid, no_new_privileges, no_exec, err);
 }
 
-struct rlimit_s
+ସଂରଚନା rlimit_s
 {
-  const char *name;
-  int value;
+  ଅଚଳ ଅକ୍ଷର *name;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ମୂଲ୍ୟ;
 };
 
-struct rlimit_s rlimits[] = { { "RLIMIT_AS", RLIMIT_AS },
+ସଂରଚନା rlimit_s rlimits[] = { { "RLIMIT_AS", RLIMIT_AS },
                               { "RLIMIT_CORE", RLIMIT_CORE },
                               { "RLIMIT_CPU", RLIMIT_CPU },
                               { "RLIMIT_DATA", RLIMIT_DATA },
@@ -5216,109 +5216,109 @@ struct rlimit_s rlimits[] = { { "RLIMIT_AS", RLIMIT_AS },
                               { "RLIMIT_RTPRIO", RLIMIT_RTPRIO },
                               { "RLIMIT_RTTIME", RLIMIT_RTTIME },
                               { "RLIMIT_SIGPENDING", RLIMIT_SIGPENDING },
-                              { "RLIMIT_STACK", RLIMIT_STACK },
-                              { NULL, 0 } };
+                              { "RLIMIT_STACK", RLIMIT_ଗଦା },
+                              { ଖାଲି, 0 } };
 
-static int
-get_rlimit_resource (const char *name)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+get_rlimit_resource (ଅଚଳ ଅକ୍ଷର *name)
 {
-  struct rlimit_s *it;
-  for (it = rlimits; it->name; it++)
-    if (strcmp (it->name, name) == 0)
-      return it->value;
-  return -1;
+  ସଂରଚନା rlimit_s *it;
+  ପାଇଁ (it = rlimits; it->name; it++)
+    ଯଦି (strcmp (it->name, name) == 0)
+      ଫେରନ୍ତୁ it->ମୂଲ୍ୟ;
+  ଫେରନ୍ତୁ -1;
 }
 
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_set_rlimits (runtime_spec_schema_config_schema_process_rlimits_element **new_rlimits, size_t len,
                      libcrun_error_t *err)
 {
   size_t i, j;
   /* Check for duplicate rlimit types.  */
-  for (i = 0; i < len; i++)
+  ପାଇଁ (i = 0; i < len; i++)
     {
-      for (j = i + 1; j < len; j++)
+      ପାଇଁ (j = i + 1; j < len; j++)
         {
-          if (strcmp (new_rlimits[i]->type, new_rlimits[j]->type) == 0)
-            return crun_make_error (err, 0, "duplicate rlimit `%s`", new_rlimits[i]->type);
+          ଯଦି (strcmp (new_rlimits[i]->type, new_rlimits[j]->type) == 0)
+            ଫେରନ୍ତୁ crun_make_error (err, 0, "duplicate rlimit `%s`", new_rlimits[i]->type);
         }
     }
 
-  for (i = 0; i < len; i++)
+  ପାଇଁ (i = 0; i < len; i++)
     {
-      struct rlimit limit;
-      char *type = new_rlimits[i]->type;
-      int resource = get_rlimit_resource (type);
-      if (UNLIKELY (resource < 0))
-        return crun_make_error (err, 0, "invalid rlimit `%s`", type);
+      ସଂରଚନା rlimit limit;
+      ଅକ୍ଷର *type = new_rlimits[i]->type;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା resource = get_rlimit_resource (type);
+      ଯଦି (UNLIKELY (resource < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, 0, "invalid rlimit `%s`", type);
       limit.rlim_cur = new_rlimits[i]->soft;
       limit.rlim_max = new_rlimits[i]->hard;
       libcrun_debug ("Set rlimit: soft = `%llu`, hard = `%llu`",
                      (unsigned long long) limit.rlim_cur,
                      (unsigned long long) limit.rlim_max);
-      if (UNLIKELY (setrlimit (resource, &limit) < 0))
-        return crun_make_error (err, errno, "setrlimit `%s`", type);
+      ଯଦି (UNLIKELY (setrlimit (resource, &limit) < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "setrlimit `%s`", type);
     }
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_set_hostname (libcrun_container_t *container, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  int has_uts = get_private_data (container)->unshare_flags & CLONE_NEWUTS;
-  int ret;
-  if (def->hostname == NULL || def->hostname[0] == '\0')
-    return 0;
-  if (! has_uts)
-    return crun_make_error (err, 0, "hostname requires the UTS namespace");
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା has_uts = get_private_data (container)->unshare_flags & CLONE_NEWUTS;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
+  ଯଦି (def->hostname == ଖାଲି || def->hostname[0] == '\0')
+    ଫେରନ୍ତୁ 0;
+  ଯଦି (! has_uts)
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "hostname requires the UTS namespace");
   ret = sethostname (def->hostname, strlen (def->hostname));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "sethostname");
-  return 0;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "sethostname");
+  ଫେରନ୍ତୁ 0;
 }
 
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_set_domainname (libcrun_container_t *container, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  int has_uts = get_private_data (container)->unshare_flags & CLONE_NEWUTS;
-  int ret;
-  if (is_empty_string (def->domainname))
-    return 0;
-  if (! has_uts)
-    return crun_make_error (err, 0, "domainname requires the UTS namespace");
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା has_uts = get_private_data (container)->unshare_flags & CLONE_NEWUTS;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
+  ଯଦି (is_empty_string (def->domainname))
+    ଫେରନ୍ତୁ 0;
+  ଯଦି (! has_uts)
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "domainname requires the UTS namespace");
   ret = setdomainname (def->domainname, strlen (def->domainname));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "setdomainname");
-  return 0;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "setdomainname");
+  ଫେରନ୍ତୁ 0;
 }
 
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_set_oom (libcrun_container_t *container, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  cleanup_close int fd = -1;
-  int ret;
-  char oom_buffer[16];
-  if (def->process == NULL || ! def->process->oom_score_adj_present)
-    return 0;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -1;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
+  ଅକ୍ଷର oom_buffer[16];
+  ଯଦି (def->process == ଖାଲି || ! def->process->oom_score_adj_present)
+    ଫେରନ୍ତୁ 0;
   libcrun_debug ("Write OOM score adj: `%d`", def->process->oom_score_adj);
 
-  ret = snprintf (oom_buffer, sizeof (oom_buffer), "%i", def->process->oom_score_adj);
-  if (UNLIKELY (ret >= (int) sizeof (oom_buffer)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  ret = snprintf (oom_buffer, ଆକାର (oom_buffer), "%i", def->process->oom_score_adj);
+  ଯଦି (UNLIKELY (ret >= (ପୂର୍ଣ୍ଣସଂଖ୍ୟା) ଆକାର (oom_buffer)))
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "internal error: static buffer too small");
 
   fd = libcrun_open_proc_file (container, "self/oom_score_adj", O_RDWR, err);
-  if (fd < 0)
-    return fd;
-  ret = TEMP_FAILURE_RETRY (write (fd, oom_buffer, strlen (oom_buffer)));
-  if (ret < 0)
-    return crun_make_error (err, errno, "write to `/proc/self/oom_score_adj`");
-  return 0;
+  ଯଦି (fd < 0)
+    ଫେରନ୍ତୁ fd;
+  ret = TEMP_FAILURE_RETRY (ଲିଖ (fd, oom_buffer, strlen (oom_buffer)));
+  ଯଦି (ret < 0)
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "write to `/proc/self/oom_score_adj`");
+  ଫେରନ୍ତୁ 0;
 }
 
-const char *sysctlRequiringIPC[] = {
+ଅଚଳ ଅକ୍ଷର *sysctlRequiringIPC[] = {
   "kernel/msgmax",
   "kernel/msgmnb",
   "kernel/msgmni",
@@ -5327,242 +5327,242 @@ const char *sysctlRequiringIPC[] = {
   "kernel/shmmax",
   "kernel/shmmni",
   "kernel/shm_rmid_forced",
-  NULL
+  ଖାଲି
 };
 
-static int
-validate_sysctl (const char *original_key, const char *original_value, const char *name, unsigned long namespaces_created, runtime_spec_schema_config_schema *def, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+validate_sysctl (ଅଚଳ ଅକ୍ଷର *original_ଚାବି, ଅଚଳ ଅକ୍ଷର *original_ମୂଲ୍ୟ, ଅଚଳ ଅକ୍ଷର *name, unsigned long namespaces_created, runtime_spec_schema_config_schema *def, libcrun_error_t *err)
 {
-  const char *namespace = "";
+  ଅଚଳ ଅକ୍ଷର *namespace = "";
 
   /* The name is used as a relative path with openat(), so a leading '/' would
      make it escape /proc/sys altogether, and a ".." component could reach a
      sysctl other than the one being validated here.  */
-  if (name[0] == '/' || path_has_dot_dot_component (name))
-    return crun_make_error (err, 0, "the sysctl `%s` contains an invalid path", original_key);
+  ଯଦି (name[0] == '/' || path_has_dot_dot_component (name))
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "the sysctl `%s` contains an invalid path", original_ଚାବି);
 
-  if (has_prefix (name, "fs/mqueue/"))
+  ଯଦି (has_prefix (name, "fs/mqueue/"))
     {
-      if (namespaces_created & CLONE_NEWIPC)
-        return 0;
+      ଯଦି (namespaces_created & CLONE_NEWIPC)
+        ଫେରନ୍ତୁ 0;
 
       namespace = "IPC";
-      goto fail;
+      ଯାଅ fail;
     }
 
-  if (has_prefix (name, "kernel/"))
+  ଯଦି (has_prefix (name, "kernel/"))
     {
       size_t i;
 
-      for (i = 0; sysctlRequiringIPC[i]; i++)
-        if (strcmp (sysctlRequiringIPC[i], name) == 0)
+      ପାଇଁ (i = 0; sysctlRequiringIPC[i]; i++)
+        ଯଦି (strcmp (sysctlRequiringIPC[i], name) == 0)
           {
-            if (namespaces_created & CLONE_NEWIPC)
-              return 0;
+            ଯଦି (namespaces_created & CLONE_NEWIPC)
+              ଫେରନ୍ତୁ 0;
 
             namespace = "IPC";
-            goto fail;
+            ଯାଅ fail;
           }
 
-      if (strcmp (name, "kernel/domainname") == 0)
+      ଯଦି (strcmp (name, "kernel/domainname") == 0)
         {
           // Value of sysctl `kernel/domainname` is going to
           // conflict with already set field `domainname` in
           // OCI spec, in such scenario crun will fail to prevent
           // unexpected behaviour for end user.
-          if (! is_empty_string (def->domainname) && (strcmp (original_value, def->domainname) != 0))
-            return crun_make_error (err, 0, "the sysctl `%s` conflicts with OCI field `domainname`", original_key);
+          ଯଦି (! is_empty_string (def->domainname) && (strcmp (original_ମୂଲ୍ୟ, def->domainname) != 0))
+            ଫେରନ୍ତୁ crun_make_error (err, 0, "the sysctl `%s` conflicts with OCI field `domainname`", original_ଚାବି);
 
-          if (namespaces_created & CLONE_NEWUTS)
-            return 0;
+          ଯଦି (namespaces_created & CLONE_NEWUTS)
+            ଫେରନ୍ତୁ 0;
 
           namespace = "UTS";
-          goto fail;
+          ଯାଅ fail;
         }
 
-      if (strcmp (name, "kernel/hostname") == 0)
-        return crun_make_error (err, 0, "the sysctl `%s` conflicts with OCI field `hostname`", original_key);
+      ଯଦି (strcmp (name, "kernel/hostname") == 0)
+        ଫେରନ୍ତୁ crun_make_error (err, 0, "the sysctl `%s` conflicts with OCI field `hostname`", original_ଚାବି);
     }
-  if (has_prefix (name, "net/"))
+  ଯଦି (has_prefix (name, "net/"))
     {
-      if (namespaces_created & CLONE_NEWNET)
-        return 0;
+      ଯଦି (namespaces_created & CLONE_NEWNET)
+        ଫେରନ୍ତୁ 0;
 
       namespace = "network";
-      goto fail;
+      ଯାଅ fail;
     }
 
-  return crun_make_error (err, 0, "the sysctl `%s` is not namespaced", original_key);
+  ଫେରନ୍ତୁ crun_make_error (err, 0, "the sysctl `%s` is not namespaced", original_ଚାବି);
 
 fail:
-  return crun_make_error (err, 0, "the sysctl `%s` requires a new %s namespace", original_key, namespace);
+  ଫେରନ୍ତୁ crun_make_error (err, 0, "the sysctl `%s` requires a new %s namespace", original_ଚାବି, namespace);
 }
 
 /* Best-effort attempt to give a better explanation why setting a sysctl could have failed. */
-static char *
-sysctl_error_reason (const char *name, int namespaces_created, int errno_)
+ସ୍ଥିର ଅକ୍ଷର *
+sysctl_error_reason (ଅଚଳ ଅକ୍ଷର *name, ପୂର୍ଣ୍ଣସଂଖ୍ୟା namespaces_created, ପୂର୍ଣ୍ଣସଂଖ୍ୟା errno_)
 {
 
-  if (strcmp (name, "net.ipv4.ping_group_range") == 0 && (errno_ == EINVAL) && (namespaces_created & CLONE_NEWUSER))
-    return xstrdup ("are all the IDs mapped in the user namespace?");
+  ଯଦି (strcmp (name, "net.ipv4.ping_group_range") == 0 && (errno_ == EINVAL) && (namespaces_created & CLONE_NEWUSER))
+    ଫେରନ୍ତୁ xstrdup ("are all the IDs mapped in the user namespace?");
 
-  return NULL;
+  ଫେରନ୍ତୁ ଖାଲି;
 }
 
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_set_sysctl (libcrun_container_t *container, libcrun_error_t *err)
 {
   size_t i;
-  cleanup_close int dirfd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା dirfd = -1;
   unsigned long namespaces_created = 0;
   runtime_spec_schema_config_schema *def = container->container_def;
 
-  if (def->linux == NULL || def->linux->sysctl == NULL || def->linux->sysctl->len == 0)
-    return 0;
+  ଯଦି (def->linux == ଖାଲି || def->linux->sysctl == ଖାଲି || def->linux->sysctl->len == 0)
+    ଫେରନ୍ତୁ 0;
 
-  for (i = 0; i < def->linux->namespaces_len; i++)
+  ପାଇଁ (i = 0; i < def->linux->namespaces_len; i++)
     {
-      int value;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା ମୂଲ୍ୟ;
 
-      value = libcrun_find_namespace (def->linux->namespaces[i]->type);
-      if (UNLIKELY (value < 0))
-        return crun_make_error (err, 0, "invalid namespace type: `%s`", def->linux->namespaces[i]->type);
+      ମୂଲ୍ୟ = libcrun_find_namespace (def->linux->namespaces[i]->type);
+      ଯଦି (UNLIKELY (ମୂଲ୍ୟ < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, 0, "invalid namespace type: `%s`", def->linux->namespaces[i]->type);
 
-      namespaces_created |= value;
+      namespaces_created |= ମୂଲ୍ୟ;
     }
 
   get_private_data (container);
   dirfd = libcrun_open_proc_file (container, "sys", O_DIRECTORY | O_PATH, err);
-  if (UNLIKELY (dirfd < 0))
-    return dirfd;
+  ଯଦି (UNLIKELY (dirfd < 0))
+    ଫେରନ୍ତୁ dirfd;
 
-  for (i = 0; i < def->linux->sysctl->len; i++)
+  ପାଇଁ (i = 0; i < def->linux->sysctl->len; i++)
     {
-      cleanup_free char *name = NULL;
-      cleanup_close int fd = -1;
-      int ret;
+      cleanup_free ଅକ୍ଷର *name = ଖାଲି;
+      cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -1;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
       /* A sysctl whose value is null in the document is parsed into a NULL,
          and there is nothing to write to the file.  */
-      if (def->linux->sysctl->keys[i] == NULL || def->linux->sysctl->values[i] == NULL)
-        return crun_make_error (err, EINVAL, "sysctl value is not specified");
+      ଯଦି (def->linux->sysctl->ଚାବିଗୁଡ଼ିକ[i] == ଖାଲି || def->linux->sysctl->ମୂଲ୍ୟଗୁଡ଼ିକ[i] == ଖାଲି)
+        ଫେରନ୍ତୁ crun_make_error (err, EINVAL, "sysctl value is not specified");
 
-      name = libcrun_sysctl_key_to_proc_path (def->linux->sysctl->keys[i]);
+      name = libcrun_sysctl_ଚାବି_to_proc_path (def->linux->sysctl->ଚାବିଗୁଡ଼ିକ[i]);
 
-      ret = validate_sysctl (def->linux->sysctl->keys[i], def->linux->sysctl->values[i], name, namespaces_created, def, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = validate_sysctl (def->linux->sysctl->ଚାବିଗୁଡ଼ିକ[i], def->linux->sysctl->ମୂଲ୍ୟଗୁଡ଼ିକ[i], name, namespaces_created, def, err);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       fd = openat (dirfd, name, O_WRONLY | O_CLOEXEC);
-      if (UNLIKELY (fd < 0))
-        return crun_make_error (err, errno, "open `/proc/sys/%s`", name);
+      ଯଦି (UNLIKELY (fd < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "open `/proc/sys/%s`", name);
 
-      ret = TEMP_FAILURE_RETRY (write (fd, def->linux->sysctl->values[i], strlen (def->linux->sysctl->values[i])));
-      if (UNLIKELY (ret < 0))
+      ret = TEMP_FAILURE_RETRY (ଲିଖ (fd, def->linux->sysctl->ମୂଲ୍ୟଗୁଡ଼ିକ[i], strlen (def->linux->sysctl->ମୂଲ୍ୟଗୁଡ଼ିକ[i])));
+      ଯଦି (UNLIKELY (ret < 0))
         {
-          int saved_errno = errno;
-          cleanup_free char *reason = NULL;
+          ପୂର୍ଣ୍ଣସଂଖ୍ୟା saved_errno = errno;
+          cleanup_free ଅକ୍ଷର *reason = ଖାଲି;
 
-          reason = sysctl_error_reason (def->linux->sysctl->keys[i], namespaces_created, saved_errno);
-          return crun_make_error (err, saved_errno, "write to `/proc/sys/%s`%s%s%s", name, reason ? " (" : "", reason ?: "", reason ? ")" : "");
+          reason = sysctl_error_reason (def->linux->sysctl->ଚାବିଗୁଡ଼ିକ[i], namespaces_created, saved_errno);
+          ଫେରନ୍ତୁ crun_make_error (err, saved_errno, "write to `/proc/sys/%s`%s%s%s", name, reason ? " (" : "", reason ?: "", reason ? ")" : "");
         }
     }
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-open_terminal (char **pty, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+open_terminal (ଅକ୍ଷର **pty, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -1;
   uid_t uid = 0;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (process && process->user)
+  ଯଦି (process && process->user)
     uid = process->user->uid;
 
   fd = libcrun_new_terminal (pty, err);
-  if (UNLIKELY (fd < 0))
-    return fd;
+  ଯଦି (UNLIKELY (fd < 0))
+    ଫେରନ୍ତୁ fd;
 
   ret = libcrun_set_stdio (fd, *pty, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  if (uid)
+  ଯଦି (uid)
     {
       /* The slave is now stdin, use the descriptor instead of resolving the path again.  */
       ret = fchown (0, uid, -1);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "chown `%s`", *pty);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "chown `%s`", *pty);
     }
 
   ret = get_and_reset (&fd);
-  return ret;
+  ଫେରନ୍ତୁ ret;
 }
 
-char *
+ଅକ୍ଷର *
 libcrun_get_external_descriptors (libcrun_container_t *container)
 {
-  return get_private_data (container)->external_descriptors;
+  ଫେରନ୍ତୁ get_private_data (container)->external_descriptors;
 }
 
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_save_external_descriptors (libcrun_container_t *container, libcrun_error_t *err)
 {
-  const char *buf = NULL;
-  json_gen_ctx *gen = NULL;
+  ଅଚଳ ଅକ୍ଷର *buf = ଖାଲି;
+  json_gen_ctx *gen = ଖାଲି;
   size_t buf_len;
-  int ret;
-  int i;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା i;
 
-  if (! json_gen_init (&gen, NULL))
-    return crun_make_error (err, errno, "json_gen_init");
+  ଯଦି (! json_gen_init (&gen, ଖାଲି))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "json_gen_init");
 
   ret = json_gen_array_open (gen);
-  if (UNLIKELY (ret != json_gen_status_ok))
-    goto json_error;
+  ଯଦି (UNLIKELY (ret != json_gen_status_ok))
+    ଯାଅ json_error;
 
   /* Remember original stdin, stdout, stderr for container restore.  */
-  for (i = 0; i < 3; i++)
+  ପାଇଁ (i = 0; i < 3; i++)
     {
       proc_fd_path_t fd_path;
-      char link_path[PATH_MAX];
+      ଅକ୍ଷର link_path[PATH_MAX];
 
       get_proc_self_fd_path (fd_path, i);
 
       ret = readlink (fd_path, link_path, PATH_MAX - 1);
-      if (UNLIKELY (ret < 0))
+      ଯଦି (UNLIKELY (ret < 0))
         {
           /* The fd could not exist.  */
-          if (errno == ENOENT)
+          ଯଦି (errno == ENOENT)
             {
               strcpy (link_path, "/dev/null");
               ret = 9; /* strlen ("/dev/null").  */
             }
-          else
+          ଅନ୍ୟଥା
             {
               json_gen_free (gen);
-              return crun_make_error (err, errno, "readlink `%s`", fd_path);
+              ଫେରନ୍ତୁ crun_make_error (err, errno, "readlink `%s`", fd_path);
             }
         }
       link_path[ret] = 0;
 
       ret = json_gen_string (gen, link_path, ret);
-      if (UNLIKELY (ret != json_gen_status_ok))
-        goto json_error;
+      ଯଦି (UNLIKELY (ret != json_gen_status_ok))
+        ଯାଅ json_error;
     }
 
   ret = json_gen_array_close (gen);
-  if (UNLIKELY (ret != json_gen_status_ok))
-    goto json_error;
+  ଯଦି (UNLIKELY (ret != json_gen_status_ok))
+    ଯାଅ json_error;
 
   ret = json_gen_get_buf (gen, &buf, &buf_len);
-  if (UNLIKELY (ret != json_gen_status_ok))
-    goto json_error;
+  ଯଦି (UNLIKELY (ret != json_gen_status_ok))
+    ଯାଅ json_error;
 
-  if (buf)
+  ଯଦି (buf)
     {
-      char *b = xmalloc (buf_len + 1);
+      ଅକ୍ଷର *b = xmalloc (buf_len + 1);
       memcpy (b, buf, buf_len);
       b[buf_len] = '\0';
       get_private_data (container)->external_descriptors = b;
@@ -5570,255 +5570,255 @@ libcrun_save_external_descriptors (libcrun_container_t *container, libcrun_error
 
   json_gen_free (gen);
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 
 json_error:
-  if (gen)
+  ଯଦି (gen)
     json_gen_free (gen);
-  return json_gen_error_to_crun_error (ret, err);
+  ଫେରନ୍ତୁ json_gen_error_to_crun_error (ret, err);
 }
 
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_set_terminal (libcrun_container_t *container, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  cleanup_free char *pty = NULL;
-  cleanup_close int fd = -1;
-  int ret;
+  cleanup_free ଅକ୍ଷର *pty = ଖାଲି;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -1;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (def->process == NULL || ! def->process->terminal)
-    return 0;
+  ଯଦି (def->process == ଖାଲି || ! def->process->terminal)
+    ଫେରନ୍ତୁ 0;
 
   fd = open_terminal (&pty, def->process, err);
-  if (UNLIKELY (fd < 0))
-    return fd;
+  ଯଦି (UNLIKELY (fd < 0))
+    ଫେରନ୍ତୁ fd;
 
-  if (def->process->console_size)
+  ଯଦି (def->process->console_size)
     {
       ret = libcrun_terminal_setup_size (0, def->process->console_size->height, def->process->console_size->width, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
-  if (get_private_data (container)->mount_dev_from_host)
+  ଯଦି (get_private_data (container)->mount_dev_from_host)
     {
-      ret = do_mount (container, pty, -1, "/dev/console", NULL, MS_BIND, NULL, LABEL_MOUNT, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = do_mount (container, pty, -1, "/dev/console", ଖାଲି, MS_BIND, ଖାଲି, LABEL_MOUNT, err);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
-  else
+  ଅନ୍ୟଥା
     {
       ret = unlink ("/dev/console");
-      if (UNLIKELY (ret < 0 && errno != ENOENT))
+      ଯଦି (UNLIKELY (ret < 0 && errno != ENOENT))
         {
-          if (errno == EROFS)
+          ଯଦି (errno == EROFS)
             {
               /* If the file system is read-only, fall back to a bind mount.  */
-              ret = do_mount (container, pty, -1, "/dev/console", NULL, MS_BIND, NULL, LABEL_MOUNT, err);
-              if (UNLIKELY (ret < 0))
-                return ret;
+              ret = do_mount (container, pty, -1, "/dev/console", ଖାଲି, MS_BIND, ଖାଲି, LABEL_MOUNT, err);
+              ଯଦି (UNLIKELY (ret < 0))
+                ଫେରନ୍ତୁ ret;
 
-              return get_and_reset (&fd);
+              ଫେରନ୍ତୁ get_and_reset (&fd);
             }
-          return crun_make_error (err, errno, "unlink `/dev/console`");
+          ଫେରନ୍ତୁ crun_make_error (err, errno, "unlink `/dev/console`");
         }
 
       ret = symlink (pty, "/dev/console");
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "symlink `/dev/console` -> `%s`", pty);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "symlink `/dev/console` -> `%s`", pty);
     }
 
-  return get_and_reset (&fd);
+  ଫେରନ୍ତୁ get_and_reset (&fd);
 }
 
-static bool
-read_error_from_sync_socket (int sync_socket_fd, int *error, char **str)
+ସ୍ଥିର bool
+read_error_from_sync_socket (ପୂର୍ଣ୍ଣସଂଖ୍ୟା sync_socket_fd, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *error, ଅକ୍ଷର **str)
 {
-  cleanup_free char *b = NULL;
+  cleanup_free ଅକ୍ଷର *b = ଖାଲି;
   size_t size;
-  int code = 0;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା code = 0;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (*error == 0)
+  ଯଦି (*error == 0)
     {
-      ret = TEMP_FAILURE_RETRY (read (sync_socket_fd, &code, sizeof (code)));
-      if (UNLIKELY (ret != (int) sizeof (code)))
-        return false;
+      ret = TEMP_FAILURE_RETRY (ପଠ (sync_socket_fd, &code, ଆକାର (code)));
+      ଯଦି (UNLIKELY (ret != (ପୂର୍ଣ୍ଣସଂଖ୍ୟା) ଆକାର (code)))
+        ଫେରନ୍ତୁ false;
       *error = code;
     }
 
-  ret = TEMP_FAILURE_RETRY (read (sync_socket_fd, &size, sizeof (size)));
-  if (UNLIKELY (ret != (int) sizeof (size)))
-    return false;
+  ret = TEMP_FAILURE_RETRY (ପଠ (sync_socket_fd, &size, ଆକାର (size)));
+  ଯଦି (UNLIKELY (ret != (ପୂର୍ଣ୍ଣସଂଖ୍ୟା) ଆକାର (size)))
+    ଫେରନ୍ତୁ false;
 
-  if (size == 0)
-    return false;
+  ଯଦି (size == 0)
+    ଫେରନ୍ତୁ false;
 
-  if (size > 1024)
+  ଯଦି (size > 1024)
     size = 1024;
 
   b = xmalloc (size + 1);
-  ret = TEMP_FAILURE_RETRY (read (sync_socket_fd, b, size));
-  if (UNLIKELY (ret < 0))
-    return false;
+  ret = TEMP_FAILURE_RETRY (ପଠ (sync_socket_fd, b, size));
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ false;
 
   b[ret] = '\0';
 
   *str = b;
-  b = NULL;
-  return true;
+  b = ଖାଲି;
+  ଫେରନ୍ତୁ true;
 }
 
-static bool
-send_error_to_sync_socket (int sync_socket_fd, bool has_fd, libcrun_error_t *err)
+ସ୍ଥିର bool
+send_error_to_sync_socket (ପୂର୍ଣ୍ଣସଂଖ୍ୟା sync_socket_fd, bool has_fd, libcrun_error_t *err)
 {
   size_t size;
-  int ret;
-  int code;
-  char *msg;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା code;
+  ଅକ୍ଷର *ସନ୍ଦେଶ;
 
-  if (err == NULL || *err == NULL)
-    return false;
+  ଯଦି (err == ଖାଲି || *err == ଖାଲି)
+    ଫେରନ୍ତୁ false;
 
   code = crun_error_get_errno (err);
 
-  if (has_fd)
+  ଯଦି (has_fd)
     {
       /* dummy terminal fd.  */
-      ret = TEMP_FAILURE_RETRY (write (sync_socket_fd, "1", 1));
-      if (UNLIKELY (ret < 0))
-        return false;
+      ret = TEMP_FAILURE_RETRY (ଲିଖ (sync_socket_fd, "1", 1));
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ false;
     }
 
-  ret = TEMP_FAILURE_RETRY (write (sync_socket_fd, &code, sizeof (code)));
-  if (UNLIKELY (ret < 0))
-    return false;
+  ret = TEMP_FAILURE_RETRY (ଲିଖ (sync_socket_fd, &code, ଆକାର (code)));
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ false;
 
-  msg = (*err)->msg;
-  size = strlen (msg) + 1;
-  ret = TEMP_FAILURE_RETRY (write (sync_socket_fd, &size, sizeof (size)));
-  if (UNLIKELY (ret < 0))
-    return false;
+  ସନ୍ଦେଶ = (*err)->ସନ୍ଦେଶ;
+  size = strlen (ସନ୍ଦେଶ) + 1;
+  ret = TEMP_FAILURE_RETRY (ଲିଖ (sync_socket_fd, &size, ଆକାର (size)));
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ false;
 
-  ret = TEMP_FAILURE_RETRY (write (sync_socket_fd, msg, size));
-  if (UNLIKELY (ret < 0))
-    return false;
+  ret = TEMP_FAILURE_RETRY (ଲିଖ (sync_socket_fd, ସନ୍ଦେଶ, size));
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ false;
 
-  return true;
+  ଫେରନ୍ତୁ true;
 }
 
-static inline int
-send_success_to_sync_socket (int sync_socket, libcrun_error_t *err)
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+send_success_to_sync_socket (ପୂର୍ଣ୍ଣସଂଖ୍ୟା sync_socket, libcrun_error_t *err)
 {
-  const int success = 0;
-  int ret;
+  ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା success = 0;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  ret = TEMP_FAILURE_RETRY (write (sync_socket, &success, sizeof (success)));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "write to sync socket");
+  ret = TEMP_FAILURE_RETRY (ଲିଖ (sync_socket, &success, ଆକାର (success)));
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "write to sync socket");
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static __attribute__ ((noreturn)) void
-send_error_to_sync_socket_and_die (int sync_socket_fd, bool has_terminal, libcrun_error_t *err)
+ସ୍ଥିର __attribute__ ((noreturn)) ଶୂନ୍ୟ
+send_error_to_sync_socket_and_die (ପୂର୍ଣ୍ଣସଂଖ୍ୟା sync_socket_fd, bool has_terminal, libcrun_error_t *err)
 {
-  char *msg;
+  ଅକ୍ଷର *ସନ୍ଦେଶ;
 
-  if (err == NULL || *err == NULL)
+  ଯଦି (err == ଖାଲି || *err == ଖାଲି)
     _safe_exit (EXIT_FAILURE);
 
-  if (! send_error_to_sync_socket (sync_socket_fd, has_terminal, err))
+  ଯଦି (! send_error_to_sync_socket (sync_socket_fd, has_terminal, err))
     {
       errno = crun_error_get_errno (err);
-      msg = (*err)->msg;
-      libcrun_fail_with_error (errno, "%s", msg);
+      ସନ୍ଦେଶ = (*err)->ସନ୍ଦେଶ;
+      libcrun_fail_with_error (errno, "%s", ସନ୍ଦେଶ);
     }
   _safe_exit (EXIT_FAILURE);
 }
 
-static int
-expect_success_from_sync_socket (int sync_fd, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+expect_success_from_sync_socket (ପୂର୍ଣ୍ଣସଂଖ୍ୟା sync_fd, libcrun_error_t *err)
 {
-  cleanup_free char *err_str = NULL;
-  int res = 1;
-  int ret;
+  cleanup_free ଅକ୍ଷର *err_str = ଖାଲି;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା res = 1;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  ret = TEMP_FAILURE_RETRY (read (sync_fd, &res, sizeof (res)));
-  if (UNLIKELY (ret != sizeof (res)))
-    return crun_make_error (err, ret < 0 ? errno : 0, "read status from sync socket");
+  ret = TEMP_FAILURE_RETRY (ପଠ (sync_fd, &res, ଆକାର (res)));
+  ଯଦି (UNLIKELY (ret != ଆକାର (res)))
+    ଫେରନ୍ତୁ crun_make_error (err, ret < 0 ? errno : 0, "read status from sync socket");
 
-  if (res == 0)
-    return 0;
+  ଯଦି (res == 0)
+    ଫେରନ୍ତୁ 0;
 
-  if (read_error_from_sync_socket (sync_fd, &res, &err_str))
+  ଯଦି (read_error_from_sync_socket (sync_fd, &res, &err_str))
     {
-      if (! is_empty_string (err_str))
-        return crun_make_error (err, res, "%s", err_str);
+      ଯଦି (! is_empty_string (err_str))
+        ଫେରନ୍ତୁ crun_make_error (err, res, "%s", err_str);
     }
 
-  return crun_make_error (err, res, "read from sync socket");
+  ଫେରନ୍ତୁ crun_make_error (err, res, "read from sync socket");
 }
 
-static int
-join_namespaces (runtime_spec_schema_config_schema *def, int *namespaces_to_join, int n_namespaces_to_join,
-                 int *namespaces_to_join_index, bool ignore_join_errors, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+join_namespaces (runtime_spec_schema_config_schema *def, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *namespaces_to_join, ପୂର୍ଣ୍ଣସଂଖ୍ୟା n_namespaces_to_join,
+                 ପୂର୍ଣ୍ଣସଂଖ୍ୟା *namespaces_to_join_index, bool ignore_join_errors, libcrun_error_t *err)
 {
-  int ret;
-  int i;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା i;
 
-  for (i = 0; i < n_namespaces_to_join; i++)
+  ପାଇଁ (i = 0; i < n_namespaces_to_join; i++)
     {
-      cleanup_free char *cwd = NULL;
-      int orig_index = namespaces_to_join_index[i];
-      int value;
+      cleanup_free ଅକ୍ଷର *cwd = ଖାଲି;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା orig_index = namespaces_to_join_index[i];
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା ମୂଲ୍ୟ;
 
-      if (namespaces_to_join[i] < 0)
-        continue;
+      ଯଦି (namespaces_to_join[i] < 0)
+        ଜାରି;
 
       /* Skip the user namespace.  */
-      value = libcrun_find_namespace (def->linux->namespaces[orig_index]->type);
-      if (value == CLONE_NEWUSER)
-        continue;
+      ମୂଲ୍ୟ = libcrun_find_namespace (def->linux->namespaces[orig_index]->type);
+      ଯଦି (ମୂଲ୍ୟ == CLONE_NEWUSER)
+        ଜାରି;
 
-      if (value == CLONE_NEWNS)
+      ଯଦି (ମୂଲ୍ୟ == CLONE_NEWNS)
         {
-          cwd = getcwd (NULL, 0);
-          if (UNLIKELY (cwd == NULL))
-            return crun_make_error (err, errno, "getcwd");
+          cwd = getcwd (ଖାଲି, 0);
+          ଯଦି (UNLIKELY (cwd == ଖାଲି))
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "getcwd");
         }
 
       libcrun_debug ("Joining `%s` namespace: `%s`", def->linux->namespaces[orig_index]->type, def->linux->namespaces[orig_index]->path);
-      ret = setns (namespaces_to_join[i], value);
-      if (UNLIKELY (ret < 0))
+      ret = setns (namespaces_to_join[i], ମୂଲ୍ୟ);
+      ଯଦି (UNLIKELY (ret < 0))
         {
-          if (ignore_join_errors)
-            continue;
-          return crun_make_error (err, errno, "setns `%s`", def->linux->namespaces[orig_index]->path);
+          ଯଦି (ignore_join_errors)
+            ଜାରି;
+          ଫେରନ୍ତୁ crun_make_error (err, errno, "setns `%s`", def->linux->namespaces[orig_index]->path);
         }
 
       close_and_reset (&namespaces_to_join[i]);
 
-      if (value == CLONE_NEWNS)
+      ଯଦି (ମୂଲ୍ୟ == CLONE_NEWNS)
         {
           ret = chdir (cwd);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "chdir `%s`", cwd);
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "chdir `%s`", cwd);
         }
     }
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 #define MAX_NAMESPACES 10
 
-struct init_status_s
+ସଂରଚନା init_status_s
 {
   /* fd to the namespace to join.  */
-  int fd[MAX_NAMESPACES + 1];
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd[MAX_NAMESPACES + 1];
   /* Index into def->linux->namespaces.  */
-  int index[MAX_NAMESPACES];
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା index[MAX_NAMESPACES];
   /* CLONE_* value.  */
-  int value[MAX_NAMESPACES];
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ମୂଲ୍ୟ[MAX_NAMESPACES];
   /* How many namespaces to join.  */
   size_t fd_len;
 
@@ -5837,44 +5837,44 @@ struct init_status_s
   bool can_delay_pidns_fork;
 
   /* fd index for userns.  */
-  int userns_index;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା userns_index;
   /* def->linux->namespaces userns.  */
-  int userns_index_origin;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା userns_index_origin;
 
   /* All namespaces created/joined by the container.  */
-  int all_namespaces;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା all_namespaces;
 
   /* What namespaces are still missing to be created.  */
-  int namespaces_to_unshare;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା namespaces_to_unshare;
 
   /* Index in fd[] for the pidns that must be joined before any
      other namespace.  */
-  int idx_pidns_to_join_immediately;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା idx_pidns_to_join_immediately;
 
   /* Index in fd[] for the timens that must be joined before any
      other namespace.  */
-  int idx_timens_to_join_immediately;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା idx_timens_to_join_immediately;
 };
 
-void
-cleanup_free_init_statusp (struct init_status_s *ns)
+ଶୂନ୍ୟ
+cleanup_free_init_statusp (ସଂରଚନା init_status_s *ns)
 {
   size_t i;
 
-  if (ns == NULL)
-    return;
+  ଯଦି (ns == ଖାଲି)
+    ଫେରନ୍ତୁ;
 
-  for (i = 0; i < ns->fd_len; i++)
+  ପାଇଁ (i = 0; i < ns->fd_len; i++)
     TEMP_FAILURE_RETRY (close (ns->fd[i]));
 }
 
-static int
-configure_init_status (struct init_status_s *ns, libcrun_container_t *container, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+configure_init_status (ସଂରଚନା init_status_s *ns, libcrun_container_t *container, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
   size_t i;
 
-  for (i = 0; i < MAX_NAMESPACES + 1; i++)
+  ପାଇଁ (i = 0; i < MAX_NAMESPACES + 1; i++)
     ns->fd[i] = -1;
 
   ns->fd_len = 0;
@@ -5890,36 +5890,36 @@ configure_init_status (struct init_status_s *ns, libcrun_container_t *container,
   ns->idx_pidns_to_join_immediately = -1;
   ns->idx_timens_to_join_immediately = -1;
 
-  for (i = 0; i < def->linux->namespaces_len; i++)
+  ପାଇଁ (i = 0; i < def->linux->namespaces_len; i++)
     {
-      int value = libcrun_find_namespace (def->linux->namespaces[i]->type);
-      if (UNLIKELY (value < 0))
-        return crun_make_error (err, 0, "invalid namespace type: `%s`", def->linux->namespaces[i]->type);
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା ମୂଲ୍ୟ = libcrun_find_namespace (def->linux->namespaces[i]->type);
+      ଯଦି (UNLIKELY (ମୂଲ୍ୟ < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, 0, "invalid namespace type: `%s`", def->linux->namespaces[i]->type);
 
-      if (ns->all_namespaces & value)
-        return crun_make_error (err, 0, "duplicate namespace type: `%s`", def->linux->namespaces[i]->type);
+      ଯଦି (ns->all_namespaces & ମୂଲ୍ୟ)
+        ଫେରନ୍ତୁ crun_make_error (err, 0, "duplicate namespace type: `%s`", def->linux->namespaces[i]->type);
 
-      ns->all_namespaces |= value;
+      ns->all_namespaces |= ମୂଲ୍ୟ;
 
-      if (def->linux->namespaces[i]->path == NULL)
+      ଯଦି (def->linux->namespaces[i]->path == ଖାଲି)
         {
           libcrun_debug ("Unsharing namespace: `%s`", def->linux->namespaces[i]->type);
-          ns->namespaces_to_unshare |= value;
+          ns->namespaces_to_unshare |= ମୂଲ୍ୟ;
         }
-      else
+      ଅନ୍ୟଥା
         {
-          int fd;
+          ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd;
 
           libcrun_debug ("Joining `%s` namespace: `%s`", def->linux->namespaces[i]->type, def->linux->namespaces[i]->path);
 
-          if (ns->fd_len >= MAX_NAMESPACES)
-            return crun_make_error (err, 0, "too many namespaces to join");
+          ଯଦି (ns->fd_len >= MAX_NAMESPACES)
+            ଫେରନ୍ତୁ crun_make_error (err, 0, "too many namespaces to join");
 
           fd = open (def->linux->namespaces[i]->path, O_RDONLY | O_CLOEXEC);
-          if (UNLIKELY (fd < 0))
-            return crun_make_error (err, errno, "open `%s`", def->linux->namespaces[i]->path);
+          ଯଦି (UNLIKELY (fd < 0))
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "open `%s`", def->linux->namespaces[i]->path);
 
-          if (value == CLONE_NEWUSER)
+          ଯଦି (ମୂଲ୍ୟ == CLONE_NEWUSER)
             {
               ns->userns_index = ns->fd_len;
               ns->userns_index_origin = i;
@@ -5927,41 +5927,41 @@ configure_init_status (struct init_status_s *ns, libcrun_container_t *container,
 
           ns->fd[ns->fd_len] = fd;
           ns->index[ns->fd_len] = i;
-          ns->value[ns->fd_len] = value;
+          ns->ମୂଲ୍ୟ[ns->fd_len] = ମୂଲ୍ୟ;
           ns->fd_len++;
           ns->fd[ns->fd_len] = -1;
         }
     }
 
-  if (container->host_uid && (ns->all_namespaces & CLONE_NEWUSER) == 0)
+  ଯଦି (container->host_uid && (ns->all_namespaces & CLONE_NEWUSER) == 0)
     {
       libcrun_warning ("non root user need to have an 'user' namespace");
       ns->all_namespaces |= CLONE_NEWUSER;
       ns->namespaces_to_unshare |= CLONE_NEWUSER;
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 /* Detect if root is available in the container.  */
-static bool
-root_mapped_in_container_p (runtime_spec_schema_defs_id_mapping **mappings, size_t len)
+ସ୍ଥିର bool
+ମୂଳ_mapped_in_container_p (runtime_spec_schema_defs_id_mapping **mappings, size_t len)
 {
   size_t i;
 
-  for (i = 0; i < len; i++)
-    if (mappings[i]->container_id == 0)
-      return true;
+  ପାଇଁ (i = 0; i < len; i++)
+    ଯଦି (mappings[i]->container_id == 0)
+      ଫେରନ୍ତୁ true;
 
-  return false;
+  ଫେରନ୍ତୁ false;
 }
 
-static struct libcrun_fd_map *
+ସ୍ଥିର ସଂରଚନା libcrun_fd_map *
 get_devices_fd_map (libcrun_container_t *container)
 {
-  struct libcrun_fd_map *dev_fds = get_private_data (container)->dev_fds;
+  ସଂରଚନା libcrun_fd_map *dev_fds = get_private_data (container)->dev_fds;
 
-  if (dev_fds == NULL)
+  ଯଦି (dev_fds == ଖାଲି)
     {
       runtime_spec_schema_config_schema *def = container->container_def;
       size_t len = def->linux ? def->linux->devices_len : 0;
@@ -5969,22 +5969,22 @@ get_devices_fd_map (libcrun_container_t *container)
       dev_fds = make_libcrun_fd_map (len);
       get_private_data (container)->dev_fds = dev_fds;
     }
-  return dev_fds;
+  ଫେରନ୍ତୁ dev_fds;
 }
 
-#define NUM_NEEDED_DEVS (sizeof (needed_devs) / sizeof (needed_devs[0]) - 1)
+#define ଅଙ୍କ_NEEDED_DEVS (ଆକାର (needed_devs) / ଆକାର (needed_devs[0]) - 1)
 
-static struct libcrun_fd_map *
+ସ୍ଥିର ସଂରଚନା libcrun_fd_map *
 get_needed_devs_fd_map (libcrun_container_t *container)
 {
-  struct libcrun_fd_map *fds = get_private_data (container)->needed_devs_fds;
+  ସଂରଚନା libcrun_fd_map *fds = get_private_data (container)->needed_devs_fds;
 
-  if (fds == NULL)
+  ଯଦି (fds == ଖାଲି)
     {
-      fds = make_libcrun_fd_map (NUM_NEEDED_DEVS);
+      fds = make_libcrun_fd_map (ଅଙ୍କ_NEEDED_DEVS);
       get_private_data (container)->needed_devs_fds = fds;
     }
-  return fds;
+  ଫେରନ୍ତୁ fds;
 }
 
 bool
@@ -5993,214 +5993,214 @@ is_bind_mount (runtime_spec_schema_defs_mount *mnt, bool *recursive, bool *src_n
   bool ret = false;
   size_t i;
 
-  if (recursive)
+  ଯଦି (recursive)
     *recursive = false;
 
-  if (src_nofollow != NULL)
+  ଯଦି (src_nofollow != ଖାଲି)
     *src_nofollow = false;
 
-  for (i = 0; i < mnt->options_len; i++)
+  ପାଇଁ (i = 0; i < mnt->options_len; i++)
     {
-      if (mnt->options[i] == NULL)
-        continue;
+      ଯଦି (mnt->options[i] == ଖାଲି)
+        ଜାରି;
 
-      if (strcmp (mnt->options[i], "bind") == 0)
+      ଯଦି (strcmp (mnt->options[i], "bind") == 0)
         {
           ret = true;
 
           /* if src_nofollow is not specified, or already found, shortcut.  */
-          if (src_nofollow == NULL || *src_nofollow)
-            break;
+          ଯଦି (src_nofollow == ଖାଲି || *src_nofollow)
+            ଭାଙ୍ଗ;
         }
-      if (strcmp (mnt->options[i], "rbind") == 0)
+      ଯଦି (strcmp (mnt->options[i], "rbind") == 0)
         {
-          if (recursive)
+          ଯଦି (recursive)
             *recursive = true;
 
           ret = true;
 
           /* if src_nofollow is not specified, or already found, shortcut.  */
-          if (src_nofollow == NULL || *src_nofollow)
-            break;
+          ଯଦି (src_nofollow == ଖାଲି || *src_nofollow)
+            ଭାଙ୍ଗ;
         }
-      if (src_nofollow && strcmp (mnt->options[i], "src-nofollow") == 0)
+      ଯଦି (src_nofollow && strcmp (mnt->options[i], "src-nofollow") == 0)
         *src_nofollow = true;
     }
-  return ret;
+  ଫେରନ୍ତୁ ret;
 }
 
-static char *
+ସ୍ଥିର ଅକ୍ଷର *
 get_idmapped_option (runtime_spec_schema_defs_mount *mnt, bool *recursive)
 {
   size_t i;
 
-  for (i = 0; i < mnt->options_len; i++)
+  ପାଇଁ (i = 0; i < mnt->options_len; i++)
     {
-      if (mnt->options[i] == NULL)
-        continue;
+      ଯଦି (mnt->options[i] == ଖାଲି)
+        ଜାରି;
 
-      if (has_prefix (mnt->options[i], "idmap"))
+      ଯଦି (has_prefix (mnt->options[i], "idmap"))
         {
           *recursive = false;
-          return mnt->options[i];
+          ଫେରନ୍ତୁ mnt->options[i];
         }
-      if (has_prefix (mnt->options[i], "ridmap"))
+      ଯଦି (has_prefix (mnt->options[i], "ridmap"))
         {
           *recursive = true;
-          return mnt->options[i];
+          ଫେରନ୍ତୁ mnt->options[i];
         }
     }
-  return NULL;
+  ଫେରନ୍ତୁ ଖାଲି;
 }
 
-static int
-open_mount_type (const char *type, int *out_fd, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+open_mount_type (ଅଚଳ ଅକ୍ଷର *type, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *out_fd, libcrun_error_t *err)
 {
-  cleanup_close int fsopen_fd = -1;
-  cleanup_close int newfs_fd = -1;
-  int ret;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା fsopen_fd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା newfs_fd = -1;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   fsopen_fd = syscall_fsopen (type, FSOPEN_CLOEXEC);
-  if (UNLIKELY (fsopen_fd < 0))
-    return crun_make_error (err, errno, "fsopen `%s`", type);
+  ଯଦି (UNLIKELY (fsopen_fd < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "fsopen `%s`", type);
 
-  ret = syscall_fsconfig (fsopen_fd, FSCONFIG_CMD_CREATE, NULL, NULL, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fsconfig create `%s`", type);
+  ret = syscall_fsconfig (fsopen_fd, FSCONFIG_CMD_CREATE, ଖାଲି, ଖାଲି, 0);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "fsconfig create `%s`", type);
 
   newfs_fd = syscall_fsmount (fsopen_fd, FSMOUNT_CLOEXEC, 0);
-  if (UNLIKELY (newfs_fd < 0))
-    return crun_make_error (err, errno, "fsmount `%s`", type);
+  ଯଦି (UNLIKELY (newfs_fd < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "fsmount `%s`", type);
 
   *out_fd = get_and_reset (&newfs_fd);
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-maybe_get_idmapped_mount (libcrun_container_t *container, runtime_spec_schema_config_schema *def, runtime_spec_schema_defs_mount *mnt, pid_t pid, int *out_fd, bool *has_mappings_out, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+maybe_get_idmapped_mount (libcrun_container_t *container, runtime_spec_schema_config_schema *def, runtime_spec_schema_defs_mount *mnt, pid_t pid, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *out_fd, bool *has_mappings_out, libcrun_error_t *err)
 {
-  cleanup_close int newfs_fd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା newfs_fd = -1;
   cleanup_pid pid_t created_pid = -1;
-  struct mount_attr_s attr = {
+  ସଂରଚନା mount_attr_s attr = {
     0,
   };
   bool recursive_bind_mount = false;
-  cleanup_close int fd = -1;
-  const char *idmap_option;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -1;
+  ଅଚଳ ଅକ୍ଷର *idmap_option;
   bool recursive = false;
-  const char *options = NULL;
+  ଅଚଳ ଅକ୍ଷର *options = ଖାଲି;
   bool has_mappings;
-  int ret;
-  char *extra_msg = "";
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
+  ଅକ୍ଷର *extra_ସନ୍ଦେଶ = "";
   bool nofollow = false;
 
   *out_fd = -1;
 
   idmap_option = get_idmapped_option (mnt, &recursive);
 
-  has_mappings = mnt->uid_mappings_len > 0 || mnt->gid_mappings_len > 0 || (idmap_option != NULL);
-  if (has_mappings_out)
+  has_mappings = mnt->uid_mappings_len > 0 || mnt->gid_mappings_len > 0 || (idmap_option != ଖାଲି);
+  ଯଦି (has_mappings_out)
     *has_mappings_out = has_mappings;
-  if (! has_mappings)
-    return 0;
+  ଯଦି (! has_mappings)
+    ଫେରନ୍ତୁ 0;
 
-  if ((mnt->uid_mappings == NULL) != (mnt->gid_mappings == NULL))
-    return crun_make_error (err, 0, "invalid mappings specified for the mount on `%s`", mnt->destination);
+  ଯଦି ((mnt->uid_mappings == ଖାଲି) != (mnt->gid_mappings == ଖାଲି))
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "invalid mappings specified for the mount on `%s`", mnt->destination);
 
   /* If there are options specified, create a new user namespace with the configured mappings.  */
-  if (idmap_option)
+  ଯଦି (idmap_option)
     {
       options = strchr (idmap_option, '=');
-      if (options)
+      ଯଦି (options)
         {
           /* Skip the '=' itself.  */
           options++;
-          if (options[0] == '\0')
-            options = NULL;
+          ଯଦି (options[0] == '\0')
+            options = ଖାଲି;
         }
     }
 
   ret = maybe_create_userns_for_idmapped_mount (container, def, mnt, options, &created_pid, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
-  if (created_pid > 0)
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
+  ଯଦି (created_pid > 0)
     pid = created_pid;
 
   fd = libcrun_open_proc_pid_file (container, pid, "ns/user", O_RDONLY, err);
-  if (UNLIKELY (fd < 0))
-    return fd;
+  ଯଦି (UNLIKELY (fd < 0))
+    ଫେରନ୍ତୁ fd;
 
-  if (is_bind_mount (mnt, &recursive_bind_mount, &nofollow))
+  ଯଦି (is_bind_mount (mnt, &recursive_bind_mount, &nofollow))
     {
-      newfs_fd = syscall_open_tree (AT_FDCWD, mnt->source, (recursive_bind_mount ? AT_RECURSIVE : 0) | AT_NO_AUTOMOUNT | (nofollow ? AT_SYMLINK_NOFOLLOW : 0) | OPEN_TREE_CLOEXEC | OPEN_TREE_CLONE);
-      if (UNLIKELY (newfs_fd < 0))
-        return crun_make_error (err, errno, "open `%s`", mnt->source);
+      newfs_fd = syscall_open_ବୃକ୍ଷ (AT_FDCWD, mnt->source, (recursive_bind_mount ? AT_RECURSIVE : 0) | AT_NO_AUTOMOUNT | (nofollow ? AT_SYMLINK_NOFOLLOW : 0) | OPEN_TREE_CLOEXEC | OPEN_TREE_CLONE);
+      ଯଦି (UNLIKELY (newfs_fd < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "open `%s`", mnt->source);
     }
-  else
+  ଅନ୍ୟଥା
     {
       ret = open_mount_type (mnt->type, &newfs_fd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
   attr.attr_set = MOUNT_ATTR_IDMAP;
   attr.userns_fd = fd;
 
   ret = syscall_mount_setattr (newfs_fd, "", AT_EMPTY_PATH | (recursive ? AT_RECURSIVE : 0), &attr);
-  if (UNLIKELY (ret < 0))
+  ଯଦି (UNLIKELY (ret < 0))
     {
-      if (errno == EINVAL)
+      ଯଦି (errno == EINVAL)
         {
-          extra_msg = " (maybe the file system used doesn't support idmap mounts on this kernel?)";
+          extra_ସନ୍ଦେଶ = " (maybe the file system used doesn't support idmap mounts on this kernel?)";
         }
-      return crun_make_error (err, errno, "mount_setattr `%s`%s", mnt->destination, extra_msg);
+      ଫେରନ୍ତୁ crun_make_error (err, errno, "mount_setattr `%s`%s", mnt->destination, extra_ସନ୍ଦେଶ);
     }
 
   *out_fd = get_and_reset (&newfs_fd);
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static uid_t
+ସ୍ଥିର uid_t
 get_id_in_user_namespace (uid_t id, bool is_uid, runtime_spec_schema_config_schema *def)
 {
   runtime_spec_schema_defs_id_mapping **mappings;
   size_t len;
   size_t i;
 
-  if (! def || ! def->linux)
-    goto exit;
+  ଯଦି (! def || ! def->linux)
+    ଯାଅ exit;
 
   mappings = is_uid ? def->linux->uid_mappings : def->linux->gid_mappings;
   len = is_uid ? def->linux->uid_mappings_len : def->linux->gid_mappings_len;
 
-  if (! mappings)
-    goto exit;
+  ଯଦି (! mappings)
+    ଯାଅ exit;
 
-  for (i = 0; i < len; i++)
+  ପାଇଁ (i = 0; i < len; i++)
     {
-      if (mappings[i]->container_id <= id
+      ଯଦି (mappings[i]->container_id <= id
           && id < mappings[i]->container_id + mappings[i]->size)
-        return id - mappings[i]->container_id + mappings[i]->host_id;
+        ଫେରନ୍ତୁ id - mappings[i]->container_id + mappings[i]->host_id;
     }
 exit:
-  return is_uid ? get_overflow_uid () : get_overflow_gid ();
+  ଫେରନ୍ତୁ is_uid ? get_overflow_uid () : get_overflow_gid ();
 }
 
-static int
-precreate_device (libcrun_container_t *container, int devs_dirfd, size_t i, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+precreate_device (libcrun_container_t *container, ପୂର୍ଣ୍ଣସଂଖ୍ୟା devs_dirfd, size_t i, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
   runtime_spec_schema_defs_linux_device *device;
   uid_t uid;
   gid_t gid;
-  char name[64];
+  ଅକ୍ଷର name[64];
   mode_t type;
   dev_t dev;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  ret = snprintf (name, sizeof (name), "%zu", i);
-  if (UNLIKELY (ret >= (int) sizeof (name)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  ret = snprintf (name, ଆକାର (name), "%zu", i);
+  ଯଦି (UNLIKELY (ret >= (ପୂର୍ଣ୍ଣସଂଖ୍ୟା) ଆକାର (name)))
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "internal error: static buffer too small");
 
   device = def->linux->devices[i];
 
@@ -6208,319 +6208,319 @@ precreate_device (libcrun_container_t *container, int devs_dirfd, size_t i, libc
   dev = makedev (device->major, device->minor);
 
   ret = mknodat (devs_dirfd, name, device->file_mode | type, dev);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "mknod `%s`", device->path);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "mknod `%s`", device->path);
 
   uid = get_id_in_user_namespace (device->uid, true, def);
   gid = get_id_in_user_namespace (device->gid, false, def);
 
   ret = fchownat (devs_dirfd, name, uid, gid, 0); /* lgtm [cpp/toctou-race-condition] */
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "chown `%s`", device->path);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "chown `%s`", device->path);
 
-  return get_bind_mount (devs_dirfd, name, false, false, false, MS_PRIVATE, err);
+  ଫେରନ୍ତୁ get_bind_mount (devs_dirfd, name, false, false, false, MS_PRIVATE, err);
 }
 
-static int
-send_mounts (int sync_socket_host, struct libcrun_fd_map *fds, size_t how_many, size_t total, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+send_mounts (ପୂର୍ଣ୍ଣସଂଖ୍ୟା sync_socket_host, ସଂରଚନା libcrun_fd_map *fds, size_t how_many, size_t total, libcrun_error_t *err)
 {
   size_t i;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  ret = TEMP_FAILURE_RETRY (write (sync_socket_host, &how_many, sizeof (how_many)));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "write to sync socket");
+  ret = TEMP_FAILURE_RETRY (ଲିଖ (sync_socket_host, &how_many, ଆକାର (how_many)));
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "write to sync socket");
 
-  for (i = 0; i < total; i++)
+  ପାଇଁ (i = 0; i < total; i++)
     {
-      if (fds->fds[i] >= 0)
+      ଯଦି (fds->fds[i] >= 0)
         {
-          ret = send_fd_to_socket_with_payload (sync_socket_host, fds->fds[i], (char *) &i, sizeof (i), err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = send_fd_to_socket_with_payload (sync_socket_host, fds->fds[i], (ଅକ୍ଷର *) &i, ଆକାର (i), err);
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
         }
     }
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-prepare_and_send_mount_mounts (libcrun_container_t *container, pid_t pid, int sync_socket_host, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+prepare_and_send_mount_mounts (libcrun_container_t *container, pid_t pid, ପୂର୍ଣ୍ଣସଂଖ୍ୟା sync_socket_host, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  cleanup_close_map struct libcrun_fd_map *mount_fds = NULL;
+  cleanup_close_map ସଂରଚନା libcrun_fd_map *mount_fds = ଖାଲି;
   bool has_userns = (get_private_data (container)->unshare_flags & CLONE_NEWUSER) ? true : false;
-  cleanup_free char *rootfs = NULL;
+  cleanup_free ଅକ୍ଷର *rootfs = ଖାଲି;
   size_t how_many = 0;
   size_t i;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (def->mounts_len == 0)
-    return 0;
+  ଯଦି (def->mounts_len == 0)
+    ଫେରନ୍ତୁ 0;
 
   mount_fds = make_libcrun_fd_map (def->mounts_len);
 
-  if (def->root && def->root->path)
-    rootfs = realpath (def->root->path, NULL);
+  ଯଦି (def->ମୂଳ && def->ମୂଳ->path)
+    rootfs = realpath (def->ମୂଳ->path, ଖାଲି);
 
-  if (! has_userns)
+  ଯଦି (! has_userns)
     {
-      int is_in_userns = check_running_in_user_namespace (err);
-      if (UNLIKELY (is_in_userns < 0))
-        return is_in_userns;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା is_in_userns = check_running_in_user_namespace (err);
+      ଯଦି (UNLIKELY (is_in_userns < 0))
+        ଫେରନ୍ତୁ is_in_userns;
 
       has_userns = is_in_userns > 0;
     }
 
-  for (i = 0; i < def->mounts_len; i++)
+  ପାଇଁ (i = 0; i < def->mounts_len; i++)
     {
       bool recursive = false;
       bool nofollow = false;
       bool has_mappings = false;
-      int mount_fd = -1;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା mount_fd = -1;
 
       ret = maybe_get_idmapped_mount (container, def, def->mounts[i], pid, &mount_fd, &has_mappings, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       /* If the mount has no mappings and there is not a different user namespace, create the mount later as part of the container setup.
          Skip copy-symlink mounts: open_tree follows the symlink, losing the
          link itself; let process_single_mount handle them.  */
-      if (mount_fd < 0 && (has_mappings || has_userns) && is_bind_mount (def->mounts[i], &recursive, &nofollow)
+      ଯଦି (mount_fd < 0 && (has_mappings || has_userns) && is_bind_mount (def->mounts[i], &recursive, &nofollow)
           && ! mount_option_exists (def->mounts[i], "copy-symlink")
-          && get_path_in_rootfs (rootfs, def->mounts[i]->source) == NULL)
+          && get_path_in_rootfs (rootfs, def->mounts[i]->source) == ଖାଲି)
         {
           unsigned long propagation = 0;
 
-          if (def->linux && def->linux->rootfs_propagation)
-            propagation = get_mount_flags (def->linux->rootfs_propagation, 0, NULL, NULL, NULL, NULL) & ALL_PROPAGATIONS_NO_REC;
-          if (propagation == 0)
+          ଯଦି (def->linux && def->linux->rootfs_propagation)
+            propagation = get_mount_flags (def->linux->rootfs_propagation, 0, ଖାଲି, ଖାଲି, ଖାଲି, ଖାଲି) & ALL_PROPAGATIONS_NO_REC;
+          ଯଦି (propagation == 0)
             propagation = MS_PRIVATE;
 
           mount_fd = get_bind_mount (-1, def->mounts[i]->source, recursive, false, nofollow, propagation, err);
-          if (UNLIKELY (mount_fd < 0))
+          ଯଦି (UNLIKELY (mount_fd < 0))
             crun_error_release (err);
         }
 
-      if (mount_fd >= 0)
+      ଯଦି (mount_fd >= 0)
         how_many++;
 
       mount_fds->fds[i] = mount_fd;
     }
 
-  return send_mounts (sync_socket_host, mount_fds, how_many, def->mounts_len, err);
+  ଫେରନ୍ତୁ send_mounts (sync_socket_host, mount_fds, how_many, def->mounts_len, err);
 }
 
-static int
-prepare_and_send_dev_mounts (libcrun_container_t *container, int sync_socket_host, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+prepare_and_send_dev_mounts (libcrun_container_t *container, ପୂର୍ଣ୍ଣସଂଖ୍ୟା sync_socket_host, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  cleanup_close_map struct libcrun_fd_map *dev_fds = NULL;
+  cleanup_close_map ସଂରଚନା libcrun_fd_map *dev_fds = ଖାଲି;
   bool has_userns = (get_private_data (container)->unshare_flags & CLONE_NEWUSER) ? true : false;
-  cleanup_close int current_mountns = -1;
-  cleanup_free char *state_dir = NULL;
-  cleanup_free char *devs_path = NULL;
-  cleanup_close int devs_mountfd = -1;
-  cleanup_close int targetfd = -1;
-  const char *context_type = NULL;
-  const char *label = NULL;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା current_mountns = -1;
+  cleanup_free ଅକ୍ଷର *state_dir = ଖାଲି;
+  cleanup_free ଅକ୍ଷର *devs_path = ଖାଲି;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା devs_mountfd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା targetfd = -1;
+  ଅଚଳ ଅକ୍ଷର *context_type = ଖାଲି;
+  ଅଚଳ ଅକ୍ଷର *label = ଖାଲି;
   size_t how_many = 0;
   size_t i;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
   // To track whether the namespace has been changed.
   bool ns_changed = false;
 
-  if (def->linux == NULL || def->linux->devices_len == 0)
-    return 0;
+  ଯଦି (def->linux == ଖାଲି || def->linux->devices_len == 0)
+    ଫେରନ୍ତୁ 0;
 
   dev_fds = make_libcrun_fd_map (def->linux->devices_len);
 
-  if (! has_userns || is_empty_string (container->context->id) || geteuid () > 0)
-    return send_mounts (sync_socket_host, dev_fds, how_many, def->linux->devices_len, err);
+  ଯଦି (! has_userns || is_empty_string (container->context->id) || geteuid () > 0)
+    ଫେରନ୍ତୁ send_mounts (sync_socket_host, dev_fds, how_many, def->linux->devices_len, err);
 
   ret = libcrun_get_state_directory (&state_dir,
-                                     (container->context ? container->context->state_root : NULL),
-                                     (container->context ? container->context->id : NULL), err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+                                     (container->context ? container->context->state_ମୂଳ : ଖାଲି),
+                                     (container->context ? container->context->id : ଖାଲି), err);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  ret = append_paths (&devs_path, err, state_dir, "devs", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&devs_path, err, state_dir, "devs", ଖାଲି);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ret = mkdir (devs_path, 0700);
-  if (UNLIKELY (ret < 0 && errno != EEXIST))
-    return crun_make_error (err, errno, "mkdir `%s`", devs_path);
+  ଯଦି (UNLIKELY (ret < 0 && errno != EEXIST))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "mkdir `%s`", devs_path);
 
   current_mountns = libcrun_open_proc_file (container, "self/ns/mnt", O_RDONLY, err);
-  if (UNLIKELY (current_mountns < 0))
-    return current_mountns;
+  ଯଦି (UNLIKELY (current_mountns < 0))
+    ଫେରନ୍ତୁ current_mountns;
 
   ret = unshare (CLONE_NEWNS);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "unshare `CLONE_NEWNS`");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "unshare `CLONE_NEWNS`");
 
   // This indicates that the mount namespace has been altered.
   ns_changed = true;
 
-  ret = mount (NULL, "/", NULL, MS_REC | MS_PRIVATE, NULL);
-  if (UNLIKELY (ret < 0))
+  ret = mount (ଖାଲି, "/", ଖାଲି, MS_REC | MS_PRIVATE, ଖାଲି);
+  ଯଦି (UNLIKELY (ret < 0))
     {
       ret = crun_make_error (err, errno, "mount `MS_REC | MS_PRIVATE`");
-      goto restore_mountns;
+      ଯାଅ restore_mountns;
     }
 
-  if (container->container_def->linux && container->container_def->linux->mount_label)
+  ଯଦି (container->container_def->linux && container->container_def->linux->mount_label)
     {
       label = container->container_def->linux->mount_label;
       context_type = get_selinux_context_type (container, err);
-      if (UNLIKELY (context_type == NULL))
+      ଯଦି (UNLIKELY (context_type == ଖାଲି))
         {
           ret = -1;
-          goto restore_mountns;
+          ଯାଅ restore_mountns;
         }
     }
 
-  devs_mountfd = fsopen_mount ("tmpfs", NULL, context_type, label, NULL);
-  if (UNLIKELY (devs_mountfd < 0))
+  devs_mountfd = fsopen_mount ("tmpfs", ଖାଲି, context_type, label, ଖାଲି);
+  ଯଦି (UNLIKELY (devs_mountfd < 0))
     {
       ret = send_mounts (sync_socket_host, dev_fds, 0, def->linux->devices_len, err);
-      goto restore_mountns;
+      ଯାଅ restore_mountns;
     }
 
   targetfd = open (devs_path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (targetfd < 0)
+  ଯଦି (targetfd < 0)
     {
       ret = crun_make_error (err, errno, "open `%s`", devs_path);
-      goto restore_mountns;
+      ଯାଅ restore_mountns;
     }
 
-  ret = fs_move_mount_to (devs_mountfd, targetfd, NULL);
-  if (UNLIKELY (ret < 0))
+  ret = fs_move_mount_to (devs_mountfd, targetfd, ଖାଲି);
+  ଯଦି (UNLIKELY (ret < 0))
     {
       ret = crun_make_error (err, errno, "fs_move_mount_to `%s`", devs_path);
-      goto restore_mountns;
+      ଯାଅ restore_mountns;
     }
 
   close_and_reset (&targetfd);
 
   targetfd = openat (devs_mountfd, ".", O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (targetfd < 0)
+  ଯଦି (targetfd < 0)
     {
       ret = crun_make_error (err, errno, "open `%s`", devs_path);
-      goto restore_mountns;
+      ଯାଅ restore_mountns;
     }
 
-  for (i = 0; i < def->linux->devices_len; i++)
+  ପାଇଁ (i = 0; i < def->linux->devices_len; i++)
     {
       ret = precreate_device (container, targetfd, i, err);
-      if (UNLIKELY (ret < 0))
+      ଯଦି (UNLIKELY (ret < 0))
         {
           crun_error_release (err);
-          continue;
+          ଜାରି;
         }
 
       dev_fds->fds[i] = ret;
 
-      if (dev_fds->fds[i] >= 0)
+      ଯଦି (dev_fds->fds[i] >= 0)
         how_many++;
     }
 
   ret = send_mounts (sync_socket_host, dev_fds, how_many, def->linux->devices_len, err);
 restore_mountns:
-  if (ns_changed && current_mountns >= 0)
+  ଯଦି (ns_changed && current_mountns >= 0)
     {
-      int setns_ret;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା setns_ret;
       setns_ret = setns (current_mountns, CLONE_NEWNS);
-      if (UNLIKELY (setns_ret < 0 && ret >= 0))
+      ଯଦି (UNLIKELY (setns_ret < 0 && ret >= 0))
         {
-          return crun_make_error (err, errno, "setns `CLONE_NEWNS`");
+          ଫେରନ୍ତୁ crun_make_error (err, errno, "setns `CLONE_NEWNS`");
         }
     }
 
-  return ret;
+  ଫେରନ୍ତୁ ret;
 }
 
-static int
-prepare_and_send_needed_dev_mounts (libcrun_container_t *container, int sync_socket_host, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+prepare_and_send_needed_dev_mounts (libcrun_container_t *container, ପୂର୍ଣ୍ଣସଂଖ୍ୟା sync_socket_host, libcrun_error_t *err)
 {
-  cleanup_close_map struct libcrun_fd_map *fds = NULL;
+  cleanup_close_map ସଂରଚନା libcrun_fd_map *fds = ଖାଲି;
   bool has_userns = (get_private_data (container)->unshare_flags & CLONE_NEWUSER) ? true : false;
   size_t how_many = 0;
   size_t i;
 
-  fds = make_libcrun_fd_map (NUM_NEEDED_DEVS);
+  fds = make_libcrun_fd_map (ଅଙ୍କ_NEEDED_DEVS);
 
-  if (! has_userns || geteuid () > 0)
-    return send_mounts (sync_socket_host, fds, 0, NUM_NEEDED_DEVS, err);
+  ଯଦି (! has_userns || geteuid () > 0)
+    ଫେରନ୍ତୁ send_mounts (sync_socket_host, fds, 0, ଅଙ୍କ_NEEDED_DEVS, err);
 
-  for (i = 0; i < NUM_NEEDED_DEVS && needed_devs[i].path; i++)
+  ପାଇଁ (i = 0; i < ଅଙ୍କ_NEEDED_DEVS && needed_devs[i].path; i++)
     {
-      int fd = syscall_open_tree (AT_FDCWD, needed_devs[i].path,
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = syscall_open_ବୃକ୍ଷ (AT_FDCWD, needed_devs[i].path,
                                   OPEN_TREE_CLONE | OPEN_TREE_CLOEXEC);
-      if (fd >= 0)
+      ଯଦି (fd >= 0)
         {
           fds->fds[i] = fd;
           how_many++;
         }
     }
 
-  return send_mounts (sync_socket_host, fds, how_many, NUM_NEEDED_DEVS, err);
+  ଫେରନ୍ତୁ send_mounts (sync_socket_host, fds, how_many, ଅଙ୍କ_NEEDED_DEVS, err);
 }
 
-static int
-prepare_and_send_mounts (libcrun_container_t *container, pid_t pid, int sync_socket_host, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+prepare_and_send_mounts (libcrun_container_t *container, pid_t pid, ପୂର୍ଣ୍ଣସଂଖ୍ୟା sync_socket_host, libcrun_error_t *err)
 {
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   ret = expect_success_from_sync_socket (sync_socket_host, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ret = prepare_and_send_mount_mounts (container, pid, sync_socket_host, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ret = prepare_and_send_dev_mounts (container, sync_socket_host, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ret = prepare_and_send_needed_dev_mounts (container, sync_socket_host, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-receive_mounts (struct libcrun_fd_map *fds, int sync_socket_container, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+receive_mounts (ସଂରଚନା libcrun_fd_map *fds, ପୂର୍ଣ୍ଣସଂଖ୍ୟା sync_socket_container, libcrun_error_t *err)
 {
   size_t i, how_many = 0;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (fds->nfds == 0)
-    return 0;
+  ଯଦି (fds->nfds == 0)
+    ଫେରନ୍ତୁ 0;
 
-  ret = TEMP_FAILURE_RETRY (read (sync_socket_container, &how_many, sizeof (how_many)));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "read from sync socket");
+  ret = TEMP_FAILURE_RETRY (ପଠ (sync_socket_container, &how_many, ଆକାର (how_many)));
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "read from sync socket");
 
-  for (i = 0; i < how_many; i++)
+  ପାଇଁ (i = 0; i < how_many; i++)
     {
       size_t index;
 
-      ret = receive_fd_from_socket_with_payload (sync_socket_container, (char *) &index, sizeof (index), err);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      if (index >= fds->nfds)
-        return crun_make_error (err, 0, "invalid mount data received");
+      ret = receive_fd_from_socket_with_payload (sync_socket_container, (ଅକ୍ଷର *) &index, ଆକାର (index), err);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
+      ଯଦି (index >= fds->nfds)
+        ଫେରନ୍ତୁ crun_make_error (err, 0, "invalid mount data received");
 
-      if (fds->fds[index] >= 0)
+      ଯଦି (fds->fds[index] >= 0)
         TEMP_FAILURE_RETRY (close (fds->fds[index]));
 
       fds->fds[index] = ret;
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 /* Make the init process non-dumpable, so that its /proc files cannot be
@@ -6533,50 +6533,50 @@ receive_mounts (struct libcrun_fd_map *fds, int sync_socket_container, libcrun_e
    CAP_SYS_PTRACE in the user namespace crun runs in.  The capability check
    is done before creating the container user namespace, where the process
    has all capabilities.  */
-static int
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 set_init_non_dumpable (libcrun_container_t *container, libcrun_error_t *err)
 {
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (! container->host_has_cap_sys_ptrace)
-    return 0;
+  ଯଦି (! container->host_has_cap_sys_ptrace)
+    ଫେରନ୍ତୁ 0;
 
   ret = prctl (PR_SET_DUMPABLE, 0, 0, 0, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "prctl (PR_SET_DUMPABLE)");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "prctl (PR_SET_DUMPABLE)");
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 set_id_init (libcrun_container_t *container, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
   uid_t uid = 0;
   gid_t gid = 0;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (def->process && def->process->user && def->linux)
+  ଯଦି (def->process && def->process->user && def->linux)
     {
       /*
         If it is running in a user namespace and root is not mapped
         use the UID/GID specified for running the container.
       */
-      bool root_mapped = false;
+      bool ମୂଳ_mapped = false;
 
-      if (def->linux->uid_mappings_len != 0)
+      ଯଦି (def->linux->uid_mappings_len != 0)
         {
-          root_mapped = root_mapped_in_container_p (def->linux->uid_mappings, def->linux->uid_mappings_len);
-          if (! root_mapped)
+          ମୂଳ_mapped = ମୂଳ_mapped_in_container_p (def->linux->uid_mappings, def->linux->uid_mappings_len);
+          ଯଦି (! ମୂଳ_mapped)
             uid = def->process->user->uid;
 
           libcrun_debug ("Using mapped UID in container: `%d`", uid);
         }
 
-      if (def->linux->gid_mappings_len != 0)
+      ଯଦି (def->linux->gid_mappings_len != 0)
         {
-          root_mapped = root_mapped_in_container_p (def->linux->gid_mappings, def->linux->gid_mappings_len);
-          if (! root_mapped)
+          ମୂଳ_mapped = ମୂଳ_mapped_in_container_p (def->linux->gid_mappings, def->linux->gid_mappings_len);
+          ଯଦି (! ମୂଳ_mapped)
             gid = def->process->user->gid;
 
           libcrun_debug ("Using mapped GID in container: `%d`", gid);
@@ -6584,24 +6584,24 @@ set_id_init (libcrun_container_t *container, libcrun_error_t *err)
     }
 
   /* -1 means "leave unchanged" for setresuid and setresgid.  */
-  if (UNLIKELY (uid == (uid_t) -1 || gid == (gid_t) -1))
-    return crun_make_error (err, EINVAL, "invalid user `%u:%u`", uid, gid);
+  ଯଦି (UNLIKELY (uid == (uid_t) -1 || gid == (gid_t) -1))
+    ଫେରନ୍ତୁ crun_make_error (err, EINVAL, "invalid user `%u:%u`", uid, gid);
 
   ret = setresuid (uid, uid, uid);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "setresuid to `%d`", uid);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "setresuid to `%d`", uid);
 
   ret = setresgid (gid, gid, gid);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "setresgid to `%d`", gid);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "setresgid to `%d`", gid);
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static bool
+ସ୍ଥିର bool
 is_proc_mount (runtime_spec_schema_defs_mount *mnt)
 {
-  return mnt->type && strcmp (mnt->type, "proc") == 0 && ! is_bind_mount (mnt, NULL, NULL);
+  ଫେରନ୍ତୁ mnt->type && strcmp (mnt->type, "proc") == 0 && ! is_bind_mount (mnt, ଖାଲି, ଖାଲି);
 }
 
 /* Any process in a PID namespace can read the mount table of the others
@@ -6615,190 +6615,190 @@ is_proc_mount (runtime_spec_schema_defs_mount *mnt)
 
    Return 1 if all the proc mounts were opened and the fork can be delayed,
    0 if the process must be created now.  */
-static int
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 open_proc_mounts_in_pidns (libcrun_container_t *container, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  struct libcrun_fd_map *mount_fds = get_fd_map (container);
-  cleanup_close int socket_parent = -1;
-  cleanup_close int socket_child = -1;
-  cleanup_close int root_fd = -1;
-  cleanup_close int cwd_fd = -1;
+  ସଂରଚନା libcrun_fd_map *mount_fds = get_fd_map (container);
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା socket_parent = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା socket_child = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା ମୂଳ_fd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା cwd_fd = -1;
   size_t i, missing = 0;
-  int saved_errno;
-  int sockets[2];
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା saved_errno;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା sockets[2];
   pid_t pid;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (def->root == NULL || def->root->path == NULL)
-    return 0;
+  ଯଦି (def->ମୂଳ == ଖାଲି || def->ମୂଳ->path == ଖାଲି)
+    ଫେରନ୍ତୁ 0;
 
-  for (i = 0; i < def->mounts_len; i++)
-    if (is_proc_mount (def->mounts[i]))
+  ପାଇଁ (i = 0; i < def->mounts_len; i++)
+    ଯଦି (is_proc_mount (def->mounts[i]))
       missing++;
-  if (missing == 0)
-    return 1;
+  ଯଦି (missing == 0)
+    ଫେରନ୍ତୁ 1;
 
-  root_fd = open ("/", O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (root_fd < 0))
-    return crun_make_error (err, errno, "open `/`");
+  ମୂଳ_fd = open ("/", O_DIRECTORY | O_PATH | O_CLOEXEC);
+  ଯଦି (UNLIKELY (ମୂଳ_fd < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "open `/`");
 
   cwd_fd = open (".", O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (cwd_fd < 0))
-    return crun_make_error (err, errno, "open `.`");
+  ଯଦି (UNLIKELY (cwd_fd < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "open `.`");
 
   ret = socketpair (AF_UNIX, SOCK_SEQPACKET | SOCK_CLOEXEC, 0, sockets);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "socketpair");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "socketpair");
   socket_parent = sockets[0];
   socket_child = sockets[1];
 
-  ret = chroot (def->root->path);
-  if (UNLIKELY (ret < 0))
-    return 0;
+  ret = chroot (def->ମୂଳ->path);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ 0;
 
   pid = fork ();
   saved_errno = errno;
-  if (pid == 0)
+  ଯଦି (pid == 0)
     {
       /* If an existing user namespace was joined, the process has no
          privileges on the current mount namespace.  */
-      if (get_private_data (container)->unshare_flags & CLONE_NEWUSER)
-        (void) unshare (CLONE_NEWNS);
+      ଯଦି (get_private_data (container)->unshare_flags & CLONE_NEWUSER)
+        (ଶୂନ୍ୟ) unshare (CLONE_NEWNS);
 
-      for (i = 0; i < def->mounts_len; i++)
+      ପାଇଁ (i = 0; i < def->mounts_len; i++)
         {
-          cleanup_close int fd = -1;
+          cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -1;
 
-          if (! is_proc_mount (def->mounts[i]))
-            continue;
+          ଯଦି (! is_proc_mount (def->mounts[i]))
+            ଜାରି;
 
           fd = open_mount_of_type (container, def->mounts[i], err);
-          if (fd < 0)
+          ଯଦି (fd < 0)
             _safe_exit (EXIT_FAILURE);
 
-          ret = send_fd_to_socket_with_payload (socket_child, fd, (char *) &i, sizeof (i), err);
-          if (UNLIKELY (ret < 0))
+          ret = send_fd_to_socket_with_payload (socket_child, fd, (ଅକ୍ଷର *) &i, ଆକାର (i), err);
+          ଯଦି (UNLIKELY (ret < 0))
             _safe_exit (EXIT_FAILURE);
         }
       _safe_exit (EXIT_SUCCESS);
     }
 
-  if (UNLIKELY (fchdir (root_fd) < 0 || chroot (".") < 0 || fchdir (cwd_fd) < 0))
-    return crun_make_error (err, errno, "restore the root directory");
+  ଯଦି (UNLIKELY (fchdir (ମୂଳ_fd) < 0 || chroot (".") < 0 || fchdir (cwd_fd) < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "restore the root directory");
 
-  if (UNLIKELY (pid < 0))
-    return crun_make_error (err, saved_errno, "fork");
+  ଯଦି (UNLIKELY (pid < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, saved_errno, "fork");
 
   close_and_reset (&socket_child);
 
   /* If for any reason the mounts cannot be opened, fall back to creating
      the process now.  */
-  while (missing > 0)
+  ଯେତେବେଳେ (missing > 0)
     {
-      libcrun_error_t tmp_err = NULL;
+      libcrun_error_t tmp_err = ଖାଲି;
 
-      ret = receive_fd_from_socket_with_payload (socket_parent, (char *) &i, sizeof (i), &tmp_err);
-      if (ret < 0)
+      ret = receive_fd_from_socket_with_payload (socket_parent, (ଅକ୍ଷର *) &i, ଆକାର (i), &tmp_err);
+      ଯଦି (ret < 0)
         {
           crun_error_release (&tmp_err);
-          break;
+          ଭାଙ୍ଗ;
         }
-      if (i >= mount_fds->nfds)
+      ଯଦି (i >= mount_fds->nfds)
         {
           TEMP_FAILURE_RETRY (close (ret));
-          break;
+          ଭାଙ୍ଗ;
         }
 
-      if (mount_fds->fds[i] >= 0)
+      ଯଦି (mount_fds->fds[i] >= 0)
         TEMP_FAILURE_RETRY (close (mount_fds->fds[i]));
       mount_fds->fds[i] = ret;
       missing--;
     }
 
-  waitpid_ignore_stopped (pid, NULL, 0);
+  waitpid_ignore_stopped (pid, ଖାଲି, 0);
 
-  return missing == 0 ? 1 : 0;
+  ଫେରନ୍ତୁ missing == 0 ? 1 : 0;
 }
 
-static int
-init_container (libcrun_container_t *container, int sync_socket_container, struct init_status_s *init_status,
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+init_container (libcrun_container_t *container, ପୂର୍ଣ୍ଣସଂଖ୍ୟା sync_socket_container, ସଂରଚନା init_status_s *init_status,
                 libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  struct libcrun_fd_map *mount_fds = get_fd_map (container);
-  cleanup_close int timens_offsets_fd = -1;
+  ସଂରଚନା libcrun_fd_map *mount_fds = get_fd_map (container);
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା timens_offsets_fd = -1;
   bool delayed_pidns_fork = false;
   pid_t pid_container = 0;
   size_t i;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   /* Do it before joining any namespace, otherwise the process would be
      visible in a joined PID namespace while it is still dumpable.  */
   ret = set_init_non_dumpable (container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  if (init_status->idx_pidns_to_join_immediately >= 0 || init_status->idx_timens_to_join_immediately >= 0)
+  ଯଦି (init_status->idx_pidns_to_join_immediately >= 0 || init_status->idx_timens_to_join_immediately >= 0)
     {
       pid_t new_pid;
 
-      if (init_status->idx_pidns_to_join_immediately >= 0)
+      ଯଦି (init_status->idx_pidns_to_join_immediately >= 0)
         {
           ret = setns (init_status->fd[init_status->idx_pidns_to_join_immediately], CLONE_NEWPID);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "setns to target PID namespace");
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "setns to target PID namespace");
 
           close_and_reset (&init_status->fd[init_status->idx_pidns_to_join_immediately]);
         }
 
-      if (init_status->idx_timens_to_join_immediately >= 0)
+      ଯଦି (init_status->idx_timens_to_join_immediately >= 0)
         {
           ret = setns (init_status->fd[init_status->idx_timens_to_join_immediately], CLONE_NEWTIME);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "setns to target timens");
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "setns to target timens");
 
           close_and_reset (&init_status->fd[init_status->idx_timens_to_join_immediately]);
         }
 
-      if (init_status->can_delay_pidns_fork)
+      ଯଦି (init_status->can_delay_pidns_fork)
         {
           ret = open_proc_mounts_in_pidns (container, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
 
           delayed_pidns_fork = ret > 0;
         }
 
-      if (delayed_pidns_fork)
+      ଯଦି (delayed_pidns_fork)
         {
           /* A zero PID tells the parent that the process is created later.  */
           new_pid = 0;
 
           ret = send_success_to_sync_socket (sync_socket_container, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
 
-          ret = TEMP_FAILURE_RETRY (write (sync_socket_container, &new_pid, sizeof (new_pid)));
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "write to sync socket");
+          ret = TEMP_FAILURE_RETRY (ଲିଖ (sync_socket_container, &new_pid, ଆକାର (new_pid)));
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "write to sync socket");
         }
-      else
+      ଅନ୍ୟଥା
         {
           new_pid = fork ();
-          if (UNLIKELY (new_pid < 0))
-            return crun_make_error (err, errno, "fork");
+          ଯଦି (UNLIKELY (new_pid < 0))
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "fork");
         }
 
-      if (new_pid)
+      ଯଦି (new_pid)
         {
           /* Report the new PID to the parent and exit immediately.  */
           ret = send_success_to_sync_socket (sync_socket_container, err);
-          if (UNLIKELY (ret < 0))
+          ଯଦି (UNLIKELY (ret < 0))
             kill (new_pid, SIGKILL);
 
-          ret = TEMP_FAILURE_RETRY (write (sync_socket_container, &new_pid, sizeof (new_pid)));
-          if (UNLIKELY (ret < 0))
+          ret = TEMP_FAILURE_RETRY (ଲିଖ (sync_socket_container, &new_pid, ଆକାର (new_pid)));
+          ଯଦି (UNLIKELY (ret < 0))
             kill (new_pid, SIGKILL);
 
           _safe_exit (0);
@@ -6806,19 +6806,19 @@ init_container (libcrun_container_t *container, int sync_socket_container, struc
 
       /* Wait for the parent to receive the new PID.  */
       ret = expect_success_from_sync_socket (sync_socket_container, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
   ret = libcrun_set_oom (container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  if (init_status->fd_len > 0)
+  ଯଦି (init_status->fd_len > 0)
     {
       ret = join_namespaces (def, init_status->fd, init_status->fd_len, init_status->index, true, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
   /* If the container needs to join an existing PID namespace, take a reference to it
@@ -6828,28 +6828,28 @@ init_container (libcrun_container_t *container, int sync_socket_container, struc
      This cannot be done in the parent process (by `prepare_and_send_mounts`), since it is
      necessary to first join the target namespaces and then create the mount.
   */
-  if ((init_status->all_namespaces & CLONE_NEWUSER) && (init_status->join_pidns || init_status->join_ipcns))
+  ଯଦି ((init_status->all_namespaces & CLONE_NEWUSER) && (init_status->join_pidns || init_status->join_ipcns))
     {
-      for (i = 0; i < def->mounts_len; i++)
+      ପାଇଁ (i = 0; i < def->mounts_len; i++)
         {
-          int fd = -1;
+          ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -1;
 
           /* The mount type is optional in the OCI configuration, e.g. bind mounts
              are usually specified without it.  */
-          if (def->mounts[i]->type == NULL)
-            continue;
+          ଯଦି (def->mounts[i]->type == ଖାଲି)
+            ଜାରି;
 
           /* If for any reason the mount cannot be opened, ignore errors and continue.
              An error will be generated later if it is not possible to join the namespace.
           */
-          if (init_status->join_pidns && ! delayed_pidns_fork && strcmp (def->mounts[i]->type, "proc") == 0)
-            fd = fsopen_mount (def->mounts[i]->type, def->mounts[i]->source, NULL, NULL, NULL);
-          if (init_status->join_ipcns && strcmp (def->mounts[i]->type, "mqueue") == 0)
-            fd = fsopen_mount (def->mounts[i]->type, def->mounts[i]->source, NULL, NULL, NULL);
+          ଯଦି (init_status->join_pidns && ! delayed_pidns_fork && strcmp (def->mounts[i]->type, "proc") == 0)
+            fd = fsopen_mount (def->mounts[i]->type, def->mounts[i]->source, ଖାଲି, ଖାଲି, ଖାଲି);
+          ଯଦି (init_status->join_ipcns && strcmp (def->mounts[i]->type, "mqueue") == 0)
+            fd = fsopen_mount (def->mounts[i]->type, def->mounts[i]->source, ଖାଲି, ଖାଲି, ଖାଲି);
 
-          if (fd >= 0)
+          ଯଦି (fd >= 0)
             {
-              if (mount_fds->fds[i] >= 0)
+              ଯଦି (mount_fds->fds[i] >= 0)
                 TEMP_FAILURE_RETRY (close (mount_fds->fds[i]));
               mount_fds->fds[i] = fd;
             }
@@ -6862,222 +6862,222 @@ init_container (libcrun_container_t *container, int sync_socket_container, struc
      root.  The offsets are written to the time namespace the process creates
      for its children at the time of the write, and the permission to do so
      is checked against the credentials of the opener.  */
-  if (def->linux->time_offsets)
+  ଯଦି (def->linux->time_offsets)
     {
       timens_offsets_fd = libcrun_open_proc_file (container, "self/timens_offsets", O_WRONLY, err);
-      if (UNLIKELY (timens_offsets_fd < 0))
-        return timens_offsets_fd;
+      ଯଦି (UNLIKELY (timens_offsets_fd < 0))
+        ଫେରନ୍ତୁ timens_offsets_fd;
     }
 
-  if (init_status->all_namespaces & CLONE_NEWUSER)
+  ଯଦି (init_status->all_namespaces & CLONE_NEWUSER)
     {
-      if (init_status->delayed_userns_create)
+      ଯଦି (init_status->delayed_userns_create)
         {
           libcrun_debug ("Unsharing user namespace");
           ret = unshare (CLONE_NEWUSER);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "unshare user namespace");
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "unshare user namespace");
 
           init_status->namespaces_to_unshare &= ~CLONE_NEWUSER;
 
           ret = send_success_to_sync_socket (sync_socket_container, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
         }
 
-      if (init_status->userns_index < 0)
+      ଯଦି (init_status->userns_index < 0)
         {
           ret = expect_success_from_sync_socket (sync_socket_container, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
         }
-      else
+      ଅନ୍ୟଥା
         {
           /* If we need to join another user namespace, do it immediately before creating any other namespace. */
           libcrun_debug ("Joining existing user namespace");
           ret = setns (init_status->fd[init_status->userns_index], CLONE_NEWUSER);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "setns to target user namespace `%s`",
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "setns to target user namespace `%s`",
                                     def->linux->namespaces[init_status->userns_index_origin]->path);
         }
 
       ret = set_id_init (container, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       /* Changing the credentials resets the dumpable flag to the value of
          fs.suid_dumpable, so set it again.  */
       ret = set_init_non_dumpable (container, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
   ret = join_namespaces (def, init_status->fd, init_status->fd_len, init_status->index, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  if (init_status->namespaces_to_unshare & ~(CLONE_NEWCGROUP | CLONE_NEWNS))
+  ଯଦି (init_status->namespaces_to_unshare & ~(CLONE_NEWCGROUP | CLONE_NEWNS))
     {
       /* New namespaces to create for the container.  */
       ret = unshare (init_status->namespaces_to_unshare & ~(CLONE_NEWCGROUP | CLONE_NEWNS));
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "unshare");
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "unshare");
     }
 
-  if (def->linux->time_offsets)
+  ଯଦି (def->linux->time_offsets)
     {
-      char fmt_buffer[128];
-      int fd = timens_offsets_fd;
+      ଅକ୍ଷର fmt_buffer[128];
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = timens_offsets_fd;
 
-      if (def->linux->time_offsets->boottime)
+      ଯଦି (def->linux->time_offsets->boottime)
         {
-          ret = snprintf (fmt_buffer, sizeof (fmt_buffer), "boottime %" PRIi64 " %" PRIu32, def->linux->time_offsets->boottime->secs, def->linux->time_offsets->boottime->nanosecs);
-          if (UNLIKELY (ret >= (int) sizeof (fmt_buffer)))
-            return crun_make_error (err, 0, "internal error: static buffer too small");
+          ret = snprintf (fmt_buffer, ଆକାର (fmt_buffer), "boottime %" PRIi64 " %" PRIu32, def->linux->time_offsets->boottime->secs, def->linux->time_offsets->boottime->nanosecs);
+          ଯଦି (UNLIKELY (ret >= (ପୂର୍ଣ୍ଣସଂଖ୍ୟା) ଆକାର (fmt_buffer)))
+            ଫେରନ୍ତୁ crun_make_error (err, 0, "internal error: static buffer too small");
 
-          libcrun_debug ("Using boot time offset: secs = `%lld`, nanosecs = `%d`", (long long int) def->linux->time_offsets->boottime->secs, def->linux->time_offsets->boottime->nanosecs);
-          ret = write (fd, fmt_buffer, strlen (fmt_buffer));
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "write `/proc/self/timens_offsets`");
+          libcrun_debug ("Using boot time offset: secs = `%lld`, nanosecs = `%d`", (long long ପୂର୍ଣ୍ଣସଂଖ୍ୟା) def->linux->time_offsets->boottime->secs, def->linux->time_offsets->boottime->nanosecs);
+          ret = ଲିଖ (fd, fmt_buffer, strlen (fmt_buffer));
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "write `/proc/self/timens_offsets`");
         }
-      if (def->linux->time_offsets->monotonic)
+      ଯଦି (def->linux->time_offsets->monotonic)
         {
-          libcrun_debug ("Using monotonic time offset: secs = `%lld`, nanosecs = `%d`", (long long int) def->linux->time_offsets->monotonic->secs, def->linux->time_offsets->monotonic->nanosecs);
+          libcrun_debug ("Using monotonic time offset: secs = `%lld`, nanosecs = `%d`", (long long ପୂର୍ଣ୍ଣସଂଖ୍ୟା) def->linux->time_offsets->monotonic->secs, def->linux->time_offsets->monotonic->nanosecs);
 
-          ret = snprintf (fmt_buffer, sizeof (fmt_buffer), "monotonic %" PRIi64 " %" PRIu32, def->linux->time_offsets->monotonic->secs, def->linux->time_offsets->monotonic->nanosecs);
-          if (UNLIKELY (ret >= (int) sizeof (fmt_buffer)))
-            return crun_make_error (err, 0, "internal error: static buffer too small");
+          ret = snprintf (fmt_buffer, ଆକାର (fmt_buffer), "monotonic %" PRIi64 " %" PRIu32, def->linux->time_offsets->monotonic->secs, def->linux->time_offsets->monotonic->nanosecs);
+          ଯଦି (UNLIKELY (ret >= (ପୂର୍ଣ୍ଣସଂଖ୍ୟା) ଆକାର (fmt_buffer)))
+            ଫେରନ୍ତୁ crun_make_error (err, 0, "internal error: static buffer too small");
 
-          ret = write (fd, fmt_buffer, strlen (fmt_buffer));
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "write `/proc/self/timens_offsets`");
+          ret = ଲିଖ (fd, fmt_buffer, strlen (fmt_buffer));
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "write `/proc/self/timens_offsets`");
         }
     }
 
-  if (init_status->must_fork)
+  ଯଦି (init_status->must_fork)
     {
-      if (init_status->can_delay_pidns_fork)
+      ଯଦି (init_status->can_delay_pidns_fork)
         {
           ret = open_proc_mounts_in_pidns (container, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
 
           delayed_pidns_fork = ret > 0;
         }
 
-      if (! delayed_pidns_fork)
+      ଯଦି (! delayed_pidns_fork)
         {
           /* A PID and a time namespace are joined when the new process is created.  */
           pid_container = fork ();
-          if (UNLIKELY (pid_container < 0))
-            return crun_make_error (err, errno, "cannot fork");
+          ଯଦି (UNLIKELY (pid_container < 0))
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "cannot fork");
         }
 
       /* Report back the new PID.  A zero PID tells the parent that the process is created later.  */
-      if (pid_container || delayed_pidns_fork)
+      ଯଦି (pid_container || delayed_pidns_fork)
         {
           libcrun_debug ("Running container PID after fork: `%d`", pid_container);
           ret = send_success_to_sync_socket (sync_socket_container, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
 
-          ret = TEMP_FAILURE_RETRY (write (sync_socket_container, &pid_container, sizeof (pid_container)));
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "write to sync socket");
+          ret = TEMP_FAILURE_RETRY (ଲିଖ (sync_socket_container, &pid_container, ଆକାର (pid_container)));
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "write to sync socket");
 
-          if (pid_container)
+          ଯଦି (pid_container)
             _safe_exit (EXIT_SUCCESS);
         }
 
       ret = expect_success_from_sync_socket (sync_socket_container, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
   get_private_data (container)->delayed_pidns_fork = delayed_pidns_fork;
 
   ret = send_success_to_sync_socket (sync_socket_container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   /* Receive the mounts sent by `prepare_and_send_mounts`.  */
   ret = receive_mounts (get_fd_map (container), sync_socket_container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ret = receive_mounts (get_devices_fd_map (container), sync_socket_container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ret = receive_mounts (get_needed_devs_fd_map (container), sync_socket_container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ret = libcrun_container_setgroups (container, container->container_def->process, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 bool
 libcrun_container_delayed_pidns_fork (libcrun_container_t *container)
 {
-  return get_private_data (container)->delayed_pidns_fork;
+  ଫେରନ୍ତୁ get_private_data (container)->delayed_pidns_fork;
 }
 
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_handle_pidfd_receiver (pid_t pid, libcrun_container_t *container, libcrun_error_t *err)
 {
-  cleanup_close int client_fd = -1;
-  cleanup_close int pidfd = -1;
-  const char *v;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା client_fd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidfd = -1;
+  ଅଚଳ ଅକ୍ଷର *v;
 
   v = find_annotation (container, "run.oci.pidfd_receiver");
-  if (v == NULL)
-    return 0;
+  ଯଦି (v == ଖାଲି)
+    ଫେରନ୍ତୁ 0;
 
   pidfd = syscall_pidfd_open (pid, 0);
-  if (UNLIKELY (pidfd < 0))
-    return crun_make_error (err, errno, "pidfd_open");
+  ଯଦି (UNLIKELY (pidfd < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "pidfd_open");
 
   client_fd = open_unix_domain_client_socket (v, 0, err);
-  if (UNLIKELY (client_fd < 0))
-    return client_fd;
+  ଯଦି (UNLIKELY (client_fd < 0))
+    ଫେରନ୍ତୁ client_fd;
 
-  return send_fd_to_socket (client_fd, pidfd, err);
+  ଫେରନ୍ତୁ send_fd_to_socket (client_fd, pidfd, err);
 }
 
-static bool
+ସ୍ଥିର bool
 has_exec_cpu_affinity (runtime_spec_schema_config_schema_process *process)
 {
-  if (process == NULL || process->exec_cpu_affinity == NULL)
-    return false;
-  return (! is_empty_string (process->exec_cpu_affinity->initial))
+  ଯଦି (process == ଖାଲି || process->exec_cpu_affinity == ଖାଲି)
+    ଫେରନ୍ତୁ false;
+  ଫେରନ୍ତୁ (! is_empty_string (process->exec_cpu_affinity->initial))
          || (! is_empty_string (process->exec_cpu_affinity->final));
 }
 
 pid_t
-libcrun_run_linux_container (libcrun_container_t *container, container_entrypoint_t entrypoint, void *args,
-                             int *sync_socket_out, struct libcrun_dirfd_s *cgroup_dirfd, libcrun_error_t *err)
+libcrun_run_linux_container (libcrun_container_t *container, container_entrypoint_t entrypoint, ଶୂନ୍ୟ *args,
+                             ପୂର୍ଣ୍ଣସଂଖ୍ୟା *sync_socket_out, ସଂରଚନା libcrun_dirfd_s *cgroup_dirfd, libcrun_error_t *err)
 {
-  __attribute__ ((cleanup (cleanup_free_init_statusp))) struct init_status_s init_status;
+  __attribute__ ((cleanup (cleanup_free_init_statusp))) ସଂରଚନା init_status_s init_status;
   runtime_spec_schema_config_schema *def = container->container_def;
-  cleanup_close int sync_socket_container = -1;
-  char *notify_socket_env = NULL;
-  cleanup_close int sync_socket_host = -1;
-  __attribute__ ((unused)) cleanup_close int restore_pidns = -1;
-  int first_clone_args = 0;
-  int sync_socket[2];
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା sync_socket_container = -1;
+  ଅକ୍ଷର *notify_socket_env = ଖାଲି;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା sync_socket_host = -1;
+  __attribute__ ((unused)) cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା restore_pidns = -1;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା first_clone_args = 0;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା sync_socket[2];
   pid_t pid;
   bool new_userns;
   size_t i;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   libcrun_debug ("Running linux container");
   ret = configure_init_status (&init_status, container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   get_private_data (container)->unshare_flags = init_status.all_namespaces;
   get_private_data (container)->joined_mount_ns
@@ -7088,39 +7088,39 @@ libcrun_run_linux_container (libcrun_container_t *container, container_entrypoin
   get_private_data (container)->unshare_cgroupns = init_status.namespaces_to_unshare & CLONE_NEWCGROUP;
 
   ret = socketpair (AF_UNIX, SOCK_SEQPACKET | SOCK_CLOEXEC, 0, sync_socket);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "socketpair");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "socketpair");
 
   sync_socket_host = sync_socket[0];
   sync_socket_container = sync_socket[1];
 
 #ifdef HAVE_SYSTEMD
-  if (def->root)
+  ଯଦି (def->ମୂଳ)
     {
       ret = do_notify_socket (container, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 #endif
 
   get_uid_gid_from_def (container->container_def, &container->container_uid, &container->container_gid);
 
   /* This must be done before we enter a user namespace.  */
-  if (def->process)
+  ଯଦି (def->process)
     {
       ret = libcrun_set_rlimits (def->process->rlimits, def->process->rlimits_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
   ret = libcrun_set_oom (container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ret = libcrun_container_notify_handler (args, HANDLER_CONFIGURE_BEFORE_USERNS, container,
-                                          container->container_def->root ? container->container_def->root->path : NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+                                          container->container_def->ମୂଳ ? container->container_def->ମୂଳ->path : ଖାଲି, err);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   /* If a new user namespace must be created, but there are other namespaces to join, then delay
      the userns creation after the namespaces are joined.  */
@@ -7132,52 +7132,52 @@ libcrun_run_linux_container (libcrun_container_t *container, container_entrypoin
      loses the privileges to do so after that), but after joining an existing one (as
      the process might not have the privileges to do so before that).  */
   new_userns = (init_status.all_namespaces & CLONE_NEWUSER) && init_status.userns_index < 0;
-  for (i = 0; i < init_status.fd_len; i++)
+  ପାଇଁ (i = 0; i < init_status.fd_len; i++)
     {
-      switch (init_status.value[i])
+      ବାଛ (init_status.ମୂଲ୍ୟ[i])
         {
-        case CLONE_NEWIPC:
-          if (init_status.all_namespaces & CLONE_NEWUSER)
+        ସ୍ଥିତି CLONE_NEWIPC:
+          ଯଦି (init_status.all_namespaces & CLONE_NEWUSER)
             init_status.join_ipcns = true;
-          break;
+          ଭାଙ୍ଗ;
 
-        case CLONE_NEWPID:
+        ସ୍ଥିତି CLONE_NEWPID:
           /* The prestart, createRuntime and createContainer hooks need the PID of the
              process in the PID namespace before the pivot_root.  */
           init_status.can_delay_pidns_fork = ! (def->hooks
                                                 && (def->hooks->prestart_len || def->hooks->create_runtime_len
                                                     || def->hooks->create_container_len));
-          if (! new_userns)
+          ଯଦି (! new_userns)
             init_status.must_fork = true;
-          else
+          ଅନ୍ୟଥା
             {
               init_status.join_pidns = true;
               init_status.idx_pidns_to_join_immediately = i;
               init_status.namespaces_to_unshare &= ~CLONE_NEWPID;
             }
-          break;
+          ଭାଙ୍ଗ;
 
-        case CLONE_NEWTIME:
-          if (! new_userns)
+        ସ୍ଥିତି CLONE_NEWTIME:
+          ଯଦି (! new_userns)
             init_status.must_fork = true;
-          else
+          ଅନ୍ୟଥା
             {
               init_status.idx_timens_to_join_immediately = i;
               init_status.namespaces_to_unshare &= ~CLONE_NEWTIME;
             }
-          break;
+          ଭାଙ୍ଗ;
         }
     }
 
   /* Before attempting any setns() or unshare(), a clone() is required to not touch the caller context
      that can be used later on for running hooks.  */
 
-  if ((init_status.namespaces_to_unshare & CLONE_NEWUSER) && init_status.fd_len == 0)
+  ଯଦି ((init_status.namespaces_to_unshare & CLONE_NEWUSER) && init_status.fd_len == 0)
     {
       /* If a user namespace must be created and there are no other namespaces to join, create the userns alone.  */
       first_clone_args = CLONE_NEWUSER;
     }
-  else if ((init_status.all_namespaces & CLONE_NEWUSER) == 0)
+  ଅନ୍ୟଥା ଯଦି ((init_status.all_namespaces & CLONE_NEWUSER) == 0)
     {
       /* If it doesn't create a user namespace or need to join one, create the new requested namespaces now. */
       first_clone_args = init_status.namespaces_to_unshare & ~(CLONE_NEWTIME | CLONE_NEWCGROUP | CLONE_NEWNS);
@@ -7186,7 +7186,7 @@ libcrun_run_linux_container (libcrun_container_t *container, container_entrypoin
   init_status.namespaces_to_unshare &= ~first_clone_args;
 
   /* Check if there are still namespaces that require a fork().  */
-  if (init_status.namespaces_to_unshare & (CLONE_NEWPID | CLONE_NEWTIME))
+  ଯଦି (init_status.namespaces_to_unshare & (CLONE_NEWPID | CLONE_NEWTIME))
     {
       /* If we need to make another fork(), make sure the NEWPID is always
          created as part of that.  */
@@ -7197,10 +7197,10 @@ libcrun_run_linux_container (libcrun_container_t *container, container_entrypoin
     }
 
   pid = -1;
-  if (cgroup_dirfd && *cgroup_dirfd->dirfd >= 0)
+  ଯଦି (cgroup_dirfd && *cgroup_dirfd->dirfd >= 0)
     {
-      struct _clone3_args clone3_args;
-      memset (&clone3_args, 0, sizeof (clone3_args));
+      ସଂରଚନା _clone3_args clone3_args;
+      memset (&clone3_args, 0, ଆକାର (clone3_args));
       clone3_args.exit_signal = SIGCHLD;
       clone3_args.flags = first_clone_args;
 
@@ -7208,102 +7208,102 @@ libcrun_run_linux_container (libcrun_container_t *container, container_entrypoin
       clone3_args.cgroup = *cgroup_dirfd->dirfd;
 
       pid = syscall_clone3 (&clone3_args);
-      if (pid >= 0)
+      ଯଦି (pid >= 0)
         cgroup_dirfd->joined = true;
 
       close_and_reset (cgroup_dirfd->dirfd);
     }
   /* fallback to clone() for any error.  */
-  if (pid < 0)
+  ଯଦି (pid < 0)
     {
-      pid = syscall_clone (first_clone_args | SIGCHLD, NULL);
-      if (UNLIKELY (pid < 0))
-        return crun_make_error (err, errno, "clone");
+      pid = syscall_clone (first_clone_args | SIGCHLD, ଖାଲି);
+      ଯଦି (UNLIKELY (pid < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "clone");
     }
 
-  if (pid)
+  ଯଦି (pid)
     {
       __attribute__ ((unused)) cleanup_pid pid_t pid_to_clean = pid;
 
       /* this is safe to do because the std stream files were not changed since the clone().  */
       ret = libcrun_save_external_descriptors (container, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       ret = close_and_reset (&sync_socket_container);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "close");
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "close");
 
       /* any systemd notify socket open_tree FD is pointless to keep around in the parent */
-      close_and_reset (&(get_private_data (container)->notify_socket_tree_fd));
+      close_and_reset (&(get_private_data (container)->notify_socket_ବୃକ୍ଷ_fd));
 
-      if (init_status.idx_pidns_to_join_immediately >= 0 || init_status.idx_timens_to_join_immediately >= 0)
+      ଯଦି (init_status.idx_pidns_to_join_immediately >= 0 || init_status.idx_timens_to_join_immediately >= 0)
         {
           pid_t new_pid = 0;
 
           ret = expect_success_from_sync_socket (sync_socket_host, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
 
-          ret = TEMP_FAILURE_RETRY (read (sync_socket_host, &new_pid, sizeof (new_pid)));
-          if (UNLIKELY (ret != sizeof (new_pid)))
-            return crun_make_error (err, ret < 0 ? errno : 0, "read pid from sync socket");
+          ret = TEMP_FAILURE_RETRY (ପଠ (sync_socket_host, &new_pid, ଆକାର (new_pid)));
+          ଯଦି (UNLIKELY (ret != ଆକାର (new_pid)))
+            ଫେରନ୍ତୁ crun_make_error (err, ret < 0 ? errno : 0, "read pid from sync socket");
 
-          if (new_pid == 0)
+          ଯଦି (new_pid == 0)
             get_private_data (container)->delayed_pidns_fork = true;
-          else
+          ଅନ୍ୟଥା
             {
               /* Cleanup the first process.  */
-              ret = waitpid_ignore_stopped (pid, NULL, 0);
+              ret = waitpid_ignore_stopped (pid, ଖାଲି, 0);
 
               pid_to_clean = pid = new_pid;
             }
 
           ret = send_success_to_sync_socket (sync_socket_host, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
         }
 
-      if (init_status.delayed_userns_create)
+      ଯଦି (init_status.delayed_userns_create)
         {
           ret = expect_success_from_sync_socket (sync_socket_host, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
         }
 
-      if ((init_status.all_namespaces & CLONE_NEWUSER) && init_status.userns_index < 0)
+      ଯଦି ((init_status.all_namespaces & CLONE_NEWUSER) && init_status.userns_index < 0)
         {
           ret = libcrun_set_usernamespace (container, pid, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
 
           ret = send_success_to_sync_socket (sync_socket_host, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
         }
 
-      if (init_status.must_fork)
+      ଯଦି (init_status.must_fork)
         {
           pid_t grandchild = 0;
 
           ret = expect_success_from_sync_socket (sync_socket_host, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
 
-          ret = TEMP_FAILURE_RETRY (read (sync_socket_host, &grandchild, sizeof (grandchild)));
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "read pid from sync socket");
+          ret = TEMP_FAILURE_RETRY (ପଠ (sync_socket_host, &grandchild, ଆକାର (grandchild)));
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ crun_make_error (err, errno, "read pid from sync socket");
 
           ret = send_success_to_sync_socket (sync_socket_host, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
 
-          if (grandchild == 0)
+          ଯଦି (grandchild == 0)
             get_private_data (container)->delayed_pidns_fork = true;
-          else
+          ଅନ୍ୟଥା
             {
               /* Cleanup the first process.  */
-              waitpid_ignore_stopped (pid, NULL, 0);
+              waitpid_ignore_stopped (pid, ଖାଲି, 0);
 
               pid_to_clean = pid = grandchild;
             }
@@ -7311,46 +7311,46 @@ libcrun_run_linux_container (libcrun_container_t *container, container_entrypoin
 
       /* They are received by `receive_mounts`.  */
       ret = prepare_and_send_mounts (container, pid, sync_socket_host, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       ret = expect_success_from_sync_socket (sync_socket_host, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       *sync_socket_out = get_and_reset (&sync_socket_host);
 
       /* If the fork is delayed, it is done once the container process exists.  */
-      if (! get_private_data (container)->delayed_pidns_fork)
+      ଯଦି (! get_private_data (container)->delayed_pidns_fork)
         {
           ret = libcrun_handle_pidfd_receiver (pid, container, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
         }
 
       pid_to_clean = 0;
-      return pid;
+      ଫେରନ୍ତୁ pid;
     }
 
   /* Inside the container process.  */
 
   ret = close_and_reset (&sync_socket_host);
-  if (UNLIKELY (ret < 0))
+  ଯଦି (UNLIKELY (ret < 0))
     libcrun_fail_with_error (errno, "%s", "close sync socket");
 
   /* Initialize the new process and make sure to join/create all the required namespaces.  */
   ret = init_container (container, sync_socket_container, &init_status, err);
-  if (UNLIKELY (ret < 0))
+  ଯଦି (UNLIKELY (ret < 0))
     send_error_to_sync_socket_and_die (sync_socket_container, false, err);
-  else
+  ଅନ୍ୟଥା
     {
       ret = send_success_to_sync_socket (sync_socket_container, err);
-      if (UNLIKELY (ret < 0))
-        libcrun_fail_with_error (crun_error_get_errno (err), "%s", (*err)->msg);
+      ଯଦି (UNLIKELY (ret < 0))
+        libcrun_fail_with_error (crun_error_get_errno (err), "%s", (*err)->ସନ୍ଦେଶ);
     }
 
   /* Jump into the specified entrypoint.  */
-  if (container->context->notify_socket)
+  ଯଦି (container->context->notify_socket)
     xasprintf (&notify_socket_env, "NOTIFY_SOCKET=%s/notify", container->context->notify_socket);
 
   ret = entrypoint (args, notify_socket_env, sync_socket_container, err);
@@ -7358,133 +7358,133 @@ libcrun_run_linux_container (libcrun_container_t *container, container_entrypoin
   /* For most of the cases ENTRYPOINT returns only on an error, fallback here */
   /* Except for custom handlers which could perform a task and return with success */
   /* since custom handlers could or could not be {long-running, blocking} */
-  if (*err)
-    libcrun_fail_with_error ((*err)->status, "%s", (*err)->msg);
+  ଯଦି (*err)
+    libcrun_fail_with_error ((*err)->status, "%s", (*err)->ସନ୍ଦେଶ);
 
   /* If we got here likely we returned from a custom handler eg. wasm, libkrun */
   /* Allow cleanup attributes to perform cleanup and exit with success if return code was 0 */
-  if (ret == 0)
+  ଯଦି (ret == 0)
     _safe_exit (EXIT_SUCCESS);
 
   _safe_exit (EXIT_FAILURE);
 }
 
-static int
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 join_process_parent_helper (libcrun_context_t *context,
                             libcrun_container_t *container,
                             runtime_spec_schema_config_schema_process *process,
-                            pid_t child_pid, int sync_socket_fd,
+                            pid_t child_pid, ପୂର୍ଣ୍ଣସଂଖ୍ୟା sync_socket_fd,
                             libcrun_container_status_t *status,
-                            bool need_move_to_cgroup, const char *sub_cgroup,
-                            int *terminal_fd, libcrun_error_t *err)
+                            bool need_move_to_cgroup, ଅଚଳ ଅକ୍ଷର *sub_cgroup,
+                            ପୂର୍ଣ୍ଣସଂଖ୍ୟା *terminal_fd, libcrun_error_t *err)
 {
-  int ret;
-  char res;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
+  ଅକ୍ଷର res;
   pid_t pid;
-  cleanup_close int sync_fd = sync_socket_fd;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା sync_fd = sync_socket_fd;
 
-  if (terminal_fd)
+  ଯଦି (terminal_fd)
     *terminal_fd = -1;
 
   /* Read the status and the PID from the child process.  */
-  ret = TEMP_FAILURE_RETRY (read (sync_fd, &res, 1));
-  if (UNLIKELY (ret != 1))
-    return crun_make_error (err, ret < 0 ? errno : 0, "read from sync socket");
+  ret = TEMP_FAILURE_RETRY (ପଠ (sync_fd, &res, 1));
+  ଯଦି (UNLIKELY (ret != 1))
+    ଫେରନ୍ତୁ crun_make_error (err, ret < 0 ? errno : 0, "read from sync socket");
 
-  if (res != '0')
-    return crun_make_error (err, 0, "fail startup");
+  ଯଦି (res != '0')
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "fail startup");
 
-  ret = TEMP_FAILURE_RETRY (read (sync_fd, &pid, sizeof (pid)));
-  if (UNLIKELY (ret != sizeof (pid)))
-    return crun_make_error (err, ret < 0 ? errno : 0, "read from sync socket");
+  ret = TEMP_FAILURE_RETRY (ପଠ (sync_fd, &pid, ଆକାର (pid)));
+  ଯଦି (UNLIKELY (ret != ଆକାର (pid)))
+    ଫେରନ୍ତୁ crun_make_error (err, ret < 0 ? errno : 0, "read from sync socket");
 
   /* Wait for the child pid so we ensure the grandchild gets properly reparented.  */
-  ret = waitpid_ignore_stopped (child_pid, NULL, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "waitpid for exec child pid");
+  ret = waitpid_ignore_stopped (child_pid, ଖାଲି, 0);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "waitpid for exec child pid");
 
-  if (process && process->exec_cpu_affinity)
+  ଯଦି (process && process->exec_cpu_affinity)
     {
       ret = libcrun_set_cpu_affinity_from_string (pid, process->exec_cpu_affinity->initial, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
-  if (! has_exec_cpu_affinity (process))
+  ଯଦି (! has_exec_cpu_affinity (process))
     {
       ret = libcrun_reset_cpu_affinity_mask (pid, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
-  if (need_move_to_cgroup)
+  ଯଦି (need_move_to_cgroup)
     {
-      cleanup_cgroup_status struct libcrun_cgroup_status *cgroup_status = libcrun_cgroup_make_status (status);
-      cleanup_free char *final_cgroup = NULL;
+      cleanup_cgroup_status ସଂରଚନା libcrun_cgroup_status *cgroup_status = libcrun_cgroup_make_status (status);
+      cleanup_free ଅକ୍ଷର *final_cgroup = ଖାଲି;
 
-      if (sub_cgroup)
+      ଯଦି (sub_cgroup)
         {
-          ret = append_paths (&final_cgroup, err, status->cgroup_path, sub_cgroup, NULL);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = append_paths (&final_cgroup, err, status->cgroup_path, sub_cgroup, ଖାଲି);
+          ଯଦି (UNLIKELY (ret < 0))
+            ଫେରନ୍ତୁ ret;
         }
 
       ret = libcrun_cgroup_join_process (cgroup_status, final_cgroup ?: status->cgroup_path, pid, status->pid, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
   /* Set the scheduler for the process itself (it might have been set for its
      parent, but it is not inherited with SCHED_FLAG_RESET_ON_FORK, and
      SCHED_DEADLINE cannot be set there as it prevents forking).  */
   ret = libcrun_set_scheduler (pid, process, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  if (process && process->exec_cpu_affinity)
+  ଯଦି (process && process->exec_cpu_affinity)
     {
       ret = libcrun_set_cpu_affinity_from_string (pid, process->exec_cpu_affinity->final, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
   ret = libcrun_apply_intelrdt (context->id, container, pid, LIBCRUN_INTELRDT_MOVE, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ret = libcrun_set_io_priority (pid, process, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   /* The write unblocks the grandchild process so it can run once we setup
      the cgroups.  */
-  ret = TEMP_FAILURE_RETRY (write (sync_fd, &ret, sizeof (ret)));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "write to sync socket");
+  ret = TEMP_FAILURE_RETRY (ଲିଖ (sync_fd, &ret, ଆକାର (ret)));
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "write to sync socket");
 
-  if (terminal_fd)
+  ଯଦି (terminal_fd)
     {
       ret = receive_fd_from_socket (sync_fd, err);
-      if (UNLIKELY (ret < 0))
+      ଯଦି (UNLIKELY (ret < 0))
         {
-          int err_code = 0;
-          cleanup_free char *err_str = NULL;
+          ପୂର୍ଣ୍ଣସଂଖ୍ୟା err_code = 0;
+          cleanup_free ଅକ୍ଷର *err_str = ଖାଲି;
 
-          if (read_error_from_sync_socket (sync_fd, &err_code, &err_str))
+          ଯଦି (read_error_from_sync_socket (sync_fd, &err_code, &err_str))
             {
-              if (! is_empty_string (err_str))
+              ଯଦି (! is_empty_string (err_str))
                 {
                   crun_error_release (err);
-                  return crun_make_error (err, err_code, "%s", err_str);
+                  ଫେରନ୍ତୁ crun_make_error (err, err_code, "%s", err_str);
                 }
             }
 
-          return crun_error_wrap (err, "receive terminal fd");
+          ଫେରନ୍ତୁ crun_error_wrap (err, "receive terminal fd");
         }
       *terminal_fd = ret;
     }
 
-  return pid;
+  ଫେରନ୍ତୁ pid;
 }
 
 /*
@@ -7495,146 +7495,146 @@ join_process_parent_helper (libcrun_context_t *context,
   0   - the namespaces were not joined.
   > 0 - the namespaces were joined.
 */
-static int
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 try_setns_with_pidfd (pid_t pid_to_join, libcrun_container_t *container, libcrun_container_status_t *status, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  cleanup_close int pidfd_pid_to_join = -1;
-  int all_flags = 0;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidfd_pid_to_join = -1;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା all_flags = 0;
   size_t i;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   /* If there is any explicit namespace path to join, skip the setns_with_pidfd
      shortcut and join each namespace individually.  */
-  if (def->linux && def->linux->namespaces)
+  ଯଦି (def->linux && def->linux->namespaces)
     {
-      for (i = 0; i < def->linux->namespaces_len; i++)
-        if (! is_empty_string (def->linux->namespaces[i]->path))
-          return 0;
+      ପାଇଁ (i = 0; i < def->linux->namespaces_len; i++)
+        ଯଦି (! is_empty_string (def->linux->namespaces[i]->path))
+          ଫେରନ୍ତୁ 0;
     }
 
   pidfd_pid_to_join = syscall_pidfd_open (pid_to_join, 0);
-  if (UNLIKELY (pidfd_pid_to_join < 0))
-    return 0;
+  ଯଦି (UNLIKELY (pidfd_pid_to_join < 0))
+    ଫେରନ୍ତୁ 0;
 
   /* Validate that the pidfd really refers to the original container process.  */
   ret = libcrun_check_pid_valid (status, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
-  if (ret == 0)
-    return crun_make_error (err, ESRCH, "container process not found, the pid was reused");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
+  ଯଦି (ret == 0)
+    ଫେରନ୍ତୁ crun_make_error (err, ESRCH, "container process not found, the pid was reused");
 
-  for (i = 0; namespaces[i].ns_file; i++)
-    all_flags |= namespaces[i].value;
+  ପାଇଁ (i = 0; namespaces[i].ns_file; i++)
+    all_flags |= namespaces[i].ମୂଲ୍ୟ;
 
   ret = setns (pidfd_pid_to_join, all_flags);
-  if (UNLIKELY (ret < 0))
-    return 0;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ 0;
 
-  return 1;
+  ଫେରନ୍ତୁ 1;
 }
 
-static int
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 join_process_namespaces (libcrun_container_t *container, pid_t pid_to_join, libcrun_container_status_t *status, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  int fds_joined[MAX_NAMESPACES] = {
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା fds_joined[MAX_NAMESPACES] = {
     0,
   };
-  int fds[MAX_NAMESPACES] = {
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା fds[MAX_NAMESPACES] = {
     -1,
   };
   size_t i;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   /* Try to join all namespaces in one shot with setns and pidfd.  */
   ret = try_setns_with_pidfd (pid_to_join, container, status, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
   /* Nothing left to do if the namespaces were joined.  */
-  if (LIKELY (ret > 0))
-    return 0;
+  ଯଦି (LIKELY (ret > 0))
+    ଫେରନ୍ତୁ 0;
 
   /* If setns fails with the target pidfd, fall-back to join each namespace individually.  */
 
-  if (def->linux->namespaces_len >= MAX_NAMESPACES)
-    return crun_make_error (err, 0, "invalid configuration");
+  ଯଦି (def->linux->namespaces_len >= MAX_NAMESPACES)
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "invalid configuration");
 
-  for (i = 0; namespaces[i].ns_file; i++)
+  ପାଇଁ (i = 0; namespaces[i].ns_file; i++)
     {
-      cleanup_free char *ns_path = NULL;
+      cleanup_free ଅକ୍ଷର *ns_path = ଖାଲି;
 
       xasprintf (&ns_path, "%d/ns/%s", pid_to_join, namespaces[i].ns_file);
       fds[i] = libcrun_open_proc_file (container, ns_path, O_RDONLY, err);
-      if (UNLIKELY (fds[i] < 0))
+      ଯଦି (UNLIKELY (fds[i] < 0))
         {
           /* If the namespace doesn't exist, just ignore it.  */
-          if (crun_error_get_errno (err) == ENOENT)
+          ଯଦି (crun_error_get_errno (err) == ENOENT)
             {
               crun_error_release (err);
-              continue;
+              ଜାରି;
             }
 
           ret = fds[i];
-          goto exit;
+          ଯାଅ exit;
         }
     }
 
   /* The namespace files were opened by PID.  Validate that the PID still refers
      to the original container process before joining any of them.  */
   ret = libcrun_check_pid_valid (status, err);
-  if (UNLIKELY (ret < 0))
-    goto exit;
-  if (ret == 0)
+  ଯଦି (UNLIKELY (ret < 0))
+    ଯାଅ exit;
+  ଯଦି (ret == 0)
     {
       ret = crun_make_error (err, ESRCH, "container process not found, the pid was reused");
-      goto exit;
+      ଯାଅ exit;
     }
 
-  for (i = 0; namespaces[i].ns_file; i++)
+  ପାଇଁ (i = 0; namespaces[i].ns_file; i++)
     {
-      if (namespaces[i].value == CLONE_NEWUSER)
-        continue;
+      ଯଦି (namespaces[i].ମୂଲ୍ୟ == CLONE_NEWUSER)
+        ଜାରି;
 
       ret = setns (fds[i], 0);
-      if (ret == 0)
+      ଯଦି (ret == 0)
         fds_joined[i] = 1;
     }
-  for (i = 0; namespaces[i].ns_file; i++)
+  ପାଇଁ (i = 0; namespaces[i].ns_file; i++)
     {
-      if (fds_joined[i])
-        continue;
+      ଯଦି (fds_joined[i])
+        ଜାରି;
       ret = setns (fds[i], 0);
-      if (ret == 0)
+      ଯଦି (ret == 0)
         fds_joined[i] = 1;
     }
-  for (i = 0; namespaces[i].ns_file; i++)
+  ପାଇଁ (i = 0; namespaces[i].ns_file; i++)
     {
-      if (fds_joined[i])
-        continue;
+      ଯଦି (fds_joined[i])
+        ଜାରି;
       ret = setns (fds[i], 0);
-      if (UNLIKELY (ret < 0 && errno != EINVAL))
+      ଯଦି (UNLIKELY (ret < 0 && errno != EINVAL))
         {
           size_t j;
           bool found = false;
 
-          for (j = 0; j < def->linux->namespaces_len; j++)
+          ପାଇଁ (j = 0; j < def->linux->namespaces_len; j++)
             {
-              if (strcmp (namespaces[i].name, def->linux->namespaces[j]->type) == 0)
+              ଯଦି (strcmp (namespaces[i].name, def->linux->namespaces[j]->type) == 0)
                 {
                   found = true;
-                  break;
+                  ଭାଙ୍ଗ;
                 }
             }
-          if (! found)
+          ଯଦି (! found)
             {
               /* It was not requested to create this ns, so just ignore it.  */
               fds_joined[i] = 1;
-              continue;
+              ଜାରି;
             }
 
           ret = crun_make_error (err, errno, "setns `%s`", namespaces[i].ns_file);
-          goto exit;
+          ଯାଅ exit;
         }
       fds_joined[i] = 1;
     }
@@ -7642,83 +7642,83 @@ join_process_namespaces (libcrun_container_t *container, pid_t pid_to_join, libc
   ret = 0;
 
 exit:
-  for (i = 0; namespaces[i].ns_file; i++)
+  ପାଇଁ (i = 0; namespaces[i].ns_file; i++)
     close_and_reset (&fds[i]);
 
-  return ret;
+  ଫେରନ୍ତୁ ret;
 }
 
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_join_process (libcrun_context_t *context,
                       libcrun_container_t *container,
                       pid_t pid_to_join,
                       libcrun_container_status_t *status,
-                      const char *sub_cgroup,
-                      int detach,
+                      ଅଚଳ ଅକ୍ଷର *sub_cgroup,
+                      ପୂର୍ଣ୍ଣସଂଖ୍ୟା detach,
                       runtime_spec_schema_config_schema_process *process,
-                      int *terminal_fd,
+                      ପୂର୍ଣ୍ଣସଂଖ୍ୟା *terminal_fd,
                       libcrun_error_t *err)
 {
   pid_t pid;
-  int ret;
-  int sync_socket_fd[2];
-  cleanup_close int cgroup_dirfd = -1;
-  cleanup_close int sync_fd = -1;
-  struct _clone3_args clone3_args;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା sync_socket_fd[2];
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା cgroup_dirfd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା sync_fd = -1;
+  ସଂରଚନା _clone3_args clone3_args;
   bool need_move_to_cgroup;
 
-  if (! detach)
+  ଯଦି (! detach)
     {
       ret = prctl (PR_SET_CHILD_SUBREAPER, 1, 0, 0, 0);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "set child subreaper");
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "set child subreaper");
     }
 
-  if (path_has_dot_dot_component (sub_cgroup))
-    return crun_make_error (err, 0, "invalid cgroup path `%s`: `..` components are not allowed", sub_cgroup);
+  ଯଦି (path_has_dot_dot_component (sub_cgroup))
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "invalid cgroup path `%s`: `..` components are not allowed", sub_cgroup);
 
   /* The caller checked only the container cgroup, but a sub-cgroup is managed
      by the container and the process would never run if it is frozen.  */
-  if (sub_cgroup && ! is_empty_string (status->cgroup_path))
+  ଯଦି (sub_cgroup && ! is_empty_string (status->cgroup_path))
     {
-      cleanup_free char *final_cgroup = NULL;
+      cleanup_free ଅକ୍ଷର *final_cgroup = ଖାଲି;
 
-      ret = append_paths (&final_cgroup, err, status->cgroup_path, sub_cgroup, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&final_cgroup, err, status->cgroup_path, sub_cgroup, ଖାଲି);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       ret = libcrun_cgroup_ensure_not_frozen (final_cgroup, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
   ret = socketpair (AF_UNIX, SOCK_SEQPACKET | SOCK_CLOEXEC, 0, sync_socket_fd);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "error creating socketpair");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "error creating socketpair");
 
   {
-    cleanup_cgroup_status struct libcrun_cgroup_status *cgroup_status = NULL;
+    cleanup_cgroup_status ସଂରଚନା libcrun_cgroup_status *cgroup_status = ଖାଲି;
 
     cgroup_status = libcrun_cgroup_make_status (status);
 
     /* The cgroup can be joined directly only when there are no additional
        controllers not handled by cgroup v2.  */
-    if (get_force_cgroup_v1_annotation (container) == NULL)
+    ଯଦି (get_force_cgroup_v1_annotation (container) == ଖାଲି)
       {
         cgroup_dirfd = libcrun_get_cgroup_dirfd (cgroup_status, sub_cgroup, err);
-        if (UNLIKELY (cgroup_dirfd < 0))
+        ଯଦି (UNLIKELY (cgroup_dirfd < 0))
           crun_error_release (err);
       }
   }
 
-  memset (&clone3_args, 0, sizeof (clone3_args));
+  memset (&clone3_args, 0, ଆକାର (clone3_args));
   clone3_args.exit_signal = SIGCHLD;
 
   /* Do not join the cgroup immediately if an initial CPU affinity mask is specified, so that
      the process can set the cpu affinity before joining the target cgroup.  */
-  if (cgroup_dirfd < 0 || (process->exec_cpu_affinity && process->exec_cpu_affinity->initial))
+  ଯଦି (cgroup_dirfd < 0 || (process->exec_cpu_affinity && process->exec_cpu_affinity->initial))
     need_move_to_cgroup = true;
-  else
+  ଅନ୍ୟଥା
     {
       need_move_to_cgroup = false;
       clone3_args.flags |= CLONE_INTO_CGROUP;
@@ -7727,35 +7727,35 @@ libcrun_join_process (libcrun_context_t *context,
 
   pid = syscall_clone3 (&clone3_args);
 
-  if (pid > 0 && ! (process->scheduler && process->scheduler->policy && strcmp (process->scheduler->policy, "SCHED_DEADLINE") == 0))
+  ଯଦି (pid > 0 && ! (process->scheduler && process->scheduler->policy && strcmp (process->scheduler->policy, "SCHED_DEADLINE") == 0))
     {
       /* We need to set the scheduler as soon as possible after joining the cgroup,
          because if it is a RT scheduler, other processes in the container could already
          take the entire cpu time and stall the new process.  This is not done for
          SCHED_DEADLINE, which does not allow the process to fork.  */
       ret = libcrun_set_scheduler (pid, process, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
   /* On errors, fall back to fork().  */
-  if (pid < 0)
+  ଯଦି (pid < 0)
     {
       need_move_to_cgroup = true;
 
       pid = fork ();
-      if (UNLIKELY (pid < 0))
+      ଯଦି (UNLIKELY (pid < 0))
         {
           ret = crun_make_error (err, errno, "fork");
-          goto exit;
+          ଯାଅ exit;
         }
     }
 
-  if (pid)
+  ଯଦି (pid)
     {
       close_and_reset (&sync_socket_fd[1]);
       sync_fd = sync_socket_fd[0];
-      return join_process_parent_helper (context, container,
+      ଫେରନ୍ତୁ join_process_parent_helper (context, container,
                                          process, pid, sync_fd,
                                          status, need_move_to_cgroup,
                                          sub_cgroup, terminal_fd, err);
@@ -7768,33 +7768,33 @@ libcrun_join_process (libcrun_context_t *context,
   close_and_reset (&cgroup_dirfd);
 
   ret = join_process_namespaces (container, pid_to_join, status, err);
-  if (UNLIKELY (ret < 0))
+  ଯଦି (UNLIKELY (ret < 0))
     {
-      TEMP_FAILURE_RETRY (write (sync_fd, "1", 1));
-      libcrun_fail_with_error ((*err)->status, "%s", (*err)->msg);
+      TEMP_FAILURE_RETRY (ଲିଖ (sync_fd, "1", 1));
+      libcrun_fail_with_error ((*err)->status, "%s", (*err)->ସନ୍ଦେଶ);
     }
 
   /* We need to fork once again to join the PID namespace.  */
   pid = fork ();
-  if (UNLIKELY (pid < 0))
+  ଯଦି (UNLIKELY (pid < 0))
     {
-      int saved_errno = errno;
-      TEMP_FAILURE_RETRY (write (sync_fd, "1", 1));
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା saved_errno = errno;
+      TEMP_FAILURE_RETRY (ଲିଖ (sync_fd, "1", 1));
       libcrun_fail_with_error (saved_errno, "fork");
     }
 
-  if (pid)
+  ଯଦି (pid)
     {
       /* Just return the PID to the parent helper and exit.  */
-      ret = TEMP_FAILURE_RETRY (write (sync_fd, "0", 1));
-      if (UNLIKELY (ret < 0))
+      ret = TEMP_FAILURE_RETRY (ଲିଖ (sync_fd, "0", 1));
+      ଯଦି (UNLIKELY (ret < 0))
         {
           kill (pid, SIGKILL);
           _safe_exit (EXIT_FAILURE);
         }
 
-      ret = TEMP_FAILURE_RETRY (write (sync_fd, &pid, sizeof (pid)));
-      if (UNLIKELY (ret < 0))
+      ret = TEMP_FAILURE_RETRY (ଲିଖ (sync_fd, &pid, ଆକାର (pid)));
+      ଯଦି (UNLIKELY (ret < 0))
         {
           kill (pid, SIGKILL);
           _safe_exit (EXIT_FAILURE);
@@ -7802,160 +7802,160 @@ libcrun_join_process (libcrun_context_t *context,
 
       _safe_exit (EXIT_SUCCESS);
     }
-  else
+  ଅନ୍ୟଥା
     {
       /* Inside the grandchild process.  The real process
          used for the container.  */
-      cleanup_free char *pty = NULL;
-      int r = -1;
+      cleanup_free ଅକ୍ଷର *pty = ଖାଲି;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା r = -1;
 
       /* Wait for the parent to complete the setup (cgroup, scheduler, ...).
          An EOF means the parent failed, so do not go any further.  */
-      ret = TEMP_FAILURE_RETRY (read (sync_fd, &r, sizeof (r)));
-      if (UNLIKELY (ret != sizeof (r) || r < 0))
+      ret = TEMP_FAILURE_RETRY (ପଠ (sync_fd, &r, ଆକାର (r)));
+      ଯଦି (UNLIKELY (ret != ଆକାର (r) || r < 0))
         _safe_exit (EXIT_FAILURE);
 
       ret = setsid ();
-      if (ret < 0)
+      ଯଦି (ret < 0)
         {
           crun_make_error (err, errno, "setsid");
           send_error_to_sync_socket_and_die (sync_fd, true, err);
         }
 
-      if (terminal_fd)
+      ଯଦି (terminal_fd)
         {
-          cleanup_close int ptmx_fd = -1;
+          cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା ptmx_fd = -1;
 
           ret = set_id_init (container, err);
-          if (UNLIKELY (ret < 0))
+          ଯଦି (UNLIKELY (ret < 0))
             send_error_to_sync_socket_and_die (sync_fd, true, err);
 
           ptmx_fd = open_terminal (&pty, process, err);
-          if (UNLIKELY (ptmx_fd < 0))
+          ଯଦି (UNLIKELY (ptmx_fd < 0))
             send_error_to_sync_socket_and_die (sync_fd, true, err);
 
           ret = send_fd_to_socket (sync_fd, ptmx_fd, err);
-          if (UNLIKELY (ret < 0))
+          ଯଦି (UNLIKELY (ret < 0))
             send_error_to_sync_socket_and_die (sync_fd, true, err);
         }
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 
 exit:
-  if (sync_socket_fd[0] >= 0)
+  ଯଦି (sync_socket_fd[0] >= 0)
     TEMP_FAILURE_RETRY (close (sync_socket_fd[0]));
-  if (sync_socket_fd[1] >= 0)
+  ଯଦି (sync_socket_fd[1] >= 0)
     TEMP_FAILURE_RETRY (close (sync_socket_fd[1]));
-  return ret;
+  ଫେରନ୍ତୁ ret;
 }
 
-int
-libcrun_linux_container_update (libcrun_container_status_t *status, const char *state_root, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+libcrun_linux_container_update (libcrun_container_status_t *status, ଅଚଳ ଅକ୍ଷର *state_ମୂଳ, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
 {
-  cleanup_cgroup_status struct libcrun_cgroup_status *cgroup_status = NULL;
+  cleanup_cgroup_status ସଂରଚନା libcrun_cgroup_status *cgroup_status = ଖାଲି;
 
   cgroup_status = libcrun_cgroup_make_status (status);
 
-  return libcrun_update_cgroup_resources (cgroup_status, state_root, resources, err);
+  ଫେରନ୍ତୁ libcrun_update_cgroup_resources (cgroup_status, state_ମୂଳ, resources, err);
 }
 
-static int
-libcrun_container_pause_unpause_linux (libcrun_container_status_t *status, const bool pause, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+libcrun_container_pause_unpause_linux (libcrun_container_status_t *status, ଅଚଳ bool pause, libcrun_error_t *err)
 {
-  cleanup_cgroup_status struct libcrun_cgroup_status *cgroup_status = NULL;
+  cleanup_cgroup_status ସଂରଚନା libcrun_cgroup_status *cgroup_status = ଖାଲି;
 
   cgroup_status = libcrun_cgroup_make_status (status);
 
-  return libcrun_cgroup_pause_unpause (cgroup_status, pause, err);
+  ଫେରନ୍ତୁ libcrun_cgroup_pause_unpause (cgroup_status, pause, err);
 }
 
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_container_pause_linux (libcrun_container_status_t *status, libcrun_error_t *err)
 {
-  return libcrun_container_pause_unpause_linux (status, true, err);
+  ଫେରନ୍ତୁ libcrun_container_pause_unpause_linux (status, true, err);
 }
 
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_container_unpause_linux (libcrun_container_status_t *status, libcrun_error_t *err)
 {
-  return libcrun_container_pause_unpause_linux (status, false, err);
+  ଫେରନ୍ତୁ libcrun_container_pause_unpause_linux (status, false, err);
 }
 
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_set_personality (runtime_spec_schema_defs_linux_personality *p, libcrun_error_t *err)
 {
   unsigned long persona = 0;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (strcmp (p->domain, "LINUX") == 0)
+  ଯଦି (strcmp (p->domain, "LINUX") == 0)
     persona = PER_LINUX;
-  else if (strcmp (p->domain, "LINUX32") == 0)
+  ଅନ୍ୟଥା ଯଦି (strcmp (p->domain, "LINUX32") == 0)
     persona = PER_LINUX32;
-  else
-    return crun_make_error (err, 0, "unknown persona specified `%s`", p->domain);
+  ଅନ୍ୟଥା
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "unknown persona specified `%s`", p->domain);
 
   ret = personality (persona);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, 0, "personality to `%s`", p->domain);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "personality to `%s`", p->domain);
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_configure_network (libcrun_container_t *container, libcrun_error_t *err)
 {
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
   size_t i;
   bool configure_network = false;
   runtime_spec_schema_config_schema *def = container->container_def;
-  cleanup_close int sockfd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା sockfd = -1;
 
-  for (i = 0; i < def->linux->namespaces_len; i++)
+  ପାଇଁ (i = 0; i < def->linux->namespaces_len; i++)
     {
-      int value = libcrun_find_namespace (def->linux->namespaces[i]->type);
-      if (UNLIKELY (value < 0))
-        return crun_make_error (err, 0, "invalid namespace type: `%s`", def->linux->namespaces[i]->type);
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା ମୂଲ୍ୟ = libcrun_find_namespace (def->linux->namespaces[i]->type);
+      ଯଦି (UNLIKELY (ମୂଲ୍ୟ < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, 0, "invalid namespace type: `%s`", def->linux->namespaces[i]->type);
 
-      if (value == CLONE_NEWNET && def->linux->namespaces[i]->path == NULL)
+      ଯଦି (ମୂଲ୍ୟ == CLONE_NEWNET && def->linux->namespaces[i]->path == ଖାଲି)
         {
           configure_network = true;
-          break;
+          ଭାଙ୍ଗ;
         }
     }
 
-  if (! configure_network)
-    return 0;
+  ଯଦି (! configure_network)
+    ଫେରନ୍ତୁ 0;
 
   sockfd = socket (AF_INET, SOCK_DGRAM, 0);
-  if (LIKELY (sockfd >= 0))
+  ଯଦି (LIKELY (sockfd >= 0))
     {
-      struct ifreq ifr_lo = { .ifr_name = "lo", .ifr_flags = IFF_UP | IFF_RUNNING };
+      ସଂରଚନା ifreq ifr_lo = { .ifr_name = "lo", .ifr_flags = IFF_UP | IFF_RUNNING };
 
       ret = ioctl (sockfd, SIOCSIFFLAGS, &ifr_lo);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "ioctl SIOCSIFFLAGS");
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "ioctl SIOCSIFFLAGS");
     }
-  else
+  ଅନ୍ୟଥା
     {
-      struct nlmsghdr *hdr_recv;
-      char buf[sizeof (struct nlmsghdr) + sizeof (struct nlmsgerr)];
-      struct sockaddr_nl addr = {
+      ସଂରଚନା nlmsghdr *hdr_recv;
+      ଅକ୍ଷର buf[ଆକାର (ସଂରଚନା nlmsghdr) + ଆକାର (ସଂରଚନା nlmsgerr)];
+      ସଂରଚନା sockaddr_nl addr = {
         .nl_family = AF_NETLINK,
         .nl_pid = getpid (),
       };
-      struct sockaddr_nl addr_to = {
+      ସଂରଚନା sockaddr_nl addr_to = {
         .nl_family = AF_NETLINK,
         .nl_pid = 0,
       };
-      struct nlmsghdr hdr = {
-        .nlmsg_len = sizeof (struct nlmsghdr) + sizeof (struct ifinfomsg),
+      ସଂରଚନା nlmsghdr hdr = {
+        .nlmsg_len = ଆକାର (ସଂରଚନା nlmsghdr) + ଆକାର (ସଂରଚନା ifinfomsg),
         .nlmsg_type = RTM_NEWLINK,
         .nlmsg_flags = NLM_F_REQUEST | NLM_F_ACK,
         .nlmsg_seq = 1,
         .nlmsg_pid = 0,
       };
-      struct ifinfomsg msg = {
+      ସଂରଚନା ifinfomsg ସନ୍ଦେଶ = {
         .ifi_family = AF_UNSPEC,
         .ifi_type = 0,
         .ifi_index = 1,
@@ -7963,268 +7963,268 @@ libcrun_configure_network (libcrun_container_t *container, libcrun_error_t *err)
         .ifi_change = IFF_UP,
       };
 
-      *((struct nlmsghdr *) buf) = hdr;
-      *((struct ifinfomsg *) (buf + sizeof (struct nlmsghdr))) = msg;
+      *((ସଂରଚନା nlmsghdr *) buf) = hdr;
+      *((ସଂରଚନା ifinfomsg *) (buf + ଆକାର (ସଂରଚନା nlmsghdr))) = ସନ୍ଦେଶ;
 
       sockfd = socket (PF_NETLINK, SOCK_RAW | SOCK_CLOEXEC, NETLINK_ROUTE);
-      if (UNLIKELY (sockfd < 0))
-        return crun_make_error (err, errno, "socket PF_NETLINK");
+      ଯଦି (UNLIKELY (sockfd < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "socket PF_NETLINK");
 
-      ret = bind (sockfd, (struct sockaddr *) &addr, sizeof (addr));
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "bind PF_NETLINK");
+      ret = bind (sockfd, (ସଂରଚନା sockaddr *) &addr, ଆକାର (addr));
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "bind PF_NETLINK");
 
-      ret = sendto (sockfd, buf, sizeof (buf), 0, (struct sockaddr *) &addr_to, sizeof (addr_to));
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "sendto PF_NETLINK");
+      ret = sendto (sockfd, buf, ଆକାର (buf), 0, (ସଂରଚନା sockaddr *) &addr_to, ଆକାର (addr_to));
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "sendto PF_NETLINK");
 
-      ret = recvfrom (sockfd, buf, sizeof (buf), 0, NULL, NULL);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "recvfrom PF_NETLINK");
+      ret = recvfrom (sockfd, buf, ଆକାର (buf), 0, ଖାଲି, ଖାଲି);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "recvfrom PF_NETLINK");
 
-      hdr_recv = (struct nlmsghdr *) buf;
+      hdr_recv = (ସଂରଚନା nlmsghdr *) buf;
 
-      if (hdr_recv->nlmsg_type == NLMSG_ERROR)
+      ଯଦି (hdr_recv->nlmsg_type == NLMSG_ERROR)
         {
-          struct nlmsgerr *err_data = (struct nlmsgerr *) NLMSG_DATA (hdr_recv);
+          ସଂରଚନା nlmsgerr *err_data = (ସଂରଚନା nlmsgerr *) NLMSG_DATA (hdr_recv);
           /* err_data->error set to 0 means success acknowledgement due to NLM_F_ACK  */
-          if (err_data->error < 0)
-            return crun_make_error (err, -err_data->error, "netlink error while configuring network");
+          ଯଦି (err_data->error < 0)
+            ଫେରନ୍ତୁ crun_make_error (err, -err_data->error, "netlink error while configuring network");
         }
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 /* Protection for attacks like CVE-2019-5736.  */
-int ensure_cloned_binary ();
-__attribute__ ((constructor)) static void
-libcrun_rexec (void)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା ensure_cloned_ଦ୍ୱିମିକ ();
+__attribute__ ((constructor)) ସ୍ଥିର ଶୂନ୍ୟ
+libcrun_rexec (ଶୂନ୍ୟ)
 {
-  if (ensure_cloned_binary () < 0)
+  ଯଦି (ensure_cloned_ଦ୍ୱିମିକ () < 0)
     {
       fprintf (stderr, "Failed to re-execute libcrun via memory file descriptor\n");
       _safe_exit (EXIT_FAILURE);
     }
 }
 
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_container_checkpoint_linux (libcrun_container_status_t *status, libcrun_container_t *container,
                                     libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
 {
-  return libcrun_container_checkpoint_linux_criu (status, container, cr_options, err);
+  ଫେରନ୍ତୁ libcrun_container_checkpoint_linux_criu (status, container, cr_options, err);
 }
 
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_container_restore_linux (libcrun_container_status_t *status, libcrun_container_t *container,
                                  libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
 {
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
   ret = libcrun_container_restore_linux_criu (status, container, cr_options, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 /* Fallback to use kill(2) on systems where pidfd is not available.  */
-static int
-libcrun_kill_linux_no_pidfd (libcrun_container_status_t *status, bool check_pid, int signal, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+libcrun_kill_linux_no_pidfd (libcrun_container_status_t *status, bool check_pid, ପୂର୍ଣ୍ଣସଂଖ୍ୟା ସଙ୍କେତ, libcrun_error_t *err)
 {
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   /* There is still a possibility that the pid is killed between the check
      and the time we send the signal, but attempt to reduce the window of time when
      it is possible.  */
-  if (check_pid)
+  ଯଦି (check_pid)
     {
       ret = libcrun_check_pid_valid (status, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       /* The pid is not valid anymore, return an error.  */
-      if (ret == 0)
+      ଯଦି (ret == 0)
         {
           errno = ESRCH;
-          return crun_make_error (err, errno, "kill container");
+          ଫେରନ୍ତୁ crun_make_error (err, errno, "kill container");
         }
     }
 
-  ret = kill (status->pid, signal);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "kill container");
-  return 0;
+  ret = kill (status->pid, ସଙ୍କେତ);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "kill container");
+  ଫେରନ୍ତୁ 0;
 }
 
-int
-libcrun_kill_linux (libcrun_container_status_t *status, int signal, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+libcrun_kill_linux (libcrun_container_status_t *status, ପୂର୍ଣ୍ଣସଂଖ୍ୟା ସଙ୍କେତ, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_close int pidfd = -1;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidfd = -1;
 
   pidfd = syscall_pidfd_open (status->pid, 0);
-  if (UNLIKELY (pidfd < 0))
+  ଯଦି (UNLIKELY (pidfd < 0))
     {
       /* If pidfd_open is not supported, fallback to kill.  */
-      if (errno == ENOSYS)
-        return libcrun_kill_linux_no_pidfd (status, true, signal, err);
+      ଯଦି (errno == ENOSYS)
+        ଫେରନ୍ତୁ libcrun_kill_linux_no_pidfd (status, true, ସଙ୍କେତ, err);
       /* Kernels < 6.16 return EINVAL, newer ones ENOENT, when the pid
          is not a thread-group leader (i.e. it was reused).  */
-      if (errno == ESRCH || errno == ENOENT || errno == EINVAL)
-        return crun_make_error (err, ESRCH, "process not running");
-      return crun_make_error (err, errno, "open pidfd");
+      ଯଦି (errno == ESRCH || errno == ENOENT || errno == EINVAL)
+        ଫେରନ୍ତୁ crun_make_error (err, ESRCH, "process not running");
+      ଫେରନ୍ତୁ crun_make_error (err, errno, "open pidfd");
     }
 
   ret = libcrun_check_pid_valid (status, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   /* The pid is not valid anymore, return an error.  */
-  if (ret == 0)
+  ଯଦି (ret == 0)
     {
       errno = ESRCH;
-      return crun_make_error (err, errno, "kill container");
+      ଫେରନ୍ତୁ crun_make_error (err, errno, "kill container");
     }
 
-  ret = syscall_pidfd_send_signal (pidfd, signal, NULL, 0);
-  if (UNLIKELY (ret < 0))
+  ret = syscall_pidfd_send_signal (pidfd, ସଙ୍କେତ, ଖାଲି, 0);
+  ଯଦି (UNLIKELY (ret < 0))
     {
       /* If pidfd_send_signal is not supported, fallback to kill.  */
-      if (errno == ENOSYS)
-        return libcrun_kill_linux_no_pidfd (status, false, signal, err);
-      return crun_make_error (err, errno, "send signal to pidfd");
+      ଯଦି (errno == ENOSYS)
+        ଫେରନ୍ତୁ libcrun_kill_linux_no_pidfd (status, false, ସଙ୍କେତ, err);
+      ଫେରନ୍ତୁ crun_make_error (err, errno, "send signal to pidfd");
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static const char *
-libcrun_get_intelrdt_name (const char *ctr_name, runtime_spec_schema_config_schema *def, bool *explicit)
+ସ୍ଥିର ଅଚଳ ଅକ୍ଷର *
+libcrun_get_intelrdt_name (ଅଚଳ ଅକ୍ଷର *ctr_name, runtime_spec_schema_config_schema *def, bool *explicit)
 {
-  if (def == NULL || def->linux == NULL || def->linux->intel_rdt == NULL || def->linux->intel_rdt->clos_id == NULL)
+  ଯଦି (def == ଖାଲି || def->linux == ଖାଲି || def->linux->intel_rdt == ଖାଲି || def->linux->intel_rdt->clos_id == ଖାଲି)
     {
-      if (explicit)
+      ଯଦି (explicit)
         *explicit = false;
-      return ctr_name;
+      ଫେରନ୍ତୁ ctr_name;
     }
 
-  if (explicit)
+  ଯଦି (explicit)
     *explicit = true;
-  return def->linux->intel_rdt->clos_id;
+  ଫେରନ୍ତୁ def->linux->intel_rdt->clos_id;
 }
 
-int
-libcrun_apply_intelrdt (const char *ctr_name, libcrun_container_t *container, pid_t pid, int actions, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+libcrun_apply_intelrdt (ଅଚଳ ଅକ୍ଷର *ctr_name, libcrun_container_t *container, pid_t pid, ପୂର୍ଣ୍ଣସଂଖ୍ୟା actions, libcrun_error_t *err)
 {
-  runtime_spec_schema_config_schema *def = NULL;
+  runtime_spec_schema_config_schema *def = ଖାଲି;
   bool has_monitoring = false;
   bool explicit = false;
   bool created = false;
-  const char *name;
-  int ret;
+  ଅଚଳ ଅକ୍ଷର *name;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (container)
+  ଯଦି (container)
     def = container->container_def;
 
-  if (def == NULL || def->linux == NULL || def->linux->intel_rdt == NULL)
-    return 0;
+  ଯଦି (def == ଖାଲି || def->linux == ଖାଲି || def->linux->intel_rdt == ଖାଲି)
+    ଫେରନ୍ତୁ 0;
 
   name = libcrun_get_intelrdt_name (ctr_name, def, &explicit);
 
-  if (actions & LIBCRUN_INTELRDT_CREATE)
+  ଯଦି (actions & LIBCRUN_INTELRDT_CREATE)
     {
       ret = resctl_create (name, explicit, &created, def->linux->intel_rdt->l3cache_schema, def->linux->intel_rdt->mem_bw_schema, def->linux->intel_rdt->schemata, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
-      if (def->linux->intel_rdt->enable_monitoring)
+      ଯଦି (def->linux->intel_rdt->enable_monitoring)
         {
           ret = resctl_create_monitoring_group (name, ctr_name, err);
-          if (UNLIKELY (ret < 0))
-            goto fail;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଯାଅ fail;
 
           has_monitoring = true;
         }
     }
 
-  if (actions & LIBCRUN_INTELRDT_UPDATE)
+  ଯଦି (actions & LIBCRUN_INTELRDT_UPDATE)
     {
       ret = resctl_update (name, def->linux->intel_rdt->l3cache_schema, def->linux->intel_rdt->mem_bw_schema, def->linux->intel_rdt->schemata, err);
-      if (UNLIKELY (ret < 0))
-        goto fail;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଯାଅ fail;
     }
 
-  if (actions & LIBCRUN_INTELRDT_MOVE)
+  ଯଦି (actions & LIBCRUN_INTELRDT_MOVE)
     {
-      const char *monitoring_name = def->linux->intel_rdt->enable_monitoring ? ctr_name : NULL;
+      ଅଚଳ ଅକ୍ଷର *monitoring_name = def->linux->intel_rdt->enable_monitoring ? ctr_name : ଖାଲି;
       ret = resctl_move_task_to (name, monitoring_name, pid, err);
-      if (UNLIKELY (ret < 0))
-        goto fail;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଯାଅ fail;
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 
 fail:
-  if (has_monitoring)
+  ଯଦି (has_monitoring)
     {
-      libcrun_error_t tmp_err = NULL;
-      int tmp_ret;
+      libcrun_error_t tmp_err = ଖାଲି;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା tmp_ret;
 
       tmp_ret = resctl_destroy_monitoring_group (name, ctr_name, &tmp_err);
-      if (tmp_ret < 0)
+      ଯଦି (tmp_ret < 0)
         crun_error_release (&tmp_err);
     }
 
   /* Cleanup only if the resctl was created as part of this call.  */
-  if (created)
+  ଯଦି (created)
     {
-      libcrun_error_t tmp_err = NULL;
-      int tmp_ret;
+      libcrun_error_t tmp_err = ଖାଲି;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା tmp_ret;
 
       tmp_ret = resctl_destroy (name, &tmp_err);
-      if (tmp_ret < 0)
+      ଯଦି (tmp_ret < 0)
         crun_error_release (&tmp_err);
     }
-  return ret;
+  ଫେରନ୍ତୁ ret;
 }
 
-int
-libcrun_destroy_intelrdt (const char *container_id, runtime_spec_schema_config_schema *def, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+libcrun_destroy_intelrdt (ଅଚଳ ଅକ୍ଷର *container_id, runtime_spec_schema_config_schema *def, libcrun_error_t *err)
 {
   bool explicit = false;
-  const char *clos_id = libcrun_get_intelrdt_name (container_id, def, &explicit);
+  ଅଚଳ ଅକ୍ଷର *clos_id = libcrun_get_intelrdt_name (container_id, def, &explicit);
 
-  if (def && def->linux && def->linux->intel_rdt && def->linux->intel_rdt->enable_monitoring)
+  ଯଦି (def && def->linux && def->linux->intel_rdt && def->linux->intel_rdt->enable_monitoring)
     {
-      int ret;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
       ret = resctl_destroy_monitoring_group (clos_id, container_id, err);
-      if (ret < 0)
-        return ret;
+      ଯଦି (ret < 0)
+        ଫେରନ୍ତୁ ret;
     }
 
   /* Do not destroy the clos_id if the name was set explicitly.  */
-  if (explicit)
-    return 0;
+  ଯଦି (explicit)
+    ଫେରନ୍ତୁ 0;
 
-  return resctl_destroy (clos_id, err);
+  ଫେରନ୍ତୁ resctl_destroy (clos_id, err);
 }
 
-int
-libcrun_update_intel_rdt (const char *ctr_name, libcrun_container_t *container, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+libcrun_update_intel_rdt (ଅଚଳ ଅକ୍ଷର *ctr_name, libcrun_container_t *container, ଅଚଳ ଅକ୍ଷର *l3_cache_schema, ଅଚଳ ଅକ୍ଷର *mem_bw_schema, ଅକ୍ଷର *ଅଚଳ *schemata, libcrun_error_t *err)
 {
-  runtime_spec_schema_config_schema *def = NULL;
-  const char *name;
+  runtime_spec_schema_config_schema *def = ଖାଲି;
+  ଅଚଳ ଅକ୍ଷର *name;
 
-  if (container)
+  ଯଦି (container)
     def = container->container_def;
 
-  if (def == NULL || def->linux == NULL || def->linux->intel_rdt == NULL)
-    return 0;
+  ଯଦି (def == ଖାଲି || def->linux == ଖାଲି || def->linux->intel_rdt == ଖାଲି)
+    ଫେରନ୍ତୁ 0;
 
-  name = libcrun_get_intelrdt_name (ctr_name, def, NULL);
+  name = libcrun_get_intelrdt_name (ctr_name, def, ଖାଲି);
 
-  return resctl_update (name, l3_cache_schema, mem_bw_schema, schemata, err);
+  ଫେରନ୍ତୁ resctl_update (name, l3_cache_schema, mem_bw_schema, schemata, err);
 }
 
 /* Change the current directory and make sure the current working
@@ -8233,25 +8233,25 @@ libcrun_update_intel_rdt (const char *ctr_name, libcrun_container_t *container, 
    CVE-2024-21626.
    The current working directory cannot be longer than PATH_MAX.
 */
-int
-libcrun_safe_chdir (const char *path, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+libcrun_safe_chdir (ଅଚଳ ଅକ୍ଷର *path, libcrun_error_t *err)
 {
-  cleanup_free char *buffer = NULL;
-  int ret;
+  cleanup_free ଅକ୍ଷର *buffer = ଖାଲି;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   ret = chdir (path);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "chdir to `%s`", path);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "chdir to `%s`", path);
 
   buffer = xmalloc (PATH_MAX);
   ret = syscall_getcwd (buffer, PATH_MAX);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, -ret, "getcwd");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, -ret, "getcwd");
 
   /* Enforce that the returned path is an absolute path.  */
-  if (ret == 0 || buffer[0] != '/')
+  ଯଦି (ret == 0 || buffer[0] != '/')
     {
-      if (chdir ("/") < 0)
+      ଯଦି (chdir ("/") < 0)
         {
           /* Braces around empty body, to fix warning for [-Wunused-result] and error for [-Werror=empty-body]. */
         }
@@ -8263,42 +8263,42 @@ libcrun_safe_chdir (const char *path, libcrun_error_t *err)
         Use it to give a better error message.
       */
 #define UNREACHABLE "(unreachable)"
-#define UNREACHABLE_LEN ((int) sizeof (UNREACHABLE) - 1)
+#define UNREACHABLE_LEN ((ପୂର୍ଣ୍ଣସଂଖ୍ୟା) ଆକାର (UNREACHABLE) - 1)
 
-      if ((ret >= UNREACHABLE_LEN) && (memcmp (buffer, UNREACHABLE, UNREACHABLE_LEN) == 0))
-        return crun_make_error (err, errno, "the working directory is not accessible from the current namespace");
+      ଯଦି ((ret >= UNREACHABLE_LEN) && (memcmp (buffer, UNREACHABLE, UNREACHABLE_LEN) == 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "the working directory is not accessible from the current namespace");
 
-      return crun_make_error (err, errno, "the current working directory is not an absolute path");
+      ଫେରନ୍ତୁ crun_make_error (err, errno, "the current working directory is not an absolute path");
     }
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 /* Run the callback in the mount namespace referred to by MNTNS_FD.  It is
    done in a separate function so that no variable of the caller is live
    across the vfork.  */
-static int
-run_callback_in_namespace (int mntns_fd, int (*callback) (void *, libcrun_error_t *), void *arg, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+run_callback_in_namespace (ପୂର୍ଣ୍ଣସଂଖ୍ୟା mntns_fd, ପୂର୍ଣ୍ଣସଂଖ୍ୟା (*callback) (ଶୂନ୍ୟ *, libcrun_error_t *), ଶୂନ୍ୟ *arg, libcrun_error_t *err)
 {
-  int wait_status = 0;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା wait_status = 0;
   pid_t pid;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   /* must be vfork to propagate the error from the child proc.  */
   pid = vfork ();
-  if (UNLIKELY (pid < 0))
-    return crun_make_error (err, errno, "vfork");
+  ଯଦି (UNLIKELY (pid < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "vfork");
 
-  if (pid == 0)
+  ଯଦି (pid == 0)
     {
       ret = setns (mntns_fd, CLONE_NEWNS);
-      if (UNLIKELY (ret < 0))
+      ଯଦି (UNLIKELY (ret < 0))
         {
           /* Create an error for the parent proc.  */
           crun_make_error (err, 0, "setns to target pid");
           _safe_exit (ret);
         }
       ret = chdir ("/");
-      if (UNLIKELY (ret < 0))
+      ଯଦି (UNLIKELY (ret < 0))
         {
           /* Create an error for the parent proc.  */
           crun_make_error (err, errno, "chdir to `/`");
@@ -8312,71 +8312,71 @@ run_callback_in_namespace (int mntns_fd, int (*callback) (void *, libcrun_error_
     }
 
   ret = waitpid_ignore_stopped (pid, &wait_status, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "waitpid for exec child pid");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "waitpid for exec child pid");
 
   /* The vfork() child shares the parent's memory space, so the error
      object populated by the child is available to the parent.
      Do not call crun_make_error() here. */
-  return get_process_exit_status (wait_status);
+  ଫେରନ୍ତୁ get_process_exit_status (wait_status);
 }
 
 /* Check that USERNS_FD refers to the user namespace configured for the container.  */
-static int
-check_container_userns (libcrun_container_t *container, int userns_fd, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+check_container_userns (libcrun_container_t *container, ପୂର୍ଣ୍ଣସଂଖ୍ୟା userns_fd, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
   bool new_userns = container->host_uid != 0;
-  cleanup_close int expected_fd = -1;
-  cleanup_close int parent_fd = -1;
-  struct stat st, expected_st;
-  const char *path = NULL;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା expected_fd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା parent_fd = -1;
+  ସଂରଚନା stat st, expected_st;
+  ଅଚଳ ଅକ୍ଷର *path = ଖାଲି;
   size_t i;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (def->linux)
-    for (i = 0; i < def->linux->namespaces_len; i++)
-      if (libcrun_find_namespace (def->linux->namespaces[i]->type) == CLONE_NEWUSER)
+  ଯଦି (def->linux)
+    ପାଇଁ (i = 0; i < def->linux->namespaces_len; i++)
+      ଯଦି (libcrun_find_namespace (def->linux->namespaces[i]->type) == CLONE_NEWUSER)
         {
           path = def->linux->namespaces[i]->path;
-          new_userns = path == NULL;
-          break;
+          new_userns = path == ଖାଲି;
+          ଭାଙ୍ଗ;
         }
 
-  if (path == NULL)
+  ଯଦି (path == ଖାଲି)
     {
       expected_fd = libcrun_open_proc_file (container, "self/ns/user", O_RDONLY, err);
-      if (UNLIKELY (expected_fd < 0))
-        return expected_fd;
+      ଯଦି (UNLIKELY (expected_fd < 0))
+        ଫେରନ୍ତୁ expected_fd;
     }
-  else
+  ଅନ୍ୟଥା
     {
       expected_fd = open (path, O_RDONLY | O_CLOEXEC);
-      if (UNLIKELY (expected_fd < 0))
-        return crun_make_error (err, errno, "open `%s`", path);
+      ଯଦି (UNLIKELY (expected_fd < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "open `%s`", path);
     }
 
   /* A user namespace created for the container is a child of the current one.  */
-  if (new_userns)
+  ଯଦି (new_userns)
     {
       parent_fd = ioctl (userns_fd, NS_GET_PARENT);
-      if (UNLIKELY (parent_fd < 0))
-        return crun_make_error (err, errno, "get the parent of the user namespace");
+      ଯଦି (UNLIKELY (parent_fd < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "get the parent of the user namespace");
       userns_fd = parent_fd;
     }
 
   ret = fstat (userns_fd, &st);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fstat user namespace");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "fstat user namespace");
 
   ret = fstat (expected_fd, &expected_st);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fstat user namespace");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "fstat user namespace");
 
-  if (st.st_dev != expected_st.st_dev || st.st_ino != expected_st.st_ino)
-    return crun_make_error (err, 0, "the container process is not using the user namespace of the container");
+  ଯଦି (st.st_dev != expected_st.st_dev || st.st_ino != expected_st.st_ino)
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "the container process is not using the user namespace of the container");
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 /* Open the mount namespace of the container in MNTNS_FD and the user namespace
@@ -8387,55 +8387,55 @@ check_container_userns (libcrun_container_t *container, int userns_fd, libcrun_e
    could drop its ro, nosuid, nodev and noexec flags.  Make sure the mount
    namespace is owned by the user namespace of the container, so that the
    caller can join the same namespaces that were checked.  */
-static int
-open_container_mntns (libcrun_container_t *container, libcrun_container_status_t *status, int *mntns_fd, int *owner_fd, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+open_container_mntns (libcrun_container_t *container, libcrun_container_status_t *status, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *mntns_fd, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *owner_fd, libcrun_error_t *err)
 {
-  cleanup_close int mntns = -1;
-  cleanup_close int owner = -1;
-  int ret;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା mntns = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା owner = -1;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   mntns = libcrun_open_proc_pid_file (container, status->pid, "ns/mnt", O_RDONLY, err);
-  if (UNLIKELY (mntns < 0))
-    return mntns;
+  ଯଦି (UNLIKELY (mntns < 0))
+    ଫେରନ୍ତୁ mntns;
 
   /* Check if the container is still running after opening the namespace.  */
   ret = libcrun_is_container_running (status, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  if (ret == 0)
-    return crun_make_error (err, 0, "container not running");
+  ଯଦି (ret == 0)
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "container not running");
 
   owner = ioctl (mntns, NS_GET_USERNS);
-  if (UNLIKELY (owner < 0))
-    return crun_make_error (err, errno, "get the owner of the mount namespace");
+  ଯଦି (UNLIKELY (owner < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "get the owner of the mount namespace");
 
   ret = check_container_userns (container, owner, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   *mntns_fd = mntns;
   mntns = -1;
   *owner_fd = owner;
   owner = -1;
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-run_in_container_namespace (libcrun_container_t *container, libcrun_container_status_t *status, int (*callback) (void *, libcrun_error_t *), void *arg, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+run_in_container_namespace (libcrun_container_t *container, libcrun_container_status_t *status, ପୂର୍ଣ୍ଣସଂଖ୍ୟା (*callback) (ଶୂନ୍ୟ *, libcrun_error_t *), ଶୂନ୍ୟ *arg, libcrun_error_t *err)
 {
-  cleanup_close int mntns_fd = -1;
-  cleanup_close int owner_fd = -1;
-  int ret;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା mntns_fd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା owner_fd = -1;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   ret = open_container_mntns (container, status, &mntns_fd, &owner_fd, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  return run_callback_in_namespace (mntns_fd, callback, arg, err);
+  ଫେରନ୍ତୁ run_callback_in_namespace (mntns_fd, callback, arg, err);
 }
 
-struct umount_in_a_container_args
+ସଂରଚନା umount_in_a_container_args
 {
   runtime_spec_schema_defs_mount **mounts;
   size_t len;
@@ -8446,41 +8446,41 @@ struct umount_in_a_container_args
    followed, otherwise the container could choose what mount is detached.
    umount2 accepts only a path, so unmount the last component from its parent
    directory and then go back to the previous working directory.  */
-static int
-umount_nofollow (const char *destination, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+umount_nofollow (ଅଚଳ ଅକ୍ଷର *destination, libcrun_error_t *err)
 {
-  cleanup_close int parentfd = -1;
-  cleanup_close int cwdfd = -1;
-  char buffer[PATH_MAX];
-  const char *parent, *name;
-  char *last_slash;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା parentfd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା cwdfd = -1;
+  ଅକ୍ଷର buffer[PATH_MAX];
+  ଅଚଳ ଅକ୍ଷର *parent, *name;
+  ଅକ୍ଷର *last_slash;
   size_t len;
-  int saved_errno;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା saved_errno;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (is_empty_string (destination))
-    return crun_make_error (err, 0, "empty destination for mount");
+  ଯଦି (is_empty_string (destination))
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "empty destination for mount");
 
   len = strlen (destination);
-  if (UNLIKELY (len >= sizeof (buffer)))
-    return crun_make_error (err, ENAMETOOLONG, "umount `%s`", destination);
+  ଯଦି (UNLIKELY (len >= ଆକାର (buffer)))
+    ଫେରନ୍ତୁ crun_make_error (err, ENAMETOOLONG, "umount `%s`", destination);
   memcpy (buffer, destination, len + 1);
 
-  while (len > 1 && buffer[len - 1] == '/')
+  ଯେତେବେଳେ (len > 1 && buffer[len - 1] == '/')
     buffer[--len] = '\0';
 
   last_slash = strrchr (buffer, '/');
-  if (last_slash == NULL)
+  ଯଦି (last_slash == ଖାଲି)
     {
       parent = ".";
       name = buffer;
     }
-  else if (last_slash == buffer)
+  ଅନ୍ୟଥା ଯଦି (last_slash == buffer)
     {
       parent = "/";
       name = buffer[1] ? buffer + 1 : ".";
     }
-  else
+  ଅନ୍ୟଥା
     {
       *last_slash = '\0';
       parent = buffer;
@@ -8489,52 +8489,52 @@ umount_nofollow (const char *destination, libcrun_error_t *err)
 
   parentfd = syscall_openat2 (AT_FDCWD, parent, O_PATH | O_DIRECTORY | O_CLOEXEC, 0,
                               RESOLVE_NO_SYMLINKS | RESOLVE_NO_MAGICLINKS);
-  if (UNLIKELY (parentfd < 0))
-    return crun_make_error (err, errno, "open parent directory of `%s`", destination);
+  ଯଦି (UNLIKELY (parentfd < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "open parent directory of `%s`", destination);
 
   cwdfd = open (".", O_PATH | O_DIRECTORY | O_CLOEXEC);
-  if (UNLIKELY (cwdfd < 0))
-    return crun_make_error (err, errno, "open current directory");
+  ଯଦି (UNLIKELY (cwdfd < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "open current directory");
 
   ret = fchdir (parentfd);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fchdir to parent directory of `%s`", destination);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "fchdir to parent directory of `%s`", destination);
 
   ret = umount2 (name, MNT_DETACH | UMOUNT_NOFOLLOW);
   saved_errno = errno;
 
-  if (UNLIKELY (fchdir (cwdfd) < 0))
-    return crun_make_error (err, errno, "fchdir to the previous working directory");
+  ଯଦି (UNLIKELY (fchdir (cwdfd) < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "fchdir to the previous working directory");
 
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, saved_errno, "umount `%s`", destination);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, saved_errno, "umount `%s`", destination);
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-do_umount_in_a_container (void *arg, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+do_umount_in_a_container (ଶୂନ୍ୟ *arg, libcrun_error_t *err)
 {
-  struct umount_in_a_container_args *args = arg;
+  ସଂରଚନା umount_in_a_container_args *args = arg;
   size_t i;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  for (i = 0; i < args->len; i++)
+  ପାଇଁ (i = 0; i < args->len; i++)
     {
       ret = umount_nofollow (args->mounts[i]->destination, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-struct mount_in_a_container_args
+ସଂରଚନା mount_in_a_container_args
 {
   runtime_spec_schema_defs_mount **mounts;
-  struct libcrun_fd_map *fds;
-  int pidfd;
-  int owner_fd;
+  ସଂରଚନା libcrun_fd_map *fds;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidfd;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା owner_fd;
   size_t len;
 };
 
@@ -8542,32 +8542,32 @@ struct mount_in_a_container_args
    exist.  The file system tree is under the control of the container, so no
    symlink is followed, as it happens for `mounts remove`, otherwise a mount
    could be added that cannot be removed.  */
-static int
-open_destination_nofollow (const char *destination, bool dir, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+open_destination_nofollow (ଅଚଳ ଅକ୍ଷର *destination, bool dir, libcrun_error_t *err)
 {
-  const uint64_t resolve = RESOLVE_NO_SYMLINKS | RESOLVE_NO_MAGICLINKS;
-  int fd;
-  int ret;
+  ଅଚଳ uint64_t resolve = RESOLVE_NO_SYMLINKS | RESOLVE_NO_MAGICLINKS;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   fd = syscall_openat2 (AT_FDCWD, destination, O_PATH | O_CLOEXEC, 0, resolve);
-  if (LIKELY (fd >= 0))
-    return fd;
+  ଯଦି (LIKELY (fd >= 0))
+    ଫେରନ୍ତୁ fd;
 
-  if (errno != ENOENT)
-    return crun_make_error (err, errno, "open `%s`", destination);
+  ଯଦି (errno != ENOENT)
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "open `%s`", destination);
 
-  if (dir)
+  ଯଦି (dir)
     ret = crun_safe_ensure_directory_at (AT_FDCWD, "/", destination, 0755, err);
-  else
+  ଅନ୍ୟଥା
     ret = crun_safe_ensure_file_at (AT_FDCWD, "/", destination, 0755, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   fd = syscall_openat2 (AT_FDCWD, destination, O_PATH | O_CLOEXEC, 0, resolve);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s`", destination);
+  ଯଦି (UNLIKELY (fd < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "open `%s`", destination);
 
-  return fd;
+  ଫେରନ୍ତୁ fd;
 }
 
 /* Create the missing destinations of the mounts as the root user of the
@@ -8575,173 +8575,173 @@ open_destination_nofollow (const char *destination, bool dir, libcrun_error_t *e
    namespace, where the root user of the host has no mapping, so that an
    inode it creates there would have no owner and mkdir fails with
    EOVERFLOW.  */
-static int
-create_destinations_in_a_container (void *arg, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+create_destinations_in_a_container (ଶୂନ୍ୟ *arg, libcrun_error_t *err)
 {
-  struct mount_in_a_container_args *args = arg;
+  ସଂରଚନା mount_in_a_container_args *args = arg;
   size_t i;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   ret = setns (args->owner_fd, CLONE_NEWUSER);
-  if (ret == 0)
+  ଯଦି (ret == 0)
     {
       ret = setresgid (0, 0, 0);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "setresgid to `0`");
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "setresgid to `0`");
 
       ret = setresuid (0, 0, 0);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "setresuid to `0`");
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "setresuid to `0`");
     }
-  else if (errno != EINVAL)
+  ଅନ୍ୟଥା ଯଦି (errno != EINVAL)
     {
       /* EINVAL means that the container runs in the current user namespace.  */
-      return crun_make_error (err, errno, "setns to the user namespace of the container");
+      ଫେରନ୍ତୁ crun_make_error (err, errno, "setns to the user namespace of the container");
     }
 
-  for (i = 0; i < args->len; i++)
+  ପାଇଁ (i = 0; i < args->len; i++)
     {
-      cleanup_close int dest_fd = -1;
-      struct stat st;
+      cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା dest_fd = -1;
+      ସଂରଚନା stat st;
 
       ret = fstat (args->fds->fds[i], &st);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "fstat");
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "fstat");
 
       dest_fd = open_destination_nofollow (args->mounts[i]->destination, (st.st_mode & S_IFMT) == S_IFDIR, err);
-      if (UNLIKELY (dest_fd < 0))
-        return dest_fd;
+      ଯଦି (UNLIKELY (dest_fd < 0))
+        ଫେରନ୍ତୁ dest_fd;
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-do_mount_in_a_container (void *arg, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+do_mount_in_a_container (ଶୂନ୍ୟ *arg, libcrun_error_t *err)
 {
-  struct mount_in_a_container_args *args = arg;
+  ସଂରଚନା mount_in_a_container_args *args = arg;
   size_t i;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  for (i = 0; i < args->len; i++)
+  ପାଇଁ (i = 0; i < args->len; i++)
     {
-      cleanup_close int dest_fd = -1;
-      struct stat st;
+      cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା dest_fd = -1;
+      ସଂରଚନା stat st;
 
       ret = fstat (args->fds->fds[i], &st);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "fstat");
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "fstat");
 
       dest_fd = open_destination_nofollow (args->mounts[i]->destination, (st.st_mode & S_IFMT) == S_IFDIR, err);
-      if (UNLIKELY (dest_fd < 0))
-        return dest_fd;
+      ଯଦି (UNLIKELY (dest_fd < 0))
+        ଫେରନ୍ତୁ dest_fd;
 
-      ret = fs_move_mount_to (args->fds->fds[i], dest_fd, NULL);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "move mount to `%s`", args->mounts[i]->destination);
+      ret = fs_move_mount_to (args->fds->fds[i], dest_fd, ଖାଲି);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "move mount to `%s`", args->mounts[i]->destination);
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 /* Join the namespaces of the container referred to by PIDFD, create the file
    system for each of MOUNTS that has no fd in FDS yet and send them, in order,
    to SYNC_FD.  It must be called from a child process.  */
-static int
-send_mounts_from_container_namespaces (libcrun_container_t *container, int pidfd, runtime_spec_schema_defs_mount **mounts,
-                                       struct libcrun_fd_map *fds, size_t len, int flags, int owner_fd, int sync_fd, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+send_mounts_from_container_namespaces (libcrun_container_t *container, ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidfd, runtime_spec_schema_defs_mount **mounts,
+                                       ସଂରଚନା libcrun_fd_map *fds, size_t len, ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags, ପୂର୍ଣ୍ଣସଂଖ୍ୟା owner_fd, ପୂର୍ଣ୍ଣସଂଖ୍ୟା sync_fd, libcrun_error_t *err)
 {
   pid_t pid;
   size_t i;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   /* The process is visible from the container once it joins its PID namespace.  */
   ret = prctl (PR_SET_DUMPABLE, 0, 0, 0, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "prctl (PR_SET_DUMPABLE)");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "prctl (PR_SET_DUMPABLE)");
 
   /* Join the namespaces while still being privileged, then the user
      namespace that was checked and not the one the container process is in
      right now.  */
   ret = flags ? setns (pidfd, flags) : 0;
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "setns to target pid");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "setns to target pid");
 
   ret = setns (owner_fd, CLONE_NEWUSER);
-  if (ret == 0)
+  ଯଦି (ret == 0)
     {
       /* CAP_SYS_ADMIN is needed in the user namespace owning the mount
          namespace.  Do not join the mount namespace of the container, any
          path used for the mount refers to the host, as it does for the
          mounts in the container configuration.  */
       ret = unshare (CLONE_NEWNS);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "unshare `CLONE_NEWNS`");
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "unshare `CLONE_NEWNS`");
     }
-  else if (errno != EINVAL)
+  ଅନ୍ୟଥା ଯଦି (errno != EINVAL)
     {
       /* EINVAL means that the container runs in the current user namespace.  */
-      return crun_make_error (err, errno, "setns to the user namespace of the container");
+      ଫେରନ୍ତୁ crun_make_error (err, errno, "setns to the user namespace of the container");
     }
 
   /* We need to fork once again to join the PID namespace.  */
   pid = fork ();
-  if (UNLIKELY (pid < 0))
-    return crun_make_error (err, errno, "fork");
+  ଯଦି (UNLIKELY (pid < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "fork");
 
-  if (pid)
+  ଯଦି (pid)
     {
-      int wait_status = 0;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା wait_status = 0;
 
       /* The container can signal the process, do not hang if it is stopped.  */
       ret = TEMP_FAILURE_RETRY (waitpid (pid, &wait_status, WUNTRACED));
-      if (ret > 0 && WIFSTOPPED (wait_status))
+      ଯଦି (ret > 0 && WIFSTOPPED (wait_status))
         {
           kill (pid, SIGKILL);
-          TEMP_FAILURE_RETRY (waitpid (pid, NULL, 0));
-          return crun_make_error (err, 0, "the process creating the mounts was stopped");
+          TEMP_FAILURE_RETRY (waitpid (pid, ଖାଲି, 0));
+          ଫେରନ୍ତୁ crun_make_error (err, 0, "the process creating the mounts was stopped");
         }
       _safe_exit (EXIT_SUCCESS);
     }
 
   ret = set_id_init (container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ret = prctl (PR_SET_DUMPABLE, 0, 0, 0, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "prctl (PR_SET_DUMPABLE)");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "prctl (PR_SET_DUMPABLE)");
 
-  for (i = 0; i < len; i++)
+  ପାଇଁ (i = 0; i < len; i++)
     {
-      cleanup_close int fd = -1;
+      cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -1;
 
-      if (fds->fds[i] >= 0)
-        continue;
+      ଯଦି (fds->fds[i] >= 0)
+        ଜାରି;
 
       fd = open_mount_of_type (container, mounts[i], err);
-      if (UNLIKELY (fd < 0))
-        return crun_make_error (err, errno, "open mount of type `%s` for `%s`", mounts[i]->type, mounts[i]->destination);
+      ଯଦି (UNLIKELY (fd < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "open mount of type `%s` for `%s`", mounts[i]->type, mounts[i]->destination);
 
       ret = send_fd_to_socket (sync_fd, fd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 /* Get in FLAGS the namespaces a file system can be bound to (together with
    the user namespace) that the container does not share with the current
    process.  setns requires CAP_SYS_ADMIN in the user namespace owning the
    target also for a namespace that is already the current one.  */
-static int
-get_namespaces_to_join (libcrun_container_t *container, pid_t pid, int *flags, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+get_namespaces_to_join (libcrun_container_t *container, pid_t pid, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *flags, libcrun_error_t *err)
 {
-  static const struct
+  ସ୍ଥିର ଅଚଳ ସଂରଚନା
   {
-    const char *name;
-    int flag;
+    ଅଚଳ ଅକ୍ଷର *name;
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା flag;
   } namespaces[] = {
     { "ns/pid", CLONE_NEWPID },
     { "ns/net", CLONE_NEWNET },
@@ -8752,107 +8752,107 @@ get_namespaces_to_join (libcrun_container_t *container, pid_t pid, int *flags, l
 
   *flags = 0;
 
-  for (i = 0; i < sizeof (namespaces) / sizeof (namespaces[0]); i++)
+  ପାଇଁ (i = 0; i < ଆକାର (namespaces) / ଆକାର (namespaces[0]); i++)
     {
-      cleanup_close int self_fd = -1;
-      cleanup_close int target_fd = -1;
-      struct stat self_st, target_st;
-      cleanup_free char *self_path = NULL;
-      int ret;
+      cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା self_fd = -1;
+      cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା target_fd = -1;
+      ସଂରଚନା stat self_st, target_st;
+      cleanup_free ଅକ୍ଷର *self_path = ଖାଲି;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
       xasprintf (&self_path, "self/%s", namespaces[i].name);
 
       self_fd = libcrun_open_proc_file (container, self_path, O_RDONLY, err);
-      if (UNLIKELY (self_fd < 0))
-        return self_fd;
+      ଯଦି (UNLIKELY (self_fd < 0))
+        ଫେରନ୍ତୁ self_fd;
 
       target_fd = libcrun_open_proc_pid_file (container, pid, namespaces[i].name, O_RDONLY, err);
-      if (UNLIKELY (target_fd < 0))
-        return target_fd;
+      ଯଦି (UNLIKELY (target_fd < 0))
+        ଫେରନ୍ତୁ target_fd;
 
       ret = fstat (self_fd, &self_st);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "fstat `%s`", namespaces[i].name);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "fstat `%s`", namespaces[i].name);
 
       ret = fstat (target_fd, &target_st);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "fstat `%s`", namespaces[i].name);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "fstat `%s`", namespaces[i].name);
 
-      if (self_st.st_dev != target_st.st_dev || self_st.st_ino != target_st.st_ino)
+      ଯଦି (self_st.st_dev != target_st.st_dev || self_st.st_ino != target_st.st_ino)
         *flags |= namespaces[i].flag;
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 /* A file system is bound to the namespaces of the process creating it (e.g.
    procfs to its PID namespace), so create the ones still missing in FDS from
    a process that joined the namespaces of the container, as it happens for
    the mounts in the container configuration.  */
-static int
-open_mounts_in_container_namespaces (libcrun_container_t *container, libcrun_container_status_t *status, int owner_fd,
-                                     runtime_spec_schema_defs_mount **mounts, struct libcrun_fd_map *fds, size_t len,
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+open_mounts_in_container_namespaces (libcrun_container_t *container, libcrun_container_status_t *status, ପୂର୍ଣ୍ଣସଂଖ୍ୟା owner_fd,
+                                     runtime_spec_schema_defs_mount **mounts, ସଂରଚନା libcrun_fd_map *fds, size_t len,
                                      libcrun_error_t *err)
 {
-  cleanup_close int sync_fd = -1;
-  cleanup_close int pidfd = -1;
-  int sync_socket_fd[2];
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା sync_fd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidfd = -1;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା sync_socket_fd[2];
   bool needed = false;
-  int flags;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags;
   pid_t pid;
   size_t i;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  for (i = 0; i < len; i++)
+  ପାଇଁ (i = 0; i < len; i++)
     {
-      if (fds->fds[i] >= 0)
-        continue;
+      ଯଦି (fds->fds[i] >= 0)
+        ଜାରି;
 
-      if (mounts[i]->type == NULL)
-        return crun_make_error (err, 0, "invalid mount type for `%s`", mounts[i]->destination);
+      ଯଦି (mounts[i]->type == ଖାଲି)
+        ଫେରନ୍ତୁ crun_make_error (err, 0, "invalid mount type for `%s`", mounts[i]->destination);
 
       needed = true;
     }
 
-  if (! needed)
-    return 0;
+  ଯଦି (! needed)
+    ଫେରନ୍ତୁ 0;
 
   pidfd = syscall_pidfd_open (status->pid, 0);
-  if (UNLIKELY (pidfd < 0))
-    return crun_make_error (err, errno, "pidfd_open");
+  ଯଦି (UNLIKELY (pidfd < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "pidfd_open");
 
   /* Check if the container is still running after opening the pidfd.  */
   ret = libcrun_is_container_running (status, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  if (ret == 0)
-    return crun_make_error (err, 0, "container not running");
+  ଯଦି (ret == 0)
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "container not running");
 
   ret = get_namespaces_to_join (container, status->pid, &flags, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ret = socketpair (AF_UNIX, SOCK_SEQPACKET | SOCK_CLOEXEC, 0, sync_socket_fd);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "error creating socketpair");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "error creating socketpair");
 
   sync_fd = sync_socket_fd[0];
 
   pid = fork ();
-  if (UNLIKELY (pid < 0))
+  ଯଦି (UNLIKELY (pid < 0))
     {
       ret = crun_make_error (err, errno, "fork");
       TEMP_FAILURE_RETRY (close (sync_socket_fd[1]));
-      return ret;
+      ଫେରନ୍ତୁ ret;
     }
 
-  if (pid == 0)
+  ଯଦି (pid == 0)
     {
       close_and_reset (&sync_fd);
 
       ret = send_mounts_from_container_namespaces (container, pidfd, mounts, fds, len, flags, owner_fd, sync_socket_fd[1], err);
-      if (UNLIKELY (ret < 0))
+      ଯଦି (UNLIKELY (ret < 0))
         send_error_to_sync_socket_and_die (sync_socket_fd[1], true, err);
 
       _safe_exit (EXIT_SUCCESS);
@@ -8861,25 +8861,25 @@ open_mounts_in_container_namespaces (libcrun_container_t *container, libcrun_con
   TEMP_FAILURE_RETRY (close (sync_socket_fd[1]));
 
   ret = 0;
-  for (i = 0; i < len; i++)
+  ପାଇଁ (i = 0; i < len; i++)
     {
-      if (fds->fds[i] >= 0)
-        continue;
+      ଯଦି (fds->fds[i] >= 0)
+        ଜାରି;
 
       ret = receive_fd_from_socket (sync_fd, err);
-      if (UNLIKELY (ret < 0))
+      ଯଦି (UNLIKELY (ret < 0))
         {
-          cleanup_free char *err_str = NULL;
-          int err_code = 0;
+          cleanup_free ଅକ୍ଷର *err_str = ଖାଲି;
+          ପୂର୍ଣ୍ଣସଂଖ୍ୟା err_code = 0;
 
-          if (read_error_from_sync_socket (sync_fd, &err_code, &err_str) && ! is_empty_string (err_str))
+          ଯଦି (read_error_from_sync_socket (sync_fd, &err_code, &err_str) && ! is_empty_string (err_str))
             {
               crun_error_release (err);
               ret = crun_make_error (err, err_code, "%s", err_str);
             }
-          else
+          ଅନ୍ୟଥା
             ret = crun_error_wrap (err, "receive mount fd");
-          break;
+          ଭାଙ୍ଗ;
         }
 
       fds->fds[i] = ret;
@@ -8887,78 +8887,78 @@ open_mounts_in_container_namespaces (libcrun_container_t *container, libcrun_con
     }
 
   /* The child process reaps the process that joined the PID namespace of the container.  */
-  TEMP_FAILURE_RETRY (waitpid (pid, NULL, 0));
+  TEMP_FAILURE_RETRY (waitpid (pid, ଖାଲି, 0));
 
-  return ret;
+  ଫେରନ୍ତୁ ret;
 }
 
-static unsigned long
+ସ୍ଥିର unsigned long
 get_runtime_mount_flags (libcrun_container_t *container, runtime_spec_schema_defs_mount *mount, uint64_t *rec_clear, uint64_t *rec_set)
 {
-  cleanup_free char *data = NULL;
+  cleanup_free ଅକ୍ଷର *data = ଖାଲି;
   unsigned long extra_flags = 0;
   unsigned long flags = 0;
   size_t j;
 
-  if (mount->options == NULL)
-    return get_default_flags (container, mount->destination, &data);
+  ଯଦି (mount->options == ଖାଲି)
+    ଫେରନ୍ତୁ get_default_flags (container, mount->destination, &data);
 
-  for (j = 0; j < mount->options_len; j++)
+  ପାଇଁ (j = 0; j < mount->options_len; j++)
     flags |= get_mount_flags_or_option (mount->options[j], flags, &extra_flags, &data, rec_clear, rec_set);
 
-  return flags;
+  ଫେରନ୍ତୁ flags;
 }
 
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_make_runtime_mounts (libcrun_container_t *container, libcrun_container_status_t *status, runtime_spec_schema_defs_mount **mounts, size_t len, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  struct mount_in_a_container_args args;
-  cleanup_close_map struct libcrun_fd_map *fds = NULL;
-  cleanup_close int pidfd = -1;
-  cleanup_close int mntns_fd = -1;
-  cleanup_close int owner_fd = -1;
+  ସଂରଚନା mount_in_a_container_args args;
+  cleanup_close_map ସଂରଚନା libcrun_fd_map *fds = ଖାଲି;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidfd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା mntns_fd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା owner_fd = -1;
   pid_t pid = status->pid;
   size_t i;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   ret = open_container_mntns (container, status, &mntns_fd, &owner_fd, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   fds = make_libcrun_fd_map (len);
 
-  for (i = 0; i < len; i++)
+  ପାଇଁ (i = 0; i < len; i++)
     {
       bool recursive = false;
       bool nofollow = false;
 
       /* Do not check whether the pid is valid or not.  run_in_container_namespace will validate it.  */
-      ret = maybe_get_idmapped_mount (container, def, mounts[i], pid, &(fds->fds[i]), NULL, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = maybe_get_idmapped_mount (container, def, mounts[i], pid, &(fds->fds[i]), ଖାଲି, err);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
-      if (fds->fds[i] < 0 && is_bind_mount (mounts[i], &recursive, &nofollow))
+      ଯଦି (fds->fds[i] < 0 && is_bind_mount (mounts[i], &recursive, &nofollow))
         {
           uint64_t rec_clear = 0, rec_set = 0;
           unsigned long propagation;
 
           propagation = get_runtime_mount_flags (container, mounts[i], &rec_clear, &rec_set) & ALL_PROPAGATIONS_NO_REC;
-          if (propagation == 0)
+          ଯଦି (propagation == 0)
             propagation = MS_PRIVATE;
 
           fds->fds[i] = get_bind_mount (-1, mounts[i]->source, recursive, false, nofollow, propagation, err);
-          if (UNLIKELY (fds->fds[i] < 0))
-            return fds->fds[i];
+          ଯଦି (UNLIKELY (fds->fds[i] < 0))
+            ଫେରନ୍ତୁ fds->fds[i];
         }
     }
 
   /* All the remaining mounts are new file systems.  */
   ret = open_mounts_in_container_namespaces (container, status, owner_fd, mounts, fds, len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  for (i = 0; i < len; i++)
+  ପାଇଁ (i = 0; i < len; i++)
     {
       uint64_t rec_clear = 0;
       uint64_t rec_set = 0;
@@ -8967,12 +8967,12 @@ libcrun_make_runtime_mounts (libcrun_container_t *container, libcrun_container_s
       flags = get_runtime_mount_flags (container, mounts[i], &rec_clear, &rec_set);
 
       ret = do_mount_setattr (false, mounts[i]->destination, fds->fds[i], 0, flags, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       ret = do_mount_setattr (true, mounts[i]->destination, fds->fds[i], rec_clear, rec_set, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
   args.mounts = mounts;
@@ -8982,155 +8982,155 @@ libcrun_make_runtime_mounts (libcrun_container_t *container, libcrun_container_s
   args.len = len;
 
   ret = run_callback_in_namespace (mntns_fd, create_destinations_in_a_container, &args, err);
-  if (UNLIKELY (ret > 0))
-    return *err ? -1 : crun_make_error (err, 0, "the process in the container mount namespace exited with status %d", ret);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret > 0))
+    ଫେରନ୍ତୁ *err ? -1 : crun_make_error (err, 0, "the process in the container mount namespace exited with status %d", ret);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  return run_callback_in_namespace (mntns_fd, do_mount_in_a_container, &args, err);
+  ଫେରନ୍ତୁ run_callback_in_namespace (mntns_fd, do_mount_in_a_container, &args, err);
 }
 
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_destroy_runtime_mounts (libcrun_container_t *container, libcrun_container_status_t *status, runtime_spec_schema_defs_mount **mounts, size_t len, libcrun_error_t *err)
 {
-  struct umount_in_a_container_args args;
+  ସଂରଚନା umount_in_a_container_args args;
 
   args.mounts = mounts;
   args.len = len;
 
-  return run_in_container_namespace (container, status, do_umount_in_a_container, &args, err);
+  ଫେରନ୍ତୁ run_in_container_namespace (container, status, do_umount_in_a_container, &args, err);
 }
 
-struct restrict_mounts_in_a_container_args
+ସଂରଚନା restrict_mounts_in_a_container_args
 {
-  struct libcrun_mount_flags_s *mounts;
+  ସଂରଚନା libcrun_mount_flags_s *mounts;
   size_t len;
-  int rootfd;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା rootfd;
 };
 
-static int
-do_restrict_mounts_in_a_container (void *arg, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+do_restrict_mounts_in_a_container (ଶୂନ୍ୟ *arg, libcrun_error_t *err)
 {
-  struct restrict_mounts_in_a_container_args *args = arg;
+  ସଂରଚନା restrict_mounts_in_a_container_args *args = arg;
   size_t i;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   /* The root of the container is not necessarily the root of the mount
      namespace.  */
   ret = fchdir (args->rootfd);
-  if (LIKELY (ret == 0))
+  ଯଦି (LIKELY (ret == 0))
     ret = chroot (".");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "chroot to the container root");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "chroot to the container root");
 
-  for (i = 0; i < args->len; i++)
+  ପାଇଁ (i = 0; i < args->len; i++)
     {
       unsigned long flags = args->mounts[i].flags & (MS_RDONLY | MS_NOSUID | MS_NODEV | MS_NOEXEC);
-      const char *target = consume_slashes (args->mounts[i].target);
-      cleanup_close int fd = -1;
-      struct statfs sfs;
+      ଅଚଳ ଅକ୍ଷର *target = consume_slashes (args->mounts[i].target);
+      cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -1;
+      ସଂରଚନା statfs sfs;
       unsigned long current_flags;
 
-      if (flags == 0)
-        continue;
+      ଯଦି (flags == 0)
+        ଜାରି;
 
       fd = safe_openat (AT_FDCWD, "/", target, O_PATH | O_CLOEXEC, 0, err);
-      if (UNLIKELY (fd < 0))
+      ଯଦି (UNLIKELY (fd < 0))
         {
-          if (crun_error_get_errno (err) == ENOENT)
+          ଯଦି (crun_error_get_errno (err) == ENOENT)
             {
               crun_error_release (err);
-              continue;
+              ଜାରି;
             }
-          return fd;
+          ଫେରନ୍ତୁ fd;
         }
 
       ret = fstatfs (fd, &sfs);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "statfs `/%s`", target);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "statfs `/%s`", target);
 
       current_flags = mount_flags_from_statfs (sfs.f_flags);
-      if ((current_flags & flags) == flags)
-        continue;
+      ଯଦି ((current_flags & flags) == flags)
+        ଜାରି;
 
       ret = do_mount_setattr (false, target, fd, 0, flags, err);
-      if (LIKELY (ret == 0))
-        continue;
+      ଯଦି (LIKELY (ret == 0))
+        ଜାରି;
 
-      if (crun_error_get_errno (err) != ENOSYS && crun_error_get_errno (err) != EINVAL)
-        return ret;
+      ଯଦି (crun_error_get_errno (err) != ENOSYS && crun_error_get_errno (err) != EINVAL)
+        ଫେରନ୍ତୁ ret;
       crun_error_release (err);
 
       /* Without mount_setattr(2), remount through the path: the container is
          not running yet, and the root was changed to its rootfs.  The remount
          clears the per-mount flags that are not specified, so pass the
          current ones as well.  */
-      ret = mount (NULL, target, NULL, MS_REMOUNT | MS_BIND | flags | current_flags, NULL);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "remount `/%s`", target);
+      ret = mount (ଖାଲି, target, ଖାଲି, MS_REMOUNT | MS_BIND | flags | current_flags, ଖାଲି);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "remount `/%s`", target);
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 /* Make sure that each of MOUNTS, in the mount namespace of PID, has at least
    the read-only, nosuid, nodev and noexec flags that are requested for it.  */
-int
-libcrun_restrict_mounts_in_container (pid_t pid, struct libcrun_mount_flags_s *mounts, size_t len, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+libcrun_restrict_mounts_in_container (pid_t pid, ସଂରଚନା libcrun_mount_flags_s *mounts, size_t len, libcrun_error_t *err)
 {
-  struct restrict_mounts_in_a_container_args args;
-  cleanup_close int mntns_fd = -1;
-  cleanup_close int rootfd = -1;
-  char path[64];
-  int ret;
+  ସଂରଚନା restrict_mounts_in_a_container_args args;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା mntns_fd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା rootfd = -1;
+  ଅକ୍ଷର path[64];
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  snprintf (path, sizeof (path), "/proc/%d/ns/mnt", pid);
+  snprintf (path, ଆକାର (path), "/proc/%d/ns/mnt", pid);
   mntns_fd = open (path, O_RDONLY | O_CLOEXEC);
-  if (UNLIKELY (mntns_fd < 0))
-    return crun_make_error (err, errno, "open `%s`", path);
+  ଯଦି (UNLIKELY (mntns_fd < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "open `%s`", path);
 
-  snprintf (path, sizeof (path), "/proc/%d/root", pid);
+  snprintf (path, ଆକାର (path), "/proc/%d/root", pid);
   rootfd = open (path, O_PATH | O_DIRECTORY | O_CLOEXEC);
-  if (UNLIKELY (rootfd < 0))
-    return crun_make_error (err, errno, "open `%s`", path);
+  ଯଦି (UNLIKELY (rootfd < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "open `%s`", path);
 
   args.mounts = mounts;
   args.len = len;
   args.rootfd = rootfd;
 
   ret = run_callback_in_namespace (mntns_fd, do_restrict_mounts_in_a_container, &args, err);
-  if (UNLIKELY (ret > 0))
-    return *err ? -1 : crun_make_error (err, 0, "the process in the container mount namespace exited with status %d", ret);
+  ଯଦି (UNLIKELY (ret > 0))
+    ଫେରନ୍ତୁ *err ? -1 : crun_make_error (err, 0, "the process in the container mount namespace exited with status %d", ret);
 
-  return ret;
+  ଫେରନ୍ତୁ ret;
 }
 
-int
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 libcrun_move_network_devices (libcrun_container_t *container, pid_t pid, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  cleanup_close int netns_fd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା netns_fd = -1;
   size_t i;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (def == NULL || def->linux == NULL || def->linux->net_devices == NULL)
-    return 0;
+  ଯଦି (def == ଖାଲି || def->linux == ଖାଲି || def->linux->net_devices == ଖାଲି)
+    ଫେରନ୍ତୁ 0;
 
-  cleanup_free char *ns_path = NULL;
+  cleanup_free ଅକ୍ଷର *ns_path = ଖାଲି;
 
   xasprintf (&ns_path, "%d/ns/net", pid);
   netns_fd = libcrun_open_proc_file (container, ns_path, O_RDONLY, err);
-  if (UNLIKELY (netns_fd < 0))
-    return netns_fd;
+  ଯଦି (UNLIKELY (netns_fd < 0))
+    ଫେରନ୍ତୁ netns_fd;
 
-  for (i = 0; i < def->linux->net_devices->len; i++)
+  ପାଇଁ (i = 0; i < def->linux->net_devices->len; i++)
     {
-      const char *new_name = def->linux->net_devices->values[i]->name ?: def->linux->net_devices->keys[i];
+      ଅଚଳ ଅକ୍ଷର *new_name = def->linux->net_devices->ମୂଲ୍ୟଗୁଡ଼ିକ[i]->name ?: def->linux->net_devices->ଚାବିଗୁଡ଼ିକ[i];
 
-      ret = move_network_device (def->linux->net_devices->keys[i], new_name, netns_fd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = move_network_device (def->linux->net_devices->ଚାବିଗୁଡ଼ିକ[i], new_name, netns_fd, err);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }

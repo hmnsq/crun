@@ -18,30 +18,30 @@
 #ifndef CRUN_CLI_H
 #define CRUN_CLI_H
 
-#include <stdbool.h>
-#include <libcrun/libcrun.h>
-#include "crun_utils.h"
+#ଅନ୍ତର୍ଭାଵ <stdbool.h>
+#ଅନ୍ତର୍ଭାଵ <libcrun/libcrun.h>
+#ଅନ୍ତର୍ଭାଵ "crun_utils.h"
 
-struct crun_global_arguments
+ସଂରଚନା crun_global_arguments
 {
-  char *root;
-  char *log;
-  char *log_format;
-  const char *handler;
+  ଅକ୍ଷର *ମୂଳ;
+  ଅକ୍ଷର *log;
+  ଅକ୍ଷର *log_format;
+  ଅଚଳ ଅକ୍ଷର *handler;
 
-  int argc;
-  int verbosity;
-  char **argv;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା argc;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା verbosity;
+  ଅକ୍ଷର **argv;
 
   bool command;
   bool option_systemd_cgroup;
   bool option_force_no_cgroup;
 };
 
-char *argp_mandatory_argument (char *arg, struct argp_state *state);
-int parse_id_or_fail (const char *str, char **endptr, const char *kind);
-int init_libcrun_context (libcrun_context_t *con, const char *id, struct crun_global_arguments *glob,
+ଅକ୍ଷର *argp_mandatory_argument (ଅକ୍ଷର *arg, ସଂରଚନା argp_state *state);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_id_or_fail (ଅଚଳ ଅକ୍ଷର *str, ଅକ୍ଷର **endptr, ଅଚଳ ଅକ୍ଷର *kind);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା init_libcrun_context (libcrun_context_t *con, ଅଚଳ ଅକ୍ଷର *id, ସଂରଚନା crun_global_arguments *glob,
                           libcrun_error_t *err);
-libcrun_context_t *new_libcrun_context (struct crun_global_arguments *glob);
-void crun_assert_n_args (int n, int min, int max);
+libcrun_context_t *new_libcrun_context (ସଂରଚନା crun_global_arguments *glob);
+ଶୂନ୍ୟ crun_assert_n_args (ପୂର୍ଣ୍ଣସଂଖ୍ୟା n, ପୂର୍ଣ୍ଣସଂଖ୍ୟା min, ପୂର୍ଣ୍ଣସଂଖ୍ୟା max);
 #endif

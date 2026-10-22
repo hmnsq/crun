@@ -18,45 +18,45 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "seccomp.h"
-#include "linux.h"
-#include "utils.h"
-#include <string.h>
-#include <sched.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/mount.h>
-#include <sys/syscall.h>
-#include <sys/prctl.h>
-#include <sys/time.h>
-#include <sys/resource.h>
-#include <sys/sysmacros.h>
-#include <sys/types.h>
-#include <sys/utsname.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
+#ଅନ୍ତର୍ଭାଵ <config.h>
+#ଅନ୍ତର୍ଭାଵ "seccomp.h"
+#ଅନ୍ତର୍ଭାଵ "linux.h"
+#ଅନ୍ତର୍ଭାଵ "utils.h"
+#ଅନ୍ତର୍ଭାଵ <string.h>
+#ଅନ୍ତର୍ଭାଵ <sched.h>
+#ଅନ୍ତର୍ଭାଵ <fcntl.h>
+#ଅନ୍ତର୍ଭାଵ <unistd.h>
+#ଅନ୍ତର୍ଭାଵ <sys/mount.h>
+#ଅନ୍ତର୍ଭାଵ <sys/syscall.h>
+#ଅନ୍ତର୍ଭାଵ <sys/prctl.h>
+#ଅନ୍ତର୍ଭାଵ <sys/time.h>
+#ଅନ୍ତର୍ଭାଵ <sys/resource.h>
+#ଅନ୍ତର୍ଭାଵ <sys/sysmacros.h>
+#ଅନ୍ତର୍ଭାଵ <sys/types.h>
+#ଅନ୍ତର୍ଭାଵ <sys/utsname.h>
+#ଅନ୍ତର୍ଭାଵ <sys/stat.h>
+#ଅନ୍ତର୍ଭାଵ <sys/mman.h>
 
 #ifdef HAVE_BLAKE3
 #  include <blake3.h>
-#else
+#ଅନ୍ୟଥା
 #  include "blake3/blake3.h"
 #endif
 
-#if HAVE_STDATOMIC_H
+#ଯଦି HAVE_STDATOMIC_H
 #  include <stdatomic.h>
 #  ifndef HAVE_ATOMIC_INT
-#    define atomic_int volatile int
+#    define atomic_int ଅସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 #  endif
 #endif
 
 #ifdef HAVE_SECCOMP
 #  include <seccomp.h>
 #endif
-#include <linux/seccomp.h>
-#include <linux/filter.h>
-#include <sys/prctl.h>
-#include <sys/syscall.h>
+#ଅନ୍ତର୍ଭାଵ <linux/seccomp.h>
+#ଅନ୍ତର୍ଭାଵ <linux/filter.h>
+#ଅନ୍ତର୍ଭାଵ <sys/prctl.h>
+#ଅନ୍ତର୍ଭାଵ <sys/syscall.h>
 
 #ifndef __NR_seccomp
 #  define __NR_seccomp 0xffff // seccomp syscall number unknown for this architecture
@@ -95,26 +95,26 @@
 /* Heuristic to avoid the cache directory grows indefinitely.  The inode size for
    the directory is proportional to the number of entries it contains and it is
    cheaper to compute than iterating the cache directory.  */
-static inline off_t
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ off_t
 get_cache_dir_inode_max_size (off_t size_rundir)
 {
-  return size_rundir * 3 + MIN_CACHE_DIR_INODE_SIZE;
+  ଫେରନ୍ତୁ size_rundir * 3 + MIN_CACHE_DIR_INODE_SIZE;
 }
 
-static int
-syscall_seccomp (unsigned int operation, unsigned int flags, void *args)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+syscall_seccomp (unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା operation, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags, ଶୂନ୍ୟ *args)
 {
-  return (int) syscall (__NR_seccomp, operation, flags, args);
+  ଫେରନ୍ତୁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା) syscall (__NR_seccomp, operation, flags, args);
 }
 
 #ifdef HAVE_SECCOMP
-static int
-get_seccomp_operator (const char *name, enum scmp_compare *op, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+get_seccomp_operator (ଅଚଳ ଅକ୍ଷର *name, ଗଣନା scmp_compare *op, libcrun_error_t *err)
 {
-  static const struct
+  ସ୍ଥିର ଅଚଳ ସଂରଚନା
   {
-    const char *name;
-    enum scmp_compare op;
+    ଅଚଳ ଅକ୍ଷର *name;
+    ଗଣନା scmp_compare op;
   } operators[] = {
     { "NE", SCMP_CMP_NE },
     { "LT", SCMP_CMP_LT },
@@ -124,31 +124,31 @@ get_seccomp_operator (const char *name, enum scmp_compare *op, libcrun_error_t *
     { "GT", SCMP_CMP_GT },
     { "MASKED_EQ", SCMP_CMP_MASKED_EQ },
   };
-  const char *p = name;
+  ଅଚଳ ଅକ୍ଷର *p = name;
   size_t i;
 
-  if (! has_prefix (p, "SCMP_CMP_"))
-    goto fail;
+  ଯଦି (! has_prefix (p, "SCMP_CMP_"))
+    ଯାଅ fail;
 
-  p += sizeof ("SCMP_CMP_") - 1;
+  p += ଆକାର ("SCMP_CMP_") - 1;
 
-  for (i = 0; i < sizeof (operators) / sizeof (operators[0]); i++)
-    if (strcmp (p, operators[i].name) == 0)
+  ପାଇଁ (i = 0; i < ଆକାର (operators) / ଆକାର (operators[0]); i++)
+    ଯଦି (strcmp (p, operators[i].name) == 0)
       {
         *op = operators[i].op;
-        return 0;
+        ଫେରନ୍ତୁ 0;
       }
 
 fail:
-  return crun_make_error (err, 0, "seccomp get operator `%s`", name);
+  ଫେରନ୍ତୁ crun_make_error (err, 0, "seccomp get operator `%s`", name);
 }
 
-static int
-get_seccomp_action (const char *name, int errno_ret, uint32_t *action, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+get_seccomp_action (ଅଚଳ ଅକ୍ଷର *name, ପୂର୍ଣ୍ଣସଂଖ୍ୟା errno_ret, uint32_t *action, libcrun_error_t *err)
 {
-  static const struct
+  ସ୍ଥିର ଅଚଳ ସଂରଚନା
   {
-    const char *name;
+    ଅଚଳ ଅକ୍ଷର *name;
     uint32_t action;
   } actions[] = {
     { "ALLOW", SCMP_ACT_ALLOW },
@@ -167,191 +167,191 @@ get_seccomp_action (const char *name, int errno_ret, uint32_t *action, libcrun_e
     { "NOTIFY", SCMP_ACT_NOTIFY },
 #  endif
   };
-  const char *p = name;
+  ଅଚଳ ଅକ୍ଷର *p = name;
   size_t i;
 
-  if (! has_prefix (p, "SCMP_ACT_"))
-    goto fail;
+  ଯଦି (! has_prefix (p, "SCMP_ACT_"))
+    ଯାଅ fail;
 
-  p += sizeof ("SCMP_ACT_") - 1;
+  p += ଆକାର ("SCMP_ACT_") - 1;
 
   /* These two embed errno_ret, so they cannot be looked up in the table.  */
-  if (strcmp (p, "ERRNO") == 0)
+  ଯଦି (strcmp (p, "ERRNO") == 0)
     {
       *action = SCMP_ACT_ERRNO (errno_ret);
-      return 0;
+      ଫେରନ୍ତୁ 0;
     }
-  if (strcmp (p, "TRACE") == 0)
+  ଯଦି (strcmp (p, "TRACE") == 0)
     {
       *action = SCMP_ACT_TRACE (errno_ret);
-      return 0;
+      ଫେରନ୍ତୁ 0;
     }
 
-  for (i = 0; i < sizeof (actions) / sizeof (actions[0]); i++)
-    if (strcmp (p, actions[i].name) == 0)
+  ପାଇଁ (i = 0; i < ଆକାର (actions) / ଆକାର (actions[0]); i++)
+    ଯଦି (strcmp (p, actions[i].name) == 0)
       {
         *action = actions[i].action;
-        return 0;
+        ଫେରନ୍ତୁ 0;
       }
 
 fail:
-  return crun_make_error (err, 0, "seccomp get action `%s`", name);
+  ଫେରନ୍ତୁ crun_make_error (err, 0, "seccomp get action `%s`", name);
 }
 
 /* seccomp_export_bpf issues a single write and succeeds even when it is
    short, so retrieve the whole program first and write it with safe_write,
    which fails on ENOSPC or EFBIG instead of leaving a truncated filter.  */
-static int
-export_bpf (scmp_filter_ctx ctx, int fd, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+export_bpf (scmp_filter_ctx ctx, ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, libcrun_error_t *err)
 {
-  cleanup_free char *bpf = NULL;
+  cleanup_free ଅକ୍ଷର *bpf = ଖାଲି;
   size_t len = 0;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
 #  ifdef HAVE_SECCOMP_EXPORT_BPF_MEM
-  ret = seccomp_export_bpf_mem (ctx, NULL, &len);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, -ret, "seccomp_export_bpf_mem");
+  ret = seccomp_export_bpf_mem (ctx, ଖାଲି, &len);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, -ret, "seccomp_export_bpf_mem");
 
   bpf = xmalloc (len);
 
   ret = seccomp_export_bpf_mem (ctx, bpf, &len);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, -ret, "seccomp_export_bpf_mem");
-#  else
-  cleanup_close int pipe_r = -1;
-  cleanup_close int pipe_w = -1;
-  int p[2];
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, -ret, "seccomp_export_bpf_mem");
+#  ଅନ୍ୟଥା
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା pipe_r = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା pipe_w = -1;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା p[2];
 
   /* A pipe is not affected by the free space or by RLIMIT_FSIZE, the write
      is short only when it fills the pipe.  */
   ret = pipe2 (p, O_CLOEXEC | O_NONBLOCK);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "pipe");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "pipe");
   pipe_r = p[0];
   pipe_w = p[1];
 
   ret = seccomp_export_bpf (ctx, pipe_w);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, -ret, "seccomp_export_bpf");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, -ret, "seccomp_export_bpf");
 
   close_and_reset (&pipe_w);
 
   ret = read_all_fd (pipe_r, "seccomp pipe", &bpf, &len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ret = fcntl (pipe_r, F_GETPIPE_SZ);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fcntl (F_GETPIPE_SZ)");
-  if (UNLIKELY (len >= (size_t) ret))
-    return crun_make_error (err, 0, "the seccomp filter does not fit in a pipe");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "fcntl (F_GETPIPE_SZ)");
+  ଯଦି (UNLIKELY (len >= (size_t) ret))
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "the seccomp filter does not fit in a pipe");
 #  endif
 
-  return safe_write (fd, "seccomp.bpf", bpf, len, err);
+  ଫେରନ୍ତୁ safe_write (fd, "seccomp.bpf", bpf, len, err);
 }
 #endif /* HAVE_SECCOMP */
 
-static void
-make_lowercase (char *str)
+ସ୍ଥିର ଶୂନ୍ୟ
+make_lowercase (ଅକ୍ଷର *str)
 {
-  while (*str)
+  ଯେତେବେଳେ (*str)
     {
       *str = tolower (*str);
       str++;
     }
 }
 
-static void
-cleanup_seccompp (void *p)
+ସ୍ଥିର ଶୂନ୍ୟ
+cleanup_seccompp (ଶୂନ୍ୟ *p)
 {
 #ifdef HAVE_SECCOMP
-  scmp_filter_ctx *ctx = (void **) p;
-  if (*ctx)
+  scmp_filter_ctx *ctx = (ଶୂନ୍ୟ **) p;
+  ଯଦି (*ctx)
     seccomp_release (*ctx);
 #endif
 }
 #define cleanup_seccomp __attribute__ ((cleanup (cleanup_seccompp)))
 
-int
-libcrun_apply_seccomp (int infd, int listener_receiver_fd, const char *receiver_fd_payload,
-                       size_t receiver_fd_payload_len, char **seccomp_flags, size_t seccomp_flags_len,
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+libcrun_apply_seccomp (ପୂର୍ଣ୍ଣସଂଖ୍ୟା infd, ପୂର୍ଣ୍ଣସଂଖ୍ୟା listener_receiver_fd, ଅଚଳ ଅକ୍ଷର *receiver_fd_payload,
+                       size_t receiver_fd_payload_len, ଅକ୍ଷର **seccomp_flags, size_t seccomp_flags_len,
                        libcrun_error_t *err)
 {
 #ifdef HAVE_SECCOMP
-  cleanup_mmap struct libcrun_mmap_s *mmap_region = NULL;
-  cleanup_close int listener_fd = -1;
-  cleanup_pid int helper_proc = -1;
-  struct sock_fprog seccomp_filter;
-  cleanup_free char *bpf = NULL;
-  unsigned int flags = 0;
+  cleanup_mmap ସଂରଚନା libcrun_mmap_s *mmap_region = ଖାଲି;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା listener_fd = -1;
+  cleanup_pid ପୂର୍ଣ୍ଣସଂଖ୍ୟା helper_proc = -1;
+  ସଂରଚନା sock_fprog seccomp_filter;
+  cleanup_free ଅକ୍ଷର *bpf = ଖାଲି;
+  unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags = 0;
   size_t len;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (infd < 0)
-    return 0;
+  ଯଦି (infd < 0)
+    ଫେରନ୍ତୁ 0;
 
-  if (UNLIKELY (lseek (infd, 0, SEEK_SET) == (off_t) -1))
-    return crun_make_error (err, errno, "lseek");
+  ଯଦି (UNLIKELY (lseek (infd, 0, SEEK_SET) == (off_t) -1))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "lseek");
 
   /* if no seccomp flag was specified use a sane default.  */
-  if (seccomp_flags == NULL)
+  ଯଦି (seccomp_flags == ଖାଲି)
     flags = SECCOMP_FILTER_FLAG_SPEC_ALLOW;
-  else
+  ଅନ୍ୟଥା
     {
       size_t i = 0;
-      for (i = 0; i < seccomp_flags_len; i++)
+      ପାଇଁ (i = 0; i < seccomp_flags_len; i++)
         {
-          if (seccomp_flags[i] == NULL)
-            return crun_make_error (err, EINVAL, "seccomp flag is not specified");
+          ଯଦି (seccomp_flags[i] == ଖାଲି)
+            ଫେରନ୍ତୁ crun_make_error (err, EINVAL, "seccomp flag is not specified");
 
-          if (strcmp (seccomp_flags[i], "SECCOMP_FILTER_FLAG_TSYNC") == 0)
+          ଯଦି (strcmp (seccomp_flags[i], "SECCOMP_FILTER_FLAG_TSYNC") == 0)
             flags |= SECCOMP_FILTER_FLAG_TSYNC;
-          else if (strcmp (seccomp_flags[i], "SECCOMP_FILTER_FLAG_SPEC_ALLOW") == 0)
+          ଅନ୍ୟଥା ଯଦି (strcmp (seccomp_flags[i], "SECCOMP_FILTER_FLAG_SPEC_ALLOW") == 0)
             flags |= SECCOMP_FILTER_FLAG_SPEC_ALLOW;
-          else if (strcmp (seccomp_flags[i], "SECCOMP_FILTER_FLAG_LOG") == 0)
+          ଅନ୍ୟଥା ଯଦି (strcmp (seccomp_flags[i], "SECCOMP_FILTER_FLAG_LOG") == 0)
             flags |= SECCOMP_FILTER_FLAG_LOG;
-          else if (strcmp (seccomp_flags[i], "SECCOMP_FILTER_FLAG_WAIT_KILLABLE_RECV") == 0)
+          ଅନ୍ୟଥା ଯଦି (strcmp (seccomp_flags[i], "SECCOMP_FILTER_FLAG_WAIT_KILLABLE_RECV") == 0)
             flags |= SECCOMP_FILTER_FLAG_WAIT_KILLABLE_RECV;
-          else
-            return crun_make_error (err, 0, "unknown seccomp option `%s`", seccomp_flags[i]);
+          ଅନ୍ୟଥା
+            ଫେରନ୍ତୁ crun_make_error (err, 0, "unknown seccomp option `%s`", seccomp_flags[i]);
         }
     }
 
   ret = read_all_fd (infd, "seccomp.bpf", &bpf, &len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   seccomp_filter.len = len / 8;
-  seccomp_filter.filter = (struct sock_filter *) bpf;
+  seccomp_filter.filter = (ସଂରଚନା sock_filter *) bpf;
 
-  if (listener_receiver_fd >= 0)
+  ଯଦି (listener_receiver_fd >= 0)
     {
-      cleanup_close int memfd = -1;
+      cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା memfd = -1;
       atomic_int *fd_received;
 
 #  ifdef SECCOMP_FILTER_FLAG_NEW_LISTENER
       flags |= SECCOMP_FILTER_FLAG_NEW_LISTENER;
-#  else
-      return crun_make_error (err, 0, "the `SECCOMP_FILTER_FLAG_NEW_LISTENER` flag is not supported");
+#  ଅନ୍ୟଥା
+      ଫେରନ୍ତୁ crun_make_error (err, 0, "the `SECCOMP_FILTER_FLAG_NEW_LISTENER` flag is not supported");
 #  endif
 
 #  ifdef HAVE_MEMFD_CREATE
       memfd = memfd_create ("seccomp-helper-memfd", O_RDWR | MFD_CLOEXEC);
-      if (UNLIKELY (memfd < 0))
-        return crun_make_error (err, errno, "memfd_create");
-#  else
-      return crun_make_error (err, ENOSYS, "memfd_create non supported");
+      ଯଦି (UNLIKELY (memfd < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "memfd_create");
+#  ଅନ୍ୟଥା
+      ଫେରନ୍ତୁ crun_make_error (err, ENOSYS, "memfd_create non supported");
 #  endif
 
-      ret = ftruncate (memfd, sizeof (atomic_int));
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "ftruncate seccomp memfd");
+      ret = ftruncate (memfd, ଆକାର (atomic_int));
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "ftruncate seccomp memfd");
 
-      ret = libcrun_mmap (&mmap_region, NULL, sizeof (atomic_int),
+      ret = libcrun_mmap (&mmap_region, ଖାଲି, ଆକାର (atomic_int),
                           PROT_WRITE | PROT_READ, MAP_SHARED, memfd, 0, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       /* memfd is not needed anymore.  */
       close_and_reset (&memfd);
@@ -360,85 +360,85 @@ libcrun_apply_seccomp (int infd, int listener_receiver_fd, const char *receiver_
       *fd_received = -1;
 
       /* The helper process shares the fd table with the current process.  */
-      helper_proc = syscall_clone (CLONE_FILES | SIGCHLD, NULL);
-      if (UNLIKELY (helper_proc < 0))
-        return crun_make_error (err, errno, "clone seccomp listener helper process");
+      helper_proc = syscall_clone (CLONE_FILES | SIGCHLD, ଖାଲି);
+      ଯଦି (UNLIKELY (helper_proc < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "clone seccomp listener helper process");
 
       /* helper process.  Wait that the seccomp listener fd is created then send it to the
          receiver fd.  We use the helper process since the seccomp profile could block the
          sendmsg syscall.   Its exit status is an errno value.  */
-      if (helper_proc == 0)
+      ଯଦି (helper_proc == 0)
         {
-          int fd, timeout = 0;
+          ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, timeout = 0;
 
           prctl (PR_SET_PDEATHSIG, SIGKILL);
-          for (;;)
+          ପାଇଁ (;;)
             {
               fd = *fd_received;
-              if (fd == -1)
+              ଯଦି (fd == -1)
                 {
                   usleep (1000);
 
                   /* Do not wait longer than 5 seconds.  */
-                  if (timeout++ > 5000)
+                  ଯଦି (timeout++ > 5000)
                     _safe_exit (EINVAL);
-                  continue;
+                  ଜାରି;
                 }
-#  if ! HAVE_STDATOMIC_H
+#  ଯଦି ! HAVE_STDATOMIC_H
               /* If stdatomic is not available, force a membarrier and read again.  */
               __sync_synchronize ();
               fd = *fd_received;
 #  endif
-              break;
+              ଭାଙ୍ଗ;
             }
           ret = send_fd_to_socket_with_payload (listener_receiver_fd, fd,
                                                 receiver_fd_payload,
                                                 receiver_fd_payload_len,
                                                 err);
-          if (UNLIKELY (ret < 0))
+          ଯଦି (UNLIKELY (ret < 0))
             _safe_exit (crun_error_get_errno (err));
           _safe_exit (0);
         }
     }
 
   ret = syscall_seccomp (SECCOMP_SET_MODE_FILTER, flags, &seccomp_filter);
-  if (UNLIKELY (ret < 0))
+  ଯଦି (UNLIKELY (ret < 0))
     {
       /* If any of the flags is not supported, try again without specifying them:  */
-      if (errno == EINVAL && listener_receiver_fd < 0)
+      ଯଦି (errno == EINVAL && listener_receiver_fd < 0)
         ret = syscall_seccomp (SECCOMP_SET_MODE_FILTER, 0, &seccomp_filter);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "seccomp (SECCOMP_SET_MODE_FILTER)");
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "seccomp (SECCOMP_SET_MODE_FILTER)");
     }
 
-  if (listener_receiver_fd >= 0)
+  ଯଦି (listener_receiver_fd >= 0)
     {
       atomic_int *fd_to_send = mmap_region->addr;
-      int status = 0;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା status = 0;
 
       /* Write atomically the listener fd to the shared memory.  No syscalls are used between
          the seccomp listener creation and the write.  */
       *fd_to_send = listener_fd = ret;
 
       ret = waitpid_ignore_stopped (helper_proc, &status, 0);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "waitpid seccomp listener helper process");
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "waitpid seccomp listener helper process");
 
       ret = get_process_exit_status (status);
-      if (ret != 0)
-        return crun_make_error (err, 0, "send listener fd `%d` to receiver", listener_fd);
+      ଯଦି (ret != 0)
+        ଫେରନ୍ତୁ crun_make_error (err, 0, "send listener fd `%d` to receiver", listener_fd);
     }
 
-  return 0;
-#else
-  return 0;
+  ଫେରନ୍ତୁ 0;
+#ଅନ୍ୟଥା
+  ଫେରନ୍ତୁ 0;
 #endif
 }
 
-static bool
-seccomp_action_supports_errno (const char *action)
+ସ୍ଥିର bool
+seccomp_action_supports_errno (ଅଚଳ ଅକ୍ଷର *action)
 {
-  return strcmp (action, "SCMP_ACT_ERRNO") == 0
+  ଫେରନ୍ତୁ strcmp (action, "SCMP_ACT_ERRNO") == 0
          || strcmp (action, "SCMP_ACT_TRACE") == 0;
 }
 
@@ -448,14 +448,14 @@ seccomp_action_supports_errno (const char *action)
    < 0 in case of errors
    == 0 the checksum is supported and the value is in OUT.
  */
-static int
-calculate_seccomp_checksum (runtime_spec_schema_config_linux_seccomp *seccomp, unsigned int seccomp_gen_options, seccomp_checksum_t out, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+calculate_seccomp_checksum (runtime_spec_schema_config_linux_seccomp *seccomp, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା seccomp_gen_options, seccomp_checksum_t out, libcrun_error_t *err)
 {
   blake3_hasher hasher;
-  unsigned char hash[32];
-  struct utsname utsbuf;
+  unsigned ଅକ୍ଷର hash[32];
+  ସଂରଚନା utsname utsbuf;
   size_t i;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   blake3_hasher_init (&hasher);
 
@@ -465,41 +465,41 @@ calculate_seccomp_checksum (runtime_spec_schema_config_linux_seccomp *seccomp, u
      Everything that influences the generated filter MUST be included here,
      otherwise a stale filter could be served from the cache.  */
 #define PROCESS_STRING(X)                                           \
-  do                                                                \
+  କର                                                                \
     {                                                               \
-      const char *str_ = (X);                                       \
-      unsigned char present_ = str_ ? 1 : 0;                        \
+      ଅଚଳ ଅକ୍ଷର *str_ = (X);                                       \
+      unsigned ଅକ୍ଷର present_ = str_ ? 1 : 0;                        \
       size_t len_ = str_ ? strlen (str_) : 0;                       \
-      blake3_hasher_update (&hasher, &present_, sizeof (present_)); \
-      blake3_hasher_update (&hasher, &len_, sizeof (len_));         \
-      if (str_)                                                     \
+      blake3_hasher_update (&hasher, &present_, ଆକାର (present_)); \
+      blake3_hasher_update (&hasher, &len_, ଆକାର (len_));         \
+      ଯଦି (str_)                                                     \
         blake3_hasher_update (&hasher, str_, len_);                 \
-  } while (0)
+  } ଯେତେବେଳେ (0)
 #define PROCESS_DATA(X)                                   \
-  do                                                      \
+  କର                                                      \
     {                                                     \
-      blake3_hasher_update (&hasher, &(X), sizeof ((X))); \
-  } while (0)
+      blake3_hasher_update (&hasher, &(X), ଆକାର ((X))); \
+  } ଯେତେବେଳେ (0)
 #define PROCESS_OPTIONAL_DATA(PRESENT, X)                           \
-  do                                                                \
+  କର                                                                \
     {                                                               \
-      unsigned char present_ = (PRESENT) ? 1 : 0;                   \
-      blake3_hasher_update (&hasher, &present_, sizeof (present_)); \
-      if (PRESENT)                                                  \
-        blake3_hasher_update (&hasher, &(X), sizeof ((X)));         \
-  } while (0)
-#define PROCESS_COUNT(X)                                        \
-  do                                                            \
+      unsigned ଅକ୍ଷର present_ = (PRESENT) ? 1 : 0;                   \
+      blake3_hasher_update (&hasher, &present_, ଆକାର (present_)); \
+      ଯଦି (PRESENT)                                                  \
+        blake3_hasher_update (&hasher, &(X), ଆକାର ((X)));         \
+  } ଯେତେବେଳେ (0)
+#define PROCESS_ଗଣନା(X)                                        \
+  କର                                                            \
     {                                                           \
-      size_t count_ = (X);                                      \
-      blake3_hasher_update (&hasher, &count_, sizeof (count_)); \
-  } while (0)
+      size_t ଗଣନା_3 = (X);                                      \
+      blake3_hasher_update (&hasher, &ଗଣନା_3, ଆକାର (ଗଣନା_3)); \
+  } ଯେତେବେଳେ (0)
 
   PROCESS_STRING (PACKAGE_VERSION);
 
 #ifdef HAVE_SECCOMP
   {
-    const struct scmp_version *version = seccomp_version ();
+    ଅଚଳ ସଂରଚନା scmp_version *version = seccomp_version ();
 
     PROCESS_DATA (version->major);
     PROCESS_DATA (version->minor);
@@ -507,10 +507,10 @@ calculate_seccomp_checksum (runtime_spec_schema_config_linux_seccomp *seccomp, u
   }
 #endif
 
-  memset (&utsbuf, 0, sizeof (utsbuf));
+  memset (&utsbuf, 0, ଆକାର (utsbuf));
   ret = uname (&utsbuf);
-  if (UNLIKELY (ret != 0))
-    return crun_make_error (err, errno, "uname");
+  ଯଦି (UNLIKELY (ret != 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "uname");
 
   PROCESS_STRING (utsbuf.release);
   PROCESS_STRING (utsbuf.version);
@@ -522,16 +522,16 @@ calculate_seccomp_checksum (runtime_spec_schema_config_linux_seccomp *seccomp, u
   PROCESS_OPTIONAL_DATA (seccomp->default_errno_ret_present, seccomp->default_errno_ret);
   PROCESS_STRING (seccomp->default_action);
 
-  PROCESS_COUNT (seccomp->flags_len);
-  for (i = 0; i < seccomp->flags_len; i++)
+  PROCESS_ଗଣନା (seccomp->flags_len);
+  ପାଇଁ (i = 0; i < seccomp->flags_len; i++)
     PROCESS_STRING (seccomp->flags[i]);
 
-  PROCESS_COUNT (seccomp->architectures_len);
-  for (i = 0; i < seccomp->architectures_len; i++)
+  PROCESS_ଗଣନା (seccomp->architectures_len);
+  ପାଇଁ (i = 0; i < seccomp->architectures_len; i++)
     PROCESS_STRING (seccomp->architectures[i]);
 
-  PROCESS_COUNT (seccomp->syscalls_len);
-  for (i = 0; i < seccomp->syscalls_len; i++)
+  PROCESS_ଗଣନା (seccomp->syscalls_len);
+  ପାଇଁ (i = 0; i < seccomp->syscalls_len; i++)
     {
       size_t j;
 
@@ -540,408 +540,408 @@ calculate_seccomp_checksum (runtime_spec_schema_config_linux_seccomp *seccomp, u
       /* errno_ret is only honoured when present (absent defaults to EPERM).  */
       PROCESS_OPTIONAL_DATA (seccomp->syscalls[i]->errno_ret_present, seccomp->syscalls[i]->errno_ret);
 
-      PROCESS_COUNT (seccomp->syscalls[i]->names_len);
-      for (j = 0; j < seccomp->syscalls[i]->names_len; j++)
+      PROCESS_ଗଣନା (seccomp->syscalls[i]->names_len);
+      ପାଇଁ (j = 0; j < seccomp->syscalls[i]->names_len; j++)
         PROCESS_STRING (seccomp->syscalls[i]->names[j]);
 
-      PROCESS_COUNT (seccomp->syscalls[i]->args_len);
-      for (j = 0; j < seccomp->syscalls[i]->args_len; j++)
+      PROCESS_ଗଣନା (seccomp->syscalls[i]->args_len);
+      ପାଇଁ (j = 0; j < seccomp->syscalls[i]->args_len; j++)
         {
           /* index, value and value_two are used unconditionally by the
              generator (absent fields are 0), so hash them in fixed positions.  */
           PROCESS_DATA (seccomp->syscalls[i]->args[j]->index);
-          PROCESS_DATA (seccomp->syscalls[i]->args[j]->value);
-          PROCESS_DATA (seccomp->syscalls[i]->args[j]->value_two);
+          PROCESS_DATA (seccomp->syscalls[i]->args[j]->ମୂଲ୍ୟ);
+          PROCESS_DATA (seccomp->syscalls[i]->args[j]->ମୂଲ୍ୟ_two);
           PROCESS_STRING (seccomp->syscalls[i]->args[j]->op);
         }
     }
 
-  blake3_hasher_finalize (&hasher, hash, sizeof (hash));
+  blake3_hasher_finalize (&hasher, hash, ଆକାର (hash));
 
-  for (i = 0; i < 32; i++)
+  ପାଇଁ (i = 0; i < 32; i++)
     {
-      size_t remaining = sizeof (seccomp_checksum_t) - i * 2;
+      size_t remaining = ଆକାର (seccomp_checksum_t) - i * 2;
       ret = snprintf (&out[i * 2], remaining, "%02x", hash[i]);
-      if (UNLIKELY (ret != 2))
-        return crun_make_error (err, 0, "internal error: static buffer has wrong size");
+      ଯଦି (UNLIKELY (ret != 2))
+        ଫେରନ୍ତୁ crun_make_error (err, 0, "internal error: static buffer has wrong size");
     }
   out[64] = 0;
 
 #undef PROCESS_STRING
 #undef PROCESS_DATA
 #undef PROCESS_OPTIONAL_DATA
-#undef PROCESS_COUNT
-  return 1;
+#undef PROCESS_ଗଣନା
+  ଫେରନ୍ତୁ 1;
 }
 
-static int
-open_rundir_dirfd (const char *state_root, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+open_rundir_dirfd (ଅଚଳ ଅକ୍ଷର *state_ମୂଳ, libcrun_error_t *err)
 {
-  cleanup_free char *dir = NULL;
-  int dirfd;
-  int ret;
+  cleanup_free ଅକ୍ଷର *dir = ଖାଲି;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା dirfd;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  ret = libcrun_get_state_directory (&dir, state_root, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_get_state_directory (&dir, state_ମୂଳ, ଖାଲି, err);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   dirfd = TEMP_FAILURE_RETRY (open (dir, O_PATH | O_DIRECTORY | O_CLOEXEC));
-  if (UNLIKELY (dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", dir);
+  ଯଦି (UNLIKELY (dirfd < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "open `%s`", dir);
 
-  return dirfd;
+  ଫେରନ୍ତୁ dirfd;
 }
 
-struct cache_entry
+ସଂରଚନା cache_entry
 {
   seccomp_checksum_t checksum;
-  struct timespec atime;
+  ସଂରଚନା timespec atime;
 };
 
-static int
-compare_entries_by_atime (const void *a, const void *b)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+compare_entries_by_atime (ଅଚଳ ଶୂନ୍ୟ *a, ଅଚଳ ଶୂନ୍ୟ *b)
 {
-  const struct cache_entry *entry_a = a;
-  const struct cache_entry *entry_b = b;
-  int ret;
+  ଅଚଳ ସଂରଚନା cache_entry *entry_a = a;
+  ଅଚଳ ସଂରଚନା cache_entry *entry_b = b;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   ret = entry_a->atime.tv_sec - entry_b->atime.tv_sec;
-  if (ret)
-    return ret;
+  ଯଦି (ret)
+    ଫେରନ୍ତୁ ret;
 
-  return entry_a->atime.tv_nsec - entry_b->atime.tv_nsec;
+  ଫେରନ୍ତୁ entry_a->atime.tv_nsec - entry_b->atime.tv_nsec;
 }
 
-static int
-evict_cache (int root_dfd, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+evict_cache (ପୂର୍ଣ୍ଣସଂଖ୍ୟା ମୂଳ_dfd, libcrun_error_t *err)
 {
-  cleanup_close int cache_dir_fd = -1;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା cache_dir_fd = -1;
   off_t cache_dir_inode_max_size;
-  struct stat st;
-  int ret;
+  ସଂରଚନା stat st;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  ret = TEMP_FAILURE_RETRY (fstat (root_dfd, &st));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fstat rundir");
+  ret = TEMP_FAILURE_RETRY (fstat (ମୂଳ_dfd, &st));
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "fstat rundir");
 
   cache_dir_inode_max_size = get_cache_dir_inode_max_size (st.st_size);
 
-  cache_dir_fd = TEMP_FAILURE_RETRY (openat (root_dfd, SECCOMP_CACHE_DIR, O_DIRECTORY | O_CLOEXEC));
-  if (UNLIKELY (cache_dir_fd < 0))
+  cache_dir_fd = TEMP_FAILURE_RETRY (openat (ମୂଳ_dfd, SECCOMP_CACHE_DIR, O_DIRECTORY | O_CLOEXEC));
+  ଯଦି (UNLIKELY (cache_dir_fd < 0))
     {
-      if (errno == ENOENT)
-        return 0;
-      return crun_make_error (err, errno, "open `%s`", SECCOMP_CACHE_DIR);
+      ଯଦି (errno == ENOENT)
+        ଫେରନ୍ତୁ 0;
+      ଫେରନ୍ତୁ crun_make_error (err, errno, "open `%s`", SECCOMP_CACHE_DIR);
     }
 
   ret = TEMP_FAILURE_RETRY (fstat (cache_dir_fd, &st));
-  if (ret == 0 && st.st_size > cache_dir_inode_max_size)
+  ଯଦି (ret == 0 && st.st_size > cache_dir_inode_max_size)
     {
-      cleanup_free struct cache_entry *entries = NULL;
-      cleanup_dir DIR *d = NULL;
+      cleanup_free ସଂରଚନା cache_entry *entries = ଖାଲି;
+      cleanup_dir DIR *d = ଖାଲି;
       size_t i, n_entries = 0;
-      struct dirent *de;
-      int dfd;
+      ସଂରଚନା dirent *de;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା dfd;
 
       d = fdopendir (cache_dir_fd);
-      if (d == NULL)
-        return crun_make_error (err, errno, "cannot open seccomp cache directory");
+      ଯଦି (d == ଖାଲି)
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "cannot open seccomp cache directory");
       /* fdopendir owns the fd now.  */
       cache_dir_fd = -1;
 
       dfd = dirfd (d);
-      while ((de = readdir (d)))
+      ଯେତେବେଳେ ((de = readdir (d)))
         {
-          if (de->d_name[0] == '.')
-            continue;
+          ଯଦି (de->d_name[0] == '.')
+            ଜାରି;
 
           ret = TEMP_FAILURE_RETRY (fstatat (dfd, de->d_name, &st, AT_SYMLINK_NOFOLLOW));
-          if (UNLIKELY (ret < 0))
-            continue;
+          ଯଦି (UNLIKELY (ret < 0))
+            ଜାରି;
 
           /* The cache file is already used, it is pointless to free it.  */
-          if (st.st_nlink > 1)
-            continue;
+          ଯଦି (st.st_nlink > 1)
+            ଜାରି;
 
           /* If the sticky bit is set, then ignore it.  */
-          if (st.st_mode & S_ISVTX)
-            continue;
+          ଯଦି (st.st_mode & S_ISVTX)
+            ଜାରି;
 
-          if (strlen (de->d_name) != sizeof (seccomp_checksum_t) - 1)
+          ଯଦି (strlen (de->d_name) != ଆକାର (seccomp_checksum_t) - 1)
             {
               /* No mercy for unknown files.  */
               unlinkat (dfd, de->d_name, 0);
-              continue;
+              ଜାରି;
             }
-          else
+          ଅନ୍ୟଥା
             {
-              entries = xrealloc (entries, sizeof (struct cache_entry) * (n_entries + 1));
+              entries = xrealloc (entries, ଆକାର (ସଂରଚନା cache_entry) * (n_entries + 1));
 
-              memcpy (entries[n_entries].checksum, de->d_name, sizeof (seccomp_checksum_t));
+              memcpy (entries[n_entries].checksum, de->d_name, ଆକାର (seccomp_checksum_t));
               entries[n_entries].atime = st.st_atim;
               n_entries++;
             }
         }
 
-      qsort (entries, n_entries, sizeof (struct cache_entry), compare_entries_by_atime);
+      qsort (entries, n_entries, ଆକାର (ସଂରଚନା cache_entry), compare_entries_by_atime);
 
       /* Attempt to delete half of them.  */
-      for (i = 0; i < (n_entries == 1 ? 1 : n_entries / 2); i++)
+      ପାଇଁ (i = 0; i < (n_entries == 1 ? 1 : n_entries / 2); i++)
         unlinkat (dfd, entries[i].checksum, 0);
     }
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 /* Open the run-directory dirfd and build the "<id>/seccomp.bpf" path
    relative to it.  Returns the (caller-owned) dirfd or a negative error.  */
-static int
-open_seccomp_bpf_dirfd (libcrun_container_t *container, char **rel_path, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+open_seccomp_bpf_dirfd (libcrun_container_t *container, ଅକ୍ଷର **rel_path, libcrun_error_t *err)
 {
-  int ret;
-  int dirfd;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା dirfd;
 
-  dirfd = open_rundir_dirfd (container->context ? container->context->state_root : NULL, err);
-  if (UNLIKELY (dirfd < 0))
-    return dirfd;
+  dirfd = open_rundir_dirfd (container->context ? container->context->state_ମୂଳ : ଖାଲି, err);
+  ଯଦି (UNLIKELY (dirfd < 0))
+    ଫେରନ୍ତୁ dirfd;
 
   /* relative path to dirfd.  */
-  ret = append_paths (rel_path, err, container->context->id, "seccomp.bpf", NULL);
-  if (UNLIKELY (ret < 0))
+  ret = append_paths (rel_path, err, container->context->id, "seccomp.bpf", ଖାଲି);
+  ଯଦି (UNLIKELY (ret < 0))
     {
       TEMP_FAILURE_RETRY (close (dirfd));
-      return ret;
+      ଫେରନ୍ତୁ ret;
     }
 
-  return dirfd;
+  ଫେରନ୍ତୁ dirfd;
 }
 
-static int
-store_seccomp_cache (struct libcrun_seccomp_gen_ctx_s *ctx, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+store_seccomp_cache (ସଂରଚନା libcrun_seccomp_gen_ctx_s *ctx, libcrun_error_t *err)
 {
   libcrun_container_t *container = ctx->container;
-  cleanup_free char *src_path = NULL;
-  cleanup_free char *dest_path = NULL;
-  cleanup_close int dirfd = -1;
-  int ret;
+  cleanup_free ଅକ୍ଷର *src_path = ଖାଲି;
+  cleanup_free ଅକ୍ଷର *dest_path = ଖାଲି;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା dirfd = -1;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (ctx->options & LIBCRUN_SECCOMP_SKIP_CACHE)
-    return 0;
+  ଯଦି (ctx->options & LIBCRUN_SECCOMP_SKIP_CACHE)
+    ଫେରନ୍ତୁ 0;
 
-  if (is_empty_string (ctx->checksum))
-    return 0;
+  ଯଦି (is_empty_string (ctx->checksum))
+    ଫେରନ୍ତୁ 0;
 
   dirfd = open_seccomp_bpf_dirfd (container, &src_path, err);
-  if (UNLIKELY (dirfd < 0))
-    return dirfd;
+  ଯଦି (UNLIKELY (dirfd < 0))
+    ଫେରନ୍ତୁ dirfd;
 
-  ret = append_paths (&dest_path, err, SECCOMP_CACHE_DIR, ctx->checksum, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&dest_path, err, SECCOMP_CACHE_DIR, ctx->checksum, ଖାଲି);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ret = crun_ensure_directory_at (dirfd, SECCOMP_CACHE_DIR, 0700, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ret = evict_cache (dirfd, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ret = linkat (dirfd, src_path, dirfd, dest_path, 0);
-  if (UNLIKELY (ret < 0 && errno != EEXIST))
-    return crun_make_error (err, errno, "link `%s` to `%s`", src_path, dest_path);
-  return 0;
+  ଯଦି (UNLIKELY (ret < 0 && errno != EEXIST))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "link `%s` to `%s`", src_path, dest_path);
+  ଫେରନ୍ତୁ 0;
 }
 
-static inline runtime_spec_schema_config_linux_seccomp *
-get_seccomp_configuration (struct libcrun_seccomp_gen_ctx_s *ctx)
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ runtime_spec_schema_config_linux_seccomp *
+get_seccomp_configuration (ସଂରଚନା libcrun_seccomp_gen_ctx_s *ctx)
 {
-  if (ctx->container == NULL || ctx->container->container_def == NULL
-      || ctx->container->container_def->linux == NULL)
-    return 0;
+  ଯଦି (ctx->container == ଖାଲି || ctx->container->container_def == ଖାଲି
+      || ctx->container->container_def->linux == ଖାଲି)
+    ଫେରନ୍ତୁ 0;
 
-  return ctx->container->container_def->linux->seccomp;
+  ଫେରନ୍ତୁ ctx->container->container_def->linux->seccomp;
 }
 
 /* Whether a seccomp.bpf file is expected to exist for the container.  */
-static inline bool
-has_seccomp_configuration (struct libcrun_seccomp_gen_ctx_s *ctx)
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ bool
+has_seccomp_configuration (ସଂରଚନା libcrun_seccomp_gen_ctx_s *ctx)
 {
-  if (ctx->container == NULL || ctx->container->container_def == NULL
-      || ctx->container->container_def->linux == NULL)
-    return false;
+  ଯଦି (ctx->container == ଖାଲି || ctx->container->container_def == ଖାଲି
+      || ctx->container->container_def->linux == ଖାଲି)
+    ଫେରନ୍ତୁ false;
 
-  return ctx->container->container_def->linux->seccomp != NULL
-         || find_annotation (ctx->container, "run.oci.seccomp_bpf_data") != NULL;
+  ଫେରନ୍ତୁ ctx->container->container_def->linux->seccomp != ଖାଲି
+         || find_annotation (ctx->container, "run.oci.seccomp_bpf_data") != ଖାଲି;
 }
 
-static int
-find_in_cache (struct libcrun_seccomp_gen_ctx_s *ctx, int dirfd, const char *dest_path, bool *created, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+find_in_cache (ସଂରଚନା libcrun_seccomp_gen_ctx_s *ctx, ପୂର୍ଣ୍ଣସଂଖ୍ୟା dirfd, ଅଚଳ ଅକ୍ଷର *dest_path, bool *created, libcrun_error_t *err)
 {
   runtime_spec_schema_config_linux_seccomp *seccomp;
-  cleanup_free char *cache_file_path = NULL;
-  int ret;
+  cleanup_free ଅକ୍ଷର *cache_file_path = ଖାଲି;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (ctx->options & LIBCRUN_SECCOMP_SKIP_CACHE)
-    return 0;
+  ଯଦି (ctx->options & LIBCRUN_SECCOMP_SKIP_CACHE)
+    ଫେରନ୍ତୁ 0;
 
   seccomp = get_seccomp_configuration (ctx);
-  if (seccomp == NULL)
-    return 0;
+  ଯଦି (seccomp == ଖାଲି)
+    ଫେରନ୍ତୁ 0;
 
   /* if the checksum could not be computed, returns early.  */
   ret = calculate_seccomp_checksum (seccomp, ctx->options, ctx->checksum, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  ret = append_paths (&cache_file_path, err, SECCOMP_CACHE_DIR, ctx->checksum, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cache_file_path, err, SECCOMP_CACHE_DIR, ctx->checksum, ଖାଲି);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ret = TEMP_FAILURE_RETRY (linkat (dirfd, cache_file_path, dirfd, dest_path, 0));
-  if (UNLIKELY (ret < 0 && errno != ENOENT))
-    return crun_make_error (err, errno, "linkat `%s` to `%s`", cache_file_path, dest_path);
+  ଯଦି (UNLIKELY (ret < 0 && errno != ENOENT))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "linkat `%s` to `%s`", cache_file_path, dest_path);
 
   *created = ret == 0;
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-int
-libcrun_generate_seccomp (struct libcrun_seccomp_gen_ctx_s *gen_ctx, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+libcrun_generate_seccomp (ସଂରଚନା libcrun_seccomp_gen_ctx_s *gen_ctx, libcrun_error_t *err)
 {
 #ifdef HAVE_SECCOMP
   runtime_spec_schema_config_linux_seccomp *seccomp;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
   size_t i;
-  cleanup_seccomp scmp_filter_ctx ctx = NULL;
-  int default_errno_value = EPERM;
+  cleanup_seccomp scmp_filter_ctx ctx = ଖାଲି;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା default_errno_ମୂଲ୍ୟ = EPERM;
   uint32_t action, default_action;
-  const char *def_action = NULL;
+  ଅଚଳ ଅକ୍ଷର *def_action = ଖାଲି;
 
   /* The bpf filter was loaded from the cache, nothing to do here.  */
-  if (gen_ctx->from_cache)
-    return 0;
+  ଯଦି (gen_ctx->from_cache)
+    ଫେରନ୍ତୁ 0;
 
-  if (gen_ctx->container == NULL || gen_ctx->container->container_def == NULL || gen_ctx->container->container_def->linux == NULL)
-    return 0;
+  ଯଦି (gen_ctx->container == ଖାଲି || gen_ctx->container->container_def == ଖାଲି || gen_ctx->container->container_def->linux == ଖାଲି)
+    ଫେରନ୍ତୁ 0;
 
   seccomp = gen_ctx->container->container_def->linux->seccomp;
-  if (seccomp == NULL)
-    return 0;
+  ଯଦି (seccomp == ଖାଲି)
+    ଫେରନ୍ତୁ 0;
 
   /* seccomp not available.  */
-  if (prctl (PR_GET_SECCOMP, 0, 0, 0, 0) < 0)
-    return crun_make_error (err, errno, "prctl");
+  ଯଦି (prctl (PR_GET_SECCOMP, 0, 0, 0, 0) < 0)
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "prctl");
 
   def_action = seccomp->default_action;
-  if (def_action == NULL)
-    return crun_make_error (err, 0, "seccomp misses the default action");
+  ଯଦି (def_action == ଖାଲି)
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "seccomp misses the default action");
 
-  if (seccomp->default_errno_ret_present)
+  ଯଦି (seccomp->default_errno_ret_present)
     {
-      if (! seccomp_action_supports_errno (def_action))
-        return crun_make_error (err, 0, "errno value specified for action `%s`", def_action);
+      ଯଦି (! seccomp_action_supports_errno (def_action))
+        ଫେରନ୍ତୁ crun_make_error (err, 0, "errno value specified for action `%s`", def_action);
 
-      default_errno_value = seccomp->default_errno_ret;
+      default_errno_ମୂଲ୍ୟ = seccomp->default_errno_ret;
     }
 
-  ret = get_seccomp_action (def_action, default_errno_value, &default_action, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_seccomp_action (def_action, default_errno_ମୂଲ୍ୟ, &default_action, err);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ctx = seccomp_init (default_action);
-  if (ctx == NULL)
-    return crun_make_error (err, 0, "error seccomp_init");
+  ଯଦି (ctx == ଖାଲି)
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "error seccomp_init");
 
-  for (i = 0; i < seccomp->architectures_len; i++)
+  ପାଇଁ (i = 0; i < seccomp->architectures_len; i++)
     {
       uint32_t arch_token;
-      const char *arch = seccomp->architectures[i];
-      char *end, lowercase_arch[32] = {
+      ଅଚଳ ଅକ୍ଷର *arch = seccomp->architectures[i];
+      ଅକ୍ଷର *end, lowercase_arch[32] = {
         0,
       };
 
-      if (arch == NULL)
-        return crun_make_error (err, EINVAL, "seccomp architecture is not specified");
+      ଯଦି (arch == ଖାଲି)
+        ଫେରନ୍ତୁ crun_make_error (err, EINVAL, "seccomp architecture is not specified");
 
-      if (has_prefix (arch, "SCMP_ARCH_"))
+      ଯଦି (has_prefix (arch, "SCMP_ARCH_"))
         arch += 10;
-      end = stpncpy (lowercase_arch, arch, sizeof (lowercase_arch) - 1);
+      end = stpncpy (lowercase_arch, arch, ଆକାର (lowercase_arch) - 1);
       *end = '\0';
       make_lowercase (lowercase_arch);
 #  ifdef SECCOMP_ARCH_RESOLVE_NAME
       arch_token = seccomp_arch_resolve_name (lowercase_arch);
-      if (arch_token == 0)
-        return crun_make_error (err, 0, "seccomp unknown architecture `%s`", arch);
-#  else
+      ଯଦି (arch_token == 0)
+        ଫେରନ୍ତୁ crun_make_error (err, 0, "seccomp unknown architecture `%s`", arch);
+#  ଅନ୍ୟଥା
       arch_token = SCMP_ARCH_NATIVE;
 #  endif
       ret = seccomp_arch_add (ctx, arch_token);
-      if (ret < 0 && ret != -EEXIST)
-        return crun_make_error (err, -ret, "seccomp adding architecture");
+      ଯଦି (ret < 0 && ret != -EEXIST)
+        ଫେରନ୍ତୁ crun_make_error (err, -ret, "seccomp adding architecture");
     }
 
-  for (i = 0; i < seccomp->syscalls_len; i++)
+  ପାଇଁ (i = 0; i < seccomp->syscalls_len; i++)
     {
       size_t j;
       bool multiple_args = false;
-      int errno_ret = EPERM;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା errno_ret = EPERM;
 
-      if (seccomp->syscalls[i]->errno_ret_present)
+      ଯଦି (seccomp->syscalls[i]->errno_ret_present)
         {
-          if (! seccomp_action_supports_errno (seccomp->syscalls[i]->action))
-            return crun_make_error (err, 0, "errno value specified for action `%s`", seccomp->syscalls[i]->action);
+          ଯଦି (! seccomp_action_supports_errno (seccomp->syscalls[i]->action))
+            ଫେରନ୍ତୁ crun_make_error (err, 0, "errno value specified for action `%s`", seccomp->syscalls[i]->action);
           errno_ret = seccomp->syscalls[i]->errno_ret;
         }
 
       ret = get_seccomp_action (seccomp->syscalls[i]->action, errno_ret, &action, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
-      if (action == default_action)
-        continue;
+      ଯଦି (action == default_action)
+        ଜାରି;
 
       /* The argument indices do not depend on the syscall name, so validate
          them once per entry.  Doing it here also makes an invalid index an
          error even when every name below is unknown and skipped.  */
-      if (seccomp->syscalls[i]->args != NULL)
+      ଯଦି (seccomp->syscalls[i]->args != ଖାଲି)
         {
-          uint32_t count[6] = {};
+          uint32_t ଗଣନା_2[6] = {};
           size_t k;
 
-          for (k = 0; k < seccomp->syscalls[i]->args_len; k++)
+          ପାଇଁ (k = 0; k < seccomp->syscalls[i]->args_len; k++)
             {
               uint32_t index = seccomp->syscalls[i]->args[k]->index;
 
-              if (index >= 6)
-                return crun_make_error (err, 0, "invalid seccomp index `%u`", index);
+              ଯଦି (index >= 6)
+                ଫେରନ୍ତୁ crun_make_error (err, 0, "invalid seccomp index `%u`", index);
 
-              count[index]++;
-              if (count[index] > 1)
+              ଗଣନା_2[index]++;
+              ଯଦି (ଗଣନା_2[index] > 1)
                 multiple_args = true;
             }
         }
 
-      for (j = 0; j < seccomp->syscalls[i]->names_len; j++)
+      ପାଇଁ (j = 0; j < seccomp->syscalls[i]->names_len; j++)
         {
-          int syscall = seccomp_syscall_resolve_name (seccomp->syscalls[i]->names[j]);
+          ପୂର୍ଣ୍ଣସଂଖ୍ୟା syscall = seccomp_syscall_resolve_name (seccomp->syscalls[i]->names[j]);
 
-          if (UNLIKELY (syscall == __NR_SCMP_ERROR))
+          ଯଦି (UNLIKELY (syscall == __NR_SCMP_ERROR))
             {
-              if (gen_ctx->options & LIBCRUN_SECCOMP_FAIL_UNKNOWN_SYSCALL)
-                return crun_make_error (err, 0, "invalid seccomp syscall `%s`", seccomp->syscalls[i]->names[j]);
+              ଯଦି (gen_ctx->options & LIBCRUN_SECCOMP_FAIL_UNKNOWN_SYSCALL)
+                ଫେରନ୍ତୁ crun_make_error (err, 0, "invalid seccomp syscall `%s`", seccomp->syscalls[i]->names[j]);
 
               libcrun_warning ("unknown seccomp syscall `%s` ignored", seccomp->syscalls[i]->names[j]);
-              continue;
+              ଜାରି;
             }
 
-          if (seccomp->syscalls[i]->args == NULL)
+          ଯଦି (seccomp->syscalls[i]->args == ଖାଲି)
             {
               ret = seccomp_rule_add (ctx, action, syscall, 0);
-              if (UNLIKELY (ret < 0))
-                return crun_make_error (err, -ret, "seccomp_rule_add `%s`", seccomp->syscalls[i]->names[j]);
+              ଯଦି (UNLIKELY (ret < 0))
+                ଫେରନ୍ତୁ crun_make_error (err, -ret, "seccomp_rule_add `%s`", seccomp->syscalls[i]->names[j]);
             }
-          else
+          ଅନ୍ୟଥା
             {
               size_t k;
 
@@ -953,143 +953,143 @@ libcrun_generate_seccomp (struct libcrun_seccomp_gen_ctx_s *gen_ctx, libcrun_err
                  The OCI runtime specification does not define how conditions
                  combine, and this matches what runc does; see
                  https://github.com/opencontainers/runc/issues/2735.  */
-              if (multiple_args)
+              ଯଦି (multiple_args)
                 {
                   size_t r;
 
-                  for (r = 0; r < seccomp->syscalls[i]->args_len; r++)
+                  ପାଇଁ (r = 0; r < seccomp->syscalls[i]->args_len; r++)
                     {
-                      struct scmp_arg_cmp arg_cmp;
-                      char *op = seccomp->syscalls[i]->args[r]->op;
+                      ସଂରଚନା scmp_arg_cmp arg_cmp;
+                      ଅକ୍ଷର *op = seccomp->syscalls[i]->args[r]->op;
 
                       arg_cmp.arg = seccomp->syscalls[i]->args[r]->index;
                       ret = get_seccomp_operator (op, &arg_cmp.op, err);
-                      if (UNLIKELY (ret < 0))
-                        return ret;
-                      arg_cmp.datum_a = seccomp->syscalls[i]->args[r]->value;
-                      arg_cmp.datum_b = seccomp->syscalls[i]->args[r]->value_two;
+                      ଯଦି (UNLIKELY (ret < 0))
+                        ଫେରନ୍ତୁ ret;
+                      arg_cmp.datum_a = seccomp->syscalls[i]->args[r]->ମୂଲ୍ୟ;
+                      arg_cmp.datum_b = seccomp->syscalls[i]->args[r]->ମୂଲ୍ୟ_two;
 
                       ret = seccomp_rule_add_array (ctx, action, syscall, 1, &arg_cmp);
-                      if (UNLIKELY (ret < 0))
-                        return crun_make_error (err, -ret, "seccomp_rule_add_array");
+                      ଯଦି (UNLIKELY (ret < 0))
+                        ଫେରନ୍ତୁ crun_make_error (err, -ret, "seccomp_rule_add_array");
                     }
                 }
-              else
+              ଅନ୍ୟଥା
                 {
                   /* No index is repeated, so there are at most 6 distinct arguments.  */
-                  const size_t args_len = seccomp->syscalls[i]->args_len;
-                  struct scmp_arg_cmp arg_cmp[6];
+                  ଅଚଳ size_t args_len = seccomp->syscalls[i]->args_len;
+                  ସଂରଚନା scmp_arg_cmp arg_cmp[6];
 
-                  for (k = 0; k < args_len; k++)
+                  ପାଇଁ (k = 0; k < args_len; k++)
                     {
-                      char *op = seccomp->syscalls[i]->args[k]->op;
+                      ଅକ୍ଷର *op = seccomp->syscalls[i]->args[k]->op;
 
                       arg_cmp[k].arg = seccomp->syscalls[i]->args[k]->index;
                       ret = get_seccomp_operator (op, &(arg_cmp[k].op), err);
-                      if (UNLIKELY (ret < 0))
-                        return ret;
-                      arg_cmp[k].datum_a = seccomp->syscalls[i]->args[k]->value;
-                      arg_cmp[k].datum_b = seccomp->syscalls[i]->args[k]->value_two;
+                      ଯଦି (UNLIKELY (ret < 0))
+                        ଫେରନ୍ତୁ ret;
+                      arg_cmp[k].datum_a = seccomp->syscalls[i]->args[k]->ମୂଲ୍ୟ;
+                      arg_cmp[k].datum_b = seccomp->syscalls[i]->args[k]->ମୂଲ୍ୟ_two;
                     }
 
                   /* An empty "args" array means the rule is unconditional.  Do not
                      hand over the uninitialized buffer for it.  */
-                  ret = seccomp_rule_add_array (ctx, action, syscall, args_len, args_len ? arg_cmp : NULL);
-                  if (UNLIKELY (ret < 0))
-                    return crun_make_error (err, -ret, "seccomp_rule_add_array");
+                  ret = seccomp_rule_add_array (ctx, action, syscall, args_len, args_len ? arg_cmp : ଖାଲି);
+                  ଯଦି (UNLIKELY (ret < 0))
+                    ଫେରନ୍ତୁ crun_make_error (err, -ret, "seccomp_rule_add_array");
                 }
             }
         }
     }
 
-  if (gen_ctx->fd >= 0)
+  ଯଦି (gen_ctx->fd >= 0)
     {
       ret = export_bpf (ctx, gen_ctx->fd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
-      return store_seccomp_cache (gen_ctx, err);
+      ଫେରନ୍ତୁ store_seccomp_cache (gen_ctx, err);
     }
 
-  return 0;
-#else
-  return 0;
+  ଫେରନ୍ତୁ 0;
+#ଅନ୍ୟଥା
+  ଫେରନ୍ତୁ 0;
 #endif
 }
 
-int
-libcrun_copy_seccomp (struct libcrun_seccomp_gen_ctx_s *gen_ctx, const char *b64_bpf, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+libcrun_copy_seccomp (ସଂରଚନା libcrun_seccomp_gen_ctx_s *gen_ctx, ଅଚଳ ଅକ୍ଷର *b64_bpf, libcrun_error_t *err)
 {
-  cleanup_free char *bpf_data = NULL;
+  cleanup_free ଅକ୍ଷର *bpf_data = ଖାଲି;
   size_t size = 0;
   size_t in_size;
-  int consumed;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା consumed;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   in_size = strlen (b64_bpf);
   bpf_data = xmalloc (in_size + 1);
 
   consumed = base64_decode (b64_bpf, in_size, bpf_data, in_size, &size);
-  if (UNLIKELY (consumed != (int) in_size))
-    return crun_make_error (err, 0, "invalid seccomp BPF data");
+  ଯଦି (UNLIKELY (consumed != (ପୂର୍ଣ୍ଣସଂଖ୍ୟା) in_size))
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "invalid seccomp BPF data");
 
   ret = safe_write (gen_ctx->fd, "seccomp fd", bpf_data, size, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-int
-libcrun_open_seccomp_bpf (struct libcrun_seccomp_gen_ctx_s *ctx, int *fd, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+libcrun_open_seccomp_bpf (ସଂରଚନା libcrun_seccomp_gen_ctx_s *ctx, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *fd, libcrun_error_t *err)
 {
-  cleanup_close int dirfd = -1;
-  cleanup_free char *dest_path = NULL;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା dirfd = -1;
+  cleanup_free ଅକ୍ଷର *dest_path = ଖାଲି;
   libcrun_container_t *container = ctx->container;
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   ctx->fd = *fd = -1;
 
-  if (container == NULL || container->context == NULL)
-    return crun_make_error (err, EINVAL, "invalid internal state");
+  ଯଦି (container == ଖାଲି || container->context == ଖାଲି)
+    ଫେରନ୍ତୁ crun_make_error (err, EINVAL, "invalid internal state");
 
   dirfd = open_seccomp_bpf_dirfd (container, &dest_path, err);
-  if (UNLIKELY (dirfd < 0))
-    return dirfd;
+  ଯଦି (UNLIKELY (dirfd < 0))
+    ଫେରନ୍ତୁ dirfd;
 
-  if (ctx->create)
+  ଯଦି (ctx->create)
     {
       bool created = false;
 
       ret = find_in_cache (ctx, dirfd, dest_path, &created, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
-      if (created)
+      ଯଦି (created)
         {
           ctx->from_cache = true;
-          goto open_existing_file;
+          ଯାଅ open_existing_file;
         }
 
       ret = TEMP_FAILURE_RETRY (openat (dirfd, dest_path, O_CLOEXEC | O_RDWR | O_CREAT, 0700));
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "open `seccomp.bpf`");
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ crun_make_error (err, errno, "open `seccomp.bpf`");
       ctx->fd = *fd = ret;
     }
-  else
+  ଅନ୍ୟଥା
     {
     open_existing_file:
       ret = TEMP_FAILURE_RETRY (openat (dirfd, dest_path, O_CLOEXEC | O_RDONLY));
-      if (UNLIKELY (ret < 0))
+      ଯଦି (UNLIKELY (ret < 0))
         {
           /* The file is missing only when the container has no seccomp
              configuration.  If it is configured, do not run without the filter.  */
-          if (errno == ENOENT && ! has_seccomp_configuration (ctx))
-            return 0;
-          return crun_make_error (err, errno, "open `seccomp.bpf`");
+          ଯଦି (errno == ENOENT && ! has_seccomp_configuration (ctx))
+            ଫେରନ୍ତୁ 0;
+          ଫେରନ୍ତୁ crun_make_error (err, errno, "open `seccomp.bpf`");
         }
       ctx->fd = *fd = ret;
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }

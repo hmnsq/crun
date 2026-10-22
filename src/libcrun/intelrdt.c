@@ -18,16 +18,16 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "linux.h"
-#include "utils.h"
-#include "intelrdt.h"
-#include <string.h>
-#include <sched.h>
-#include <fcntl.h>
-#include <sys/vfs.h>
-#include <unistd.h>
-#include <errno.h>
+#ଅନ୍ତର୍ଭାଵ <config.h>
+#ଅନ୍ତର୍ଭାଵ "linux.h"
+#ଅନ୍ତର୍ଭାଵ "utils.h"
+#ଅନ୍ତର୍ଭାଵ "intelrdt.h"
+#ଅନ୍ତର୍ଭାଵ <string.h>
+#ଅନ୍ତର୍ଭାଵ <sched.h>
+#ଅନ୍ତର୍ଭାଵ <fcntl.h>
+#ଅନ୍ତର୍ଭାଵ <sys/vfs.h>
+#ଅନ୍ତର୍ଭାଵ <unistd.h>
+#ଅନ୍ତର୍ଭାଵ <errno.h>
 
 #define INTEL_RDT_MOUNT_POINT "/sys/fs/resctrl"
 #define SCHEMATA_FILE "schemata"
@@ -35,95 +35,95 @@
 #define MON_GROUPS "mon_groups"
 #define RDTGROUP_SUPER_MAGIC 0x7655821
 
-static int
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
 is_rdt_mounted (libcrun_error_t *err)
 {
-  struct statfs sfs;
-  int ret;
+  ସଂରଚନା statfs sfs;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   ret = statfs (INTEL_RDT_MOUNT_POINT, &sfs);
-  if (ret < 0)
-    return crun_make_error (err, errno, "statfs `%s`", INTEL_RDT_MOUNT_POINT);
+  ଯଦି (ret < 0)
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "statfs `%s`", INTEL_RDT_MOUNT_POINT);
 
-  return sfs.f_type == RDTGROUP_SUPER_MAGIC;
+  ଫେରନ୍ତୁ sfs.f_type == RDTGROUP_SUPER_MAGIC;
 }
 
-int
-get_rdt_value (char **out, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+get_rdt_ମୂଲ୍ୟ (ଅକ୍ଷର **out, ଅଚଳ ଅକ୍ଷର *l3_cache_schema, ଅଚଳ ଅକ୍ଷର *mem_bw_schema, ଅକ୍ଷର *ଅଚଳ *schemata)
 {
-  cleanup_free char *schemata_joined = NULL;
+  cleanup_free ଅକ୍ଷର *schemata_joined = ଖାଲି;
   size_t schemata_size = 0;
 
-  while (schemata && schemata[schemata_size])
+  ଯେତେବେଳେ (schemata && schemata[schemata_size])
     schemata_size++;
 
-  if (schemata_size > 0)
+  ଯଦି (schemata_size > 0)
     schemata_joined = str_join_array (0, schemata_size, schemata, "\n");
 
-  return xasprintf (out, "%s%s%s%s%s\n", l3_cache_schema ?: "",
+  ଫେରନ୍ତୁ xasprintf (out, "%s%s%s%s%s\n", l3_cache_schema ?: "",
                     (l3_cache_schema && mem_bw_schema) ? "\n" : "", mem_bw_schema ?: "",
                     ((l3_cache_schema || mem_bw_schema) && schemata_joined) ? "\n" : "", schemata_joined ?: "");
 }
 
-struct key_value
+ସଂରଚନା ଚାବି_ମୂଲ୍ୟ
 {
-  int key;
-  int value;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ଚାବି;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ମୂଲ୍ୟ;
 };
 
-static int
-kv_cmp (const void *p1, const void *p2)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+kv_cmp (ଅଚଳ ଶୂନ୍ୟ *p1, ଅଚଳ ଶୂନ୍ୟ *p2)
 {
-  const struct key_value *kv1 = p1;
-  const struct key_value *kv2 = p2;
+  ଅଚଳ ସଂରଚନା ଚାବି_ମୂଲ୍ୟ *kv1 = p1;
+  ଅଚଳ ସଂରଚନା ଚାବି_ମୂଲ୍ୟ *kv2 = p2;
 
   /* Not a subtraction: the keys are parsed out of the configuration, so two
      of them far enough apart make the difference overflow.  */
-  if (kv1->key < kv2->key)
-    return -1;
-  if (kv1->key > kv2->key)
-    return 1;
-  return 0;
+  ଯଦି (kv1->ଚାବି < kv2->ଚାବି)
+    ଫେରନ୍ତୁ -1;
+  ଯଦି (kv1->ଚାବି > kv2->ଚାବି)
+    ଫେରନ୍ତୁ 1;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-count_parts (const char *str)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+ଗଣନା_parts (ଅଚଳ ଅକ୍ଷର *str)
 {
-  const char *it;
-  int ret = 0;
+  ଅଚଳ ଅକ୍ଷର *it;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret = 0;
 
-  for (it = str; *it; it++)
+  ପାଇଁ (it = str; *it; it++)
     {
-      if (*it == ';' || *(it + 1) == '\0')
+      ଯଦି (*it == ';' || *(it + 1) == '\0')
         ret++;
     }
-  return ret;
+  ଫେରନ୍ତୁ ret;
 }
 
-static int
-read_kv (const char *value, struct key_value *out)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+read_kv (ଅଚଳ ଅକ୍ଷର *ମୂଲ୍ୟ, ସଂରଚନା ଚାବି_ମୂଲ୍ୟ *out)
 {
-  char *endptr;
+  ଅକ୍ଷର *endptr;
 
-  out->key = strtoll (value, &endptr, 10);
-  if (*endptr != '=')
-    return 1;
+  out->ଚାବି = strtoll (ମୂଲ୍ୟ, &endptr, 10);
+  ଯଦି (*endptr != '=')
+    ଫେରନ୍ତୁ 1;
 
   endptr++;
-  out->value = strtoll (endptr, NULL, 16);
-  return 0;
+  out->ମୂଲ୍ୟ = strtoll (endptr, ଖାଲି, 16);
+  ଫେରନ୍ତୁ 0;
 }
 
-int
-compare_rdt_configurations (const char *a, const char *b)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+compare_rdt_configurations (ଅଚଳ ଅକ୍ଷର *a, ଅଚଳ ଅକ୍ଷର *b)
 {
-  cleanup_free struct key_value *kv = NULL;
+  cleanup_free ସଂରଚନା ଚାବି_ମୂଲ୍ୟ *kv = ଖାଲି;
   size_t i, n_parts_a = 0, n_parts_b = 0;
-  cleanup_free char *a_copy = NULL;
-  cleanup_free char *b_copy = NULL;
-  const char *it;
-  char *end;
-  int ret;
+  cleanup_free ଅକ୍ଷର *a_copy = ଖାଲି;
+  cleanup_free ଅକ୍ଷର *b_copy = ଖାଲି;
+  ଅଚଳ ଅକ୍ଷର *it;
+  ଅକ୍ଷର *end;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   it = strchr (a, ':');
   a = it ? it + 1 : a;
@@ -131,317 +131,317 @@ compare_rdt_configurations (const char *a, const char *b)
   it = strchr (b, ':');
   b = it ? it + 1 : b;
 
-  n_parts_a = count_parts (a);
-  n_parts_b = count_parts (b);
+  n_parts_a = ଗଣନା_parts (a);
+  n_parts_b = ଗଣନା_parts (b);
 
-  if (n_parts_a != n_parts_b)
-    return 1;
+  ଯଦି (n_parts_a != n_parts_b)
+    ଫେରନ୍ତୁ 1;
 
-  kv = xmalloc (sizeof (struct key_value) * (n_parts_a + 1));
+  kv = xmalloc (ଆକାର (ସଂରଚନା ଚାବି_ମୂଲ୍ୟ) * (n_parts_a + 1));
 
   end = a_copy = xstrdup (a);
   i = 0;
-  while ((it = strsep (&end, ";")))
+  ଯେତେବେଳେ ((it = strsep (&end, ";")))
     {
-      if (it[0] == '\0')
-        break;
+      ଯଦି (it[0] == '\0')
+        ଭାଙ୍ଗ;
       ret = read_kv (it, &(kv[i]));
-      if (ret)
-        return 1;
+      ଯଦି (ret)
+        ଫେରନ୍ତୁ 1;
       i++;
     }
 
-  qsort (kv, i, sizeof (struct key_value), kv_cmp);
+  qsort (kv, i, ଆକାର (ସଂରଚନା ଚାବି_ମୂଲ୍ୟ), kv_cmp);
 
   end = b_copy = xstrdup (b);
-  while ((it = strsep (&end, ";")))
+  ଯେତେବେଳେ ((it = strsep (&end, ";")))
     {
-      struct key_value key;
-      struct key_value *res;
+      ସଂରଚନା ଚାବି_ମୂଲ୍ୟ ଚାବି;
+      ସଂରଚନା ଚାବି_ମୂଲ୍ୟ *res;
 
-      if (it[0] == '\0')
-        break;
+      ଯଦି (it[0] == '\0')
+        ଭାଙ୍ଗ;
 
-      ret = read_kv (it, &key);
-      if (ret)
-        return 1;
+      ret = read_kv (it, &ଚାବି);
+      ଯଦି (ret)
+        ଫେରନ୍ତୁ 1;
 
-      res = bsearch (&key, kv, n_parts_a, sizeof (struct key_value), kv_cmp);
-      if (res == NULL || res->value != key.value)
-        return 1;
+      res = bsearch (&ଚାବି, kv, n_parts_a, ଆକାର (ସଂରଚନା ଚାବି_ମୂଲ୍ୟ), kv_cmp);
+      ଯଦି (res == ଖାଲି || res->ମୂଲ୍ୟ != ଚାବି.ମୂଲ୍ୟ)
+        ଫେରନ୍ତୁ 1;
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static bool
-is_default_clos (const char *name)
+ସ୍ଥିର bool
+is_default_clos (ଅଚଳ ଅକ୍ଷର *name)
 {
-  return strcmp (name, "/") == 0;
+  ଫେରନ୍ତୁ strcmp (name, "/") == 0;
 }
 
-static int
-get_resctrl_path (char **path, const char *file, const char *name, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+get_resctrl_path (ଅକ୍ଷର **path, ଅଚଳ ଅକ୍ଷର *file, ଅଚଳ ଅକ୍ଷର *name, libcrun_error_t *err)
 {
-  return append_paths (path, err, INTEL_RDT_MOUNT_POINT, name, file, NULL);
+  ଫେରନ୍ତୁ append_paths (path, err, INTEL_RDT_MOUNT_POINT, name, file, ଖାଲି);
 }
 
-static int
-validate_rdt_configuration (const char *name, const char *l3_cache_schema, const char *mem_bw_schema, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+validate_rdt_configuration (ଅଚଳ ଅକ୍ଷର *name, ଅଚଳ ଅକ୍ଷର *l3_cache_schema, ଅଚଳ ଅକ୍ଷର *mem_bw_schema, libcrun_error_t *err)
 {
-  cleanup_free char *existing_content = NULL;
-  cleanup_free char *path = NULL;
-  char *it, *end;
-  int ret;
+  cleanup_free ଅକ୍ଷର *existing_content = ଖାଲି;
+  cleanup_free ଅକ୍ଷର *path = ଖାଲି;
+  ଅକ୍ଷର *it, *end;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   ret = get_resctrl_path (&path, SCHEMATA_FILE, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  ret = read_all_file (path, &existing_content, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file (path, &existing_content, ଖାଲି, err);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   end = existing_content;
-  while ((it = strsep (&end, "\n")))
+  ଯେତେବେଳେ ((it = strsep (&end, "\n")))
     {
       ret = 0;
 
-      if (mem_bw_schema && has_prefix (it, "MB:"))
+      ଯଦି (mem_bw_schema && has_prefix (it, "MB:"))
         ret = compare_rdt_configurations (it, mem_bw_schema);
 
-      if (l3_cache_schema && has_prefix (it, "L3:"))
+      ଯଦି (l3_cache_schema && has_prefix (it, "L3:"))
         ret = compare_rdt_configurations (it, l3_cache_schema);
 
-      if (ret)
-        return crun_make_error (err, 0, "the resctl group `%s` has a different configuration", name);
+      ଯଦି (ret)
+        ଫେରନ୍ତୁ crun_make_error (err, 0, "the resctl group `%s` has a different configuration", name);
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int
-write_intelrdt_string (int fd, const char *file, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+write_intelrdt_string (ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, ଅଚଳ ଅକ୍ଷର *file, ଅଚଳ ଅକ୍ଷର *l3_cache_schema, ଅଚଳ ଅକ୍ଷର *mem_bw_schema, ଅକ୍ଷର *ଅଚଳ *schemata, libcrun_error_t *err)
 {
-  cleanup_free char *formatted = NULL;
-  int len, ret;
+  cleanup_free ଅକ୍ଷର *formatted = ଖାଲି;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା len, ret;
 
-  len = get_rdt_value (&formatted, l3_cache_schema, mem_bw_schema, schemata);
-  if (len < 0)
-    return crun_make_error (err, errno, "internal error get_rdt_value");
+  len = get_rdt_ମୂଲ୍ୟ (&formatted, l3_cache_schema, mem_bw_schema, schemata);
+  ଯଦି (len < 0)
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "internal error get_rdt_value");
 
-  ret = write (fd, formatted, len);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "write `%s`", file);
+  ret = ଲିଖ (fd, formatted, len);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "write `%s`", file);
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 /* filter any line in the l3_cache_schema that starts with MB:.  */
-char *
-intelrdt_clean_l3_cache_schema (const char *l3_cache_schema)
+ଅକ୍ଷର *
+intelrdt_clean_l3_cache_schema (ଅଚଳ ଅକ୍ଷର *l3_cache_schema)
 {
   size_t i, j, len = strlen (l3_cache_schema);
-  char *ret;
+  ଅକ୍ଷର *ret;
 
   ret = xmalloc (len + 1);
 
-  for (i = 0, j = 0; i < len; i++)
+  ପାଇଁ (i = 0, j = 0; i < len; i++)
     {
-      if (l3_cache_schema[i] == 'M' && l3_cache_schema[i + 1] == 'B' && l3_cache_schema[i + 2] == ':')
+      ଯଦି (l3_cache_schema[i] == 'M' && l3_cache_schema[i + 1] == 'B' && l3_cache_schema[i + 2] == ':')
         {
           i += 3;
-          while (l3_cache_schema[i] != '\n' && l3_cache_schema[i] != '\0')
+          ଯେତେବେଳେ (l3_cache_schema[i] != '\n' && l3_cache_schema[i] != '\0')
             i++;
-          continue;
+          ଜାରି;
         }
       ret[j++] = l3_cache_schema[i];
     }
   ret[j] = '\0';
-  return ret;
+  ଫେରନ୍ତୁ ret;
 }
 
-int
-resctl_create (const char *name, bool explicit_clos_id, bool *created, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+resctl_create (ଅଚଳ ଅକ୍ଷର *name, bool explicit_clos_id, bool *created, ଅଚଳ ଅକ୍ଷର *l3_cache_schema, ଅଚଳ ଅକ୍ଷର *mem_bw_schema, ଅକ୍ଷର *ଅଚଳ *schemata, libcrun_error_t *err)
 {
-  cleanup_free char *cleaned_l3_cache_schema = NULL;
-  cleanup_free char *path = NULL;
-  int exist;
-  int ret;
+  cleanup_free ଅକ୍ଷର *cleaned_l3_cache_schema = ଖାଲି;
+  cleanup_free ଅକ୍ଷର *path = ଖାଲି;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା exist;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   *created = false;
 
   ret = is_rdt_mounted (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
-  if (ret == 0)
-    return crun_make_error (err, 0, "the resctl file system is not mounted");
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
+  ଯଦି (ret == 0)
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "the resctl file system is not mounted");
 
-  ret = get_resctrl_path (&path, NULL, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_resctrl_path (&path, ଖାଲି, name, err);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   exist = crun_path_exists (path, err);
-  if (UNLIKELY (exist < 0))
-    return exist;
+  ଯଦି (UNLIKELY (exist < 0))
+    ଫେରନ୍ତୁ exist;
 
-  if (l3_cache_schema && strstr (l3_cache_schema, "MB:"))
+  ଯଦି (l3_cache_schema && strstr (l3_cache_schema, "MB:"))
     l3_cache_schema = cleaned_l3_cache_schema = intelrdt_clean_l3_cache_schema (l3_cache_schema);
 
   /* If the closID was specified and both l3cache and bwSchema are unset, and schemata is empty,
      the group must exist.  */
-  if (explicit_clos_id && is_empty_string (l3_cache_schema) && is_empty_string (mem_bw_schema) && (schemata == NULL))
+  ଯଦି (explicit_clos_id && is_empty_string (l3_cache_schema) && is_empty_string (mem_bw_schema) && (schemata == ଖାଲି))
     {
-      if (exist || is_default_clos (name))
-        return 0;
+      ଯଦି (exist || is_default_clos (name))
+        ଫେରନ୍ତୁ 0;
 
-      return crun_make_error (err, 0, "the resctl group `%s` does not exist", name);
+      ଫେରନ୍ତୁ crun_make_error (err, 0, "the resctl group `%s` does not exist", name);
     }
 
   /* If the closID exists then it must match the specified configuration.  */
-  if (exist && (l3_cache_schema != NULL || mem_bw_schema != NULL))
-    return validate_rdt_configuration (name, l3_cache_schema, mem_bw_schema, err);
+  ଯଦି (exist && (l3_cache_schema != ଖାଲି || mem_bw_schema != ଖାଲି))
+    ଫେରନ୍ତୁ validate_rdt_configuration (name, l3_cache_schema, mem_bw_schema, err);
 
-  if (is_default_clos (name))
-    return 0;
+  ଯଦି (is_default_clos (name))
+    ଫେରନ୍ତୁ 0;
 
   /* At this point, assume it was created.  */
   ret = crun_ensure_directory (path, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
   *created = true;
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-int
-resctl_move_task_to (const char *name, const char *monitoring_name, pid_t pid, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+resctl_move_task_to (ଅଚଳ ଅକ୍ଷର *name, ଅଚଳ ଅକ୍ଷର *monitoring_name, pid_t pid, libcrun_error_t *err)
 {
-  cleanup_free char *monitoring_path = NULL;
-  cleanup_free char *path = NULL;
-  char pid_str[32];
-  int len;
-  int ret;
+  cleanup_free ଅକ୍ଷର *monitoring_path = ଖାଲି;
+  cleanup_free ଅକ୍ଷର *path = ଖାଲି;
+  ଅକ୍ଷର pid_str[32];
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା len;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   ret = get_resctrl_path (&path, TASKS_FILE, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  len = snprintf (pid_str, sizeof (pid_str), "%d", pid);
-  if (UNLIKELY (len >= (int) sizeof (pid_str)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  len = snprintf (pid_str, ଆକାର (pid_str), "%d", pid);
+  ଯଦି (UNLIKELY (len >= (ପୂର୍ଣ୍ଣସଂଖ୍ୟା) ଆକାର (pid_str)))
+    ଫେରନ୍ତୁ crun_make_error (err, 0, "internal error: static buffer too small");
 
   ret = write_file (path, pid_str, len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  if (monitoring_name)
+  ଯଦି (monitoring_name)
     {
-      ret = append_paths (&monitoring_path, err, INTEL_RDT_MOUNT_POINT, name, MON_GROUPS, monitoring_name, TASKS_FILE, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&monitoring_path, err, INTEL_RDT_MOUNT_POINT, name, MON_GROUPS, monitoring_name, TASKS_FILE, ଖାଲି);
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
 
       ret = write_file (monitoring_path, pid_str, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-int
-resctl_update (const char *name, const char *l3_cache_schema, const char *mem_bw_schema,
-               char *const *schemata, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+resctl_update (ଅଚଳ ଅକ୍ଷର *name, ଅଚଳ ଅକ୍ଷର *l3_cache_schema, ଅଚଳ ଅକ୍ଷର *mem_bw_schema,
+               ଅକ୍ଷର *ଅଚଳ *schemata, libcrun_error_t *err)
 {
-  const char *actual_l3_cache_schema = l3_cache_schema;
-  cleanup_free char *cleaned_l3_cache_schema = NULL;
-  cleanup_free char *path = NULL;
-  cleanup_close int fd = -1;
-  int ret;
+  ଅଚଳ ଅକ୍ଷର *actual_l3_cache_schema = l3_cache_schema;
+  cleanup_free ଅକ୍ଷର *cleaned_l3_cache_schema = ଖାଲି;
+  cleanup_free ଅକ୍ଷର *path = ଖାଲି;
+  cleanup_close ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -1;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   /* Nothing to do.  */
-  if (l3_cache_schema == NULL && mem_bw_schema == NULL && schemata == NULL)
-    return 0;
+  ଯଦି (l3_cache_schema == ଖାଲି && mem_bw_schema == ଖାଲି && schemata == ଖାଲି)
+    ଫେରନ୍ତୁ 0;
 
   ret = get_resctrl_path (&path, SCHEMATA_FILE, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  if (l3_cache_schema && strstr (l3_cache_schema, "MB:"))
+  ଯଦି (l3_cache_schema && strstr (l3_cache_schema, "MB:"))
     {
       cleaned_l3_cache_schema = intelrdt_clean_l3_cache_schema (l3_cache_schema);
       actual_l3_cache_schema = cleaned_l3_cache_schema;
     }
 
   fd = open (path, O_WRONLY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s` for writing", path);
+  ଯଦି (UNLIKELY (fd < 0))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "open `%s` for writing", path);
 
-  return write_intelrdt_string (fd, path, actual_l3_cache_schema, mem_bw_schema, schemata, err);
+  ଫେରନ୍ତୁ write_intelrdt_string (fd, path, actual_l3_cache_schema, mem_bw_schema, schemata, err);
 }
 
-static int
-resctl_get_monitoring_path (const char *resctrl_group_name, const char *container_id, char **monitoring_path, libcrun_error_t *err)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+resctl_get_monitoring_path (ଅଚଳ ଅକ୍ଷର *resctrl_group_name, ଅଚଳ ଅକ୍ଷର *container_id, ଅକ୍ଷର **monitoring_path, libcrun_error_t *err)
 {
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  ret = append_paths (monitoring_path, err, INTEL_RDT_MOUNT_POINT, resctrl_group_name, MON_GROUPS, container_id, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (monitoring_path, err, INTEL_RDT_MOUNT_POINT, resctrl_group_name, MON_GROUPS, container_id, ଖାଲି);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-int
-resctl_destroy_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+resctl_destroy_monitoring_group (ଅଚଳ ଅକ୍ଷର *resctrl_group_name, ଅଚଳ ଅକ୍ଷର *container_id, libcrun_error_t *err)
 {
-  cleanup_free char *monitoring_path = NULL;
-  int ret;
+  cleanup_free ଅକ୍ଷର *monitoring_path = ଖାଲି;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   ret = resctl_get_monitoring_path (resctrl_group_name, container_id, &monitoring_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ret = rmdir (monitoring_path);
-  if (UNLIKELY (ret < 0 && errno != ENOENT))
-    return crun_make_error (err, errno, "rmdir `%s`", monitoring_path);
+  ଯଦି (UNLIKELY (ret < 0 && errno != ENOENT))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "rmdir `%s`", monitoring_path);
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-int
-resctl_destroy (const char *name, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+resctl_destroy (ଅଚଳ ଅକ୍ଷର *name, libcrun_error_t *err)
 {
-  cleanup_free char *path = NULL;
-  int ret;
+  cleanup_free ଅକ୍ଷର *path = ଖାଲି;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-  if (is_default_clos (name))
-    return 0;
+  ଯଦି (is_default_clos (name))
+    ଫେରନ୍ତୁ 0;
 
-  ret = get_resctrl_path (&path, NULL, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_resctrl_path (&path, ଖାଲି, name, err);
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ret = rmdir (path);
-  if (UNLIKELY (ret < 0 && errno != ENOENT))
-    return crun_make_error (err, errno, "rmdir `%s`", path);
+  ଯଦି (UNLIKELY (ret < 0 && errno != ENOENT))
+    ଫେରନ୍ତୁ crun_make_error (err, errno, "rmdir `%s`", path);
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-int
-resctl_create_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+resctl_create_monitoring_group (ଅଚଳ ଅକ୍ଷର *resctrl_group_name, ଅଚଳ ଅକ୍ଷର *container_id, libcrun_error_t *err)
 {
-  cleanup_free char *monitoring_path = NULL;
-  int ret;
+  cleanup_free ଅକ୍ଷର *monitoring_path = ଖାଲି;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   ret = resctl_get_monitoring_path (resctrl_group_name, container_id, &monitoring_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ret = crun_ensure_directory (monitoring_path, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }

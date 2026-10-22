@@ -19,84 +19,84 @@
 #ifndef CUSTOM_HANDLER_H
 #define CUSTOM_HANDLER_H
 
-#include "container.h"
-#include "utils.h"
-#include <stdio.h>
+#ଅନ୍ତର୍ଭାଵ "container.h"
+#ଅନ୍ତର୍ଭାଵ "utils.h"
+#ଅନ୍ତର୍ଭାଵ <stdio.h>
 
-struct custom_handler_s
+ସଂରଚନା custom_handler_s
 {
-  const char *name;
-  const char *feature_string;
+  ଅଚଳ ଅକ୍ଷର *name;
+  ଅଚଳ ଅକ୍ଷର *feature_string;
 
-  const char *alias;
+  ଅଚଳ ଅକ୍ଷର *alias;
 
-  const bool supports_open_tree_namespace;
+  ଅଚଳ bool supports_open_ବୃକ୍ଷ_namespace;
 
-  int (*load) (void **cookie, libcrun_error_t *err);
-  int (*unload) (void *cookie, libcrun_error_t *err);
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା (*load) (ଶୂନ୍ୟ **cookie, libcrun_error_t *err);
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା (*unload) (ଶୂନ୍ୟ *cookie, libcrun_error_t *err);
 
-  int (*run_func) (void *cookie, libcrun_container_t *container,
-                   const char *pathname, char *const argv[]);
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା (*run_func) (ଶୂନ୍ୟ *cookie, libcrun_container_t *container,
+                   ଅଚଳ ଅକ୍ଷର *pathname, ଅକ୍ଷର *ଅଚଳ argv[]);
 
-  int (*exec_func) (void *cookie, libcrun_container_t *container,
-                    const char *pathname, char *const argv[]);
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା (*exec_func) (ଶୂନ୍ୟ *cookie, libcrun_container_t *container,
+                    ଅଚଳ ଅକ୍ଷର *pathname, ଅକ୍ଷର *ଅଚଳ argv[]);
 
-  int (*configure_container) (void *cookie, enum handler_configure_phase phase,
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା (*configure_container) (ଶୂନ୍ୟ *cookie, ଗଣନା handler_configure_phase phase,
                               libcrun_context_t *context, libcrun_container_t *container,
-                              const char *rootfs, libcrun_error_t *err);
+                              ଅଚଳ ଅକ୍ଷର *rootfs, libcrun_error_t *err);
 
-  int (*can_handle_container) (libcrun_container_t *container, libcrun_error_t *err);
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା (*can_handle_container) (libcrun_container_t *container, libcrun_error_t *err);
 
-  int (*modify_oci_configuration) (void *cookie, libcrun_context_t *context,
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା (*modify_oci_configuration) (ଶୂନ୍ୟ *cookie, libcrun_context_t *context,
                                    runtime_spec_schema_config_schema *def,
                                    libcrun_error_t *err);
 
-  int (*close_fds) (void *cookie, libcrun_container_t *container,
-                    int preserve_fds, libcrun_error_t *err);
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା (*close_fds) (ଶୂନ୍ୟ *cookie, libcrun_container_t *container,
+                    ପୂର୍ଣ୍ଣସଂଖ୍ୟା preserve_fds, libcrun_error_t *err);
 };
 
-struct custom_handler_manager_s;
+ସଂରଚନା custom_handler_manager_s;
 
-LIBCRUN_PUBLIC struct custom_handler_manager_s *libcrun_handler_manager_create (libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_handler_manager_load_directory (struct custom_handler_manager_s *manager, const char *path, libcrun_error_t *err);
-LIBCRUN_PUBLIC void handler_manager_free (struct custom_handler_manager_s *manager);
+LIBCRUN_PUBLIC ସଂରଚନା custom_handler_manager_s *libcrun_handler_manager_create (libcrun_error_t *err);
+LIBCRUN_PUBLIC ପୂର୍ଣ୍ଣସଂଖ୍ୟା libcrun_handler_manager_load_directory (ସଂରଚନା custom_handler_manager_s *manager, ଅଚଳ ଅକ୍ଷର *path, libcrun_error_t *err);
+LIBCRUN_PUBLIC ଶୂନ୍ୟ handler_manager_free (ସଂରଚନା custom_handler_manager_s *manager);
 
-LIBCRUN_PUBLIC struct custom_handler_s *handler_by_name (struct custom_handler_manager_s *manager, const char *name);
-LIBCRUN_PUBLIC void libcrun_handler_manager_print_feature_tags (struct custom_handler_manager_s *manager, FILE *out);
-LIBCRUN_PUBLIC char **libcrun_context_get_handler_feature_tags (libcrun_context_t *ctx, libcrun_error_t *err);
+LIBCRUN_PUBLIC ସଂରଚନା custom_handler_s *handler_by_name (ସଂରଚନା custom_handler_manager_s *manager, ଅଚଳ ଅକ୍ଷର *name);
+LIBCRUN_PUBLIC ଶୂନ୍ୟ libcrun_handler_manager_print_feature_tags (ସଂରଚନା custom_handler_manager_s *manager, FILE *out);
+LIBCRUN_PUBLIC ଅକ୍ଷର **libcrun_context_get_handler_feature_tags (libcrun_context_t *ctx, libcrun_error_t *err);
 
-struct custom_handler_instance_s
+ସଂରଚନା custom_handler_instance_s
 {
-  struct custom_handler_s *vtable;
-  void *cookie;
+  ସଂରଚନା custom_handler_s *vtable;
+  ଶୂନ୍ୟ *cookie;
 };
 
-LIBCRUN_PUBLIC int libcrun_configure_handler (struct custom_handler_manager_s *manager,
+LIBCRUN_PUBLIC ପୂର୍ଣ୍ଣସଂଖ୍ୟା libcrun_configure_handler (ସଂରଚନା custom_handler_manager_s *manager,
                                               libcrun_context_t *context,
                                               libcrun_container_t *container,
-                                              struct custom_handler_instance_s **out,
+                                              ସଂରଚନା custom_handler_instance_s **out,
                                               libcrun_error_t *err);
 
-typedef struct custom_handler_s *(*run_oci_get_handler_cb) ();
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ସଂରଚନା custom_handler_s *(*run_oci_get_handler_cb) ();
 
 #define cleanup_custom_handler_instance __attribute__ ((cleanup (cleanup_custom_handler_instancep)))
 
-static inline void
-cleanup_custom_handler_instancep (struct custom_handler_instance_s **p)
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଶୂନ୍ୟ
+cleanup_custom_handler_instancep (ସଂରଚନା custom_handler_instance_s **p)
 {
-  struct custom_handler_instance_s *handler = (struct custom_handler_instance_s *) *p;
-  if (handler)
+  ସଂରଚନା custom_handler_instance_s *handler = (ସଂରଚନା custom_handler_instance_s *) *p;
+  ଯଦି (handler)
     {
-      if (handler->vtable)
+      ଯଦି (handler->vtable)
         {
-          libcrun_error_t tmp_err = NULL;
-          int tmp_ret;
+          libcrun_error_t tmp_err = ଖାଲି;
+          ପୂର୍ଣ୍ଣସଂଖ୍ୟା tmp_ret;
 
           tmp_ret = handler->vtable->unload (handler->cookie, &tmp_err);
-          if (UNLIKELY (tmp_ret < 0))
+          ଯଦି (UNLIKELY (tmp_ret < 0))
             crun_error_release (&tmp_err);
         }
-      free (handler);
+      ମୁକ୍ତ (handler);
     }
 }
 

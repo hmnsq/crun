@@ -16,19 +16,19 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#ଅନ୍ତର୍ଭାଵ <config.h>
+#ଅନ୍ତର୍ଭାଵ <stdio.h>
+#ଅନ୍ତର୍ଭାଵ <stdlib.h>
+#ଅନ୍ତର୍ଭାଵ <argp.h>
+#ଅନ୍ତର୍ଭାଵ <string.h>
+#ଅନ୍ତର୍ଭାଵ <unistd.h>
+#ଅନ୍ତର୍ଭାଵ <errno.h>
 
-#include "crun.h"
+#ଅନ୍ତର୍ଭାଵ "crun.h"
 
-static char doc[] = "OCI runtime";
+ସ୍ଥିର ଅକ୍ଷର doc[] = "OCI runtime";
 
-enum
+ଗଣନା
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -37,41 +37,41 @@ enum
   OPTION_PRESERVE_FDS
 };
 
-struct state_options_s
+ସଂରଚନା state_options_s
 {
 };
 
-static struct state_options_s state_options;
+ସ୍ଥିର ସଂରଚନା state_options_s state_options;
 
-static struct argp_option options[] = { {
+ସ୍ଥିର ସଂରଚନା argp_option options[] = { {
     0,
 } };
 
-static char args_doc[] = "state CONTAINER";
+ସ୍ଥିର ଅକ୍ଷର args_doc[] = "state CONTAINER";
 
-static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+ସ୍ଥିର error_t
+parse_opt (ପୂର୍ଣ୍ଣସଂଖ୍ୟା ଚାବି, ଅକ୍ଷର *arg arg_unused, ସଂରଚନା argp_state *state arg_unused)
 {
-  switch (key)
+  ବାଛ (ଚାବି)
     {
-    case ARGP_KEY_NO_ARGS:
+    ସ୍ଥିତି ARGP_ଚାବି_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
+      ଫେରନ୍ତୁ ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+ସ୍ଥିର ସଂରଚନା argp run_argp = { options, parse_opt, args_doc, doc, ଖାଲି, ଖାଲି, ଖାଲି };
 
-int
-crun_command_state (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+crun_command_state (ସଂରଚନା crun_global_arguments *global_args, ପୂର୍ଣ୍ଣସଂଖ୍ୟା argc, ଅକ୍ଷର **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
-  cleanup_context libcrun_context_t *crun_context = NULL;
-  cleanup_free char *state = NULL;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା first_arg = 0, ret;
+  cleanup_context libcrun_context_t *crun_context = ଖାଲି;
+  cleanup_free ଅକ୍ଷର *state = ଖାଲି;
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &state_options);
   crun_assert_n_args (argc - first_arg, 1, 1);
@@ -79,13 +79,13 @@ crun_command_state (struct crun_global_arguments *global_args, int argc, char **
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   ret = libcrun_container_state_json (crun_context, argv[first_arg], &state, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
   fputs (state, stdout);
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }

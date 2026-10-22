@@ -18,29 +18,29 @@
 #ifndef CGROUP_RESOURCES_H
 #define CGROUP_RESOURCES_H
 
-#include "container.h"
-#include "cgroup.h"
-#include <unistd.h>
+#ଅନ୍ତର୍ଭାଵ "container.h"
+#ଅନ୍ତର୍ଭାଵ "cgroup.h"
+#ଅନ୍ତର୍ଭାଵ <unistd.h>
 
-struct default_dev_s
+ସଂରଚନା default_dev_s
 {
-  char type;
-  int major;
-  int minor;
-  const char *access;
+  ଅକ୍ଷର type;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା major;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା minor;
+  ଅଚଳ ଅକ୍ଷର *access;
 };
-struct default_dev_s *get_default_devices ();
+ସଂରଚନା default_dev_s *get_default_devices ();
 
-int check_memory_before_update (const char *path, runtime_spec_schema_config_linux_resources *resources,
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା check_memory_before_update (ଅଚଳ ଅକ୍ଷର *path, runtime_spec_schema_config_linux_resources *resources,
                                 libcrun_error_t *err);
 
-int update_cgroup_resources (const char *path,
-                             const char *state_root,
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା update_cgroup_resources (ଅଚଳ ଅକ୍ଷର *path,
+                             ଅଚଳ ଅକ୍ଷର *state_ମୂଳ,
                              runtime_spec_schema_config_linux_resources *resources,
                              bool need_devices,
                              libcrun_error_t *err);
 
-struct bpf_program *create_dev_bpf (runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
+ସଂରଚନା bpf_program *create_dev_bpf (runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
                                     libcrun_error_t *err);
 
 #endif

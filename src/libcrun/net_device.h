@@ -19,10 +19,10 @@
 #ifndef NET_DEVICE_H
 #define NET_DEVICE_H
 
-#include <config.h>
-#include <ocispec/runtime_spec_schema_config_schema.h>
-#include "error.h"
+#ଅନ୍ତର୍ଭାଵ <config.h>
+#ଅନ୍ତର୍ଭାଵ <ocispec/runtime_spec_schema_config_schema.h>
+#ଅନ୍ତର୍ଭାଵ "error.h"
 
-int move_network_device (const char *ifname, const char *newifname, int netns_fd, libcrun_error_t *err);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା move_network_device (ଅଚଳ ଅକ୍ଷର *ifname, ଅଚଳ ଅକ୍ଷର *newifname, ପୂର୍ଣ୍ଣସଂଖ୍ୟା netns_fd, libcrun_error_t *err);
 
 #endif

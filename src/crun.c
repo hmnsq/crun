@@ -16,60 +16,60 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <git-version.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <libgen.h>
-#include <errno.h>
-#include <limits.h>
+#ଅନ୍ତର୍ଭାଵ <config.h>
+#ଅନ୍ତର୍ଭାଵ <git-version.h>
+#ଅନ୍ତର୍ଭାଵ <stdlib.h>
+#ଅନ୍ତର୍ଭାଵ <argp.h>
+#ଅନ୍ତର୍ଭାଵ <string.h>
+#ଅନ୍ତର୍ଭାଵ <libgen.h>
+#ଅନ୍ତର୍ଭାଵ <errno.h>
+#ଅନ୍ତର୍ଭାଵ <limits.h>
 
 #ifdef HAVE_DLOPEN
 #  include <dlfcn.h>
 #endif
 
-#include "crun.h"
+#ଅନ୍ତର୍ଭାଵ "crun.h"
 
 /* Commands.  */
-#include "run.h"
-#include "delete.h"
-#include "kill.h"
-#include "list.h"
-#include "start.h"
-#include "create.h"
-#include "exec.h"
-#include "state.h"
-#include "update.h"
-#include "spec.h"
-#include "pause.h"
-#include "unpause.h"
-#include "oci_features.h"
-#include "ps.h"
-#include "checkpoint.h"
-#include "mounts.h"
-#include "restore.h"
+#ଅନ୍ତର୍ଭାଵ "run.h"
+#ଅନ୍ତର୍ଭାଵ "delete.h"
+#ଅନ୍ତର୍ଭାଵ "kill.h"
+#ଅନ୍ତର୍ଭାଵ "list.h"
+#ଅନ୍ତର୍ଭାଵ "start.h"
+#ଅନ୍ତର୍ଭାଵ "create.h"
+#ଅନ୍ତର୍ଭାଵ "exec.h"
+#ଅନ୍ତର୍ଭାଵ "state.h"
+#ଅନ୍ତର୍ଭାଵ "update.h"
+#ଅନ୍ତର୍ଭାଵ "spec.h"
+#ଅନ୍ତର୍ଭାଵ "pause.h"
+#ଅନ୍ତର୍ଭାଵ "unpause.h"
+#ଅନ୍ତର୍ଭାଵ "oci_features.h"
+#ଅନ୍ତର୍ଭାଵ "ps.h"
+#ଅନ୍ତର୍ଭାଵ "checkpoint.h"
+#ଅନ୍ତର୍ଭାଵ "mounts.h"
+#ଅନ୍ତର୍ଭାଵ "restore.h"
 
 /* crun exec exits with the exit code of the executed process, so use this
    code for its own errors, to tell those apart (like runc and ssh do).  */
 #define EXIT_EXEC_FAILURE 255
 
-static struct crun_global_arguments arguments;
+ସ୍ଥିର ସଂରଚନା crun_global_arguments arguments;
 
-struct commands_s
+ସଂରଚନା commands_s
 {
-  int value;
-  const char *name;
-  int (*handler) (struct crun_global_arguments *, int, char **, libcrun_error_t *);
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ମୂଲ୍ୟ;
+  ଅଚଳ ଅକ୍ଷର *name;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା (*handler) (ସଂରଚନା crun_global_arguments *, ପୂର୍ଣ୍ଣସଂଖ୍ୟା, ଅକ୍ଷର **, libcrun_error_t *);
 };
 
-int
-init_libcrun_context (libcrun_context_t *con, const char *id, struct crun_global_arguments *glob, libcrun_error_t *err)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+init_libcrun_context (libcrun_context_t *con, ଅଚଳ ଅକ୍ଷର *id, ସଂରଚନା crun_global_arguments *glob, libcrun_error_t *err)
 {
-  int ret;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   libcrun_context_set_id (con, id);
-  libcrun_context_set_state_root (con, glob->root);
+  libcrun_context_set_state_ମୂଳ (con, glob->ମୂଳ);
   libcrun_context_set_systemd_cgroup (con, glob->option_systemd_cgroup);
   libcrun_context_set_force_no_cgroup (con, glob->option_force_no_cgroup);
   libcrun_context_set_notify_socket (con, getenv ("NOTIFY_SOCKET"));
@@ -79,38 +79,38 @@ init_libcrun_context (libcrun_context_t *con, const char *id, struct crun_global
   libcrun_context_set_handler (con, glob->handler);
 
   ret = libcrun_context_init_logging (con, glob->log, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ଯଦି (UNLIKELY (ret < 0))
+    ଫେରନ୍ତୁ ret;
 
-  if (glob->log_format)
+  ଯଦି (glob->log_format)
     {
       ret = libcrun_set_log_format (glob->log_format, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ଯଦି (UNLIKELY (ret < 0))
+        ଫେରନ୍ତୁ ret;
     }
 
   libcrun_set_verbosity (glob->verbosity);
   libcrun_debug ("Using debug verbosity");
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 /* Allocate a public libcrun context (with handlers loaded) for a subcommand.
    Terminates the process on failure.  */
 libcrun_context_t *
-new_libcrun_context (struct crun_global_arguments *glob)
+new_libcrun_context (ସଂରଚନା crun_global_arguments *glob)
 {
-  libcrun_error_t err = NULL;
+  libcrun_error_t err = ଖାଲି;
   libcrun_context_t *con;
 
-  con = libcrun_context_new (NULL, glob->root, &err);
-  if (UNLIKELY (con == NULL))
+  con = libcrun_context_new (ଖାଲି, glob->ମୂଳ, &err);
+  ଯଦି (UNLIKELY (con == ଖାଲି))
     libcrun_fail_with_error (libcrun_error_get_status (err), "%s", libcrun_error_get_message (err));
 
-  return con;
+  ଫେରନ୍ତୁ con;
 }
 
-enum
+ଗଣନା
 {
   COMMAND_CREATE = 1000,
   COMMAND_DELETE,
@@ -131,7 +131,7 @@ enum
   COMMAND_MOUNTS,
 };
 
-struct commands_s commands[] = { { COMMAND_CREATE, "create", crun_command_create },
+ସଂରଚନା commands_s commands[] = { { COMMAND_CREATE, "create", crun_command_create },
                                  { COMMAND_DELETE, "delete", crun_command_delete },
                                  { COMMAND_EXEC, "exec", crun_command_exec },
                                  { COMMAND_LIST, "list", crun_command_list },
@@ -145,7 +145,7 @@ struct commands_s commands[] = { { COMMAND_CREATE, "create", crun_command_create
                                  { COMMAND_PAUSE, "pause", crun_command_pause },
                                  { COMMAND_UNPAUSE, "resume", crun_command_unpause },
                                  { COMMAND_FEATURES, "features", crun_command_features },
-#if HAVE_CRIU && HAVE_DLOPEN
+#ଯଦି HAVE_CRIU && HAVE_DLOPEN
                                  { COMMAND_CHECKPOINT, "checkpoint", crun_command_checkpoint },
                                  { COMMAND_RESTORE, "restore", crun_command_restore },
 #endif
@@ -154,8 +154,8 @@ struct commands_s commands[] = { { COMMAND_CREATE, "create", crun_command_create
                                      0,
                                  } };
 
-static char doc[] = "\nCOMMANDS:\n"
-#if HAVE_CRIU && HAVE_DLOPEN
+ସ୍ଥିର ଅକ୍ଷର doc[] = "\nCOMMANDS:\n"
+#ଯଦି HAVE_CRIU && HAVE_DLOPEN
                     "\tcheckpoint  - checkpoint a container\n"
 #endif
                     "\tcreate      - create a container\n"
@@ -166,7 +166,7 @@ static char doc[] = "\nCOMMANDS:\n"
                     "\tmounts      - add or remove mounts from a running container\n"
                     "\tkill        - send a signal to the container init process\n"
                     "\tps          - show the processes in the container\n"
-#if HAVE_CRIU && HAVE_DLOPEN
+#ଯଦି HAVE_CRIU && HAVE_DLOPEN
                     "\trestore     - restore a container\n"
 #endif
                     "\trun         - run a container\n"
@@ -177,19 +177,19 @@ static char doc[] = "\nCOMMANDS:\n"
                     "\tresume      - unpause the processes in the container\n"
                     "\tupdate      - update container resource constraints\n";
 
-static char args_doc[] = "COMMAND [OPTION...]";
+ସ୍ଥିର ଅକ୍ଷର args_doc[] = "COMMAND [OPTION...]";
 
-static struct commands_s *
-get_command (const char *arg)
+ସ୍ଥିର ସଂରଚନା commands_s *
+get_command (ଅଚଳ ଅକ୍ଷର *arg)
 {
-  struct commands_s *it;
-  for (it = commands; it->value; it++)
-    if (strcmp (it->name, arg) == 0)
-      return it;
-  return NULL;
+  ସଂରଚନା commands_s *it;
+  ପାଇଁ (it = commands; it->ମୂଲ୍ୟ; it++)
+    ଯଦି (strcmp (it->name, arg) == 0)
+      ଫେରନ୍ତୁ it;
+  ଫେରନ୍ତୁ ଖାଲି;
 }
 
-enum
+ଗଣନା
 {
   OPTION_VERSION = 'v',
   OPTION_VERSION_CAP = 'V',
@@ -199,43 +199,43 @@ enum
   OPTION_LOG,
   OPTION_LOG_FORMAT,
   OPTION_LOG_LEVEL,
-  OPTION_ROOT,
+  OPTION_ମୂଳ,
   OPTION_ROOTLESS
 };
 
-const char *argp_program_bug_address = "https://github.com/containers/crun/issues";
+ଅଚଳ ଅକ୍ଷର *argp_program_bug_address = "https://github.com/containers/crun/issues";
 
-static struct argp_option options[] = { { "debug", OPTION_DEBUG, 0, 0, "produce verbose output, similar to --log-level=debug", 0 },
+ସ୍ଥିର ସଂରଚନା argp_option options[] = { { "debug", OPTION_DEBUG, 0, 0, "produce verbose output, similar to --log-level=debug", 0 },
                                         { "cgroup-manager", OPTION_CGROUP_MANAGER, "MANAGER", 0, "cgroup manager", 0 },
                                         { "systemd-cgroup", OPTION_SYSTEMD_CGROUP, 0, 0, "use systemd cgroups", 0 },
                                         { "log", OPTION_LOG, "FILE", 0, "log destination: '[file:]PATH', 'journald:ID' or 'syslog:ID' (defaults to stderr)", 0 },
                                         { "log-format", OPTION_LOG_FORMAT, "FORMAT", 0, "log format: 'text' (default) or 'json'", 0 },
                                         { "log-level", OPTION_LOG_LEVEL, "LEVEL", 0, "log level to use: 'error' (default), 'warning' or 'debug'", 0 },
-                                        { "root", OPTION_ROOT, "DIR", 0, NULL, 0 },
-                                        { "rootless", OPTION_ROOTLESS, "VALUE", 0, NULL, 0 },
-                                        { "version", OPTION_VERSION, 0, 0, NULL, 0 },
+                                        { "root", OPTION_ମୂଳ, "DIR", 0, ଖାଲି, 0 },
+                                        { "rootless", OPTION_ROOTLESS, "VALUE", 0, ଖାଲି, 0 },
+                                        { "version", OPTION_VERSION, 0, 0, ଖାଲି, 0 },
                                         // alias OPTION_VERSION_CAP with OPTION_VERSION
-                                        { NULL, OPTION_VERSION_CAP, 0, OPTION_ALIAS, NULL, 0 },
+                                        { ଖାଲି, OPTION_VERSION_CAP, 0, OPTION_ALIAS, ଖାଲି, 0 },
                                         {
                                             0,
                                         } };
 
-static void
-print_version (FILE *stream, struct argp_state *state arg_unused)
+ସ୍ଥିର ଶୂନ୍ୟ
+print_version (FILE *stream, ସଂରଚନା argp_state *state arg_unused)
 {
-  libcrun_error_t err = NULL;
-  cleanup_free char *rundir = NULL;
+  libcrun_error_t err = ଖାଲି;
+  cleanup_free ଅକ୍ଷର *rundir = ଖାଲି;
   libcrun_context_t *ctx;
-  char **tags;
-  int ret;
+  ଅକ୍ଷର **tags;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
   fprintf (stream, "%s version %s\n", PACKAGE_NAME, PACKAGE_VERSION);
   fprintf (stream, "commit: %s\n", GIT_VERSION);
 
-  ret = libcrun_get_state_dir (&rundir, arguments.root, NULL, &err);
-  if (LIKELY (ret == 0))
+  ret = libcrun_get_state_dir (&rundir, arguments.ମୂଳ, ଖାଲି, &err);
+  ଯଦି (LIKELY (ret == 0))
     fprintf (stream, "rundir: %s\n", rundir);
-  else
+  ଅନ୍ୟଥା
     libcrun_error_release (&err);
 
   fprintf (stream, "spec: 1.0.0\n");
@@ -254,214 +254,214 @@ print_version (FILE *stream, struct argp_state *state arg_unused)
 #ifdef HAVE_EBPF
   fprintf (stream, "+EBPF ");
 #endif
-#if HAVE_CRIU && HAVE_DLOPEN
+#ଯଦି HAVE_CRIU && HAVE_DLOPEN
   fprintf (stream, "+CRIU ");
 #endif
 
-  ctx = libcrun_context_new (NULL, arguments.root, &err);
-  if (ctx)
+  ctx = libcrun_context_new (ଖାଲି, arguments.ମୂଳ, &err);
+  ଯଦି (ctx)
     {
       tags = libcrun_context_get_handler_feature_tags (ctx, &err);
-      if (tags)
+      ଯଦି (tags)
         {
-          for (size_t i = 0; tags[i]; i++)
+          ପାଇଁ (size_t i = 0; tags[i]; i++)
             {
               fprintf (stream, "+%s ", tags[i]);
-              free (tags[i]);
+              ମୁକ୍ତ (tags[i]);
             }
-          free (tags);
+          ମୁକ୍ତ (tags);
         }
-      else
+      ଅନ୍ୟଥା
         libcrun_error_release (&err);
       libcrun_context_free (ctx);
     }
-  else
+  ଅନ୍ୟଥା
     libcrun_error_release (&err);
 
   fprintf (stream, "+JSON_C\n");
 }
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+ସ୍ଥିର error_t
+parse_opt (ପୂର୍ଣ୍ଣସଂଖ୍ୟା ଚାବି, ଅକ୍ଷର *arg, ସଂରଚନା argp_state *state)
 {
-  const char *tmp;
+  ଅଚଳ ଅକ୍ଷର *tmp;
 
-  switch (key)
+  ବାଛ (ଚାବି)
     {
-    case OPTION_DEBUG:
+    ସ୍ଥିତି OPTION_DEBUG:
       arguments.verbosity = LIBCRUN_VERBOSITY_DEBUG;
-      break;
+      ଭାଙ୍ଗ;
 
-    case OPTION_CGROUP_MANAGER:
+    ସ୍ଥିତି OPTION_CGROUP_MANAGER:
       tmp = argp_mandatory_argument (arg, state);
-      if (strcmp (tmp, "systemd") == 0)
+      ଯଦି (strcmp (tmp, "systemd") == 0)
         {
           arguments.option_force_no_cgroup = false;
           arguments.option_systemd_cgroup = true;
         }
-      else if (strcmp (tmp, "cgroupfs") == 0)
+      ଅନ୍ୟଥା ଯଦି (strcmp (tmp, "cgroupfs") == 0)
         {
           arguments.option_force_no_cgroup = false;
           arguments.option_systemd_cgroup = false;
         }
-      else if (strcmp (tmp, "disabled") == 0)
+      ଅନ୍ୟଥା ଯଦି (strcmp (tmp, "disabled") == 0)
         {
           arguments.option_systemd_cgroup = false;
           arguments.option_force_no_cgroup = true;
         }
-      else
+      ଅନ୍ୟଥା
         {
           libcrun_fail_with_error (0, "unknown cgroup manager specified");
         }
-      break;
+      ଭାଙ୍ଗ;
 
-    case OPTION_SYSTEMD_CGROUP:
+    ସ୍ଥିତି OPTION_SYSTEMD_CGROUP:
       arguments.option_force_no_cgroup = false;
       arguments.option_systemd_cgroup = true;
-      break;
+      ଭାଙ୍ଗ;
 
-    case OPTION_LOG:
+    ସ୍ଥିତି OPTION_LOG:
       arguments.log = argp_mandatory_argument (arg, state);
-      break;
+      ଭାଙ୍ଗ;
 
-    case OPTION_LOG_FORMAT:
+    ସ୍ଥିତି OPTION_LOG_FORMAT:
       arguments.log_format = argp_mandatory_argument (arg, state);
-      break;
+      ଭାଙ୍ଗ;
 
-    case OPTION_LOG_LEVEL:
+    ସ୍ଥିତି OPTION_LOG_LEVEL:
       tmp = argp_mandatory_argument (arg, state);
-      if (strcmp (tmp, "error") == 0)
+      ଯଦି (strcmp (tmp, "error") == 0)
         {
           arguments.verbosity = LIBCRUN_VERBOSITY_ERROR;
         }
-      else if (strcmp (tmp, "warning") == 0)
+      ଅନ୍ୟଥା ଯଦି (strcmp (tmp, "warning") == 0)
         {
           arguments.verbosity = LIBCRUN_VERBOSITY_WARNING;
         }
-      else if (strcmp (tmp, "debug") == 0)
+      ଅନ୍ୟଥା ଯଦି (strcmp (tmp, "debug") == 0)
         {
           arguments.verbosity = LIBCRUN_VERBOSITY_DEBUG;
         }
-      else
+      ଅନ୍ୟଥା
         {
           libcrun_fail_with_error (0, "unknown verbosity `%s` specified", arg);
         }
-      break;
+      ଭାଙ୍ଗ;
 
-    case OPTION_ROOT:
-      arguments.root = argp_mandatory_argument (arg, state);
-      break;
+    ସ୍ଥିତି OPTION_ମୂଳ:
+      arguments.ମୂଳ = argp_mandatory_argument (arg, state);
+      ଭାଙ୍ଗ;
 
-    case OPTION_ROOTLESS:
+    ସ୍ଥିତି OPTION_ROOTLESS:
       /* Ignored.  So that a runc command line won't fail.  */
-      break;
+      ଭାଙ୍ଗ;
 
-    case ARGP_KEY_NO_ARGS:
+    ସ୍ଥିତି ARGP_ଚାବି_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a command");
 
-    case OPTION_VERSION:
-    case OPTION_VERSION_CAP:
+    ସ୍ଥିତି OPTION_VERSION:
+    ସ୍ଥିତି OPTION_VERSION_CAP:
       print_version (stdout, state);
       exit (EXIT_SUCCESS);
-    default:
-      return ARGP_ERR_UNKNOWN;
+    ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
+      ଫେରନ୍ତୁ ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static struct commands_s *command;
+ସ୍ଥିର ସଂରଚନା commands_s *command;
 
-void
-crun_assert_n_args (int n, int min, int max)
+ଶୂନ୍ୟ
+crun_assert_n_args (ପୂର୍ଣ୍ଣସଂଖ୍ୟା n, ପୂର୍ଣ୍ଣସଂଖ୍ୟା min, ପୂର୍ଣ୍ଣସଂଖ୍ୟା max)
 {
-  if (min >= 0 && n < min)
+  ଯଦି (min >= 0 && n < min)
     libcrun_fail_with_error (0, "`%s` requires a minimum of %d arguments", command->name, min);
-  if (max >= 0 && n > max)
+  ଯଦି (max >= 0 && n > max)
     libcrun_fail_with_error (0, "`%s` requires a maximum of %d arguments", command->name, max);
 }
 
-char *
-argp_mandatory_argument (char *arg, struct argp_state *state)
+ଅକ୍ଷର *
+argp_mandatory_argument (ଅକ୍ଷର *arg, ସଂରଚନା argp_state *state)
 {
-  if (arg)
-    return arg;
-  return state->argv[state->next++];
+  ଯଦି (arg)
+    ଫେରନ୍ତୁ arg;
+  ଫେରନ୍ତୁ state->argv[state->next++];
 }
 
 /* Parse a numeric value from STR, aborting on an out-of-range or malformed
    value.  KIND names the field for error messages.  If ENDPTR is not NULL it
    is set past the parsed number (so the caller can continue parsing, e.g. a
    "UID:GID" pair); otherwise the whole string must be a valid number.  */
-int
-parse_id_or_fail (const char *str, char **endptr, const char *kind)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+parse_id_or_fail (ଅଚଳ ଅକ୍ଷର *str, ଅକ୍ଷର **endptr, ଅଚଳ ଅକ୍ଷର *kind)
 {
-  char *end = NULL;
+  ଅକ୍ଷର *end = ଖାଲି;
   long long l;
 
   errno = 0;
   l = strtoll (str, &end, 10);
-  if (end == str)
+  ଯଦି (end == str)
     libcrun_fail_with_error (0, "invalid %s specified", kind);
-  if (errno == ERANGE)
+  ଯଦି (errno == ERANGE)
     libcrun_fail_with_error (0, "invalid %s specified", kind);
-  if (l < INT_MIN || l > INT_MAX)
+  ଯଦି (l < INT_MIN || l > INT_MAX)
     libcrun_fail_with_error (0, "invalid %s specified", kind);
 
-  if (endptr)
+  ଯଦି (endptr)
     *endptr = end;
-  else if (*end != '\0')
+  ଅନ୍ୟଥା ଯଦି (*end != '\0')
     libcrun_fail_with_error (0, "invalid %s specified", kind);
 
-  return (int) l;
+  ଫେରନ୍ତୁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା) l;
 }
 
-static struct argp argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+ସ୍ଥିର ସଂରଚନା argp argp = { options, parse_opt, args_doc, doc, ଖାଲି, ଖାଲି, ଖାଲି };
 
-int ensure_cloned_binary (void);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା ensure_cloned_ଦ୍ୱିମିକ (ଶୂନ୍ୟ);
 
-static void
-fill_handler_from_argv0 (char *argv0, struct crun_global_arguments *args)
+ସ୍ଥିର ଶୂନ୍ୟ
+fill_handler_from_argv0 (ଅକ୍ଷର *argv0, ସଂରଚନା crun_global_arguments *args)
 {
-  const char *b = basename (argv0);
+  ଅଚଳ ଅକ୍ଷର *b = basename (argv0);
 #ifdef HAVE_LIBKRUN
-  if (strcmp (b, "krun") == 0)
+  ଯଦି (strcmp (b, "krun") == 0)
     {
       args->handler = "krun";
-      return;
+      ଫେରନ୍ତୁ;
     }
 #endif
-  if (strncmp (b, "crun-", 5) == 0 && b[5] != '\0')
+  ଯଦି (strncmp (b, "crun-", 5) == 0 && b[5] != '\0')
     args->handler = b + 5;
 }
 
-static char **
-copy_args (char **argv, int argc)
+ସ୍ଥିର ଅକ୍ଷର **
+copy_args (ଅକ୍ଷର **argv, ପୂର୍ଣ୍ଣସଂଖ୍ୟା argc)
 {
-  char **buff = xmalloc0 ((argc + 1) * sizeof (char *));
-  for (int i = 0; i < argc; i++)
+  ଅକ୍ଷର **buff = xmalloc0 ((argc + 1) * ଆକାର (ଅକ୍ଷର *));
+  ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା i = 0; i < argc; i++)
     buff[i] = argv[i];
 
-  return buff;
+  ଫେରନ୍ତୁ buff;
 }
 
-int
-main (int argc, char **argv)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା
+ମୁଖ୍ୟ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା argc, ଅକ୍ଷର **argv)
 {
-  libcrun_error_t err = NULL;
-  int ret, first_argument = 0;
+  libcrun_error_t err = ଖାଲି;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret, first_argument = 0;
 
   arguments.argc = argc;
   arguments.argv = argv;
 
 #ifdef DYNLOAD_LIBCRUN
-  if (ensure_cloned_binary () < 0)
+  ଯଦି (ensure_cloned_ଦ୍ୱିମିକ () < 0)
     {
       fprintf (stderr, "Failed to re-execute libcrun via memory file descriptor\n");
       exit (EXIT_FAILURE);
     }
   /* Resolve all libcrun weak dependencies.  */
-  if (dlopen ("libcrun.so", RTLD_GLOBAL | RTLD_DEEPBIND | RTLD_LAZY) == NULL)
+  ଯଦି (dlopen ("libcrun.so", RTLD_GLOBAL | RTLD_DEEPBIND | RTLD_LAZY) == ଖାଲି)
     libcrun_fail_with_error (0, "could not load `libcrun.so`: `%s`", dlerror ());
 #endif
 
@@ -469,17 +469,17 @@ main (int argc, char **argv)
   argp_parse (&argp, argc, argv, ARGP_IN_ORDER, &first_argument, &arguments);
 
   command = get_command (argv[first_argument]);
-  if (command == NULL)
+  ଯଦି (command == ଖାଲି)
     libcrun_fail_with_error (0, "unknown command %s", argv[first_argument]);
 
-  int command_argc = argc - first_argument;
-  cleanup_free char **command_argv = copy_args (argv + first_argument, command_argc);
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା command_argc = argc - first_argument;
+  cleanup_free ଅକ୍ଷର **command_argv = copy_args (argv + first_argument, command_argc);
   command_argv[0] = argv[0];
 
   ret = command->handler (&arguments, command_argc, command_argv, &err);
-  if (ret && err)
+  ଯଦି (ret && err)
     {
-      if (command->value == COMMAND_EXEC)
+      ଯଦି (command->ମୂଲ୍ୟ == COMMAND_EXEC)
         {
           libcrun_error (libcrun_error_get_status (err), "%s", libcrun_error_get_message (err));
           exit (EXIT_EXEC_FAILURE);
@@ -487,5 +487,5 @@ main (int argc, char **argv)
       libcrun_fail_with_error (libcrun_error_get_status (err), "%s", libcrun_error_get_message (err));
     }
 
-  return ret;
+  ଫେରନ୍ତୁ ret;
 }

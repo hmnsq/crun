@@ -17,117 +17,117 @@
  */
 #ifndef ERROR_H
 #define ERROR_H
-#include <config.h>
+#ଅନ୍ତର୍ଭାଵ <config.h>
 #ifdef HAVE_ERROR_H
 #  include <error.h>
-#else
+#ଅନ୍ୟଥା
 #  define error(status, errno, fmt, ...)                      \
-    do                                                        \
+    କର                                                        \
       {                                                       \
-        if (errno == 0)                                       \
+        ଯଦି (errno == 0)                                       \
           fprintf (stderr, "crun: " fmt "\n", ##__VA_ARGS__); \
-        else                                                  \
+        ଅନ୍ୟଥା                                                  \
           {                                                   \
             fprintf (stderr, "crun: " fmt, ##__VA_ARGS__);    \
             fprintf (stderr, ": %s\n", strerror (errno));     \
           }                                                   \
-        if (status)                                           \
+        ଯଦି (status)                                           \
           exit (status);                                      \
-    } while (0)
+    } ଯେତେବେଳେ (0)
 #endif
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <syslog.h>
-#include <unistd.h>
+#ଅନ୍ତର୍ଭାଵ <stdlib.h>
+#ଅନ୍ତର୍ଭାଵ <stdio.h>
+#ଅନ୍ତର୍ଭାଵ <stdbool.h>
+#ଅନ୍ତର୍ଭାଵ <syslog.h>
+#ଅନ୍ତର୍ଭାଵ <unistd.h>
 
-struct libcrun_error_s
+ସଂରଚନା libcrun_error_s
 {
-  int status;
-  char *msg;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା status;
+  ଅକ୍ଷର *ସନ୍ଦେଶ;
 };
-typedef struct libcrun_error_s *libcrun_error_t;
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ସଂରଚନା libcrun_error_s *libcrun_error_t;
 
 /* Coverage support: flush coverage data before _exit() in forked processes */
 #ifdef HAVE_COVERAGE
-extern void __gcov_dump (void);
+ବାହ୍ୟ ଶୂନ୍ୟ __gcov_dump (ଶୂନ୍ୟ);
 #  define GCOV_DUMP() __gcov_dump ()
-#else
+#ଅନ୍ୟଥା
 #  define GCOV_DUMP()
 #endif
 
 /* Use this instead of _exit() to ensure coverage data is flushed */
 #define _safe_exit(status) \
-  do                       \
+  କର                       \
     {                      \
       GCOV_DUMP ();        \
       _exit (status);      \
-  } while (0)
+  } ଯେତେବେଳେ (0)
 
 #define OOM()                            \
-  do                                     \
+  କର                                     \
     {                                    \
       fprintf (stderr, "out of memory"); \
       _safe_exit (EXIT_FAILURE);         \
-  } while (0)
+  } ଯେତେବେଳେ (0)
 
-typedef void (*crun_output_handler) (int errno_, const char *msg, int verbosity, void *arg);
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ଶୂନ୍ୟ (*crun_output_handler) (ପୂର୍ଣ୍ଣସଂଖ୍ୟା errno_, ଅଚଳ ଅକ୍ଷର *ସନ୍ଦେଶ, ପୂର୍ଣ୍ଣସଂଖ୍ୟା verbosity, ଶୂନ୍ୟ *arg);
 
-void crun_set_output_handler (crun_output_handler handler, void *arg);
+ଶୂନ୍ୟ crun_set_output_handler (crun_output_handler handler, ଶୂନ୍ୟ *arg);
 
-void log_write_to_journald (int errno_, const char *msg, int verbosity, void *arg);
+ଶୂନ୍ୟ log_write_to_journald (ପୂର୍ଣ୍ଣସଂଖ୍ୟା errno_, ଅଚଳ ଅକ୍ଷର *ସନ୍ଦେଶ, ପୂର୍ଣ୍ଣସଂଖ୍ୟା verbosity, ଶୂନ୍ୟ *arg);
 
-void log_write_to_syslog (int errno_, const char *msg, int verbosity, void *arg);
+ଶୂନ୍ୟ log_write_to_syslog (ପୂର୍ଣ୍ଣସଂଖ୍ୟା errno_, ଅଚଳ ଅକ୍ଷର *ସନ୍ଦେଶ, ପୂର୍ଣ୍ଣସଂଖ୍ୟା verbosity, ଶୂନ୍ୟ *arg);
 
-void log_write_to_stream (int errno_, const char *msg, int verbosity, void *arg);
+ଶୂନ୍ୟ log_write_to_stream (ପୂର୍ଣ୍ଣସଂଖ୍ୟା errno_, ଅଚଳ ଅକ୍ଷର *ସନ୍ଦେଶ, ପୂର୍ଣ୍ଣସଂଖ୍ୟା verbosity, ଶୂନ୍ୟ *arg);
 
-void log_write_to_stderr (int errno_, const char *msg, int verbosity, void *arg);
+ଶୂନ୍ୟ log_write_to_stderr (ପୂର୍ଣ୍ଣସଂଖ୍ୟା errno_, ଅଚଳ ଅକ୍ଷର *ସନ୍ଦେଶ, ପୂର୍ଣ୍ଣସଂଖ୍ୟା verbosity, ଶୂନ୍ୟ *arg);
 
-int crun_error_wrap (libcrun_error_t *err, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା crun_error_wrap (libcrun_error_t *err, ଅଚଳ ଅକ୍ଷର *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 
-int crun_error_get_errno (libcrun_error_t *err);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା crun_error_get_errno (libcrun_error_t *err);
 
-int crun_error_release (libcrun_error_t *err);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା crun_error_release (libcrun_error_t *err);
 
-void crun_error_write_warning_and_release (FILE *out, libcrun_error_t **err);
+ଶୂନ୍ୟ crun_error_write_warning_and_release (FILE *out, libcrun_error_t **err);
 
-LIBCRUN_PUBLIC void libcrun_debug (const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
+LIBCRUN_PUBLIC ଶୂନ୍ୟ libcrun_debug (ଅଚଳ ଅକ୍ଷର *ସନ୍ଦେଶ, ...) __attribute__ ((format (printf, 1, 2)));
 
-LIBCRUN_PUBLIC void libcrun_warning (const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
+LIBCRUN_PUBLIC ଶୂନ୍ୟ libcrun_warning (ଅଚଳ ଅକ୍ଷର *ସନ୍ଦେଶ, ...) __attribute__ ((format (printf, 1, 2)));
 
-LIBCRUN_PUBLIC void libcrun_error (int errno_, const char *msg, ...) __attribute__ ((format (printf, 2, 3)));
+LIBCRUN_PUBLIC ଶୂନ୍ୟ libcrun_error (ପୂର୍ଣ୍ଣସଂଖ୍ୟା errno_, ଅଚଳ ଅକ୍ଷର *ସନ୍ଦେଶ, ...) __attribute__ ((format (printf, 2, 3)));
 
-LIBCRUN_PUBLIC int libcrun_make_error (libcrun_error_t *err, int status, const char *msg, ...) __attribute__ ((format (printf, 3, 4)));
+LIBCRUN_PUBLIC ପୂର୍ଣ୍ଣସଂଖ୍ୟା libcrun_make_error (libcrun_error_t *err, ପୂର୍ଣ୍ଣସଂଖ୍ୟା status, ଅଚଳ ଅକ୍ଷର *ସନ୍ଦେଶ, ...) __attribute__ ((format (printf, 3, 4)));
 
 #define crun_make_error libcrun_make_error
 
-LIBCRUN_PUBLIC void libcrun_error_write_warning_and_release (FILE *out, libcrun_error_t **err);
+LIBCRUN_PUBLIC ଶୂନ୍ୟ libcrun_error_write_warning_and_release (FILE *out, libcrun_error_t **err);
 
-LIBCRUN_PUBLIC void libcrun_error_report_and_release (libcrun_error_t *err);
+LIBCRUN_PUBLIC ଶୂନ୍ୟ libcrun_error_report_and_release (libcrun_error_t *err);
 
-LIBCRUN_PUBLIC void libcrun_fail_with_error (int errno_, const char *msg, ...) __attribute__ ((noreturn)) __attribute__ ((format (printf, 2, 3)));
+LIBCRUN_PUBLIC ଶୂନ୍ୟ libcrun_fail_with_error (ପୂର୍ଣ୍ଣସଂଖ୍ୟା errno_, ଅଚଳ ଅକ୍ଷର *ସନ୍ଦେଶ, ...) __attribute__ ((noreturn)) __attribute__ ((format (printf, 2, 3)));
 
-LIBCRUN_PUBLIC int libcrun_set_log_format (const char *format, libcrun_error_t *err);
+LIBCRUN_PUBLIC ପୂର୍ଣ୍ଣସଂଖ୍ୟା libcrun_set_log_format (ଅଚଳ ଅକ୍ଷର *format, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_init_logging (crun_output_handler *output_handler, void **output_handler_arg, const char *id,
-                                         const char *log, libcrun_error_t *err);
+LIBCRUN_PUBLIC ପୂର୍ଣ୍ଣସଂଖ୍ୟା libcrun_init_logging (crun_output_handler *output_handler, ଶୂନ୍ୟ **output_handler_arg, ଅଚଳ ଅକ୍ଷର *id,
+                                         ଅଚଳ ଅକ୍ଷର *log, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_error_release (libcrun_error_t *err);
+LIBCRUN_PUBLIC ପୂର୍ଣ୍ଣସଂଖ୍ୟା libcrun_error_release (libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_error_get_status (libcrun_error_t err);
+LIBCRUN_PUBLIC ପୂର୍ଣ୍ଣସଂଖ୍ୟା libcrun_error_get_status (libcrun_error_t err);
 
-LIBCRUN_PUBLIC const char *libcrun_error_get_message (libcrun_error_t err);
+LIBCRUN_PUBLIC ଅଚଳ ଅକ୍ଷର *libcrun_error_get_message (libcrun_error_t err);
 
-int json_gen_error_to_crun_error (int gen_status, libcrun_error_t *err);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା json_gen_error_to_crun_error (ପୂର୍ଣ୍ଣସଂଖ୍ୟା gen_status, libcrun_error_t *err);
 
-enum
+ଗଣନା
 {
   LIBCRUN_VERBOSITY_ERROR = 0,
   LIBCRUN_VERBOSITY_WARNING,
   LIBCRUN_VERBOSITY_DEBUG,
 };
 
-LIBCRUN_PUBLIC void libcrun_set_verbosity (int verbosity);
-LIBCRUN_PUBLIC int libcrun_get_verbosity ();
+LIBCRUN_PUBLIC ଶୂନ୍ୟ libcrun_set_verbosity (ପୂର୍ଣ୍ଣସଂଖ୍ୟା verbosity);
+LIBCRUN_PUBLIC ପୂର୍ଣ୍ଣସଂଖ୍ୟା libcrun_get_verbosity ();
 
 #endif

@@ -18,34 +18,34 @@
 #ifndef RING_BUFFER_H
 #define RING_BUFFER_H
 
-#include <config.h>
+#ଅନ୍ତର୍ଭାଵ <config.h>
 
-#include "error.h"
-#include "utils.h"
+#ଅନ୍ତର୍ଭାଵ "error.h"
+#ଅନ୍ତର୍ଭାଵ "utils.h"
 
-struct ring_buffer;
+ସଂରଚନା ring_buffer;
 
-size_t ring_buffer_get_data_available (struct ring_buffer *rb);
+size_t ring_buffer_get_data_available (ସଂରଚନା ring_buffer *rb);
 
-size_t ring_buffer_get_space_available (struct ring_buffer *rb);
+size_t ring_buffer_get_space_available (ସଂରଚନା ring_buffer *rb);
 
-size_t ring_buffer_get_size (struct ring_buffer *rb);
+size_t ring_buffer_get_size (ସଂରଚନା ring_buffer *rb);
 
-int ring_buffer_read (struct ring_buffer *rb, int fd, bool *is_eagain, libcrun_error_t *err);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା ring_buffer_read (ସଂରଚନା ring_buffer *rb, ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, bool *is_eagain, libcrun_error_t *err);
 
-int ring_buffer_write (struct ring_buffer *rb, int fd, bool *is_eagain, libcrun_error_t *err);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା ring_buffer_write (ସଂରଚନା ring_buffer *rb, ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, bool *is_eagain, libcrun_error_t *err);
 
-struct ring_buffer *ring_buffer_make (size_t size);
+ସଂରଚନା ring_buffer *ring_buffer_make (size_t size);
 
-void ring_buffer_free (struct ring_buffer *rb);
+ଶୂନ୍ୟ ring_buffer_free (ସଂରଚନା ring_buffer *rb);
 
 #define cleanup_ring_buffer __attribute__ ((cleanup (cleanup_ring_bufferp)))
 
-static inline void
-cleanup_ring_bufferp (struct ring_buffer **p)
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଶୂନ୍ୟ
+cleanup_ring_bufferp (ସଂରଚନା ring_buffer **p)
 {
-  struct ring_buffer *rb = *p;
-  if (rb)
+  ସଂରଚନା ring_buffer *rb = *p;
+  ଯଦି (rb)
     ring_buffer_free (rb);
 }
 
