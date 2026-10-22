@@ -18,13 +18,13 @@
 #ifndef SPEC_H
 #define SPEC_H
 
-#include <config.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include "error.h"
+#অন্তর্ভাৱ <config.h>
+#অন্তর্ভাৱ <stdbool.h>
+#অন্তর্ভাৱ <stdio.h>
+#অন্তর্ভাৱ "error.h"
 
-LIBCRUN_PUBLIC int libcrun_container_spec (bool root, FILE *out, libcrun_error_t *err);
+LIBCRUN_PUBLIC পূর্ণাঙ্ক libcrun_container_spec (bool মূল, FILE *out, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_spec_json (bool root, char **out, libcrun_error_t *err);
+LIBCRUN_PUBLIC পূর্ণাঙ্ক libcrun_container_spec_json (bool মূল, ৱর্ণ **out, libcrun_error_t *err);
 
 #endif

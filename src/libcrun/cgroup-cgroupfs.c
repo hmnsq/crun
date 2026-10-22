@@ -18,47 +18,47 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "cgroup.h"
-#include "cgroup-internal.h"
-#include "cgroup-systemd.h"
-#include "cgroup-setup.h"
-#include "cgroup-utils.h"
-#include "cgroup-cgroupfs.h"
-#include <string.h>
-#include <sys/types.h>
-#include <signal.h>
-#include <sys/vfs.h>
-#include <inttypes.h>
-#include <time.h>
+#অন্তর্ভাৱ <config.h>
+#অন্তর্ভাৱ "cgroup.h"
+#অন্তর্ভাৱ "cgroup-internal.h"
+#অন্তর্ভাৱ "cgroup-systemd.h"
+#অন্তর্ভাৱ "cgroup-setup.h"
+#অন্তর্ভাৱ "cgroup-utils.h"
+#অন্তর্ভাৱ "cgroup-cgroupfs.h"
+#অন্তর্ভাৱ <string.h>
+#অন্তর্ভাৱ <sys/types.h>
+#অন্তর্ভাৱ <signal.h>
+#অন্তর্ভাৱ <sys/vfs.h>
+#অন্তর্ভাৱ <inttypes.h>
+#অন্তর্ভাৱ <time.h>
 
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <libgen.h>
+#অন্তর্ভাৱ <sys/stat.h>
+#অন্তর্ভাৱ <sys/types.h>
+#অন্তর্ভাৱ <fcntl.h>
+#অন্তর্ভাৱ <libgen.h>
 
-static char *
-make_cgroup_path (const char *path, const char *id)
+স্থির ৱর্ণ *
+make_cgroup_path (ধ্রুৱ ৱর্ণ *path, ধ্রুৱ ৱর্ণ *id)
 {
-  char *ret;
+  ৱর্ণ *ret;
 
-  if (path == NULL)
+  যদি (path == রিক্ত)
     xasprintf (&ret, "/%s", id);
-  else if (path[0] == '/')
+  অন্যথা যদি (path[0] == '/')
     ret = xstrdup (path);
-  else
+  অন্যথা
     xasprintf (&ret, "/%s", path);
 
-  return ret;
+  ঘূৰাই ret;
 }
 
-static int
-libcrun_precreate_cgroup_cgroupfs (struct libcrun_cgroup_args *args, int *dirfd, libcrun_error_t *err)
+স্থির পূর্ণাঙ্ক
+libcrun_precreate_cgroup_cgroupfs (সংরচনা libcrun_cgroup_args *args, পূর্ণাঙ্ক *dirfd, libcrun_error_t *err)
 {
-  cleanup_free char *sub_path = make_cgroup_path (args->cgroup_path, args->id);
-  cleanup_free char *cgroup_path = NULL;
-  cleanup_free char *parent_path = NULL;
-  int ret;
+  cleanup_free ৱর্ণ *sub_path = make_cgroup_path (args->cgroup_path, args->id);
+  cleanup_free ৱর্ণ *cgroup_path = রিক্ত;
+  cleanup_free ৱর্ণ *parent_path = রিক্ত;
+  পূর্ণাঙ্ক ret;
 
   /* No need to check the mode since this feature is supported only on cgroup v2, and
      libcrun_cgroup_preenter already performs this check.  */
@@ -68,131 +68,131 @@ libcrun_precreate_cgroup_cgroupfs (struct libcrun_cgroup_args *args, int *dirfd,
   /* The container process is created directly in the cgroup, so check it
      now: once it is there, it is too late.  */
   ret = libcrun_cgroup_ensure_not_frozen (sub_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    ঘূৰাই ret;
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, sub_path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_path, err, CGROUP_মূল, sub_path, রিক্ত);
+  যদি (UNLIKELY (ret < 0))
+    ঘূৰাই ret;
 
   parent_path = xstrdup (cgroup_path);
   ret = crun_ensure_directory (dirname (parent_path), 0755, true, err);
-  if (UNLIKELY (ret < 0))
+  যদি (UNLIKELY (ret < 0))
     {
       libcrun_error_release (err);
-      return 0;
+      ঘূৰাই 0;
     }
 
   /* Remember the cgroup created here, so it can be removed if the container
      creation fails before there is a status for it.  A pre-existing cgroup is
      left alone.  */
-  if (mkdir (cgroup_path, 0755) == 0)
+  যদি (mkdir (cgroup_path, 0755) == 0)
     args->precreated_path = xstrdup (cgroup_path);
-  else if (errno != EEXIST)
-    return 0;
+  অন্যথা যদি (errno != EEXIST)
+    ঘূৰাই 0;
 
   ret = enable_controllers (sub_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    ঘূৰাই ret;
 
   *dirfd = open (cgroup_path, O_CLOEXEC | O_NOFOLLOW | O_DIRECTORY | O_PATH);
-  if (UNLIKELY (*dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", cgroup_path);
+  যদি (UNLIKELY (*dirfd < 0))
+    ঘূৰাই crun_make_error (err, errno, "open `%s`", cgroup_path);
 
-  return 0;
+  ঘূৰাই 0;
 }
 
-static int
-make_new_sibling_cgroup (char **out, const char *id, libcrun_error_t *err)
+স্থির পূর্ণাঙ্ক
+make_new_sibling_cgroup (ৱর্ণ **out, ধ্রুৱ ৱর্ণ *id, libcrun_error_t *err)
 {
-  cleanup_free char *current_cgroup = NULL;
-  char *dir;
-  int ret;
+  cleanup_free ৱর্ণ *current_cgroup = রিক্ত;
+  ৱর্ণ *dir;
+  পূর্ণাঙ্ক ret;
 
   ret = libcrun_get_cgroup_process (0, &current_cgroup, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    ঘূৰাই ret;
 
   dir = dirname (current_cgroup);
 
-  append_paths (out, err, dir, id, NULL);
-  return 0;
+  append_paths (out, err, dir, id, রিক্ত);
+  ঘূৰাই 0;
 }
 
-static int
-libcrun_cgroup_enter_cgroupfs (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status *out, libcrun_error_t *err)
+স্থির পূর্ণাঙ্ক
+libcrun_cgroup_enter_cgroupfs (সংরচনা libcrun_cgroup_args *args, সংরচনা libcrun_cgroup_status *out, libcrun_error_t *err)
 {
   pid_t pid = args->pid;
-  int cgroup_mode;
-  int ret;
+  পূর্ণাঙ্ক cgroup_mode;
+  পূর্ণাঙ্ক ret;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  যদি (UNLIKELY (cgroup_mode < 0))
+    ঘূৰাই cgroup_mode;
 
   out->path = make_cgroup_path (args->cgroup_path, args->id);
 
   /* If the cgroup was already joined via CLONE_INTO_CGROUP, the controllers
      were already enabled by precreate_cgroup.  */
-  if (args->joined)
-    return 0;
+  যদি (args->joined)
+    ঘূৰাই 0;
 
-  if (cgroup_mode == CGROUP_MODE_UNIFIED)
+  যদি (cgroup_mode == CGROUP_MODE_UNIFIED)
     {
       ret = enable_controllers (out->path, err);
-      if (UNLIKELY (ret < 0))
+      যদি (UNLIKELY (ret < 0))
         {
           /* If the generated path cannot be used attempt to create the new cgroup
              as a sibling of the current one.  */
-          if (args->cgroup_path == NULL)
+          যদি (args->cgroup_path == রিক্ত)
             {
-              libcrun_error_t tmp_err = NULL;
-              int tmp_ret;
+              libcrun_error_t tmp_err = রিক্ত;
+              পূর্ণাঙ্ক tmp_ret;
 
-              free (out->path);
-              out->path = NULL;
+              মুক্ত (out->path);
+              out->path = রিক্ত;
 
               tmp_ret = make_new_sibling_cgroup (&out->path, args->id, &tmp_err);
-              if (UNLIKELY (tmp_ret < 0))
+              যদি (UNLIKELY (tmp_ret < 0))
                 {
                   crun_error_release (&tmp_err);
-                  return ret;
+                  ঘূৰাই ret;
                 }
 
               crun_error_release (err);
               ret = enable_controllers (out->path, err);
             }
-          if (UNLIKELY (ret < 0))
-            return ret;
+          যদি (UNLIKELY (ret < 0))
+            ঘূৰাই ret;
         }
     }
 
   ret = libcrun_cgroup_ensure_not_frozen (out->path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    ঘূৰাই ret;
 
-  return enter_cgroup (cgroup_mode, pid, 0, out->path, true, err);
+  ঘূৰাই enter_cgroup (cgroup_mode, pid, 0, out->path, true, err);
 }
 
-static int
-libcrun_destroy_cgroup_cgroupfs (struct libcrun_cgroup_status *cgroup_status,
+স্থির পূর্ণাঙ্ক
+libcrun_destroy_cgroup_cgroupfs (সংরচনা libcrun_cgroup_status *cgroup_status,
                                  libcrun_error_t *err)
 {
-  int mode;
-  int ret;
+  পূর্ণাঙ্ক mode;
+  পূর্ণাঙ্ক ret;
 
   mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (mode < 0))
-    return mode;
+  যদি (UNLIKELY (mode < 0))
+    ঘূৰাই mode;
 
   ret = cgroup_killall_path (cgroup_status->path, SIGKILL, err);
-  if (UNLIKELY (ret < 0))
+  যদি (UNLIKELY (ret < 0))
     crun_error_release (err);
 
-  return destroy_cgroup_path (cgroup_status->path, mode, err);
+  ঘূৰাই destroy_cgroup_path (cgroup_status->path, mode, err);
 }
 
-struct libcrun_cgroup_manager cgroup_manager_cgroupfs = {
+সংরচনা libcrun_cgroup_manager cgroup_manager_cgroupfs = {
   .precreate_cgroup = libcrun_precreate_cgroup_cgroupfs,
   .create_cgroup = libcrun_cgroup_enter_cgroupfs,
   .destroy_cgroup = libcrun_destroy_cgroup_cgroupfs,

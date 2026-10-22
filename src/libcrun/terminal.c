@@ -20,71 +20,71 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "linux.h"
-#include "utils.h"
+#অন্তর্ভাৱ <config.h>
+#অন্তর্ভাৱ "linux.h"
+#অন্তর্ভাৱ "utils.h"
 
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <termios.h>
+#অন্তর্ভাৱ <stdlib.h>
+#অন্তর্ভাৱ <unistd.h>
+#অন্তর্ভাৱ <fcntl.h>
+#অন্তর্ভাৱ <sys/ioctl.h>
+#অন্তর্ভাৱ <termios.h>
 
 #ifndef TIOCGPTPEER
 #  define TIOCGPTPEER _IO ('T', 0x41)
 #endif
 
-struct terminal_status_s
+সংরচনা terminal_status_s
 {
-  int fd;
-  struct termios termios;
+  পূর্ণাঙ্ক fd;
+  সংরচনা termios termios;
 };
 
-int
-libcrun_new_terminal (char **pty, libcrun_error_t *err)
+পূর্ণাঙ্ক
+libcrun_new_terminal (ৱর্ণ **pty, libcrun_error_t *err)
 {
-  char buf[64];
-  int ret;
-  cleanup_close int fd = open ("/dev/ptmx", O_RDWR | O_NOCTTY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `/dev/ptmx`");
+  ৱর্ণ buf[64];
+  পূর্ণাঙ্ক ret;
+  cleanup_close পূর্ণাঙ্ক fd = open ("/dev/ptmx", O_RDWR | O_NOCTTY | O_CLOEXEC);
+  যদি (UNLIKELY (fd < 0))
+    ঘূৰাই crun_make_error (err, errno, "open `/dev/ptmx`");
 
-  ret = ptsname_r (fd, buf, sizeof (buf));
-  if (UNLIKELY (ret != 0))
-    return crun_make_error (err, errno, "ptsname");
+  ret = ptsname_r (fd, buf, পরিমাণ (buf));
+  যদি (UNLIKELY (ret != 0))
+    ঘূৰাই crun_make_error (err, errno, "ptsname");
 
   ret = unlockpt (fd);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "unlockpt");
+  যদি (UNLIKELY (ret < 0))
+    ঘূৰাই crun_make_error (err, errno, "unlockpt");
 
   *pty = xstrdup (buf);
 
   ret = fd;
   fd = -1;
 
-  return ret;
+  ঘূৰাই ret;
 }
 
-int
-libcrun_set_raw (int fd, void **current_status, libcrun_error_t *err)
+পূর্ণাঙ্ক
+libcrun_set_raw (পূর্ণাঙ্ক fd, শূন্য **current_status, libcrun_error_t *err)
 {
-  int ret;
-  struct termios termios;
+  পূর্ণাঙ্ক ret;
+  সংরচনা termios termios;
 
   ret = tcgetattr (fd, &termios);
-  if (UNLIKELY (ret < 0))
+  যদি (UNLIKELY (ret < 0))
     {
       /* Nothing to do if FD is not a terminal.  */
-      if (errno == ENOTTY)
-        return 0;
-      return crun_make_error (err, errno, "tcgetattr");
+      যদি (errno == ENOTTY)
+        ঘূৰাই 0;
+      ঘূৰাই crun_make_error (err, errno, "tcgetattr");
     }
 
-  if (current_status)
+  যদি (current_status)
     {
-      struct terminal_status_s *s = xmalloc (sizeof (*s));
+      সংরচনা terminal_status_s *s = xmalloc (পরিমাণ (*s));
       s->fd = fd;
-      memcpy (&(s->termios), &termios, sizeof (termios));
+      memcpy (&(s->termios), &termios, পরিমাণ (termios));
       *current_status = s;
     }
 
@@ -92,94 +92,94 @@ libcrun_set_raw (int fd, void **current_status, libcrun_error_t *err)
   termios.c_iflag = 0;
 
   ret = tcsetattr (fd, TCSANOW, &termios);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "tcsetattr");
+  যদি (UNLIKELY (ret < 0))
+    ঘূৰাই crun_make_error (err, errno, "tcsetattr");
 
-  return 0;
+  ঘূৰাই 0;
 }
 
 /* Do not translate "\n" to "\r\n" on output, so that what the container
    writes to the terminal reaches our stdout unchanged.  */
-int
-libcrun_clear_onlcr (int fd, libcrun_error_t *err)
+পূর্ণাঙ্ক
+libcrun_clear_onlcr (পূর্ণাঙ্ক fd, libcrun_error_t *err)
 {
-  int ret;
-  struct termios termios;
+  পূর্ণাঙ্ক ret;
+  সংরচনা termios termios;
 
   ret = tcgetattr (fd, &termios);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "tcgetattr");
+  যদি (UNLIKELY (ret < 0))
+    ঘূৰাই crun_make_error (err, errno, "tcgetattr");
 
   termios.c_oflag &= ~ONLCR;
 
   ret = tcsetattr (fd, TCSANOW, &termios);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "tcsetattr");
+  যদি (UNLIKELY (ret < 0))
+    ঘূৰাই crun_make_error (err, errno, "tcsetattr");
 
-  return 0;
+  ঘূৰাই 0;
 }
 
-int
-libcrun_set_stdio (int ptmx_fd, char *pty, libcrun_error_t *err)
+পূর্ণাঙ্ক
+libcrun_set_stdio (পূর্ণাঙ্ক ptmx_fd, ৱর্ণ *pty, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
-  int ret, i;
+  cleanup_close পূর্ণাঙ্ক fd = -1;
+  পূর্ণাঙ্ক ret, i;
 
   /* Open the slave directly from the master.  The path is resolved in the
      container mount namespace, and could point anywhere.  */
   fd = ioctl (ptmx_fd, TIOCGPTPEER, O_RDWR | O_CLOEXEC);
-  if (fd < 0 && (errno == EINVAL || errno == ENOTTY))
+  যদি (fd < 0 && (errno == EINVAL || errno == ENOTTY))
     {
       /* TIOCGPTPEER requires Linux 4.13.  */
       fd = open (pty, O_RDWR | O_CLOEXEC);
     }
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s`", pty);
+  যদি (UNLIKELY (fd < 0))
+    ঘূৰাই crun_make_error (err, errno, "open `%s`", pty);
 
-  for (i = 0; i < 3; i++)
+  বাবে (i = 0; i < 3; i++)
     {
       ret = dup3 (fd, i, 0);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "dup terminal");
+      যদি (UNLIKELY (ret < 0))
+        ঘূৰাই crun_make_error (err, errno, "dup terminal");
     }
 
   ret = ioctl (0, TIOCSCTTY, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "ioctl TIOCSCTTY");
+  যদি (UNLIKELY (ret < 0))
+    ঘূৰাই crun_make_error (err, errno, "ioctl TIOCSCTTY");
 
-  return 0;
+  ঘূৰাই 0;
 }
 
-void
-cleanup_terminalp (void *p)
+শূন্য
+cleanup_terminalp (শূন্য *p)
 {
-  struct terminal_status_s **s = (struct terminal_status_s **) p;
-  if (*s)
+  সংরচনা terminal_status_s **s = (সংরচনা terminal_status_s **) p;
+  যদি (*s)
     {
       tcsetattr ((*s)->fd, TCSANOW, &(*s)->termios);
-      free (*s);
+      মুক্ত (*s);
     }
 }
 
-int
-libcrun_terminal_setup_size (int fd, unsigned short rows, unsigned short cols, libcrun_error_t *err)
+পূর্ণাঙ্ক
+libcrun_terminal_setup_size (পূর্ণাঙ্ক fd, unsigned short rows, unsigned short cols, libcrun_error_t *err)
 {
-  struct winsize ws = { .ws_row = rows, .ws_col = cols };
-  int ret;
+  সংরচনা winsize ws = { .ws_row = rows, .ws_col = cols };
+  পূর্ণাঙ্ক ret;
 
-  if (ws.ws_row == 0 || ws.ws_col == 0)
+  যদি (ws.ws_row == 0 || ws.ws_col == 0)
     {
       ret = ioctl (0, TIOCGWINSZ, &ws);
-      if (UNLIKELY (ret < 0))
+      যদি (UNLIKELY (ret < 0))
         {
-          if (errno == ENOTTY)
-            return 0;
-          return crun_make_error (err, errno, "ioctl TIOCGWINSZ");
+          যদি (errno == ENOTTY)
+            ঘূৰাই 0;
+          ঘূৰাই crun_make_error (err, errno, "ioctl TIOCGWINSZ");
         }
     }
 
   ret = ioctl (fd, TIOCSWINSZ, &ws);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "ioctl TIOCSWINSZ");
-  return 0;
+  যদি (UNLIKELY (ret < 0))
+    ঘূৰাই crun_make_error (err, errno, "ioctl TIOCSWINSZ");
+  ঘূৰাই 0;
 }

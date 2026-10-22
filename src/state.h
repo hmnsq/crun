@@ -18,8 +18,8 @@
 #ifndef STATE_H
 #define STATE_H
 
-#include "crun.h"
+#অন্তর্ভাৱ "crun.h"
 
-int crun_command_state (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+পূর্ণাঙ্ক crun_command_state (সংরচনা crun_global_arguments *global_args, পূর্ণাঙ্ক argc, ৱর্ণ **argv, libcrun_error_t *error);
 
 #endif
