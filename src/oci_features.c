@@ -25,30 +25,30 @@
 
 #include "crun.h"
 
-static char doc[] = "OCI runtime";
+static var_na doc[] = "OCI runtime";
 
-static struct argp_option options[] = { { 0 } };
+static sa_nracanaa argp_option options[] = { { 0 } };
 
-static char args_doc[] = "features";
+static var_na args_doc[] = "features";
 
 static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+parse_opt (පූර්ණ_සංඛ්‍යා key, var_na *arg arg_unused, sa_nracanaa argp_state *state arg_unused)
 {
-  if (key != ARGP_KEY_NO_ARGS)
+  නම් (key != ARGP_KEY_NO_ARGS)
     {
-      return ARGP_ERR_UNKNOWN;
+      ආපසු ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  ආපසු 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+static sa_nracanaa argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-int
-crun_command_features (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+පූර්ණ_සංඛ්‍යා
+crun_command_features (sa_nracanaa crun_global_arguments *global_args, පූර්ණ_සංඛ්‍යා argc, var_na **argv, libcrun_error_t *err)
 {
-  cleanup_free char *json = NULL;
-  int first_arg = 0, ret = 0;
+  cleanup_free var_na *json = NULL;
+  පූර්ණ_සංඛ්‍යා first_arg = 0, ret = 0;
   cleanup_context libcrun_context_t *crun_context = NULL;
 
   argp_parse (&run_argp, argc, argv, 0, 0, &options);
@@ -56,14 +56,14 @@ crun_command_features (struct crun_global_arguments *global_args, int argc, char
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  නම් (UNLIKELY (ret < 0))
+    ආපසු ret;
 
   ret = libcrun_container_get_features_json (crun_context, &json, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  නම් (UNLIKELY (ret < 0))
+    ආපසු ret;
 
   printf ("%s", json);
 
-  return 0;
+  ආපසු 0;
 }

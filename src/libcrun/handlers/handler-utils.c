@@ -23,19 +23,19 @@
 #include "../utils.h"
 #include "handler-utils.h"
 
-int
+පූර්ණ_සංඛ්‍යා
 wasm_can_handle_container (libcrun_container_t *container, libcrun_error_t *err arg_unused)
 {
-  const char *annotation;
-  const char *entrypoint_executable;
+  const var_na *annotation;
+  const var_na *entrypoint_executable;
 
-  if (container->container_def->process == NULL || container->container_def->process->args == NULL)
-    return 0;
+  නම් (container->container_def->process == NULL || container->container_def->process->args == NULL)
+    ආපසු 0;
 
   entrypoint_executable = container->container_def->process->args[0];
 
   annotation = find_annotation (container, "run.oci.handler");
-  if (annotation)
+  නම් (annotation)
     {
 
       /* wasm-smart: annotation is a smart switch which only toggles wasm if it's necessary,
@@ -43,15 +43,15 @@ wasm_can_handle_container (libcrun_container_t *container, libcrun_error_t *err 
          kubernetes cluster but workload also contains side-cars which could execute non-wasm workload.
          Example: Kubernetes clusters with service-mesh such as istio, linkerd etc
       */
-      if (strcmp (annotation, "wasm-smart") == 0)
+      නම් (strcmp (annotation, "wasm-smart") == 0)
         {
-          return ((has_suffix (entrypoint_executable, ".wat") > 0) || (has_suffix (entrypoint_executable, ".wasm") > 0)) ? 1 : 0;
+          ආපසු ((has_suffix (entrypoint_executable, ".wat") > 0) || (has_suffix (entrypoint_executable, ".wasm") > 0)) ? 1 : 0;
         }
-      return strcmp (annotation, "wasm") == 0 ? 1 : 0;
+      ආපසු strcmp (annotation, "wasm") == 0 ? 1 : 0;
     }
 
   annotation = find_annotation (container, "module.wasm.image/variant");
-  if (annotation)
+  නම් (annotation)
     {
 
       /* compat-smart: annotation is a smart switch which only toggles wasm if it's necessary,
@@ -59,13 +59,13 @@ wasm_can_handle_container (libcrun_container_t *container, libcrun_error_t *err 
          kubernetes cluster but workload also contains side-cars which could execute non-wasm workload.
          Example: Kubernetes clusters with service-mesh such as istio, linkerd etc
       */
-      if (strcmp (annotation, "compat-smart") == 0)
+      නම් (strcmp (annotation, "compat-smart") == 0)
         {
-          return ((has_suffix (entrypoint_executable, ".wat") > 0) || (has_suffix (entrypoint_executable, ".wasm") > 0)) ? 1 : 0;
+          ආපසු ((has_suffix (entrypoint_executable, ".wat") > 0) || (has_suffix (entrypoint_executable, ".wasm") > 0)) ? 1 : 0;
         }
 
-      return strcmp (annotation, "compat") == 0 ? 1 : 0;
+      ආපසු strcmp (annotation, "compat") == 0 ? 1 : 0;
     }
 
-  return 0;
+  ආපසු 0;
 }

@@ -20,6 +20,6 @@
 
 #include "crun.h"
 
-int crun_command_delete (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+පූර්ණ_සංඛ්‍යා crun_command_delete (sa_nracanaa crun_global_arguments *global_args, පූර්ණ_සංඛ්‍යා argc, var_na **argv, libcrun_error_t *error);
 
 #endif

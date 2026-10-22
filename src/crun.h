@@ -22,26 +22,26 @@
 #include <libcrun/libcrun.h>
 #include "crun_utils.h"
 
-struct crun_global_arguments
+sa_nracanaa crun_global_arguments
 {
-  char *root;
-  char *log;
-  char *log_format;
-  const char *handler;
+  var_na *root;
+  var_na *log;
+  var_na *log_format;
+  const var_na *handler;
 
-  int argc;
-  int verbosity;
-  char **argv;
+  පූර්ණ_සංඛ්‍යා argc;
+  පූර්ණ_සංඛ්‍යා verbosity;
+  var_na **argv;
 
   bool command;
   bool option_systemd_cgroup;
   bool option_force_no_cgroup;
 };
 
-char *argp_mandatory_argument (char *arg, struct argp_state *state);
-int parse_id_or_fail (const char *str, char **endptr, const char *kind);
-int init_libcrun_context (libcrun_context_t *con, const char *id, struct crun_global_arguments *glob,
+var_na *argp_mandatory_argument (var_na *arg, sa_nracanaa argp_state *state);
+පූර්ණ_සංඛ්‍යා parse_id_or_fail (const var_na *str, var_na **endptr, const var_na *kind);
+පූර්ණ_සංඛ්‍යා init_libcrun_context (libcrun_context_t *con, const var_na *id, sa_nracanaa crun_global_arguments *glob,
                           libcrun_error_t *err);
-libcrun_context_t *new_libcrun_context (struct crun_global_arguments *glob);
-void crun_assert_n_args (int n, int min, int max);
+libcrun_context_t *new_libcrun_context (sa_nracanaa crun_global_arguments *glob);
+void crun_assert_n_args (පූර්ණ_සංඛ්‍යා n, පූර්ණ_සංඛ්‍යා min, පූර්ණ_සංඛ්‍යා max);
 #endif

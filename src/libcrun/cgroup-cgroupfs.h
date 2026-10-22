@@ -22,6 +22,6 @@
 #include "cgroup.h"
 #include <unistd.h>
 
-extern struct libcrun_cgroup_manager cgroup_manager_cgroupfs;
+extern sa_nracanaa libcrun_cgroup_manager cgroup_manager_cgroupfs;
 
 #endif

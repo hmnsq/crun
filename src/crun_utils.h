@@ -32,7 +32,7 @@
 #  define LIKELY(x) __builtin_expect ((x), 1)
 #  define UNLIKELY(x) __builtin_expect ((x), 0)
 #  define arg_unused __attribute__ ((unused))
-#else
+#නැතහොත්
 #  define LIKELY(x) (x)
 #  define UNLIKELY(x) (x)
 #  define arg_unused
@@ -43,69 +43,69 @@
     {                                    \
       fprintf (stderr, "out of memory"); \
       _exit (EXIT_FAILURE);              \
-  } while (0)
+  } අතරතුර (0)
 
 #define crun_make_error libcrun_make_error
 
-__attribute__ ((malloc)) static inline void *
+__attribute__ ((malloc)) static anta_hstha void *
 xmalloc (size_t size)
 {
   void *res = malloc (size);
-  if (UNLIKELY (res == NULL))
+  නම් (UNLIKELY (res == NULL))
     OOM ();
-  return res;
+  ආපසු res;
 }
 
-__attribute__ ((malloc)) static inline void *
+__attribute__ ((malloc)) static anta_hstha void *
 xmalloc0 (size_t size)
 {
   void *res = calloc (1, size);
-  if (UNLIKELY (res == NULL))
+  නම් (UNLIKELY (res == NULL))
     OOM ();
-  return res;
+  ආපසු res;
 }
 
-__attribute__ ((malloc)) static inline void *
+__attribute__ ((malloc)) static anta_hstha void *
 xrealloc (void *ptr, size_t size)
 {
   void *res = realloc (ptr, size);
-  if (UNLIKELY (res == NULL))
+  නම් (UNLIKELY (res == NULL))
     OOM ();
-  return res;
+  ආපසු res;
 }
 
-static inline char *
-xstrdup (const char *str)
+static anta_hstha var_na *
+xstrdup (const var_na *str)
 {
-  char *ret;
-  if (str == NULL)
-    return NULL;
+  var_na *ret;
+  නම් (str == NULL)
+    ආපසු NULL;
   ret = strdup (str);
-  if (UNLIKELY (ret == NULL))
+  නම් (UNLIKELY (ret == NULL))
     OOM ();
-  return ret;
+  ආපසු ret;
 }
 
-static inline void
+static anta_hstha void
 cleanup_freep (void *p)
 {
   void **pp = (void **) p;
   free (*pp);
 }
 
-static inline void
+static anta_hstha void
 cleanup_filep (FILE **f)
 {
   FILE *file = *f;
-  if (file)
+  නම් (file)
     (void) fclose (file);
 }
 
-static inline void
+static anta_hstha void
 cleanup_closep (void *p)
 {
-  int *pp = (int *) p;
-  if (*pp >= 0)
+  පූර්ණ_සංඛ්‍යා *pp = (පූර්ණ_සංඛ්‍යා *) p;
+  නම් (*pp >= 0)
     close (*pp);
 }
 
@@ -115,19 +115,19 @@ cleanup_closep (void *p)
 
 /* Relies on <libcrun.h> (included before this header via crun.h) for the
    opaque libcrun_context_t and libcrun_context_free.  */
-static inline void
+static anta_hstha void
 cleanup_libcrun_contextp (libcrun_context_t **p)
 {
-  if (*p)
+  නම් (*p)
     libcrun_context_free (*p);
 }
 
 #define cleanup_context __attribute__ ((cleanup (cleanup_libcrun_contextp)))
 
-static inline void
+static anta_hstha void
 cleanup_libcrun_containerp (libcrun_container_t **p)
 {
-  if (*p)
+  නම් (*p)
     libcrun_container_free (*p);
 }
 

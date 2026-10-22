@@ -54,19 +54,19 @@
    code for its own errors, to tell those apart (like runc and ssh do).  */
 #define EXIT_EXEC_FAILURE 255
 
-static struct crun_global_arguments arguments;
+static sa_nracanaa crun_global_arguments arguments;
 
-struct commands_s
+sa_nracanaa commands_s
 {
-  int value;
-  const char *name;
-  int (*handler) (struct crun_global_arguments *, int, char **, libcrun_error_t *);
+  පූර්ණ_සංඛ්‍යා value;
+  const var_na *name;
+  පූර්ණ_සංඛ්‍යා (*handler) (sa_nracanaa crun_global_arguments *, පූර්ණ_සංඛ්‍යා, var_na **, libcrun_error_t *);
 };
 
-int
-init_libcrun_context (libcrun_context_t *con, const char *id, struct crun_global_arguments *glob, libcrun_error_t *err)
+පූර්ණ_සංඛ්‍යා
+init_libcrun_context (libcrun_context_t *con, const var_na *id, sa_nracanaa crun_global_arguments *glob, libcrun_error_t *err)
 {
-  int ret;
+  පූර්ණ_සංඛ්‍යා ret;
 
   libcrun_context_set_id (con, id);
   libcrun_context_set_state_root (con, glob->root);
@@ -79,38 +79,38 @@ init_libcrun_context (libcrun_context_t *con, const char *id, struct crun_global
   libcrun_context_set_handler (con, glob->handler);
 
   ret = libcrun_context_init_logging (con, glob->log, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  නම් (UNLIKELY (ret < 0))
+    ආපසු ret;
 
-  if (glob->log_format)
+  නම් (glob->log_format)
     {
       ret = libcrun_set_log_format (glob->log_format, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      නම් (UNLIKELY (ret < 0))
+        ආපසු ret;
     }
 
   libcrun_set_verbosity (glob->verbosity);
   libcrun_debug ("Using debug verbosity");
 
-  return 0;
+  ආපසු 0;
 }
 
 /* Allocate a public libcrun context (with handlers loaded) for a subcommand.
    Terminates the process on failure.  */
 libcrun_context_t *
-new_libcrun_context (struct crun_global_arguments *glob)
+new_libcrun_context (sa_nracanaa crun_global_arguments *glob)
 {
   libcrun_error_t err = NULL;
   libcrun_context_t *con;
 
   con = libcrun_context_new (NULL, glob->root, &err);
-  if (UNLIKELY (con == NULL))
+  නම් (UNLIKELY (con == NULL))
     libcrun_fail_with_error (libcrun_error_get_status (err), "%s", libcrun_error_get_message (err));
 
-  return con;
+  ආපසු con;
 }
 
-enum
+ga_nanaa
 {
   COMMAND_CREATE = 1000,
   COMMAND_DELETE,
@@ -131,7 +131,7 @@ enum
   COMMAND_MOUNTS,
 };
 
-struct commands_s commands[] = { { COMMAND_CREATE, "create", crun_command_create },
+sa_nracanaa commands_s commands[] = { { COMMAND_CREATE, "create", crun_command_create },
                                  { COMMAND_DELETE, "delete", crun_command_delete },
                                  { COMMAND_EXEC, "exec", crun_command_exec },
                                  { COMMAND_LIST, "list", crun_command_list },
@@ -145,7 +145,7 @@ struct commands_s commands[] = { { COMMAND_CREATE, "create", crun_command_create
                                  { COMMAND_PAUSE, "pause", crun_command_pause },
                                  { COMMAND_UNPAUSE, "resume", crun_command_unpause },
                                  { COMMAND_FEATURES, "features", crun_command_features },
-#if HAVE_CRIU && HAVE_DLOPEN
+#නම් HAVE_CRIU && HAVE_DLOPEN
                                  { COMMAND_CHECKPOINT, "checkpoint", crun_command_checkpoint },
                                  { COMMAND_RESTORE, "restore", crun_command_restore },
 #endif
@@ -154,8 +154,8 @@ struct commands_s commands[] = { { COMMAND_CREATE, "create", crun_command_create
                                      0,
                                  } };
 
-static char doc[] = "\nCOMMANDS:\n"
-#if HAVE_CRIU && HAVE_DLOPEN
+static var_na doc[] = "\nCOMMANDS:\n"
+#නම් HAVE_CRIU && HAVE_DLOPEN
                     "\tcheckpoint  - checkpoint a container\n"
 #endif
                     "\tcreate      - create a container\n"
@@ -166,7 +166,7 @@ static char doc[] = "\nCOMMANDS:\n"
                     "\tmounts      - add or remove mounts from a running container\n"
                     "\tkill        - send a signal to the container init process\n"
                     "\tps          - show the processes in the container\n"
-#if HAVE_CRIU && HAVE_DLOPEN
+#නම් HAVE_CRIU && HAVE_DLOPEN
                     "\trestore     - restore a container\n"
 #endif
                     "\trun         - run a container\n"
@@ -177,19 +177,19 @@ static char doc[] = "\nCOMMANDS:\n"
                     "\tresume      - unpause the processes in the container\n"
                     "\tupdate      - update container resource constraints\n";
 
-static char args_doc[] = "COMMAND [OPTION...]";
+static var_na args_doc[] = "COMMAND [OPTION...]";
 
-static struct commands_s *
-get_command (const char *arg)
+static sa_nracanaa commands_s *
+get_command (const var_na *arg)
 {
-  struct commands_s *it;
-  for (it = commands; it->value; it++)
-    if (strcmp (it->name, arg) == 0)
-      return it;
-  return NULL;
+  sa_nracanaa commands_s *it;
+  සඳහා (it = commands; it->value; it++)
+    නම් (strcmp (it->name, arg) == 0)
+      ආපසු it;
+  ආපසු NULL;
 }
 
-enum
+ga_nanaa
 {
   OPTION_VERSION = 'v',
   OPTION_VERSION_CAP = 'V',
@@ -203,9 +203,9 @@ enum
   OPTION_ROOTLESS
 };
 
-const char *argp_program_bug_address = "https://github.com/containers/crun/issues";
+const var_na *argp_program_bug_address = "https://github.com/containers/crun/issues";
 
-static struct argp_option options[] = { { "debug", OPTION_DEBUG, 0, 0, "produce verbose output, similar to --log-level=debug", 0 },
+static sa_nracanaa argp_option options[] = { { "debug", OPTION_DEBUG, 0, 0, "produce verbose output, similar to --log-level=debug", 0 },
                                         { "cgroup-manager", OPTION_CGROUP_MANAGER, "MANAGER", 0, "cgroup manager", 0 },
                                         { "systemd-cgroup", OPTION_SYSTEMD_CGROUP, 0, 0, "use systemd cgroups", 0 },
                                         { "log", OPTION_LOG, "FILE", 0, "log destination: '[file:]PATH', 'journald:ID' or 'syslog:ID' (defaults to stderr)", 0 },
@@ -221,21 +221,21 @@ static struct argp_option options[] = { { "debug", OPTION_DEBUG, 0, 0, "produce 
                                         } };
 
 static void
-print_version (FILE *stream, struct argp_state *state arg_unused)
+print_version (FILE *stream, sa_nracanaa argp_state *state arg_unused)
 {
   libcrun_error_t err = NULL;
-  cleanup_free char *rundir = NULL;
+  cleanup_free var_na *rundir = NULL;
   libcrun_context_t *ctx;
-  char **tags;
-  int ret;
+  var_na **tags;
+  පූර්ණ_සංඛ්‍යා ret;
 
   fprintf (stream, "%s version %s\n", PACKAGE_NAME, PACKAGE_VERSION);
   fprintf (stream, "commit: %s\n", GIT_VERSION);
 
   ret = libcrun_get_state_dir (&rundir, arguments.root, NULL, &err);
-  if (LIKELY (ret == 0))
+  නම් (LIKELY (ret == 0))
     fprintf (stream, "rundir: %s\n", rundir);
-  else
+  නැතහොත්
     libcrun_error_release (&err);
 
   fprintf (stream, "spec: 1.0.0\n");
@@ -254,214 +254,214 @@ print_version (FILE *stream, struct argp_state *state arg_unused)
 #ifdef HAVE_EBPF
   fprintf (stream, "+EBPF ");
 #endif
-#if HAVE_CRIU && HAVE_DLOPEN
+#නම් HAVE_CRIU && HAVE_DLOPEN
   fprintf (stream, "+CRIU ");
 #endif
 
   ctx = libcrun_context_new (NULL, arguments.root, &err);
-  if (ctx)
+  නම් (ctx)
     {
       tags = libcrun_context_get_handler_feature_tags (ctx, &err);
-      if (tags)
+      නම් (tags)
         {
-          for (size_t i = 0; tags[i]; i++)
+          සඳහා (size_t i = 0; tags[i]; i++)
             {
               fprintf (stream, "+%s ", tags[i]);
               free (tags[i]);
             }
           free (tags);
         }
-      else
+      නැතහොත්
         libcrun_error_release (&err);
       libcrun_context_free (ctx);
     }
-  else
+  නැතහොත්
     libcrun_error_release (&err);
 
   fprintf (stream, "+JSON_C\n");
 }
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (පූර්ණ_සංඛ්‍යා key, var_na *arg, sa_nracanaa argp_state *state)
 {
-  const char *tmp;
+  const var_na *tmp;
 
   switch (key)
     {
-    case OPTION_DEBUG:
+    pak_sa OPTION_DEBUG:
       arguments.verbosity = LIBCRUN_VERBOSITY_DEBUG;
-      break;
+      bha_nga;
 
-    case OPTION_CGROUP_MANAGER:
+    pak_sa OPTION_CGROUP_MANAGER:
       tmp = argp_mandatory_argument (arg, state);
-      if (strcmp (tmp, "systemd") == 0)
+      නම් (strcmp (tmp, "systemd") == 0)
         {
           arguments.option_force_no_cgroup = false;
           arguments.option_systemd_cgroup = true;
         }
-      else if (strcmp (tmp, "cgroupfs") == 0)
+      නැතහොත් නම් (strcmp (tmp, "cgroupfs") == 0)
         {
           arguments.option_force_no_cgroup = false;
           arguments.option_systemd_cgroup = false;
         }
-      else if (strcmp (tmp, "disabled") == 0)
+      නැතහොත් නම් (strcmp (tmp, "disabled") == 0)
         {
           arguments.option_systemd_cgroup = false;
           arguments.option_force_no_cgroup = true;
         }
-      else
+      නැතහොත්
         {
           libcrun_fail_with_error (0, "unknown cgroup manager specified");
         }
-      break;
+      bha_nga;
 
-    case OPTION_SYSTEMD_CGROUP:
+    pak_sa OPTION_SYSTEMD_CGROUP:
       arguments.option_force_no_cgroup = false;
       arguments.option_systemd_cgroup = true;
-      break;
+      bha_nga;
 
-    case OPTION_LOG:
+    pak_sa OPTION_LOG:
       arguments.log = argp_mandatory_argument (arg, state);
-      break;
+      bha_nga;
 
-    case OPTION_LOG_FORMAT:
+    pak_sa OPTION_LOG_FORMAT:
       arguments.log_format = argp_mandatory_argument (arg, state);
-      break;
+      bha_nga;
 
-    case OPTION_LOG_LEVEL:
+    pak_sa OPTION_LOG_LEVEL:
       tmp = argp_mandatory_argument (arg, state);
-      if (strcmp (tmp, "error") == 0)
+      නම් (strcmp (tmp, "error") == 0)
         {
           arguments.verbosity = LIBCRUN_VERBOSITY_ERROR;
         }
-      else if (strcmp (tmp, "warning") == 0)
+      නැතහොත් නම් (strcmp (tmp, "warning") == 0)
         {
           arguments.verbosity = LIBCRUN_VERBOSITY_WARNING;
         }
-      else if (strcmp (tmp, "debug") == 0)
+      නැතහොත් නම් (strcmp (tmp, "debug") == 0)
         {
           arguments.verbosity = LIBCRUN_VERBOSITY_DEBUG;
         }
-      else
+      නැතහොත්
         {
           libcrun_fail_with_error (0, "unknown verbosity `%s` specified", arg);
         }
-      break;
+      bha_nga;
 
-    case OPTION_ROOT:
+    pak_sa OPTION_ROOT:
       arguments.root = argp_mandatory_argument (arg, state);
-      break;
+      bha_nga;
 
-    case OPTION_ROOTLESS:
+    pak_sa OPTION_ROOTLESS:
       /* Ignored.  So that a runc command line won't fail.  */
-      break;
+      bha_nga;
 
-    case ARGP_KEY_NO_ARGS:
+    pak_sa ARGP_KEY_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a command");
 
-    case OPTION_VERSION:
-    case OPTION_VERSION_CAP:
+    pak_sa OPTION_VERSION:
+    pak_sa OPTION_VERSION_CAP:
       print_version (stdout, state);
       exit (EXIT_SUCCESS);
     default:
-      return ARGP_ERR_UNKNOWN;
+      ආපසු ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  ආපසු 0;
 }
 
-static struct commands_s *command;
+static sa_nracanaa commands_s *command;
 
 void
-crun_assert_n_args (int n, int min, int max)
+crun_assert_n_args (පූර්ණ_සංඛ්‍යා n, පූර්ණ_සංඛ්‍යා min, පූර්ණ_සංඛ්‍යා max)
 {
-  if (min >= 0 && n < min)
+  නම් (min >= 0 && n < min)
     libcrun_fail_with_error (0, "`%s` requires a minimum of %d arguments", command->name, min);
-  if (max >= 0 && n > max)
+  නම් (max >= 0 && n > max)
     libcrun_fail_with_error (0, "`%s` requires a maximum of %d arguments", command->name, max);
 }
 
-char *
-argp_mandatory_argument (char *arg, struct argp_state *state)
+var_na *
+argp_mandatory_argument (var_na *arg, sa_nracanaa argp_state *state)
 {
-  if (arg)
-    return arg;
-  return state->argv[state->next++];
+  නම් (arg)
+    ආපසු arg;
+  ආපසු state->argv[state->next++];
 }
 
 /* Parse a numeric value from STR, aborting on an out-of-range or malformed
    value.  KIND names the field for error messages.  If ENDPTR is not NULL it
    is set past the parsed number (so the caller can continue parsing, e.g. a
    "UID:GID" pair); otherwise the whole string must be a valid number.  */
-int
-parse_id_or_fail (const char *str, char **endptr, const char *kind)
+පූර්ණ_සංඛ්‍යා
+parse_id_or_fail (const var_na *str, var_na **endptr, const var_na *kind)
 {
-  char *end = NULL;
+  var_na *end = NULL;
   long long l;
 
   errno = 0;
   l = strtoll (str, &end, 10);
-  if (end == str)
+  නම් (end == str)
     libcrun_fail_with_error (0, "invalid %s specified", kind);
-  if (errno == ERANGE)
+  නම් (errno == ERANGE)
     libcrun_fail_with_error (0, "invalid %s specified", kind);
-  if (l < INT_MIN || l > INT_MAX)
+  නම් (l < INT_MIN || l > INT_MAX)
     libcrun_fail_with_error (0, "invalid %s specified", kind);
 
-  if (endptr)
+  නම් (endptr)
     *endptr = end;
-  else if (*end != '\0')
+  නැතහොත් නම් (*end != '\0')
     libcrun_fail_with_error (0, "invalid %s specified", kind);
 
-  return (int) l;
+  ආපසු (පූර්ණ_සංඛ්‍යා) l;
 }
 
-static struct argp argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+static sa_nracanaa argp argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-int ensure_cloned_binary (void);
+පූර්ණ_සංඛ්‍යා ensure_cloned_binary (void);
 
 static void
-fill_handler_from_argv0 (char *argv0, struct crun_global_arguments *args)
+fill_handler_from_argv0 (var_na *argv0, sa_nracanaa crun_global_arguments *args)
 {
-  const char *b = basename (argv0);
+  const var_na *b = basename (argv0);
 #ifdef HAVE_LIBKRUN
-  if (strcmp (b, "krun") == 0)
+  නම් (strcmp (b, "krun") == 0)
     {
       args->handler = "krun";
-      return;
+      ආපසු;
     }
 #endif
-  if (strncmp (b, "crun-", 5) == 0 && b[5] != '\0')
+  නම් (strncmp (b, "crun-", 5) == 0 && b[5] != '\0')
     args->handler = b + 5;
 }
 
-static char **
-copy_args (char **argv, int argc)
+static var_na **
+copy_args (var_na **argv, පූර්ණ_සංඛ්‍යා argc)
 {
-  char **buff = xmalloc0 ((argc + 1) * sizeof (char *));
-  for (int i = 0; i < argc; i++)
+  var_na **buff = xmalloc0 ((argc + 1) * parimaa_na (var_na *));
+  සඳහා (පූර්ණ_සංඛ්‍යා i = 0; i < argc; i++)
     buff[i] = argv[i];
 
-  return buff;
+  ආපසු buff;
 }
 
-int
-main (int argc, char **argv)
+පූර්ණ_සංඛ්‍යා
+main (පූර්ණ_සංඛ්‍යා argc, var_na **argv)
 {
   libcrun_error_t err = NULL;
-  int ret, first_argument = 0;
+  පූර්ණ_සංඛ්‍යා ret, first_argument = 0;
 
   arguments.argc = argc;
   arguments.argv = argv;
 
 #ifdef DYNLOAD_LIBCRUN
-  if (ensure_cloned_binary () < 0)
+  නම් (ensure_cloned_binary () < 0)
     {
       fprintf (stderr, "Failed to re-execute libcrun via memory file descriptor\n");
       exit (EXIT_FAILURE);
     }
   /* Resolve all libcrun weak dependencies.  */
-  if (dlopen ("libcrun.so", RTLD_GLOBAL | RTLD_DEEPBIND | RTLD_LAZY) == NULL)
+  නම් (dlopen ("libcrun.so", RTLD_GLOBAL | RTLD_DEEPBIND | RTLD_LAZY) == NULL)
     libcrun_fail_with_error (0, "could not load `libcrun.so`: `%s`", dlerror ());
 #endif
 
@@ -469,17 +469,17 @@ main (int argc, char **argv)
   argp_parse (&argp, argc, argv, ARGP_IN_ORDER, &first_argument, &arguments);
 
   command = get_command (argv[first_argument]);
-  if (command == NULL)
+  නම් (command == NULL)
     libcrun_fail_with_error (0, "unknown command %s", argv[first_argument]);
 
-  int command_argc = argc - first_argument;
-  cleanup_free char **command_argv = copy_args (argv + first_argument, command_argc);
+  පූර්ණ_සංඛ්‍යා command_argc = argc - first_argument;
+  cleanup_free var_na **command_argv = copy_args (argv + first_argument, command_argc);
   command_argv[0] = argv[0];
 
   ret = command->handler (&arguments, command_argc, command_argv, &err);
-  if (ret && err)
+  නම් (ret && err)
     {
-      if (command->value == COMMAND_EXEC)
+      නම් (command->value == COMMAND_EXEC)
         {
           libcrun_error (libcrun_error_get_status (err), "%s", libcrun_error_get_message (err));
           exit (EXIT_EXEC_FAILURE);
@@ -487,5 +487,5 @@ main (int argc, char **argv)
       libcrun_fail_with_error (libcrun_error_get_status (err), "%s", libcrun_error_get_message (err));
     }
 
-  return ret;
+  ආපසු ret;
 }
