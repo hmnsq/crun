@@ -23,25 +23,25 @@
 #  define _GNU_SOURCE
 #endif
 
-#include <config.h>
+#অন্তর্ভাব <config.h>
 
 #ifdef HAVE_HSEARCH_R
 #  include <search.h>
 #endif
 
-#include <ocispec/runtime_spec_schema_config_schema.h>
-#include "error.h"
+#অন্তর্ভাব <ocispec/runtime_spec_schema_config_schema.h>
+#অন্তর্ভাব "error.h"
 
-struct string_map_s;
-typedef struct string_map_s string_map;
+সংরচনা string_map_s;
+প্রকারনির্দেশ সংরচনা string_map_s string_map;
 
-const char *find_string_map_value (string_map *map, const char *name);
+ধ্রুব বর্ণ *find_string_map_মান (string_map *map, ধ্রুব বর্ণ *name);
 
 string_map *make_string_map_from_json (json_map_string_string *jmap);
 
-void free_string_map (string_map *map);
+শূন্য free_string_map (string_map *map);
 
-int string_map_get_at (string_map *map, size_t index, const char **name, const char **value);
+পূর্ণাঙ্ক string_map_get_at (string_map *map, size_t index, ধ্রুব বর্ণ **name, ধ্রুব বর্ণ **মান);
 
 size_t string_map_size (string_map *map);
 

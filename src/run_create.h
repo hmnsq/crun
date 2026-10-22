@@ -18,14 +18,14 @@
 #ifndef RUN_CREATE_H
 #define RUN_CREATE_H
 
-#include "crun.h"
+#অন্তর্ভাব "crun.h"
 
-typedef int (*container_run_create_func_t) (libcrun_context_t *, libcrun_container_t *, unsigned int, libcrun_error_t *);
-typedef unsigned int (*get_options_func_t) ();
+প্রকারনির্দেশ পূর্ণাঙ্ক (*container_run_create_func_t) (libcrun_context_t *, libcrun_container_t *, unsigned পূর্ণাঙ্ক, libcrun_error_t *);
+প্রকারনির্দেশ unsigned পূর্ণাঙ্ক (*get_options_func_t) ();
 
-int crun_run_create_internal (struct crun_global_arguments *global_args, int argc, char **argv,
+পূর্ণাঙ্ক crun_run_create_internal (সংরচনা crun_global_arguments *global_args, পূর্ণাঙ্ক argc, বর্ণ **argv,
                               container_run_create_func_t container_run_create_func, get_options_func_t get_options_func,
-                              libcrun_context_t *crun_context, struct argp *run_argp, const char **config_file,
-                              const char **bundle, libcrun_error_t *err);
+                              libcrun_context_t *crun_context, সংরচনা argp *run_argp, ধ্রুব বর্ণ **config_file,
+                              ধ্রুব বর্ণ **bundle, libcrun_error_t *err);
 
 #endif

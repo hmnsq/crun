@@ -19,16 +19,16 @@
 #ifndef CRUN_SYSCALLS_H
 #define CRUN_SYSCALLS_H
 
-#include <config.h>
-#include <sys/syscall.h>
-#include <unistd.h>
-#include <errno.h>
-#include <stdint.h>
+#অন্তর্ভাব <config.h>
+#অন্তর্ভাব <sys/syscall.h>
+#অন্তর্ভাব <unistd.h>
+#অন্তর্ভাব <errno.h>
+#অন্তর্ভাব <stdint.h>
 
 #ifdef HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H
 #  include <linux/mount.h>
 #endif
-#if defined HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H || defined HAVE_FSCONFIG_CMD_CREATE_SYS_MOUNT_H
+#যদি defined HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H || defined HAVE_FSCONFIG_CMD_CREATE_SYS_MOUNT_H
 #  define HAVE_NEW_MOUNT_API
 #endif
 
@@ -110,19 +110,19 @@
 #ifndef RESOLVE_NO_SYMLINKS
 #  define RESOLVE_NO_SYMLINKS 0x04
 #endif
-#ifndef RESOLVE_IN_ROOT
-#  define RESOLVE_IN_ROOT 0x10
+#ifndef RESOLVE_IN_মূল
+#  define RESOLVE_IN_মূল 0x10
 #endif
 
 /* Structures for syscalls */
-struct openat2_open_how
+সংরচনা openat2_open_how
 {
   uint64_t flags;
   uint64_t mode;
   uint64_t resolve;
 };
 
-struct mount_attr_s
+সংরচনা mount_attr_s
 {
   uint64_t attr_set;
   uint64_t attr_clr;
@@ -138,15 +138,15 @@ struct mount_attr_s
 #  define CLONE_INTO_CGROUP 0x200000000ULL
 #endif
 
-struct _clone3_args
+সংরচনা _clone3_args
 {
   __aligned_u64 flags;
   __aligned_u64 pidfd;
   __aligned_u64 child_tid;
   __aligned_u64 parent_tid;
   __aligned_u64 exit_signal;
-  __aligned_u64 stack;
-  __aligned_u64 stack_size;
+  __aligned_u64 স্তূপ;
+  __aligned_u64 স্তূপ_size;
   __aligned_u64 tls;
   __aligned_u64 set_tid;
   __aligned_u64 set_tid_size;
@@ -154,155 +154,155 @@ struct _clone3_args
 };
 
 /* Mount API syscall wrappers */
-static inline int
-syscall_fsopen (const char *fs_name, unsigned int flags)
+স্থির অন্তঃস্থ পূর্ণাঙ্ক
+syscall_fsopen (ধ্রুব বর্ণ *fs_name, unsigned পূর্ণাঙ্ক flags)
 {
-#if defined __NR_fsopen
-  return (int) syscall (__NR_fsopen, fs_name, flags);
-#else
-  (void) fs_name;
-  (void) flags;
+#যদি defined __NR_fsopen
+  প্রত্যাগম (পূর্ণাঙ্ক) syscall (__NR_fsopen, fs_name, flags);
+#অন্যথা
+  (শূন্য) fs_name;
+  (শূন্য) flags;
   errno = ENOSYS;
-  return -1;
+  প্রত্যাগম -1;
 #endif
 }
 
-static inline int
-syscall_fsmount (int fsfd, unsigned int flags, unsigned int attr_flags)
+স্থির অন্তঃস্থ পূর্ণাঙ্ক
+syscall_fsmount (পূর্ণাঙ্ক fsfd, unsigned পূর্ণাঙ্ক flags, unsigned পূর্ণাঙ্ক attr_flags)
 {
-#if defined __NR_fsmount
-  return (int) syscall (__NR_fsmount, fsfd, flags, attr_flags);
-#else
-  (void) fsfd;
-  (void) flags;
-  (void) attr_flags;
+#যদি defined __NR_fsmount
+  প্রত্যাগম (পূর্ণাঙ্ক) syscall (__NR_fsmount, fsfd, flags, attr_flags);
+#অন্যথা
+  (শূন্য) fsfd;
+  (শূন্য) flags;
+  (শূন্য) attr_flags;
   errno = ENOSYS;
-  return -1;
+  প্রত্যাগম -1;
 #endif
 }
 
-static inline int
-syscall_fsconfig (int fsfd, unsigned int cmd, const char *key, const void *val, int aux)
+স্থির অন্তঃস্থ পূর্ণাঙ্ক
+syscall_fsconfig (পূর্ণাঙ্ক fsfd, unsigned পূর্ণাঙ্ক cmd, ধ্রুব বর্ণ *চাবি, ধ্রুব শূন্য *val, পূর্ণাঙ্ক aux)
 {
-#if defined __NR_fsconfig
-  return (int) syscall (__NR_fsconfig, fsfd, cmd, key, val, aux);
-#else
-  (void) fsfd;
-  (void) cmd;
-  (void) key;
-  (void) val;
-  (void) aux;
+#যদি defined __NR_fsconfig
+  প্রত্যাগম (পূর্ণাঙ্ক) syscall (__NR_fsconfig, fsfd, cmd, চাবি, val, aux);
+#অন্যথা
+  (শূন্য) fsfd;
+  (শূন্য) cmd;
+  (শূন্য) চাবি;
+  (শূন্য) val;
+  (শূন্য) aux;
   errno = ENOSYS;
-  return -1;
+  প্রত্যাগম -1;
 #endif
 }
 
 /* File descriptor management syscalls */
-static inline int
-syscall_close_range (unsigned int fd, unsigned int max_fd, unsigned int flags)
+স্থির অন্তঃস্থ পূর্ণাঙ্ক
+syscall_close_range (unsigned পূর্ণাঙ্ক fd, unsigned পূর্ণাঙ্ক max_fd, unsigned পূর্ণাঙ্ক flags)
 {
 #ifdef __NR_close_range
-  return (int) syscall (__NR_close_range, fd, max_fd, flags);
-#else
-  (void) fd;
-  (void) max_fd;
-  (void) flags;
+  প্রত্যাগম (পূর্ণাঙ্ক) syscall (__NR_close_range, fd, max_fd, flags);
+#অন্যথা
+  (শূন্য) fd;
+  (শূন্য) max_fd;
+  (শূন্য) flags;
   errno = ENOSYS;
-  return -1;
+  প্রত্যাগম -1;
 #endif
 }
 
 /* Secure file operation syscalls */
-static inline int
-syscall_openat2 (int dirfd, const char *path, uint64_t flags, uint64_t mode, uint64_t resolve)
+স্থির অন্তঃস্থ পূর্ণাঙ্ক
+syscall_openat2 (পূর্ণাঙ্ক dirfd, ধ্রুব বর্ণ *path, uint64_t flags, uint64_t mode, uint64_t resolve)
 {
 #ifdef __NR_openat2
-  struct openat2_open_how how = {
+  সংরচনা openat2_open_how how = {
     .flags = flags,
     .mode = mode,
     .resolve = resolve,
   };
-  return (int) syscall (__NR_openat2, dirfd, path, &how, sizeof (how), 0);
-#else
-  (void) dirfd;
-  (void) path;
-  (void) flags;
-  (void) mode;
-  (void) resolve;
+  প্রত্যাগম (পূর্ণাঙ্ক) syscall (__NR_openat2, dirfd, path, &how, পরিমাণ (how), 0);
+#অন্যথা
+  (শূন্য) dirfd;
+  (শূন্য) path;
+  (শূন্য) flags;
+  (শূন্য) mode;
+  (শূন্য) resolve;
   errno = ENOSYS;
-  return -1;
+  প্রত্যাগম -1;
 #endif
 }
 
 /* Process management syscalls */
-static inline int
-syscall_clone3 (struct _clone3_args *args)
+স্থির অন্তঃস্থ পূর্ণাঙ্ক
+syscall_clone3 (সংরচনা _clone3_args *args)
 {
 #ifdef __NR_clone3
-  return (int) syscall (__NR_clone3, args, sizeof (*args));
-#else
-  (void) args;
+  প্রত্যাগম (পূর্ণাঙ্ক) syscall (__NR_clone3, args, পরিমাণ (*args));
+#অন্যথা
+  (শূন্য) args;
   errno = ENOSYS;
-  return -1;
+  প্রত্যাগম -1;
 #endif
 }
 
-static inline int
-syscall_getcwd (char *path, size_t len)
+স্থির অন্তঃস্থ পূর্ণাঙ্ক
+syscall_getcwd (বর্ণ *path, size_t len)
 {
 #ifdef __NR_getcwd
-  return (int) syscall (__NR_getcwd, path, len);
-#else
-  (void) path;
-  (void) len;
+  প্রত্যাগম (পূর্ণাঙ্ক) syscall (__NR_getcwd, path, len);
+#অন্যথা
+  (শূন্য) path;
+  (শূন্য) len;
   errno = ENOSYS;
-  return -1;
+  প্রত্যাগম -1;
 #endif
 }
 
 /* Mount management syscalls */
-static inline int
-syscall_move_mount (int from_dfd, const char *from_pathname, int to_dfd, const char *to_pathname, unsigned int flags)
+স্থির অন্তঃস্থ পূর্ণাঙ্ক
+syscall_move_mount (পূর্ণাঙ্ক from_dfd, ধ্রুব বর্ণ *from_pathname, পূর্ণাঙ্ক to_dfd, ধ্রুব বর্ণ *to_pathname, unsigned পূর্ণাঙ্ক flags)
 {
-#if defined __NR_move_mount
-  return (int) syscall (__NR_move_mount, from_dfd, from_pathname, to_dfd, to_pathname, flags);
-#else
-  (void) from_dfd;
-  (void) from_pathname;
-  (void) to_dfd;
-  (void) to_pathname;
-  (void) flags;
+#যদি defined __NR_move_mount
+  প্রত্যাগম (পূর্ণাঙ্ক) syscall (__NR_move_mount, from_dfd, from_pathname, to_dfd, to_pathname, flags);
+#অন্যথা
+  (শূন্য) from_dfd;
+  (শূন্য) from_pathname;
+  (শূন্য) to_dfd;
+  (শূন্য) to_pathname;
+  (শূন্য) flags;
   errno = ENOSYS;
-  return -1;
+  প্রত্যাগম -1;
 #endif
 }
 
-static inline int
-syscall_open_tree (int dfd, const char *pathname, unsigned int flags)
+স্থির অন্তঃস্থ পূর্ণাঙ্ক
+syscall_open_বৃক্ষ (পূর্ণাঙ্ক dfd, ধ্রুব বর্ণ *pathname, unsigned পূর্ণাঙ্ক flags)
 {
-#if defined __NR_open_tree
-  return (int) syscall (__NR_open_tree, dfd, pathname, flags);
-#else
-  (void) dfd;
-  (void) pathname;
-  (void) flags;
+#যদি defined __NR_open_tree
+  প্রত্যাগম (পূর্ণাঙ্ক) syscall (__NR_open_tree, dfd, pathname, flags);
+#অন্যথা
+  (শূন্য) dfd;
+  (শূন্য) pathname;
+  (শূন্য) flags;
   errno = ENOSYS;
-  return -1;
+  প্রত্যাগম -1;
 #endif
 }
 
-static inline int
-syscall_mount_setattr (int dfd, const char *path, unsigned int flags, struct mount_attr_s *attr)
+স্থির অন্তঃস্থ পূর্ণাঙ্ক
+syscall_mount_setattr (পূর্ণাঙ্ক dfd, ধ্রুব বর্ণ *path, unsigned পূর্ণাঙ্ক flags, সংরচনা mount_attr_s *attr)
 {
 #ifdef __NR_mount_setattr
-  return (int) syscall (__NR_mount_setattr, dfd, path, flags, attr, sizeof (*attr));
-#else
-  (void) dfd;
-  (void) path;
-  (void) flags;
-  (void) attr;
+  প্রত্যাগম (পূর্ণাঙ্ক) syscall (__NR_mount_setattr, dfd, path, flags, attr, পরিমাণ (*attr));
+#অন্যথা
+  (শূন্য) dfd;
+  (শূন্য) path;
+  (শূন্য) flags;
+  (শূন্য) attr;
   errno = ENOSYS;
-  return -1;
+  প্রত্যাগম -1;
 #endif
 }
 

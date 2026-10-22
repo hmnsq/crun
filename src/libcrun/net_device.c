@@ -18,349 +18,349 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "net_device.h"
-#include "utils.h"
+#অন্তর্ভাব <config.h>
+#অন্তর্ভাব "net_device.h"
+#অন্তর্ভাব "utils.h"
 
-#include <sys/socket.h>
-#include <errno.h>
-#include <sched.h>
-#include <sys/wait.h>
-#include <sys/xattr.h>
-#include <linux/netlink.h>
-#include <linux/rtnetlink.h>
-#include <arpa/inet.h>
-#include <net/if.h>
-#if HAVE_STDATOMIC_H
+#অন্তর্ভাব <sys/socket.h>
+#অন্তর্ভাব <errno.h>
+#অন্তর্ভাব <sched.h>
+#অন্তর্ভাব <sys/wait.h>
+#অন্তর্ভাব <sys/xattr.h>
+#অন্তর্ভাব <linux/netlink.h>
+#অন্তর্ভাব <linux/rtnetlink.h>
+#অন্তর্ভাব <arpa/inet.h>
+#অন্তর্ভাব <net/if.h>
+#যদি HAVE_STDATOMIC_H
 #  include <stdatomic.h>
 #  ifndef HAVE_ATOMIC_INT
-#    define atomic_uint volatile uint
+#    define atomic_uint চঞ্চল uint
 #  endif
 #endif
 
-struct ip_addr
+সংরচনা ip_addr
 {
-  struct ifaddrmsg ifa;
+  সংরচনা ifaddrmsg ifa;
 
-  int rta_len;
-  char *rta;
+  পূর্ণাঙ্ক rta_len;
+  বর্ণ *rta;
 };
 
-struct nl_req
+সংরচনা nl_req
 {
-  struct nlmsghdr nlh;
-  union
+  সংরচনা nlmsghdr nlh;
+  সঙ্ঘ
   {
-    struct ifaddrmsg ifa;
-    struct ifinfomsg ifi;
+    সংরচনা ifaddrmsg ifa;
+    সংরচনা ifinfomsg ifi;
   };
 };
 
-static atomic_uint nl_seq_counter;
+স্থির atomic_uint nl_seq_counter;
 
-static uint32_t
+স্থির uint32_t
 get_next_seq ()
 {
-  return (uint32_t) ++nl_seq_counter;
+  প্রত্যাগম (uint32_t) ++nl_seq_counter;
 }
 
-static uint32_t
-reset_request (struct nl_req *req, int type, int flags, int msg_len)
+স্থির uint32_t
+reset_request (সংরচনা nl_req *req, পূর্ণাঙ্ক type, পূর্ণাঙ্ক flags, পূর্ণাঙ্ক বার্তা_len)
 {
   uint32_t seq = get_next_seq ();
 
-  memset (req, 0, sizeof (*req));
+  memset (req, 0, পরিমাণ (*req));
   req->nlh.nlmsg_type = type;
   req->nlh.nlmsg_flags = flags;
-  req->nlh.nlmsg_len = NLMSG_LENGTH (msg_len);
+  req->nlh.nlmsg_len = NLMSG_LENGTH (বার্তা_len);
   req->nlh.nlmsg_seq = seq;
 
-  return seq;
+  প্রত্যাগম seq;
 }
 
-static void
-cleanup_ip_addrsp (void *p)
+স্থির শূন্য
+cleanup_ip_addrsp (শূন্য *p)
 {
-  struct ip_addr **pp = (struct ip_addr **) p;
-  struct ip_addr *ip;
-  if (*pp == NULL)
-    return;
+  সংরচনা ip_addr **pp = (সংরচনা ip_addr **) p;
+  সংরচনা ip_addr *ip;
+  যদি (*pp == রিক্ত)
+    প্রত্যাগম;
 
-  for (ip = *pp; ip->rta_len >= 0; ip++)
-    free (ip->rta);
+  প্রতি (ip = *pp; ip->rta_len >= 0; ip++)
+    মুক্ত (ip->rta);
 
-  free (*pp);
+  মুক্ত (*pp);
 }
 
 #define cleanup_ip_addrs __attribute__ ((cleanup (cleanup_ip_addrsp)))
 
-static int
+স্থির পূর্ণাঙ্ক
 open_netlink_fd (libcrun_error_t *err)
 {
-  cleanup_close int sock = -1;
-  struct sockaddr_nl local = {
+  cleanup_close পূর্ণাঙ্ক sock = -1;
+  সংরচনা sockaddr_nl local = {
     .nl_family = AF_NETLINK
   };
-  int fd;
+  পূর্ণাঙ্ক fd;
 
   sock = socket (AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
-  if (sock < 0)
-    return crun_make_error (err, errno, "netlink socket");
+  যদি (sock < 0)
+    প্রত্যাগম crun_make_error (err, errno, "netlink socket");
 
-  if (bind (sock, (struct sockaddr *) &local, sizeof (local)) < 0)
-    return crun_make_error (err, errno, "bind");
+  যদি (bind (sock, (সংরচনা sockaddr *) &local, পরিমাণ (local)) < 0)
+    প্রত্যাগম crun_make_error (err, errno, "bind");
 
   fd = sock;
   sock = -1;
-  return fd;
+  প্রত্যাগম fd;
 }
 
-static int
-append_rtattr (struct nlmsghdr *n, size_t maxlen, int type, const void *data, size_t data_len, libcrun_error_t *err)
+স্থির পূর্ণাঙ্ক
+append_rtattr (সংরচনা nlmsghdr *n, size_t maxlen, পূর্ণাঙ্ক type, ধ্রুব শূন্য *data, size_t data_len, libcrun_error_t *err)
 {
-  int len = RTA_LENGTH (data_len);
-  struct rtattr *rta;
+  পূর্ণাঙ্ক len = RTA_LENGTH (data_len);
+  সংরচনা rtattr *rta;
 
-  if (NLMSG_ALIGN (n->nlmsg_len) + RTA_ALIGN (len) > maxlen)
-    return crun_make_error (err, E2BIG, "internal error: buffer too small");
+  যদি (NLMSG_ALIGN (n->nlmsg_len) + RTA_ALIGN (len) > maxlen)
+    প্রত্যাগম crun_make_error (err, E2BIG, "internal error: buffer too small");
 
-  rta = (struct rtattr *) (((char *) n) + NLMSG_ALIGN (n->nlmsg_len));
+  rta = (সংরচনা rtattr *) (((বর্ণ *) n) + NLMSG_ALIGN (n->nlmsg_len));
   rta->rta_type = type;
   rta->rta_len = len;
-  if (data_len)
+  যদি (data_len)
     memcpy (RTA_DATA (rta), data, data_len);
   n->nlmsg_len = NLMSG_ALIGN (n->nlmsg_len) + RTA_ALIGN (len);
-  return 0;
+  প্রত্যাগম 0;
 }
 
-static int
-send_request (int sock, struct nl_req *req, libcrun_error_t *err)
+স্থির পূর্ণাঙ্ক
+send_request (পূর্ণাঙ্ক sock, সংরচনা nl_req *req, libcrun_error_t *err)
 {
-  int ret;
+  পূর্ণাঙ্ক ret;
 
   ret = TEMP_FAILURE_RETRY (send (sock, req, req->nlh.nlmsg_len, 0));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "send");
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম crun_make_error (err, errno, "send");
 
-  return 0;
+  প্রত্যাগম 0;
 }
 
 /* if_nametoindex with an open netlink socket.  */
-static int
-name_to_index (int sock, const char *ifname, char *buffer, size_t buffer_size, libcrun_error_t *err)
+স্থির পূর্ণাঙ্ক
+name_to_index (পূর্ণাঙ্ক sock, ধ্রুব বর্ণ *ifname, বর্ণ *buffer, size_t buffer_size, libcrun_error_t *err)
 {
-  struct nlmsghdr *nlh;
-  struct nl_req *req;
+  সংরচনা nlmsghdr *nlh;
+  সংরচনা nl_req *req;
   uint32_t seq;
   ssize_t len;
-  int ret;
+  পূর্ণাঙ্ক ret;
 
-  req = (struct nl_req *) buffer;
+  req = (সংরচনা nl_req *) buffer;
 
   nlh = &req->nlh;
 
-  seq = reset_request (req, RTM_GETLINK, NLM_F_REQUEST, sizeof (struct ifinfomsg));
+  seq = reset_request (req, RTM_GETLINK, NLM_F_REQUEST, পরিমাণ (সংরচনা ifinfomsg));
   req->ifi.ifi_family = AF_UNSPEC;
 
   ret = append_rtattr (nlh, buffer_size, IFLA_IFNAME, ifname, strlen (ifname) + 1, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
   ret = send_request (sock, req, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
   len = TEMP_FAILURE_RETRY (recv (sock, buffer, buffer_size, 0));
-  if (UNLIKELY (len < 0))
-    return crun_make_error (err, errno, "recv");
+  যদি (UNLIKELY (len < 0))
+    প্রত্যাগম crun_make_error (err, errno, "recv");
 
-  for (nlh = (struct nlmsghdr *) buffer; NLMSG_OK (nlh, (unsigned int) len); nlh = NLMSG_NEXT (nlh, len))
+  প্রতি (nlh = (সংরচনা nlmsghdr *) buffer; NLMSG_OK (nlh, (unsigned পূর্ণাঙ্ক) len); nlh = NLMSG_NEXT (nlh, len))
     {
-      if (nlh->nlmsg_seq != seq)
-        continue;
+      যদি (nlh->nlmsg_seq != seq)
+        অনুবর্ত;
 
-      if (nlh->nlmsg_type == NLMSG_ERROR)
+      যদি (nlh->nlmsg_type == NLMSG_ERROR)
         {
-          struct nlmsgerr *err_data = (struct nlmsgerr *) NLMSG_DATA (nlh);
-          if (err_data->error == 0)
-            continue;
-          return crun_make_error (err, -err_data->error, "netlink error while looking for interface `%s`", ifname);
+          সংরচনা nlmsgerr *err_data = (সংরচনা nlmsgerr *) NLMSG_DATA (nlh);
+          যদি (err_data->error == 0)
+            অনুবর্ত;
+          প্রত্যাগম crun_make_error (err, -err_data->error, "netlink error while looking for interface `%s`", ifname);
         }
 
-      if (nlh->nlmsg_type == RTM_NEWLINK)
+      যদি (nlh->nlmsg_type == RTM_NEWLINK)
         {
-          struct ifinfomsg *ifi = NLMSG_DATA (nlh);
-          return ifi->ifi_index;
+          সংরচনা ifinfomsg *ifi = NLMSG_DATA (nlh);
+          প্রত্যাগম ifi->ifi_index;
         }
     }
 
-  return crun_make_error (err, 0, "could not find device `%s`", ifname);
+  প্রত্যাগম crun_make_error (err, 0, "could not find device `%s`", ifname);
 }
 
-static int
-wait_for_ack (int sock, uint32_t seq, char *recv_buffer, size_t recv_buffer_size, libcrun_error_t *err)
+স্থির পূর্ণাঙ্ক
+wait_for_ack (পূর্ণাঙ্ক sock, uint32_t seq, বর্ণ *recv_buffer, size_t recv_buffer_size, libcrun_error_t *err)
 {
-  struct nlmsghdr *nlh_recv = (struct nlmsghdr *) recv_buffer;
+  সংরচনা nlmsghdr *nlh_recv = (সংরচনা nlmsghdr *) recv_buffer;
   ssize_t len;
 
-  do
+  কুরু
     {
       len = TEMP_FAILURE_RETRY (recv (sock, recv_buffer, recv_buffer_size, 0));
-      if (len < 0)
-        return crun_make_error (err, errno, "recv");
-  } while (nlh_recv->nlmsg_seq != seq);
+      যদি (len < 0)
+        প্রত্যাগম crun_make_error (err, errno, "recv");
+  } যাবত্ (nlh_recv->nlmsg_seq != seq);
 
-  if (! NLMSG_OK (nlh_recv, len))
-    return crun_make_error (err, 0, "received invalid packet");
+  যদি (! NLMSG_OK (nlh_recv, len))
+    প্রত্যাগম crun_make_error (err, 0, "received invalid packet");
 
-  if (nlh_recv->nlmsg_type == NLMSG_ERROR)
+  যদি (nlh_recv->nlmsg_type == NLMSG_ERROR)
     {
-      struct nlmsgerr *err_data = (struct nlmsgerr *) NLMSG_DATA (nlh_recv);
-      if (err_data->error == 0)
-        return 0;
-      return crun_make_error (err, -err_data->error, "netlink error");
+      সংরচনা nlmsgerr *err_data = (সংরচনা nlmsgerr *) NLMSG_DATA (nlh_recv);
+      যদি (err_data->error == 0)
+        প্রত্যাগম 0;
+      প্রত্যাগম crun_make_error (err, -err_data->error, "netlink error");
     }
 
-  return crun_make_error (err, 0, "internal error: received unknown netlink packet type");
+  প্রত্যাগম crun_make_error (err, 0, "internal error: received unknown netlink packet type");
 }
 
-static void
-copy_ip_addr (struct nlmsghdr *nlh, struct ip_addr *ip)
+স্থির শূন্য
+copy_ip_addr (সংরচনা nlmsghdr *nlh, সংরচনা ip_addr *ip)
 {
-  struct ifaddrmsg *ifa = (struct ifaddrmsg *) NLMSG_DATA (nlh);
-  memcpy (&ip->ifa, ifa, sizeof (struct ifaddrmsg));
+  সংরচনা ifaddrmsg *ifa = (সংরচনা ifaddrmsg *) NLMSG_DATA (nlh);
+  memcpy (&ip->ifa, ifa, পরিমাণ (সংরচনা ifaddrmsg));
   ip->rta_len = IFA_PAYLOAD (nlh);
   ip->rta = xmalloc (ip->rta_len);
   memcpy (ip->rta, IFA_RTA (ifa), ip->rta_len);
 };
 
-static int
-get_ip_addresses (int sock, uint32_t ifindex, struct ip_addr **out_ips, char *buffer, size_t buffer_size, libcrun_error_t *err)
+স্থির পূর্ণাঙ্ক
+get_ip_addresses (পূর্ণাঙ্ক sock, uint32_t ifindex, সংরচনা ip_addr **out_ips, বর্ণ *buffer, size_t buffer_size, libcrun_error_t *err)
 {
-  struct nl_req *req = (struct nl_req *) buffer;
-  cleanup_ip_addrs struct ip_addr *ips = NULL;
+  সংরচনা nl_req *req = (সংরচনা nl_req *) buffer;
+  cleanup_ip_addrs সংরচনা ip_addr *ips = রিক্ত;
   size_t ips_len = 0;
-  int optval = 1;
+  পূর্ণাঙ্ক optval = 1;
   uint32_t seq;
   ssize_t len;
-  int ret;
+  পূর্ণাঙ্ক ret;
 
 #ifdef NETLINK_GET_STRICT_CHK
-  ret = setsockopt (sock, SOL_NETLINK, NETLINK_GET_STRICT_CHK, &optval, sizeof (optval));
-  if (ret < 0)
+  ret = setsockopt (sock, SOL_NETLINK, NETLINK_GET_STRICT_CHK, &optval, পরিমাণ (optval));
+  যদি (ret < 0)
     {
-      if (errno != ENOPROTOOPT)
-        return crun_make_error (err, errno, "setsockopt (NETLINK_GET_STRICT_CHK)");
+      যদি (errno != ENOPROTOOPT)
+        প্রত্যাগম crun_make_error (err, errno, "setsockopt (NETLINK_GET_STRICT_CHK)");
 
       /* NETLINK_GET_STRICT_CHK not supported by this kernel, continue without strict checking.   */
     }
 #endif
 
-  seq = reset_request (req, RTM_GETADDR, NLM_F_DUMP | NLM_F_REQUEST, sizeof (struct ifaddrmsg));
+  seq = reset_request (req, RTM_GETADDR, NLM_F_DUMP | NLM_F_REQUEST, পরিমাণ (সংরচনা ifaddrmsg));
   req->ifa.ifa_family = AF_UNSPEC;
   req->ifa.ifa_index = ifindex;
 
   ret = send_request (sock, req, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
-  while ((len = TEMP_FAILURE_RETRY (recv (sock, buffer, buffer_size, 0))) > 0)
+  যাবত্ ((len = TEMP_FAILURE_RETRY (recv (sock, buffer, buffer_size, 0))) > 0)
     {
-      struct nlmsghdr *nlh;
+      সংরচনা nlmsghdr *nlh;
 
-      for (nlh = (struct nlmsghdr *) buffer; NLMSG_OK (nlh, len); nlh = NLMSG_NEXT (nlh, len))
+      প্রতি (nlh = (সংরচনা nlmsghdr *) buffer; NLMSG_OK (nlh, len); nlh = NLMSG_NEXT (nlh, len))
         {
-          struct ifaddrmsg *ifa;
+          সংরচনা ifaddrmsg *ifa;
 
-          if (nlh->nlmsg_seq != seq)
-            continue;
+          যদি (nlh->nlmsg_seq != seq)
+            অনুবর্ত;
 
-          if (nlh->nlmsg_type == NLMSG_DONE)
+          যদি (nlh->nlmsg_type == NLMSG_DONE)
             {
               *out_ips = ips;
-              ips = NULL;
-              return 0;
+              ips = রিক্ত;
+              প্রত্যাগম 0;
             }
 
-          if (nlh->nlmsg_type == NLMSG_ERROR)
+          যদি (nlh->nlmsg_type == NLMSG_ERROR)
             {
-              struct nlmsgerr *err_data = (struct nlmsgerr *) NLMSG_DATA (nlh);
-              if (err_data->error == 0)
-                continue;
-              return crun_make_error (err, -err_data->error, "netlink error reading ip addresses");
+              সংরচনা nlmsgerr *err_data = (সংরচনা nlmsgerr *) NLMSG_DATA (nlh);
+              যদি (err_data->error == 0)
+                অনুবর্ত;
+              প্রত্যাগম crun_make_error (err, -err_data->error, "netlink error reading ip addresses");
             }
 
-          ifa = (struct ifaddrmsg *) NLMSG_DATA (nlh);
-          if (ifa->ifa_index != ifindex)
-            continue;
+          ifa = (সংরচনা ifaddrmsg *) NLMSG_DATA (nlh);
+          যদি (ifa->ifa_index != ifindex)
+            অনুবর্ত;
 
           /* Copy only permanent, globally routable IP addresses.  */
-          if (! (ifa->ifa_flags & IFA_F_PERMANENT) || (ifa->ifa_scope != RT_SCOPE_UNIVERSE))
-            continue;
+          যদি (! (ifa->ifa_flags & IFA_F_PERMANENT) || (ifa->ifa_scope != RT_SCOPE_UNIVERSE))
+            অনুবর্ত;
 
           /* Always append an empty struct.  */
-          ips = xrealloc (ips, sizeof (struct ip_addr) * (++ips_len + 1));
+          ips = xrealloc (ips, পরিমাণ (সংরচনা ip_addr) * (++ips_len + 1));
           /* Mark the end of the array.  */
           ips[ips_len].rta_len = -1;
 
           copy_ip_addr (nlh, &ips[ips_len - 1]);
         }
     }
-  if (UNLIKELY (len < 0))
-    return crun_make_error (err, errno, "recv");
-  return 0;
+  যদি (UNLIKELY (len < 0))
+    প্রত্যাগম crun_make_error (err, errno, "recv");
+  প্রত্যাগম 0;
 }
 
-static int
-configure_ip_addresses (int sock, int ifindex, char *buffer, size_t buffer_size, const struct ip_addr *ips, libcrun_error_t *err)
+স্থির পূর্ণাঙ্ক
+configure_ip_addresses (পূর্ণাঙ্ক sock, পূর্ণাঙ্ক ifindex, বর্ণ *buffer, size_t buffer_size, ধ্রুব সংরচনা ip_addr *ips, libcrun_error_t *err)
 {
-  struct nl_req *req = (struct nl_req *) buffer;
-  const struct ip_addr *ip;
-  int ret;
+  সংরচনা nl_req *req = (সংরচনা nl_req *) buffer;
+  ধ্রুব সংরচনা ip_addr *ip;
+  পূর্ণাঙ্ক ret;
 
-  if (ips == NULL)
-    return 0;
+  যদি (ips == রিক্ত)
+    প্রত্যাগম 0;
 
-  for (ip = ips; ip->rta_len >= 0; ip++)
+  প্রতি (ip = ips; ip->rta_len >= 0; ip++)
     {
       /* RTA_NEXT modifies the argument, so use a copy.  */
-      int rta_len = ip->rta_len;
-      struct rtattr *rta;
+      পূর্ণাঙ্ক rta_len = ip->rta_len;
+      সংরচনা rtattr *rta;
       uint32_t seq;
 
-      seq = reset_request (req, RTM_NEWADDR, NLM_F_REQUEST | NLM_F_CREATE | NLM_F_REPLACE | NLM_F_ACK, sizeof (struct ifaddrmsg));
+      seq = reset_request (req, RTM_NEWADDR, NLM_F_REQUEST | NLM_F_CREATE | NLM_F_REPLACE | NLM_F_ACK, পরিমাণ (সংরচনা ifaddrmsg));
 
-      memcpy (&req->ifa, &ip->ifa, sizeof (struct ifaddrmsg));
+      memcpy (&req->ifa, &ip->ifa, পরিমাণ (সংরচনা ifaddrmsg));
 
       req->ifa.ifa_index = ifindex;
 
-      for (rta = (struct rtattr *) ip->rta; RTA_OK (rta, rta_len); rta = RTA_NEXT (rta, rta_len))
+      প্রতি (rta = (সংরচনা rtattr *) ip->rta; RTA_OK (rta, rta_len); rta = RTA_NEXT (rta, rta_len))
         {
           ret = append_rtattr (&(req->nlh), buffer_size, rta->rta_type, RTA_DATA (rta), RTA_PAYLOAD (rta), err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          যদি (UNLIKELY (ret < 0))
+            প্রত্যাগম ret;
         }
 
       ret = send_request (sock, req, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      যদি (UNLIKELY (ret < 0))
+        প্রত্যাগম ret;
 
       ret = wait_for_ack (sock, seq, buffer, buffer_size, err);
-      if (ret < 0)
-        return ret;
+      যদি (ret < 0)
+        প্রত্যাগম ret;
     }
 
-  return 0;
+  প্রত্যাগম 0;
 }
 
-static int
-request_enable_interface_and_wait (int sock, char *buffer, size_t buffer_size, int index, libcrun_error_t *err)
+স্থির পূর্ণাঙ্ক
+request_enable_interface_and_wait (পূর্ণাঙ্ক sock, বর্ণ *buffer, size_t buffer_size, পূর্ণাঙ্ক index, libcrun_error_t *err)
 {
-  struct nl_req *req = (struct nl_req *) buffer;
+  সংরচনা nl_req *req = (সংরচনা nl_req *) buffer;
   uint32_t seq;
-  int ret;
+  পূর্ণাঙ্ক ret;
 
-  seq = reset_request (req, RTM_NEWLINK, NLM_F_REQUEST | NLM_F_ACK, sizeof (struct ifinfomsg));
+  seq = reset_request (req, RTM_NEWLINK, NLM_F_REQUEST | NLM_F_ACK, পরিমাণ (সংরচনা ifinfomsg));
 
   req->ifi.ifi_family = AF_UNSPEC;
   req->ifi.ifi_index = index;
@@ -369,87 +369,87 @@ request_enable_interface_and_wait (int sock, char *buffer, size_t buffer_size, i
   req->ifi.ifi_change = IFF_UP;
 
   ret = send_request (sock, req, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
-  return wait_for_ack (sock, seq, buffer, buffer_size, err);
+  প্রত্যাগম wait_for_ack (sock, seq, buffer, buffer_size, err);
 }
 
-static int
-setup_network_device_in_ns_helper (char *buffer, size_t buffer_size, int netns_fd, const char *newifname,
-                                   struct ip_addr *ips, libcrun_error_t *err)
+স্থির পূর্ণাঙ্ক
+setup_network_device_in_ns_helper (বর্ণ *buffer, size_t buffer_size, পূর্ণাঙ্ক netns_fd, ধ্রুব বর্ণ *newifname,
+                                   সংরচনা ip_addr *ips, libcrun_error_t *err)
 {
-  cleanup_close int sock_in_ns = -1;
-  int new_ifindex;
-  int ret;
+  cleanup_close পূর্ণাঙ্ক sock_in_ns = -1;
+  পূর্ণাঙ্ক new_ifindex;
+  পূর্ণাঙ্ক ret;
 
   ret = setns (netns_fd, CLONE_NEWNET);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "change network namespace");
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম crun_make_error (err, errno, "change network namespace");
 
   sock_in_ns = open_netlink_fd (err);
-  if (sock_in_ns < 0)
-    return sock_in_ns;
+  যদি (sock_in_ns < 0)
+    প্রত্যাগম sock_in_ns;
 
   /* we could ask for a specific index with IFLA_NEW_IFINDEX, and apparently the kernel tries anyway to
      reuse the existing one, but asking for a specific index could cause conflicts if the
      target network namespace already exists, so avoid doing it and lookup the device again.  */
   new_ifindex = name_to_index (sock_in_ns, newifname, buffer, buffer_size, err);
-  if (UNLIKELY (new_ifindex < 0))
-    return new_ifindex;
+  যদি (UNLIKELY (new_ifindex < 0))
+    প্রত্যাগম new_ifindex;
 
   ret = configure_ip_addresses (sock_in_ns, new_ifindex, buffer, buffer_size, ips, err);
-  if (ret < 0)
-    return ret;
+  যদি (ret < 0)
+    প্রত্যাগম ret;
 
-  return request_enable_interface_and_wait (sock_in_ns, buffer, buffer_size, new_ifindex, err);
+  প্রত্যাগম request_enable_interface_and_wait (sock_in_ns, buffer, buffer_size, new_ifindex, err);
 }
 
-static int
-do_move_link_to_ns_and_wait (int sock, char *buffer, size_t buffer_size, int ifindex, int netns_fd, const char *newifname, libcrun_error_t *err)
+স্থির পূর্ণাঙ্ক
+do_move_link_to_ns_and_wait (পূর্ণাঙ্ক sock, বর্ণ *buffer, size_t buffer_size, পূর্ণাঙ্ক ifindex, পূর্ণাঙ্ক netns_fd, ধ্রুব বর্ণ *newifname, libcrun_error_t *err)
 {
-  struct nl_req *req = (struct nl_req *) buffer;
+  সংরচনা nl_req *req = (সংরচনা nl_req *) buffer;
   uint32_t seq;
-  int ret;
+  পূর্ণাঙ্ক ret;
 
-  seq = reset_request (req, RTM_NEWLINK, NLM_F_REQUEST | NLM_F_ACK, sizeof (struct ifinfomsg));
+  seq = reset_request (req, RTM_NEWLINK, NLM_F_REQUEST | NLM_F_ACK, পরিমাণ (সংরচনা ifinfomsg));
   req->ifi.ifi_family = AF_UNSPEC;
   req->ifi.ifi_index = ifindex;
 
-  ret = append_rtattr (&req->nlh, buffer_size, IFLA_NET_NS_FD, &netns_fd, sizeof (netns_fd), err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_rtattr (&req->nlh, buffer_size, IFLA_NET_NS_FD, &netns_fd, পরিমাণ (netns_fd), err);
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
   ret = append_rtattr (&req->nlh, buffer_size, IFLA_IFNAME, newifname, strlen (newifname) + 1, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
   ret = send_request (sock, req, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
-  return wait_for_ack (sock, seq, buffer, buffer_size, err);
+  প্রত্যাগম wait_for_ack (sock, seq, buffer, buffer_size, err);
 }
 
 /* Run the setup in the target namespace.  It is done in a separate function
    so that no variable of the caller is live across the vfork.  */
-static int
-setup_network_device_in_ns (char *buffer, size_t buffer_size, int netns_fd, const char *newifname,
-                            struct ip_addr *ips, libcrun_error_t *err)
+স্থির পূর্ণাঙ্ক
+setup_network_device_in_ns (বর্ণ *buffer, size_t buffer_size, পূর্ণাঙ্ক netns_fd, ধ্রুব বর্ণ *newifname,
+                            সংরচনা ip_addr *ips, libcrun_error_t *err)
 {
-  int wait_status;
+  পূর্ণাঙ্ক wait_status;
   pid_t pid;
-  int ret;
+  পূর্ণাঙ্ক ret;
 
   /* must be vfork to propagate the error from the child proc.  */
   pid = vfork ();
-  if (UNLIKELY (pid < 0))
-    return crun_make_error (err, errno, "vfork");
+  যদি (UNLIKELY (pid < 0))
+    প্রত্যাগম crun_make_error (err, errno, "vfork");
 
-  if (pid == 0)
+  যদি (pid == 0)
     {
       ret = setup_network_device_in_ns_helper (buffer, buffer_size, netns_fd, newifname, ips, err);
-      if (UNLIKELY (ret < 0))
+      যদি (UNLIKELY (ret < 0))
         {
           /* Do not release the error as it will be used by the parent proc.  */
           _safe_exit (-ret);
@@ -459,45 +459,45 @@ setup_network_device_in_ns (char *buffer, size_t buffer_size, int netns_fd, cons
     }
 
   ret = waitpid_ignore_stopped (pid, &wait_status, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "waitpid for exec child pid");
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম crun_make_error (err, errno, "waitpid for exec child pid");
 
-  if (wait_status != 0)
+  যদি (wait_status != 0)
     {
       /* Reuse the error from the child proc.
          In other words, do not call crun_make_error() here. */
-      return -get_process_exit_status (wait_status);
+      প্রত্যাগম -get_process_exit_status (wait_status);
     }
 
-  return 0;
+  প্রত্যাগম 0;
 }
 
-int
-move_network_device (const char *ifname, const char *newifname, int netns_fd, libcrun_error_t *err)
+পূর্ণাঙ্ক
+move_network_device (ধ্রুব বর্ণ *ifname, ধ্রুব বর্ণ *newifname, পূর্ণাঙ্ক netns_fd, libcrun_error_t *err)
 {
-  const size_t buffer_size = 8192;
-  cleanup_ip_addrs struct ip_addr *ips = NULL;
-  cleanup_free char *buffer = xmalloc (buffer_size);
-  cleanup_close int sock = -1;
-  int ifindex;
-  int ret;
+  ধ্রুব size_t buffer_size = 8192;
+  cleanup_ip_addrs সংরচনা ip_addr *ips = রিক্ত;
+  cleanup_free বর্ণ *buffer = xmalloc (buffer_size);
+  cleanup_close পূর্ণাঙ্ক sock = -1;
+  পূর্ণাঙ্ক ifindex;
+  পূর্ণাঙ্ক ret;
 
   sock = open_netlink_fd (err);
-  if (sock < 0)
-    return sock;
+  যদি (sock < 0)
+    প্রত্যাগম sock;
 
   ifindex = name_to_index (sock, ifname, buffer, buffer_size, err);
-  if (UNLIKELY (ifindex < 0))
-    return ifindex;
+  যদি (UNLIKELY (ifindex < 0))
+    প্রত্যাগম ifindex;
 
   ret = get_ip_addresses (sock, ifindex, &ips, buffer, buffer_size, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
   /* Move the device to the target network namespace.  */
   ret = do_move_link_to_ns_and_wait (sock, buffer, buffer_size, ifindex, netns_fd, newifname, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
-  return setup_network_device_in_ns (buffer, buffer_size, netns_fd, newifname, ips, err);
+  প্রত্যাগম setup_network_device_in_ns (buffer, buffer_size, netns_fd, newifname, ips, err);
 }

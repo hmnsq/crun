@@ -19,12 +19,12 @@
 
 #  include <linux/seccomp.h>
 
-struct libcrun_load_seccomp_notify_conf_s
+সংরচনা libcrun_load_seccomp_notify_conf_s
 {
-  const char *runtime_root_path;
-  const char *name;
-  const char *bundle_path;
-  const char *oci_config_path;
+  ধ্রুব বর্ণ *runtime_মূল_path;
+  ধ্রুব বর্ণ *name;
+  ধ্রুব বর্ণ *bundle_path;
+  ধ্রুব বর্ণ *oci_config_path;
 };
 
 /* The plugin doesn't know how to handle the request.  */
@@ -39,7 +39,7 @@ struct libcrun_load_seccomp_notify_conf_s
 #  ifndef SECCOMP_NOTIFY_SKIP_TYPEDEF
 
 /* Configure the plugin.  Return an opaque pointer that will be used for successive calls.  */
-typedef int (*run_oci_seccomp_notify_start_cb) (void **opaque, struct libcrun_load_seccomp_notify_conf_s *conf,
+প্রকারনির্দেশ পূর্ণাঙ্ক (*run_oci_seccomp_notify_start_cb) (শূন্য **opaque, সংরচনা libcrun_load_seccomp_notify_conf_s *conf,
                                                 size_t size_configuration);
 
 /* Try to handle a single request.  It MUST be defined.
@@ -49,15 +49,15 @@ typedef int (*run_oci_seccomp_notify_start_cb) (void **opaque, struct libcrun_lo
    RUN_OCI_SECCOMP_NOTIFY_HANDLE_DELAYED_RESPONSE: the notification will be handled internally by the plugin and
    forwarded to seccomp_fd. It is useful for asynchronous handling.
 */
-typedef int (*run_oci_seccomp_notify_handle_request_cb) (void *opaque, struct seccomp_notif_sizes *sizes,
-                                                         struct seccomp_notif *sreq, struct seccomp_notif_resp *sresp,
-                                                         int seccomp_fd, int *handled);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*run_oci_seccomp_notify_handle_request_cb) (শূন্য *opaque, সংরচনা seccomp_notif_sizes *sizes,
+                                                         সংরচনা seccomp_notif *sreq, সংরচনা seccomp_notif_resp *sresp,
+                                                         পূর্ণাঙ্ক seccomp_fd, পূর্ণাঙ্ক *handled);
 
 /* Stop the plugin.  The opaque value is the return value from run_oci_seccomp_notify_start.  */
-typedef int (*run_oci_seccomp_notify_stop_cb) (void *opaque);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*run_oci_seccomp_notify_stop_cb) (শূন্য *opaque);
 
 /* Retrieve the API version used by the plugin.  It MUST return 1. */
-typedef int (*run_oci_seccomp_notify_plugin_version_cb) ();
+প্রকারনির্দেশ পূর্ণাঙ্ক (*run_oci_seccomp_notify_plugin_version_cb) ();
 
 #  endif
 

@@ -16,13 +16,13 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include "linux.h"
-#include "utils.h"
-#include <ocispec/runtime_spec_schema_config_schema.h>
+#অন্তর্ভাব <config.h>
+#অন্তর্ভাব "linux.h"
+#অন্তর্ভাব "utils.h"
+#অন্তর্ভাব <ocispec/runtime_spec_schema_config_schema.h>
 
-#include <sys/syscall.h>
-#include <unistd.h>
+#অন্তর্ভাব <sys/syscall.h>
+#অন্তর্ভাব <unistd.h>
 
 /* follow runc go implementation and redefine everything here */
 /* Policies */
@@ -39,10 +39,10 @@
 #define MPOL_F_RELATIVE_NODES (1 << 14)
 #define MPOL_F_STATIC_NODES (1 << 15)
 
-typedef struct
+প্রকারনির্দেশ সংরচনা
 {
-  const char *name;
-  int value;
+  ধ্রুব বর্ণ *name;
+  পূর্ণাঙ্ক মান;
 } str2int_map_t;
 
 /* update mpol_mode_map based on numaif.h MPOL_MAX
@@ -57,7 +57,7 @@ str2int_map_t mpol_mode_map[] = {
   { "MPOL_LOCAL", MPOL_LOCAL },
   { "MPOL_PREFERRED_MANY", MPOL_PREFERRED_MANY },
   { "MPOL_WEIGHTED_INTERLEAVE", MPOL_WEIGHTED_INTERLEAVE },
-  { NULL, -1 }
+  { রিক্ত, -1 }
 };
 
 /* flags cannot be tracked the same way as mode */
@@ -65,43 +65,43 @@ str2int_map_t mpol_flag_map[] = {
   { "MPOL_F_NUMA_BALANCING", MPOL_F_NUMA_BALANCING },
   { "MPOL_F_RELATIVE_NODES", MPOL_F_RELATIVE_NODES },
   { "MPOL_F_STATIC_NODES", MPOL_F_STATIC_NODES },
-  { NULL, -1 }
+  { রিক্ত, -1 }
 };
 
 #define MAX_NUMA_NODES 4096
 
-static int
-mpol_str2int (const char *str, const str2int_map_t *map)
+স্থির পূর্ণাঙ্ক
+mpol_str2int (ধ্রুব বর্ণ *str, ধ্রুব str2int_map_t *map)
 {
-  int idx = 0;
+  পূর্ণাঙ্ক idx = 0;
 
-  while (map[idx].name != NULL)
+  যাবত্ (map[idx].name != রিক্ত)
     {
-      if (! strcmp (map[idx].name, str))
-        return map[idx].value;
+      যদি (! strcmp (map[idx].name, str))
+        প্রত্যাগম map[idx].মান;
 
       idx++;
     }
 
   errno = EINVAL;
-  return -1;
+  প্রত্যাগম -1;
 }
 
-int
+পূর্ণাঙ্ক
 libcrun_set_mempolicy (runtime_spec_schema_config_schema *def, libcrun_error_t *err)
 {
-  runtime_spec_schema_config_linux_memory_policy *memory_policy = NULL;
-  int mpol_mode = 0;
-  int mpol_flag = 0;
+  runtime_spec_schema_config_linux_memory_policy *memory_policy = রিক্ত;
+  পূর্ণাঙ্ক mpol_mode = 0;
+  পূর্ণাঙ্ক mpol_flag = 0;
   size_t i = 0;
-  unsigned long nmask[MAX_NUMA_NODES / (sizeof (unsigned long) * 8)];
-  unsigned long *nmask_final = NULL;
-  int ret = 0;
+  unsigned long nmask[MAX_NUMA_NODES / (পরিমাণ (unsigned long) * 8)];
+  unsigned long *nmask_final = রিক্ত;
+  পূর্ণাঙ্ক ret = 0;
 
-  if (def->linux == NULL || def->linux->memory_policy == NULL)
+  যদি (def->linux == রিক্ত || def->linux->memory_policy == রিক্ত)
     {
       libcrun_debug ("no linux numa mempolicy configuration found");
-      return ret;
+      প্রত্যাগম ret;
     }
 
   libcrun_debug ("Initializing linux numa mempolicy");
@@ -110,45 +110,45 @@ libcrun_set_mempolicy (runtime_spec_schema_config_schema *def, libcrun_error_t *
 
   libcrun_debug ("Validating linux numa mempolicy");
   /* validate memory policy mode */
-  if (! memory_policy->mode)
-    return crun_make_error (err, EINVAL, "linux NUMA mempolicy mode is missing from the configuration");
+  যদি (! memory_policy->mode)
+    প্রত্যাগম crun_make_error (err, EINVAL, "linux NUMA mempolicy mode is missing from the configuration");
 
   libcrun_debug ("Validating mode: %s", memory_policy->mode);
   mpol_mode = mpol_str2int (memory_policy->mode, mpol_mode_map);
-  if (mpol_mode < 0)
-    return crun_make_error (err, EINVAL, "requested linux NUMA mempolicy mode '%s' is unknown", memory_policy->mode);
+  যদি (mpol_mode < 0)
+    প্রত্যাগম crun_make_error (err, EINVAL, "requested linux NUMA mempolicy mode '%s' is unknown", memory_policy->mode);
 
   /* validating memory policy flags */
   libcrun_debug ("Validating mode flags: %zu configured", memory_policy->flags_len);
-  for (i = 0; i < memory_policy->flags_len; i++)
+  প্রতি (i = 0; i < memory_policy->flags_len; i++)
     {
       libcrun_debug ("Validating mode flag: %s", memory_policy->flags[i]);
       mpol_flag = mpol_str2int (memory_policy->flags[i], mpol_flag_map);
-      if (mpol_flag < 0)
-        return crun_make_error (err, EINVAL, "requested linux NUMA mempolicy flag '%s' is unknown", memory_policy->flags[i]);
+      যদি (mpol_flag < 0)
+        প্রত্যাগম crun_make_error (err, EINVAL, "requested linux NUMA mempolicy flag '%s' is unknown", memory_policy->flags[i]);
       mpol_mode = mpol_mode | mpol_flag;
     }
 
   /* kernel will take care of validating the nodes */
-  if (! is_empty_string (memory_policy->nodes))
+  যদি (! is_empty_string (memory_policy->nodes))
     {
-      cleanup_free char *bitmask = NULL;
+      cleanup_free বর্ণ *bitmask = রিক্ত;
       size_t bitmask_size;
 
       ret = cpuset_string_to_bitmask (memory_policy->nodes, &bitmask, &bitmask_size, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      যদি (UNLIKELY (ret < 0))
+        প্রত্যাগম ret;
 
-      if (bitmask_size > sizeof (nmask))
-        return crun_make_error (err, EINVAL, "requested NUMA bitmask bigger than kernel supported bitmask");
+      যদি (bitmask_size > পরিমাণ (nmask))
+        প্রত্যাগম crun_make_error (err, EINVAL, "requested NUMA bitmask bigger than kernel supported bitmask");
 
       nmask_final = nmask;
-      memset (nmask_final, 0, sizeof (nmask));
+      memset (nmask_final, 0, পরিমাণ (nmask));
       memcpy (nmask_final, bitmask, bitmask_size);
     }
 
-  if (syscall (__NR_set_mempolicy, mpol_mode, nmask_final, nmask_final ? MAX_NUMA_NODES - 1 : 0) < 0)
-    return crun_make_error (err, errno, "set_mempolicy");
+  যদি (syscall (__NR_set_mempolicy, mpol_mode, nmask_final, nmask_final ? MAX_NUMA_NODES - 1 : 0) < 0)
+    প্রত্যাগম crun_make_error (err, errno, "set_mempolicy");
 
-  return ret;
+  প্রত্যাগম ret;
 }

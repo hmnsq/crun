@@ -16,15 +16,15 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <argp.h>
+#অন্তর্ভাব <config.h>
+#অন্তর্ভাব <argp.h>
 
-#include "crun.h"
-#include "run_create.h"
+#অন্তর্ভাব "crun.h"
+#অন্তর্ভাব "run_create.h"
 
-static char doc[] = "OCI runtime";
+স্থির বর্ণ doc[] = "OCI runtime";
 
-enum
+গণনা
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -35,13 +35,13 @@ enum
   OPTION_KEEP,
 };
 
-static const char *bundle = NULL;
+স্থির ধ্রুব বর্ণ *bundle = রিক্ত;
 
-static bool keep = false;
+স্থির bool keep = false;
 
-static libcrun_context_t *crun_context;
+স্থির libcrun_context_t *crun_context;
 
-static struct argp_option options[]
+স্থির সংরচনা argp_option options[]
     = { { "bundle", 'b', "DIR", 0, "container bundle (default \".\")", 0 },
         { "config", 'f', "FILE", 0, "override the config file name", 0 },
         { "detach", 'd', 0, 0, "detach from the parent", 0 },
@@ -57,79 +57,79 @@ static struct argp_option options[]
             0,
         } };
 
-static char args_doc[] = "run [OPTION]... CONTAINER";
+স্থির বর্ণ args_doc[] = "run [OPTION]... CONTAINER";
 
-static const char *config_file = "config.json";
+স্থির ধ্রুব বর্ণ *config_file = "config.json";
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+স্থির error_t
+parse_opt (পূর্ণাঙ্ক চাবি, বর্ণ *arg, সংরচনা argp_state *state)
 {
-  switch (key)
+  বিকল্প (চাবি)
     {
-    case 'd':
+    পক্ষ 'd':
       libcrun_context_set_detach (crun_context, true);
-      break;
+      ভঙ্গ;
 
-    case 'f':
+    পক্ষ 'f':
       config_file = argp_mandatory_argument (arg, state);
-      break;
+      ভঙ্গ;
 
-    case 'b':
+    পক্ষ 'b':
       bundle = argp_mandatory_argument (arg, state);
-      break;
+      ভঙ্গ;
 
-    case OPTION_KEEP:
+    পক্ষ OPTION_KEEP:
       keep = true;
-      break;
+      ভঙ্গ;
 
-    case OPTION_CONSOLE_SOCKET:
+    পক্ষ OPTION_CONSOLE_SOCKET:
       libcrun_context_set_console_socket (crun_context, argp_mandatory_argument (arg, state));
-      break;
+      ভঙ্গ;
 
-    case OPTION_PRESERVE_FDS:
-      libcrun_context_set_preserve_fds (crun_context, parse_id_or_fail (argp_mandatory_argument (arg, state), NULL, "preserve-fds"));
-      break;
+    পক্ষ OPTION_PRESERVE_FDS:
+      libcrun_context_set_preserve_fds (crun_context, parse_id_or_fail (argp_mandatory_argument (arg, state), রিক্ত, "preserve-fds"));
+      ভঙ্গ;
 
-    case OPTION_NO_SUBREAPER:
-      break;
+    পক্ষ OPTION_NO_SUBREAPER:
+      ভঙ্গ;
 
-    case OPTION_NO_NEW_KEYRING:
+    পক্ষ OPTION_NO_NEW_KEYRING:
       libcrun_context_set_no_new_keyring (crun_context, true);
-      break;
+      ভঙ্গ;
 
-    case OPTION_PID_FILE:
+    পক্ষ OPTION_PID_FILE:
       libcrun_context_set_pid_file (crun_context, argp_mandatory_argument (arg, state));
-      break;
+      ভঙ্গ;
 
-    case OPTION_NO_PIVOT:
+    পক্ষ OPTION_NO_PIVOT:
       libcrun_context_set_no_pivot (crun_context, true);
-      break;
+      ভঙ্গ;
 
-    case ARGP_KEY_NO_ARGS:
+    পক্ষ ARGP_চাবি_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    স্বভাব:
+      প্রত্যাগম ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  প্রত্যাগম 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+স্থির সংরচনা argp run_argp = { options, parse_opt, args_doc, doc, রিক্ত, রিক্ত, রিক্ত };
 
-static unsigned int
+স্থির unsigned পূর্ণাঙ্ক
 get_options ()
 {
-  return keep ? LIBCRUN_RUN_OPTIONS_KEEP : 0;
+  প্রত্যাগম keep ? LIBCRUN_RUN_OPTIONS_KEEP : 0;
 }
 
-int
-crun_command_run (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+পূর্ণাঙ্ক
+crun_command_run (সংরচনা crun_global_arguments *global_args, পূর্ণাঙ্ক argc, বর্ণ **argv, libcrun_error_t *err)
 {
-  int ret;
+  পূর্ণাঙ্ক ret;
 
   crun_context = new_libcrun_context (global_args);
   ret = crun_run_create_internal (global_args, argc, argv, libcrun_container_run, get_options, crun_context, &run_argp, &config_file, &bundle, err);
   libcrun_context_free (crun_context);
-  return ret;
+  প্রত্যাগম ret;
 }

@@ -18,116 +18,116 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "ebpf.h"
-#include "utils.h"
-#include <unistd.h>
-#include <sys/syscall.h>
-#include <sys/resource.h>
+#অন্তর্ভাব <config.h>
+#অন্তর্ভাব "ebpf.h"
+#অন্তর্ভাব "utils.h"
+#অন্তর্ভাব <unistd.h>
+#অন্তর্ভাব <sys/syscall.h>
+#অন্তর্ভাব <sys/resource.h>
 
 #ifdef HAVE_EBPF
 #  include <linux/bpf.h>
 
 #  ifndef HAVE_BPF
-static int
-syscall_bpf (int cmd, union bpf_attr *attr, unsigned int size)
+স্থির পূর্ণাঙ্ক
+syscall_bpf (পূর্ণাঙ্ক cmd, সঙ্ঘ bpf_attr *attr, unsigned পূর্ণাঙ্ক size)
 {
-  return (int) syscall (__NR_bpf, cmd, attr, size);
+  প্রত্যাগম (পূর্ণাঙ্ক) syscall (__NR_bpf, cmd, attr, size);
 }
 #    define bpf syscall_bpf
 #  endif
 
 #endif
 
-static inline uint64_t
-ptr_to_u64 (const void *ptr)
+স্থির অন্তঃস্থ uint64_t
+ptr_to_u64 (ধ্রুব শূন্য *ptr)
 {
-  return (uint64_t) (unsigned long) ptr;
+  প্রত্যাগম (uint64_t) (unsigned long) ptr;
 }
 
-enum
+গণনা
 {
   HAS_WILDCARD = 1
 };
 
-struct bpf_program
+সংরচনা bpf_program
 {
   size_t allocated;
   size_t used;
-  unsigned int private;
-  char program[];
+  unsigned পূর্ণাঙ্ক গুপ্ত;
+  বর্ণ program[];
 };
 
 #ifdef HAVE_EBPF
 
 #  define BPF_ALU32_IMM(OP, DST, IMM) \
-    ((struct bpf_insn) { .code = BPF_ALU | BPF_OP (OP) | BPF_K, .dst_reg = DST, .src_reg = 0, .off = 0, .imm = IMM })
+    ((সংরচনা bpf_insn) { .code = BPF_ALU | BPF_OP (OP) | BPF_K, .dst_reg = DST, .src_reg = 0, .off = 0, .imm = IMM })
 
 #  define BPF_LDX_MEM(SIZE, DST, SRC, OFF) \
-    ((struct bpf_insn) {                   \
+    ((সংরচনা bpf_insn) {                   \
         .code = BPF_LDX | BPF_SIZE (SIZE) | BPF_MEM, .dst_reg = DST, .src_reg = SRC, .off = OFF, .imm = 0 })
 
 #  define BPF_MOV64_REG(DST, SRC) \
-    ((struct bpf_insn) { .code = BPF_ALU64 | BPF_MOV | BPF_X, .dst_reg = DST, .src_reg = SRC, .off = 0, .imm = 0 })
+    ((সংরচনা bpf_insn) { .code = BPF_ALU64 | BPF_MOV | BPF_X, .dst_reg = DST, .src_reg = SRC, .off = 0, .imm = 0 })
 
 #  define BPF_JMP_A(OFF) \
-    ((struct bpf_insn) { .code = BPF_JMP | BPF_JA, .dst_reg = 0, .src_reg = 0, .off = OFF, .imm = 0 })
+    ((সংরচনা bpf_insn) { .code = BPF_JMP | BPF_JA, .dst_reg = 0, .src_reg = 0, .off = OFF, .imm = 0 })
 
 #  define BPF_JMP_IMM(OP, DST, IMM, OFF) \
-    ((struct bpf_insn) { .code = BPF_JMP | BPF_OP (OP) | BPF_K, .dst_reg = DST, .src_reg = 0, .off = OFF, .imm = IMM })
+    ((সংরচনা bpf_insn) { .code = BPF_JMP | BPF_OP (OP) | BPF_K, .dst_reg = DST, .src_reg = 0, .off = OFF, .imm = IMM })
 
 #  define BPF_JMP_REG(OP, DST, SRC, OFF) \
-    ((struct bpf_insn) { .code = BPF_JMP | BPF_OP (OP) | BPF_X, .dst_reg = DST, .src_reg = SRC, .off = OFF, .imm = 0 })
+    ((সংরচনা bpf_insn) { .code = BPF_JMP | BPF_OP (OP) | BPF_X, .dst_reg = DST, .src_reg = SRC, .off = OFF, .imm = 0 })
 
 #  define BPF_MOV64_IMM(DST, IMM) \
-    ((struct bpf_insn) { .code = BPF_ALU64 | BPF_MOV | BPF_K, .dst_reg = DST, .src_reg = 0, .off = 0, .imm = IMM })
+    ((সংরচনা bpf_insn) { .code = BPF_ALU64 | BPF_MOV | BPF_K, .dst_reg = DST, .src_reg = 0, .off = 0, .imm = IMM })
 
 #  define BPF_MOV32_REG(DST, SRC) \
-    ((struct bpf_insn) { .code = BPF_ALU | BPF_MOV | BPF_X, .dst_reg = DST, .src_reg = SRC, .off = 0, .imm = 0 })
+    ((সংরচনা bpf_insn) { .code = BPF_ALU | BPF_MOV | BPF_X, .dst_reg = DST, .src_reg = SRC, .off = 0, .imm = 0 })
 
 #  define BPF_EXIT_INSN() \
-    ((struct bpf_insn) { .code = BPF_JMP | BPF_EXIT, .dst_reg = 0, .src_reg = 0, .off = 0, .imm = 0 })
+    ((সংরচনা bpf_insn) { .code = BPF_JMP | BPF_EXIT, .dst_reg = 0, .src_reg = 0, .off = 0, .imm = 0 })
 #endif
 
 #ifdef HAVE_EBPF
-static size_t
-bpf_program_instructions (struct bpf_program *program)
+স্থির size_t
+bpf_program_instructions (সংরচনা bpf_program *program)
 {
-  return program->used / (sizeof (struct bpf_insn));
+  প্রত্যাগম program->used / (পরিমাণ (সংরচনা bpf_insn));
 }
 #endif
 
-struct bpf_program *
+সংরচনা bpf_program *
 bpf_program_new (size_t size)
 {
-  struct bpf_program *p = xmalloc (size + sizeof (struct bpf_program));
+  সংরচনা bpf_program *p = xmalloc (size + পরিমাণ (সংরচনা bpf_program));
 
   p->used = 0;
-  p->private = 0;
+  p->গুপ্ত = 0;
   p->allocated = size;
 
-  return p;
+  প্রত্যাগম p;
 }
 
-struct bpf_program *
-bpf_program_append (struct bpf_program *p, void *data, size_t size)
+সংরচনা bpf_program *
+bpf_program_append (সংরচনা bpf_program *p, শূন্য *data, size_t size)
 {
-  if (p->allocated <= p->used + size)
+  যদি (p->allocated <= p->used + size)
     {
       p->allocated += size * 2;
-      p = xrealloc (p, p->allocated + sizeof (struct bpf_program));
+      p = xrealloc (p, p->allocated + পরিমাণ (সংরচনা bpf_program));
     }
   memcpy (p->program + p->used, data, size);
   p->used += size;
-  return p;
+  প্রত্যাগম p;
 }
 
-struct bpf_program *
-bpf_program_init_dev (struct bpf_program *program, libcrun_error_t *err arg_unused)
+সংরচনা bpf_program *
+bpf_program_init_dev (সংরচনা bpf_program *program, libcrun_error_t *err arg_unused)
 {
 #ifdef HAVE_EBPF
   /* taken from systemd.  */
-  struct bpf_insn pre_insn[] = {
+  সংরচনা bpf_insn pre_insn[] = {
     /* type -> R2.  */
     BPF_LDX_MEM (BPF_W, BPF_REG_2, BPF_REG_1, 0),
     BPF_ALU32_IMM (BPF_AND, BPF_REG_2, 0xFFFF),
@@ -142,50 +142,50 @@ bpf_program_init_dev (struct bpf_program *program, libcrun_error_t *err arg_unus
     /* minor -> R5.  */
     BPF_LDX_MEM (BPF_W, BPF_REG_5, BPF_REG_1, 8),
   };
-  program = bpf_program_append (program, pre_insn, sizeof (pre_insn));
+  program = bpf_program_append (program, pre_insn, পরিমাণ (pre_insn));
 #endif
-  return program;
+  প্রত্যাগম program;
 }
 
-struct bpf_program *
-bpf_program_append_dev (struct bpf_program *program, const char *access, char type, int major, int minor, bool accept,
+সংরচনা bpf_program *
+bpf_program_append_dev (সংরচনা bpf_program *program, ধ্রুব বর্ণ *access, বর্ণ type, পূর্ণাঙ্ক major, পূর্ণাঙ্ক minor, bool accept,
                         libcrun_error_t *err arg_unused)
 {
 #ifdef HAVE_EBPF
-  int i;
-  int bpf_access = 0;
-  int bpf_type = type == 'b' ? BPF_DEVCG_DEV_BLOCK : BPF_DEVCG_DEV_CHAR;
+  পূর্ণাঙ্ক i;
+  পূর্ণাঙ্ক bpf_access = 0;
+  পূর্ণাঙ্ক bpf_type = type == 'b' ? BPF_DEVCG_DEV_BLOCK : BPF_DEVCG_DEV_CHAR;
   bool has_type = type != 'a';
   bool has_major = major >= 0;
   bool has_minor = minor >= 0;
   bool has_access = false;
-  int number_instructions = 0;
-  struct bpf_insn accept_block[] = {
+  পূর্ণাঙ্ক সংখ্যা_instructions = 0;
+  সংরচনা bpf_insn accept_block[] = {
     BPF_MOV64_IMM (BPF_REG_0, accept ? 1 : 0),
     BPF_EXIT_INSN (),
   };
 
-  if (access == NULL)
+  যদি (access == রিক্ত)
     access = "";
 
-  if (program->private & HAS_WILDCARD)
-    return program;
+  যদি (program->গুপ্ত & HAS_WILDCARD)
+    প্রত্যাগম program;
 
-  for (i = 0; access[i]; i++)
+  প্রতি (i = 0; access[i]; i++)
     {
-      switch (access[i])
+      বিকল্প (access[i])
         {
-        case 'r':
+        পক্ষ 'r':
           bpf_access |= BPF_DEVCG_ACC_READ;
-          break;
+          ভঙ্গ;
 
-        case 'w':
+        পক্ষ 'w':
           bpf_access |= BPF_DEVCG_ACC_WRITE;
-          break;
+          ভঙ্গ;
 
-        case 'm':
+        পক্ষ 'm':
           bpf_access |= BPF_DEVCG_ACC_MKNOD;
-          break;
+          ভঙ্গ;
         }
     }
 
@@ -208,306 +208,306 @@ bpf_program_append_dev (struct bpf_program *program, const char *access, char ty
   has_access = bpf_access != (BPF_DEVCG_ACC_READ | BPF_DEVCG_ACC_WRITE | BPF_DEVCG_ACC_MKNOD);
 
   /* Number of instructions to skip the ACCEPT BLOCK.  */
-  number_instructions = (has_type ? 1 : 0) + (has_access ? 3 : 0) + (has_major ? 1 : 0) + (has_minor ? 1 : 0) + 1;
+  সংখ্যা_instructions = (has_type ? 1 : 0) + (has_access ? 3 : 0) + (has_major ? 1 : 0) + (has_minor ? 1 : 0) + 1;
 
-  if (has_type)
+  যদি (has_type)
     {
-      struct bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_2, bpf_type, number_instructions) };
-      number_instructions--;
-      program = bpf_program_append (program, i, sizeof (i));
+      সংরচনা bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_2, bpf_type, সংখ্যা_instructions) };
+      সংখ্যা_instructions--;
+      program = bpf_program_append (program, i, পরিমাণ (i));
     }
-  if (has_access)
+  যদি (has_access)
     {
-      struct bpf_insn i[] = {
+      সংরচনা bpf_insn i[] = {
         BPF_MOV32_REG (BPF_REG_1, BPF_REG_3),
         BPF_ALU32_IMM (BPF_AND, BPF_REG_1, bpf_access),
-        accept ? BPF_JMP_REG (BPF_JNE, BPF_REG_1, BPF_REG_3, number_instructions - 2)
-               : BPF_JMP_IMM (BPF_JEQ, BPF_REG_1, 0, number_instructions - 2),
+        accept ? BPF_JMP_REG (BPF_JNE, BPF_REG_1, BPF_REG_3, সংখ্যা_instructions - 2)
+               : BPF_JMP_IMM (BPF_JEQ, BPF_REG_1, 0, সংখ্যা_instructions - 2),
       };
-      number_instructions -= 3;
-      program = bpf_program_append (program, i, sizeof (i));
+      সংখ্যা_instructions -= 3;
+      program = bpf_program_append (program, i, পরিমাণ (i));
     }
-  if (has_major)
+  যদি (has_major)
     {
-      struct bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_4, major, number_instructions) };
-      number_instructions--;
-      program = bpf_program_append (program, i, sizeof (i));
+      সংরচনা bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_4, major, সংখ্যা_instructions) };
+      সংখ্যা_instructions--;
+      program = bpf_program_append (program, i, পরিমাণ (i));
     }
-  if (has_minor)
+  যদি (has_minor)
     {
-      struct bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_5, minor, number_instructions) };
-      number_instructions--;
-      program = bpf_program_append (program, i, sizeof (i));
+      সংরচনা bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_5, minor, সংখ্যা_instructions) };
+      সংখ্যা_instructions--;
+      program = bpf_program_append (program, i, পরিমাণ (i));
     }
 
-  if (has_type == 0 && has_access == 0 && has_major == 0 && has_minor == 0)
-    program->private |= HAS_WILDCARD;
+  যদি (has_type == 0 && has_access == 0 && has_major == 0 && has_minor == 0)
+    program->গুপ্ত |= HAS_WILDCARD;
 
-  program = bpf_program_append (program, accept_block, sizeof (accept_block));
+  program = bpf_program_append (program, accept_block, পরিমাণ (accept_block));
 #endif
-  (void) access;
-  (void) type;
-  (void) major;
-  (void) minor;
-  (void) accept;
+  (শূন্য) access;
+  (শূন্য) type;
+  (শূন্য) major;
+  (শূন্য) minor;
+  (শূন্য) accept;
 
-  return program;
+  প্রত্যাগম program;
 }
 
-struct bpf_program *
-bpf_program_complete_dev (struct bpf_program *program, libcrun_error_t *err arg_unused)
+সংরচনা bpf_program *
+bpf_program_complete_dev (সংরচনা bpf_program *program, libcrun_error_t *err arg_unused)
 {
 #ifdef HAVE_EBPF
-  struct bpf_insn i[] = {
+  সংরচনা bpf_insn i[] = {
     BPF_MOV64_IMM (BPF_REG_0, 0),
     BPF_EXIT_INSN (),
   };
 
-  if (program->private & HAS_WILDCARD)
-    return program;
+  যদি (program->গুপ্ত & HAS_WILDCARD)
+    প্রত্যাগম program;
 
-  program = bpf_program_append (program, &i, sizeof (i));
+  program = bpf_program_append (program, &i, পরিমাণ (i));
 #endif
-  return program;
+  প্রত্যাগম program;
 }
 
-static int
-read_all_progs (int dirfd, uint32_t **progs_out, size_t *n_progs_out, libcrun_error_t *err)
+স্থির পূর্ণাঙ্ক
+read_all_progs (পূর্ণাঙ্ক dirfd, uint32_t **progs_out, size_t *n_progs_out, libcrun_error_t *err)
 {
 #ifdef HAVE_EBPF
-  cleanup_free uint32_t *progs = NULL;
-  union bpf_attr attr;
-  int ret;
+  cleanup_free uint32_t *progs = রিক্ত;
+  সঙ্ঘ bpf_attr attr;
+  পূর্ণাঙ্ক ret;
   size_t cur_size;
 
   /* The kernel 5.7 has a hard limit of 64, let's be safe if the limit
      will be increased in future and attempt up to 4096.  */
-  for (cur_size = 64; cur_size <= 4096; cur_size *= 2)
+  প্রতি (cur_size = 64; cur_size <= 4096; cur_size *= 2)
     {
-      progs = xrealloc (progs, sizeof (uint32_t) * cur_size);
+      progs = xrealloc (progs, পরিমাণ (uint32_t) * cur_size);
 
-      memset (&attr, 0, sizeof (attr));
+      memset (&attr, 0, পরিমাণ (attr));
       attr.query.target_fd = dirfd;
       attr.query.attach_type = BPF_CGROUP_DEVICE;
       attr.query.prog_cnt = cur_size;
       attr.query.prog_ids = ptr_to_u64 (progs);
 
-      ret = bpf (BPF_PROG_QUERY, &attr, sizeof (attr));
+      ret = bpf (BPF_PROG_QUERY, &attr, পরিমাণ (attr));
     }
-  while (ret < 0 && errno == ENOSPC)
+  যাবত্ (ret < 0 && errno == ENOSPC)
     ;
 
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "bpf query");
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম crun_make_error (err, errno, "bpf query");
 
   *progs_out = progs;
-  progs = NULL;
+  progs = রিক্ত;
   *n_progs_out = attr.query.prog_cnt;
-  return 0;
-#else
-  (void) dirfd;
+  প্রত্যাগম 0;
+#অন্যথা
+  (শূন্য) dirfd;
 
-  *progs_out = NULL;
+  *progs_out = রিক্ত;
   *n_progs_out = 0;
 
-  return crun_make_error (err, 0, "eBPF not supported");
+  প্রত্যাগম crun_make_error (err, 0, "eBPF not supported");
 #endif
 }
 
-static int
-remove_all_progs (int dirfd, uint32_t *progs, size_t n_progs, libcrun_error_t *err)
+স্থির পূর্ণাঙ্ক
+remove_all_progs (পূর্ণাঙ্ক dirfd, uint32_t *progs, size_t n_progs, libcrun_error_t *err)
 {
 #ifdef HAVE_EBPF
-  union bpf_attr attr;
+  সঙ্ঘ bpf_attr attr;
   size_t i;
 
-  for (i = 0; i < n_progs; i++)
+  প্রতি (i = 0; i < n_progs; i++)
     {
-      cleanup_close int fd = -1;
-      int ret;
+      cleanup_close পূর্ণাঙ্ক fd = -1;
+      পূর্ণাঙ্ক ret;
 
-      memset (&attr, 0, sizeof (attr));
+      memset (&attr, 0, পরিমাণ (attr));
       attr.prog_id = progs[i];
-      fd = bpf (BPF_PROG_GET_FD_BY_ID, &attr, sizeof (attr));
-      if (UNLIKELY (fd < 0))
+      fd = bpf (BPF_PROG_GET_FD_BY_ID, &attr, পরিমাণ (attr));
+      যদি (UNLIKELY (fd < 0))
         {
           /* Already removed.  Nothing to do.  */
-          if (errno == ENOENT)
-            continue;
+          যদি (errno == ENOENT)
+            অনুবর্ত;
 
-          return crun_make_error (err, errno, "cannot open existing eBPF program");
+          প্রত্যাগম crun_make_error (err, errno, "cannot open existing eBPF program");
         }
 
-      memset (&attr, 0, sizeof (attr));
+      memset (&attr, 0, পরিমাণ (attr));
       attr.attach_type = BPF_CGROUP_DEVICE;
       attr.target_fd = dirfd;
       attr.attach_bpf_fd = fd;
 
-      ret = bpf (BPF_PROG_DETACH, &attr, sizeof (attr));
-      if (UNLIKELY (ret < 0))
+      ret = bpf (BPF_PROG_DETACH, &attr, পরিমাণ (attr));
+      যদি (UNLIKELY (ret < 0))
         {
           /* Already removed.  Nothing to do.  */
-          if (errno == ENOENT)
-            continue;
+          যদি (errno == ENOENT)
+            অনুবর্ত;
 
-          return crun_make_error (err, errno, "cannot detach eBPF program");
+          প্রত্যাগম crun_make_error (err, errno, "cannot detach eBPF program");
         }
     }
-  return 0;
-#else
-  (void) dirfd;
-  (void) progs;
-  (void) n_progs;
-  return crun_make_error (err, 0, "eBPF not supported");
+  প্রত্যাগম 0;
+#অন্যথা
+  (শূন্য) dirfd;
+  (শূন্য) progs;
+  (শূন্য) n_progs;
+  প্রত্যাগম crun_make_error (err, 0, "eBPF not supported");
 #endif
 }
 
-static int
-ebpf_attach_program (int fd, int dirfd, libcrun_error_t *err)
+স্থির পূর্ণাঙ্ক
+ebpf_attach_program (পূর্ণাঙ্ক fd, পূর্ণাঙ্ক dirfd, libcrun_error_t *err)
 {
 #ifndef HAVE_EBPF
-  (void) fd;
-  (void) dirfd;
-  (void) read_all_progs;
-  (void) remove_all_progs;
+  (শূন্য) fd;
+  (শূন্য) dirfd;
+  (শূন্য) read_all_progs;
+  (শূন্য) remove_all_progs;
 
-  return crun_make_error (err, 0, "eBPF not supported");
-#else
+  প্রত্যাগম crun_make_error (err, 0, "eBPF not supported");
+#অন্যথা
 #  ifdef BPF_F_REPLACE
   bool skip_replace = false;
 #  endif
-  const int MAX_ATTEMPTS = 20;
-  int attempt;
+  ধ্রুব পূর্ণাঙ্ক MAX_ATTEMPTS = 20;
+  পূর্ণাঙ্ক attempt;
 
-  for (attempt = 0;; attempt++)
+  প্রতি (attempt = 0;; attempt++)
     {
-      cleanup_free uint32_t *progs = NULL;
-      cleanup_close int replacefd = -1;
-      union bpf_attr attr;
+      cleanup_free uint32_t *progs = রিক্ত;
+      cleanup_close পূর্ণাঙ্ক replacefd = -1;
+      সঙ্ঘ bpf_attr attr;
       size_t n_progs = 0;
-      int ret;
+      পূর্ণাঙ্ক ret;
 
       ret = read_all_progs (dirfd, &progs, &n_progs, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      যদি (UNLIKELY (ret < 0))
+        প্রত্যাগম ret;
 
 #  ifdef BPF_F_REPLACE
       /* There is just one program installed, let's attempt an atomic replace if supported.  */
-      if (! skip_replace && n_progs == 1)
+      যদি (! skip_replace && n_progs == 1)
         {
-          memset (&attr, 0, sizeof (attr));
+          memset (&attr, 0, পরিমাণ (attr));
           attr.prog_id = progs[0];
-          replacefd = bpf (BPF_PROG_GET_FD_BY_ID, &attr, sizeof (attr));
-          if (UNLIKELY (replacefd < 0))
+          replacefd = bpf (BPF_PROG_GET_FD_BY_ID, &attr, পরিমাণ (attr));
+          যদি (UNLIKELY (replacefd < 0))
             {
-              if (errno == ENOENT && attempt < MAX_ATTEMPTS)
+              যদি (errno == ENOENT && attempt < MAX_ATTEMPTS)
                 {
                   /* Another update might have raced and updated, try again.  */
-                  continue;
+                  অনুবর্ত;
                 }
-              return crun_make_error (err, errno, "cannot open existing eBPF program");
+              প্রত্যাগম crun_make_error (err, errno, "cannot open existing eBPF program");
             }
         }
 #  endif
 
-      memset (&attr, 0, sizeof (attr));
+      memset (&attr, 0, পরিমাণ (attr));
       attr.attach_type = BPF_CGROUP_DEVICE;
       attr.target_fd = dirfd;
       attr.attach_bpf_fd = fd;
       attr.attach_flags = BPF_F_ALLOW_MULTI;
 #  ifdef BPF_F_REPLACE
-      if (replacefd >= 0)
+      যদি (replacefd >= 0)
         {
           attr.attach_flags = BPF_F_ALLOW_MULTI | BPF_F_REPLACE;
           attr.replace_bpf_fd = replacefd;
         }
 #  endif
 
-      ret = bpf (BPF_PROG_ATTACH, &attr, sizeof (attr));
-      if (UNLIKELY (ret < 0))
+      ret = bpf (BPF_PROG_ATTACH, &attr, পরিমাণ (attr));
+      যদি (UNLIKELY (ret < 0))
         {
-          if (errno == ENOENT && replacefd >= 0 && attempt < MAX_ATTEMPTS)
+          যদি (errno == ENOENT && replacefd >= 0 && attempt < MAX_ATTEMPTS)
             {
               /* Another update might have already updated the cgroup, try again.  */
-              continue;
+              অনুবর্ত;
             }
 #  ifdef BPF_F_REPLACE
-          if (errno == EINVAL && replacefd >= 0)
+          যদি (errno == EINVAL && replacefd >= 0)
             {
               skip_replace = true;
-              continue;
+              অনুবর্ত;
             }
 #  endif
-          return crun_make_error (err, errno, "bpf attach");
+          প্রত্যাগম crun_make_error (err, errno, "bpf attach");
         }
 
       /* Now that the new program is installed, remove all the programs that were previously installed.  */
-      if (replacefd < 0 && n_progs)
-        return remove_all_progs (dirfd, progs, n_progs, err);
+      যদি (replacefd < 0 && n_progs)
+        প্রত্যাগম remove_all_progs (dirfd, progs, n_progs, err);
 
-      return 0;
+      প্রত্যাগম 0;
     }
 #endif
 }
 
-static void
+স্থির শূন্য
 bump_memlock ()
 {
-  struct rlimit limit;
-  int ret;
+  সংরচনা rlimit limit;
+  পূর্ণাঙ্ক ret;
 
   limit.rlim_cur = RLIM_INFINITY;
   limit.rlim_max = RLIM_INFINITY;
 
   ret = setrlimit (RLIMIT_MEMLOCK, &limit);
-  if (ret == 0)
-    return;
+  যদি (ret == 0)
+    প্রত্যাগম;
 
   /* If the above failed, try to set the current limit
      to the max configured.  */
   ret = getrlimit (RLIMIT_MEMLOCK, &limit);
-  if (ret < 0)
-    return;
+  যদি (ret < 0)
+    প্রত্যাগম;
 
   limit.rlim_cur = limit.rlim_max;
   /* Best effort, ignore errors.  */
-  (void) setrlimit (RLIMIT_MEMLOCK, &limit);
+  (শূন্য) setrlimit (RLIMIT_MEMLOCK, &limit);
 }
 
-int
-libcrun_ebpf_load (struct bpf_program *program, int dirfd, const char *pin, libcrun_error_t *err)
+পূর্ণাঙ্ক
+libcrun_ebpf_load (সংরচনা bpf_program *program, পূর্ণাঙ্ক dirfd, ধ্রুব বর্ণ *pin, libcrun_error_t *err)
 {
 #ifndef HAVE_EBPF
-  (void) dirfd;
-  (void) program;
-  (void) pin;
-  (void) ebpf_attach_program;
+  (শূন্য) dirfd;
+  (শূন্য) program;
+  (শূন্য) pin;
+  (শূন্য) ebpf_attach_program;
 
-  return crun_make_error (err, 0, "eBPF not supported");
-#else
-  cleanup_close int fd = -1;
-  union bpf_attr attr;
-  int ret;
+  প্রত্যাগম crun_make_error (err, 0, "eBPF not supported");
+#অন্যথা
+  cleanup_close পূর্ণাঙ্ক fd = -1;
+  সঙ্ঘ bpf_attr attr;
+  পূর্ণাঙ্ক ret;
 
-  memset (&attr, 0, sizeof (attr));
+  memset (&attr, 0, পরিমাণ (attr));
   attr.prog_type = BPF_PROG_TYPE_CGROUP_DEVICE;
   attr.insns = ptr_to_u64 (program->program);
   attr.insn_cnt = bpf_program_instructions (program);
   attr.license = ptr_to_u64 ("GPL");
 
   /* First try without log.  */
-  fd = bpf (BPF_PROG_LOAD, &attr, sizeof (attr));
-  if (fd < 0)
+  fd = bpf (BPF_PROG_LOAD, &attr, পরিমাণ (attr));
+  যদি (fd < 0)
     {
       /* Prior to Linux 5.11, eBPF programs were accounted to the memlock
          prlimit.  Attempt to bump the limit, if possible.  */
       bump_memlock ();
-      fd = bpf (BPF_PROG_LOAD, &attr, sizeof (attr));
+      fd = bpf (BPF_PROG_LOAD, &attr, পরিমাণ (attr));
     }
-  if (fd < 0)
+  যদি (fd < 0)
     {
-      const size_t max_log_size = 1 << 20;
-      cleanup_free char *log = NULL;
+      ধ্রুব size_t max_log_size = 1 << 20;
+      cleanup_free বর্ণ *log = রিক্ত;
       size_t log_size = 8192;
 
     retry:
@@ -517,123 +517,123 @@ libcrun_ebpf_load (struct bpf_program *program, int dirfd, const char *pin, libc
       attr.log_buf = ptr_to_u64 (log);
       attr.log_size = log_size;
 
-      fd = bpf (BPF_PROG_LOAD, &attr, sizeof (attr));
-      if (fd < 0)
+      fd = bpf (BPF_PROG_LOAD, &attr, পরিমাণ (attr));
+      যদি (fd < 0)
         {
-          if (errno == ENOSPC && log_size < max_log_size)
+          যদি (errno == ENOSPC && log_size < max_log_size)
             {
               /* The provided buffer was not big enough.  */
               log_size *= 2;
-              goto retry;
+              গচ্ছ retry;
             }
-          return crun_make_error (err, errno, "bpf create `%s`", log);
+          প্রত্যাগম crun_make_error (err, errno, "bpf create `%s`", log);
         }
     }
 
-  if (dirfd >= 0)
+  যদি (dirfd >= 0)
     {
       ret = ebpf_attach_program (fd, dirfd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      যদি (UNLIKELY (ret < 0))
+        প্রত্যাগম ret;
     }
 
   /* Optionally pin the program to the specified path.  */
-  if (pin)
+  যদি (pin)
     {
       unlink (pin);
 
-      memset (&attr, 0, sizeof (attr));
+      memset (&attr, 0, পরিমাণ (attr));
       attr.pathname = ptr_to_u64 (pin);
       attr.bpf_fd = fd;
-      ret = bpf (BPF_OBJ_PIN, &attr, sizeof (attr));
-      if (ret < 0)
-        return crun_make_error (err, errno, "bpf pin to `%s`", pin);
+      ret = bpf (BPF_OBJ_PIN, &attr, পরিমাণ (attr));
+      যদি (ret < 0)
+        প্রত্যাগম crun_make_error (err, errno, "bpf pin to `%s`", pin);
     }
 
-  return 0;
+  প্রত্যাগম 0;
 #endif
 }
 
-int
-libcrun_ebpf_read_program (struct bpf_program **program_ret, const char *path, libcrun_error_t *err)
+পূর্ণাঙ্ক
+libcrun_ebpf_read_program (সংরচনা bpf_program **program_ret, ধ্রুব বর্ণ *path, libcrun_error_t *err)
 {
 #ifndef HAVE_EBPF
-  (void) program_ret;
-  (void) path;
+  (শূন্য) program_ret;
+  (শূন্য) path;
 
-  return crun_make_error (err, 0, "eBPF not supported");
-#else
-  cleanup_free struct bpf_program *program = NULL;
-  cleanup_free char *buffer = NULL;
-  cleanup_close int prog_fd = -1;
+  প্রত্যাগম crun_make_error (err, 0, "eBPF not supported");
+#অন্যথা
+  cleanup_free সংরচনা bpf_program *program = রিক্ত;
+  cleanup_free বর্ণ *buffer = রিক্ত;
+  cleanup_close পূর্ণাঙ্ক prog_fd = -1;
   size_t buffer_size = 0;
-  struct bpf_prog_info info;
-  union bpf_attr attr;
-  int ret;
+  সংরচনা bpf_prog_info info;
+  সঙ্ঘ bpf_attr attr;
+  পূর্ণাঙ্ক ret;
 
-  memset (&attr, 0, sizeof (attr));
+  memset (&attr, 0, পরিমাণ (attr));
   attr.pathname = ptr_to_u64 (path);
 
-  prog_fd = bpf (BPF_OBJ_GET, &attr, sizeof (attr));
-  if (UNLIKELY (prog_fd < 0))
-    return crun_make_error (err, errno, "bpf get `%s`", path);
+  prog_fd = bpf (BPF_OBJ_GET, &attr, পরিমাণ (attr));
+  যদি (UNLIKELY (prog_fd < 0))
+    প্রত্যাগম crun_make_error (err, errno, "bpf get `%s`", path);
 
-  memset (&info, 0, sizeof (info));
+  memset (&info, 0, পরিমাণ (info));
 
-  memset (&attr, 0, sizeof (attr));
+  memset (&attr, 0, পরিমাণ (attr));
   attr.info.bpf_fd = prog_fd;
   attr.info.info = ptr_to_u64 (&info);
-  attr.info.info_len = sizeof (info);
+  attr.info.info_len = পরিমাণ (info);
 
-  ret = bpf (BPF_OBJ_GET_INFO_BY_FD, &attr, sizeof (attr));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "bpf get info `%s`", path);
+  ret = bpf (BPF_OBJ_GET_INFO_BY_FD, &attr, পরিমাণ (attr));
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম crun_make_error (err, errno, "bpf get info `%s`", path);
 
   buffer_size = info.xlated_prog_len;
   buffer = xmalloc (buffer_size);
 
-  memset (&info, 0, sizeof (info));
+  memset (&info, 0, পরিমাণ (info));
   info.xlated_prog_insns = ptr_to_u64 (buffer);
   info.xlated_prog_len = buffer_size;
 
-  ret = bpf (BPF_OBJ_GET_INFO_BY_FD, &attr, sizeof (attr));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "bpf get info `%s`", path);
+  ret = bpf (BPF_OBJ_GET_INFO_BY_FD, &attr, পরিমাণ (attr));
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম crun_make_error (err, errno, "bpf get info `%s`", path);
 
   program = bpf_program_new (buffer_size);
   program = bpf_program_append (program, buffer, buffer_size);
 
   *program_ret = program;
-  program = NULL;
+  program = রিক্ত;
 
-  return 0;
+  প্রত্যাগম 0;
 #endif
 }
 
-int
-libcrun_ebpf_query_cgroup_progs (const char *cgroup_path, uint32_t **progs_out, size_t *n_progs_out, libcrun_error_t *err)
+পূর্ণাঙ্ক
+libcrun_ebpf_query_cgroup_progs (ধ্রুব বর্ণ *cgroup_path, uint32_t **progs_out, size_t *n_progs_out, libcrun_error_t *err)
 {
 #ifndef HAVE_EBPF
-  (void) cgroup_path;
-  *progs_out = NULL;
+  (শূন্য) cgroup_path;
+  *progs_out = রিক্ত;
   *n_progs_out = 0;
-  return crun_make_error (err, 0, "eBPF not supported");
-#else
-  cleanup_close int cgroup_fd = -1;
+  প্রত্যাগম crun_make_error (err, 0, "eBPF not supported");
+#অন্যথা
+  cleanup_close পূর্ণাঙ্ক cgroup_fd = -1;
 
   cgroup_fd = open (cgroup_path, O_PATH | O_CLOEXEC);
-  if (UNLIKELY (cgroup_fd < 0))
-    return crun_make_error (err, errno, "open cgroup path `%s`", cgroup_path);
+  যদি (UNLIKELY (cgroup_fd < 0))
+    প্রত্যাগম crun_make_error (err, errno, "open cgroup path `%s`", cgroup_path);
 
-  return read_all_progs (cgroup_fd, progs_out, n_progs_out, err);
+  প্রত্যাগম read_all_progs (cgroup_fd, progs_out, n_progs_out, err);
 #endif
 }
 
 bool
-libcrun_ebpf_cmp_programs (struct bpf_program *program1, struct bpf_program *program2)
+libcrun_ebpf_cmp_programs (সংরচনা bpf_program *program1, সংরচনা bpf_program *program2)
 {
-  if (program1->used != program2->used)
-    return false;
+  যদি (program1->used != program2->used)
+    প্রত্যাগম false;
 
-  return memcmp (program1->program, program2->program, program1->used) == 0;
+  প্রত্যাগম memcmp (program1->program, program2->program, program1->used) == 0;
 }

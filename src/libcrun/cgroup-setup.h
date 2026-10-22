@@ -18,10 +18,10 @@
 #ifndef CGROUP_SETUP_H
 #define CGROUP_SETUP_H
 
-#include "container.h"
-#include "utils.h"
+#অন্তর্ভাব "container.h"
+#অন্তর্ভাব "utils.h"
 
-int enter_cgroup (int cgroup_mode, pid_t pid, pid_t init_pid, const char *path,
+পূর্ণাঙ্ক enter_cgroup (পূর্ণাঙ্ক cgroup_mode, pid_t pid, pid_t init_pid, ধ্রুব বর্ণ *path,
                   bool create_if_missing, libcrun_error_t *err);
 
 #endif

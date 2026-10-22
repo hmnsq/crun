@@ -2,7 +2,7 @@
 /* Command-line: gperf --lookup-function-name libcrun_mount_flag_in_word_set -m 100 -tCEG -S1 src/libcrun/mount_flags.perf  */
 /* Computed positions: -k'1-4' */
 
-#if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
+#যদি !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
       && ('%' == 37) && ('&' == 38) && ('\'' == 39) && ('(' == 40) \
       && (')' == 41) && ('*' == 42) && ('+' == 43) && (',' == 44) \
       && ('-' == 45) && ('.' == 46) && ('/' == 47) && ('0' == 48) \
@@ -33,41 +33,41 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include <stddef.h>
-#include <stdlib.h>
+#অন্তর্ভাব <config.h>
+#অন্তর্ভাব <stddef.h>
+#অন্তর্ভাব <stdlib.h>
 
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/mount.h>
+#অন্তর্ভাব <fcntl.h>
+#অন্তর্ভাব <unistd.h>
+#অন্তর্ভাব <sys/mount.h>
 
-#include "utils.h"
-#include "mount_flags.h"
+#অন্তর্ভাব "utils.h"
+#অন্তর্ভাব "mount_flags.h"
 
 #line 34 "src/libcrun/mount_flags.perf"
-struct propagation_flags_s;
-enum
+সংরচনা propagation_flags_s;
+গণনা
   {
     TOTAL_KEYWORDS = 63,
     MIN_WORD_LENGTH = 2,
     MAX_WORD_LENGTH = 14,
-    MIN_HASH_VALUE = 2,
-    MAX_HASH_VALUE = 96
+    MIN_HASH_মান = 2,
+    MAX_HASH_মান = 96
   };
 
 /* maximum key range = 95, duplicates = 0 */
 
 #ifdef __GNUC__
 __inline
-#else
+#অন্যথা
 #ifdef __cplusplus
-inline
+অন্তঃস্থ
 #endif
 #endif
-static unsigned int
-hash (register const char *str, register size_t len)
+স্থির unsigned পূর্ণাঙ্ক
+hash (পঞ্জিকা ধ্রুব বর্ণ *str, পঞ্জিকা size_t len)
 {
-  static const unsigned char asso_values[] =
+  স্থির ধ্রুব unsigned বর্ণ asso_মানসমূহ[] =
     {
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
@@ -96,27 +96,27 @@ hash (register const char *str, register size_t len)
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
       97, 97, 97, 97, 97, 97
     };
-  register unsigned int hval = len;
+  পঞ্জিকা unsigned পূর্ণাঙ্ক hval = len;
 
-  switch (hval)
+  বিকল্প (hval)
     {
-      default:
-        hval += asso_values[(unsigned char)str[3]];
+      স্বভাব:
+        hval += asso_মানসমূহ[(unsigned বর্ণ)str[3]];
       /*FALLTHROUGH*/
-      case 3:
-        hval += asso_values[(unsigned char)str[2]];
+      পক্ষ 3:
+        hval += asso_মানসমূহ[(unsigned বর্ণ)str[2]];
       /*FALLTHROUGH*/
-      case 2:
-        hval += asso_values[(unsigned char)str[1]];
+      পক্ষ 2:
+        hval += asso_মানসমূহ[(unsigned বর্ণ)str[1]];
       /*FALLTHROUGH*/
-      case 1:
-        hval += asso_values[(unsigned char)str[0]];
-        break;
+      পক্ষ 1:
+        hval += asso_মানসমূহ[(unsigned বর্ণ)str[0]];
+        ভঙ্গ;
     }
-  return hval;
+  প্রত্যাগম hval;
 }
 
-static const struct propagation_flags_s wordlist[] =
+স্থির ধ্রুব সংরচনা propagation_flags_s wordlist[] =
   {
 #line 40 "src/libcrun/mount_flags.perf"
     {"rw", 1, MS_RDONLY, 0},
@@ -246,240 +246,240 @@ static const struct propagation_flags_s wordlist[] =
     {"copy-symlink", 0, 0, OPTION_COPY_SYMLINK}
   };
 
-const struct propagation_flags_s *
-libcrun_mount_flag_in_word_set (register const char *str, register size_t len)
+ধ্রুব সংরচনা propagation_flags_s *
+libcrun_mount_flag_in_word_set (পঞ্জিকা ধ্রুব বর্ণ *str, পঞ্জিকা size_t len)
 {
-  if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
+  যদি (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
-      register unsigned int key = hash (str, len);
+      পঞ্জিকা unsigned পূর্ণাঙ্ক চাবি = hash (str, len);
 
-      if (key <= MAX_HASH_VALUE && key >= MIN_HASH_VALUE)
+      যদি (চাবি <= MAX_HASH_মান && চাবি >= MIN_HASH_মান)
         {
-          register const struct propagation_flags_s *resword;
+          পঞ্জিকা ধ্রুব সংরচনা propagation_flags_s *resword;
 
-          switch (key - 2)
+          বিকল্প (চাবি - 2)
             {
-              case 0:
+              পক্ষ 0:
                 resword = &wordlist[0];
-                goto compare;
-              case 1:
+                গচ্ছ compare;
+              পক্ষ 1:
                 resword = &wordlist[1];
-                goto compare;
-              case 4:
+                গচ্ছ compare;
+              পক্ষ 4:
                 resword = &wordlist[2];
-                goto compare;
-              case 5:
+                গচ্ছ compare;
+              পক্ষ 5:
                 resword = &wordlist[3];
-                goto compare;
-              case 9:
+                গচ্ছ compare;
+              পক্ষ 9:
                 resword = &wordlist[4];
-                goto compare;
-              case 10:
+                গচ্ছ compare;
+              পক্ষ 10:
                 resword = &wordlist[5];
-                goto compare;
-              case 11:
+                গচ্ছ compare;
+              পক্ষ 11:
                 resword = &wordlist[6];
-                goto compare;
-              case 13:
+                গচ্ছ compare;
+              পক্ষ 13:
                 resword = &wordlist[7];
-                goto compare;
-              case 15:
+                গচ্ছ compare;
+              পক্ষ 15:
                 resword = &wordlist[8];
-                goto compare;
-              case 16:
+                গচ্ছ compare;
+              পক্ষ 16:
                 resword = &wordlist[9];
-                goto compare;
-              case 17:
+                গচ্ছ compare;
+              পক্ষ 17:
                 resword = &wordlist[10];
-                goto compare;
-              case 18:
+                গচ্ছ compare;
+              পক্ষ 18:
                 resword = &wordlist[11];
-                goto compare;
-              case 19:
+                গচ্ছ compare;
+              পক্ষ 19:
                 resword = &wordlist[12];
-                goto compare;
-              case 20:
+                গচ্ছ compare;
+              পক্ষ 20:
                 resword = &wordlist[13];
-                goto compare;
-              case 21:
+                গচ্ছ compare;
+              পক্ষ 21:
                 resword = &wordlist[14];
-                goto compare;
-              case 22:
+                গচ্ছ compare;
+              পক্ষ 22:
                 resword = &wordlist[15];
-                goto compare;
-              case 23:
+                গচ্ছ compare;
+              পক্ষ 23:
                 resword = &wordlist[16];
-                goto compare;
-              case 24:
+                গচ্ছ compare;
+              পক্ষ 24:
                 resword = &wordlist[17];
-                goto compare;
-              case 25:
+                গচ্ছ compare;
+              পক্ষ 25:
                 resword = &wordlist[18];
-                goto compare;
-              case 26:
+                গচ্ছ compare;
+              পক্ষ 26:
                 resword = &wordlist[19];
-                goto compare;
-              case 28:
+                গচ্ছ compare;
+              পক্ষ 28:
                 resword = &wordlist[20];
-                goto compare;
-              case 29:
+                গচ্ছ compare;
+              পক্ষ 29:
                 resword = &wordlist[21];
-                goto compare;
-              case 30:
+                গচ্ছ compare;
+              পক্ষ 30:
                 resword = &wordlist[22];
-                goto compare;
-              case 31:
+                গচ্ছ compare;
+              পক্ষ 31:
                 resword = &wordlist[23];
-                goto compare;
-              case 32:
+                গচ্ছ compare;
+              পক্ষ 32:
                 resword = &wordlist[24];
-                goto compare;
-              case 33:
+                গচ্ছ compare;
+              পক্ষ 33:
                 resword = &wordlist[25];
-                goto compare;
-              case 34:
+                গচ্ছ compare;
+              পক্ষ 34:
                 resword = &wordlist[26];
-                goto compare;
-              case 35:
+                গচ্ছ compare;
+              পক্ষ 35:
                 resword = &wordlist[27];
-                goto compare;
-              case 36:
+                গচ্ছ compare;
+              পক্ষ 36:
                 resword = &wordlist[28];
-                goto compare;
-              case 37:
+                গচ্ছ compare;
+              পক্ষ 37:
                 resword = &wordlist[29];
-                goto compare;
-              case 38:
+                গচ্ছ compare;
+              পক্ষ 38:
                 resword = &wordlist[30];
-                goto compare;
-              case 39:
+                গচ্ছ compare;
+              পক্ষ 39:
                 resword = &wordlist[31];
-                goto compare;
-              case 40:
+                গচ্ছ compare;
+              পক্ষ 40:
                 resword = &wordlist[32];
-                goto compare;
-              case 41:
+                গচ্ছ compare;
+              পক্ষ 41:
                 resword = &wordlist[33];
-                goto compare;
-              case 42:
+                গচ্ছ compare;
+              পক্ষ 42:
                 resword = &wordlist[34];
-                goto compare;
-              case 43:
+                গচ্ছ compare;
+              পক্ষ 43:
                 resword = &wordlist[35];
-                goto compare;
-              case 44:
+                গচ্ছ compare;
+              পক্ষ 44:
                 resword = &wordlist[36];
-                goto compare;
-              case 45:
+                গচ্ছ compare;
+              পক্ষ 45:
                 resword = &wordlist[37];
-                goto compare;
-              case 46:
+                গচ্ছ compare;
+              পক্ষ 46:
                 resword = &wordlist[38];
-                goto compare;
-              case 47:
+                গচ্ছ compare;
+              পক্ষ 47:
                 resword = &wordlist[39];
-                goto compare;
-              case 48:
+                গচ্ছ compare;
+              পক্ষ 48:
                 resword = &wordlist[40];
-                goto compare;
-              case 49:
+                গচ্ছ compare;
+              পক্ষ 49:
                 resword = &wordlist[41];
-                goto compare;
-              case 50:
+                গচ্ছ compare;
+              পক্ষ 50:
                 resword = &wordlist[42];
-                goto compare;
-              case 51:
+                গচ্ছ compare;
+              পক্ষ 51:
                 resword = &wordlist[43];
-                goto compare;
-              case 52:
+                গচ্ছ compare;
+              পক্ষ 52:
                 resword = &wordlist[44];
-                goto compare;
-              case 53:
+                গচ্ছ compare;
+              পক্ষ 53:
                 resword = &wordlist[45];
-                goto compare;
-              case 54:
+                গচ্ছ compare;
+              পক্ষ 54:
                 resword = &wordlist[46];
-                goto compare;
-              case 55:
+                গচ্ছ compare;
+              পক্ষ 55:
                 resword = &wordlist[47];
-                goto compare;
-              case 56:
+                গচ্ছ compare;
+              পক্ষ 56:
                 resword = &wordlist[48];
-                goto compare;
-              case 57:
+                গচ্ছ compare;
+              পক্ষ 57:
                 resword = &wordlist[49];
-                goto compare;
-              case 58:
+                গচ্ছ compare;
+              পক্ষ 58:
                 resword = &wordlist[50];
-                goto compare;
-              case 59:
+                গচ্ছ compare;
+              পক্ষ 59:
                 resword = &wordlist[51];
-                goto compare;
-              case 60:
+                গচ্ছ compare;
+              পক্ষ 60:
                 resword = &wordlist[52];
-                goto compare;
-              case 61:
+                গচ্ছ compare;
+              পক্ষ 61:
                 resword = &wordlist[53];
-                goto compare;
-              case 62:
+                গচ্ছ compare;
+              পক্ষ 62:
                 resword = &wordlist[54];
-                goto compare;
-              case 63:
+                গচ্ছ compare;
+              পক্ষ 63:
                 resword = &wordlist[55];
-                goto compare;
-              case 65:
+                গচ্ছ compare;
+              পক্ষ 65:
                 resword = &wordlist[56];
-                goto compare;
-              case 67:
+                গচ্ছ compare;
+              পক্ষ 67:
                 resword = &wordlist[57];
-                goto compare;
-              case 68:
+                গচ্ছ compare;
+              পক্ষ 68:
                 resword = &wordlist[58];
-                goto compare;
-              case 75:
+                গচ্ছ compare;
+              পক্ষ 75:
                 resword = &wordlist[59];
-                goto compare;
-              case 84:
+                গচ্ছ compare;
+              পক্ষ 84:
                 resword = &wordlist[60];
-                goto compare;
-              case 85:
+                গচ্ছ compare;
+              পক্ষ 85:
                 resword = &wordlist[61];
-                goto compare;
-              case 94:
+                গচ্ছ compare;
+              পক্ষ 94:
                 resword = &wordlist[62];
-                goto compare;
+                গচ্ছ compare;
             }
-          return 0;
+          প্রত্যাগম 0;
         compare:
           {
-            register const char *s = resword->name;
+            পঞ্জিকা ধ্রুব বর্ণ *s = resword->name;
 
-            if (*str == *s && !strcmp (str + 1, s + 1))
-              return resword;
+            যদি (*str == *s && !strcmp (str + 1, s + 1))
+              প্রত্যাগম resword;
           }
         }
     }
-  return 0;
+  প্রত্যাগম 0;
 }
 #line 99 "src/libcrun/mount_flags.perf"
 
 
-const struct propagation_flags_s *
-libcrun_str2mount_flags (const char *name)
+ধ্রুব সংরচনা propagation_flags_s *
+libcrun_str2mount_flags (ধ্রুব বর্ণ *name)
 {
-  return libcrun_mount_flag_in_word_set (name, strlen (name));
+  প্রত্যাগম libcrun_mount_flag_in_word_set (name, strlen (name));
 }
 
-const struct propagation_flags_s *
-get_mount_flags_from_wordlist (void)
+ধ্রুব সংরচনা propagation_flags_s *
+get_mount_flags_from_wordlist (শূন্য)
 {
-  struct propagation_flags_s *flags;
+  সংরচনা propagation_flags_s *flags;
   size_t i;
-  size_t num_wordlist_flags = sizeof (wordlist) / sizeof (wordlist[0]);
+  size_t অঙ্ক_wordlist_flags = পরিমাণ (wordlist) / পরিমাণ (wordlist[0]);
 
-  flags = xmalloc0 ((sizeof (struct propagation_flags_s) + 1) * num_wordlist_flags);
-  for (i = 0; i < num_wordlist_flags; i++)
+  flags = xmalloc0 ((পরিমাণ (সংরচনা propagation_flags_s) + 1) * অঙ্ক_wordlist_flags);
+  প্রতি (i = 0; i < অঙ্ক_wordlist_flags; i++)
     flags[i].name = wordlist[i].name;
 
-  return flags;
+  প্রত্যাগম flags;
 }

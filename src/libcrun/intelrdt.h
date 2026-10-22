@@ -19,17 +19,17 @@
 #ifndef INTEL_RDT_H
 #define INTEL_RDT_H
 
-#include <config.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include "error.h"
+#অন্তর্ভাব <config.h>
+#অন্তর্ভাব <stdio.h>
+#অন্তর্ভাব <stdbool.h>
+#অন্তর্ভাব "error.h"
 
-int resctl_create (const char *name, bool explicit_clos_id, bool *created, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err);
-int resctl_move_task_to (const char *name, const char *monitoring_name, pid_t pid, libcrun_error_t *err);
-int resctl_update (const char *name, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err);
-int resctl_destroy (const char *name, libcrun_error_t *err);
+পূর্ণাঙ্ক resctl_create (ধ্রুব বর্ণ *name, bool explicit_clos_id, bool *created, ধ্রুব বর্ণ *l3_cache_schema, ধ্রুব বর্ণ *mem_bw_schema, বর্ণ *ধ্রুব *schemata, libcrun_error_t *err);
+পূর্ণাঙ্ক resctl_move_task_to (ধ্রুব বর্ণ *name, ধ্রুব বর্ণ *monitoring_name, pid_t pid, libcrun_error_t *err);
+পূর্ণাঙ্ক resctl_update (ধ্রুব বর্ণ *name, ধ্রুব বর্ণ *l3_cache_schema, ধ্রুব বর্ণ *mem_bw_schema, বর্ণ *ধ্রুব *schemata, libcrun_error_t *err);
+পূর্ণাঙ্ক resctl_destroy (ধ্রুব বর্ণ *name, libcrun_error_t *err);
 
-int resctl_destroy_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err);
-int resctl_create_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err);
+পূর্ণাঙ্ক resctl_destroy_monitoring_group (ধ্রুব বর্ণ *resctrl_group_name, ধ্রুব বর্ণ *container_id, libcrun_error_t *err);
+পূর্ণাঙ্ক resctl_create_monitoring_group (ধ্রুব বর্ণ *resctrl_group_name, ধ্রুব বর্ণ *container_id, libcrun_error_t *err);
 
 #endif

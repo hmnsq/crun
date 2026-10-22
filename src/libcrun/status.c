@@ -17,247 +17,247 @@
  */
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "status.h"
-#include "utils.h"
-#include "json_gen_utils.h"
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <json-c/json.h>
-#include <ocispec/json_common.h>
-#include <sys/mount.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <dirent.h>
-#include <signal.h>
-#include <limits.h>
+#অন্তর্ভাব <config.h>
+#অন্তর্ভাব "status.h"
+#অন্তর্ভাব "utils.h"
+#অন্তর্ভাব "json_gen_utils.h"
+#অন্তর্ভাব <stdlib.h>
+#অন্তর্ভাব <unistd.h>
+#অন্তর্ভাব <fcntl.h>
+#অন্তর্ভাব <json-c/json.h>
+#অন্তর্ভাব <ocispec/json_common.h>
+#অন্তর্ভাব <sys/mount.h>
+#অন্তর্ভাব <sys/stat.h>
+#অন্তর্ভাব <sys/types.h>
+#অন্তর্ভাব <dirent.h>
+#অন্তর্ভাব <signal.h>
+#অন্তর্ভাব <limits.h>
 
 #define STEAL_POINTER(x, y) \
-  do                        \
+  কুরু                        \
     {                       \
       *x = y;               \
-      y = NULL;             \
-  } while (0)
+      y = রিক্ত;             \
+  } যাবত্ (0)
 
-struct pid_stat
+সংরচনা pid_stat
 {
-  char state;
-  long num_threads;
+  বর্ণ state;
+  long অঙ্ক_threads;
   unsigned long long starttime;
 };
 
-static inline bool
-is_valid_id_char (char c)
+স্থির অন্তঃস্থ bool
+is_valid_id_char (বর্ণ c)
 {
-  if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'))
-    return true;
-  return c == '_' || c == '+' || c == '.' || c == '-';
+  যদি ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'))
+    প্রত্যাগম true;
+  প্রত্যাগম c == '_' || c == '+' || c == '.' || c == '-';
 }
 
-static int
-validate_id (const char *id, libcrun_error_t *err)
+স্থির পূর্ণাঙ্ক
+validate_id (ধ্রুব বর্ণ *id, libcrun_error_t *err)
 {
-  if (id == NULL)
-    return 0;
+  যদি (id == রিক্ত)
+    প্রত্যাগম 0;
 
-  if (id[0] == '\0')
-    return crun_make_error (err, 0, "empty container ID");
+  যদি (id[0] == '\0')
+    প্রত্যাগম crun_make_error (err, 0, "empty container ID");
 
-  if (id[0] == '.')
-    return crun_make_error (err, 0, "invalid container ID `%s`", id);
+  যদি (id[0] == '.')
+    প্রত্যাগম crun_make_error (err, 0, "invalid container ID `%s`", id);
 
-  for (size_t i = 0; id[i]; i++)
+  প্রতি (size_t i = 0; id[i]; i++)
     {
-      if (! is_valid_id_char (id[i]))
-        return crun_make_error (err, 0, "invalid character `%c` in the container ID `%s`", id[i], id);
+      যদি (! is_valid_id_char (id[i]))
+        প্রত্যাগম crun_make_error (err, 0, "invalid character `%c` in the container ID `%s`", id[i], id);
     }
 
-  return 0;
+  প্রত্যাগম 0;
 }
 
-int
-get_run_directory (char **out, const char *state_root, libcrun_error_t *err)
+পূর্ণাঙ্ক
+get_run_directory (বর্ণ **out, ধ্রুব বর্ণ *state_মূল, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_free char *root = NULL;
+  পূর্ণাঙ্ক ret;
+  cleanup_free বর্ণ *মূল = রিক্ত;
 
-  if (state_root)
-    root = xstrdup (state_root);
-  if (root == NULL)
+  যদি (state_মূল)
+    মূল = xstrdup (state_মূল);
+  যদি (মূল == রিক্ত)
     {
-      const char *runtime_dir = getenv ("XDG_RUNTIME_DIR");
-      if (runtime_dir && runtime_dir[0] != '\0')
+      ধ্রুব বর্ণ *runtime_dir = getenv ("XDG_RUNTIME_DIR");
+      যদি (runtime_dir && runtime_dir[0] != '\0')
         {
-          ret = append_paths (&root, err, runtime_dir, "crun", NULL);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = append_paths (&মূল, err, runtime_dir, "crun", রিক্ত);
+          যদি (UNLIKELY (ret < 0))
+            প্রত্যাগম ret;
         }
     }
-  if (root == NULL)
-    root = xstrdup ("/run/crun");
+  যদি (মূল == রিক্ত)
+    মূল = xstrdup ("/run/crun");
 
-  ret = crun_ensure_directory (root, 0700, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = crun_ensure_directory (মূল, 0700, false, err);
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
-  STEAL_POINTER (out, root);
+  STEAL_POINTER (out, মূল);
 
-  return 0;
+  প্রত্যাগম 0;
 }
 
-int
-get_shared_empty_directory_path (char **out, const char *state_root, libcrun_error_t *err)
+পূর্ণাঙ্ক
+get_shared_empty_directory_path (বর্ণ **out, ধ্রুব বর্ণ *state_মূল, libcrun_error_t *err)
 {
-  cleanup_free char *run_dir = NULL;
-  int ret;
+  cleanup_free বর্ণ *run_dir = রিক্ত;
+  পূর্ণাঙ্ক ret;
 
-  ret = get_run_directory (&run_dir, state_root, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_run_directory (&run_dir, state_মূল, err);
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
-  ret = append_paths (out, err, run_dir, ".empty-directory", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (out, err, run_dir, ".empty-directory", রিক্ত);
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
   /* Ensure the empty directory exists */
   ret = crun_ensure_directory (*out, 0555, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
-  return 0;
+  প্রত্যাগম 0;
 }
 
-int
-libcrun_get_state_directory (char **out, const char *state_root, const char *id, libcrun_error_t *err)
+পূর্ণাঙ্ক
+libcrun_get_state_directory (বর্ণ **out, ধ্রুব বর্ণ *state_মূল, ধ্রুব বর্ণ *id, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_free char *path = NULL;
-  cleanup_free char *root = NULL;
+  পূর্ণাঙ্ক ret;
+  cleanup_free বর্ণ *path = রিক্ত;
+  cleanup_free বর্ণ *মূল = রিক্ত;
 
   ret = validate_id (id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
-  ret = get_run_directory (&root, state_root, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_run_directory (&মূল, state_মূল, err);
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
-  ret = append_paths (&path, err, root, id, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&path, err, মূল, id, রিক্ত);
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
   STEAL_POINTER (out, path);
 
-  return 0;
+  প্রত্যাগম 0;
 }
 
-static int
-get_state_directory_status_file (char **out, const char *state_root, const char *id, libcrun_error_t *err)
+স্থির পূর্ণাঙ্ক
+get_state_directory_status_file (বর্ণ **out, ধ্রুব বর্ণ *state_মূল, ধ্রুব বর্ণ *id, libcrun_error_t *err)
 {
-  cleanup_free char *dir = NULL;
-  int ret;
+  cleanup_free বর্ণ *dir = রিক্ত;
+  পূর্ণাঙ্ক ret;
 
-  ret = libcrun_get_state_directory (&dir, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_get_state_directory (&dir, state_মূল, id, err);
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
-  return append_paths (out, err, dir, "status", NULL);
+  প্রত্যাগম append_paths (out, err, dir, "status", রিক্ত);
 }
 
-static int
-read_pid_stat (pid_t pid, struct pid_stat *st, libcrun_error_t *err)
+স্থির পূর্ণাঙ্ক
+read_pid_stat (pid_t pid, সংরচনা pid_stat *st, libcrun_error_t *err)
 {
-  cleanup_free char *buffer = NULL;
-  cleanup_close int fd = -1;
-  char pid_stat_file[64];
-  char *it, *s;
-  int i, ret;
+  cleanup_free বর্ণ *buffer = রিক্ত;
+  cleanup_close পূর্ণাঙ্ক fd = -1;
+  বর্ণ pid_stat_file[64];
+  বর্ণ *it, *s;
+  পূর্ণাঙ্ক i, ret;
 
-  ret = snprintf (pid_stat_file, sizeof (pid_stat_file), "/proc/%d/stat", pid);
-  if (UNLIKELY (ret >= (int) sizeof (pid_stat_file)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  ret = snprintf (pid_stat_file, পরিমাণ (pid_stat_file), "/proc/%d/stat", pid);
+  যদি (UNLIKELY (ret >= (পূর্ণাঙ্ক) পরিমাণ (pid_stat_file)))
+    প্রত্যাগম crun_make_error (err, 0, "internal error: static buffer too small");
 
   fd = open (pid_stat_file, O_RDONLY | O_CLOEXEC);
-  if (fd < 0)
+  যদি (fd < 0)
     {
       /* The process already exited.  */
-      if (errno == ENOENT || errno == ESRCH)
+      যদি (errno == ENOENT || errno == ESRCH)
         {
-          memset (st, 0, sizeof (*st));
-          return 0;
+          memset (st, 0, পরিমাণ (*st));
+          প্রত্যাগম 0;
         }
-      return crun_make_error (err, errno, "open state file `%s`", pid_stat_file);
+      প্রত্যাগম crun_make_error (err, errno, "open state file `%s`", pid_stat_file);
     }
 
-  ret = read_all_fd (fd, pid_stat_file, &buffer, NULL, err);
-  if (ret < 0)
+  ret = read_all_fd (fd, pid_stat_file, &buffer, রিক্ত, err);
+  যদি (ret < 0)
     {
       st->starttime = 0;
-      st->num_threads = 0;
+      st->অঙ্ক_threads = 0;
       st->state = 'X';
       /* The process already exited.  */
       libcrun_error_release (err);
-      return 0;
+      প্রত্যাগম 0;
     }
 
-  s = NULL;
+  s = রিক্ত;
 
   /* Skip the first two arguments.  */
-  for (it = buffer; it; it = strchr (it + 1, ')'))
+  প্রতি (it = buffer; it; it = strchr (it + 1, ')'))
     s = it + 1;
 
-  if (s)
-    while (*s == ' ')
+  যদি (s)
+    যাবত্ (*s == ' ')
       s++;
 
-  if (s == NULL || *s == '\0')
-    return crun_make_error (err, 0, "could not read process state");
+  যদি (s == রিক্ত || *s == '\0')
+    প্রত্যাগম crun_make_error (err, 0, "could not read process state");
 
   st->state = *s;
 
   /* Seek to the starttime argument.  */
-  for (it = s + 1, i = 0; i < 19; i++)
+  প্রতি (it = s + 1, i = 0; i < 19; i++)
     {
       it = strchr (it, ' ');
-      if (it == NULL)
-        return crun_make_error (err, 0, "could not read process start time");
+      যদি (it == রিক্ত)
+        প্রত্যাগম crun_make_error (err, 0, "could not read process start time");
       it++;
 
       /* num_threads is the second argument before starttime.  */
-      if (i == 16)
-        st->num_threads = strtol (it, NULL, 10);
+      যদি (i == 16)
+        st->অঙ্ক_threads = strtol (it, রিক্ত, 10);
     }
 
   errno = 0;
-  st->starttime = strtoull (it, NULL, 10);
-  if (errno != 0)
-    return crun_make_error (err, errno, "parse process start time");
+  st->starttime = strtoull (it, রিক্ত, 10);
+  যদি (errno != 0)
+    প্রত্যাগম crun_make_error (err, errno, "parse process start time");
 
-  return 0;
+  প্রত্যাগম 0;
 }
 
-int
-libcrun_write_container_status (const char *state_root, const char *id, libcrun_container_status_t *status,
+পূর্ণাঙ্ক
+libcrun_write_container_status (ধ্রুব বর্ণ *state_মূল, ধ্রুব বর্ণ *id, libcrun_container_status_t *status,
                                 libcrun_error_t *err)
 {
-  int r, ret;
-  cleanup_free char *file_tmp = NULL;
-  cleanup_free char *file = NULL;
+  পূর্ণাঙ্ক r, ret;
+  cleanup_free বর্ণ *file_tmp = রিক্ত;
+  cleanup_free বর্ণ *file = রিক্ত;
   size_t len;
-  cleanup_close int fd_write = -1;
-  const char *buf = NULL;
-  struct pid_stat st;
-  const char *tmp;
-  cleanup_json_gen json_gen_ctx *gen = NULL;
+  cleanup_close পূর্ণাঙ্ক fd_write = -1;
+  ধ্রুব বর্ণ *buf = রিক্ত;
+  সংরচনা pid_stat st;
+  ধ্রুব বর্ণ *tmp;
+  cleanup_json_gen json_gen_ctx *gen = রিক্ত;
 
-  ret = get_state_directory_status_file (&file, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_state_directory_status_file (&file, state_মূল, id, err);
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
   ret = read_pid_stat (status->pid, &st, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
   /* read_pid_stat returns a start time of 0 when the process already exited,
      e.g. a restored container that terminated before the status is written.
@@ -269,57 +269,57 @@ libcrun_write_container_status (const char *state_root, const char *id, libcrun_
 
   xasprintf (&file_tmp, "%s.tmp", file);
   fd_write = open (file_tmp, O_CREAT | O_WRONLY | O_CLOEXEC, 0700);
-  if (UNLIKELY (fd_write < 0))
-    return crun_make_error (err, errno, "cannot open status file");
+  যদি (UNLIKELY (fd_write < 0))
+    প্রত্যাগম crun_make_error (err, errno, "cannot open status file");
 
-  if (! json_gen_init (&gen, NULL))
-    return crun_make_error (err, 0, "json_gen_init failed");
+  যদি (! json_gen_init (&gen, রিক্ত))
+    প্রত্যাগম crun_make_error (err, 0, "json_gen_init failed");
 
   json_gen_config (gen, json_gen_beautify, 1);
 
   GEN_OR_FAIL (json_gen_map_open (gen));
 
-  GEN_KEY (gen, "pid");
+  GEN_চাবি (gen, "pid");
   GEN_OR_FAIL (map_int (gen, status->pid));
 
-  GEN_KEY (gen, "process-start-time");
+  GEN_চাবি (gen, "process-start-time");
   GEN_OR_FAIL (map_uint (gen, status->process_start_time));
 
-  GEN_KEY (gen, "cgroup-path");
+  GEN_চাবি (gen, "cgroup-path");
   tmp = status->cgroup_path ? status->cgroup_path : "";
   GEN_STR (gen, tmp);
 
-  GEN_KEY (gen, "scope");
+  GEN_চাবি (gen, "scope");
   tmp = status->scope ? status->scope : "";
   GEN_STR (gen, tmp);
 
-  GEN_KEY (gen, "rootfs");
+  GEN_চাবি (gen, "rootfs");
   GEN_STR (gen, status->rootfs);
 
-  GEN_KEY (gen, "systemd-cgroup");
+  GEN_চাবি (gen, "systemd-cgroup");
   GEN_OR_FAIL (json_gen_bool (gen, status->systemd_cgroup));
 
-  GEN_KEY (gen, "bundle");
+  GEN_চাবি (gen, "bundle");
   GEN_STR (gen, status->bundle);
 
-  GEN_KEY (gen, "created");
+  GEN_চাবি (gen, "created");
   GEN_STR (gen, status->created);
 
-  if (status->owner)
+  যদি (status->owner)
     {
-      GEN_KEY (gen, "owner");
+      GEN_চাবি (gen, "owner");
       GEN_STR (gen, status->owner);
     }
 
-  GEN_KEY (gen, "detached");
+  GEN_চাবি (gen, "detached");
   GEN_OR_FAIL (json_gen_bool (gen, status->detached));
 
-  GEN_KEY (gen, "no-new-keyring");
+  GEN_চাবি (gen, "no-new-keyring");
   GEN_OR_FAIL (json_gen_bool (gen, status->no_new_keyring));
 
-  if (status->external_descriptors)
+  যদি (status->external_descriptors)
     {
-      GEN_KEY (gen, "external_descriptors");
+      GEN_চাবি (gen, "external_descriptors");
       GEN_STR (gen, status->external_descriptors);
     }
 
@@ -328,426 +328,426 @@ libcrun_write_container_status (const char *state_root, const char *id, libcrun_
   GEN_OR_FAIL (json_gen_get_buf (gen, &buf, &len));
 
   ret = safe_write (fd_write, "status file", buf, len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
   close_and_reset (&fd_write);
 
-  if (UNLIKELY (rename (file_tmp, file) < 0))
-    return crun_make_error (err, errno, "cannot rename status file");
+  যদি (UNLIKELY (rename (file_tmp, file) < 0))
+    প্রত্যাগম crun_make_error (err, errno, "cannot rename status file");
 
-  return 0;
+  প্রত্যাগম 0;
 
 gen_error:
-  return json_gen_error_to_crun_error (r, err);
+  প্রত্যাগম json_gen_error_to_crun_error (r, err);
 }
 
-int
-libcrun_read_container_status (libcrun_container_status_t *status, const char *state_root, const char *id,
+পূর্ণাঙ্ক
+libcrun_read_container_status (libcrun_container_status_t *status, ধ্রুব বর্ণ *state_মূল, ধ্রুব বর্ণ *id,
                                libcrun_error_t *err)
 {
-  cleanup_free char *buffer = NULL;
-  int ret;
-  cleanup_free char *file = NULL;
-  json_object *doc = NULL;
+  cleanup_free বর্ণ *buffer = রিক্ত;
+  পূর্ণাঙ্ক ret;
+  cleanup_free বর্ণ *file = রিক্ত;
+  json_object *doc = রিক্ত;
   json_object *tmp;
-  const char *val;
+  ধ্রুব বর্ণ *val;
 
-  ret = get_state_directory_status_file (&file, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_state_directory_status_file (&file, state_মূল, id, err);
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
-  ret = read_all_file (file, &buffer, NULL, err);
-  if (UNLIKELY (ret < 0))
+  ret = read_all_file (file, &buffer, রিক্ত, err);
+  যদি (UNLIKELY (ret < 0))
     {
 
-      if (crun_error_get_errno (err) == ENOENT)
+      যদি (crun_error_get_errno (err) == ENOENT)
         {
-          cleanup_free char *statedir = NULL;
+          cleanup_free বর্ণ *statedir = রিক্ত;
           libcrun_error_t tmp_err;
-          int tmp_ret;
+          পূর্ণাঙ্ক tmp_ret;
 
-          tmp_ret = libcrun_get_state_directory (&statedir, state_root, id, &tmp_err);
-          if (UNLIKELY (tmp_ret < 0))
+          tmp_ret = libcrun_get_state_directory (&statedir, state_মূল, id, &tmp_err);
+          যদি (UNLIKELY (tmp_ret < 0))
             crun_error_release (&tmp_err);
-          else
+          অন্যথা
             {
               tmp_ret = crun_path_exists (statedir, &tmp_err);
-              if (UNLIKELY (tmp_ret < 0))
+              যদি (UNLIKELY (tmp_ret < 0))
                 crun_error_release (&tmp_err);
-              else if (tmp_ret == 0)
-                return crun_error_wrap (err, "container `%s` does not exist", id);
+              অন্যথা যদি (tmp_ret == 0)
+                প্রত্যাগম crun_error_wrap (err, "container `%s` does not exist", id);
             }
         }
-      return ret;
+      প্রত্যাগম ret;
     }
 
-  ret = parse_json_file (&doc, buffer, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = parse_json_file (&doc, buffer, রিক্ত, err);
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
   {
     tmp = json_object_object_get (doc, "pid");
-    if (UNLIKELY (tmp == NULL))
+    যদি (UNLIKELY (tmp == রিক্ত))
       {
         ret = crun_make_error (err, 0, "`pid` missing in `%s`", file);
-        goto exit;
+        গচ্ছ exit;
       }
-    if (UNLIKELY (! json_object_is_type (tmp, json_type_int)))
+    যদি (UNLIKELY (! json_object_is_type (tmp, json_type_int)))
       {
         ret = crun_make_error (err, 0, "`pid` is not a numeric value in `%s`", file);
-        goto exit;
+        গচ্ছ exit;
       }
     status->pid = (pid_t) json_object_get_int64 (tmp);
   }
   {
     tmp = json_object_object_get (doc, "process-start-time");
-    if (UNLIKELY (tmp == NULL))
+    যদি (UNLIKELY (tmp == রিক্ত))
       status->process_start_time = 0; /* backwards compatibility */
-    else if (UNLIKELY (! json_object_is_type (tmp, json_type_int)))
+    অন্যথা যদি (UNLIKELY (! json_object_is_type (tmp, json_type_int)))
       {
         ret = crun_make_error (err, 0, "`process-start-time` is not a numeric value in `%s`", file);
-        goto exit;
+        গচ্ছ exit;
       }
-    else
+    অন্যথা
       status->process_start_time = json_object_get_uint64 (tmp);
   }
   {
     tmp = json_object_object_get (doc, "cgroup-path");
-    if (UNLIKELY (tmp == NULL))
+    যদি (UNLIKELY (tmp == রিক্ত))
       {
         ret = crun_make_error (err, 0, "`cgroup-path` missing in `%s`", file);
-        goto exit;
+        গচ্ছ exit;
       }
     val = json_object_get_string (tmp);
-    if (UNLIKELY (val == NULL))
+    যদি (UNLIKELY (val == রিক্ত))
       {
         ret = crun_make_error (err, 0, "`cgroup-path` is not a string in `%s`", file);
-        goto exit;
+        গচ্ছ exit;
       }
     status->cgroup_path = xstrdup (val);
   }
   {
     tmp = json_object_object_get (doc, "scope");
-    val = tmp ? json_object_get_string (tmp) : NULL;
-    status->scope = val ? xstrdup (val) : NULL;
+    val = tmp ? json_object_get_string (tmp) : রিক্ত;
+    status->scope = val ? xstrdup (val) : রিক্ত;
   }
   {
     tmp = json_object_object_get (doc, "rootfs");
-    if (UNLIKELY (tmp == NULL))
+    যদি (UNLIKELY (tmp == রিক্ত))
       {
         ret = crun_make_error (err, 0, "`rootfs` missing in `%s`", file);
-        goto exit;
+        গচ্ছ exit;
       }
     val = json_object_get_string (tmp);
-    if (UNLIKELY (val == NULL))
+    যদি (UNLIKELY (val == রিক্ত))
       {
         ret = crun_make_error (err, 0, "`rootfs` is not a string in `%s`", file);
-        goto exit;
+        গচ্ছ exit;
       }
     status->rootfs = xstrdup (val);
   }
   {
     tmp = json_object_object_get (doc, "systemd-cgroup");
-    status->systemd_cgroup = tmp != NULL && json_object_get_boolean (tmp);
+    status->systemd_cgroup = tmp != রিক্ত && json_object_get_boolean (tmp);
   }
   {
     tmp = json_object_object_get (doc, "bundle");
-    if (UNLIKELY (tmp == NULL))
+    যদি (UNLIKELY (tmp == রিক্ত))
       {
         ret = crun_make_error (err, 0, "`bundle` missing in `%s`", file);
-        goto exit;
+        গচ্ছ exit;
       }
     val = json_object_get_string (tmp);
-    if (UNLIKELY (val == NULL))
+    যদি (UNLIKELY (val == রিক্ত))
       {
         ret = crun_make_error (err, 0, "`bundle` is not a string in `%s`", file);
-        goto exit;
+        গচ্ছ exit;
       }
     status->bundle = xstrdup (val);
   }
   {
     tmp = json_object_object_get (doc, "created");
-    if (UNLIKELY (tmp == NULL))
+    যদি (UNLIKELY (tmp == রিক্ত))
       {
         ret = crun_make_error (err, 0, "`created` missing in `%s`", file);
-        goto exit;
+        গচ্ছ exit;
       }
     val = json_object_get_string (tmp);
-    if (UNLIKELY (val == NULL))
+    যদি (UNLIKELY (val == রিক্ত))
       {
         ret = crun_make_error (err, 0, "`created` is not a string in `%s`", file);
-        goto exit;
+        গচ্ছ exit;
       }
     status->created = xstrdup (val);
   }
   {
     tmp = json_object_object_get (doc, "owner");
-    val = tmp ? json_object_get_string (tmp) : NULL;
-    status->owner = val ? xstrdup (val) : NULL;
+    val = tmp ? json_object_get_string (tmp) : রিক্ত;
+    status->owner = val ? xstrdup (val) : রিক্ত;
   }
   {
     tmp = json_object_object_get (doc, "detached");
-    status->detached = tmp != NULL && json_object_get_boolean (tmp);
+    status->detached = tmp != রিক্ত && json_object_get_boolean (tmp);
   }
   {
     tmp = json_object_object_get (doc, "no-new-keyring");
-    status->no_new_keyring = tmp != NULL && json_object_get_boolean (tmp);
+    status->no_new_keyring = tmp != রিক্ত && json_object_get_boolean (tmp);
   }
   {
     tmp = json_object_object_get (doc, "external_descriptors");
-    val = tmp ? json_object_get_string (tmp) : NULL;
-    status->external_descriptors = val ? xstrdup (val) : NULL;
+    val = tmp ? json_object_get_string (tmp) : রিক্ত;
+    status->external_descriptors = val ? xstrdup (val) : রিক্ত;
   }
   ret = 0;
 
 exit:
   json_object_put (doc);
-  return ret;
+  প্রত্যাগম ret;
 }
 
-int
-libcrun_status_check_directories (const char *state_root, const char *id, libcrun_error_t *err)
+পূর্ণাঙ্ক
+libcrun_status_check_directories (ধ্রুব বর্ণ *state_মূল, ধ্রুব বর্ণ *id, libcrun_error_t *err)
 {
-  cleanup_free char *dir = NULL;
-  int ret;
+  cleanup_free বর্ণ *dir = রিক্ত;
+  পূর্ণাঙ্ক ret;
 
-  ret = libcrun_get_state_directory (&dir, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_get_state_directory (&dir, state_মূল, id, err);
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
   ret = crun_path_exists (dir, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
-  if (ret)
-    return crun_make_error (err, 0, "container `%s` already exists", id);
+  যদি (ret)
+    প্রত্যাগম crun_make_error (err, 0, "container `%s` already exists", id);
 
-  if (UNLIKELY (mkdir (dir, 0700) < 0))
-    return crun_make_error (err, 0, "cannot create state directory for `%s`", id);
+  যদি (UNLIKELY (mkdir (dir, 0700) < 0))
+    প্রত্যাগম crun_make_error (err, 0, "cannot create state directory for `%s`", id);
 
-  return 0;
+  প্রত্যাগম 0;
 }
 
 /* Upper bound on the directories visited while removing a tree, so that an
    attacker constantly creating new ones cannot keep the walk going forever.  */
 #define RMDIRFD_MAX_MOVES (1U << 20)
 
-static int
-rmdirfd_move_to (DIR **d, const char *name, libcrun_error_t *err)
+স্থির পূর্ণাঙ্ক
+rmdirfd_move_to (DIR **d, ধ্রুব বর্ণ *name, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
+  cleanup_close পূর্ণাঙ্ক fd = -1;
   DIR *new_d;
 
   fd = openat (dirfd (*d), name, O_DIRECTORY | O_RDONLY | O_NOFOLLOW | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "cannot open directory `%s`", name);
+  যদি (UNLIKELY (fd < 0))
+    প্রত্যাগম crun_make_error (err, errno, "cannot open directory `%s`", name);
 
   new_d = fdopendir (fd);
-  if (UNLIKELY (new_d == NULL))
-    return crun_make_error (err, errno, "cannot open directory `%s`", name);
+  যদি (UNLIKELY (new_d == রিক্ত))
+    প্রত্যাগম crun_make_error (err, errno, "cannot open directory `%s`", name);
 
   fd = -1;
 
   closedir (*d);
   *d = new_d;
-  return 0;
+  প্রত্যাগম 0;
 }
 
-static int
-rmdirfd (const char *namedir, int fd, libcrun_error_t *err)
+স্থির পূর্ণাঙ্ক
+rmdirfd (ধ্রুব বর্ণ *namedir, পূর্ণাঙ্ক fd, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_dir DIR *d = NULL;
-  struct dirent *de;
-  struct stat root_st;
-  bool is_root = true;
-  unsigned int budget = RMDIRFD_MAX_MOVES;
-  __attribute__ ((unused)) cleanup_close int fd_cleanup = fd;
+  পূর্ণাঙ্ক ret;
+  cleanup_dir DIR *d = রিক্ত;
+  সংরচনা dirent *de;
+  সংরচনা stat মূল_st;
+  bool is_মূল = true;
+  unsigned পূর্ণাঙ্ক budget = RMDIRFD_MAX_MOVES;
+  __attribute__ ((unused)) cleanup_close পূর্ণাঙ্ক fd_cleanup = fd;
 
-  ret = fstat (fd, &root_st);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "stat `%s`", namedir);
+  ret = fstat (fd, &মূল_st);
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম crun_make_error (err, errno, "stat `%s`", namedir);
 
   d = fdopendir (fd);
-  if (d == NULL)
-    return crun_make_error (err, errno, "cannot open directory `%s`", namedir);
+  যদি (d == রিক্ত)
+    প্রত্যাগম crun_make_error (err, errno, "cannot open directory `%s`", namedir);
 
   /* Now D owns FD. */
   fd_cleanup = -1;
 
-  for (;;)
+  প্রতি (;;)
     {
       errno = 0;
       de = readdir (d);
-      if (de == NULL)
+      যদি (de == রিক্ত)
         {
-          struct stat st;
+          সংরচনা stat st;
 
-          if (UNLIKELY (errno != 0))
-            return crun_make_error (err, errno, "cannot read directory");
+          যদি (UNLIKELY (errno != 0))
+            প্রত্যাগম crun_make_error (err, errno, "cannot read directory");
 
-          if (is_root)
-            break;
+          যদি (is_মূল)
+            ভঙ্গ;
 
-          if (UNLIKELY (--budget == 0))
-            return crun_make_error (err, ELOOP, "the directory tree keeps changing while removing `%s`", namedir);
+          যদি (UNLIKELY (--budget == 0))
+            প্রত্যাগম crun_make_error (err, ELOOP, "the directory tree keeps changing while removing `%s`", namedir);
 
           ret = rmdirfd_move_to (&d, "..", err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          যদি (UNLIKELY (ret < 0))
+            প্রত্যাগম ret;
 
           ret = fstat (dirfd (d), &st);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "stat `..`");
+          যদি (UNLIKELY (ret < 0))
+            প্রত্যাগম crun_make_error (err, errno, "stat `..`");
 
-          is_root = st.st_dev == root_st.st_dev && st.st_ino == root_st.st_ino;
-          continue;
+          is_মূল = st.st_dev == মূল_st.st_dev && st.st_ino == মূল_st.st_ino;
+          অনুবর্ত;
         }
 
-      if ((strcmp (de->d_name, ".") == 0) || (strcmp (de->d_name, "..") == 0))
-        continue;
+      যদি ((strcmp (de->d_name, ".") == 0) || (strcmp (de->d_name, "..") == 0))
+        অনুবর্ত;
 
       /* Ignore errors here and keep deleting, the final unlinkat (AT_REMOVEDIR) will fail anyway.  */
       ret = unlinkat (dirfd (d), de->d_name, 0);
-      if (ret < 0)
+      যদি (ret < 0)
         {
         retry_unlink:
           ret = unlinkat (dirfd (d), de->d_name, AT_REMOVEDIR);
-          if (ret < 0 && errno == EBUSY)
+          যদি (ret < 0 && errno == EBUSY)
             {
-              cleanup_close int tfd = openat (dirfd (d), de->d_name, O_CLOEXEC | O_PATH | O_NOFOLLOW);
-              if (tfd >= 0)
+              cleanup_close পূর্ণাঙ্ক tfd = openat (dirfd (d), de->d_name, O_CLOEXEC | O_PATH | O_NOFOLLOW);
+              যদি (tfd >= 0)
                 {
                   proc_fd_path_t procpath;
 
                   get_proc_self_fd_path (procpath, tfd);
-                  if (umount2 (procpath, MNT_DETACH) == 0)
-                    goto retry_unlink;
+                  যদি (umount2 (procpath, MNT_DETACH) == 0)
+                    গচ্ছ retry_unlink;
                 }
-              if (! is_root)
-                return crun_make_error (err, EBUSY, "cannot rm directory `%s`", de->d_name);
+              যদি (! is_মূল)
+                প্রত্যাগম crun_make_error (err, EBUSY, "cannot rm directory `%s`", de->d_name);
             }
-          else if (ret < 0 && errno == ENOTEMPTY)
+          অন্যথা যদি (ret < 0 && errno == ENOTEMPTY)
             {
-              if (UNLIKELY (--budget == 0))
-                return crun_make_error (err, ELOOP, "the directory tree keeps changing while removing `%s`", namedir);
+              যদি (UNLIKELY (--budget == 0))
+                প্রত্যাগম crun_make_error (err, ELOOP, "the directory tree keeps changing while removing `%s`", namedir);
 
               ret = rmdirfd_move_to (&d, de->d_name, err);
-              if (UNLIKELY (ret < 0))
-                return ret;
+              যদি (UNLIKELY (ret < 0))
+                প্রত্যাগম ret;
 
-              is_root = false;
+              is_মূল = false;
             }
-          else if (ret < 0 && errno != ENOENT && ! is_root)
+          অন্যথা যদি (ret < 0 && errno != ENOENT && ! is_মূল)
             {
-              return crun_make_error (err, errno, "cannot rm `%s`", de->d_name);
+              প্রত্যাগম crun_make_error (err, errno, "cannot rm `%s`", de->d_name);
             }
         }
     }
 
-  return 0;
+  প্রত্যাগম 0;
 }
 
-int
-libcrun_container_delete_status (const char *state_root, const char *id, libcrun_error_t *err)
+পূর্ণাঙ্ক
+libcrun_container_delete_status (ধ্রুব বর্ণ *state_মূল, ধ্রুব বর্ণ *id, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_close int rundir_dfd = -1;
-  cleanup_close int dfd = -1;
-  cleanup_free char *dir = NULL;
+  পূর্ণাঙ্ক ret;
+  cleanup_close পূর্ণাঙ্ক rundir_dfd = -1;
+  cleanup_close পূর্ণাঙ্ক dfd = -1;
+  cleanup_free বর্ণ *dir = রিক্ত;
 
   ret = validate_id (id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
-  ret = get_run_directory (&dir, state_root, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_run_directory (&dir, state_মূল, err);
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
   rundir_dfd = TEMP_FAILURE_RETRY (open (dir, O_DIRECTORY | O_PATH | O_CLOEXEC));
-  if (UNLIKELY (rundir_dfd < 0))
-    return crun_make_error (err, errno, "cannot open run directory `%s`", dir);
+  যদি (UNLIKELY (rundir_dfd < 0))
+    প্রত্যাগম crun_make_error (err, errno, "cannot open run directory `%s`", dir);
 
   dfd = openat (rundir_dfd, id, O_DIRECTORY | O_RDONLY | O_CLOEXEC);
-  if (UNLIKELY (dfd < 0))
-    return crun_make_error (err, errno, "cannot open directory `%s/%s`", dir, id);
+  যদি (UNLIKELY (dfd < 0))
+    প্রত্যাগম crun_make_error (err, errno, "cannot open directory `%s/%s`", dir, id);
 
   ret = rmdirfd (dir, dfd, err);
 
   /* rmdirfd owns DFD.  */
   dfd = -1;
 
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
   ret = unlinkat (rundir_dfd, id, AT_REMOVEDIR);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "cannot rm state directory `%s/%s`", dir, id);
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম crun_make_error (err, errno, "cannot rm state directory `%s/%s`", dir, id);
 
-  return 0;
+  প্রত্যাগম 0;
 }
 
-void
+শূন্য
 libcrun_free_container_status (libcrun_container_status_t *status)
 {
-  if (status == NULL)
-    return;
-  free (status->cgroup_path);
-  free (status->bundle);
-  free (status->rootfs);
-  free (status->external_descriptors);
-  free (status->created);
-  free (status->scope);
-  free (status->owner);
+  যদি (status == রিক্ত)
+    প্রত্যাগম;
+  মুক্ত (status->cgroup_path);
+  মুক্ত (status->bundle);
+  মুক্ত (status->rootfs);
+  মুক্ত (status->external_descriptors);
+  মুক্ত (status->created);
+  মুক্ত (status->scope);
+  মুক্ত (status->owner);
 }
 
-int
-libcrun_get_containers_list (libcrun_container_list_t **out, const char *state_root, libcrun_error_t *err)
+পূর্ণাঙ্ক
+libcrun_get_containers_list (libcrun_container_list_t **out, ধ্রুব বর্ণ *state_মূল, libcrun_error_t *err)
 {
-  struct dirent *next;
-  cleanup_container_list libcrun_container_list_t *tmp = NULL;
-  cleanup_free char *root = NULL;
-  cleanup_dir DIR *dir = NULL;
-  int ret;
+  সংরচনা dirent *next;
+  cleanup_container_list libcrun_container_list_t *tmp = রিক্ত;
+  cleanup_free বর্ণ *মূল = রিক্ত;
+  cleanup_dir DIR *dir = রিক্ত;
+  পূর্ণাঙ্ক ret;
 
-  *out = NULL;
+  *out = রিক্ত;
 
-  ret = get_run_directory (&root, state_root, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_run_directory (&মূল, state_মূল, err);
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
-  dir = opendir (root);
-  if (UNLIKELY (dir == NULL))
-    return crun_make_error (err, errno, "cannot opendir `%s`", root);
+  dir = opendir (মূল);
+  যদি (UNLIKELY (dir == রিক্ত))
+    প্রত্যাগম crun_make_error (err, errno, "cannot opendir `%s`", মূল);
 
-  for (next = readdir (dir); next; next = readdir (dir))
+  প্রতি (next = readdir (dir); next; next = readdir (dir))
     {
-      int exists;
-      cleanup_free char *status_file = NULL;
+      পূর্ণাঙ্ক exists;
+      cleanup_free বর্ণ *status_file = রিক্ত;
 
       libcrun_container_list_t *next_container;
 
-      if (next->d_name[0] == '.')
-        continue;
+      যদি (next->d_name[0] == '.')
+        অনুবর্ত;
 
-      ret = append_paths (&status_file, err, root, next->d_name, "status", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&status_file, err, মূল, next->d_name, "status", রিক্ত);
+      যদি (UNLIKELY (ret < 0))
+        প্রত্যাগম ret;
 
       exists = crun_path_exists (status_file, err);
-      if (exists < 0)
+      যদি (exists < 0)
         {
-          return exists;
+          প্রত্যাগম exists;
         }
 
-      if (! exists)
+      যদি (! exists)
         {
           libcrun_error (errno, "error opening file `%s`", status_file);
-          continue;
+          অনুবর্ত;
         }
 
-      next_container = xmalloc (sizeof (libcrun_container_list_t));
+      next_container = xmalloc (পরিমাণ (libcrun_container_list_t));
       next_container->name = xstrdup (next->d_name);
       next_container->next = tmp;
       tmp = next_container;
@@ -755,18 +755,18 @@ libcrun_get_containers_list (libcrun_container_list_t **out, const char *state_r
 
   STEAL_POINTER (out, tmp);
 
-  return 0;
+  প্রত্যাগম 0;
 }
 
-void
+শূন্য
 libcrun_free_containers_list (libcrun_container_list_t *list)
 {
   libcrun_container_list_t *next;
-  while (list)
+  যাবত্ (list)
     {
       next = list->next;
-      free (list->name);
-      free (list);
+      মুক্ত (list->name);
+      মুক্ত (list);
       list = next;
     }
 }
@@ -777,326 +777,326 @@ libcrun_free_containers_list (libcrun_container_list_t *list)
     0: pid not valid
     1: pid valid and container in the running/created/paused state
 */
-int
+পূর্ণাঙ্ক
 libcrun_check_pid_valid (libcrun_container_status_t *status, libcrun_error_t *err)
 {
-  struct pid_stat st;
-  int ret;
+  সংরচনা pid_stat st;
+  পূর্ণাঙ্ক ret;
 
   /* For backwards compatibility, check start time only if available. */
-  if (! status->process_start_time)
-    return 1;
+  যদি (! status->process_start_time)
+    প্রত্যাগম 1;
 
   ret = read_pid_stat (status->pid, &st, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
-  if (status->process_start_time != st.starttime || st.state == 'X')
-    return 0; /* stopped */
+  যদি (status->process_start_time != st.starttime || st.state == 'X')
+    প্রত্যাগম 0; /* stopped */
 
   /* /proc/PID/stat describes only the thread group leader.  If it exited on
      its own, it stays a zombie while other threads of the process are still
      running.  */
-  if (st.state == 'Z' && st.num_threads <= 1)
-    return 0; /* stopped */
+  যদি (st.state == 'Z' && st.অঙ্ক_threads <= 1)
+    প্রত্যাগম 0; /* stopped */
 
-  return 1; /* running, created, or paused */
+  প্রত্যাগম 1; /* running, created, or paused */
 }
 
-int
+পূর্ণাঙ্ক
 libcrun_is_container_running (libcrun_container_status_t *status, libcrun_error_t *err)
 {
-  int ret;
+  পূর্ণাঙ্ক ret;
 
   ret = kill (status->pid, 0);
-  if (UNLIKELY (ret < 0) && errno != ESRCH)
-    return crun_make_error (err, errno, "kill");
+  যদি (UNLIKELY (ret < 0) && errno != ESRCH)
+    প্রত্যাগম crun_make_error (err, errno, "kill");
 
-  if (ret == 0)
-    return libcrun_check_pid_valid (status, err);
+  যদি (ret == 0)
+    প্রত্যাগম libcrun_check_pid_valid (status, err);
 
-  return 0; /* stopped */
+  প্রত্যাগম 0; /* stopped */
 }
 
-static int
-get_exec_fifo_path (char **out, const char *state_root, const char *id, libcrun_error_t *err)
+স্থির পূর্ণাঙ্ক
+get_exec_fifo_path (বর্ণ **out, ধ্রুব বর্ণ *state_মূল, ধ্রুব বর্ণ *id, libcrun_error_t *err)
 {
-  cleanup_free char *state_dir = NULL;
-  int ret;
+  cleanup_free বর্ণ *state_dir = রিক্ত;
+  পূর্ণাঙ্ক ret;
 
-  ret = libcrun_get_state_directory (&state_dir, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_get_state_directory (&state_dir, state_মূল, id, err);
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
-  return append_paths (out, err, state_dir, "exec.fifo", NULL);
+  প্রত্যাগম append_paths (out, err, state_dir, "exec.fifo", রিক্ত);
 }
 
-int
-libcrun_status_create_exec_fifo (const char *state_root, const char *id, libcrun_error_t *err)
+পূর্ণাঙ্ক
+libcrun_status_create_exec_fifo (ধ্রুব বর্ণ *state_মূল, ধ্রুব বর্ণ *id, libcrun_error_t *err)
 {
-  cleanup_free char *fifo_path = NULL;
-  int ret, fd = -1;
+  cleanup_free বর্ণ *fifo_path = রিক্ত;
+  পূর্ণাঙ্ক ret, fd = -1;
 
-  ret = get_exec_fifo_path (&fifo_path, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_exec_fifo_path (&fifo_path, state_মূল, id, err);
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
   libcrun_debug ("Creating exec fifo: %s", fifo_path);
   ret = mkfifo (fifo_path, 0600);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "mkfifo");
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম crun_make_error (err, errno, "mkfifo");
 
   fd = open (fifo_path, O_NONBLOCK | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "cannot open pipe `%s`", fifo_path);
+  যদি (UNLIKELY (fd < 0))
+    প্রত্যাগম crun_make_error (err, errno, "cannot open pipe `%s`", fifo_path);
 
-  return fd;
+  প্রত্যাগম fd;
 }
 
-int
-libcrun_status_write_exec_fifo (const char *state_root, const char *id, libcrun_error_t *err)
+পূর্ণাঙ্ক
+libcrun_status_write_exec_fifo (ধ্রুব বর্ণ *state_মূল, ধ্রুব বর্ণ *id, libcrun_error_t *err)
 {
-  cleanup_free char *fifo_path = NULL;
-  char buffer[1] = {
+  cleanup_free বর্ণ *fifo_path = রিক্ত;
+  বর্ণ buffer[1] = {
     0,
   };
-  cleanup_close int fd = -1;
-  int ret;
+  cleanup_close পূর্ণাঙ্ক fd = -1;
+  পূর্ণাঙ্ক ret;
 
-  ret = get_exec_fifo_path (&fifo_path, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_exec_fifo_path (&fifo_path, state_মূল, id, err);
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
   fd = open (fifo_path, O_WRONLY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "cannot open `%s`", fifo_path);
+  যদি (UNLIKELY (fd < 0))
+    প্রত্যাগম crun_make_error (err, errno, "cannot open `%s`", fifo_path);
 
   ret = unlink (fifo_path);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "unlink `%s`", fifo_path);
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম crun_make_error (err, errno, "unlink `%s`", fifo_path);
 
-  ret = TEMP_FAILURE_RETRY (write (fd, buffer, 1));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "write to exec.fifo");
+  ret = TEMP_FAILURE_RETRY (লিখ (fd, buffer, 1));
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম crun_make_error (err, errno, "write to exec.fifo");
 
-  return 0;
+  প্রত্যাগম 0;
 }
 
-int
-libcrun_status_has_read_exec_fifo (const char *state_root, const char *id, libcrun_error_t *err)
+পূর্ণাঙ্ক
+libcrun_status_has_read_exec_fifo (ধ্রুব বর্ণ *state_মূল, ধ্রুব বর্ণ *id, libcrun_error_t *err)
 {
-  cleanup_free char *fifo_path = NULL;
-  int ret;
+  cleanup_free বর্ণ *fifo_path = রিক্ত;
+  পূর্ণাঙ্ক ret;
 
-  ret = get_exec_fifo_path (&fifo_path, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_exec_fifo_path (&fifo_path, state_মূল, id, err);
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
-  return crun_path_exists (fifo_path, err);
+  প্রত্যাগম crun_path_exists (fifo_path, err);
 }
 
-struct libcrun_status_s
+সংরচনা libcrun_status_s
 {
   libcrun_container_status_t status;
-  char *id;
-  char *state_root;
+  বর্ণ *id;
+  বর্ণ *state_মূল;
 
   /* The live state requires probing the container (and its cgroup), so it is
      resolved on demand and cached here.  */
   bool state_resolved;
   libcrun_container_state_t state;
-  int running;
+  পূর্ণাঙ্ক running;
 };
 
-int
-libcrun_container_status_load (libcrun_context_t *context, const char *id, libcrun_status_t **out, libcrun_error_t *err)
+পূর্ণাঙ্ক
+libcrun_container_status_load (libcrun_context_t *context, ধ্রুব বর্ণ *id, libcrun_status_t **out, libcrun_error_t *err)
 {
   libcrun_status_t *st;
-  int ret;
+  পূর্ণাঙ্ক ret;
 
-  st = xmalloc0 (sizeof (*st));
+  st = xmalloc0 (পরিমাণ (*st));
 
-  ret = libcrun_read_container_status (&st->status, context->state_root, id, err);
-  if (UNLIKELY (ret < 0))
+  ret = libcrun_read_container_status (&st->status, context->state_মূল, id, err);
+  যদি (UNLIKELY (ret < 0))
     {
-      free (st);
-      return ret;
+      মুক্ত (st);
+      প্রত্যাগম ret;
     }
 
   st->id = xstrdup (id);
-  st->state_root = xstrdup (context->state_root);
+  st->state_মূল = xstrdup (context->state_মূল);
 
   *out = st;
-  return 0;
+  প্রত্যাগম 0;
 }
 
-void
+শূন্য
 libcrun_container_status_free (libcrun_status_t *st)
 {
-  if (st == NULL)
-    return;
+  যদি (st == রিক্ত)
+    প্রত্যাগম;
   libcrun_free_container_status (&st->status);
-  free (st->state_root);
-  free (st->id);
-  free (st);
+  মুক্ত (st->state_মূল);
+  মুক্ত (st->id);
+  মুক্ত (st);
 }
 
-int
-libcrun_status_get_state (libcrun_status_t *st, libcrun_container_state_t *state, int *running, libcrun_error_t *err)
+পূর্ণাঙ্ক
+libcrun_status_get_state (libcrun_status_t *st, libcrun_container_state_t *state, পূর্ণাঙ্ক *running, libcrun_error_t *err)
 {
-  if (! st->state_resolved)
+  যদি (! st->state_resolved)
     {
-      const char *state_string = NULL;
-      int ret;
+      ধ্রুব বর্ণ *state_string = রিক্ত;
+      পূর্ণাঙ্ক ret;
 
-      ret = libcrun_get_container_state_string (st->id, &st->status, st->state_root, &state_string, &st->running, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_get_container_state_string (st->id, &st->status, st->state_মূল, &state_string, &st->running, err);
+      যদি (UNLIKELY (ret < 0))
+        প্রত্যাগম ret;
 
-      if (state_string == NULL)
+      যদি (state_string == রিক্ত)
         st->state = LIBCRUN_CONTAINER_STATUS_STOPPED;
-      else if (strcmp (state_string, "creating") == 0)
+      অন্যথা যদি (strcmp (state_string, "creating") == 0)
         st->state = LIBCRUN_CONTAINER_STATUS_CREATING;
-      else if (strcmp (state_string, "created") == 0)
+      অন্যথা যদি (strcmp (state_string, "created") == 0)
         st->state = LIBCRUN_CONTAINER_STATUS_CREATED;
-      else if (strcmp (state_string, "running") == 0)
+      অন্যথা যদি (strcmp (state_string, "running") == 0)
         st->state = LIBCRUN_CONTAINER_STATUS_RUNNING;
-      else if (strcmp (state_string, "paused") == 0)
+      অন্যথা যদি (strcmp (state_string, "paused") == 0)
         st->state = LIBCRUN_CONTAINER_STATUS_PAUSED;
-      else
+      অন্যথা
         st->state = LIBCRUN_CONTAINER_STATUS_STOPPED;
 
       st->state_resolved = true;
     }
 
-  if (state)
+  যদি (state)
     *state = st->state;
-  if (running)
+  যদি (running)
     *running = st->running;
-  return 0;
+  প্রত্যাগম 0;
 }
 
-const char *
+ধ্রুব বর্ণ *
 libcrun_container_state_to_string (libcrun_container_state_t state)
 {
-  switch (state)
+  বিকল্প (state)
     {
-    case LIBCRUN_CONTAINER_STATUS_CREATING:
-      return "creating";
-    case LIBCRUN_CONTAINER_STATUS_CREATED:
-      return "created";
-    case LIBCRUN_CONTAINER_STATUS_RUNNING:
-      return "running";
-    case LIBCRUN_CONTAINER_STATUS_PAUSED:
-      return "paused";
-    case LIBCRUN_CONTAINER_STATUS_STOPPED:
-      return "stopped";
+    পক্ষ LIBCRUN_CONTAINER_STATUS_CREATING:
+      প্রত্যাগম "creating";
+    পক্ষ LIBCRUN_CONTAINER_STATUS_CREATED:
+      প্রত্যাগম "created";
+    পক্ষ LIBCRUN_CONTAINER_STATUS_RUNNING:
+      প্রত্যাগম "running";
+    পক্ষ LIBCRUN_CONTAINER_STATUS_PAUSED:
+      প্রত্যাগম "paused";
+    পক্ষ LIBCRUN_CONTAINER_STATUS_STOPPED:
+      প্রত্যাগম "stopped";
     }
-  return "unknown";
+  প্রত্যাগম "unknown";
 }
 
 pid_t
 libcrun_status_get_pid (libcrun_status_t *st)
 {
-  return st->status.pid;
+  প্রত্যাগম st->status.pid;
 }
 
-const char *
+ধ্রুব বর্ণ *
 libcrun_status_get_bundle (libcrun_status_t *st)
 {
-  return st->status.bundle;
+  প্রত্যাগম st->status.bundle;
 }
 
-const char *
+ধ্রুব বর্ণ *
 libcrun_status_get_rootfs (libcrun_status_t *st)
 {
-  return st->status.rootfs;
+  প্রত্যাগম st->status.rootfs;
 }
 
-const char *
+ধ্রুব বর্ণ *
 libcrun_status_get_created (libcrun_status_t *st)
 {
-  return st->status.created;
+  প্রত্যাগম st->status.created;
 }
 
-const char *
+ধ্রুব বর্ণ *
 libcrun_status_get_owner (libcrun_status_t *st)
 {
-  return st->status.owner;
+  প্রত্যাগম st->status.owner;
 }
 
-const char *
+ধ্রুব বর্ণ *
 libcrun_status_get_scope (libcrun_status_t *st)
 {
-  return st->status.scope;
+  প্রত্যাগম st->status.scope;
 }
 
-const char *
+ধ্রুব বর্ণ *
 libcrun_status_get_external_descriptors (libcrun_status_t *st)
 {
-  return st->status.external_descriptors;
+  প্রত্যাগম st->status.external_descriptors;
 }
 
-int
-libcrun_container_get_state_string (libcrun_context_t *context, const char *id, const char **out, int *running,
+পূর্ণাঙ্ক
+libcrun_container_get_state_string (libcrun_context_t *context, ধ্রুব বর্ণ *id, ধ্রুব বর্ণ **out, পূর্ণাঙ্ক *running,
                                     libcrun_error_t *err)
 {
   cleanup_container_status libcrun_container_status_t status = {};
-  int local_running;
-  int ret;
+  পূর্ণাঙ্ক local_running;
+  পূর্ণাঙ্ক ret;
 
-  ret = libcrun_read_container_status (&status, context->state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_read_container_status (&status, context->state_মূল, id, err);
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
-  ret = libcrun_get_container_state_string (id, &status, context->state_root, out, &local_running, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_get_container_state_string (id, &status, context->state_মূল, out, &local_running, err);
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
-  if (running)
+  যদি (running)
     *running = local_running;
-  return 0;
+  প্রত্যাগম 0;
 }
 
-int
-libcrun_get_state_dir (char **out, const char *state_root, const char *id, libcrun_error_t *err)
+পূর্ণাঙ্ক
+libcrun_get_state_dir (বর্ণ **out, ধ্রুব বর্ণ *state_মূল, ধ্রুব বর্ণ *id, libcrun_error_t *err)
 {
-  return libcrun_get_state_directory (out, state_root, id, err);
+  প্রত্যাগম libcrun_get_state_directory (out, state_মূল, id, err);
 }
 
-int
+পূর্ণাঙ্ক
 libcrun_container_list (libcrun_context_t *context, libcrun_container_list_t **out, libcrun_error_t *err)
 {
-  return libcrun_get_containers_list (out, context->state_root, err);
+  প্রত্যাগম libcrun_get_containers_list (out, context->state_মূল, err);
 }
 
 libcrun_container_iter_t *
 libcrun_container_list_iter (libcrun_container_list_t *l)
 {
-  libcrun_container_iter_t *it = xmalloc0 (sizeof (*it));
+  libcrun_container_iter_t *it = xmalloc0 (পরিমাণ (*it));
   it->cur = l;
-  return it;
+  প্রত্যাগম it;
 }
 
 bool
-libcrun_container_iter_next (libcrun_container_iter_t *it, const char **id)
+libcrun_container_iter_next (libcrun_container_iter_t *it, ধ্রুব বর্ণ **id)
 {
-  if (it == NULL || it->cur == NULL)
-    return false;
+  যদি (it == রিক্ত || it->cur == রিক্ত)
+    প্রত্যাগম false;
 
-  if (id)
+  যদি (id)
     *id = it->cur->name;
   it->cur = it->cur->next;
-  return true;
+  প্রত্যাগম true;
 }
 
-void
+শূন্য
 libcrun_container_iter_free (libcrun_container_iter_t *it)
 {
-  free (it);
+  মুক্ত (it);
 }
 
-void
+শূন্য
 libcrun_container_list_free (libcrun_container_list_t *l)
 {
   libcrun_free_containers_list (l);

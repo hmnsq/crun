@@ -16,53 +16,53 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <regex.h>
+#অন্তর্ভাব <config.h>
+#অন্তর্ভাব <stdio.h>
+#অন্তর্ভাব <stdlib.h>
+#অন্তর্ভাব <argp.h>
+#অন্তর্ভাব <string.h>
+#অন্তর্ভাব <unistd.h>
+#অন্তর্ভাব <errno.h>
+#অন্তর্ভাব <regex.h>
 
-#include "crun.h"
+#অন্তর্ভাব "crun.h"
 
-static char doc[] = "OCI runtime";
+স্থির বর্ণ doc[] = "OCI runtime";
 
-struct pause_options_s
+সংরচনা pause_options_s
 {
 };
 
-static struct pause_options_s pause_options;
+স্থির সংরচনা pause_options_s pause_options;
 
-static struct argp_option options[] = { {
+স্থির সংরচনা argp_option options[] = { {
     0,
 } };
 
-static char args_doc[] = "pause CONTAINER";
+স্থির বর্ণ args_doc[] = "pause CONTAINER";
 
-static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+স্থির error_t
+parse_opt (পূর্ণাঙ্ক চাবি, বর্ণ *arg arg_unused, সংরচনা argp_state *state arg_unused)
 {
-  switch (key)
+  বিকল্প (চাবি)
     {
-    case ARGP_KEY_NO_ARGS:
+    পক্ষ ARGP_চাবি_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    স্বভাব:
+      প্রত্যাগম ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  প্রত্যাগম 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+স্থির সংরচনা argp run_argp = { options, parse_opt, args_doc, doc, রিক্ত, রিক্ত, রিক্ত };
 
-int
-crun_command_pause (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+পূর্ণাঙ্ক
+crun_command_pause (সংরচনা crun_global_arguments *global_args, পূর্ণাঙ্ক argc, বর্ণ **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
-  cleanup_context libcrun_context_t *crun_context = NULL;
+  পূর্ণাঙ্ক first_arg = 0, ret;
+  cleanup_context libcrun_context_t *crun_context = রিক্ত;
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &pause_options);
   crun_assert_n_args (argc - first_arg, 1, 2);
@@ -70,8 +70,8 @@ crun_command_pause (struct crun_global_arguments *global_args, int argc, char **
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    প্রত্যাগম ret;
 
-  return libcrun_container_pause (crun_context, argv[first_arg], err);
+  প্রত্যাগম libcrun_container_pause (crun_context, argv[first_arg], err);
 }
