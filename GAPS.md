@@ -1,0 +1,566 @@
+# What is still missing
+
+76 languages. Each line says in how many languages it is missing.
+
+## Files in languages BURP cannot read yet
+
+
+## Keywords with no word in a language's table
+
+- guru:_exit: 75
+- guru:errno: 71
+- guru:size_t: 71
+- guru:EXIT_FAILURE: 71
+- guru:close: 71
+- guru:strchr: 71
+- guru:FILE: 71
+- guru:fprintf: 71
+- guru:fstat: 71
+- guru:EXIT_SUCCESS: 71
+- guru:getenv: 71
+- guru:stderr: 71
+- guru:kill: 71
+- guru:fork: 71
+- guru:chdir: 71
+- guru:dirname: 71
+- guru:pause: 71
+- guru:readdir: 71
+- guru:DIR: 71
+- guru:mkdir: 71
+- guru:strtol: 71
+- guru:memcmp: 71
+- guru:va_end: 71
+- guru:CHAR_BIT: 71
+- guru:va_list: 71
+- guru:fclose: 71
+- guru:fopen: 71
+- guru:rmdir: 71
+- guru:va_start: 71
+- guru:strerror: 71
+- guru:ERANGE: 71
+- guru:stdin: 71
+- guru:strrchr: 71
+- guru:SEEK_END: 71
+- guru:fseek: 71
+- guru:stdout: 71
+- guru:realloc: 71
+- guru:fread: 71
+- guru:strtoul: 71
+- guru:SIG_DFL: 71
+- guru:strcspn: 71
+- guru:opendir: 71
+- guru:SEEK_SET: 71
+- guru:fputs: 71
+- guru:ferror: 71
+- guru:strtod: 71
+- guru:fflush: 71
+- guru:BUFSIZ: 71
+- guru:fgets: 71
+- guru:tm: 71
+- guru:strftime: 71
+- guru:ftell: 71
+- guru:bsearch: 71
+- guru:closedir: 71
+- guru:time_t: 71
+- guru:time: 71
+- guru:INT_MIN: 71
+- guru:ceil: 71
+- guru:offsetof: 71
+- guru:fwrite: 71
+- guru:SIG_IGN: 71
+- guru:perror: 71
+- guru:tolower: 71
+- guru:rename: 71
+- guru:UINT_MAX: 71
+- guru:va_arg: 71
+- guru:abort: 71
+- guru:EOF: 71
+- guru:strcmp: 70
+- guru:open: 70
+- guru:memset: 70
+- guru:strcpy: 70
+- guru:qsort: 70
+- guru:strcat: 70
+- guru:log: 67
+- guru:#endif: 66
+- guru:#define: 66
+- guru:#ifndef: 66
+- guru:#line: 66
+- guru:#ifdef: 66
+- guru:#undef: 66
+- guru:#error: 66
+- guru:unsigned: 62
+- guru:strlen: 62
+- guru:long: 62
+- guru:exit: 62
+- guru:memcpy: 62
+- guru:strstr: 62
+- guru:printf: 62
+- guru:template: 62
+- guru:strncmp: 62
+- guru:malloc: 62
+- guru:short: 62
+- guru:INT_MAX: 62
+- guru:calloc: 62
+- guru:isspace: 62
+- guru:pow: 62
+- guru:toupper: 62
+- guru:isdigit: 62
+- guru:main: 54
+- guru:NULL: 25
+- guru:const: 25
+- guru:static: 25
+- guru:void: 25
+- guru:goto: 25
+- guru:continue: 25
+- guru:free: 25
+- guru:switch: 25
+- guru:write: 25
+- guru:read: 25
+- guru:typedef: 25
+- guru:default: 25
+- guru:do: 25
+- guru:extern: 25
+- guru:assert: 25
+- guru:private: 25
+- guru:#elif: 25
+- guru:for: 9
+- guru:char: 9
+- guru:struct: 9
+- guru:sizeof: 9
+- guru:case: 9
+- guru:break: 9
+- guru:inline: 9
+- guru:enum: 9
+- guru:signal: 9
+- guru:register: 9
+- guru:union: 9
+- guru:double: 9
+- guru:volatile: 9
+- guru:if: 1
+- guru:return: 1
+- guru:int: 1
+- guru:else: 1
+- guru:while: 1
+- guru:#if: 1
+- guru:#else: 1
+
+## Names with no dictionary entry (the most common first)
+
+- `ret`: 76
+- `UNLIKELY`: 76
+- `i`: 76
+- `crun_make_error`: 76
+- `container`: 76
+- `libcrun_error_t`: 76
+- `def`: 76
+- `fd`: 76
+- `len`: 76
+- `context`: 76
+- `name`: 76
+- `cleanup_free`: 76
+- `pid`: 76
+- `it`: 76
+- `id`: 76
+- `flags`: 76
+- `libcrun_container_t`: 76
+- `process`: 76
+- `resources`: 76
+- `ctx`: 76
+- `dirfd`: 76
+- `cleanup_close`: 76
+- `n`: 76
+- `libcrun_context_t`: 76
+- `state`: 76
+- `rootfs`: 76
+- `tmp_err`: 76
+- `type`: 76
+- `p`: 76
+- `gen`: 76
+- `crun_error_release`: 76
+- `attr`: 76
+- `define`: 76
+- `cookie`: 76
+- `argv`: 76
+- `sd_err`: 76
+- `s`: 76
+- `container_def`: 76
+- `st`: 76
+- `arg`: 76
+- `buf`: 76
+- `kconf`: 76
+- `self`: 76
+- `resword`: 76
+- `wordlist`: 76
+- `compare`: 76
+- `fmt_buf`: 76
+- `tmp`: 76
+- `options`: 76
+- `crun_context`: 76
+- `cr_options`: 76
+- `dlsym`: 76
+- `xstrdup`: 76
+- `mounts`: 76
+- `m`: 76
+- `r`: 76
+- `argc`: 76
+- `content`: 76
+- `seccomp`: 76
+- `runtime_spec_schema_config_schema`: 76
+- `targetfd`: 76
+- `fds`: 76
+- `rb`: 76
+- `append_paths`: 76
+- `cpu`: 76
+- `j`: 76
+- `namespaces`: 76
+- `bundle`: 76
+- `json_gen`: 76
+- `sb`: 76
+- `handle`: 76
+- `doc`: 76
+- `subsystem`: 76
+- `endptr`: 76
+- `str`: 76
+- `dir`: 76
+- `manager`: 76
+- `uid`: 76
+- `destination`: 76
+- `libcriu_wrapper`: 76
+- `d`: 76
+- `rootfsfd`: 76
+- `info`: 76
+- `from`: 76
+- `file`: 76
+- `b`: 76
+- `gid`: 76
+- `cwd`: 76
+- `annotation`: 76
+- `libcrun_fail_with_error`: 76
+- `dfd`: 76
+- `de`: 76
+- `fail`: 76
+- `stringpool_t`: 76
+- `val`: 76
+- `close_and_reset`: 76
+- `x`: 76
+- `hooks`: 76
+- `libcrun_debug`: 76
+- `scope`: 76
+- `cgroup2`: 76
+- `crun_error_get_errno`: 76
+- `pids`: 76
+- `saveptr`: 76
+- `device`: 76
+- `mnt`: 76
+- `req`: 76
+- `cv`: 76
+- `defined`: 76
+- `saved_errno`: 76
+- `terminal_fd`: 76
+- `d_name`: 76
+- `devices`: 76
+- `nofollow`: 76
+- `exec_options`: 76
+- `annotations`: 76
+- `ptr`: 76
+- `HAVE_DLOPEN`: 76
+- `walk`: 76
+- `errno_`: 76
+- `map`: 76
+- `c`: 76
+- `crun_global_arguments`: 76
+- `xmalloc`: 76
+- `access`: 76
+- `allocated`: 76
+- `sync_socket`: 76
+- `l3_cache_schema`: 76
+- `cur`: 76
+- `ctx_id`: 76
+- `extra_flags`: 76
+- `mountflags`: 76
+- `major`: 76
+- `minor`: 76
+- `bus`: 76
+- `opts`: 76
+- `LIKELY`: 76
+- `container_id`: 76
+- `mount_fds`: 76
+- `res`: 76
+- `endif`: 76
+- `runtime_spec_schema_config_linux_resources`: 76
+- `PRIu64`: 76
+- `custom_handler`: 76
+- `json_gen_string`: 76
+- `mappings`: 76
+- `verbosity`: 76
+- `cleanup`: 76
+- `seccomp_fd`: 76
+- `capabilities`: 76
+- `xasprintf`: 76
+- `ns`: 76
+- `procfd`: 76
+- `cap`: 76
+- `cgroup_dirfd`: 76
+- `v`: 76
+- `parse_opt`: 76
+- `detach`: 76
+- `write_cgroup_file`: 76
+- `written`: 76
+- `nlh`: 76
+- `syscalls`: 76
+- `xmalloc0`: 76
+- `user`: 76
+- `a`: 76
+- `blkio`: 76
+- `rs_argv`: 76
+- `rs_argc`: 76
+- `f`: 76
+- `console_socket`: 76
+- `INLINE`: 76
+- `notify_socket`: 76
+- `sync_socket_fd`: 76
+- `libcrun_fd_map`: 76
+- `CLONE_NEWUSER`: 76
+- `sock`: 76
+- `suffix`: 76
+- `rootless`: 76
+- `cgroup_manager`: 76
+- `iov`: 76
+- `read_all_file`: 76
+- `mountfd`: 76
+- `nread`: 76
+- `GEN_OR_FAIL`: 76
+- `label`: 76
+- `mem_bw_schema`: 76
+- `sync_socket_host`: 76
+- `l`: 76
+- `chunk`: 76
+- `unified`: 76
+- `syscall`: 76
+- `sync_fd`: 76
+- `xrealloc`: 76
+- `pp`: 76
+- `cgroup`: 76
+- `buf_len`: 76
+- `output`: 76
+- `token`: 76
+- `proc`: 76
+- `GEN_STR`: 76
+- `prop`: 76
+- `option`: 76
+- `do_mount`: 76
+- `config_file`: 76
+- `env`: 76
+- `devs`: 76
+- `statbuf`: 76
+- `runtime_spec_schema_config_schema_process`: 76
+- `own_pid`: 76
+- `custom_handler_s`: 76
+- `running`: 76
+- `recursive`: 76
+- `channel`: 76
+- `controller`: 76
+- `cg`: 76
+- `runtime_spec_schema_defs_mount`: 76
+- `dev`: 76
+- `sfs`: 76
+- `dev_fds`: 76
+- `fstype`: 76
+- `addr`: 76
+- `handler`: 76
+- `libcrun_container_list_t`: 76
+- `sb_puts`: 76
+- `period`: 76
+- `cpus`: 76
+- `crun_error_wrap`: 76
+- `state_dir`: 76
+- `missing_properties`: 76
+- `plugins`: 76
+- `scheduler`: 76
+- `list`: 76
+- `load32`: 76
+- `store32`: 76
+- `dst`: 76
+- `e`: 76
+- `events`: 76
+- `vtable`: 76
+- `created`: 76
+- `pipefd1`: 76
+- `module`: 76
+- `destfd`: 76
+- `sync_socket_container`: 76
+- `quota`: 76
+- `pid_str`: 76
+- `host_uid`: 76
+- `epollfd`: 76
+- `ifdef`: 76
+- `mounts_len`: 76
+- `now`: 76
+- `format`: 76
+- `OPTION_RECURSIVE`: 76
+- `caps`: 76
+- `OOM`: 76
+- `arguments`: 76
+- `proc_fd`: 76
+- `json_gen_map_close`: 76
+- `json_object`: 76
+- `action`: 76
+- `handlers`: 76
+- `devfd`: 76
+- `argp`: 76
+- `blake3_hasher`: 76
+- `w`: 76
+- `repeat`: 76
+- `actions`: 76
+- `config`: 76
+- `json_gen_map_open`: 76
+- `new_pid`: 76
+- `bundle_cleanup`: 76
+- `handlers_len`: 76
+- `pathname`: 76
+- `pathfd`: 76
+- `pidfd`: 76
+- `context_type`: 76
+- `argp_state`: 76
+- `preserve_fds`: 76
+- `SIGKILL`: 76
+- `devices_len`: 76
+- `stx`: 76
+- `libcrun_open_proc_file`: 76
+- `part`: 76
+- `sep`: 76
+- `host_id`: 76
+- `schemata`: 76
+- `custom_handler_manager_s`: 76
+- `bpf`: 76
+- `krun_config`: 76
+- `fsfd`: 76
+- `mems`: 76
+- `init_pid`: 76
+- `op`: 76
+- `get_bind_mount`: 76
+- `execfd`: 76
+- `seccomp_flags`: 76
+- `enabled`: 76
+- `json_object_object_get`: 76
+- `seq`: 76
+- `dirpath`: 76
+- `new_libcrun_context`: 76
+
+## Comments with no translation
+
+- FALLTHROUGH: 76
+- Transfer ownership to caller: 76
+- Cleanup the first process.: 76
+- stopped: 76
+- Close the file descriptors inherited from the caller, so they do
+     not leak into the container.: 76
+- Explicitly checking for zero avoids causing UB by passing a null pointer: 76
+- to memcpy. This comes up in practice with things like:: 76
+- std::vector<uint8_t> v;: 76
+- The unified map takes precedence, like with the cgroupfs driver.: 76
+- read_all_file always NUL terminates the output.: 76
+- sync 2.: 76
+- sync 3.: 76
+- Report the new PID to the parent and exit immediately.: 76
+- sync receive own pid.: 76
+- sync 1.: 76
+- If a custom handler is used, pass argv0 as specified.  e.g. with wasm the file could miss the +x bit: 76
+- sync 4.: 76
+- Attempt to close all the files that are not needed to prevent execv to have access to them.
+     Thi: 76
+- sync send own pid.: 76
+- Let's receive the seccomp notify fd and handle it as part of wait_for_process().: 76
+- forked process.: 76
+- Non-numeric or non-zero value encountered, break the loop: 76
+- soft, matching runc: 76
+- iptables: 76
+- enum libcrun_cr_cgroups_mode: 76
+- enum libcrun_cr_network_lock_method: 76
+- Return the configuration of CONTAINER as a JSON string owned by CONTAINER.
+   The document is genera: 76
+- Set to NULL after freeing: 76
+- Defined in chroot_realpath.c: 76
+- First check if there is actually a cgroup mount in the container.: 76
+- Set up CRIU config file: 76
+- Tell CRIU about external bind mounts.: 76
+- We need to resolve mount destination inside container's root for CRIU to handle.: 76
+- When the rootfs is "/" or not set, chroot_realpath returns the
+             path unchanged, so strip: 76
+- Set boolean options .: 76
+- Already removed.  Nothing to do.: 76
+- Internal error: 76
+- Braces around empty body, to fix warning for [-Wunused-result] and error for [-Werror=empty-body].: 76
+- We need to reopen the path as the previous targetfd is underneath the new mountpoint.: 76
+- Make sure any other directory/file is created and take a O_PATH reference to it.: 76
+- skip_if_setgroups_denied: 76
+- if src_nofollow is not specified, or already found, shortcut.: 76
+- We need to fork once again to join the PID namespace.: 76
+- The pid is not valid anymore, return an error.: 76
+- must be vfork to propagate the error from the child proc.: 76
+- Create an error for the parent proc.: 76
+- EINVAL means that the container runs in the current user namespace.: 76
+- ANSI-C code produced by gperf version 3.1: 76
+- The character set is not based on ISO-646.: 76
+- The process already exited.: 76
+- Change owner.: 76
+- Make sure the bundle is an absolute path.: 76
+- Map the CLI names onto the public LIBCRUN_CR_* enums; libcrun translates
+   these to CRIU's own valu: 76
+- Commands.: 76
+- crun exec exits with the exit code of the executed process, so use this
+   code for its own errors, : 76
+- Check if global handler is configured and pass it down to crun context: 76
+- Allocate a public libcrun context (with handlers loaded) for a subcommand.
+   Terminates the process: 76
+- alias OPTION_VERSION_CAP with OPTION_VERSION: 76
+- Ignored.  So that a runc command line won't fail.: 76
+- Parse a numeric value from STR, aborting on an out-of-range or malformed
+   value.  KIND names the f: 76
+- Resolve all libcrun weak dependencies.: 76
+- Self-contained helpers for the crun binary so that it does not have to
+   include the internal libcr: 76
+- Relies on <libcrun.h> (included before this header via crun.h) for the
+   opaque libcrun_context_t a: 76
+- Minimal growable string buffer used to assemble the OCI Process JSON.  The
+   binary is a pure consu: 76
+- Append S as a quoted, escaped JSON string.: 76
+- Read the whole file at PATH into a NUL-terminated string.  A PATH of `-`
+   reads from stdin.: 76
+- Build the OCI Process JSON from the CLI options.: 76
+- cwd is a required field in the OCI process schema; the exec path treats a
+     missing value as "/".: 76
+- noNewPrivileges remains at the config default unless explicitly requested.: 76
+- The process file may be passed as /dev/fd/N, so read it before
+     closing the file descriptors.: 76
+- argv[first_arg] is the container id, the command follows it.: 76
+- Chaining values within a given chunk (specifically the compress_in_place: 76
+- interface) are represented as words. This avoids unnecessary bytes<->words: 76
+- conversion overhead in the portable implementation. However, the hash_many: 76
+- interface handles both user input and parent node blocks, so it accepts: 76
+- bytes. For that reason, chaining values in the CV stack are represented as: 76
+- bytes.: 76
+- Given some input larger than one chunk, return the number of bytes that: 76
+- should go in the left subtree. This is the largest power-of-2 number of: 76
+- chunks that leaves at least 1 byte for the right subtree.: 76
+- Subtract 1 to reserve at least one byte for the right side. content_len: 76
+- should always be greater than BLAKE3_CHUNK_LEN.: 76
+- Use SIMD parallelism to hash up to MAX_SIMD_DEGREE chunks at the same time: 76
+- on a single thread. Write out the chunk chaining values and return the: 76
+- number of chunks hashed. These chunks are never the root and never empty;: 76
+- those cases use a different codepath.: 76
+- Hash the remaining partial chunk, if there is one. Note that the empty: 76
+- chunk (meaning the empty message) is a different codepath.: 76
+- Use SIMD parallelism to hash up to MAX_SIMD_DEGREE parents at the same time: 76
+- on a single thread. Write out the parent chaining values and return the: 76
+- number of parents hashed. (If there's an odd input chaining value left over,: 76
+- return it as an additional output.) These parents are never the root and: 76
+- never empty; those cases use a different codepath.: 76
+- Parents always use counter 0.: 76
+- Parents have no start flags.: 76
+- Parents have no end flags.: 76
+- If there's an odd child left over, it becomes an output.: 76
+- The wide helper function returns (writes out) an array of chaining values: 76
+- and returns the length of that array. The number of chaining values returned: 76
+- is the dynamically detected SIMD degree, at most MAX_SIMD_DEGREE. Or fewer,: 76
