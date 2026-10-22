@@ -40,29 +40,29 @@
  */
 
 #define _GNU_SOURCE
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include <limits.h>
-#include <fcntl.h>
-#include <errno.h>
+#அந்தர்பாவ <unistd.h>
+#அந்தர்பாவ <stdio.h>
+#அந்தர்பாவ <stdlib.h>
+#அந்தர்பாவ <stdbool.h>
+#அந்தர்பாவ <string.h>
+#அந்தர்பாவ <limits.h>
+#அந்தர்பாவ <fcntl.h>
+#அந்தர்பாவ <errno.h>
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/statfs.h>
-#include <sys/vfs.h>
-#include <sys/mman.h>
-#include <sys/mount.h>
-#include <sys/sendfile.h>
-#include <sys/syscall.h>
+#அந்தர்பாவ <sys/types.h>
+#அந்தர்பாவ <sys/stat.h>
+#அந்தர்பாவ <sys/statfs.h>
+#அந்தர்பாவ <sys/vfs.h>
+#அந்தர்பாவ <sys/mman.h>
+#அந்தர்பாவ <sys/mount.h>
+#அந்தர்பாவ <sys/sendfile.h>
+#அந்தர்பாவ <sys/syscall.h>
 
-#include "utils.h"
-#include "linux.h"
+#அந்தர்பாவ "utils.h"
+#அந்தர்பாவ "linux.h"
 
 /* Use our own wrapper for memfd_create. */
-#if !defined(SYS_memfd_create) && defined(__NR_memfd_create)
+#எனில் !defined(SYS_memfd_create) && defined(__NR_memfd_create)
 #  define SYS_memfd_create __NR_memfd_create
 #endif
 /* memfd_create(2) flags -- copied from <linux/memfd.h>. */
@@ -70,13 +70,13 @@
 #  define MFD_CLOEXEC       0x0001U
 #  define MFD_ALLOW_SEALING 0x0002U
 #endif
-int memfd_create(const char *name, unsigned int flags)
+முழு memfd_create(மாறிலி எழுத்து *name, unsigned முழு flags)
 {
 #ifdef SYS_memfd_create
-	return syscall(SYS_memfd_create, name, flags);
-#else
+	திரும்பு syscall(SYS_memfd_create, name, flags);
+#இல்லையெனில்
 	errno = ENOSYS;
-	return -1;
+	திரும்பு -1;
 #endif
 }
 
@@ -96,7 +96,7 @@ int memfd_create(const char *name, unsigned int flags)
 #  define F_SEAL_WRITE  0x0008	/* prevent writes */
 #endif
 
-#define CLONED_BINARY_ENV "_LIBCONTAINER_CLONED_BINARY"
+#define CLONED_இருமம்_ENV "_LIBCONTAINER_CLONED_BINARY"
 #define CRUN_MEMFD_COMMENT "crun_cloned:/proc/self/exe"
 #define CRUN_MEMFD_SEALS \
 	(F_SEAL_SEAL | F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE)
@@ -106,15 +106,15 @@ int memfd_create(const char *name, unsigned int flags)
  * /proc/self/exe a memfd). F_GET_SEALS will only succeed for memfds (or rather
  * for shmem files), and we want to be sure it's actually sealed.
  */
-static int is_self_cloned(void)
+நிலையான முழு is_self_cloned(வெறுமை)
 {
-	int fd, ret, is_cloned = 0;
-	struct stat statbuf = {};
-	struct statfs fsbuf = {};
+	முழு fd, ret, is_cloned = 0;
+	கட்டமைப்பு stat statbuf = {};
+	கட்டமைப்பு statfs fsbuf = {};
 
 	fd = open("/proc/self/exe", O_RDONLY|O_CLOEXEC);
-	if (fd < 0)
-		return -ENOTRECOVERABLE;
+	எனில் (fd < 0)
+		திரும்பு -ENOTRECOVERABLE;
 
 	/*
 	 * Is the binary a fully-sealed memfd? We don't need CLONED_BINARY_ENV for
@@ -123,9 +123,9 @@ static int is_self_cloned(void)
 	 * memfd to /usr/bin/crun to allow reuse).
 	 */
 	ret = fcntl(fd, F_GET_SEALS);
-	if (ret >= 0) {
+	எனில் (ret >= 0) {
 		is_cloned = (ret == CRUN_MEMFD_SEALS);
-		goto out;
+		செல் out;
 	}
 
 	/* Is the binary on a read-only filesystem? We can't detect bind-mounts in
@@ -134,9 +134,9 @@ static int is_self_cloned(void)
 	 * such as truly read-only filesystems like squashfs/erofs as well as
 	 * things like the ostree read-only bind mount.
 	 */
-	if (fstatfs(fd, &fsbuf) >= 0 && (fsbuf.f_flags & MS_RDONLY)) {
+	எனில் (fstatfs(fd, &fsbuf) >= 0 && (fsbuf.f_flags & MS_RDONLY)) {
 		is_cloned = true;
-		goto out;
+		செல் out;
 	}
 
 	/*
@@ -144,9 +144,9 @@ static int is_self_cloned(void)
 	 * writeable (or we can't tell if they're fully safe) and thus we must
 	 * check the environment as an extra layer of defence.
 	 */
-	if (!getenv(CLONED_BINARY_ENV)) {
+	எனில் (!getenv(CLONED_இருமம்_ENV)) {
 		is_cloned = false;
-		goto out;
+		செல் out;
 	}
 
 	/*
@@ -157,48 +157,48 @@ static int is_self_cloned(void)
 	 * cannot fake (because unlinking requires being able to resolve the
 	 * path that you want to unlink).
 	 */
-	if (fstat(fd, &statbuf) >= 0)
+	எனில் (fstat(fd, &statbuf) >= 0)
 		is_cloned |= (statbuf.st_nlink == 0);
 
 out:
 	close(fd);
-	return is_cloned;
+	திரும்பு is_cloned;
 }
 
 /* Read a given file into a new buffer, and providing the length. */
-static char *read_file(char *path, size_t *length)
+நிலையான எழுத்து *read_file(எழுத்து *path, size_t *length)
 {
-	int fd;
-	char buf[4096], *copy = NULL;
+	முழு fd;
+	எழுத்து buf[4096], *copy = வெற்று;
 
-	if (!length)
-		return NULL;
+	எனில் (!length)
+		திரும்பு வெற்று;
 
 	fd = open(path, O_RDONLY | O_CLOEXEC);
-	if (fd < 0)
-		return NULL;
+	எனில் (fd < 0)
+		திரும்பு வெற்று;
 
 	*length = 0;
-	for (;;) {
+	க்கு (;;) {
 		ssize_t n;
 
-		n = read(fd, buf, sizeof(buf));
-		if (n < 0)
-			goto error;
-		if (!n)
-			break;
+		n = பட(fd, buf, அளவு(buf));
+		எனில் (n < 0)
+			செல் error;
+		எனில் (!n)
+			நிறுத்து;
 
-		copy = xrealloc(copy, (*length + n) * sizeof(*copy));
+		copy = xrealloc(copy, (*length + n) * அளவு(*copy));
 		memcpy(copy + *length, buf, n);
 		*length += n;
 	}
 	close(fd);
-	return copy;
+	திரும்பு copy;
 
 error:
 	close(fd);
-	free(copy);
-	return NULL;
+	விடுவி(copy);
+	திரும்பு வெற்று;
 }
 
 /*
@@ -206,22 +206,22 @@ error:
  * NUL-delimited data, within the given length and adds a pointer to each entry
  * to the array of pointers.
  */
-static int parse_xargs(char *data, int data_length, char ***output)
+நிலையான முழு parse_xargs(எழுத்து *data, முழு data_length, எழுத்து ***output)
 {
-	int num = 0;
-	char *cur = data;
+	முழு இலக்கம் = 0;
+	எழுத்து *cur = data;
 
-	if (!data || *output != NULL)
-		return -1;
+	எனில் (!data || *output != வெற்று)
+		திரும்பு -1;
 
-	while (cur < data + data_length) {
-		num++;
-		*output = xrealloc(*output, (num + 1) * sizeof(**output));
-		(*output)[num - 1] = cur;
+	போது (cur < data + data_length) {
+		இலக்கம்++;
+		*output = xrealloc(*output, (இலக்கம் + 1) * அளவு(**output));
+		(*output)[இலக்கம் - 1] = cur;
 		cur += strlen(cur) + 1;
 	}
-	(*output)[num] = NULL;
-	return num;
+	(*output)[இலக்கம்] = வெற்று;
+	திரும்பு இலக்கம்;
 }
 
 /*
@@ -229,26 +229,26 @@ static int parse_xargs(char *data, int data_length, char ***output)
  * This is necessary because we are running in a context where we don't have a
  * main() that we can just get the arguments from.
  */
-static int fetchve(char ***argv)
+நிலையான முழு fetchve(எழுத்து ***argv)
 {
-	char *cmdline = NULL;
+	எழுத்து *cmdline = வெற்று;
 	size_t cmdline_size;
 
 	cmdline = read_file("/proc/self/cmdline", &cmdline_size);
-	if (!cmdline)
-		goto error;
+	எனில் (!cmdline)
+		செல் error;
 
-	if (parse_xargs(cmdline, cmdline_size, argv) <= 0)
-		goto error;
+	எனில் (parse_xargs(cmdline, cmdline_size, argv) <= 0)
+		செல் error;
 
-	return 0;
+	திரும்பு 0;
 
 error:
-	free(cmdline);
-	return -EINVAL;
+	விடுவி(cmdline);
+	திரும்பு -EINVAL;
 }
 
-enum {
+எண்ணிக்கை {
 	EFD_NONE = 0,
 	EFD_MEMFD,
 	EFD_FILE,
@@ -260,21 +260,21 @@ enum {
  * have the mkostemp(3) fallback.
  */
 #ifndef O_TMPFILE
-#  if defined(__O_TMPFILE) && defined(O_DIRECTORY)
+#  எனில் defined(__O_TMPFILE) && defined(O_DIRECTORY)
 #    define O_TMPFILE (__O_TMPFILE | O_DIRECTORY)
 #  endif
 #endif
 
-static int make_execfd(int *fdtype)
+நிலையான முழு make_execfd(முழு *fdtype)
 {
-	int fd = -1;
-	char template[PATH_MAX] = {0};
-	char *prefix = getenv("_LIBCONTAINER_STATEDIR");
+	முழு fd = -1;
+	எழுத்து template[PATH_MAX] = {0};
+	எழுத்து *prefix = getenv("_LIBCONTAINER_STATEDIR");
 
-	if (!prefix || *prefix != '/')
+	எனில் (!prefix || *prefix != '/')
 		prefix = "/tmp";
-	if (snprintf(template, sizeof(template), "%s/crun.XXXXXX", prefix) < 0)
-		return -1;
+	எனில் (snprintf(template, அளவு(template), "%s/crun.XXXXXX", prefix) < 0)
+		திரும்பு -1;
 
 	/*
 	 * Now try memfd, it's much nicer than actually creating a file in STATEDIR
@@ -283,10 +283,10 @@ static int make_execfd(int *fdtype)
 	 */
 	*fdtype = EFD_MEMFD;
 	fd = memfd_create(CRUN_MEMFD_COMMENT, MFD_CLOEXEC | MFD_ALLOW_SEALING);
-	if (fd >= 0)
-		return fd;
-	if (errno != ENOSYS && errno != EINVAL)
-		goto error;
+	எனில் (fd >= 0)
+		திரும்பு fd;
+	எனில் (errno != ENOSYS && errno != EINVAL)
+		செல் error;
 
 #ifdef O_TMPFILE
 	/*
@@ -296,8 +296,8 @@ static int make_execfd(int *fdtype)
 	 */
 	*fdtype = EFD_FILE;
 	fd = open(prefix, O_TMPFILE | O_EXCL | O_RDWR | O_CLOEXEC, 0700);
-	if (fd >= 0) {
-		struct stat statbuf = {};
+	எனில் (fd >= 0) {
+		கட்டமைப்பு stat statbuf = {};
 		bool working_otmpfile = false;
 
 		/*
@@ -306,18 +306,18 @@ static int make_execfd(int *fdtype)
 		 * if we get nlink != 0 (or EISDIR) then we know that this kernel
 		 * doesn't support O_TMPFILE.
 		 */
-		if (fstat(fd, &statbuf) >= 0)
+		எனில் (fstat(fd, &statbuf) >= 0)
 			working_otmpfile = (statbuf.st_nlink == 0);
 
-		if (working_otmpfile)
-			return fd;
+		எனில் (working_otmpfile)
+			திரும்பு fd;
 
 		/* Pretend that we got EISDIR since O_TMPFILE failed. */
 		close(fd);
 		errno = EISDIR;
 	}
-	if (errno != EISDIR)
-		goto error;
+	எனில் (errno != EISDIR)
+		செல் error;
 #endif /* defined(O_TMPFILE) */
 
 	/*
@@ -326,69 +326,69 @@ static int make_execfd(int *fdtype)
 	 */
 	*fdtype = EFD_FILE;
 	fd = mkostemp(template, O_CLOEXEC);
-	if (fd >= 0) {
-		if (unlink(template) >= 0)
-			return fd;
+	எனில் (fd >= 0) {
+		எனில் (unlink(template) >= 0)
+			திரும்பு fd;
 		close(fd);
 	}
 
 error:
 	*fdtype = EFD_NONE;
-	return -1;
+	திரும்பு -1;
 }
 
-static int seal_execfd(int *fd, int fdtype)
+நிலையான முழு seal_execfd(முழு *fd, முழு fdtype)
 {
-	switch (fdtype) {
-	case EFD_MEMFD:
-		return fcntl(*fd, F_ADD_SEALS, CRUN_MEMFD_SEALS);
-	case EFD_FILE: {
+	தேர்வு (fdtype) {
+	நிலை EFD_MEMFD:
+		திரும்பு fcntl(*fd, F_ADD_SEALS, CRUN_MEMFD_SEALS);
+	நிலை EFD_FILE: {
 		/* Need to re-open our pseudo-memfd as an O_PATH to avoid execve(2) giving -ETXTBSY. */
-		int newfd;
-		char fdpath[PATH_MAX] = {0};
+		முழு newfd;
+		எழுத்து fdpath[PATH_MAX] = {0};
 
-		if (fchmod(*fd, 0100) < 0)
-			return -1;
+		எனில் (fchmod(*fd, 0100) < 0)
+			திரும்பு -1;
 
-		if (snprintf(fdpath, sizeof(fdpath), "/proc/self/fd/%d", *fd) < 0)
-			return -1;
+		எனில் (snprintf(fdpath, அளவு(fdpath), "/proc/self/fd/%d", *fd) < 0)
+			திரும்பு -1;
 
 		newfd = open(fdpath, O_PATH | O_CLOEXEC);
-		if (newfd < 0)
-			return -1;
+		எனில் (newfd < 0)
+			திரும்பு -1;
 
 		close(*fd);
 		*fd = newfd;
-		return 0;
+		திரும்பு 0;
 	}
-	default:
-	   break;
+	இயல்பு:
+	   நிறுத்து;
 	}
-	return -1;
+	திரும்பு -1;
 }
 
-static int try_bindfd_mount_api(void)
+நிலையான முழு try_bindfd_mount_api(வெறுமை)
 {
 	libcrun_error_t err;
-	int mountfd = get_bind_mount (-1, "/proc/self/exe", false, true, false, MS_PRIVATE, &err);
-	if (mountfd < 0) {
+	முழு mountfd = get_bind_mount (-1, "/proc/self/exe", false, true, false, MS_PRIVATE, &err);
+	எனில் (mountfd < 0) {
 		crun_error_release (&err);
-		return -1;
+		திரும்பு -1;
 	}
-	return mountfd;
+	திரும்பு mountfd;
 }
 
-static int try_bindfd(void)
+நிலையான முழு try_bindfd(வெறுமை)
 {
 	mode_t mask;
-	int fd, ret = -1;
-	char template[PATH_MAX] = {0};
-	char *prefix = getenv("_LIBCONTAINER_STATEDIR");
+	முழு fd, ret = -1;
+	எழுத்து template[PATH_MAX] = {0};
+	எழுத்து *prefix = getenv("_LIBCONTAINER_STATEDIR");
 
-	if (!prefix || *prefix != '/')
+	எனில் (!prefix || *prefix != '/')
 		prefix = "/tmp";
-	if (snprintf(template, sizeof(template), "%s/crun.XXXXXX", prefix) < 0)
-		return ret;
+	எனில் (snprintf(template, அளவு(template), "%s/crun.XXXXXX", prefix) < 0)
+		திரும்பு ret;
 
 	/*
 	 * We need somewhere to mount it, mounting anything over /proc/self is a
@@ -397,8 +397,8 @@ static int try_bindfd(void)
 	mask = umask(0700);
 	fd = mkstemp(template);
 	umask(mask);
-	if (fd < 0)
-		return ret;
+	எனில் (fd < 0)
+		திரும்பு ret;
 	close(fd);
 
 	/*
@@ -407,10 +407,10 @@ static int try_bindfd(void)
 	 * complicated and it's only worth doing if someone actually needs it.
 	 */
 	ret = -EPERM;
-	if (mount("/proc/self/exe", template, "", MS_BIND, "") < 0)
-		goto out;
-	if (mount("", template, "", MS_REMOUNT | MS_BIND | MS_RDONLY, "") < 0)
-		goto out_umount;
+	எனில் (mount("/proc/self/exe", template, "", MS_BIND, "") < 0)
+		செல் out;
+	எனில் (mount("", template, "", MS_REMOUNT | MS_BIND | MS_RDONLY, "") < 0)
+		செல் out_umount;
 
 
 	/* Get read-only handle that we're sure can't be made read-write. */
@@ -422,8 +422,8 @@ out_umount:
 	 * read-write and that would be quite bad (the fd would be made read-write
 	 * too, invalidating the protection).
 	 */
-	if (umount2(template, MNT_DETACH) < 0) {
-		if (ret >= 0)
+	எனில் (umount2(template, MNT_DETACH) < 0) {
+		எனில் (ret >= 0)
 			close(ret);
 		ret = -ENOTRECOVERABLE;
 	}
@@ -434,60 +434,60 @@ out:
 	 * there's an empty file left around in STATEDIR.
 	 */
 	unlink(template);
-	return ret;
+	திரும்பு ret;
 }
 
-static ssize_t fd_to_fd(int outfd, int infd)
+நிலையான ssize_t fd_to_fd(முழு outfd, முழு infd)
 {
 	ssize_t total = 0;
-	char buffer[4096];
+	எழுத்து buffer[4096];
 
-	for (;;) {
+	க்கு (;;) {
 		ssize_t nread, nwritten = 0;
 
-		nread = read(infd, buffer, sizeof(buffer));
-		if (nread < 0)
-			return -1;
-		if (!nread)
-			break;
+		nread = பட(infd, buffer, அளவு(buffer));
+		எனில் (nread < 0)
+			திரும்பு -1;
+		எனில் (!nread)
+			நிறுத்து;
 
-		do {
-			ssize_t n = write(outfd, buffer + nwritten, nread - nwritten);
-			if (n < 0)
-				return -1;
+		செய் {
+			ssize_t n = லிக(outfd, buffer + nwritten, nread - nwritten);
+			எனில் (n < 0)
+				திரும்பு -1;
 			nwritten += n;
-		} while(nwritten < nread);
+		} போது(nwritten < nread);
 
 		total += nwritten;
 	}
 
-	return total;
+	திரும்பு total;
 }
 
-static int clone_binary(void)
+நிலையான முழு clone_இருமம்(வெறுமை)
 {
-	cleanup_close int execfd = -1;
-	struct stat statbuf = {};
+	cleanup_close முழு execfd = -1;
+	கட்டமைப்பு stat statbuf = {};
 	ssize_t sent = 0;
-	int fdtype = EFD_NONE;
+	முழு fdtype = EFD_NONE;
 
 	/*
 	 * Before we resort to copying, let's try creating an ro-binfd in one shot
 	 * by getting a handle for a read-only bind-mount of the execfd.
 	 */
 	execfd = try_bindfd_mount_api();
-	if (execfd >= 0) {
+	எனில் (execfd >= 0) {
 		/* Transfer ownership to caller */
-		int ret_execfd = execfd;
+		முழு ret_execfd = execfd;
 		execfd = -1;
-		return ret_execfd;
+		திரும்பு ret_execfd;
 	}
 	execfd = try_bindfd();
-	if (execfd >= 0) {
+	எனில் (execfd >= 0) {
 		/* Transfer ownership to caller */
-		int ret_execfd = execfd;
+		முழு ret_execfd = execfd;
 		execfd = -1;
-		return ret_execfd;
+		திரும்பு ret_execfd;
 	}
 
 	/*
@@ -495,69 +495,69 @@ static int clone_binary(void)
 	 * can seal the contents.
 	 */
 	execfd = make_execfd(&fdtype);
-	if (execfd < 0 || fdtype == EFD_NONE)
-		return -ENOTRECOVERABLE;
+	எனில் (execfd < 0 || fdtype == EFD_NONE)
+		திரும்பு -ENOTRECOVERABLE;
 
 	{
-		cleanup_close int binfd = -1;
+		cleanup_close முழு binfd = -1;
 		binfd = open("/proc/self/exe", O_RDONLY | O_CLOEXEC);
-		if (binfd < 0)
-			goto error;
+		எனில் (binfd < 0)
+			செல் error;
 
-		if (fstat(binfd, &statbuf) < 0)
-			goto error;
+		எனில் (fstat(binfd, &statbuf) < 0)
+			செல் error;
 
-		while (sent < statbuf.st_size) {
-			int n = sendfile(execfd, binfd, NULL, statbuf.st_size - sent);
-			if (n < 0) {
+		போது (sent < statbuf.st_size) {
+			முழு n = sendfile(execfd, binfd, வெற்று, statbuf.st_size - sent);
+			எனில் (n < 0) {
 				/* sendfile can fail so we fallback to a dumb user-space copy. */
 				n = fd_to_fd(execfd, binfd);
-				if (n < 0)
-					goto error;
+				எனில் (n < 0)
+					செல் error;
 			}
 			sent += n;
 		}
 	}
-	if (sent != statbuf.st_size)
-		goto error;
+	எனில் (sent != statbuf.st_size)
+		செல் error;
 
-	if (seal_execfd(&execfd, fdtype) < 0)
-		goto error;
+	எனில் (seal_execfd(&execfd, fdtype) < 0)
+		செல் error;
 
 	{
 		/* Transfer ownership to caller */
-		int ret_execfd = execfd;
+		முழு ret_execfd = execfd;
 		execfd = -1;
-		return ret_execfd;
+		திரும்பு ret_execfd;
 	}
 error:
-	return -EIO;
+	திரும்பு -EIO;
 }
 
 /* Get cheap access to the environment. */
-extern char **environ;
+வெளி எழுத்து **environ;
 
-int ensure_cloned_binary(void)
+முழு ensure_cloned_இருமம்(வெறுமை)
 {
-	cleanup_close int execfd = -1;
-	char **argv = NULL;
+	cleanup_close முழு execfd = -1;
+	எழுத்து **argv = வெற்று;
 
 	/* Check that we're not self-cloned, and if we are then bail. */
-	int cloned = is_self_cloned();
-	if (cloned > 0 || cloned == -ENOTRECOVERABLE)
-		return cloned;
+	முழு cloned = is_self_cloned();
+	எனில் (cloned > 0 || cloned == -ENOTRECOVERABLE)
+		திரும்பு cloned;
 
-	if (fetchve(&argv) < 0)
-		return -EINVAL;
+	எனில் (fetchve(&argv) < 0)
+		திரும்பு -EINVAL;
 
-	execfd = clone_binary();
-	if (execfd < 0)
-		return -EIO;
+	execfd = clone_இருமம்();
+	எனில் (execfd < 0)
+		திரும்பு -EIO;
 
-	if (putenv(CLONED_BINARY_ENV "=1"))
-		goto error;
+	எனில் (putenv(CLONED_இருமம்_ENV "=1"))
+		செல் error;
 
 	fexecve(execfd, argv, environ);
 error:
-	return -ENOEXEC;
+	திரும்பு -ENOEXEC;
 }

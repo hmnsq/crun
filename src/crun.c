@@ -16,60 +16,60 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <git-version.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <libgen.h>
-#include <errno.h>
-#include <limits.h>
+#அந்தர்பாவ <config.h>
+#அந்தர்பாவ <git-version.h>
+#அந்தர்பாவ <stdlib.h>
+#அந்தர்பாவ <argp.h>
+#அந்தர்பாவ <string.h>
+#அந்தர்பாவ <libgen.h>
+#அந்தர்பாவ <errno.h>
+#அந்தர்பாவ <limits.h>
 
 #ifdef HAVE_DLOPEN
 #  include <dlfcn.h>
 #endif
 
-#include "crun.h"
+#அந்தர்பாவ "crun.h"
 
 /* Commands.  */
-#include "run.h"
-#include "delete.h"
-#include "kill.h"
-#include "list.h"
-#include "start.h"
-#include "create.h"
-#include "exec.h"
-#include "state.h"
-#include "update.h"
-#include "spec.h"
-#include "pause.h"
-#include "unpause.h"
-#include "oci_features.h"
-#include "ps.h"
-#include "checkpoint.h"
-#include "mounts.h"
-#include "restore.h"
+#அந்தர்பாவ "run.h"
+#அந்தர்பாவ "delete.h"
+#அந்தர்பாவ "kill.h"
+#அந்தர்பாவ "list.h"
+#அந்தர்பாவ "start.h"
+#அந்தர்பாவ "create.h"
+#அந்தர்பாவ "exec.h"
+#அந்தர்பாவ "state.h"
+#அந்தர்பாவ "update.h"
+#அந்தர்பாவ "spec.h"
+#அந்தர்பாவ "pause.h"
+#அந்தர்பாவ "unpause.h"
+#அந்தர்பாவ "oci_features.h"
+#அந்தர்பாவ "ps.h"
+#அந்தர்பாவ "checkpoint.h"
+#அந்தர்பாவ "mounts.h"
+#அந்தர்பாவ "restore.h"
 
 /* crun exec exits with the exit code of the executed process, so use this
    code for its own errors, to tell those apart (like runc and ssh do).  */
 #define EXIT_EXEC_FAILURE 255
 
-static struct crun_global_arguments arguments;
+நிலையான கட்டமைப்பு crun_global_arguments arguments;
 
-struct commands_s
+கட்டமைப்பு commands_s
 {
-  int value;
-  const char *name;
-  int (*handler) (struct crun_global_arguments *, int, char **, libcrun_error_t *);
+  முழு மதிப்பு;
+  மாறிலி எழுத்து *name;
+  முழு (*handler) (கட்டமைப்பு crun_global_arguments *, முழு, எழுத்து **, libcrun_error_t *);
 };
 
-int
-init_libcrun_context (libcrun_context_t *con, const char *id, struct crun_global_arguments *glob, libcrun_error_t *err)
+முழு
+init_libcrun_context (libcrun_context_t *con, மாறிலி எழுத்து *id, கட்டமைப்பு crun_global_arguments *glob, libcrun_error_t *err)
 {
-  int ret;
+  முழு ret;
 
   libcrun_context_set_id (con, id);
-  libcrun_context_set_state_root (con, glob->root);
+  libcrun_context_set_state_வேர் (con, glob->வேர்);
   libcrun_context_set_systemd_cgroup (con, glob->option_systemd_cgroup);
   libcrun_context_set_force_no_cgroup (con, glob->option_force_no_cgroup);
   libcrun_context_set_notify_socket (con, getenv ("NOTIFY_SOCKET"));
@@ -79,38 +79,38 @@ init_libcrun_context (libcrun_context_t *con, const char *id, struct crun_global
   libcrun_context_set_handler (con, glob->handler);
 
   ret = libcrun_context_init_logging (con, glob->log, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு ret;
 
-  if (glob->log_format)
+  எனில் (glob->log_format)
     {
       ret = libcrun_set_log_format (glob->log_format, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      எனில் (UNLIKELY (ret < 0))
+        திரும்பு ret;
     }
 
   libcrun_set_verbosity (glob->verbosity);
   libcrun_debug ("Using debug verbosity");
 
-  return 0;
+  திரும்பு 0;
 }
 
 /* Allocate a public libcrun context (with handlers loaded) for a subcommand.
    Terminates the process on failure.  */
 libcrun_context_t *
-new_libcrun_context (struct crun_global_arguments *glob)
+new_libcrun_context (கட்டமைப்பு crun_global_arguments *glob)
 {
-  libcrun_error_t err = NULL;
+  libcrun_error_t err = வெற்று;
   libcrun_context_t *con;
 
-  con = libcrun_context_new (NULL, glob->root, &err);
-  if (UNLIKELY (con == NULL))
+  con = libcrun_context_new (வெற்று, glob->வேர், &err);
+  எனில் (UNLIKELY (con == வெற்று))
     libcrun_fail_with_error (libcrun_error_get_status (err), "%s", libcrun_error_get_message (err));
 
-  return con;
+  திரும்பு con;
 }
 
-enum
+எண்ணிக்கை
 {
   COMMAND_CREATE = 1000,
   COMMAND_DELETE,
@@ -131,7 +131,7 @@ enum
   COMMAND_MOUNTS,
 };
 
-struct commands_s commands[] = { { COMMAND_CREATE, "create", crun_command_create },
+கட்டமைப்பு commands_s commands[] = { { COMMAND_CREATE, "create", crun_command_create },
                                  { COMMAND_DELETE, "delete", crun_command_delete },
                                  { COMMAND_EXEC, "exec", crun_command_exec },
                                  { COMMAND_LIST, "list", crun_command_list },
@@ -145,7 +145,7 @@ struct commands_s commands[] = { { COMMAND_CREATE, "create", crun_command_create
                                  { COMMAND_PAUSE, "pause", crun_command_pause },
                                  { COMMAND_UNPAUSE, "resume", crun_command_unpause },
                                  { COMMAND_FEATURES, "features", crun_command_features },
-#if HAVE_CRIU && HAVE_DLOPEN
+#எனில் HAVE_CRIU && HAVE_DLOPEN
                                  { COMMAND_CHECKPOINT, "checkpoint", crun_command_checkpoint },
                                  { COMMAND_RESTORE, "restore", crun_command_restore },
 #endif
@@ -154,8 +154,8 @@ struct commands_s commands[] = { { COMMAND_CREATE, "create", crun_command_create
                                      0,
                                  } };
 
-static char doc[] = "\nCOMMANDS:\n"
-#if HAVE_CRIU && HAVE_DLOPEN
+நிலையான எழுத்து doc[] = "\nCOMMANDS:\n"
+#எனில் HAVE_CRIU && HAVE_DLOPEN
                     "\tcheckpoint  - checkpoint a container\n"
 #endif
                     "\tcreate      - create a container\n"
@@ -166,7 +166,7 @@ static char doc[] = "\nCOMMANDS:\n"
                     "\tmounts      - add or remove mounts from a running container\n"
                     "\tkill        - send a signal to the container init process\n"
                     "\tps          - show the processes in the container\n"
-#if HAVE_CRIU && HAVE_DLOPEN
+#எனில் HAVE_CRIU && HAVE_DLOPEN
                     "\trestore     - restore a container\n"
 #endif
                     "\trun         - run a container\n"
@@ -177,19 +177,19 @@ static char doc[] = "\nCOMMANDS:\n"
                     "\tresume      - unpause the processes in the container\n"
                     "\tupdate      - update container resource constraints\n";
 
-static char args_doc[] = "COMMAND [OPTION...]";
+நிலையான எழுத்து args_doc[] = "COMMAND [OPTION...]";
 
-static struct commands_s *
-get_command (const char *arg)
+நிலையான கட்டமைப்பு commands_s *
+get_command (மாறிலி எழுத்து *arg)
 {
-  struct commands_s *it;
-  for (it = commands; it->value; it++)
-    if (strcmp (it->name, arg) == 0)
-      return it;
-  return NULL;
+  கட்டமைப்பு commands_s *it;
+  க்கு (it = commands; it->மதிப்பு; it++)
+    எனில் (strcmp (it->name, arg) == 0)
+      திரும்பு it;
+  திரும்பு வெற்று;
 }
 
-enum
+எண்ணிக்கை
 {
   OPTION_VERSION = 'v',
   OPTION_VERSION_CAP = 'V',
@@ -199,43 +199,43 @@ enum
   OPTION_LOG,
   OPTION_LOG_FORMAT,
   OPTION_LOG_LEVEL,
-  OPTION_ROOT,
+  OPTION_வேர்,
   OPTION_ROOTLESS
 };
 
-const char *argp_program_bug_address = "https://github.com/containers/crun/issues";
+மாறிலி எழுத்து *argp_program_bug_address = "https://github.com/containers/crun/issues";
 
-static struct argp_option options[] = { { "debug", OPTION_DEBUG, 0, 0, "produce verbose output, similar to --log-level=debug", 0 },
+நிலையான கட்டமைப்பு argp_option options[] = { { "debug", OPTION_DEBUG, 0, 0, "produce verbose output, similar to --log-level=debug", 0 },
                                         { "cgroup-manager", OPTION_CGROUP_MANAGER, "MANAGER", 0, "cgroup manager", 0 },
                                         { "systemd-cgroup", OPTION_SYSTEMD_CGROUP, 0, 0, "use systemd cgroups", 0 },
                                         { "log", OPTION_LOG, "FILE", 0, "log destination: '[file:]PATH', 'journald:ID' or 'syslog:ID' (defaults to stderr)", 0 },
                                         { "log-format", OPTION_LOG_FORMAT, "FORMAT", 0, "log format: 'text' (default) or 'json'", 0 },
                                         { "log-level", OPTION_LOG_LEVEL, "LEVEL", 0, "log level to use: 'error' (default), 'warning' or 'debug'", 0 },
-                                        { "root", OPTION_ROOT, "DIR", 0, NULL, 0 },
-                                        { "rootless", OPTION_ROOTLESS, "VALUE", 0, NULL, 0 },
-                                        { "version", OPTION_VERSION, 0, 0, NULL, 0 },
+                                        { "root", OPTION_வேர், "DIR", 0, வெற்று, 0 },
+                                        { "rootless", OPTION_ROOTLESS, "VALUE", 0, வெற்று, 0 },
+                                        { "version", OPTION_VERSION, 0, 0, வெற்று, 0 },
                                         // alias OPTION_VERSION_CAP with OPTION_VERSION
-                                        { NULL, OPTION_VERSION_CAP, 0, OPTION_ALIAS, NULL, 0 },
+                                        { வெற்று, OPTION_VERSION_CAP, 0, OPTION_ALIAS, வெற்று, 0 },
                                         {
                                             0,
                                         } };
 
-static void
-print_version (FILE *stream, struct argp_state *state arg_unused)
+நிலையான வெறுமை
+print_version (FILE *stream, கட்டமைப்பு argp_state *state arg_unused)
 {
-  libcrun_error_t err = NULL;
-  cleanup_free char *rundir = NULL;
+  libcrun_error_t err = வெற்று;
+  cleanup_free எழுத்து *rundir = வெற்று;
   libcrun_context_t *ctx;
-  char **tags;
-  int ret;
+  எழுத்து **tags;
+  முழு ret;
 
   fprintf (stream, "%s version %s\n", PACKAGE_NAME, PACKAGE_VERSION);
   fprintf (stream, "commit: %s\n", GIT_VERSION);
 
-  ret = libcrun_get_state_dir (&rundir, arguments.root, NULL, &err);
-  if (LIKELY (ret == 0))
+  ret = libcrun_get_state_dir (&rundir, arguments.வேர், வெற்று, &err);
+  எனில் (LIKELY (ret == 0))
     fprintf (stream, "rundir: %s\n", rundir);
-  else
+  இல்லையெனில்
     libcrun_error_release (&err);
 
   fprintf (stream, "spec: 1.0.0\n");
@@ -254,214 +254,214 @@ print_version (FILE *stream, struct argp_state *state arg_unused)
 #ifdef HAVE_EBPF
   fprintf (stream, "+EBPF ");
 #endif
-#if HAVE_CRIU && HAVE_DLOPEN
+#எனில் HAVE_CRIU && HAVE_DLOPEN
   fprintf (stream, "+CRIU ");
 #endif
 
-  ctx = libcrun_context_new (NULL, arguments.root, &err);
-  if (ctx)
+  ctx = libcrun_context_new (வெற்று, arguments.வேர், &err);
+  எனில் (ctx)
     {
       tags = libcrun_context_get_handler_feature_tags (ctx, &err);
-      if (tags)
+      எனில் (tags)
         {
-          for (size_t i = 0; tags[i]; i++)
+          க்கு (size_t i = 0; tags[i]; i++)
             {
               fprintf (stream, "+%s ", tags[i]);
-              free (tags[i]);
+              விடுவி (tags[i]);
             }
-          free (tags);
+          விடுவி (tags);
         }
-      else
+      இல்லையெனில்
         libcrun_error_release (&err);
       libcrun_context_free (ctx);
     }
-  else
+  இல்லையெனில்
     libcrun_error_release (&err);
 
   fprintf (stream, "+JSON_C\n");
 }
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+நிலையான error_t
+parse_opt (முழு சாவி, எழுத்து *arg, கட்டமைப்பு argp_state *state)
 {
-  const char *tmp;
+  மாறிலி எழுத்து *tmp;
 
-  switch (key)
+  தேர்வு (சாவி)
     {
-    case OPTION_DEBUG:
+    நிலை OPTION_DEBUG:
       arguments.verbosity = LIBCRUN_VERBOSITY_DEBUG;
-      break;
+      நிறுத்து;
 
-    case OPTION_CGROUP_MANAGER:
+    நிலை OPTION_CGROUP_MANAGER:
       tmp = argp_mandatory_argument (arg, state);
-      if (strcmp (tmp, "systemd") == 0)
+      எனில் (strcmp (tmp, "systemd") == 0)
         {
           arguments.option_force_no_cgroup = false;
           arguments.option_systemd_cgroup = true;
         }
-      else if (strcmp (tmp, "cgroupfs") == 0)
+      இல்லையெனில் எனில் (strcmp (tmp, "cgroupfs") == 0)
         {
           arguments.option_force_no_cgroup = false;
           arguments.option_systemd_cgroup = false;
         }
-      else if (strcmp (tmp, "disabled") == 0)
+      இல்லையெனில் எனில் (strcmp (tmp, "disabled") == 0)
         {
           arguments.option_systemd_cgroup = false;
           arguments.option_force_no_cgroup = true;
         }
-      else
+      இல்லையெனில்
         {
           libcrun_fail_with_error (0, "unknown cgroup manager specified");
         }
-      break;
+      நிறுத்து;
 
-    case OPTION_SYSTEMD_CGROUP:
+    நிலை OPTION_SYSTEMD_CGROUP:
       arguments.option_force_no_cgroup = false;
       arguments.option_systemd_cgroup = true;
-      break;
+      நிறுத்து;
 
-    case OPTION_LOG:
+    நிலை OPTION_LOG:
       arguments.log = argp_mandatory_argument (arg, state);
-      break;
+      நிறுத்து;
 
-    case OPTION_LOG_FORMAT:
+    நிலை OPTION_LOG_FORMAT:
       arguments.log_format = argp_mandatory_argument (arg, state);
-      break;
+      நிறுத்து;
 
-    case OPTION_LOG_LEVEL:
+    நிலை OPTION_LOG_LEVEL:
       tmp = argp_mandatory_argument (arg, state);
-      if (strcmp (tmp, "error") == 0)
+      எனில் (strcmp (tmp, "error") == 0)
         {
           arguments.verbosity = LIBCRUN_VERBOSITY_ERROR;
         }
-      else if (strcmp (tmp, "warning") == 0)
+      இல்லையெனில் எனில் (strcmp (tmp, "warning") == 0)
         {
           arguments.verbosity = LIBCRUN_VERBOSITY_WARNING;
         }
-      else if (strcmp (tmp, "debug") == 0)
+      இல்லையெனில் எனில் (strcmp (tmp, "debug") == 0)
         {
           arguments.verbosity = LIBCRUN_VERBOSITY_DEBUG;
         }
-      else
+      இல்லையெனில்
         {
           libcrun_fail_with_error (0, "unknown verbosity `%s` specified", arg);
         }
-      break;
+      நிறுத்து;
 
-    case OPTION_ROOT:
-      arguments.root = argp_mandatory_argument (arg, state);
-      break;
+    நிலை OPTION_வேர்:
+      arguments.வேர் = argp_mandatory_argument (arg, state);
+      நிறுத்து;
 
-    case OPTION_ROOTLESS:
+    நிலை OPTION_ROOTLESS:
       /* Ignored.  So that a runc command line won't fail.  */
-      break;
+      நிறுத்து;
 
-    case ARGP_KEY_NO_ARGS:
+    நிலை ARGP_சாவி_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a command");
 
-    case OPTION_VERSION:
-    case OPTION_VERSION_CAP:
+    நிலை OPTION_VERSION:
+    நிலை OPTION_VERSION_CAP:
       print_version (stdout, state);
       exit (EXIT_SUCCESS);
-    default:
-      return ARGP_ERR_UNKNOWN;
+    இயல்பு:
+      திரும்பு ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  திரும்பு 0;
 }
 
-static struct commands_s *command;
+நிலையான கட்டமைப்பு commands_s *command;
 
-void
-crun_assert_n_args (int n, int min, int max)
+வெறுமை
+crun_assert_n_args (முழு n, முழு min, முழு max)
 {
-  if (min >= 0 && n < min)
+  எனில் (min >= 0 && n < min)
     libcrun_fail_with_error (0, "`%s` requires a minimum of %d arguments", command->name, min);
-  if (max >= 0 && n > max)
+  எனில் (max >= 0 && n > max)
     libcrun_fail_with_error (0, "`%s` requires a maximum of %d arguments", command->name, max);
 }
 
-char *
-argp_mandatory_argument (char *arg, struct argp_state *state)
+எழுத்து *
+argp_mandatory_argument (எழுத்து *arg, கட்டமைப்பு argp_state *state)
 {
-  if (arg)
-    return arg;
-  return state->argv[state->next++];
+  எனில் (arg)
+    திரும்பு arg;
+  திரும்பு state->argv[state->next++];
 }
 
 /* Parse a numeric value from STR, aborting on an out-of-range or malformed
    value.  KIND names the field for error messages.  If ENDPTR is not NULL it
    is set past the parsed number (so the caller can continue parsing, e.g. a
    "UID:GID" pair); otherwise the whole string must be a valid number.  */
-int
-parse_id_or_fail (const char *str, char **endptr, const char *kind)
+முழு
+parse_id_or_fail (மாறிலி எழுத்து *str, எழுத்து **endptr, மாறிலி எழுத்து *kind)
 {
-  char *end = NULL;
+  எழுத்து *end = வெற்று;
   long long l;
 
   errno = 0;
   l = strtoll (str, &end, 10);
-  if (end == str)
+  எனில் (end == str)
     libcrun_fail_with_error (0, "invalid %s specified", kind);
-  if (errno == ERANGE)
+  எனில் (errno == ERANGE)
     libcrun_fail_with_error (0, "invalid %s specified", kind);
-  if (l < INT_MIN || l > INT_MAX)
+  எனில் (l < INT_MIN || l > INT_MAX)
     libcrun_fail_with_error (0, "invalid %s specified", kind);
 
-  if (endptr)
+  எனில் (endptr)
     *endptr = end;
-  else if (*end != '\0')
+  இல்லையெனில் எனில் (*end != '\0')
     libcrun_fail_with_error (0, "invalid %s specified", kind);
 
-  return (int) l;
+  திரும்பு (முழு) l;
 }
 
-static struct argp argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+நிலையான கட்டமைப்பு argp argp = { options, parse_opt, args_doc, doc, வெற்று, வெற்று, வெற்று };
 
-int ensure_cloned_binary (void);
+முழு ensure_cloned_இருமம் (வெறுமை);
 
-static void
-fill_handler_from_argv0 (char *argv0, struct crun_global_arguments *args)
+நிலையான வெறுமை
+fill_handler_from_argv0 (எழுத்து *argv0, கட்டமைப்பு crun_global_arguments *args)
 {
-  const char *b = basename (argv0);
+  மாறிலி எழுத்து *b = basename (argv0);
 #ifdef HAVE_LIBKRUN
-  if (strcmp (b, "krun") == 0)
+  எனில் (strcmp (b, "krun") == 0)
     {
       args->handler = "krun";
-      return;
+      திரும்பு;
     }
 #endif
-  if (strncmp (b, "crun-", 5) == 0 && b[5] != '\0')
+  எனில் (strncmp (b, "crun-", 5) == 0 && b[5] != '\0')
     args->handler = b + 5;
 }
 
-static char **
-copy_args (char **argv, int argc)
+நிலையான எழுத்து **
+copy_args (எழுத்து **argv, முழு argc)
 {
-  char **buff = xmalloc0 ((argc + 1) * sizeof (char *));
-  for (int i = 0; i < argc; i++)
+  எழுத்து **buff = xmalloc0 ((argc + 1) * அளவு (எழுத்து *));
+  க்கு (முழு i = 0; i < argc; i++)
     buff[i] = argv[i];
 
-  return buff;
+  திரும்பு buff;
 }
 
-int
-main (int argc, char **argv)
+முழு
+முதன்மை (முழு argc, எழுத்து **argv)
 {
-  libcrun_error_t err = NULL;
-  int ret, first_argument = 0;
+  libcrun_error_t err = வெற்று;
+  முழு ret, first_argument = 0;
 
   arguments.argc = argc;
   arguments.argv = argv;
 
 #ifdef DYNLOAD_LIBCRUN
-  if (ensure_cloned_binary () < 0)
+  எனில் (ensure_cloned_இருமம் () < 0)
     {
       fprintf (stderr, "Failed to re-execute libcrun via memory file descriptor\n");
       exit (EXIT_FAILURE);
     }
   /* Resolve all libcrun weak dependencies.  */
-  if (dlopen ("libcrun.so", RTLD_GLOBAL | RTLD_DEEPBIND | RTLD_LAZY) == NULL)
+  எனில் (dlopen ("libcrun.so", RTLD_GLOBAL | RTLD_DEEPBIND | RTLD_LAZY) == வெற்று)
     libcrun_fail_with_error (0, "could not load `libcrun.so`: `%s`", dlerror ());
 #endif
 
@@ -469,17 +469,17 @@ main (int argc, char **argv)
   argp_parse (&argp, argc, argv, ARGP_IN_ORDER, &first_argument, &arguments);
 
   command = get_command (argv[first_argument]);
-  if (command == NULL)
+  எனில் (command == வெற்று)
     libcrun_fail_with_error (0, "unknown command %s", argv[first_argument]);
 
-  int command_argc = argc - first_argument;
-  cleanup_free char **command_argv = copy_args (argv + first_argument, command_argc);
+  முழு command_argc = argc - first_argument;
+  cleanup_free எழுத்து **command_argv = copy_args (argv + first_argument, command_argc);
   command_argv[0] = argv[0];
 
   ret = command->handler (&arguments, command_argc, command_argv, &err);
-  if (ret && err)
+  எனில் (ret && err)
     {
-      if (command->value == COMMAND_EXEC)
+      எனில் (command->மதிப்பு == COMMAND_EXEC)
         {
           libcrun_error (libcrun_error_get_status (err), "%s", libcrun_error_get_message (err));
           exit (EXIT_EXEC_FAILURE);
@@ -487,5 +487,5 @@ main (int argc, char **argv)
       libcrun_fail_with_error (libcrun_error_get_status (err), "%s", libcrun_error_get_message (err));
     }
 
-  return ret;
+  திரும்பு ret;
 }

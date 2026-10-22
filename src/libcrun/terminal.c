@@ -20,71 +20,71 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "linux.h"
-#include "utils.h"
+#அந்தர்பாவ <config.h>
+#அந்தர்பாவ "linux.h"
+#அந்தர்பாவ "utils.h"
 
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <termios.h>
+#அந்தர்பாவ <stdlib.h>
+#அந்தர்பாவ <unistd.h>
+#அந்தர்பாவ <fcntl.h>
+#அந்தர்பாவ <sys/ioctl.h>
+#அந்தர்பாவ <termios.h>
 
 #ifndef TIOCGPTPEER
 #  define TIOCGPTPEER _IO ('T', 0x41)
 #endif
 
-struct terminal_status_s
+கட்டமைப்பு terminal_status_s
 {
-  int fd;
-  struct termios termios;
+  முழு fd;
+  கட்டமைப்பு termios termios;
 };
 
-int
-libcrun_new_terminal (char **pty, libcrun_error_t *err)
+முழு
+libcrun_new_terminal (எழுத்து **pty, libcrun_error_t *err)
 {
-  char buf[64];
-  int ret;
-  cleanup_close int fd = open ("/dev/ptmx", O_RDWR | O_NOCTTY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `/dev/ptmx`");
+  எழுத்து buf[64];
+  முழு ret;
+  cleanup_close முழு fd = open ("/dev/ptmx", O_RDWR | O_NOCTTY | O_CLOEXEC);
+  எனில் (UNLIKELY (fd < 0))
+    திரும்பு crun_make_error (err, errno, "open `/dev/ptmx`");
 
-  ret = ptsname_r (fd, buf, sizeof (buf));
-  if (UNLIKELY (ret != 0))
-    return crun_make_error (err, errno, "ptsname");
+  ret = ptsname_r (fd, buf, அளவு (buf));
+  எனில் (UNLIKELY (ret != 0))
+    திரும்பு crun_make_error (err, errno, "ptsname");
 
   ret = unlockpt (fd);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "unlockpt");
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு crun_make_error (err, errno, "unlockpt");
 
   *pty = xstrdup (buf);
 
   ret = fd;
   fd = -1;
 
-  return ret;
+  திரும்பு ret;
 }
 
-int
-libcrun_set_raw (int fd, void **current_status, libcrun_error_t *err)
+முழு
+libcrun_set_raw (முழு fd, வெறுமை **current_status, libcrun_error_t *err)
 {
-  int ret;
-  struct termios termios;
+  முழு ret;
+  கட்டமைப்பு termios termios;
 
   ret = tcgetattr (fd, &termios);
-  if (UNLIKELY (ret < 0))
+  எனில் (UNLIKELY (ret < 0))
     {
       /* Nothing to do if FD is not a terminal.  */
-      if (errno == ENOTTY)
-        return 0;
-      return crun_make_error (err, errno, "tcgetattr");
+      எனில் (errno == ENOTTY)
+        திரும்பு 0;
+      திரும்பு crun_make_error (err, errno, "tcgetattr");
     }
 
-  if (current_status)
+  எனில் (current_status)
     {
-      struct terminal_status_s *s = xmalloc (sizeof (*s));
+      கட்டமைப்பு terminal_status_s *s = xmalloc (அளவு (*s));
       s->fd = fd;
-      memcpy (&(s->termios), &termios, sizeof (termios));
+      memcpy (&(s->termios), &termios, அளவு (termios));
       *current_status = s;
     }
 
@@ -92,94 +92,94 @@ libcrun_set_raw (int fd, void **current_status, libcrun_error_t *err)
   termios.c_iflag = 0;
 
   ret = tcsetattr (fd, TCSANOW, &termios);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "tcsetattr");
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு crun_make_error (err, errno, "tcsetattr");
 
-  return 0;
+  திரும்பு 0;
 }
 
 /* Do not translate "\n" to "\r\n" on output, so that what the container
    writes to the terminal reaches our stdout unchanged.  */
-int
-libcrun_clear_onlcr (int fd, libcrun_error_t *err)
+முழு
+libcrun_clear_onlcr (முழு fd, libcrun_error_t *err)
 {
-  int ret;
-  struct termios termios;
+  முழு ret;
+  கட்டமைப்பு termios termios;
 
   ret = tcgetattr (fd, &termios);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "tcgetattr");
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு crun_make_error (err, errno, "tcgetattr");
 
   termios.c_oflag &= ~ONLCR;
 
   ret = tcsetattr (fd, TCSANOW, &termios);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "tcsetattr");
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு crun_make_error (err, errno, "tcsetattr");
 
-  return 0;
+  திரும்பு 0;
 }
 
-int
-libcrun_set_stdio (int ptmx_fd, char *pty, libcrun_error_t *err)
+முழு
+libcrun_set_stdio (முழு ptmx_fd, எழுத்து *pty, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
-  int ret, i;
+  cleanup_close முழு fd = -1;
+  முழு ret, i;
 
   /* Open the slave directly from the master.  The path is resolved in the
      container mount namespace, and could point anywhere.  */
   fd = ioctl (ptmx_fd, TIOCGPTPEER, O_RDWR | O_CLOEXEC);
-  if (fd < 0 && (errno == EINVAL || errno == ENOTTY))
+  எனில் (fd < 0 && (errno == EINVAL || errno == ENOTTY))
     {
       /* TIOCGPTPEER requires Linux 4.13.  */
       fd = open (pty, O_RDWR | O_CLOEXEC);
     }
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s`", pty);
+  எனில் (UNLIKELY (fd < 0))
+    திரும்பு crun_make_error (err, errno, "open `%s`", pty);
 
-  for (i = 0; i < 3; i++)
+  க்கு (i = 0; i < 3; i++)
     {
       ret = dup3 (fd, i, 0);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "dup terminal");
+      எனில் (UNLIKELY (ret < 0))
+        திரும்பு crun_make_error (err, errno, "dup terminal");
     }
 
   ret = ioctl (0, TIOCSCTTY, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "ioctl TIOCSCTTY");
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு crun_make_error (err, errno, "ioctl TIOCSCTTY");
 
-  return 0;
+  திரும்பு 0;
 }
 
-void
-cleanup_terminalp (void *p)
+வெறுமை
+cleanup_terminalp (வெறுமை *p)
 {
-  struct terminal_status_s **s = (struct terminal_status_s **) p;
-  if (*s)
+  கட்டமைப்பு terminal_status_s **s = (கட்டமைப்பு terminal_status_s **) p;
+  எனில் (*s)
     {
       tcsetattr ((*s)->fd, TCSANOW, &(*s)->termios);
-      free (*s);
+      விடுவி (*s);
     }
 }
 
-int
-libcrun_terminal_setup_size (int fd, unsigned short rows, unsigned short cols, libcrun_error_t *err)
+முழு
+libcrun_terminal_setup_size (முழு fd, unsigned short rows, unsigned short cols, libcrun_error_t *err)
 {
-  struct winsize ws = { .ws_row = rows, .ws_col = cols };
-  int ret;
+  கட்டமைப்பு winsize ws = { .ws_row = rows, .ws_col = cols };
+  முழு ret;
 
-  if (ws.ws_row == 0 || ws.ws_col == 0)
+  எனில் (ws.ws_row == 0 || ws.ws_col == 0)
     {
       ret = ioctl (0, TIOCGWINSZ, &ws);
-      if (UNLIKELY (ret < 0))
+      எனில் (UNLIKELY (ret < 0))
         {
-          if (errno == ENOTTY)
-            return 0;
-          return crun_make_error (err, errno, "ioctl TIOCGWINSZ");
+          எனில் (errno == ENOTTY)
+            திரும்பு 0;
+          திரும்பு crun_make_error (err, errno, "ioctl TIOCGWINSZ");
         }
     }
 
   ret = ioctl (fd, TIOCSWINSZ, &ws);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "ioctl TIOCSWINSZ");
-  return 0;
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு crun_make_error (err, errno, "ioctl TIOCSWINSZ");
+  திரும்பு 0;
 }

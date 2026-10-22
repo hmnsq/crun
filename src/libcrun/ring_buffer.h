@@ -18,34 +18,34 @@
 #ifndef RING_BUFFER_H
 #define RING_BUFFER_H
 
-#include <config.h>
+#அந்தர்பாவ <config.h>
 
-#include "error.h"
-#include "utils.h"
+#அந்தர்பாவ "error.h"
+#அந்தர்பாவ "utils.h"
 
-struct ring_buffer;
+கட்டமைப்பு ring_buffer;
 
-size_t ring_buffer_get_data_available (struct ring_buffer *rb);
+size_t ring_buffer_get_data_available (கட்டமைப்பு ring_buffer *rb);
 
-size_t ring_buffer_get_space_available (struct ring_buffer *rb);
+size_t ring_buffer_get_space_available (கட்டமைப்பு ring_buffer *rb);
 
-size_t ring_buffer_get_size (struct ring_buffer *rb);
+size_t ring_buffer_get_size (கட்டமைப்பு ring_buffer *rb);
 
-int ring_buffer_read (struct ring_buffer *rb, int fd, bool *is_eagain, libcrun_error_t *err);
+முழு ring_buffer_read (கட்டமைப்பு ring_buffer *rb, முழு fd, bool *is_eagain, libcrun_error_t *err);
 
-int ring_buffer_write (struct ring_buffer *rb, int fd, bool *is_eagain, libcrun_error_t *err);
+முழு ring_buffer_write (கட்டமைப்பு ring_buffer *rb, முழு fd, bool *is_eagain, libcrun_error_t *err);
 
-struct ring_buffer *ring_buffer_make (size_t size);
+கட்டமைப்பு ring_buffer *ring_buffer_make (size_t size);
 
-void ring_buffer_free (struct ring_buffer *rb);
+வெறுமை ring_buffer_free (கட்டமைப்பு ring_buffer *rb);
 
 #define cleanup_ring_buffer __attribute__ ((cleanup (cleanup_ring_bufferp)))
 
-static inline void
-cleanup_ring_bufferp (struct ring_buffer **p)
+நிலையான உள்வரி வெறுமை
+cleanup_ring_bufferp (கட்டமைப்பு ring_buffer **p)
 {
-  struct ring_buffer *rb = *p;
-  if (rb)
+  கட்டமைப்பு ring_buffer *rb = *p;
+  எனில் (rb)
     ring_buffer_free (rb);
 }
 

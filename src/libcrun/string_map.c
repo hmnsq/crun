@@ -18,154 +18,154 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include <stdlib.h>
-#include <errno.h>
-#include "string_map.h"
-#include "utils.h"
+#அந்தர்பாவ <config.h>
+#அந்தர்பாவ <stdlib.h>
+#அந்தர்பாவ <errno.h>
+#அந்தர்பாவ "string_map.h"
+#அந்தர்பாவ "utils.h"
 
-#include <ocispec/runtime_spec_schema_config_schema.h>
+#அந்தர்பாவ <ocispec/runtime_spec_schema_config_schema.h>
 
-struct kv_s
+கட்டமைப்பு kv_s
 {
-  char *key;
-  char *value;
+  எழுத்து *சாவி;
+  எழுத்து *மதிப்பு;
 };
 
-struct string_map_s
+கட்டமைப்பு string_map_s
 {
   size_t len;
-  struct kv_s *kvs;
+  கட்டமைப்பு kv_s *kvs;
 
 #ifdef HAVE_HSEARCH_R
-  struct hsearch_data htab;
+  கட்டமைப்பு hsearch_data htab;
   bool htab_initialized;
 #endif
 
   bool sorted;
 };
 
-static int
-compare_kv (const void *a, const void *b)
+நிலையான முழு
+compare_kv (மாறிலி வெறுமை *a, மாறிலி வெறுமை *b)
 {
-  return strcmp (((struct kv_s *) a)->key, ((struct kv_s *) b)->key);
+  திரும்பு strcmp (((கட்டமைப்பு kv_s *) a)->சாவி, ((கட்டமைப்பு kv_s *) b)->சாவி);
 }
 
-const char *
-find_string_map_value (string_map *map, const char *name)
+மாறிலி எழுத்து *
+find_string_map_மதிப்பு (string_map *map, மாறிலி எழுத்து *name)
 
 {
-  struct kv_s *r, key;
+  கட்டமைப்பு kv_s *r, சாவி;
 
-  if (map == NULL || map->len == 0)
-    return NULL;
+  எனில் (map == வெற்று || map->len == 0)
+    திரும்பு வெற்று;
 
 #ifdef HAVE_HSEARCH_R
   ENTRY e, *ep;
 
   /* Do not bother with hash tables for small maps.  */
-  if (map->len < 8)
-    goto fallback;
+  எனில் (map->len < 8)
+    செல் fallback;
 
-  if (! map->htab_initialized)
+  எனில் (! map->htab_initialized)
     {
       size_t i;
 
-      if (hcreate_r (map->len, &map->htab) == 0)
-        goto fallback;
+      எனில் (hcreate_r (map->len, &map->htab) == 0)
+        செல் fallback;
 
-      for (i = 0; i < map->len; i++)
+      க்கு (i = 0; i < map->len; i++)
         {
-          e.key = (char *) map->kvs[i].key;
-          e.data = map->kvs[i].value;
-          if (hsearch_r (e, ENTER, &ep, &map->htab) == 0)
+          e.சாவி = (எழுத்து *) map->kvs[i].சாவி;
+          e.data = map->kvs[i].மதிப்பு;
+          எனில் (hsearch_r (e, ENTER, &ep, &map->htab) == 0)
             {
               hdestroy_r (&map->htab);
-              goto fallback;
+              செல் fallback;
             }
         }
       map->htab_initialized = true;
     }
 
-  e.key = (char *) name;
-  if (hsearch_r (e, FIND, &ep, &map->htab) == 0)
-    return NULL;
+  e.சாவி = (எழுத்து *) name;
+  எனில் (hsearch_r (e, FIND, &ep, &map->htab) == 0)
+    திரும்பு வெற்று;
 
-  return ep->data;
+  திரும்பு ep->data;
 
 fallback:
 #endif
 
-  if (! map->sorted)
+  எனில் (! map->sorted)
     {
-      qsort (map->kvs, map->len, sizeof (struct kv_s), compare_kv);
+      qsort (map->kvs, map->len, அளவு (கட்டமைப்பு kv_s), compare_kv);
       map->sorted = true;
     }
 
-  key.key = (char *) name;
+  சாவி.சாவி = (எழுத்து *) name;
 
-  r = bsearch (&key, map->kvs, map->len, sizeof (struct kv_s), compare_kv);
-  return r ? r->value : NULL;
+  r = bsearch (&சாவி, map->kvs, map->len, அளவு (கட்டமைப்பு kv_s), compare_kv);
+  திரும்பு r ? r->மதிப்பு : வெற்று;
 }
 
 string_map *
 make_string_map_from_json (json_map_string_string *jmap)
 {
-  struct string_map_s *new_map = xmalloc0 (sizeof (struct string_map_s));
+  கட்டமைப்பு string_map_s *new_map = xmalloc0 (அளவு (கட்டமைப்பு string_map_s));
   size_t i;
 
-  if (jmap == NULL)
-    return new_map;
+  எனில் (jmap == வெற்று)
+    திரும்பு new_map;
 
   new_map->len = jmap->len;
-  new_map->kvs = xmalloc0 (sizeof (struct kv_s) * (jmap->len + 1));
+  new_map->kvs = xmalloc0 (அளவு (கட்டமைப்பு kv_s) * (jmap->len + 1));
 
-  for (i = 0; i < jmap->len; i++)
+  க்கு (i = 0; i < jmap->len; i++)
     {
-      new_map->kvs[i].key = xstrdup (jmap->keys[i]);
-      new_map->kvs[i].value = xstrdup (jmap->values[i]);
+      new_map->kvs[i].சாவி = xstrdup (jmap->சாவிகள்[i]);
+      new_map->kvs[i].மதிப்பு = xstrdup (jmap->மதிப்புகள்[i]);
     }
 
-  return new_map;
+  திரும்பு new_map;
 }
 
-int
-string_map_get_at (string_map *map, size_t index, const char **name, const char **value)
+முழு
+string_map_get_at (string_map *map, size_t index, மாறிலி எழுத்து **name, மாறிலி எழுத்து **மதிப்பு)
 {
-  if (map == NULL || index >= map->len)
+  எனில் (map == வெற்று || index >= map->len)
     {
       errno = ERANGE;
-      return -1;
+      திரும்பு -1;
     }
 
-  *name = map->kvs[index].key;
-  *value = map->kvs[index].value;
+  *name = map->kvs[index].சாவி;
+  *மதிப்பு = map->kvs[index].மதிப்பு;
 
-  return 0;
+  திரும்பு 0;
 }
 
-void
+வெறுமை
 free_string_map (string_map *map)
 {
   size_t i;
 
-  if (map == NULL)
-    return;
+  எனில் (map == வெற்று)
+    திரும்பு;
 
-  if (map->htab_initialized)
+  எனில் (map->htab_initialized)
     hdestroy_r (&map->htab);
 
-  for (i = 0; i < map->len; i++)
+  க்கு (i = 0; i < map->len; i++)
     {
-      free (map->kvs[i].key);
-      free (map->kvs[i].value);
+      விடுவி (map->kvs[i].சாவி);
+      விடுவி (map->kvs[i].மதிப்பு);
     }
-  free (map->kvs);
-  free (map);
+  விடுவி (map->kvs);
+  விடுவி (map);
 }
 
 size_t
 string_map_size (string_map *map)
 {
-  return map->len;
+  திரும்பு map->len;
 }

@@ -17,11 +17,11 @@
  */
 #ifndef MEMPOLICY_H
 #define MEMPOLICY_H
-#include <config.h>
-#include "error.h"
-#include "container.h"
-#include "status.h"
+#அந்தர்பாவ <config.h>
+#அந்தர்பாவ "error.h"
+#அந்தர்பாவ "container.h"
+#அந்தர்பாவ "status.h"
 
-int libcrun_set_mempolicy (runtime_spec_schema_config_schema *def, libcrun_error_t *err);
+முழு libcrun_set_mempolicy (runtime_spec_schema_config_schema *def, libcrun_error_t *err);
 
 #endif

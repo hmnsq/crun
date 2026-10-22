@@ -18,24 +18,24 @@
 #ifndef SECCOMP_NOTIFY_H
 #define SECCOMP_NOTIFY_H
 
-#include <config.h>
-#include "error.h"
+#அந்தர்பாவ <config.h>
+#அந்தர்பாவ "error.h"
 
-#if ! (HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES)
+#எனில் ! (HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES)
 #  define SECCOMP_NOTIFY_SKIP_TYPEDEF
 #endif
-#include "seccomp_notify_plugin.h"
+#அந்தர்பாவ "seccomp_notify_plugin.h"
 
-struct seccomp_notify_context_s;
+கட்டமைப்பு seccomp_notify_context_s;
 
-LIBCRUN_PUBLIC int libcrun_load_seccomp_notify_plugins (struct seccomp_notify_context_s **out, const char *plugins,
-                                                        struct libcrun_load_seccomp_notify_conf_s *conf,
+LIBCRUN_PUBLIC முழு libcrun_load_seccomp_notify_plugins (கட்டமைப்பு seccomp_notify_context_s **out, மாறிலி எழுத்து *plugins,
+                                                        கட்டமைப்பு libcrun_load_seccomp_notify_conf_s *conf,
                                                         libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, int seccomp_fd,
+LIBCRUN_PUBLIC முழு libcrun_seccomp_notify_plugins (கட்டமைப்பு seccomp_notify_context_s *ctx, முழு seccomp_fd,
                                                    libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_free_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, libcrun_error_t *err);
+LIBCRUN_PUBLIC முழு libcrun_free_seccomp_notify_plugins (கட்டமைப்பு seccomp_notify_context_s *ctx, libcrun_error_t *err);
 
 #define cleanup_seccomp_notify_context __attribute__ ((cleanup (cleanup_seccomp_notify_pluginsp)))
-void cleanup_seccomp_notify_pluginsp (void *p);
+வெறுமை cleanup_seccomp_notify_pluginsp (வெறுமை *p);
 
 #endif

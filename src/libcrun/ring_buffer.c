@@ -16,15 +16,15 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 #define _GNU_SOURCE
-#include <config.h>
-#include <sys/uio.h>
+#அந்தர்பாவ <config.h>
+#அந்தர்பாவ <sys/uio.h>
 
-#include "ring_buffer.h"
-#include "utils.h"
+#அந்தர்பாவ "ring_buffer.h"
+#அந்தர்பாவ "utils.h"
 
-struct ring_buffer
+கட்டமைப்பு ring_buffer
 {
-  char *buffer;
+  எழுத்து *buffer;
   size_t size;
   size_t head;
   size_t tail;
@@ -33,190 +33,190 @@ struct ring_buffer
 /*
  * It returns up to two regions in `iov` that can be read from.
  */
-static int
-ring_buffer_get_read_iov (struct ring_buffer *rb, struct iovec *iov)
+நிலையான முழு
+ring_buffer_get_read_iov (கட்டமைப்பு ring_buffer *rb, கட்டமைப்பு iovec *iov)
 {
-  int iov_count = 0;
+  முழு iov_மொத்தம் = 0;
 
   /* Buffer is empty.  */
-  if (rb->head == rb->tail)
-    return 0;
+  எனில் (rb->head == rb->tail)
+    திரும்பு 0;
 
   /* Head before tail.  There is only one region to read from, up to tail.  */
-  if (rb->tail > rb->head)
+  எனில் (rb->tail > rb->head)
     {
-      iov[iov_count].iov_base = rb->buffer + rb->head;
-      iov[iov_count].iov_len = rb->tail - rb->head;
-      iov_count++;
+      iov[iov_மொத்தம்].iov_base = rb->buffer + rb->head;
+      iov[iov_மொத்தம்].iov_len = rb->tail - rb->head;
+      iov_மொத்தம்++;
     }
   /* Head after tail.  There are two regions to read from, up to the
    * end of the buffer and from the beginning of the buffer to tail.  */
-  else
+  இல்லையெனில்
     {
-      iov[iov_count].iov_base = rb->buffer + rb->head;
-      iov[iov_count].iov_len = rb->size - rb->head;
-      iov_count++;
+      iov[iov_மொத்தம்].iov_base = rb->buffer + rb->head;
+      iov[iov_மொத்தம்].iov_len = rb->size - rb->head;
+      iov_மொத்தம்++;
 
-      if (rb->tail > 0)
+      எனில் (rb->tail > 0)
         {
-          iov[iov_count].iov_base = rb->buffer;
-          iov[iov_count].iov_len = rb->tail;
-          iov_count++;
+          iov[iov_மொத்தம்].iov_base = rb->buffer;
+          iov[iov_மொத்தம்].iov_len = rb->tail;
+          iov_மொத்தம்++;
         }
     }
-  return iov_count;
+  திரும்பு iov_மொத்தம்;
 }
 
 /*
  * It returns up to two regions in `iov` that can be written to without overwriting
  * existing data.
  */
-static int
-ring_buffer_get_write_iov (struct ring_buffer *rb, struct iovec *iov)
+நிலையான முழு
+ring_buffer_get_write_iov (கட்டமைப்பு ring_buffer *rb, கட்டமைப்பு iovec *iov)
 {
-  int iov_count = 0;
+  முழு iov_மொத்தம் = 0;
 
   /* Buffer is full.  */
-  if ((rb->tail + 1) % rb->size == rb->head)
-    return 0;
+  எனில் ((rb->tail + 1) % rb->size == rb->head)
+    திரும்பு 0;
 
   /* Tail before head.  There is only one region to write to, up to head.  */
-  if (rb->head > rb->tail + 1)
+  எனில் (rb->head > rb->tail + 1)
     {
-      iov[iov_count].iov_base = rb->buffer + rb->tail;
-      iov[iov_count].iov_len = rb->head - rb->tail - 1;
-      iov_count++;
+      iov[iov_மொத்தம்].iov_base = rb->buffer + rb->tail;
+      iov[iov_மொத்தம்].iov_len = rb->head - rb->tail - 1;
+      iov_மொத்தம்++;
     }
   /* Tail after or equal to head.  There are two regions to write to, up to the
    * end of the buffer and from the beginning of the buffer to head.  */
-  else
+  இல்லையெனில்
     {
-      iov[iov_count].iov_base = rb->buffer + rb->tail;
-      iov[iov_count].iov_len = rb->head == 0 ? rb->size - rb->tail - 1 : rb->size - rb->tail;
-      iov_count++;
+      iov[iov_மொத்தம்].iov_base = rb->buffer + rb->tail;
+      iov[iov_மொத்தம்].iov_len = rb->head == 0 ? rb->size - rb->tail - 1 : rb->size - rb->tail;
+      iov_மொத்தம்++;
 
-      if (rb->head > 1)
+      எனில் (rb->head > 1)
         {
-          iov[iov_count].iov_base = rb->buffer;
-          iov[iov_count].iov_len = rb->head - 1;
-          iov_count++;
+          iov[iov_மொத்தம்].iov_base = rb->buffer;
+          iov[iov_மொத்தம்].iov_len = rb->head - 1;
+          iov_மொத்தம்++;
         }
     }
-  return iov_count;
+  திரும்பு iov_மொத்தம்;
 }
 
 /* manually advance the head after a successful read.  */
-static void
-ring_buffer_advance_nocheck_head (struct ring_buffer *rb, size_t amount)
+நிலையான வெறுமை
+ring_buffer_advance_nocheck_head (கட்டமைப்பு ring_buffer *rb, size_t amount)
 {
   rb->head = (rb->head + amount) % rb->size;
 }
 
 /* manually advance the tail after a successful write.  */
-static void
-ring_buffer_advance_nocheck_tail (struct ring_buffer *rb, size_t amount)
+நிலையான வெறுமை
+ring_buffer_advance_nocheck_tail (கட்டமைப்பு ring_buffer *rb, size_t amount)
 {
   rb->tail = (rb->tail + amount) % rb->size;
 }
 
 size_t
-ring_buffer_get_data_available (struct ring_buffer *rb)
+ring_buffer_get_data_available (கட்டமைப்பு ring_buffer *rb)
 {
-  if (rb->head <= rb->tail)
-    return rb->tail - rb->head;
+  எனில் (rb->head <= rb->tail)
+    திரும்பு rb->tail - rb->head;
 
-  return rb->size - rb->head + rb->tail;
+  திரும்பு rb->size - rb->head + rb->tail;
 }
 
 size_t
-ring_buffer_get_size (struct ring_buffer *rb)
+ring_buffer_get_size (கட்டமைப்பு ring_buffer *rb)
 {
-  return rb->size - 1;
+  திரும்பு rb->size - 1;
 }
 
 size_t
-ring_buffer_get_space_available (struct ring_buffer *rb)
+ring_buffer_get_space_available (கட்டமைப்பு ring_buffer *rb)
 {
-  return rb->size - ring_buffer_get_data_available (rb) - 1;
+  திரும்பு rb->size - ring_buffer_get_data_available (rb) - 1;
 }
 
-int
-ring_buffer_read (struct ring_buffer *rb, int fd, bool *is_eagain, libcrun_error_t *err)
+முழு
+ring_buffer_read (கட்டமைப்பு ring_buffer *rb, முழு fd, bool *is_eagain, libcrun_error_t *err)
 {
-  struct iovec iov[2];
-  int iov_count = 0;
+  கட்டமைப்பு iovec iov[2];
+  முழு iov_மொத்தம் = 0;
   ssize_t ret;
 
   *is_eagain = false;
 
-  iov_count = ring_buffer_get_write_iov (rb, iov);
-  if (iov_count == 0)
+  iov_மொத்தம் = ring_buffer_get_write_iov (rb, iov);
+  எனில் (iov_மொத்தம் == 0)
     {
       *is_eagain = true;
-      return 0;
+      திரும்பு 0;
     }
 
-  ret = readv (fd, iov, iov_count);
-  if (UNLIKELY (ret < 0))
+  ret = readv (fd, iov, iov_மொத்தம்);
+  எனில் (UNLIKELY (ret < 0))
     {
       /* A terminal that was hung up fails with EIO.  As with EAGAIN, there
          is nothing to read until the state of the fd changes.  */
-      if (errno == EIO || errno == EAGAIN || errno == EWOULDBLOCK)
+      எனில் (errno == EIO || errno == EAGAIN || errno == EWOULDBLOCK)
         {
           *is_eagain = true;
-          return 0;
+          திரும்பு 0;
         }
-      return crun_make_error (err, errno, "readv");
+      திரும்பு crun_make_error (err, errno, "readv");
     }
   /* The same holds at EOF.  */
-  if (ret == 0)
+  எனில் (ret == 0)
     *is_eagain = true;
   ring_buffer_advance_nocheck_tail (rb, ret);
-  return ret;
+  திரும்பு ret;
 }
 
-int
-ring_buffer_write (struct ring_buffer *rb, int fd, bool *is_eagain, libcrun_error_t *err)
+முழு
+ring_buffer_write (கட்டமைப்பு ring_buffer *rb, முழு fd, bool *is_eagain, libcrun_error_t *err)
 {
   ssize_t ret;
-  struct iovec iov[2];
-  int iov_count = 0;
+  கட்டமைப்பு iovec iov[2];
+  முழு iov_மொத்தம் = 0;
 
   *is_eagain = false;
 
-  iov_count = ring_buffer_get_read_iov (rb, iov);
-  if (iov_count == 0)
+  iov_மொத்தம் = ring_buffer_get_read_iov (rb, iov);
+  எனில் (iov_மொத்தம் == 0)
     {
       *is_eagain = true;
-      return 0;
+      திரும்பு 0;
     }
 
-  ret = writev (fd, iov, iov_count);
-  if (UNLIKELY (ret < 0))
+  ret = writev (fd, iov, iov_மொத்தம்);
+  எனில் (UNLIKELY (ret < 0))
     {
       /* A terminal that was hung up fails with EIO.  As with EAGAIN, there
          is nothing to write until the state of the fd changes.  */
-      if (errno == EIO || errno == EAGAIN || errno == EWOULDBLOCK)
+      எனில் (errno == EIO || errno == EAGAIN || errno == EWOULDBLOCK)
         {
           *is_eagain = true;
-          return 0;
+          திரும்பு 0;
         }
-      return crun_make_error (err, errno, "writev");
+      திரும்பு crun_make_error (err, errno, "writev");
     }
   ring_buffer_advance_nocheck_head (rb, ret);
   /* If the buffer is empty, reset the head and tail.  */
-  if (rb->head == rb->tail)
+  எனில் (rb->head == rb->tail)
     {
       rb->head = 0;
       rb->tail = 0;
     }
-  return ret;
+  திரும்பு ret;
 }
 
-struct ring_buffer *
+கட்டமைப்பு ring_buffer *
 ring_buffer_make (size_t size)
 {
-  struct ring_buffer *rb = xmalloc (sizeof (struct ring_buffer));
+  கட்டமைப்பு ring_buffer *rb = xmalloc (அளவு (கட்டமைப்பு ring_buffer));
 
   /* The extra byte is used to distinguish between full and empty buffer.  */
   rb->size = size + 1;
@@ -224,14 +224,14 @@ ring_buffer_make (size_t size)
   rb->head = 0;
   rb->tail = 0;
 
-  return rb;
+  திரும்பு rb;
 }
 
-void
-ring_buffer_free (struct ring_buffer *rb)
+வெறுமை
+ring_buffer_free (கட்டமைப்பு ring_buffer *rb)
 {
-  if (rb == NULL)
-    return;
-  free (rb->buffer);
-  free (rb);
+  எனில் (rb == வெற்று)
+    திரும்பு;
+  விடுவி (rb->buffer);
+  விடுவி (rb);
 }

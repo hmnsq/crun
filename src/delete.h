@@ -18,8 +18,8 @@
 #ifndef DELETE_H
 #define DELETE_H
 
-#include "crun.h"
+#அந்தர்பாவ "crun.h"
 
-int crun_command_delete (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+முழு crun_command_delete (கட்டமைப்பு crun_global_arguments *global_args, முழு argc, எழுத்து **argv, libcrun_error_t *error);
 
 #endif

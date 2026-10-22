@@ -16,40 +16,40 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <limits.h>
+#அந்தர்பாவ <config.h>
+#அந்தர்பாவ <stdio.h>
+#அந்தர்பாவ <stdlib.h>
+#அந்தர்பாவ <argp.h>
+#அந்தர்பாவ <string.h>
+#அந்தர்பாவ <unistd.h>
+#அந்தர்பாவ <errno.h>
+#அந்தர்பாவ <limits.h>
 
-#include "crun.h"
+#அந்தர்பாவ "crun.h"
 
-static char doc[] = "OCI runtime";
+நிலையான எழுத்து doc[] = "OCI runtime";
 
-struct exec_options_s
+கட்டமைப்பு exec_options_s
 {
   bool tty;
   bool detach;
   bool no_new_privs;
-  int preserve_fds;
-  const char *process;
-  const char *console_socket;
-  const char *pid_file;
-  char *process_label;
-  char *apparmor;
-  char *cwd;
-  char *user;
-  char **env;
-  char **cap;
+  முழு preserve_fds;
+  மாறிலி எழுத்து *process;
+  மாறிலி எழுத்து *console_socket;
+  மாறிலி எழுத்து *pid_file;
+  எழுத்து *process_label;
+  எழுத்து *apparmor;
+  எழுத்து *cwd;
+  எழுத்து *user;
+  எழுத்து **env;
+  எழுத்து **cap;
   size_t cap_size;
   size_t env_size;
-  char *cgroup;
+  எழுத்து *cgroup;
 };
 
-enum
+எண்ணிக்கை
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -61,9 +61,9 @@ enum
   OPTION_CGROUP,
 };
 
-static struct exec_options_s exec_options;
+நிலையான கட்டமைப்பு exec_options_s exec_options;
 
-static struct argp_option options[]
+நிலையான கட்டமைப்பு argp_option options[]
     = { { "console-socket", OPTION_CONSOLE_SOCKET, "SOCKET", 0,
           "path to a socket that will receive the ptmx end of the tty", 0 },
         { "tty", 't', "TTY", OPTION_ARG_OPTIONAL, "allocate a pseudo-TTY", 0 },
@@ -83,127 +83,127 @@ static struct argp_option options[]
             0,
         } };
 
-static char args_doc[] = "exec CONTAINER cmd";
+நிலையான எழுத்து args_doc[] = "exec CONTAINER cmd";
 
-static void
-append_to_string_array (char ***arr, size_t *size, const char *arg)
+நிலையான வெறுமை
+append_to_string_array (எழுத்து ***arr, size_t *size, மாறிலி எழுத்து *arg)
 {
-  *arr = xrealloc (*arr, (*size + 2) * sizeof (**arr));
-  (*arr)[*size + 1] = NULL;
+  *arr = xrealloc (*arr, (*size + 2) * அளவு (**arr));
+  (*arr)[*size + 1] = வெற்று;
   (*arr)[*size] = xstrdup (arg);
   (*size)++;
 }
 
-static void
-append_env (const char *arg)
+நிலையான வெறுமை
+append_env (மாறிலி எழுத்து *arg)
 {
   append_to_string_array (&exec_options.env, &exec_options.env_size, arg);
 }
 
-static void
-append_cap (const char *arg)
+நிலையான வெறுமை
+append_cap (மாறிலி எழுத்து *arg)
 {
   append_to_string_array (&exec_options.cap, &exec_options.cap_size, arg);
 }
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+நிலையான error_t
+parse_opt (முழு சாவி, எழுத்து *arg, கட்டமைப்பு argp_state *state)
 {
-  switch (key)
+  தேர்வு (சாவி)
     {
-    case OPTION_CONSOLE_SOCKET:
+    நிலை OPTION_CONSOLE_SOCKET:
       exec_options.console_socket = arg;
-      break;
+      நிறுத்து;
 
-    case OPTION_PID_FILE:
+    நிலை OPTION_PID_FILE:
       exec_options.pid_file = arg;
-      break;
+      நிறுத்து;
 
-    case OPTION_NO_NEW_PRIVS:
+    நிலை OPTION_NO_NEW_PRIVS:
       exec_options.no_new_privs = true;
-      break;
+      நிறுத்து;
 
-    case OPTION_PROCESS_LABEL:
+    நிலை OPTION_PROCESS_LABEL:
       exec_options.process_label = argp_mandatory_argument (arg, state);
-      break;
+      நிறுத்து;
 
-    case OPTION_APPARMOR:
+    நிலை OPTION_APPARMOR:
       exec_options.apparmor = argp_mandatory_argument (arg, state);
-      break;
+      நிறுத்து;
 
-    case OPTION_PRESERVE_FDS:
-      exec_options.preserve_fds = parse_id_or_fail (argp_mandatory_argument (arg, state), NULL, "preserve-fds");
-      break;
+    நிலை OPTION_PRESERVE_FDS:
+      exec_options.preserve_fds = parse_id_or_fail (argp_mandatory_argument (arg, state), வெற்று, "preserve-fds");
+      நிறுத்து;
 
-    case OPTION_CGROUP:
+    நிலை OPTION_CGROUP:
       exec_options.cgroup = argp_mandatory_argument (arg, state);
-      break;
+      நிறுத்து;
 
-    case 'd':
+    நிலை 'd':
       exec_options.detach = true;
-      break;
+      நிறுத்து;
 
-    case 'p':
+    நிலை 'p':
       exec_options.process = arg;
-      break;
+      நிறுத்து;
 
-    case 't':
-      exec_options.tty = arg == NULL || (strcmp (arg, "false") != 0 && strcmp (arg, "no") != 0);
-      break;
+    நிலை 't':
+      exec_options.tty = arg == வெற்று || (strcmp (arg, "false") != 0 && strcmp (arg, "no") != 0);
+      நிறுத்து;
 
-    case 'u':
+    நிலை 'u':
       exec_options.user = arg;
-      break;
+      நிறுத்து;
 
-    case 'e':
+    நிலை 'e':
       append_env (arg);
-      break;
+      நிறுத்து;
 
-    case 'c':
+    நிலை 'c':
       append_cap (arg);
-      break;
+      நிறுத்து;
 
-    case OPTION_CWD:
+    நிலை OPTION_CWD:
       exec_options.cwd = xstrdup (arg);
-      break;
+      நிறுத்து;
 
-    case ARGP_KEY_NO_ARGS:
+    நிலை ARGP_சாவி_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    இயல்பு:
+      திரும்பு ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  திரும்பு 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+நிலையான கட்டமைப்பு argp run_argp = { options, parse_opt, args_doc, doc, வெற்று, வெற்று, வெற்று };
 
 /* Minimal growable string buffer used to assemble the OCI Process JSON.  The
    binary is a pure consumer of the public API, so it builds the process as a
    JSON string rather than reaching for the internal ocispec types.  */
-struct strbuf
+கட்டமைப்பு strbuf
 {
-  char *buf;
+  எழுத்து *buf;
   size_t len;
   size_t cap;
 };
 
-static void
-sb_ensure (struct strbuf *sb, size_t extra)
+நிலையான வெறுமை
+sb_ensure (கட்டமைப்பு strbuf *sb, size_t extra)
 {
-  if (sb->len + extra + 1 > sb->cap)
+  எனில் (sb->len + extra + 1 > sb->cap)
     {
       size_t ncap = sb->cap ? sb->cap : 256;
-      while (ncap < sb->len + extra + 1)
+      போது (ncap < sb->len + extra + 1)
         ncap *= 2;
       sb->buf = xrealloc (sb->buf, ncap);
       sb->cap = ncap;
     }
 }
 
-static void
-sb_puts (struct strbuf *sb, const char *s)
+நிலையான வெறுமை
+sb_puts (கட்டமைப்பு strbuf *sb, மாறிலி எழுத்து *s)
 {
   size_t l = strlen (s);
   sb_ensure (sb, l);
@@ -212,8 +212,8 @@ sb_puts (struct strbuf *sb, const char *s)
   sb->buf[sb->len] = '\0';
 }
 
-static void
-sb_putc (struct strbuf *sb, char c)
+நிலையான வெறுமை
+sb_putc (கட்டமைப்பு strbuf *sb, எழுத்து c)
 {
   sb_ensure (sb, 1);
   sb->buf[sb->len++] = c;
@@ -221,58 +221,58 @@ sb_putc (struct strbuf *sb, char c)
 }
 
 /* Append S as a quoted, escaped JSON string.  */
-static void
-sb_put_json_string (struct strbuf *sb, const char *s)
+நிலையான வெறுமை
+sb_put_json_string (கட்டமைப்பு strbuf *sb, மாறிலி எழுத்து *s)
 {
   sb_putc (sb, '"');
-  for (; *s; s++)
+  க்கு (; *s; s++)
     {
-      unsigned char c = (unsigned char) *s;
-      switch (c)
+      unsigned எழுத்து c = (unsigned எழுத்து) *s;
+      தேர்வு (c)
         {
-        case '"':
+        நிலை '"':
           sb_puts (sb, "\\\"");
-          break;
-        case '\\':
+          நிறுத்து;
+        நிலை '\\':
           sb_puts (sb, "\\\\");
-          break;
-        case '\b':
+          நிறுத்து;
+        நிலை '\b':
           sb_puts (sb, "\\b");
-          break;
-        case '\f':
+          நிறுத்து;
+        நிலை '\f':
           sb_puts (sb, "\\f");
-          break;
-        case '\n':
+          நிறுத்து;
+        நிலை '\n':
           sb_puts (sb, "\\n");
-          break;
-        case '\r':
+          நிறுத்து;
+        நிலை '\r':
           sb_puts (sb, "\\r");
-          break;
-        case '\t':
+          நிறுத்து;
+        நிலை '\t':
           sb_puts (sb, "\\t");
-          break;
-        default:
-          if (c < 0x20)
+          நிறுத்து;
+        இயல்பு:
+          எனில் (c < 0x20)
             {
-              char tmp[8];
-              snprintf (tmp, sizeof (tmp), "\\u%04x", c);
+              எழுத்து tmp[8];
+              snprintf (tmp, அளவு (tmp), "\\u%04x", c);
               sb_puts (sb, tmp);
             }
-          else
+          இல்லையெனில்
             sb_putc (sb, c);
         }
     }
   sb_putc (sb, '"');
 }
 
-static void
-sb_put_json_string_array (struct strbuf *sb, char **arr, size_t len)
+நிலையான வெறுமை
+sb_put_json_string_array (கட்டமைப்பு strbuf *sb, எழுத்து **arr, size_t len)
 {
   size_t i;
   sb_putc (sb, '[');
-  for (i = 0; i < len; i++)
+  க்கு (i = 0; i < len; i++)
     {
-      if (i)
+      எனில் (i)
         sb_putc (sb, ',');
       sb_put_json_string (sb, arr[i]);
     }
@@ -281,48 +281,48 @@ sb_put_json_string_array (struct strbuf *sb, char **arr, size_t len)
 
 /* Read the whole file at PATH into a NUL-terminated string.  A PATH of `-`
    reads from stdin.  */
-static char *
-read_file_to_string (const char *path, libcrun_error_t *err)
+நிலையான எழுத்து *
+read_file_to_string (மாறிலி எழுத்து *path, libcrun_error_t *err)
 {
-  cleanup_file FILE *f = NULL;
-  struct strbuf sb = { 0 };
-  char chunk[4096];
+  cleanup_file FILE *f = வெற்று;
+  கட்டமைப்பு strbuf sb = { 0 };
+  எழுத்து chunk[4096];
   size_t n;
 
-  if (strcmp (path, "-") == 0)
+  எனில் (strcmp (path, "-") == 0)
     path = "/dev/stdin";
 
   f = fopen (path, "re");
-  if (f == NULL)
+  எனில் (f == வெற்று)
     {
       libcrun_make_error (err, errno, "cannot open `%s`", path);
-      return NULL;
+      திரும்பு வெற்று;
     }
 
-  while ((n = fread (chunk, 1, sizeof (chunk), f)) > 0)
+  போது ((n = fread (chunk, 1, அளவு (chunk), f)) > 0)
     {
       sb_ensure (&sb, n);
       memcpy (sb.buf + sb.len, chunk, n);
       sb.len += n;
       sb.buf[sb.len] = '\0';
     }
-  if (ferror (f))
+  எனில் (ferror (f))
     {
-      free (sb.buf);
+      விடுவி (sb.buf);
       libcrun_make_error (err, errno, "cannot read `%s`", path);
-      return NULL;
+      திரும்பு வெற்று;
     }
 
-  if (sb.buf == NULL)
+  எனில் (sb.buf == வெற்று)
     sb.buf = xstrdup ("");
-  return sb.buf;
+  திரும்பு sb.buf;
 }
 
 /* Build the OCI Process JSON from the CLI options.  */
-static char *
-build_process_json (struct crun_global_arguments *global_args arg_unused, char **args, size_t args_len)
+நிலையான எழுத்து *
+build_process_json (கட்டமைப்பு crun_global_arguments *global_args arg_unused, எழுத்து **args, size_t args_len)
 {
-  struct strbuf sb = { 0 };
+  கட்டமைப்பு strbuf sb = { 0 };
 
   sb_putc (&sb, '{');
 
@@ -337,52 +337,52 @@ build_process_json (struct crun_global_arguments *global_args arg_unused, char *
   sb_puts (&sb, ",\"terminal\":");
   sb_puts (&sb, exec_options.tty ? "true" : "false");
 
-  if (exec_options.env_size > 0)
+  எனில் (exec_options.env_size > 0)
     {
       sb_puts (&sb, ",\"env\":");
       sb_put_json_string_array (&sb, exec_options.env, exec_options.env_size);
     }
 
-  if (exec_options.user)
+  எனில் (exec_options.user)
     {
-      char *endptr = NULL;
-      char *gidstr;
-      int uid, gid = 0;
-      char tmp[32];
+      எழுத்து *endptr = வெற்று;
+      எழுத்து *gidstr;
+      முழு uid, gid = 0;
+      எழுத்து tmp[32];
 
       uid = parse_id_or_fail (exec_options.user, &endptr, "UID");
-      if (*endptr == ':')
+      எனில் (*endptr == ':')
         {
           gidstr = endptr + 1;
           gid = parse_id_or_fail (gidstr, &endptr, "GID");
-          if (*endptr != '\0')
+          எனில் (*endptr != '\0')
             libcrun_fail_with_error (0, "invalid USERSPEC specified");
         }
-      else if (*endptr != '\0')
+      இல்லையெனில் எனில் (*endptr != '\0')
         libcrun_fail_with_error (0, "invalid USERSPEC specified");
 
       sb_puts (&sb, ",\"user\":{\"uid\":");
-      snprintf (tmp, sizeof (tmp), "%d", uid);
+      snprintf (tmp, அளவு (tmp), "%d", uid);
       sb_puts (&sb, tmp);
       sb_puts (&sb, ",\"gid\":");
-      snprintf (tmp, sizeof (tmp), "%d", gid);
+      snprintf (tmp, அளவு (tmp), "%d", gid);
       sb_puts (&sb, tmp);
       sb_putc (&sb, '}');
     }
 
-  if (exec_options.process_label != NULL)
+  எனில் (exec_options.process_label != வெற்று)
     {
       sb_puts (&sb, ",\"selinuxLabel\":");
       sb_put_json_string (&sb, exec_options.process_label);
     }
 
-  if (exec_options.apparmor != NULL)
+  எனில் (exec_options.apparmor != வெற்று)
     {
       sb_puts (&sb, ",\"apparmorProfile\":");
       sb_put_json_string (&sb, exec_options.apparmor);
     }
 
-  if (exec_options.cap_size > 0)
+  எனில் (exec_options.cap_size > 0)
     {
       sb_puts (&sb, ",\"capabilities\":{");
       sb_puts (&sb, "\"effective\":");
@@ -397,24 +397,24 @@ build_process_json (struct crun_global_arguments *global_args arg_unused, char *
     }
 
   /* noNewPrivileges remains at the config default unless explicitly requested.  */
-  if (exec_options.no_new_privs)
+  எனில் (exec_options.no_new_privs)
     sb_puts (&sb, ",\"noNewPrivileges\":true");
 
   sb_putc (&sb, '}');
 
-  return sb.buf;
+  திரும்பு sb.buf;
 }
 
-int
-crun_command_exec (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+முழு
+crun_command_exec (கட்டமைப்பு crun_global_arguments *global_args, முழு argc, எழுத்து **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret = 0;
-  cleanup_context libcrun_context_t *crun_context = NULL;
-  cleanup_free char *process_json = NULL;
-  struct libcrun_exec_options_s exec_opts;
+  முழு first_arg = 0, ret = 0;
+  cleanup_context libcrun_context_t *crun_context = வெற்று;
+  cleanup_free எழுத்து *process_json = வெற்று;
+  கட்டமைப்பு libcrun_exec_options_s exec_opts;
 
-  memset (&exec_opts, 0, sizeof (exec_opts));
-  exec_opts.struct_size = sizeof (exec_opts);
+  memset (&exec_opts, 0, அளவு (exec_opts));
+  exec_opts.struct_size = அளவு (exec_opts);
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &exec_options);
   crun_assert_n_args (argc - first_arg, exec_options.process ? 1 : 2, -1);
@@ -423,33 +423,33 @@ crun_command_exec (struct crun_global_arguments *global_args, int argc, char **a
 
   libcrun_context_set_preserve_fds (crun_context, exec_options.preserve_fds);
 
-  if (getenv ("LISTEN_FDS"))
+  எனில் (getenv ("LISTEN_FDS"))
     {
-      int listen_fds = strtoll (getenv ("LISTEN_FDS"), NULL, 10);
+      முழு listen_fds = strtoll (getenv ("LISTEN_FDS"), வெற்று, 10);
       libcrun_context_set_listen_fds (crun_context, listen_fds);
       libcrun_context_set_preserve_fds (crun_context, exec_options.preserve_fds + listen_fds);
     }
 
   /* The process file may be passed as /dev/fd/N, so read it before
      closing the file descriptors.  */
-  if (exec_options.process)
+  எனில் (exec_options.process)
     {
       process_json = read_file_to_string (exec_options.process, err);
-      if (process_json == NULL)
-        return -1;
+      எனில் (process_json == வெற்று)
+        திரும்பு -1;
       exec_opts.merge_env = false;
     }
-  else
+  இல்லையெனில்
     {
-      cleanup_free char **args = NULL;
+      cleanup_free எழுத்து **args = வெற்று;
       size_t args_len = argc - first_arg - 1;
       size_t i;
 
       /* argv[first_arg] is the container id, the command follows it.  */
-      args = xmalloc0 ((args_len + 1) * sizeof (*args));
-      for (i = 0; i < args_len; i++)
+      args = xmalloc0 ((args_len + 1) * அளவு (*args));
+      க்கு (i = 0; i < args_len; i++)
         args[i] = argv[first_arg + i + 1];
-      args[i] = NULL;
+      args[i] = வெற்று;
 
       process_json = build_process_json (global_args, args, args_len);
       exec_opts.merge_env = true;
@@ -458,12 +458,12 @@ crun_command_exec (struct crun_global_arguments *global_args, int argc, char **a
   /* Close the file descriptors inherited from the caller, so they do
      not leak into the container.  */
   ret = libcrun_close_inherited_fds (crun_context, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு ret;
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு ret;
 
   libcrun_context_set_detach (crun_context, exec_options.detach);
   libcrun_context_set_console_socket (crun_context, exec_options.console_socket);
@@ -472,5 +472,5 @@ crun_command_exec (struct crun_global_arguments *global_args, int argc, char **a
   exec_opts.process_json = process_json;
   exec_opts.cgroup = exec_options.cgroup;
 
-  return libcrun_container_exec_with_options_json (crun_context, argv[first_arg], &exec_opts, err);
+  திரும்பு libcrun_container_exec_with_options_json (crun_context, argv[first_arg], &exec_opts, err);
 }

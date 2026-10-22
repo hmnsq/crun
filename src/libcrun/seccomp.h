@@ -17,48 +17,48 @@
  */
 #ifndef SECCOMP_H
 #define SECCOMP_H
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include "error.h"
-#include <errno.h>
-#include <argp.h>
-#include <ocispec/runtime_spec_schema_config_schema.h>
-#include "container.h"
+#அந்தர்பாவ <config.h>
+#அந்தர்பாவ <stdio.h>
+#அந்தர்பாவ <stdlib.h>
+#அந்தர்பாவ "error.h"
+#அந்தர்பாவ <errno.h>
+#அந்தர்பாவ <argp.h>
+#அந்தர்பாவ <ocispec/runtime_spec_schema_config_schema.h>
+#அந்தர்பாவ "container.h"
 
-enum
+எண்ணிக்கை
 {
   LIBCRUN_SECCOMP_FAIL_UNKNOWN_SYSCALL = 1 << 0,
   LIBCRUN_SECCOMP_SKIP_CACHE = 1 << 1,
 };
 
-typedef char seccomp_checksum_t[65];
+வகைவரை எழுத்து seccomp_checksum_t[65];
 
-struct libcrun_seccomp_gen_ctx_s
+கட்டமைப்பு libcrun_seccomp_gen_ctx_s
 {
   libcrun_container_t *container;
   seccomp_checksum_t checksum;
-  unsigned int options;
+  unsigned முழு options;
   bool create;
   bool from_cache;
 
   /* Not owned here, it is the caller responsibility to close it.  */
-  int fd;
+  முழு fd;
 };
 
-static inline void
-libcrun_seccomp_gen_ctx_init (struct libcrun_seccomp_gen_ctx_s *ctx, libcrun_container_t *container, bool create, unsigned int seccomp_gen_options)
+நிலையான உள்வரி வெறுமை
+libcrun_seccomp_gen_ctx_init (கட்டமைப்பு libcrun_seccomp_gen_ctx_s *ctx, libcrun_container_t *container, bool create, unsigned முழு seccomp_gen_options)
 {
-  memset (ctx, 0, sizeof (*ctx));
+  memset (ctx, 0, அளவு (*ctx));
   ctx->create = create;
   ctx->container = container;
   ctx->options = seccomp_gen_options;
 }
 
-int libcrun_generate_seccomp (struct libcrun_seccomp_gen_ctx_s *gen_ctx, libcrun_error_t *err);
-int libcrun_copy_seccomp (struct libcrun_seccomp_gen_ctx_s *gen_ctx, const char *b64_bpf, libcrun_error_t *err);
-int libcrun_apply_seccomp (int infd, int listener_receiver_fd, const char *receiver_fd_payload,
-                           size_t receiver_fd_payload_len, char **flags, size_t flags_len, libcrun_error_t *err);
-int libcrun_open_seccomp_bpf (struct libcrun_seccomp_gen_ctx_s *ctx, int *fd, libcrun_error_t *err);
+முழு libcrun_generate_seccomp (கட்டமைப்பு libcrun_seccomp_gen_ctx_s *gen_ctx, libcrun_error_t *err);
+முழு libcrun_copy_seccomp (கட்டமைப்பு libcrun_seccomp_gen_ctx_s *gen_ctx, மாறிலி எழுத்து *b64_bpf, libcrun_error_t *err);
+முழு libcrun_apply_seccomp (முழு infd, முழு listener_receiver_fd, மாறிலி எழுத்து *receiver_fd_payload,
+                           size_t receiver_fd_payload_len, எழுத்து **flags, size_t flags_len, libcrun_error_t *err);
+முழு libcrun_open_seccomp_bpf (கட்டமைப்பு libcrun_seccomp_gen_ctx_s *ctx, முழு *fd, libcrun_error_t *err);
 
 #endif

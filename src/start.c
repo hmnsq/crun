@@ -16,19 +16,19 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#அந்தர்பாவ <config.h>
+#அந்தர்பாவ <stdio.h>
+#அந்தர்பாவ <stdlib.h>
+#அந்தர்பாவ <argp.h>
+#அந்தர்பாவ <string.h>
+#அந்தர்பாவ <unistd.h>
+#அந்தர்பாவ <errno.h>
 
-#include "crun.h"
+#அந்தர்பாவ "crun.h"
 
-static char doc[] = "OCI runtime";
+நிலையான எழுத்து doc[] = "OCI runtime";
 
-enum
+எண்ணிக்கை
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -37,43 +37,43 @@ enum
   OPTION_PRESERVE_FDS
 };
 
-static struct argp_option options[] = { {
+நிலையான கட்டமைப்பு argp_option options[] = { {
     0,
 } };
 
-static char args_doc[] = "start CONTAINER";
+நிலையான எழுத்து args_doc[] = "start CONTAINER";
 
-static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+நிலையான error_t
+parse_opt (முழு சாவி, எழுத்து *arg arg_unused, கட்டமைப்பு argp_state *state arg_unused)
 {
-  switch (key)
+  தேர்வு (சாவி)
     {
-    case ARGP_KEY_NO_ARGS:
+    நிலை ARGP_சாவி_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    இயல்பு:
+      திரும்பு ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  திரும்பு 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+நிலையான கட்டமைப்பு argp run_argp = { options, parse_opt, args_doc, doc, வெற்று, வெற்று, வெற்று };
 
-int
-crun_command_start (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+முழு
+crun_command_start (கட்டமைப்பு crun_global_arguments *global_args, முழு argc, எழுத்து **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
-  cleanup_context libcrun_context_t *crun_context = NULL;
+  முழு first_arg = 0, ret;
+  cleanup_context libcrun_context_t *crun_context = வெற்று;
 
-  argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, NULL);
+  argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, வெற்று);
   crun_assert_n_args (argc - first_arg, 1, 1);
 
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு ret;
 
-  return libcrun_container_start (crun_context, argv[first_arg], err);
+  திரும்பு libcrun_container_start (crun_context, argv[first_arg], err);
 }

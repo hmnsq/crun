@@ -16,15 +16,15 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <argp.h>
+#அந்தர்பாவ <config.h>
+#அந்தர்பாவ <argp.h>
 
-#include "crun.h"
-#include "run_create.h"
+#அந்தர்பாவ "crun.h"
+#அந்தர்பாவ "run_create.h"
 
-static char doc[] = "OCI runtime";
+நிலையான எழுத்து doc[] = "OCI runtime";
 
-enum
+எண்ணிக்கை
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -35,13 +35,13 @@ enum
   OPTION_KEEP,
 };
 
-static const char *bundle = NULL;
+நிலையான மாறிலி எழுத்து *bundle = வெற்று;
 
-static bool keep = false;
+நிலையான bool keep = false;
 
-static libcrun_context_t *crun_context;
+நிலையான libcrun_context_t *crun_context;
 
-static struct argp_option options[]
+நிலையான கட்டமைப்பு argp_option options[]
     = { { "bundle", 'b', "DIR", 0, "container bundle (default \".\")", 0 },
         { "config", 'f', "FILE", 0, "override the config file name", 0 },
         { "detach", 'd', 0, 0, "detach from the parent", 0 },
@@ -57,79 +57,79 @@ static struct argp_option options[]
             0,
         } };
 
-static char args_doc[] = "run [OPTION]... CONTAINER";
+நிலையான எழுத்து args_doc[] = "run [OPTION]... CONTAINER";
 
-static const char *config_file = "config.json";
+நிலையான மாறிலி எழுத்து *config_file = "config.json";
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+நிலையான error_t
+parse_opt (முழு சாவி, எழுத்து *arg, கட்டமைப்பு argp_state *state)
 {
-  switch (key)
+  தேர்வு (சாவி)
     {
-    case 'd':
+    நிலை 'd':
       libcrun_context_set_detach (crun_context, true);
-      break;
+      நிறுத்து;
 
-    case 'f':
+    நிலை 'f':
       config_file = argp_mandatory_argument (arg, state);
-      break;
+      நிறுத்து;
 
-    case 'b':
+    நிலை 'b':
       bundle = argp_mandatory_argument (arg, state);
-      break;
+      நிறுத்து;
 
-    case OPTION_KEEP:
+    நிலை OPTION_KEEP:
       keep = true;
-      break;
+      நிறுத்து;
 
-    case OPTION_CONSOLE_SOCKET:
+    நிலை OPTION_CONSOLE_SOCKET:
       libcrun_context_set_console_socket (crun_context, argp_mandatory_argument (arg, state));
-      break;
+      நிறுத்து;
 
-    case OPTION_PRESERVE_FDS:
-      libcrun_context_set_preserve_fds (crun_context, parse_id_or_fail (argp_mandatory_argument (arg, state), NULL, "preserve-fds"));
-      break;
+    நிலை OPTION_PRESERVE_FDS:
+      libcrun_context_set_preserve_fds (crun_context, parse_id_or_fail (argp_mandatory_argument (arg, state), வெற்று, "preserve-fds"));
+      நிறுத்து;
 
-    case OPTION_NO_SUBREAPER:
-      break;
+    நிலை OPTION_NO_SUBREAPER:
+      நிறுத்து;
 
-    case OPTION_NO_NEW_KEYRING:
+    நிலை OPTION_NO_NEW_KEYRING:
       libcrun_context_set_no_new_keyring (crun_context, true);
-      break;
+      நிறுத்து;
 
-    case OPTION_PID_FILE:
+    நிலை OPTION_PID_FILE:
       libcrun_context_set_pid_file (crun_context, argp_mandatory_argument (arg, state));
-      break;
+      நிறுத்து;
 
-    case OPTION_NO_PIVOT:
+    நிலை OPTION_NO_PIVOT:
       libcrun_context_set_no_pivot (crun_context, true);
-      break;
+      நிறுத்து;
 
-    case ARGP_KEY_NO_ARGS:
+    நிலை ARGP_சாவி_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    இயல்பு:
+      திரும்பு ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  திரும்பு 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+நிலையான கட்டமைப்பு argp run_argp = { options, parse_opt, args_doc, doc, வெற்று, வெற்று, வெற்று };
 
-static unsigned int
+நிலையான unsigned முழு
 get_options ()
 {
-  return keep ? LIBCRUN_RUN_OPTIONS_KEEP : 0;
+  திரும்பு keep ? LIBCRUN_RUN_OPTIONS_KEEP : 0;
 }
 
-int
-crun_command_run (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+முழு
+crun_command_run (கட்டமைப்பு crun_global_arguments *global_args, முழு argc, எழுத்து **argv, libcrun_error_t *err)
 {
-  int ret;
+  முழு ret;
 
   crun_context = new_libcrun_context (global_args);
   ret = crun_run_create_internal (global_args, argc, argv, libcrun_container_run, get_options, crun_context, &run_argp, &config_file, &bundle, err);
   libcrun_context_free (crun_context);
-  return ret;
+  திரும்பு ret;
 }

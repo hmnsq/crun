@@ -18,131 +18,131 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "cgroup.h"
-#include "cgroup-cgroupfs.h"
-#include "cgroup-internal.h"
-#include "cgroup-systemd.h"
-#include "cgroup-utils.h"
-#include "cgroup-setup.h"
-#include "cgroup-resources.h"
-#include "ebpf.h"
-#include "utils.h"
-#include "status.h"
-#include <string.h>
-#include <sched.h>
-#include <sys/types.h>
-#include <signal.h>
-#include <sys/vfs.h>
-#include <inttypes.h>
-#include <time.h>
+#அந்தர்பாவ <config.h>
+#அந்தர்பாவ "cgroup.h"
+#அந்தர்பாவ "cgroup-cgroupfs.h"
+#அந்தர்பாவ "cgroup-internal.h"
+#அந்தர்பாவ "cgroup-systemd.h"
+#அந்தர்பாவ "cgroup-utils.h"
+#அந்தர்பாவ "cgroup-setup.h"
+#அந்தர்பாவ "cgroup-resources.h"
+#அந்தர்பாவ "ebpf.h"
+#அந்தர்பாவ "utils.h"
+#அந்தர்பாவ "status.h"
+#அந்தர்பாவ <string.h>
+#அந்தர்பாவ <sched.h>
+#அந்தர்பாவ <sys/types.h>
+#அந்தர்பாவ <signal.h>
+#அந்தர்பாவ <sys/vfs.h>
+#அந்தர்பாவ <inttypes.h>
+#அந்தர்பாவ <time.h>
 
-#include <linux/magic.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <libgen.h>
+#அந்தர்பாவ <linux/magic.h>
+#அந்தர்பாவ <sys/stat.h>
+#அந்தர்பாவ <sys/types.h>
+#அந்தர்பாவ <fcntl.h>
+#அந்தர்பாவ <libgen.h>
 
-static int
-libcrun_cgroup_enter_disabled (struct libcrun_cgroup_args *args arg_unused, struct libcrun_cgroup_status *out, libcrun_error_t *err arg_unused)
+நிலையான முழு
+libcrun_cgroup_enter_disabled (கட்டமைப்பு libcrun_cgroup_args *args arg_unused, கட்டமைப்பு libcrun_cgroup_status *out, libcrun_error_t *err arg_unused)
 {
-  out->path = NULL;
-  return 0;
+  out->path = வெற்று;
+  திரும்பு 0;
 }
 
-static int
-libcrun_destroy_cgroup_disabled (struct libcrun_cgroup_status *cgroup_status arg_unused,
+நிலையான முழு
+libcrun_destroy_cgroup_disabled (கட்டமைப்பு libcrun_cgroup_status *cgroup_status arg_unused,
                                  libcrun_error_t *err arg_unused)
 {
-  return 0;
+  திரும்பு 0;
 }
 
-struct libcrun_cgroup_manager cgroup_manager_disabled = {
-  .precreate_cgroup = NULL,
+கட்டமைப்பு libcrun_cgroup_manager cgroup_manager_disabled = {
+  .precreate_cgroup = வெற்று,
   .create_cgroup = libcrun_cgroup_enter_disabled,
   .destroy_cgroup = libcrun_destroy_cgroup_disabled,
 };
 
-static int
-get_cgroup_manager (int manager, struct libcrun_cgroup_manager **out, libcrun_error_t *err)
+நிலையான முழு
+get_cgroup_manager (முழு manager, கட்டமைப்பு libcrun_cgroup_manager **out, libcrun_error_t *err)
 {
-  switch (manager)
+  தேர்வு (manager)
     {
-    case CGROUP_MANAGER_DISABLED:
+    நிலை CGROUP_MANAGER_DISABLED:
       *out = &cgroup_manager_disabled;
-      return 0;
+      திரும்பு 0;
 
-    case CGROUP_MANAGER_SYSTEMD:
+    நிலை CGROUP_MANAGER_SYSTEMD:
       *out = &cgroup_manager_systemd;
-      return 0;
+      திரும்பு 0;
 
-    case CGROUP_MANAGER_CGROUPFS:
+    நிலை CGROUP_MANAGER_CGROUPFS:
       *out = &cgroup_manager_cgroupfs;
-      return 0;
+      திரும்பு 0;
     }
 
-  *out = NULL;
-  return crun_make_error (err, EINVAL, "unknown cgroup manager specified `%d`", manager);
+  *out = வெற்று;
+  திரும்பு crun_make_error (err, EINVAL, "unknown cgroup manager specified `%d`", manager);
 }
 
-static const char *
+நிலையான மாறிலி எழுத்து *
 find_delegate_cgroup (string_map *annotations)
 {
-  const char *annotation;
+  மாறிலி எழுத்து *annotation;
 
-  annotation = find_string_map_value (annotations, "run.oci.delegate-cgroup");
-  if (annotation)
+  annotation = find_string_map_மதிப்பு (annotations, "run.oci.delegate-cgroup");
+  எனில் (annotation)
     {
-      if (annotation[0] == '\0')
-        return NULL;
-      return annotation;
+      எனில் (annotation[0] == '\0')
+        திரும்பு வெற்று;
+      திரும்பு annotation;
     }
 
-  return NULL;
+  திரும்பு வெற்று;
 }
 
-int
-libcrun_cgroup_pause_unpause (struct libcrun_cgroup_status *status, const bool pause, libcrun_error_t *err)
+முழு
+libcrun_cgroup_pause_unpause (கட்டமைப்பு libcrun_cgroup_status *status, மாறிலி bool pause, libcrun_error_t *err)
 {
-  return libcrun_cgroup_pause_unpause_path (status->path, pause, err);
+  திரும்பு libcrun_cgroup_pause_unpause_path (status->path, pause, err);
 }
 
-int
-libcrun_cgroup_is_container_paused (struct libcrun_cgroup_status *status, bool *paused, libcrun_error_t *err)
+முழு
+libcrun_cgroup_is_container_paused (கட்டமைப்பு libcrun_cgroup_status *status, bool *paused, libcrun_error_t *err)
 {
-  const char *cgroup_path = status->path;
-  cleanup_free char *content = NULL;
-  cleanup_free char *path = NULL;
-  const char *state;
-  int cgroup_mode;
-  int ret;
+  மாறிலி எழுத்து *cgroup_path = status->path;
+  cleanup_free எழுத்து *content = வெற்று;
+  cleanup_free எழுத்து *path = வெற்று;
+  மாறிலி எழுத்து *state;
+  முழு cgroup_mode;
+  முழு ret;
 
-  if (cgroup_path == NULL)
-    return 0;
+  எனில் (cgroup_path == வெற்று)
+    திரும்பு 0;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  எனில் (UNLIKELY (cgroup_mode < 0))
+    திரும்பு cgroup_mode;
 
-  if (cgroup_mode == CGROUP_MODE_UNIFIED)
+  எனில் (cgroup_mode == CGROUP_MODE_UNIFIED)
     {
       state = "1";
 
-      ret = append_paths (&path, err, CGROUP_ROOT, cgroup_path, "cgroup.freeze", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&path, err, CGROUP_வேர், cgroup_path, "cgroup.freeze", வெற்று);
+      எனில் (UNLIKELY (ret < 0))
+        திரும்பு ret;
     }
-  else
+  இல்லையெனில்
     {
       state = "FROZEN";
 
-      ret = append_paths (&path, err, CGROUP_ROOT "/freezer", cgroup_path, "freezer.state", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&path, err, CGROUP_வேர் "/freezer", cgroup_path, "freezer.state", வெற்று);
+      எனில் (UNLIKELY (ret < 0))
+        திரும்பு ret;
     }
 
-  ret = read_all_file (path, &content, NULL, err);
-  if (UNLIKELY (ret < 0))
+  ret = read_all_file (path, &content, வெற்று, err);
+  எனில் (UNLIKELY (ret < 0))
     {
       errno = crun_error_get_errno (err);
       /* If the file is missing and we were checking for freezer.state
@@ -150,202 +150,202 @@ libcrun_cgroup_is_container_paused (struct libcrun_cgroup_status *status, bool *
          simply disabled. In such case the container cannot be paused.
          On cgroup v2 freezer is always there.
       */
-      if (errno != ENOENT || cgroup_mode == CGROUP_MODE_UNIFIED)
-        return ret;
+      எனில் (errno != ENOENT || cgroup_mode == CGROUP_MODE_UNIFIED)
+        திரும்பு ret;
 
       /* Even with freezer disabled, its directory is still there. But
          when it's disabled it has type tmpfs, while on systems with
          freezer enabled, its type is cgroupfs. Use that to determine
          whether freezer is enabled or not.
       */
-      struct statfs freezer_stat;
-      if (statfs (CGROUP_ROOT "/freezer", &freezer_stat))
+      கட்டமைப்பு statfs freezer_stat;
+      எனில் (statfs (CGROUP_வேர் "/freezer", &freezer_stat))
         {
           crun_error_release (err);
-          return crun_make_error (err, errno, "error when using statfs on `%s`", CGROUP_ROOT "/freezer");
+          திரும்பு crun_make_error (err, errno, "error when using statfs on `%s`", CGROUP_வேர் "/freezer");
         }
 
       /* If the freezer is mounted as cgroupfs type, then missing
          freezer.state file is an error and should be handled like before.
       */
-      if (freezer_stat.f_type == CGROUP_SUPER_MAGIC)
-        return ret;
+      எனில் (freezer_stat.f_type == CGROUP_SUPER_MAGIC)
+        திரும்பு ret;
 
       /* When freezer dir is not mounted as cgroupfs, then it's
          disabled, therefore container cannot be in paused state.
       */
       crun_error_release (err);
       *paused = false;
-      return 0;
+      திரும்பு 0;
     }
 
-  *paused = strstr (content, state) != NULL;
-  return 0;
+  *paused = strstr (content, state) != வெற்று;
+  திரும்பு 0;
 }
 
-int
-libcrun_cgroup_join_process (struct libcrun_cgroup_status *status, const char *path, pid_t pid, pid_t init_pid,
+முழு
+libcrun_cgroup_join_process (கட்டமைப்பு libcrun_cgroup_status *status, மாறிலி எழுத்து *path, pid_t pid, pid_t init_pid,
                              libcrun_error_t *err)
 {
-  struct libcrun_cgroup_manager *cgroup_manager;
-  libcrun_error_t tmp_err = NULL;
-  int errno_;
-  int ret;
+  கட்டமைப்பு libcrun_cgroup_manager *cgroup_manager;
+  libcrun_error_t tmp_err = வெற்று;
+  முழு errno_;
+  முழு ret;
 
   ret = libcrun_move_process_to_cgroup (pid, init_pid, path, false, err);
-  if (LIKELY (ret >= 0))
-    return ret;
+  எனில் (LIKELY (ret >= 0))
+    திரும்பு ret;
 
   /* Moving a process requires write access to cgroup.procs of the common
      ancestor of the source and the destination cgroups, which the caller
      may lack.  See if the cgroup manager can do it instead.  */
   errno_ = crun_error_get_errno (err);
-  if (errno_ != EACCES && errno_ != EPERM)
-    return ret;
+  எனில் (errno_ != EACCES && errno_ != EPERM)
+    திரும்பு ret;
 
-  if (get_cgroup_manager (status->manager, &cgroup_manager, &tmp_err) < 0)
+  எனில் (get_cgroup_manager (status->manager, &cgroup_manager, &tmp_err) < 0)
     {
       crun_error_release (&tmp_err);
-      return ret;
+      திரும்பு ret;
     }
-  if (cgroup_manager->attach_process == NULL)
-    return ret;
+  எனில் (cgroup_manager->attach_process == வெற்று)
+    திரும்பு ret;
 
-  if (UNLIKELY (cgroup_manager->attach_process (status, path, pid, &tmp_err) < 0))
+  எனில் (UNLIKELY (cgroup_manager->attach_process (status, path, pid, &tmp_err) < 0))
     {
       /* Report the original error, as it is more relevant.  */
-      libcrun_debug ("Cannot attach pid %d to cgroup `%s`: %s", pid, path, tmp_err->msg);
+      libcrun_debug ("Cannot attach pid %d to cgroup `%s`: %s", pid, path, tmp_err->செய்தி);
       crun_error_release (&tmp_err);
-      return ret;
+      திரும்பு ret;
     }
 
   crun_error_release (err);
-  return 0;
+  திரும்பு 0;
 }
 
-int
-libcrun_cgroup_read_pids (struct libcrun_cgroup_status *status, bool recurse, pid_t **pids, libcrun_error_t *err)
+முழு
+libcrun_cgroup_read_pids (கட்டமைப்பு libcrun_cgroup_status *status, bool recurse, pid_t **pids, libcrun_error_t *err)
 {
-  return libcrun_cgroup_read_pids_from_path (status->path, recurse, pids, err);
+  திரும்பு libcrun_cgroup_read_pids_from_path (status->path, recurse, pids, err);
 }
 
-int
-libcrun_cgroup_killall (struct libcrun_cgroup_status *cgroup_status, int signal, libcrun_error_t *err)
+முழு
+libcrun_cgroup_killall (கட்டமைப்பு libcrun_cgroup_status *cgroup_status, முழு சமிக்ஞை, libcrun_error_t *err)
 {
-  return cgroup_killall_path (cgroup_status->path, signal, err);
+  திரும்பு cgroup_killall_path (cgroup_status->path, சமிக்ஞை, err);
 }
 
-int
-libcrun_cgroup_destroy (struct libcrun_cgroup_status *cgroup_status, libcrun_error_t *err)
+முழு
+libcrun_cgroup_destroy (கட்டமைப்பு libcrun_cgroup_status *cgroup_status, libcrun_error_t *err)
 {
-  struct libcrun_cgroup_manager *cgroup_manager = NULL;
-  int ret;
+  கட்டமைப்பு libcrun_cgroup_manager *cgroup_manager = வெற்று;
+  முழு ret;
 
   ret = get_cgroup_manager (cgroup_status->manager, &cgroup_manager, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு ret;
 
-  return cgroup_manager->destroy_cgroup (cgroup_status, err);
+  திரும்பு cgroup_manager->destroy_cgroup (cgroup_status, err);
 }
 
 /* On cgroup v2, the CPU quota and period are set together, via cpu.max.
    If an update sets only one of them, take the other one from the current
    cpu.max, so it is kept (rather than reset to the default).  */
-static int
-complete_cpu_max (const char *path, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
+நிலையான முழு
+complete_cpu_max (மாறிலி எழுத்து *path, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
 {
   runtime_spec_schema_config_linux_resources_cpu *cpu;
-  cleanup_free char *cpu_max_path = NULL;
-  cleanup_free char *content = NULL;
+  cleanup_free எழுத்து *cpu_max_path = வெற்று;
+  cleanup_free எழுத்து *content = வெற்று;
   bool has_period;
   uint64_t period;
   int64_t quota;
-  int cgroup_mode;
-  int ret;
+  முழு cgroup_mode;
+  முழு ret;
 
-  if (resources == NULL || resources->cpu == NULL)
-    return 0;
+  எனில் (resources == வெற்று || resources->cpu == வெற்று)
+    திரும்பு 0;
 
   cpu = resources->cpu;
-  if (cpu->quota_present == cpu->period_present)
-    return 0;
+  எனில் (cpu->quota_present == cpu->period_present)
+    திரும்பு 0;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
-  if (cgroup_mode != CGROUP_MODE_UNIFIED)
-    return 0;
+  எனில் (UNLIKELY (cgroup_mode < 0))
+    திரும்பு cgroup_mode;
+  எனில் (cgroup_mode != CGROUP_MODE_UNIFIED)
+    திரும்பு 0;
 
-  ret = append_paths (&cpu_max_path, err, CGROUP_ROOT, path, "cpu.max", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cpu_max_path, err, CGROUP_வேர், path, "cpu.max", வெற்று);
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு ret;
 
-  ret = read_all_file (cpu_max_path, &content, NULL, err);
-  if (UNLIKELY (ret < 0))
+  ret = read_all_file (cpu_max_path, &content, வெற்று, err);
+  எனில் (UNLIKELY (ret < 0))
     {
       /* The cpu controller might not be enabled; nothing to keep then.  */
       crun_error_release (err);
-      return 0;
+      திரும்பு 0;
     }
 
   ret = parse_cpu_max (content, &quota, &period, &has_period, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு ret;
 
-  if (! cpu->quota_present)
+  எனில் (! cpu->quota_present)
     {
       cpu->quota = quota;
       cpu->quota_present = 1;
     }
-  else if (has_period)
+  இல்லையெனில் எனில் (has_period)
     {
       cpu->period = period;
       cpu->period_present = 1;
     }
 
-  return 0;
+  திரும்பு 0;
 }
 
-int
-libcrun_update_cgroup_resources (struct libcrun_cgroup_status *cgroup_status,
-                                 const char *state_root,
+முழு
+libcrun_update_cgroup_resources (கட்டமைப்பு libcrun_cgroup_status *cgroup_status,
+                                 மாறிலி எழுத்து *state_வேர்,
                                  runtime_spec_schema_config_linux_resources *resources,
                                  libcrun_error_t *err)
 {
-  struct libcrun_cgroup_manager *cgroup_manager = NULL;
-  int ret;
+  கட்டமைப்பு libcrun_cgroup_manager *cgroup_manager = வெற்று;
+  முழு ret;
 
   ret = get_cgroup_manager (cgroup_status->manager, &cgroup_manager, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு ret;
 
   ret = check_memory_before_update (cgroup_status->path, resources, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு ret;
 
   ret = complete_cpu_max (cgroup_status->path, resources, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு ret;
 
-  if (cgroup_manager->update_resources)
+  எனில் (cgroup_manager->update_resources)
     {
-      ret = cgroup_manager->update_resources (cgroup_status, state_root, resources, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = cgroup_manager->update_resources (cgroup_status, state_வேர், resources, err);
+      எனில் (UNLIKELY (ret < 0))
+        திரும்பு ret;
     }
-  return update_cgroup_resources (cgroup_status->path, state_root, resources, ! cgroup_status->bpf_dev_set, err);
+  திரும்பு update_cgroup_resources (cgroup_status->path, state_வேர், resources, ! cgroup_status->bpf_dev_set, err);
 }
 
-static int
-can_ignore_cgroup_enter_errors (struct libcrun_cgroup_args *args, int cgroup_mode,
+நிலையான முழு
+can_ignore_cgroup_enter_errors (கட்டமைப்பு libcrun_cgroup_args *args, முழு cgroup_mode,
                                 libcrun_error_t *err)
 {
-  int manager = args->manager;
-  int rootless;
+  முழு manager = args->manager;
+  முழு rootless;
 
   rootless = is_rootless (err);
-  if (UNLIKELY (rootless < 0))
-    return rootless;
+  எனில் (UNLIKELY (rootless < 0))
+    திரும்பு rootless;
 
   /* Ignore errors if all these conditions are met:
      - it is running as rootless.
@@ -353,357 +353,357 @@ can_ignore_cgroup_enter_errors (struct libcrun_cgroup_args *args, int cgroup_mod
      - it is not both cgroupv2 and manager=systemd.
   */
 
-  if (! rootless)
-    return 0;
+  எனில் (! rootless)
+    திரும்பு 0;
 
-  if (! is_empty_string (args->cgroup_path))
-    return 0;
+  எனில் (! is_empty_string (args->cgroup_path))
+    திரும்பு 0;
 
-  if (cgroup_mode == CGROUP_MODE_UNIFIED && manager == CGROUP_MANAGER_SYSTEMD)
-    return 0;
+  எனில் (cgroup_mode == CGROUP_MODE_UNIFIED && manager == CGROUP_MANAGER_SYSTEMD)
+    திரும்பு 0;
 
-  return 1;
+  திரும்பு 1;
 }
 
-int
-libcrun_cgroup_preenter (struct libcrun_cgroup_args *args, int *dirfd, libcrun_error_t *err)
+முழு
+libcrun_cgroup_preenter (கட்டமைப்பு libcrun_cgroup_args *args, முழு *dirfd, libcrun_error_t *err)
 {
-  struct libcrun_cgroup_manager *cgroup_manager;
-  int cgroup_mode;
-  int ret;
+  கட்டமைப்பு libcrun_cgroup_manager *cgroup_manager;
+  முழு cgroup_mode;
+  முழு ret;
 
   *dirfd = -1;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  எனில் (UNLIKELY (cgroup_mode < 0))
+    திரும்பு cgroup_mode;
 
-  if (cgroup_mode != CGROUP_MODE_UNIFIED)
-    return 0;
+  எனில் (cgroup_mode != CGROUP_MODE_UNIFIED)
+    திரும்பு 0;
 
   ret = get_cgroup_manager (args->manager, &cgroup_manager, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு ret;
 
-  if (cgroup_manager->precreate_cgroup == NULL)
-    return 0;
+  எனில் (cgroup_manager->precreate_cgroup == வெற்று)
+    திரும்பு 0;
 
-  return cgroup_manager->precreate_cgroup (args, dirfd, err);
+  திரும்பு cgroup_manager->precreate_cgroup (args, dirfd, err);
 }
 
 /* Remove the cgroup created by libcrun_cgroup_preenter if libcrun_cgroup_enter
    did not take it over: until then the caller has no status to destroy it with.
    Being created by us and without any process joining it, it is empty and a
    plain rmdir is enough.  */
-void
-libcrun_cgroup_preenter_cleanup (struct libcrun_cgroup_args *args)
+வெறுமை
+libcrun_cgroup_preenter_cleanup (கட்டமைப்பு libcrun_cgroup_args *args)
 {
-  if (args->precreated_path == NULL)
-    return;
+  எனில் (args->precreated_path == வெற்று)
+    திரும்பு;
 
-  (void) rmdir (args->precreated_path);
-  free (args->precreated_path);
-  args->precreated_path = NULL;
+  (வெறுமை) rmdir (args->precreated_path);
+  விடுவி (args->precreated_path);
+  args->precreated_path = வெற்று;
 }
 
-int
-libcrun_cgroup_enter (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status **out, libcrun_error_t *err)
+முழு
+libcrun_cgroup_enter (கட்டமைப்பு libcrun_cgroup_args *args, கட்டமைப்பு libcrun_cgroup_status **out, libcrun_error_t *err)
 {
   /* status will be filled by the cgroup manager.  */
-  cleanup_cgroup_status struct libcrun_cgroup_status *status = xmalloc0 (sizeof *status);
-  struct libcrun_cgroup_manager *cgroup_manager;
-  uid_t root_uid = args->root_uid;
-  uid_t root_gid = args->root_gid;
-  int cgroup_mode;
-  int ret;
+  cleanup_cgroup_status கட்டமைப்பு libcrun_cgroup_status *status = xmalloc0 (அளவு *status);
+  கட்டமைப்பு libcrun_cgroup_manager *cgroup_manager;
+  uid_t வேர்_uid = args->வேர்_uid;
+  uid_t வேர்_gid = args->வேர்_gid;
+  முழு cgroup_mode;
+  முழு ret;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  எனில் (UNLIKELY (cgroup_mode < 0))
+    திரும்பு cgroup_mode;
 
-  if (cgroup_mode == CGROUP_MODE_HYBRID)
+  எனில் (cgroup_mode == CGROUP_MODE_HYBRID)
     {
       /* We don't really support hybrid mode, so check that cgroups2 is not using any controller.  */
 
       size_t len;
-      cleanup_free char *buffer = NULL;
+      cleanup_free எழுத்து *buffer = வெற்று;
 
-      ret = read_all_file (CGROUP_ROOT "/unified/cgroup.controllers", &buffer, &len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      if (len > 0)
-        return crun_make_error (err, 0, "cgroups in hybrid mode not supported, drop all controllers from cgroupv2");
+      ret = read_all_file (CGROUP_வேர் "/unified/cgroup.controllers", &buffer, &len, err);
+      எனில் (UNLIKELY (ret < 0))
+        திரும்பு ret;
+      எனில் (len > 0)
+        திரும்பு crun_make_error (err, 0, "cgroups in hybrid mode not supported, drop all controllers from cgroupv2");
     }
 
   ret = get_cgroup_manager (args->manager, &cgroup_manager, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு ret;
 
   status->manager = args->manager;
 
   ret = cgroup_manager->create_cgroup (args, status, err);
-  if (UNLIKELY (ret < 0))
+  எனில் (UNLIKELY (ret < 0))
     {
-      libcrun_error_t tmp_err = NULL;
-      int ignore_cgroup_errors;
+      libcrun_error_t tmp_err = வெற்று;
+      முழு ignore_cgroup_errors;
 
       ignore_cgroup_errors = can_ignore_cgroup_enter_errors (args, cgroup_mode, &tmp_err);
-      if (UNLIKELY (ignore_cgroup_errors < 0))
+      எனில் (UNLIKELY (ignore_cgroup_errors < 0))
         {
           crun_error_release (err);
           *err = tmp_err;
-          return ignore_cgroup_errors;
+          திரும்பு ignore_cgroup_errors;
         }
 
-      if (ignore_cgroup_errors)
+      எனில் (ignore_cgroup_errors)
         {
           /* Ignore cgroups errors and set there is no cgroup path to use.  */
-          free (status->path);
-          free (status->scope);
-          status->path = NULL;
-          status->scope = NULL;
+          விடுவி (status->path);
+          விடுவி (status->scope);
+          status->path = வெற்று;
+          status->scope = வெற்று;
           status->manager = CGROUP_MANAGER_DISABLED;
           crun_error_release (err);
 
-          goto success;
+          செல் success;
         }
 
-      return ret;
+      திரும்பு ret;
     }
 
   /* From now on the cgroup is destroyed through its status.  */
-  free (args->precreated_path);
-  args->precreated_path = NULL;
+  விடுவி (args->precreated_path);
+  args->precreated_path = வெற்று;
 
-  if (status->path)
+  எனில் (status->path)
     {
       bool need_chown;
 
-      need_chown = root_uid != (uid_t) -1 || root_gid != (gid_t) -1;
-      if (cgroup_mode == CGROUP_MODE_UNIFIED && need_chown)
+      need_chown = வேர்_uid != (uid_t) -1 || வேர்_gid != (gid_t) -1;
+      எனில் (cgroup_mode == CGROUP_MODE_UNIFIED && need_chown)
         {
-          ret = chown_cgroups (status->path, root_uid, root_gid, err);
-          if (UNLIKELY (ret < 0))
-            goto fail_destroy;
+          ret = chown_cgroups (status->path, வேர்_uid, வேர்_gid, err);
+          எனில் (UNLIKELY (ret < 0))
+            செல் fail_destroy;
         }
 
-      if (args->resources)
+      எனில் (args->resources)
         {
-          ret = update_cgroup_resources (status->path, args->state_root, args->resources, ! status->bpf_dev_set, err);
-          if (UNLIKELY (ret < 0))
-            goto fail_destroy;
+          ret = update_cgroup_resources (status->path, args->state_வேர், args->resources, ! status->bpf_dev_set, err);
+          எனில் (UNLIKELY (ret < 0))
+            செல் fail_destroy;
         }
     }
 success:
   *out = status;
-  status = NULL;
-  return 0;
+  status = வெற்று;
+  திரும்பு 0;
 
 fail_destroy:
   /* The cgroup is created, but the caller does not get its status, so it
      cannot destroy it.  Do it here, so it is not left behind.  */
   {
-    libcrun_error_t tmp_err = NULL;
+    libcrun_error_t tmp_err = வெற்று;
 
-    if (UNLIKELY (cgroup_manager->destroy_cgroup (status, &tmp_err) < 0))
+    எனில் (UNLIKELY (cgroup_manager->destroy_cgroup (status, &tmp_err) < 0))
       crun_error_release (&tmp_err);
   }
-  return ret;
+  திரும்பு ret;
 }
 
-int
-libcrun_cgroup_enter_finalize (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status *cgroup_status arg_unused, libcrun_error_t *err)
+முழு
+libcrun_cgroup_enter_finalize (கட்டமைப்பு libcrun_cgroup_args *args, கட்டமைப்பு libcrun_cgroup_status *cgroup_status arg_unused, libcrun_error_t *err)
 {
-  cleanup_free char *target_cgroup = NULL;
-  cleanup_free char *content = NULL;
-  const char *delegate_cgroup;
-  cleanup_free char *dir = NULL;
-  char *current_cgroup, *to;
-  int cgroup_mode;
-  int ret;
+  cleanup_free எழுத்து *target_cgroup = வெற்று;
+  cleanup_free எழுத்து *content = வெற்று;
+  மாறிலி எழுத்து *delegate_cgroup;
+  cleanup_free எழுத்து *dir = வெற்று;
+  எழுத்து *current_cgroup, *to;
+  முழு cgroup_mode;
+  முழு ret;
 
   delegate_cgroup = find_delegate_cgroup (args->annotations);
-  if (delegate_cgroup == NULL)
-    return 0;
+  எனில் (delegate_cgroup == வெற்று)
+    திரும்பு 0;
 
-  if (path_has_dot_dot_component (delegate_cgroup))
-    return crun_make_error (err, 0, "invalid `..` component in delegate-cgroup `%s`", delegate_cgroup);
+  எனில் (path_has_dot_dot_component (delegate_cgroup))
+    திரும்பு crun_make_error (err, 0, "invalid `..` component in delegate-cgroup `%s`", delegate_cgroup);
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  எனில் (UNLIKELY (cgroup_mode < 0))
+    திரும்பு cgroup_mode;
 
-  if (cgroup_mode != CGROUP_MODE_UNIFIED)
-    return crun_make_error (err, 0, "delegate-cgroup not supported on cgroup v1");
+  எனில் (cgroup_mode != CGROUP_MODE_UNIFIED)
+    திரும்பு crun_make_error (err, 0, "delegate-cgroup not supported on cgroup v1");
 
-  cleanup_free char *proc_path = NULL;
-  cleanup_close int fd = -1;
+  cleanup_free எழுத்து *proc_path = வெற்று;
+  cleanup_close முழு fd = -1;
 
   xasprintf (&proc_path, "%d/cgroup", args->pid);
   fd = libcrun_open_proc_file (args->container, proc_path, O_RDONLY, err);
-  if (UNLIKELY (fd < 0))
-    return fd;
+  எனில் (UNLIKELY (fd < 0))
+    திரும்பு fd;
 
-  ret = read_all_fd (fd, "cgroup path", &content, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_fd (fd, "cgroup path", &content, வெற்று, err);
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு ret;
 
   current_cgroup = strstr (content, "0::");
-  if (UNLIKELY (current_cgroup == NULL))
-    return crun_make_error (err, 0, "cannot find cgroup2 for the current process");
+  எனில் (UNLIKELY (current_cgroup == வெற்று))
+    திரும்பு crun_make_error (err, 0, "cannot find cgroup2 for the current process");
   current_cgroup += 3;
   to = strchr (current_cgroup, '\n');
-  if (UNLIKELY (to == NULL))
-    return crun_make_error (err, 0, "cannot parse `%s`", PROC_SELF_CGROUP);
+  எனில் (UNLIKELY (to == வெற்று))
+    திரும்பு crun_make_error (err, 0, "cannot parse `%s`", PROC_SELF_CGROUP);
   *to = '\0';
 
-  ret = append_paths (&target_cgroup, err, current_cgroup, delegate_cgroup, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&target_cgroup, err, current_cgroup, delegate_cgroup, வெற்று);
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு ret;
 
-  ret = append_paths (&dir, err, CGROUP_ROOT, target_cgroup, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&dir, err, CGROUP_வேர், target_cgroup, வெற்று);
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு ret;
 
   ret = crun_ensure_directory (dir, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு ret;
 
-  ret = move_process_to_cgroup (args->pid, NULL, target_cgroup, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = move_process_to_cgroup (args->pid, வெற்று, target_cgroup, err);
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு ret;
 
   ret = enable_controllers (target_cgroup, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு ret;
 
-  ret = chown_cgroups (target_cgroup, args->root_uid, args->root_gid, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = chown_cgroups (target_cgroup, args->வேர்_uid, args->வேர்_gid, err);
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு ret;
 
-  return 0;
+  திரும்பு 0;
 }
 
-int
-libcrun_cgroup_has_oom (struct libcrun_cgroup_status *status, libcrun_error_t *err)
+முழு
+libcrun_cgroup_has_oom (கட்டமைப்பு libcrun_cgroup_status *status, libcrun_error_t *err)
 {
-  cleanup_free char *content = NULL;
-  const char *path = status->path;
-  const char *prefix = NULL;
+  cleanup_free எழுத்து *content = வெற்று;
+  மாறிலி எழுத்து *path = status->path;
+  மாறிலி எழுத்து *prefix = வெற்று;
   size_t content_size = 0;
-  int cgroup_mode;
-  char *it;
+  முழு cgroup_mode;
+  எழுத்து *it;
 
-  if (UNLIKELY (path == NULL || path[0] == '\0'))
-    return 0;
+  எனில் (UNLIKELY (path == வெற்று || path[0] == '\0'))
+    திரும்பு 0;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  எனில் (UNLIKELY (cgroup_mode < 0))
+    திரும்பு cgroup_mode;
 
-  switch (cgroup_mode)
+  தேர்வு (cgroup_mode)
     {
-    case CGROUP_MODE_UNIFIED:
+    நிலை CGROUP_MODE_UNIFIED:
       {
-        cleanup_free char *events_path = NULL;
-        int ret;
+        cleanup_free எழுத்து *events_path = வெற்று;
+        முழு ret;
 
-        ret = append_paths (&events_path, err, CGROUP_ROOT, path, "memory.events", NULL);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ret = append_paths (&events_path, err, CGROUP_வேர், path, "memory.events", வெற்று);
+        எனில் (UNLIKELY (ret < 0))
+          திரும்பு ret;
 
         /* read_all_file always NUL terminates the output.  */
         ret = read_all_file (events_path, &content, &content_size, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        எனில் (UNLIKELY (ret < 0))
+          திரும்பு ret;
 
         prefix = "oom ";
-        break;
+        நிறுத்து;
       }
-    case CGROUP_MODE_LEGACY:
-    case CGROUP_MODE_HYBRID:
+    நிலை CGROUP_MODE_LEGACY:
+    நிலை CGROUP_MODE_HYBRID:
       {
-        cleanup_free char *oom_control_path = NULL;
-        int ret;
+        cleanup_free எழுத்து *oom_control_path = வெற்று;
+        முழு ret;
 
-        ret = append_paths (&oom_control_path, err, CGROUP_ROOT, "memory", path, "memory.oom_control", NULL);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ret = append_paths (&oom_control_path, err, CGROUP_வேர், "memory", path, "memory.oom_control", வெற்று);
+        எனில் (UNLIKELY (ret < 0))
+          திரும்பு ret;
 
         /* read_all_file always NUL terminates the output.  */
         ret = read_all_file (oom_control_path, &content, &content_size, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        எனில் (UNLIKELY (ret < 0))
+          திரும்பு ret;
 
         prefix = "oom_kill ";
-        break;
+        நிறுத்து;
       }
 
-    default:
-      return crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_mode);
+    இயல்பு:
+      திரும்பு crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_mode);
     }
 
   it = content;
-  while (it && *it)
+  போது (it && *it)
     {
-      if (has_prefix (it, prefix))
+      எனில் (has_prefix (it, prefix))
         {
           it += strlen (prefix);
-          while (*it == ' ')
+          போது (*it == ' ')
             it++;
 
-          return *it != '0';
+          திரும்பு *it != '0';
         }
-      else
+      இல்லையெனில்
         {
           it = strchr (it, '\n');
-          if (it == NULL)
-            return 0;
+          எனில் (it == வெற்று)
+            திரும்பு 0;
           it++;
         }
     }
 
-  return 0;
+  திரும்பு 0;
 }
 
-int
-libcrun_cgroup_get_status (struct libcrun_cgroup_status *cgroup_status,
+முழு
+libcrun_cgroup_get_status (கட்டமைப்பு libcrun_cgroup_status *cgroup_status,
                            libcrun_container_status_t *status,
                            libcrun_error_t *err arg_unused)
 {
   status->cgroup_path = cgroup_status->path;
   status->scope = cgroup_status->scope;
-  return 0;
+  திரும்பு 0;
 }
 
-void
-libcrun_cgroup_status_free (struct libcrun_cgroup_status *cgroup_status)
+வெறுமை
+libcrun_cgroup_status_free (கட்டமைப்பு libcrun_cgroup_status *cgroup_status)
 {
-  if (cgroup_status == NULL)
-    return;
+  எனில் (cgroup_status == வெற்று)
+    திரும்பு;
 
-  free (cgroup_status->path);
-  free (cgroup_status->scope);
-  free (cgroup_status);
+  விடுவி (cgroup_status->path);
+  விடுவி (cgroup_status->scope);
+  விடுவி (cgroup_status);
 }
 
-struct libcrun_cgroup_status *
+கட்டமைப்பு libcrun_cgroup_status *
 libcrun_cgroup_make_status (libcrun_container_status_t *status)
 {
-  struct libcrun_cgroup_status *ret;
+  கட்டமைப்பு libcrun_cgroup_status *ret;
 
-  ret = xmalloc0 (sizeof *ret);
+  ret = xmalloc0 (அளவு *ret);
 
-  if (! is_empty_string (status->cgroup_path))
+  எனில் (! is_empty_string (status->cgroup_path))
     ret->path = xstrdup (status->cgroup_path);
 
-  if (! is_empty_string (status->scope))
+  எனில் (! is_empty_string (status->scope))
     ret->scope = xstrdup (status->scope);
 
-  if (is_empty_string (status->cgroup_path) && is_empty_string (status->scope))
+  எனில் (is_empty_string (status->cgroup_path) && is_empty_string (status->scope))
     ret->manager = CGROUP_MANAGER_DISABLED;
-  else
+  இல்லையெனில்
     ret->manager = status->systemd_cgroup ? CGROUP_MANAGER_SYSTEMD : CGROUP_MANAGER_CGROUPFS;
 
-  return ret;
+  திரும்பு ret;
 }

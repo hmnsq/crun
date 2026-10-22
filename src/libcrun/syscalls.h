@@ -19,16 +19,16 @@
 #ifndef CRUN_SYSCALLS_H
 #define CRUN_SYSCALLS_H
 
-#include <config.h>
-#include <sys/syscall.h>
-#include <unistd.h>
-#include <errno.h>
-#include <stdint.h>
+#அந்தர்பாவ <config.h>
+#அந்தர்பாவ <sys/syscall.h>
+#அந்தர்பாவ <unistd.h>
+#அந்தர்பாவ <errno.h>
+#அந்தர்பாவ <stdint.h>
 
 #ifdef HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H
 #  include <linux/mount.h>
 #endif
-#if defined HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H || defined HAVE_FSCONFIG_CMD_CREATE_SYS_MOUNT_H
+#எனில் defined HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H || defined HAVE_FSCONFIG_CMD_CREATE_SYS_MOUNT_H
 #  define HAVE_NEW_MOUNT_API
 #endif
 
@@ -110,19 +110,19 @@
 #ifndef RESOLVE_NO_SYMLINKS
 #  define RESOLVE_NO_SYMLINKS 0x04
 #endif
-#ifndef RESOLVE_IN_ROOT
-#  define RESOLVE_IN_ROOT 0x10
+#ifndef RESOLVE_IN_வேர்
+#  define RESOLVE_IN_வேர் 0x10
 #endif
 
 /* Structures for syscalls */
-struct openat2_open_how
+கட்டமைப்பு openat2_open_how
 {
   uint64_t flags;
   uint64_t mode;
   uint64_t resolve;
 };
 
-struct mount_attr_s
+கட்டமைப்பு mount_attr_s
 {
   uint64_t attr_set;
   uint64_t attr_clr;
@@ -138,15 +138,15 @@ struct mount_attr_s
 #  define CLONE_INTO_CGROUP 0x200000000ULL
 #endif
 
-struct _clone3_args
+கட்டமைப்பு _clone3_args
 {
   __aligned_u64 flags;
   __aligned_u64 pidfd;
   __aligned_u64 child_tid;
   __aligned_u64 parent_tid;
   __aligned_u64 exit_signal;
-  __aligned_u64 stack;
-  __aligned_u64 stack_size;
+  __aligned_u64 அடுக்கு;
+  __aligned_u64 அடுக்கு_size;
   __aligned_u64 tls;
   __aligned_u64 set_tid;
   __aligned_u64 set_tid_size;
@@ -154,155 +154,155 @@ struct _clone3_args
 };
 
 /* Mount API syscall wrappers */
-static inline int
-syscall_fsopen (const char *fs_name, unsigned int flags)
+நிலையான உள்வரி முழு
+syscall_fsopen (மாறிலி எழுத்து *fs_name, unsigned முழு flags)
 {
-#if defined __NR_fsopen
-  return (int) syscall (__NR_fsopen, fs_name, flags);
-#else
-  (void) fs_name;
-  (void) flags;
+#எனில் defined __NR_fsopen
+  திரும்பு (முழு) syscall (__NR_fsopen, fs_name, flags);
+#இல்லையெனில்
+  (வெறுமை) fs_name;
+  (வெறுமை) flags;
   errno = ENOSYS;
-  return -1;
+  திரும்பு -1;
 #endif
 }
 
-static inline int
-syscall_fsmount (int fsfd, unsigned int flags, unsigned int attr_flags)
+நிலையான உள்வரி முழு
+syscall_fsmount (முழு fsfd, unsigned முழு flags, unsigned முழு attr_flags)
 {
-#if defined __NR_fsmount
-  return (int) syscall (__NR_fsmount, fsfd, flags, attr_flags);
-#else
-  (void) fsfd;
-  (void) flags;
-  (void) attr_flags;
+#எனில் defined __NR_fsmount
+  திரும்பு (முழு) syscall (__NR_fsmount, fsfd, flags, attr_flags);
+#இல்லையெனில்
+  (வெறுமை) fsfd;
+  (வெறுமை) flags;
+  (வெறுமை) attr_flags;
   errno = ENOSYS;
-  return -1;
+  திரும்பு -1;
 #endif
 }
 
-static inline int
-syscall_fsconfig (int fsfd, unsigned int cmd, const char *key, const void *val, int aux)
+நிலையான உள்வரி முழு
+syscall_fsconfig (முழு fsfd, unsigned முழு cmd, மாறிலி எழுத்து *சாவி, மாறிலி வெறுமை *val, முழு aux)
 {
-#if defined __NR_fsconfig
-  return (int) syscall (__NR_fsconfig, fsfd, cmd, key, val, aux);
-#else
-  (void) fsfd;
-  (void) cmd;
-  (void) key;
-  (void) val;
-  (void) aux;
+#எனில் defined __NR_fsconfig
+  திரும்பு (முழு) syscall (__NR_fsconfig, fsfd, cmd, சாவி, val, aux);
+#இல்லையெனில்
+  (வெறுமை) fsfd;
+  (வெறுமை) cmd;
+  (வெறுமை) சாவி;
+  (வெறுமை) val;
+  (வெறுமை) aux;
   errno = ENOSYS;
-  return -1;
+  திரும்பு -1;
 #endif
 }
 
 /* File descriptor management syscalls */
-static inline int
-syscall_close_range (unsigned int fd, unsigned int max_fd, unsigned int flags)
+நிலையான உள்வரி முழு
+syscall_close_range (unsigned முழு fd, unsigned முழு max_fd, unsigned முழு flags)
 {
 #ifdef __NR_close_range
-  return (int) syscall (__NR_close_range, fd, max_fd, flags);
-#else
-  (void) fd;
-  (void) max_fd;
-  (void) flags;
+  திரும்பு (முழு) syscall (__NR_close_range, fd, max_fd, flags);
+#இல்லையெனில்
+  (வெறுமை) fd;
+  (வெறுமை) max_fd;
+  (வெறுமை) flags;
   errno = ENOSYS;
-  return -1;
+  திரும்பு -1;
 #endif
 }
 
 /* Secure file operation syscalls */
-static inline int
-syscall_openat2 (int dirfd, const char *path, uint64_t flags, uint64_t mode, uint64_t resolve)
+நிலையான உள்வரி முழு
+syscall_openat2 (முழு dirfd, மாறிலி எழுத்து *path, uint64_t flags, uint64_t mode, uint64_t resolve)
 {
 #ifdef __NR_openat2
-  struct openat2_open_how how = {
+  கட்டமைப்பு openat2_open_how how = {
     .flags = flags,
     .mode = mode,
     .resolve = resolve,
   };
-  return (int) syscall (__NR_openat2, dirfd, path, &how, sizeof (how), 0);
-#else
-  (void) dirfd;
-  (void) path;
-  (void) flags;
-  (void) mode;
-  (void) resolve;
+  திரும்பு (முழு) syscall (__NR_openat2, dirfd, path, &how, அளவு (how), 0);
+#இல்லையெனில்
+  (வெறுமை) dirfd;
+  (வெறுமை) path;
+  (வெறுமை) flags;
+  (வெறுமை) mode;
+  (வெறுமை) resolve;
   errno = ENOSYS;
-  return -1;
+  திரும்பு -1;
 #endif
 }
 
 /* Process management syscalls */
-static inline int
-syscall_clone3 (struct _clone3_args *args)
+நிலையான உள்வரி முழு
+syscall_clone3 (கட்டமைப்பு _clone3_args *args)
 {
 #ifdef __NR_clone3
-  return (int) syscall (__NR_clone3, args, sizeof (*args));
-#else
-  (void) args;
+  திரும்பு (முழு) syscall (__NR_clone3, args, அளவு (*args));
+#இல்லையெனில்
+  (வெறுமை) args;
   errno = ENOSYS;
-  return -1;
+  திரும்பு -1;
 #endif
 }
 
-static inline int
-syscall_getcwd (char *path, size_t len)
+நிலையான உள்வரி முழு
+syscall_getcwd (எழுத்து *path, size_t len)
 {
 #ifdef __NR_getcwd
-  return (int) syscall (__NR_getcwd, path, len);
-#else
-  (void) path;
-  (void) len;
+  திரும்பு (முழு) syscall (__NR_getcwd, path, len);
+#இல்லையெனில்
+  (வெறுமை) path;
+  (வெறுமை) len;
   errno = ENOSYS;
-  return -1;
+  திரும்பு -1;
 #endif
 }
 
 /* Mount management syscalls */
-static inline int
-syscall_move_mount (int from_dfd, const char *from_pathname, int to_dfd, const char *to_pathname, unsigned int flags)
+நிலையான உள்வரி முழு
+syscall_move_mount (முழு from_dfd, மாறிலி எழுத்து *from_pathname, முழு to_dfd, மாறிலி எழுத்து *to_pathname, unsigned முழு flags)
 {
-#if defined __NR_move_mount
-  return (int) syscall (__NR_move_mount, from_dfd, from_pathname, to_dfd, to_pathname, flags);
-#else
-  (void) from_dfd;
-  (void) from_pathname;
-  (void) to_dfd;
-  (void) to_pathname;
-  (void) flags;
+#எனில் defined __NR_move_mount
+  திரும்பு (முழு) syscall (__NR_move_mount, from_dfd, from_pathname, to_dfd, to_pathname, flags);
+#இல்லையெனில்
+  (வெறுமை) from_dfd;
+  (வெறுமை) from_pathname;
+  (வெறுமை) to_dfd;
+  (வெறுமை) to_pathname;
+  (வெறுமை) flags;
   errno = ENOSYS;
-  return -1;
+  திரும்பு -1;
 #endif
 }
 
-static inline int
-syscall_open_tree (int dfd, const char *pathname, unsigned int flags)
+நிலையான உள்வரி முழு
+syscall_open_மரம் (முழு dfd, மாறிலி எழுத்து *pathname, unsigned முழு flags)
 {
-#if defined __NR_open_tree
-  return (int) syscall (__NR_open_tree, dfd, pathname, flags);
-#else
-  (void) dfd;
-  (void) pathname;
-  (void) flags;
+#எனில் defined __NR_open_tree
+  திரும்பு (முழு) syscall (__NR_open_tree, dfd, pathname, flags);
+#இல்லையெனில்
+  (வெறுமை) dfd;
+  (வெறுமை) pathname;
+  (வெறுமை) flags;
   errno = ENOSYS;
-  return -1;
+  திரும்பு -1;
 #endif
 }
 
-static inline int
-syscall_mount_setattr (int dfd, const char *path, unsigned int flags, struct mount_attr_s *attr)
+நிலையான உள்வரி முழு
+syscall_mount_setattr (முழு dfd, மாறிலி எழுத்து *path, unsigned முழு flags, கட்டமைப்பு mount_attr_s *attr)
 {
 #ifdef __NR_mount_setattr
-  return (int) syscall (__NR_mount_setattr, dfd, path, flags, attr, sizeof (*attr));
-#else
-  (void) dfd;
-  (void) path;
-  (void) flags;
-  (void) attr;
+  திரும்பு (முழு) syscall (__NR_mount_setattr, dfd, path, flags, attr, அளவு (*attr));
+#இல்லையெனில்
+  (வெறுமை) dfd;
+  (வெறுமை) path;
+  (வெறுமை) flags;
+  (வெறுமை) attr;
   errno = ENOSYS;
-  return -1;
+  திரும்பு -1;
 #endif
 }
 

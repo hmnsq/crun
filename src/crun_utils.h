@@ -23,89 +23,89 @@
    non-public headers).  The binary is a pure consumer of the public
    <libcrun.h> API; everything here is either libc or a trivial inline.  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
+#அந்தர்பாவ <stdlib.h>
+#அந்தர்பாவ <stdio.h>
+#அந்தர்பாவ <string.h>
+#அந்தர்பாவ <unistd.h>
 
 #ifdef __GNUC__
 #  define LIKELY(x) __builtin_expect ((x), 1)
 #  define UNLIKELY(x) __builtin_expect ((x), 0)
 #  define arg_unused __attribute__ ((unused))
-#else
+#இல்லையெனில்
 #  define LIKELY(x) (x)
 #  define UNLIKELY(x) (x)
 #  define arg_unused
 #endif
 
 #define OOM()                            \
-  do                                     \
+  செய்                                     \
     {                                    \
       fprintf (stderr, "out of memory"); \
       _exit (EXIT_FAILURE);              \
-  } while (0)
+  } போது (0)
 
 #define crun_make_error libcrun_make_error
 
-__attribute__ ((malloc)) static inline void *
+__attribute__ ((malloc)) நிலையான உள்வரி வெறுமை *
 xmalloc (size_t size)
 {
-  void *res = malloc (size);
-  if (UNLIKELY (res == NULL))
+  வெறுமை *res = malloc (size);
+  எனில் (UNLIKELY (res == வெற்று))
     OOM ();
-  return res;
+  திரும்பு res;
 }
 
-__attribute__ ((malloc)) static inline void *
+__attribute__ ((malloc)) நிலையான உள்வரி வெறுமை *
 xmalloc0 (size_t size)
 {
-  void *res = calloc (1, size);
-  if (UNLIKELY (res == NULL))
+  வெறுமை *res = calloc (1, size);
+  எனில் (UNLIKELY (res == வெற்று))
     OOM ();
-  return res;
+  திரும்பு res;
 }
 
-__attribute__ ((malloc)) static inline void *
-xrealloc (void *ptr, size_t size)
+__attribute__ ((malloc)) நிலையான உள்வரி வெறுமை *
+xrealloc (வெறுமை *ptr, size_t size)
 {
-  void *res = realloc (ptr, size);
-  if (UNLIKELY (res == NULL))
+  வெறுமை *res = realloc (ptr, size);
+  எனில் (UNLIKELY (res == வெற்று))
     OOM ();
-  return res;
+  திரும்பு res;
 }
 
-static inline char *
-xstrdup (const char *str)
+நிலையான உள்வரி எழுத்து *
+xstrdup (மாறிலி எழுத்து *str)
 {
-  char *ret;
-  if (str == NULL)
-    return NULL;
+  எழுத்து *ret;
+  எனில் (str == வெற்று)
+    திரும்பு வெற்று;
   ret = strdup (str);
-  if (UNLIKELY (ret == NULL))
+  எனில் (UNLIKELY (ret == வெற்று))
     OOM ();
-  return ret;
+  திரும்பு ret;
 }
 
-static inline void
-cleanup_freep (void *p)
+நிலையான உள்வரி வெறுமை
+cleanup_freep (வெறுமை *p)
 {
-  void **pp = (void **) p;
-  free (*pp);
+  வெறுமை **pp = (வெறுமை **) p;
+  விடுவி (*pp);
 }
 
-static inline void
+நிலையான உள்வரி வெறுமை
 cleanup_filep (FILE **f)
 {
   FILE *file = *f;
-  if (file)
-    (void) fclose (file);
+  எனில் (file)
+    (வெறுமை) fclose (file);
 }
 
-static inline void
-cleanup_closep (void *p)
+நிலையான உள்வரி வெறுமை
+cleanup_closep (வெறுமை *p)
 {
-  int *pp = (int *) p;
-  if (*pp >= 0)
+  முழு *pp = (முழு *) p;
+  எனில் (*pp >= 0)
     close (*pp);
 }
 
@@ -115,19 +115,19 @@ cleanup_closep (void *p)
 
 /* Relies on <libcrun.h> (included before this header via crun.h) for the
    opaque libcrun_context_t and libcrun_context_free.  */
-static inline void
+நிலையான உள்வரி வெறுமை
 cleanup_libcrun_contextp (libcrun_context_t **p)
 {
-  if (*p)
+  எனில் (*p)
     libcrun_context_free (*p);
 }
 
 #define cleanup_context __attribute__ ((cleanup (cleanup_libcrun_contextp)))
 
-static inline void
+நிலையான உள்வரி வெறுமை
 cleanup_libcrun_containerp (libcrun_container_t **p)
 {
-  if (*p)
+  எனில் (*p)
     libcrun_container_free (*p);
 }
 

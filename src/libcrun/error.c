@@ -17,448 +17,448 @@
  */
 
 #define _GNU_SOURCE
-#include <config.h>
-#include <stdarg.h>
-#include <unistd.h>
-#include <string.h>
-#include <time.h>
-#include <sys/time.h>
-#include <stdio.h>
-#include "utils.h"
+#அந்தர்பாவ <config.h>
+#அந்தர்பாவ <stdarg.h>
+#அந்தர்பாவ <unistd.h>
+#அந்தர்பாவ <string.h>
+#அந்தர்பாவ <time.h>
+#அந்தர்பாவ <sys/time.h>
+#அந்தர்பாவ <stdio.h>
+#அந்தர்பாவ "utils.h"
 
-#include <json-c/json.h>
-#include <ocispec/json_common.h>
+#அந்தர்பாவ <json-c/json.h>
+#அந்தர்பாவ <ocispec/json_common.h>
 
 #ifdef HAVE_SYSTEMD
 #  include <systemd/sd-journal.h>
 #endif
 
-enum
+எண்ணிக்கை
 {
   LOG_FORMAT_TEXT = 0,
   LOG_FORMAT_JSON,
 };
 
-static int log_format;
-static int output_verbosity = LIBCRUN_VERBOSITY_ERROR;
+நிலையான முழு log_format;
+நிலையான முழு output_verbosity = LIBCRUN_VERBOSITY_ERROR;
 
-int
-libcrun_make_error (libcrun_error_t *err, int status, const char *msg, ...)
+முழு
+libcrun_make_error (libcrun_error_t *err, முழு status, மாறிலி எழுத்து *செய்தி, ...)
 {
   va_list args_list;
   libcrun_error_t ptr;
 
-  va_start (args_list, msg);
-  *err = xmalloc (sizeof (struct libcrun_error_s));
+  va_start (args_list, செய்தி);
+  *err = xmalloc (அளவு (கட்டமைப்பு libcrun_error_s));
   ptr = *err;
   ptr->status = status;
-  if (vasprintf (&(ptr->msg), msg, args_list) < 0)
+  எனில் (vasprintf (&(ptr->செய்தி), செய்தி, args_list) < 0)
     OOM ();
   va_end (args_list);
 
-  return -status - 1;
+  திரும்பு -status - 1;
 }
 
-int
-crun_error_wrap (libcrun_error_t *err, const char *fmt, ...)
+முழு
+crun_error_wrap (libcrun_error_t *err, மாறிலி எழுத்து *fmt, ...)
 {
-  cleanup_free char *msg = NULL;
-  cleanup_free char *tmp = NULL;
+  cleanup_free எழுத்து *செய்தி = வெற்று;
+  cleanup_free எழுத்து *tmp = வெற்று;
   va_list args_list;
-  char *swap;
-  int ret;
+  எழுத்து *swap;
+  முழு ret;
 
-  if (err == NULL || *err == NULL)
+  எனில் (err == வெற்று || *err == வெற்று)
     {
       // Internal error
-      return 0;
+      திரும்பு 0;
     }
 
   ret = -(*err)->status - 1;
 
   va_start (args_list, fmt);
 
-  if (vasprintf (&msg, fmt, args_list) < 0)
+  எனில் (vasprintf (&செய்தி, fmt, args_list) < 0)
     {
       va_end (args_list);
-      msg = NULL;
-      return ret;
+      செய்தி = வெற்று;
+      திரும்பு ret;
     }
   va_end (args_list);
 
-  xasprintf (&tmp, "%s: %s", msg, (*err)->msg);
+  xasprintf (&tmp, "%s: %s", செய்தி, (*err)->செய்தி);
   swap = tmp;
-  tmp = (*err)->msg;
-  (*err)->msg = swap;
+  tmp = (*err)->செய்தி;
+  (*err)->செய்தி = swap;
 
-  return ret;
+  திரும்பு ret;
 }
 
-int
+முழு
 crun_error_release (libcrun_error_t *err)
 {
-  const int saved_errno = errno;
+  மாறிலி முழு saved_errno = errno;
   libcrun_error_t ptr;
 
-  if (err == NULL)
-    return 0;
+  எனில் (err == வெற்று)
+    திரும்பு 0;
 
   ptr = *err;
-  if (ptr == NULL)
-    return 0;
+  எனில் (ptr == வெற்று)
+    திரும்பு 0;
 
-  free (ptr->msg);
-  free (ptr);
-  *err = NULL;
+  விடுவி (ptr->செய்தி);
+  விடுவி (ptr);
+  *err = வெற்று;
 
   errno = saved_errno;
-  return 0;
+  திரும்பு 0;
 }
 
-int
+முழு
 libcrun_error_release (libcrun_error_t *err)
 {
-  return crun_error_release (err);
+  திரும்பு crun_error_release (err);
 }
 
-int
+முழு
 libcrun_error_get_status (libcrun_error_t err)
 {
-  if (err == NULL)
-    return 0;
-  return err->status;
+  எனில் (err == வெற்று)
+    திரும்பு 0;
+  திரும்பு err->status;
 }
 
-const char *
+மாறிலி எழுத்து *
 libcrun_error_get_message (libcrun_error_t err)
 {
-  if (err == NULL)
-    return NULL;
-  return err->msg;
+  எனில் (err == வெற்று)
+    திரும்பு வெற்று;
+  திரும்பு err->செய்தி;
 }
 
-void
+வெறுமை
 crun_error_write_warning_and_release (FILE *out, libcrun_error_t **err)
 {
-  const int saved_errno = errno;
+  மாறிலி முழு saved_errno = errno;
   libcrun_error_t ref;
 
-  if (out == NULL)
+  எனில் (out == வெற்று)
     out = stderr;
-  if (err == NULL || *err == NULL || **err == NULL)
+  எனில் (err == வெற்று || *err == வெற்று || **err == வெற்று)
     {
       // Internal error
-      return;
+      திரும்பு;
     }
 
   ref = **err;
-  if (ref->status)
-    fprintf (out, "%s: %s\n", ref->msg, strerror (ref->status));
-  else
-    fprintf (out, "%s\n", ref->msg);
+  எனில் (ref->status)
+    fprintf (out, "%s: %s\n", ref->செய்தி, strerror (ref->status));
+  இல்லையெனில்
+    fprintf (out, "%s\n", ref->செய்தி);
 
-  free (ref->msg);
-  free (ref);
-  **err = NULL;
+  விடுவி (ref->செய்தி);
+  விடுவி (ref);
+  **err = வெற்று;
 
   errno = saved_errno;
 }
 
-void
+வெறுமை
 libcrun_error_write_warning_and_release (FILE *out, libcrun_error_t **err)
 {
-  return crun_error_write_warning_and_release (out, err);
+  திரும்பு crun_error_write_warning_and_release (out, err);
 }
 
-void
+வெறுமை
 libcrun_error_report_and_release (libcrun_error_t *err)
 {
   libcrun_error_t ref;
 
-  if (err == NULL || *err == NULL)
-    return;
+  எனில் (err == வெற்று || *err == வெற்று)
+    திரும்பு;
 
   ref = *err;
-  libcrun_error (ref->status, "%s", ref->msg);
+  libcrun_error (ref->status, "%s", ref->செய்தி);
   crun_error_release (err);
 }
 
-int
+முழு
 crun_error_get_errno (libcrun_error_t *err)
 {
-  if (err == NULL || *err == NULL)
-    return 0;
-  return (*err)->status;
+  எனில் (err == வெற்று || *err == வெற்று)
+    திரும்பு 0;
+  திரும்பு (*err)->status;
 }
 
-typedef char timestamp_t[64];
+வகைவரை எழுத்து timestamp_t[64];
 
-static void
-get_timestamp (timestamp_t *timestamp, const char *suffix)
+நிலையான வெறுமை
+get_timestamp (timestamp_t *timestamp, மாறிலி எழுத்து *suffix)
 {
-  const size_t buffer_size = sizeof (timestamp_t);
-  char *buffer = (char *) timestamp;
-  struct timeval tv;
+  மாறிலி size_t buffer_size = அளவு (timestamp_t);
+  எழுத்து *buffer = (எழுத்து *) timestamp;
+  கட்டமைப்பு timeval tv;
   size_t written;
-  struct tm now;
+  கட்டமைப்பு tm now;
 
-  gettimeofday (&tv, NULL);
+  gettimeofday (&tv, வெற்று);
   gmtime_r (&tv.tv_sec, &now);
   written = strftime (buffer, buffer_size, "%Y-%m-%dT%H:%M:%S", &now);
-  snprintf (buffer + written, buffer_size - written, ".%06lldZ%.8s", (long long int) tv.tv_usec, suffix);
+  snprintf (buffer + written, buffer_size - written, ".%06lldZ%.8s", (long long முழு) tv.tv_usec, suffix);
 }
 
 /* Neither openlog(3) nor the journald handler copy the identifier they are
    given, and the global output handler outlives the caller's strings (e.g.
    the context is freed while errors are still reported through it), so keep
    an owned copy alive for as long as the handler can use it.  */
-static char *log_id;
+நிலையான எழுத்து *log_id;
 
-static const char *
-set_log_id (const char *id, char **old_id)
+நிலையான மாறிலி எழுத்து *
+set_log_id (மாறிலி எழுத்து *id, எழுத்து **old_id)
 {
   *old_id = log_id;
-  log_id = id ? xstrdup (id) : NULL;
-  return log_id;
+  log_id = id ? xstrdup (id) : வெற்று;
+  திரும்பு log_id;
 }
 
-static void *
-init_syslog (const char *id)
+நிலையான வெறுமை *
+init_syslog (மாறிலி எழுத்து *id)
 {
   openlog (id, 0, LOG_USER);
-  return NULL;
+  திரும்பு வெற்று;
 }
 
-enum
+எண்ணிக்கை
 {
   LOG_TYPE_FILE = 1,
   LOG_TYPE_SYSLOG = 2,
   LOG_TYPE_JOURNALD = 3
 };
 
-static int
-get_log_type (const char *log, const char **data)
+நிலையான முழு
+get_log_type (மாறிலி எழுத்து *log, மாறிலி எழுத்து **data)
 {
-  const char *sep = strchr (log, ':');
-  if (sep == NULL)
+  மாறிலி எழுத்து *sep = strchr (log, ':');
+  எனில் (sep == வெற்று)
     {
       *data = log;
-      return LOG_TYPE_FILE;
+      திரும்பு LOG_TYPE_FILE;
     }
   *data = sep + 1;
 
-  if (has_prefix (log, "syslog:"))
-    return LOG_TYPE_SYSLOG;
-  if (has_prefix (log, "journald:"))
-    return LOG_TYPE_JOURNALD;
-  if (has_prefix (log, "file:"))
-    return LOG_TYPE_FILE;
+  எனில் (has_prefix (log, "syslog:"))
+    திரும்பு LOG_TYPE_SYSLOG;
+  எனில் (has_prefix (log, "journald:"))
+    திரும்பு LOG_TYPE_JOURNALD;
+  எனில் (has_prefix (log, "file:"))
+    திரும்பு LOG_TYPE_FILE;
 
-  return -1;
+  திரும்பு -1;
 }
 
-int
-libcrun_init_logging (crun_output_handler *new_output_handler, void **new_output_handler_arg, const char *id,
-                      const char *log, libcrun_error_t *err)
+முழு
+libcrun_init_logging (crun_output_handler *new_output_handler, வெறுமை **new_output_handler_arg, மாறிலி எழுத்து *id,
+                      மாறிலி எழுத்து *log, libcrun_error_t *err)
 {
   /* Released only after the new handler is installed.  */
-  cleanup_free char *old_log_id = NULL;
+  cleanup_free எழுத்து *old_log_id = வெற்று;
 
-  if (log == NULL)
+  எனில் (log == வெற்று)
     {
       *new_output_handler = log_write_to_stderr;
-      *new_output_handler_arg = NULL;
+      *new_output_handler_arg = வெற்று;
     }
-  else
+  இல்லையெனில்
     {
-      const char *arg = NULL;
-      int log_type = get_log_type (log, &arg);
+      மாறிலி எழுத்து *arg = வெற்று;
+      முழு log_type = get_log_type (log, &arg);
 
-      if (log_type < 0)
-        return crun_make_error (err, errno, "unknown log type `%s`", log);
+      எனில் (log_type < 0)
+        திரும்பு crun_make_error (err, errno, "unknown log type `%s`", log);
 
-      switch (log_type)
+      தேர்வு (log_type)
         {
-        case LOG_TYPE_FILE:
+        நிலை LOG_TYPE_FILE:
           *new_output_handler = log_write_to_stream;
           *new_output_handler_arg = fopen (arg, "a+e");
-          if (*new_output_handler_arg == NULL)
-            return crun_make_error (err, errno, "open log file `%s`", log);
-          if (output_verbosity >= LIBCRUN_VERBOSITY_WARNING)
+          எனில் (*new_output_handler_arg == வெற்று)
+            திரும்பு crun_make_error (err, errno, "open log file `%s`", log);
+          எனில் (output_verbosity >= LIBCRUN_VERBOSITY_WARNING)
             setlinebuf (*new_output_handler_arg);
-          break;
+          நிறுத்து;
 
-        case LOG_TYPE_SYSLOG:
+        நிலை LOG_TYPE_SYSLOG:
           *new_output_handler_arg = init_syslog (set_log_id (arg[0] ? arg : id, &old_log_id));
           *new_output_handler = log_write_to_syslog;
-          break;
+          நிறுத்து;
 
-        case LOG_TYPE_JOURNALD:
+        நிலை LOG_TYPE_JOURNALD:
           *new_output_handler = log_write_to_journald;
-          *new_output_handler_arg = (void *) set_log_id (id, &old_log_id);
-          break;
+          *new_output_handler_arg = (வெறுமை *) set_log_id (id, &old_log_id);
+          நிறுத்து;
         }
     }
   crun_set_output_handler (*new_output_handler, *new_output_handler_arg);
-  return 0;
+  திரும்பு 0;
 }
 
-void
-log_write_to_stream (int errno_, const char *msg, int verbosity, void *arg)
+வெறுமை
+log_write_to_stream (முழு errno_, மாறிலி எழுத்து *செய்தி, முழு verbosity, வெறுமை *arg)
 {
   timestamp_t timestamp = {
     0,
   };
   FILE *stream = arg;
-  int tty = isatty (fileno (stream));
-  const char *color_begin = "";
-  const char *color_end = "";
+  முழு tty = isatty (fileno (stream));
+  மாறிலி எழுத்து *color_begin = "";
+  மாறிலி எழுத்து *color_end = "";
 
-  if (tty)
+  எனில் (tty)
     {
-      switch (verbosity)
+      தேர்வு (verbosity)
         {
-        case LIBCRUN_VERBOSITY_DEBUG:
+        நிலை LIBCRUN_VERBOSITY_DEBUG:
           color_begin = "\x1b[1;34m";
           color_end = "\x1b[0m";
-          break;
-        case LIBCRUN_VERBOSITY_WARNING:
+          நிறுத்து;
+        நிலை LIBCRUN_VERBOSITY_WARNING:
           color_begin = "\x1b[1;33m";
           color_end = "\x1b[0m";
-          break;
-        case LIBCRUN_VERBOSITY_ERROR:
+          நிறுத்து;
+        நிலை LIBCRUN_VERBOSITY_ERROR:
           color_begin = "\x1b[1;31m";
           color_end = "\x1b[0m";
-          break;
+          நிறுத்து;
         }
 
-      if (log_format == LOG_FORMAT_TEXT)
+      எனில் (log_format == LOG_FORMAT_TEXT)
         get_timestamp (&timestamp, ": ");
     }
 
-  if (errno_)
-    fprintf (stream, "%s%s%s: %s%s\n", color_begin, timestamp, msg, strerror (errno_), color_end);
-  else
-    fprintf (stream, "%s%s%s%s\n", color_begin, timestamp, msg, color_end);
+  எனில் (errno_)
+    fprintf (stream, "%s%s%s: %s%s\n", color_begin, timestamp, செய்தி, strerror (errno_), color_end);
+  இல்லையெனில்
+    fprintf (stream, "%s%s%s%s\n", color_begin, timestamp, செய்தி, color_end);
 }
 
-void
-log_write_to_stderr (int errno_, const char *msg, int verbosity, void *arg arg_unused)
+வெறுமை
+log_write_to_stderr (முழு errno_, மாறிலி எழுத்து *செய்தி, முழு verbosity, வெறுமை *arg arg_unused)
 {
-  log_write_to_stream (errno_, msg, verbosity, stderr);
+  log_write_to_stream (errno_, செய்தி, verbosity, stderr);
 }
 
-void
-log_write_to_syslog (int errno_, const char *msg, int verbosity, void *arg arg_unused)
+வெறுமை
+log_write_to_syslog (முழு errno_, மாறிலி எழுத்து *செய்தி, முழு verbosity, வெறுமை *arg arg_unused)
 {
-  int priority = LOG_ERR;
-  switch (verbosity)
+  முழு priority = LOG_ERR;
+  தேர்வு (verbosity)
     {
-    case LIBCRUN_VERBOSITY_DEBUG:
+    நிலை LIBCRUN_VERBOSITY_DEBUG:
       priority = LOG_DEBUG;
-      break;
-    case LIBCRUN_VERBOSITY_WARNING:
+      நிறுத்து;
+    நிலை LIBCRUN_VERBOSITY_WARNING:
       priority = LOG_WARNING;
-      break;
-    case LIBCRUN_VERBOSITY_ERROR:
+      நிறுத்து;
+    நிலை LIBCRUN_VERBOSITY_ERROR:
       priority = LOG_ERR;
-      break;
+      நிறுத்து;
     }
-  if (errno_ == 0)
-    syslog (priority, "%s", msg);
-  else
-    syslog (priority, "%s: %s", msg, strerror (errno_));
+  எனில் (errno_ == 0)
+    syslog (priority, "%s", செய்தி);
+  இல்லையெனில்
+    syslog (priority, "%s: %s", செய்தி, strerror (errno_));
 }
 
-void
-log_write_to_journald (int errno_, const char *msg, int verbosity, void *arg arg_unused)
+வெறுமை
+log_write_to_journald (முழு errno_, மாறிலி எழுத்து *செய்தி, முழு verbosity, வெறுமை *arg arg_unused)
 {
-  (void) errno_;
-  (void) msg;
-  (void) verbosity;
+  (வெறுமை) errno_;
+  (வெறுமை) செய்தி;
+  (வெறுமை) verbosity;
 #ifdef HAVE_SYSTEMD
-  int priority = LOG_ERR;
-  switch (verbosity)
+  முழு priority = LOG_ERR;
+  தேர்வு (verbosity)
     {
-    case LIBCRUN_VERBOSITY_DEBUG:
+    நிலை LIBCRUN_VERBOSITY_DEBUG:
       priority = LOG_DEBUG;
-      break;
-    case LIBCRUN_VERBOSITY_WARNING:
+      நிறுத்து;
+    நிலை LIBCRUN_VERBOSITY_WARNING:
       priority = LOG_WARNING;
-      break;
-    case LIBCRUN_VERBOSITY_ERROR:
+      நிறுத்து;
+    நிலை LIBCRUN_VERBOSITY_ERROR:
       priority = LOG_ERR;
-      break;
+      நிறுத்து;
     }
-  if (errno_ == 0)
-    sd_journal_send ("PRIORITY=%d", priority, "MESSAGE=%s", msg, "ID=%s", arg, NULL);
-  else
-    sd_journal_send ("PRIORITY=%d", priority, "MESSAGE=%s: %s", msg, strerror (errno_), "ID=%s",
-                     arg, NULL);
+  எனில் (errno_ == 0)
+    sd_journal_send ("PRIORITY=%d", priority, "MESSAGE=%s", செய்தி, "ID=%s", arg, வெற்று);
+  இல்லையெனில்
+    sd_journal_send ("PRIORITY=%d", priority, "MESSAGE=%s: %s", செய்தி, strerror (errno_), "ID=%s",
+                     arg, வெற்று);
 #endif
 }
 
-static crun_output_handler output_handler = log_write_to_stderr;
-static void *output_handler_arg = NULL;
+நிலையான crun_output_handler output_handler = log_write_to_stderr;
+நிலையான வெறுமை *output_handler_arg = வெற்று;
 
-void
-libcrun_set_verbosity (int verbosity)
+வெறுமை
+libcrun_set_verbosity (முழு verbosity)
 {
   output_verbosity = verbosity;
 }
 
-int
+முழு
 libcrun_get_verbosity ()
 {
-  return output_verbosity;
+  திரும்பு output_verbosity;
 }
 
-void
-crun_set_output_handler (crun_output_handler handler, void *arg)
+வெறுமை
+crun_set_output_handler (crun_output_handler handler, வெறுமை *arg)
 {
   output_handler = handler;
   output_handler_arg = arg;
 }
 
-static char *
-make_json_error (const char *msg, int errno_, int verbosity)
+நிலையான எழுத்து *
+make_json_error (மாறிலி எழுத்து *செய்தி, முழு errno_, முழு verbosity)
 {
-  const char *level;
-  switch (verbosity)
+  மாறிலி எழுத்து *level;
+  தேர்வு (verbosity)
     {
-    case LIBCRUN_VERBOSITY_DEBUG:
+    நிலை LIBCRUN_VERBOSITY_DEBUG:
       level = "debug";
-      break;
-    case LIBCRUN_VERBOSITY_WARNING:
+      நிறுத்து;
+    நிலை LIBCRUN_VERBOSITY_WARNING:
       level = "warning";
-      break;
-    case LIBCRUN_VERBOSITY_ERROR:
+      நிறுத்து;
+    நிலை LIBCRUN_VERBOSITY_ERROR:
       level = "error";
-      break;
+      நிறுத்து;
     }
-  const char *buf = NULL;
-  json_gen_ctx *gen = NULL;
-  char *ret = NULL;
+  மாறிலி எழுத்து *buf = வெற்று;
+  json_gen_ctx *gen = வெற்று;
+  எழுத்து *ret = வெற்று;
   size_t buf_len;
   timestamp_t timestamp = {
     0,
   };
 
-  if (! json_gen_init (&gen, NULL))
-    return NULL;
+  எனில் (! json_gen_init (&gen, வெற்று))
+    திரும்பு வெற்று;
 
   get_timestamp (&timestamp, "");
 
   json_gen_map_open (gen);
 
   json_gen_string (gen, "msg", strlen ("msg"));
-  if (errno_ == 0)
-    json_gen_string (gen, msg, strlen (msg));
-  else
+  எனில் (errno_ == 0)
+    json_gen_string (gen, செய்தி, strlen (செய்தி));
+  இல்லையெனில்
     {
-      cleanup_free char *tmp = NULL;
+      cleanup_free எழுத்து *tmp = வெற்று;
 
-      xasprintf (&tmp, "%s: %s", msg, strerror (errno_));
+      xasprintf (&tmp, "%s: %s", செய்தி, strerror (errno_));
       json_gen_string (gen, tmp, strlen (tmp));
     }
 
@@ -471,107 +471,107 @@ make_json_error (const char *msg, int errno_, int verbosity)
   json_gen_map_close (gen);
 
   json_gen_get_buf (gen, &buf, &buf_len);
-  if (buf)
+  எனில் (buf)
     ret = strdup (buf);
 
   json_gen_free (gen);
 
-  return ret;
+  திரும்பு ret;
 }
 
-static void
-write_log (int errno_, int verbosity, const char *msg, va_list args_list)
+நிலையான வெறுமை
+write_log (முழு errno_, முழு verbosity, மாறிலி எழுத்து *செய்தி, va_list args_list)
 {
-  int ret;
-  cleanup_free char *output = NULL;
-  cleanup_free char *json = NULL;
+  முழு ret;
+  cleanup_free எழுத்து *output = வெற்று;
+  cleanup_free எழுத்து *json = வெற்று;
 
-  if (verbosity > output_verbosity)
-    return;
+  எனில் (verbosity > output_verbosity)
+    திரும்பு;
 
-  ret = vasprintf (&output, msg, args_list);
-  if (UNLIKELY (ret < 0))
+  ret = vasprintf (&output, செய்தி, args_list);
+  எனில் (UNLIKELY (ret < 0))
     OOM ();
 
-  if (verbosity == LIBCRUN_VERBOSITY_ERROR && output_handler != log_write_to_stderr)
-    log_write_to_stderr (errno_, output, LIBCRUN_VERBOSITY_ERROR, NULL);
+  எனில் (verbosity == LIBCRUN_VERBOSITY_ERROR && output_handler != log_write_to_stderr)
+    log_write_to_stderr (errno_, output, LIBCRUN_VERBOSITY_ERROR, வெற்று);
 
-  switch (log_format)
+  தேர்வு (log_format)
     {
-    case LOG_FORMAT_TEXT:
+    நிலை LOG_FORMAT_TEXT:
       output_handler (errno_, output, verbosity, output_handler_arg);
-      break;
+      நிறுத்து;
 
-    case LOG_FORMAT_JSON:
+    நிலை LOG_FORMAT_JSON:
       json = make_json_error (output, errno_, verbosity);
-      if (json)
+      எனில் (json)
         output_handler (0, json, verbosity, output_handler_arg);
-      else
+      இல்லையெனில்
         output_handler (errno_, output, verbosity, output_handler_arg);
-      break;
+      நிறுத்து;
     }
 }
 
-void
-libcrun_debug (const char *msg, ...)
+வெறுமை
+libcrun_debug (மாறிலி எழுத்து *செய்தி, ...)
 {
   va_list args_list;
-  va_start (args_list, msg);
-  write_log (0, LIBCRUN_VERBOSITY_DEBUG, msg, args_list);
+  va_start (args_list, செய்தி);
+  write_log (0, LIBCRUN_VERBOSITY_DEBUG, செய்தி, args_list);
   va_end (args_list);
 }
 
-void
-libcrun_warning (const char *msg, ...)
+வெறுமை
+libcrun_warning (மாறிலி எழுத்து *செய்தி, ...)
 {
   va_list args_list;
-  va_start (args_list, msg);
-  write_log (0, LIBCRUN_VERBOSITY_WARNING, msg, args_list);
+  va_start (args_list, செய்தி);
+  write_log (0, LIBCRUN_VERBOSITY_WARNING, செய்தி, args_list);
   va_end (args_list);
 }
 
-void
-libcrun_error (int errno_, const char *msg, ...)
+வெறுமை
+libcrun_error (முழு errno_, மாறிலி எழுத்து *செய்தி, ...)
 {
   va_list args_list;
-  va_start (args_list, msg);
+  va_start (args_list, செய்தி);
 
-  write_log (errno_, LIBCRUN_VERBOSITY_ERROR, msg, args_list);
+  write_log (errno_, LIBCRUN_VERBOSITY_ERROR, செய்தி, args_list);
   va_end (args_list);
 }
 
-void __attribute__ ((noreturn))
-libcrun_fail_with_error (int errno_, const char *msg, ...)
+வெறுமை __attribute__ ((noreturn))
+libcrun_fail_with_error (முழு errno_, மாறிலி எழுத்து *செய்தி, ...)
 {
   va_list args_list;
-  va_start (args_list, msg);
-  write_log (errno_, LIBCRUN_VERBOSITY_ERROR, msg, args_list);
+  va_start (args_list, செய்தி);
+  write_log (errno_, LIBCRUN_VERBOSITY_ERROR, செய்தி, args_list);
   va_end (args_list);
   exit (EXIT_FAILURE);
 }
 
-int
-libcrun_set_log_format (const char *format, libcrun_error_t *err)
+முழு
+libcrun_set_log_format (மாறிலி எழுத்து *format, libcrun_error_t *err)
 {
-  if (strcmp (format, "text") == 0)
+  எனில் (strcmp (format, "text") == 0)
     log_format = LOG_FORMAT_TEXT;
-  else if (strcmp (format, "json") == 0)
+  இல்லையெனில் எனில் (strcmp (format, "json") == 0)
     log_format = LOG_FORMAT_JSON;
-  else
-    return crun_make_error (err, 0, "unknown log format type `%s`", format);
+  இல்லையெனில்
+    திரும்பு crun_make_error (err, 0, "unknown log format type `%s`", format);
 
-  return 0;
+  திரும்பு 0;
 }
 
-int
-json_gen_error_to_crun_error (int status, libcrun_error_t *err)
+முழு
+json_gen_error_to_crun_error (முழு status, libcrun_error_t *err)
 {
-  switch (status)
+  தேர்வு (status)
     {
-    case json_gen_status_ok:
-      return 0;
+    நிலை json_gen_status_ok:
+      திரும்பு 0;
 
-    default:
-      return crun_make_error (err, 0, "generate JSON document: error %d", status);
+    இயல்பு:
+      திரும்பு crun_make_error (err, 0, "generate JSON document: error %d", status);
     }
 }

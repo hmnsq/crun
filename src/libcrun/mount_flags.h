@@ -19,7 +19,7 @@
 #ifndef MOUNT_FLAGS_H
 #define MOUNT_FLAGS_H
 
-enum
+எண்ணிக்கை
 {
   OPTION_TMPCOPYUP = (1 << 0),
   OPTION_RECURSIVE = (1 << 1),
@@ -29,15 +29,15 @@ enum
   OPTION_DEST_NOFOLLOW = (1 << 5),
 };
 
-struct propagation_flags_s
+கட்டமைப்பு propagation_flags_s
 {
-  char *name;
-  int clear;
-  int flags;
-  int extra_flags;
+  எழுத்து *name;
+  முழு clear;
+  முழு flags;
+  முழு extra_flags;
 };
 
-const struct propagation_flags_s *libcrun_str2mount_flags (const char *name);
-const struct propagation_flags_s *get_mount_flags_from_wordlist ();
+மாறிலி கட்டமைப்பு propagation_flags_s *libcrun_str2mount_flags (மாறிலி எழுத்து *name);
+மாறிலி கட்டமைப்பு propagation_flags_s *get_mount_flags_from_wordlist ();
 
 #endif

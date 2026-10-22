@@ -17,117 +17,117 @@
  */
 #ifndef ERROR_H
 #define ERROR_H
-#include <config.h>
+#அந்தர்பாவ <config.h>
 #ifdef HAVE_ERROR_H
 #  include <error.h>
-#else
+#இல்லையெனில்
 #  define error(status, errno, fmt, ...)                      \
-    do                                                        \
+    செய்                                                        \
       {                                                       \
-        if (errno == 0)                                       \
+        எனில் (errno == 0)                                       \
           fprintf (stderr, "crun: " fmt "\n", ##__VA_ARGS__); \
-        else                                                  \
+        இல்லையெனில்                                                  \
           {                                                   \
             fprintf (stderr, "crun: " fmt, ##__VA_ARGS__);    \
             fprintf (stderr, ": %s\n", strerror (errno));     \
           }                                                   \
-        if (status)                                           \
+        எனில் (status)                                           \
           exit (status);                                      \
-    } while (0)
+    } போது (0)
 #endif
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <syslog.h>
-#include <unistd.h>
+#அந்தர்பாவ <stdlib.h>
+#அந்தர்பாவ <stdio.h>
+#அந்தர்பாவ <stdbool.h>
+#அந்தர்பாவ <syslog.h>
+#அந்தர்பாவ <unistd.h>
 
-struct libcrun_error_s
+கட்டமைப்பு libcrun_error_s
 {
-  int status;
-  char *msg;
+  முழு status;
+  எழுத்து *செய்தி;
 };
-typedef struct libcrun_error_s *libcrun_error_t;
+வகைவரை கட்டமைப்பு libcrun_error_s *libcrun_error_t;
 
 /* Coverage support: flush coverage data before _exit() in forked processes */
 #ifdef HAVE_COVERAGE
-extern void __gcov_dump (void);
+வெளி வெறுமை __gcov_dump (வெறுமை);
 #  define GCOV_DUMP() __gcov_dump ()
-#else
+#இல்லையெனில்
 #  define GCOV_DUMP()
 #endif
 
 /* Use this instead of _exit() to ensure coverage data is flushed */
 #define _safe_exit(status) \
-  do                       \
+  செய்                       \
     {                      \
       GCOV_DUMP ();        \
       _exit (status);      \
-  } while (0)
+  } போது (0)
 
 #define OOM()                            \
-  do                                     \
+  செய்                                     \
     {                                    \
       fprintf (stderr, "out of memory"); \
       _safe_exit (EXIT_FAILURE);         \
-  } while (0)
+  } போது (0)
 
-typedef void (*crun_output_handler) (int errno_, const char *msg, int verbosity, void *arg);
+வகைவரை வெறுமை (*crun_output_handler) (முழு errno_, மாறிலி எழுத்து *செய்தி, முழு verbosity, வெறுமை *arg);
 
-void crun_set_output_handler (crun_output_handler handler, void *arg);
+வெறுமை crun_set_output_handler (crun_output_handler handler, வெறுமை *arg);
 
-void log_write_to_journald (int errno_, const char *msg, int verbosity, void *arg);
+வெறுமை log_write_to_journald (முழு errno_, மாறிலி எழுத்து *செய்தி, முழு verbosity, வெறுமை *arg);
 
-void log_write_to_syslog (int errno_, const char *msg, int verbosity, void *arg);
+வெறுமை log_write_to_syslog (முழு errno_, மாறிலி எழுத்து *செய்தி, முழு verbosity, வெறுமை *arg);
 
-void log_write_to_stream (int errno_, const char *msg, int verbosity, void *arg);
+வெறுமை log_write_to_stream (முழு errno_, மாறிலி எழுத்து *செய்தி, முழு verbosity, வெறுமை *arg);
 
-void log_write_to_stderr (int errno_, const char *msg, int verbosity, void *arg);
+வெறுமை log_write_to_stderr (முழு errno_, மாறிலி எழுத்து *செய்தி, முழு verbosity, வெறுமை *arg);
 
-int crun_error_wrap (libcrun_error_t *err, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
+முழு crun_error_wrap (libcrun_error_t *err, மாறிலி எழுத்து *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 
-int crun_error_get_errno (libcrun_error_t *err);
+முழு crun_error_get_errno (libcrun_error_t *err);
 
-int crun_error_release (libcrun_error_t *err);
+முழு crun_error_release (libcrun_error_t *err);
 
-void crun_error_write_warning_and_release (FILE *out, libcrun_error_t **err);
+வெறுமை crun_error_write_warning_and_release (FILE *out, libcrun_error_t **err);
 
-LIBCRUN_PUBLIC void libcrun_debug (const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
+LIBCRUN_PUBLIC வெறுமை libcrun_debug (மாறிலி எழுத்து *செய்தி, ...) __attribute__ ((format (printf, 1, 2)));
 
-LIBCRUN_PUBLIC void libcrun_warning (const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
+LIBCRUN_PUBLIC வெறுமை libcrun_warning (மாறிலி எழுத்து *செய்தி, ...) __attribute__ ((format (printf, 1, 2)));
 
-LIBCRUN_PUBLIC void libcrun_error (int errno_, const char *msg, ...) __attribute__ ((format (printf, 2, 3)));
+LIBCRUN_PUBLIC வெறுமை libcrun_error (முழு errno_, மாறிலி எழுத்து *செய்தி, ...) __attribute__ ((format (printf, 2, 3)));
 
-LIBCRUN_PUBLIC int libcrun_make_error (libcrun_error_t *err, int status, const char *msg, ...) __attribute__ ((format (printf, 3, 4)));
+LIBCRUN_PUBLIC முழு libcrun_make_error (libcrun_error_t *err, முழு status, மாறிலி எழுத்து *செய்தி, ...) __attribute__ ((format (printf, 3, 4)));
 
 #define crun_make_error libcrun_make_error
 
-LIBCRUN_PUBLIC void libcrun_error_write_warning_and_release (FILE *out, libcrun_error_t **err);
+LIBCRUN_PUBLIC வெறுமை libcrun_error_write_warning_and_release (FILE *out, libcrun_error_t **err);
 
-LIBCRUN_PUBLIC void libcrun_error_report_and_release (libcrun_error_t *err);
+LIBCRUN_PUBLIC வெறுமை libcrun_error_report_and_release (libcrun_error_t *err);
 
-LIBCRUN_PUBLIC void libcrun_fail_with_error (int errno_, const char *msg, ...) __attribute__ ((noreturn)) __attribute__ ((format (printf, 2, 3)));
+LIBCRUN_PUBLIC வெறுமை libcrun_fail_with_error (முழு errno_, மாறிலி எழுத்து *செய்தி, ...) __attribute__ ((noreturn)) __attribute__ ((format (printf, 2, 3)));
 
-LIBCRUN_PUBLIC int libcrun_set_log_format (const char *format, libcrun_error_t *err);
+LIBCRUN_PUBLIC முழு libcrun_set_log_format (மாறிலி எழுத்து *format, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_init_logging (crun_output_handler *output_handler, void **output_handler_arg, const char *id,
-                                         const char *log, libcrun_error_t *err);
+LIBCRUN_PUBLIC முழு libcrun_init_logging (crun_output_handler *output_handler, வெறுமை **output_handler_arg, மாறிலி எழுத்து *id,
+                                         மாறிலி எழுத்து *log, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_error_release (libcrun_error_t *err);
+LIBCRUN_PUBLIC முழு libcrun_error_release (libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_error_get_status (libcrun_error_t err);
+LIBCRUN_PUBLIC முழு libcrun_error_get_status (libcrun_error_t err);
 
-LIBCRUN_PUBLIC const char *libcrun_error_get_message (libcrun_error_t err);
+LIBCRUN_PUBLIC மாறிலி எழுத்து *libcrun_error_get_message (libcrun_error_t err);
 
-int json_gen_error_to_crun_error (int gen_status, libcrun_error_t *err);
+முழு json_gen_error_to_crun_error (முழு gen_status, libcrun_error_t *err);
 
-enum
+எண்ணிக்கை
 {
   LIBCRUN_VERBOSITY_ERROR = 0,
   LIBCRUN_VERBOSITY_WARNING,
   LIBCRUN_VERBOSITY_DEBUG,
 };
 
-LIBCRUN_PUBLIC void libcrun_set_verbosity (int verbosity);
-LIBCRUN_PUBLIC int libcrun_get_verbosity ();
+LIBCRUN_PUBLIC வெறுமை libcrun_set_verbosity (முழு verbosity);
+LIBCRUN_PUBLIC முழு libcrun_get_verbosity ();
 
 #endif

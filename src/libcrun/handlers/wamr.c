@@ -17,20 +17,20 @@
  */
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "../custom-handler.h"
-#include "../container.h"
-#include "../utils.h"
-#include "../linux.h"
-#include "handler-utils.h"
-#include <unistd.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <sched.h>
-#include <stdio.h>
-#include <stdlib.h>
+#அந்தர்பாவ <config.h>
+#அந்தர்பாவ "../custom-handler.h"
+#அந்தர்பாவ "../container.h"
+#அந்தர்பாவ "../utils.h"
+#அந்தர்பாவ "../linux.h"
+#அந்தர்பாவ "handler-utils.h"
+#அந்தர்பாவ <unistd.h>
+#அந்தர்பாவ <sys/stat.h>
+#அந்தர்பாவ <errno.h>
+#அந்தர்பாவ <sys/types.h>
+#அந்தர்பாவ <fcntl.h>
+#அந்தர்பாவ <sched.h>
+#அந்தர்பாவ <stdio.h>
+#அந்தர்பாவ <stdlib.h>
 
 #ifdef HAVE_DLOPEN
 #  include <dlfcn.h>
@@ -40,63 +40,63 @@
 #  include <wasm_export.h>
 #endif
 
-#if HAVE_DLOPEN && HAVE_WAMR
+#எனில் HAVE_DLOPEN && HAVE_WAMR
 
-static int
-libwamr_load (void **cookie, libcrun_error_t *err)
+நிலையான முழு
+libwamr_load (வெறுமை **cookie, libcrun_error_t *err)
 {
-  void *handle;
+  வெறுமை *handle;
 
   handle = dlopen ("libiwasm.so", RTLD_NOW);
-  if (handle == NULL)
-    return crun_make_error (err, 0, "could not load `libiwasm.so`: `%s`", dlerror ());
+  எனில் (handle == வெற்று)
+    திரும்பு crun_make_error (err, 0, "could not load `libiwasm.so`: `%s`", dlerror ());
   *cookie = handle;
 
-  return 0;
+  திரும்பு 0;
 }
 
-static int
-libwamr_unload (void *cookie, libcrun_error_t *err)
+நிலையான முழு
+libwamr_unload (வெறுமை *cookie, libcrun_error_t *err)
 {
-  int r;
+  முழு r;
 
-  if (cookie)
+  எனில் (cookie)
     {
       r = dlclose (cookie);
-      if (UNLIKELY (r < 0))
-        return crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
+      எனில் (UNLIKELY (r < 0))
+        திரும்பு crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
     }
-  return 0;
+  திரும்பு 0;
 }
 
-static int
-libwamr_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *container, const char *pathname, char *const argv[])
+நிலையான முழு
+libwamr_exec (வெறுமை *cookie, __attribute__ ((unused)) libcrun_container_t *container, மாறிலி எழுத்து *pathname, எழுத்து *மாறிலி argv[])
 {
   // load symbols from the shared library libiwasm.so
   bool (*wasm_runtime_init) ();
   RuntimeInitArgs init_args;
   bool (*wasm_runtime_full_init) (RuntimeInitArgs *init_args);
   wasm_module_t module;
-  wasm_module_t (*wasm_runtime_load) (uint8_t *buf, uint32_t size, char *error_buf, uint32_t error_buf_size);
+  wasm_module_t (*wasm_runtime_load) (uint8_t *buf, uint32_t size, எழுத்து *error_buf, uint32_t error_buf_size);
   wasm_module_inst_t module_inst;
-  wasm_module_inst_t (*wasm_runtime_instantiate) (const wasm_module_t module, uint32_t default_stack_size, uint32_t host_managed_heap_size, char *error_buf, uint32_t error_buf_size);
+  wasm_module_inst_t (*wasm_runtime_instantiate) (மாறிலி wasm_module_t module, uint32_t default_அடுக்கு_size, uint32_t host_managed_heap_size, எழுத்து *error_buf, uint32_t error_buf_size);
   wasm_function_inst_t func;
-  wasm_function_inst_t (*wasm_runtime_lookup_function) (wasm_module_inst_t const module_inst, const char *name);
+  wasm_function_inst_t (*wasm_runtime_lookup_function) (wasm_module_inst_t மாறிலி module_inst, மாறிலி எழுத்து *name);
   wasm_exec_env_t exec_env;
-  wasm_exec_env_t (*wasm_runtime_create_exec_env) (wasm_module_inst_t module_inst, uint32_t stack_size);
+  wasm_exec_env_t (*wasm_runtime_create_exec_env) (wasm_module_inst_t module_inst, uint32_t அடுக்கு_size);
   bool (*wasm_runtime_call_wasm) (wasm_exec_env_t exec_env, wasm_function_inst_t function, uint32_t argc, uint32_t argv[]);
-  const char *(*wasm_runtime_get_exception) (wasm_module_inst_t module_inst);
-  void (*wasm_runtime_set_exception) (wasm_module_inst_t module_inst, const char *exception);
-  void (*wasm_runtime_clear_exception) (wasm_module_inst_t module_inst);
-  void (*wasm_runtime_destroy_exec_env) (wasm_exec_env_t exec_env);
-  void (*wasm_runtime_deinstantiate) (wasm_module_inst_t module_inst);
-  void (*wasm_runtime_unload) (wasm_module_t module);
-  void (*wasm_runtime_destroy) ();
+  மாறிலி எழுத்து *(*wasm_runtime_get_exception) (wasm_module_inst_t module_inst);
+  வெறுமை (*wasm_runtime_set_exception) (wasm_module_inst_t module_inst, மாறிலி எழுத்து *exception);
+  வெறுமை (*wasm_runtime_clear_exception) (wasm_module_inst_t module_inst);
+  வெறுமை (*wasm_runtime_destroy_exec_env) (wasm_exec_env_t exec_env);
+  வெறுமை (*wasm_runtime_deinstantiate) (wasm_module_inst_t module_inst);
+  வெறுமை (*wasm_runtime_unload) (wasm_module_t module);
+  வெறுமை (*wasm_runtime_destroy) ();
   uint32_t (*wasm_runtime_get_wasi_exit_code) (wasm_module_inst_t module_inst);
-  bool (*wasm_application_execute_main) (wasm_module_inst_t module_inst, int32_t argc, char *argv[]);
-  void (*wasm_runtime_set_wasi_args) (wasm_module_t module, const char *dir_list[], uint32_t dir_count, const char *map_dir_list[], uint32_t map_dir_count, const char *env[], uint32_t env_count, char *argv[], int argc);
-  void (*wasm_runtime_set_wasi_addr_pool) (wasm_module_t module, const char *addr_pool[], uint32_t pool_size);
-  void (*wasm_runtime_set_wasi_ns_lookup_pool) (wasm_module_t module, const char *ns_lookup_pool[], uint32_t pool_size);
+  bool (*wasm_application_execute_main) (wasm_module_inst_t module_inst, int32_t argc, எழுத்து *argv[]);
+  வெறுமை (*wasm_runtime_set_wasi_args) (wasm_module_t module, மாறிலி எழுத்து *dir_list[], uint32_t dir_மொத்தம், மாறிலி எழுத்து *map_dir_list[], uint32_t map_dir_மொத்தம், மாறிலி எழுத்து *env[], uint32_t env_மொத்தம், எழுத்து *argv[], முழு argc);
+  வெறுமை (*wasm_runtime_set_wasi_addr_pool) (wasm_module_t module, மாறிலி எழுத்து *addr_pool[], uint32_t pool_size);
+  வெறுமை (*wasm_runtime_set_wasi_ns_lookup_pool) (wasm_module_t module, மாறிலி எழுத்து *ns_lookup_pool[], uint32_t pool_size);
 
   wasm_runtime_init = dlsym (cookie, "wasm_runtime_init");
   wasm_runtime_full_init = dlsym (cookie, "wasm_runtime_full_init");
@@ -118,113 +118,113 @@ libwamr_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *contai
   wasm_runtime_set_wasi_addr_pool = dlsym (cookie, "wasm_runtime_set_wasi_addr_pool");
   wasm_runtime_set_wasi_ns_lookup_pool = dlsym (cookie, "wasm_runtime_set_wasi_ns_lookup_pool");
 
-  if (wasm_runtime_init == NULL)
+  எனில் (wasm_runtime_init == வெற்று)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_init symbol in `libiwasm.so`");
-  if (wasm_runtime_full_init == NULL)
+  எனில் (wasm_runtime_full_init == வெற்று)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_full_init symbol in `libiwasm.so`");
-  if (wasm_runtime_load == NULL)
+  எனில் (wasm_runtime_load == வெற்று)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_load symbol in `libiwasm.so`");
-  if (wasm_runtime_instantiate == NULL)
+  எனில் (wasm_runtime_instantiate == வெற்று)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_instantiate symbol in `libiwasm.so`");
-  if (wasm_runtime_lookup_function == NULL)
+  எனில் (wasm_runtime_lookup_function == வெற்று)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_lookup_function symbol in `libiwasm.so`");
-  if (wasm_runtime_create_exec_env == NULL)
+  எனில் (wasm_runtime_create_exec_env == வெற்று)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_create_exec_env symbol in `libiwasm.so`");
-  if (wasm_runtime_call_wasm == NULL)
+  எனில் (wasm_runtime_call_wasm == வெற்று)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_call_wasm symbol in `libiwasm.so`");
-  if (wasm_runtime_get_exception == NULL)
+  எனில் (wasm_runtime_get_exception == வெற்று)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_get_exception symbol in `libiwasm.so`");
-  if (wasm_runtime_set_exception == NULL)
+  எனில் (wasm_runtime_set_exception == வெற்று)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_set_exception symbol in `libiwasm.so`");
-  if (wasm_runtime_clear_exception == NULL)
+  எனில் (wasm_runtime_clear_exception == வெற்று)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_clear_exception symbol in `libiwasm.so`");
-  if (wasm_runtime_destroy_exec_env == NULL)
+  எனில் (wasm_runtime_destroy_exec_env == வெற்று)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_destroy_exec_env symbol in `libiwasm.so`");
-  if (wasm_runtime_deinstantiate == NULL)
+  எனில் (wasm_runtime_deinstantiate == வெற்று)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_deinstantiate symbol in `libiwasm.so`");
-  if (wasm_runtime_unload == NULL)
+  எனில் (wasm_runtime_unload == வெற்று)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_unload symbol in `libiwasm.so`");
-  if (wasm_runtime_destroy == NULL)
+  எனில் (wasm_runtime_destroy == வெற்று)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_destroy symbol in `libiwasm.so`");
-  if (wasm_runtime_get_wasi_exit_code == NULL)
+  எனில் (wasm_runtime_get_wasi_exit_code == வெற்று)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_get_wasi_exit_code symbol in `libiwasm.so`");
-  if (wasm_application_execute_main == NULL)
+  எனில் (wasm_application_execute_main == வெற்று)
     error (EXIT_FAILURE, 0, "could not find wasm_application_execute_main symbol in `libiwasm.so`");
-  if (wasm_runtime_set_wasi_args == NULL)
+  எனில் (wasm_runtime_set_wasi_args == வெற்று)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_set_wasi_args symbol in `libiwasm.so`");
-  if (wasm_runtime_set_wasi_addr_pool == NULL)
+  எனில் (wasm_runtime_set_wasi_addr_pool == வெற்று)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_set_wasi_addr_pool symbol in `libiwasm.so`");
-  if (wasm_runtime_set_wasi_ns_lookup_pool == NULL)
+  எனில் (wasm_runtime_set_wasi_ns_lookup_pool == வெற்று)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_set_wasi_ns_lookup_pool symbol in `libiwasm.so`");
 
-  int ret;
-  const char *exception;
-  cleanup_free char *buffer = NULL;
-  char error_buf[128];
+  முழு ret;
+  மாறிலி எழுத்து *exception;
+  cleanup_free எழுத்து *buffer = வெற்று;
+  எழுத்து error_buf[128];
   size_t buffer_size;
-  uint32_t stack_size = 8096, heap_size = 0;
-  libcrun_error_t tmp_err = NULL;
-  const char *wasi_proc_exit_exception = "wasi proc exit";
-  const char *wasi_addr_pool[2] = { "0.0.0.0/0", "::/0" };
-  const char *wasi_ns_lookup_pool[1] = { "*" };
+  uint32_t அடுக்கு_size = 8096, heap_size = 0;
+  libcrun_error_t tmp_err = வெற்று;
+  மாறிலி எழுத்து *wasi_proc_exit_exception = "wasi proc exit";
+  மாறிலி எழுத்து *wasi_addr_pool[2] = { "0.0.0.0/0", "::/0" };
+  மாறிலி எழுத்து *wasi_ns_lookup_pool[1] = { "*" };
 
-  const char *dirs[2] = { "/", "." };
-  char **container_env = container->container_def->process->env;
-  size_t env_count = container->container_def->process->env_len;
+  மாறிலி எழுத்து *dirs[2] = { "/", "." };
+  எழுத்து **container_env = container->container_def->process->env;
+  size_t env_மொத்தம் = container->container_def->process->env_len;
 
-  int arg_count = 0;
-  char *const *arg;
-  for (arg = argv; *arg != NULL; ++arg)
-    arg_count++;
+  முழு arg_மொத்தம் = 0;
+  எழுத்து *மாறிலி *arg;
+  க்கு (arg = argv; *arg != வெற்று; ++arg)
+    arg_மொத்தம்++;
 
   // initialize the wasm runtime by default configurations
-  if (! wasm_runtime_init ())
+  எனில் (! wasm_runtime_init ())
     error (EXIT_FAILURE, 0, "Failed to initialize the wasm runtime");
 
   // read WASM file into a memory buffer
   ret = read_all_file (pathname, &buffer, &buffer_size, &tmp_err);
-  if (UNLIKELY (ret < 0))
+  எனில் (UNLIKELY (ret < 0))
     {
       crun_error_release (&tmp_err);
       error (EXIT_FAILURE, 0, "Failed to read file");
     }
 
-  if (UNLIKELY (buffer_size > UINT32_MAX))
+  எனில் (UNLIKELY (buffer_size > UINT32_MAX))
     error (EXIT_FAILURE, 0, "File size is too large");
 
   // parse the WASM file from buffer and create a WASM module
-  module = wasm_runtime_load (buffer, buffer_size, error_buf, sizeof (error_buf));
-  if (! module)
+  module = wasm_runtime_load (buffer, buffer_size, error_buf, அளவு (error_buf));
+  எனில் (! module)
     error (EXIT_FAILURE, 0, "Failed to load WASM file");
 
   // instantiate the WASI environment
-  wasm_runtime_set_wasi_args (module, dirs, 1, NULL, 0, (const char **) container_env, env_count, (char **) argv, arg_count);
+  wasm_runtime_set_wasi_args (module, dirs, 1, வெற்று, 0, (மாறிலி எழுத்து **) container_env, env_மொத்தம், (எழுத்து **) argv, arg_மொத்தம்);
 
   // enable the WASI socket api
   wasm_runtime_set_wasi_addr_pool (module, wasi_addr_pool, 2);
   wasm_runtime_set_wasi_ns_lookup_pool (module, wasi_ns_lookup_pool, 1);
 
   // create an instance of the WASM module (WASM linear memory is ready)
-  module_inst = wasm_runtime_instantiate (module, stack_size, heap_size, error_buf, sizeof (error_buf));
-  if (! module_inst)
+  module_inst = wasm_runtime_instantiate (module, அடுக்கு_size, heap_size, error_buf, அளவு (error_buf));
+  எனில் (! module_inst)
     error (EXIT_FAILURE, 0, "Failed to instantiate the WASM module");
 
   // look up a WASM function by its name (The function signature can NULL here)
   func = wasm_runtime_lookup_function (module_inst, "_start");
-  if (! func)
+  எனில் (! func)
     error (EXIT_FAILURE, 0, "Failed to look up the WASM function");
 
   // create an execution environment to execute the WASM functions
-  exec_env = wasm_runtime_create_exec_env (module_inst, stack_size);
-  if (! exec_env)
+  exec_env = wasm_runtime_create_exec_env (module_inst, அடுக்கு_size);
+  எனில் (! exec_env)
     error (EXIT_FAILURE, 0, "Failed to create the execution environment");
 
   // call the WASM function
-  ret = wasm_runtime_call_wasm (exec_env, func, 0, NULL);
-  if (ret)
+  ret = wasm_runtime_call_wasm (exec_env, func, 0, வெற்று);
+  எனில் (ret)
     wasm_runtime_set_exception (module_inst, wasi_proc_exit_exception);
   exception = wasm_runtime_get_exception (module_inst);
-  if (! strstr (exception, wasi_proc_exit_exception))
+  எனில் (! strstr (exception, wasi_proc_exit_exception))
     error (EXIT_FAILURE, 0, "Failed to call the WASM function");
   wasm_runtime_clear_exception (module_inst);
 
@@ -236,17 +236,17 @@ libwamr_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *contai
   exit (EXIT_SUCCESS);
 }
 
-static int
+நிலையான முழு
 libwamr_can_handle_container (libcrun_container_t *container, libcrun_error_t *err)
 {
-  return wasm_can_handle_container (container, err);
+  திரும்பு wasm_can_handle_container (container, err);
 }
 
-struct custom_handler_s handler_wamr = {
+கட்டமைப்பு custom_handler_s handler_wamr = {
   .name = "wamr",
   .alias = "wasm",
   .feature_string = "WASM:wamr",
-  .supports_open_tree_namespace = false,
+  .supports_open_மரம்_namespace = false,
   .load = libwamr_load,
   .unload = libwamr_unload,
   .run_func = libwamr_exec,

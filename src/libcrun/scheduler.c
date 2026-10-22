@@ -18,15 +18,15 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "linux.h"
-#include "utils.h"
-#include <sched.h>
-#include <linux/sched.h>
-#include <sys/sysmacros.h>
-#include <limits.h>
-#include <inttypes.h>
-#include <ocispec/runtime_spec_schema_config_schema.h>
+#அந்தர்பாவ <config.h>
+#அந்தர்பாவ "linux.h"
+#அந்தர்பாவ "utils.h"
+#அந்தர்பாவ <sched.h>
+#அந்தர்பாவ <linux/sched.h>
+#அந்தர்பாவ <sys/sysmacros.h>
+#அந்தர்பாவ <limits.h>
+#அந்தர்பாவ <inttypes.h>
+#அந்தர்பாவ <ocispec/runtime_spec_schema_config_schema.h>
 
 #ifndef SCHED_FLAG_RESET_ON_FORK
 #  define SCHED_FLAG_RESET_ON_FORK 0x01
@@ -50,7 +50,7 @@
 #  define SCHED_FLAG_UTIL_CLAMP_MAX 0x40
 #endif
 
-struct sched_attr_s
+கட்டமைப்பு sched_attr_s
 {
   uint32_t size;
   uint32_t sched_policy;
@@ -64,17 +64,17 @@ struct sched_attr_s
   uint64_t sched_period;
 };
 
-static int
-syscall_sched_setattr (pid_t pid, struct sched_attr_s *attr, unsigned int flags)
+நிலையான முழு
+syscall_sched_setattr (pid_t pid, கட்டமைப்பு sched_attr_s *attr, unsigned முழு flags)
 {
 #ifdef __NR_sched_setattr
-  return syscall (__NR_sched_setattr, pid, attr, flags);
-#else
-  (void) pid;
-  (void) attr;
-  (void) flags;
+  திரும்பு syscall (__NR_sched_setattr, pid, attr, flags);
+#இல்லையெனில்
+  (வெறுமை) pid;
+  (வெறுமை) attr;
+  (வெறுமை) flags;
   errno = ENOSYS;
-  return -1;
+  திரும்பு -1;
 #endif
 }
 
@@ -85,80 +85,80 @@ syscall_sched_setattr (pid_t pid, struct sched_attr_s *attr, unsigned int flags)
    CPUs outside of it.  */
 #define MAX_CPU_MASK_BITS (64 * 1024)
 
-int
+முழு
 libcrun_reset_cpu_affinity_mask (pid_t pid, libcrun_error_t *err)
 {
-  cpu_set_t mask[MAX_CPU_MASK_BITS / (CHAR_BIT * sizeof (cpu_set_t))];
-  int ret;
+  cpu_set_t mask[MAX_CPU_MASK_BITS / (CHAR_BIT * அளவு (cpu_set_t))];
+  முழு ret;
 
   /* Reset the inherited cpu affinity. Old kernels do that automatically, but
      new kernels remember the affinity that was set before the cgroup move.
      This is undesirable, because it inherits the systemd affinity when the container
      should really move to the container space cpus.
      See: https://issues.redhat.com/browse/OCPBUGS-15102   */
-  memset (mask, 0xFF, sizeof (mask));
-  ret = sched_setaffinity (pid, sizeof (mask), mask);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "sched_setaffinity");
-  return 0;
+  memset (mask, 0xFF, அளவு (mask));
+  ret = sched_setaffinity (pid, அளவு (mask), mask);
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு crun_make_error (err, errno, "sched_setaffinity");
+  திரும்பு 0;
 }
 
-static int
+நிலையான முழு
 diagnose_scheduler_failure (libcrun_error_t *err, runtime_spec_schema_config_schema_process *process,
-                            struct sched_attr_s *attr)
+                            கட்டமைப்பு sched_attr_s *attr)
 {
-  if (attr->sched_policy == SCHED_DEADLINE && errno == EINVAL)
+  எனில் (attr->sched_policy == SCHED_DEADLINE && errno == EINVAL)
     {
-      if (! process->scheduler->runtime_present)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` requires `runtime`");
-      if (! process->scheduler->deadline_present)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` requires `deadline`");
+      எனில் (! process->scheduler->runtime_present)
+        திரும்பு crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` requires `runtime`");
+      எனில் (! process->scheduler->deadline_present)
+        திரும்பு crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` requires `deadline`");
 
-      if (attr->sched_runtime == 0)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` runtime must be greater than 0");
-      if (attr->sched_deadline == 0)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` deadline must be greater than 0");
+      எனில் (attr->sched_runtime == 0)
+        திரும்பு crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` runtime must be greater than 0");
+      எனில் (attr->sched_deadline == 0)
+        திரும்பு crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` deadline must be greater than 0");
       /* Per sched(7), ff sched_period is specified as 0, then it is made the same as sched_deadline. */
 
-      if (attr->sched_runtime > attr->sched_deadline)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` runtime (%" PRIu64 ") must be <= deadline (%" PRIu64 ")",
+      எனில் (attr->sched_runtime > attr->sched_deadline)
+        திரும்பு crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` runtime (%" PRIu64 ") must be <= deadline (%" PRIu64 ")",
                                 attr->sched_runtime, attr->sched_deadline);
-      if (attr->sched_period != 0 && attr->sched_deadline > attr->sched_period)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` deadline (%" PRIu64 ") must be <= period (%" PRIu64 ")",
+      எனில் (attr->sched_period != 0 && attr->sched_deadline > attr->sched_period)
+        திரும்பு crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` deadline (%" PRIu64 ") must be <= period (%" PRIu64 ")",
                                 attr->sched_deadline, attr->sched_period);
 
       /* sched(7) says "under the current implementation, all of the parameter values
        * must be at least 1024 <...> and less than 2^63". */
-      const uint64_t min = 1024;
-      const uint64_t max = (1ULL << 63) - 1;
+      மாறிலி uint64_t min = 1024;
+      மாறிலி uint64_t max = (1ULL << 63) - 1;
 
-      if (attr->sched_runtime < min || attr->sched_runtime > max)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` runtime (%" PRIu64 ") must be between %" PRIu64 " and %" PRIu64,
+      எனில் (attr->sched_runtime < min || attr->sched_runtime > max)
+        திரும்பு crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` runtime (%" PRIu64 ") must be between %" PRIu64 " and %" PRIu64,
                                 attr->sched_runtime, min, max);
-      if (attr->sched_deadline < min || attr->sched_deadline > max)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` deadline (%" PRIu64 ") must be between %" PRIu64 " and %" PRIu64,
+      எனில் (attr->sched_deadline < min || attr->sched_deadline > max)
+        திரும்பு crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` deadline (%" PRIu64 ") must be between %" PRIu64 " and %" PRIu64,
                                 attr->sched_deadline, min, max);
-      if (attr->sched_period != 0 && (attr->sched_period < min || attr->sched_period > max))
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` period (%" PRIu64 ") must be between %" PRIu64 " and %" PRIu64,
+      எனில் (attr->sched_period != 0 && (attr->sched_period < min || attr->sched_period > max))
+        திரும்பு crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` period (%" PRIu64 ") must be between %" PRIu64 " and %" PRIu64,
                                 attr->sched_period, min, max);
 
-      return crun_make_error (err, errno, "sched_setattr: invalid `SCHED_DEADLINE` parameters (runtime=%" PRIu64 ", deadline=%" PRIu64 ", period=%" PRIu64 ")",
+      திரும்பு crun_make_error (err, errno, "sched_setattr: invalid `SCHED_DEADLINE` parameters (runtime=%" PRIu64 ", deadline=%" PRIu64 ", period=%" PRIu64 ")",
                               attr->sched_runtime, attr->sched_deadline, attr->sched_period);
     }
 
-  return crun_make_error (err, errno, "sched_setattr");
+  திரும்பு crun_make_error (err, errno, "sched_setattr");
 }
 
-int
+முழு
 libcrun_set_scheduler (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err)
 {
-  struct sched_attr_s attr;
-  int i, ret, policy;
+  கட்டமைப்பு sched_attr_s attr;
+  முழு i, ret, policy;
   size_t s;
-  struct
+  கட்டமைப்பு
   {
-    const char *name;
-    int value;
+    மாறிலி எழுத்து *name;
+    முழு மதிப்பு;
   } policies[] = {
     { "SCHED_OTHER", SCHED_OTHER },
     { "SCHED_BATCH", SCHED_BATCH },
@@ -166,112 +166,112 @@ libcrun_set_scheduler (pid_t pid, runtime_spec_schema_config_schema_process *pro
     { "SCHED_FIFO", SCHED_FIFO },
     { "SCHED_RR", SCHED_RR },
     { "SCHED_DEADLINE", SCHED_DEADLINE },
-    { NULL, 0 },
+    { வெற்று, 0 },
   };
 
-  if (process == NULL || process->scheduler == NULL)
-    return 0;
+  எனில் (process == வெற்று || process->scheduler == வெற்று)
+    திரும்பு 0;
 
-  memset (&attr, 0, sizeof (attr));
-  attr.size = sizeof (attr);
+  memset (&attr, 0, அளவு (attr));
+  attr.size = அளவு (attr);
 
-  if (is_empty_string (process->scheduler->policy))
-    return crun_make_error (err, 0, "scheduler policy not defined");
+  எனில் (is_empty_string (process->scheduler->policy))
+    திரும்பு crun_make_error (err, 0, "scheduler policy not defined");
 
   policy = -1;
-  for (i = 0; policies[i].name; i++)
-    if (strcmp (process->scheduler->policy, policies[i].name) == 0)
+  க்கு (i = 0; policies[i].name; i++)
+    எனில் (strcmp (process->scheduler->policy, policies[i].name) == 0)
       {
         policy = i;
-        break;
+        நிறுத்து;
       }
-  if (UNLIKELY (policy < 0))
-    return crun_make_error (err, 0, "invalid scheduler `%s`", process->scheduler->policy);
+  எனில் (UNLIKELY (policy < 0))
+    திரும்பு crun_make_error (err, 0, "invalid scheduler `%s`", process->scheduler->policy);
 
-  attr.sched_policy = policies[policy].value;
+  attr.sched_policy = policies[policy].மதிப்பு;
 
-  if (process->scheduler->nice_present)
+  எனில் (process->scheduler->nice_present)
     attr.sched_nice = process->scheduler->nice;
 
-  if (process->scheduler->priority_present)
+  எனில் (process->scheduler->priority_present)
     attr.sched_priority = process->scheduler->priority;
 
-  if (process->scheduler->runtime_present)
+  எனில் (process->scheduler->runtime_present)
     attr.sched_runtime = process->scheduler->runtime;
 
-  if (process->scheduler->deadline_present)
+  எனில் (process->scheduler->deadline_present)
     attr.sched_deadline = process->scheduler->deadline;
 
-  if (process->scheduler->period_present)
+  எனில் (process->scheduler->period_present)
     attr.sched_period = process->scheduler->period;
 
-  for (s = 0; s < process->scheduler->flags_len; s++)
+  க்கு (s = 0; s < process->scheduler->flags_len; s++)
     {
-      char *key = process->scheduler->flags[s];
+      எழுத்து *சாவி = process->scheduler->flags[s];
 
-      if (key == NULL)
-        return crun_make_error (err, EINVAL, "scheduler flag is not specified");
+      எனில் (சாவி == வெற்று)
+        திரும்பு crun_make_error (err, EINVAL, "scheduler flag is not specified");
 
-      if (strcmp (key, "SCHED_FLAG_RESET_ON_FORK") == 0)
+      எனில் (strcmp (சாவி, "SCHED_FLAG_RESET_ON_FORK") == 0)
         attr.sched_flags |= SCHED_FLAG_RESET_ON_FORK;
-      else if (strcmp (key, "SCHED_FLAG_RECLAIM") == 0)
+      இல்லையெனில் எனில் (strcmp (சாவி, "SCHED_FLAG_RECLAIM") == 0)
         attr.sched_flags |= SCHED_FLAG_RECLAIM;
-      else if (strcmp (key, "SCHED_FLAG_DL_OVERRUN") == 0)
+      இல்லையெனில் எனில் (strcmp (சாவி, "SCHED_FLAG_DL_OVERRUN") == 0)
         attr.sched_flags |= SCHED_FLAG_DL_OVERRUN;
-      else if (strcmp (key, "SCHED_FLAG_KEEP_POLICY") == 0)
+      இல்லையெனில் எனில் (strcmp (சாவி, "SCHED_FLAG_KEEP_POLICY") == 0)
         attr.sched_flags |= SCHED_FLAG_KEEP_POLICY;
-      else if (strcmp (key, "SCHED_FLAG_KEEP_PARAMS") == 0)
+      இல்லையெனில் எனில் (strcmp (சாவி, "SCHED_FLAG_KEEP_PARAMS") == 0)
         attr.sched_flags |= SCHED_FLAG_KEEP_PARAMS;
-      else if (strcmp (key, "SCHED_FLAG_UTIL_CLAMP_MIN") == 0)
+      இல்லையெனில் எனில் (strcmp (சாவி, "SCHED_FLAG_UTIL_CLAMP_MIN") == 0)
         attr.sched_flags |= SCHED_FLAG_UTIL_CLAMP_MIN;
-      else if (strcmp (key, "SCHED_FLAG_UTIL_CLAMP_MAX") == 0)
+      இல்லையெனில் எனில் (strcmp (சாவி, "SCHED_FLAG_UTIL_CLAMP_MAX") == 0)
         attr.sched_flags |= SCHED_FLAG_UTIL_CLAMP_MAX;
-      else
-        return crun_make_error (err, 0, "invalid scheduler option `%s`", key);
+      இல்லையெனில்
+        திரும்பு crun_make_error (err, 0, "invalid scheduler option `%s`", சாவி);
     }
 
   ret = syscall_sched_setattr (pid, &attr, 0);
-  if (UNLIKELY (ret < 0))
-    return diagnose_scheduler_failure (err, process, &attr);
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு diagnose_scheduler_failure (err, process, &attr);
 
-  return 0;
+  திரும்பு 0;
 }
 
-int
-libcrun_set_cpu_affinity_from_string (pid_t pid, const char *str, libcrun_error_t *err)
+முழு
+libcrun_set_cpu_affinity_from_string (pid_t pid, மாறிலி எழுத்து *str, libcrun_error_t *err)
 {
-  cleanup_free char *bitmask = NULL;
-  int ret, saved_errno;
+  cleanup_free எழுத்து *bitmask = வெற்று;
+  முழு ret, saved_errno;
   size_t bitmask_size;
   cpu_set_t *cpuset;
   size_t alloc_size;
   size_t i;
 
-  if (is_empty_string (str))
-    return 0;
+  எனில் (is_empty_string (str))
+    திரும்பு 0;
 
   ret = cpuset_string_to_bitmask (str, &bitmask, &bitmask_size, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு ret;
 
   alloc_size = CPU_ALLOC_SIZE (bitmask_size * CHAR_BIT);
 
   cpuset = CPU_ALLOC (bitmask_size * CHAR_BIT);
-  if (UNLIKELY (cpuset == NULL))
+  எனில் (UNLIKELY (cpuset == வெற்று))
     OOM ();
 
   CPU_ZERO_S (alloc_size, cpuset);
 
-  for (i = 0; i < bitmask_size * CHAR_BIT; i++)
+  க்கு (i = 0; i < bitmask_size * CHAR_BIT; i++)
     {
-      if (bitmask[i / CHAR_BIT] & (1 << (i % CHAR_BIT)))
+      எனில் (bitmask[i / CHAR_BIT] & (1 << (i % CHAR_BIT)))
         CPU_SET_S (i, alloc_size, cpuset);
     }
 
   ret = sched_setaffinity (pid, alloc_size, cpuset);
   saved_errno = errno;
   CPU_FREE (cpuset);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, saved_errno, "sched_setaffinity");
-  return 0;
+  எனில் (UNLIKELY (ret < 0))
+    திரும்பு crun_make_error (err, saved_errno, "sched_setaffinity");
+  திரும்பு 0;
 }
