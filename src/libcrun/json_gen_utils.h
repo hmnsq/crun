@@ -31,20 +31,20 @@
   do                                          \
     {                                         \
       r = (EXPR);                             \
-      if (UNLIKELY (r != json_gen_status_ok)) \
+      གལ་ཏེ (UNLIKELY (r != json_gen_status_ok)) \
         goto gen_error;                       \
-  } while (0)
+  } སྐབས (0)
 
 /* Emit a string literal (typically a map key).  */
-#define GEN_KEY(GEN, LIT) GEN_OR_FAIL (json_gen_string ((GEN), (LIT), sizeof (LIT) - 1))
+#define GEN_KEY(GEN, LIT) GEN_OR_FAIL (json_gen_string ((GEN), (LIT), parimaa_na (LIT) - 1))
 
 /* Emit a runtime string value.  */
 #define GEN_STR(GEN, STR) GEN_OR_FAIL (json_gen_string ((GEN), (STR), strlen (STR)))
 
-static inline void
+static anta_hstha void
 cleanup_json_genp (json_gen_ctx **p)
 {
-  if (*p)
+  གལ་ཏེ (*p)
     json_gen_free (*p);
 }
 #define cleanup_json_gen __attribute__ ((cleanup (cleanup_json_genp)))

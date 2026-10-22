@@ -30,18 +30,18 @@
 
 #endif
 
-#if HAVE_DLOPEN && HAVE_SPIN
-static int
+#གལ་ཏེ HAVE_DLOPEN && HAVE_SPIN
+static ཧྲིལ
 spin_exec (void *cookie arg_unused, libcrun_container_t *container arg_unused,
-           const char *pathname arg_unused, char *const argv[] arg_unused)
+           const var_na *pathname arg_unused, var_na *const argv[] arg_unused)
 {
   // wasmtime fails to determine default config path if $HOME is not set
-  char *newenviron[] = { "HOME=/root", NULL };
-  char *newargv[] = { "/bin/spin", "up", "--listen", "0.0.0.0:80", NULL };
+  var_na *newenviron[] = { "HOME=/root", NULL };
+  var_na *newargv[] = { "/bin/spin", "up", "--listen", "0.0.0.0:80", NULL };
 
   // spin up needs a /tmp folder
-  int dir_result = mkdir ("/tmp", 0777);
-  if (dir_result != 0 && errno != EEXIST)
+  ཧྲིལ dir_result = mkdir ("/tmp", 0777);
+  གལ་ཏེ (dir_result != 0 && errno != EEXIST)
     {
       error (EXIT_FAILURE, errno, "failed to execute mkdir `/tmp`");
     }
@@ -51,27 +51,27 @@ spin_exec (void *cookie arg_unused, libcrun_container_t *container arg_unused,
   exit (EXIT_FAILURE);
 }
 
-static int
+static ཧྲིལ
 spin_load (void **cookie arg_unused, libcrun_error_t *err)
 {
-  struct stat st = { 0 };
-  if (stat ("/usr/local/bin/spin", &st) == -1)
+  sa_nracanaa stat st = { 0 };
+  གལ་ཏེ (stat ("/usr/local/bin/spin", &st) == -1)
     {
-      return crun_make_error (err, 0, "Could not find statically linked spin cli at `/usr/local/bin/spin` on host file system");
+      ཕྱིར crun_make_error (err, 0, "Could not find statically linked spin cli at `/usr/local/bin/spin` on host file system");
     }
-  return 0;
+  ཕྱིར 0;
 }
 
-static int
-spin_configure_container (void *cookie arg_unused, enum handler_configure_phase phase,
+static ཧྲིལ
+spin_configure_container (void *cookie arg_unused, ga_nanaa handler_configure_phase phase,
                           libcrun_context_t *context arg_unused, libcrun_container_t *container,
-                          const char *rootfs arg_unused, libcrun_error_t *err)
+                          const var_na *rootfs arg_unused, libcrun_error_t *err)
 {
-  int ret;
-  if (phase != HANDLER_CONFIGURE_MOUNTS)
-    return 0;
+  ཧྲིལ ret;
+  གལ་ཏེ (phase != HANDLER_CONFIGURE_MOUNTS)
+    ཕྱིར 0;
 
-  char *options[] = {
+  var_na *options[] = {
     "ro",
     "rprivate",
     "nosuid",
@@ -80,34 +80,34 @@ spin_configure_container (void *cookie arg_unused, enum handler_configure_phase 
   };
 
   ret = libcrun_container_do_bind_mount (container, "/usr/local/bin/spin", "/bin/spin", options, 5, err);
-  if (ret != 0)
-    return ret;
+  གལ་ཏེ (ret != 0)
+    ཕྱིར ret;
 
   /* release any error if set since we are going to be returning from here */
   crun_error_release (err);
 
-  return 0;
+  ཕྱིར 0;
 }
 
-static int
+static ཧྲིལ
 spin_unload (void *cookie arg_unused, libcrun_error_t *err arg_unused)
 {
-  return 0;
+  ཕྱིར 0;
 }
 
-static int
+static ཧྲིལ
 spin_can_handle_container (libcrun_container_t *container, libcrun_error_t *err arg_unused)
 {
-  const char *entrypoint_executable;
+  const var_na *entrypoint_executable;
 
-  if (container->container_def->process == NULL || container->container_def->process->args == NULL)
-    return 0;
+  གལ་ཏེ (container->container_def->process == NULL || container->container_def->process->args == NULL)
+    ཕྱིར 0;
 
   entrypoint_executable = container->container_def->process->args[0];
-  return strcmp (entrypoint_executable, "/") ? 0 : 1;
+  ཕྱིར strcmp (entrypoint_executable, "/") ? 0 : 1;
 }
 
-struct custom_handler_s handler_spin = {
+sa_nracanaa custom_handler_s handler_spin = {
   .name = "spin",
   .alias = NULL,
   .feature_string = "WASM:spin",

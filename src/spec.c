@@ -26,69 +26,69 @@
 
 #include "crun.h"
 
-static char doc[] = "OCI runtime";
+static var_na doc[] = "OCI runtime";
 
-struct spec_options_s
+sa_nracanaa spec_options_s
 {
   bool rootless;
 };
 
-enum
+ga_nanaa
 {
   OPTION_ROOTLESS = 1000
 };
 
-static const char *bundle;
-static const char *fname;
+static const var_na *bundle;
+static const var_na *fname;
 
-static struct spec_options_s spec_options;
+static sa_nracanaa spec_options_s spec_options;
 
-static struct argp_option options[] = { { "bundle", 'b', "DIR", 0, "path to the root of the bundle dir (default \".\")", 0 },
+static sa_nracanaa argp_option options[] = { { "bundle", 'b', "DIR", 0, "path to the root of the bundle dir (default \".\")", 0 },
                                         { "file", 'f', "PATH", 0, "destination file", 0 },
                                         { "rootless", OPTION_ROOTLESS, 0, 0, "spec for the rootless case", 0 },
                                         {
                                             0,
                                         } };
 
-static char args_doc[] = "spec";
+static var_na args_doc[] = "spec";
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (ཧྲིལ key, var_na *arg, sa_nracanaa argp_state *state)
 {
   switch (key)
     {
-    case 'b':
+    pak_sa 'b':
       bundle = argp_mandatory_argument (arg, state);
-      break;
+      bha_nga;
 
-    case 'f':
+    pak_sa 'f':
       fname = argp_mandatory_argument (arg, state);
-      break;
+      bha_nga;
 
-    case OPTION_ROOTLESS:
+    pak_sa OPTION_ROOTLESS:
       spec_options.rootless = true;
-      break;
+      bha_nga;
 
     default:
-      return ARGP_ERR_UNKNOWN;
+      ཕྱིར ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  ཕྱིར 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+static sa_nracanaa argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-int
-crun_command_spec (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+ཧྲིལ
+crun_command_spec (sa_nracanaa crun_global_arguments *global_args, ཧྲིལ argc, var_na **argv, libcrun_error_t *err)
 {
-  int first_arg;
+  ཧྲིལ first_arg;
   cleanup_context libcrun_context_t *crun_context = NULL;
   cleanup_file FILE *f = NULL;
-  cleanup_free char *bundle_cleanup = NULL;
-  cleanup_free char *spec = NULL;
-  const char *where;
-  int ret;
-  int close_ret;
+  cleanup_free var_na *bundle_cleanup = NULL;
+  cleanup_free var_na *spec = NULL;
+  const var_na *where;
+  ཧྲིལ ret;
+  ཧྲིལ close_ret;
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &spec_options);
   crun_assert_n_args (argc - first_arg, 0, 0);
@@ -96,51 +96,51 @@ crun_command_spec (struct crun_global_arguments *global_args, int argc, char **a
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་ཏེ (UNLIKELY (ret < 0))
+    ཕྱིར ret;
 
   /* Change dir only if -b or --bundle is defined and make sure the bundle is an absolute path.  */
-  if (bundle != NULL)
+  གལ་ཏེ (bundle != NULL)
     {
-      if (bundle[0] != '/')
+      གལ་ཏེ (bundle[0] != '/')
         {
           bundle_cleanup = realpath (bundle, NULL);
-          if (bundle_cleanup == NULL)
+          གལ་ཏེ (bundle_cleanup == NULL)
             libcrun_fail_with_error (errno, "realpath `%s` failed", bundle);
           bundle = bundle_cleanup;
         }
 
-      if (chdir (bundle) < 0)
+      གལ་ཏེ (chdir (bundle) < 0)
         libcrun_fail_with_error (errno, "chdir `%s` failed", bundle);
     }
 
   where = fname ? fname : "config.json";
 
-  if (fname == NULL)
+  གལ་ཏེ (fname == NULL)
     {
       ret = access (where, F_OK);
-      if (ret == 0)
-        return libcrun_make_error (err, 0, "`%s` already exists", where);
+      གལ་ཏེ (ret == 0)
+        ཕྱིར libcrun_make_error (err, 0, "`%s` already exists", where);
     }
 
   f = fopen (where, "w+e");
-  if (f == NULL)
-    return libcrun_make_error (err, errno, "cannot open `%s`", where);
+  གལ་ཏེ (f == NULL)
+    ཕྱིར libcrun_make_error (err, errno, "cannot open `%s`", where);
 
   ret = libcrun_container_spec_json (! spec_options.rootless, &spec, err);
-  if (UNLIKELY (ret < 0))
+  གལ་ཏེ (UNLIKELY (ret < 0))
     goto out;
 
-  if (fputs (spec, f) == EOF)
+  གལ་ཏེ (fputs (spec, f) == EOF)
     ret = libcrun_make_error (err, errno, "cannot write to `%s`", where);
-  else
+  དེ་མིན
     ret = 0;
 
 out:
   close_ret = fclose (f);
   f = NULL;
-  if (close_ret < 0 && ret >= 0)
-    return libcrun_make_error (err, errno, "cannot close `%s`", where);
+  གལ་ཏེ (close_ret < 0 && ret >= 0)
+    ཕྱིར libcrun_make_error (err, errno, "cannot close `%s`", where);
 
-  return ret;
+  ཕྱིར ret;
 }
