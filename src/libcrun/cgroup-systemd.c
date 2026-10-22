@@ -59,576 +59,576 @@
 
 #  define IS_WILDCARD(x) (x <= 0)
 
-static int
-register_missing_property_from_message (const char *state_dir, const char *message, libcrun_error_t *err)
+static puur_naa_nka
+register_missing_property_from_message (const var_na *state_dir, const var_na *message, libcrun_error_t *err)
 {
-  cleanup_free char *file_path = NULL;
-  cleanup_free char *dir_path = NULL;
-  cleanup_free char *property = NULL;
-  char *p;
-  int ret;
+  cleanup_free var_na *file_path = NULL;
+  cleanup_free var_na *dir_path = NULL;
+  cleanup_free var_na *property = NULL;
+  var_na *p;
+  puur_naa_nka ret;
 
-  if (! has_prefix (message, "Cannot set property "))
-    return 0;
+  ᱡᱩᱫᱤ (! has_prefix (message, "Cannot set property "))
+    ᱨᱩᱣᱟᱹᱲ 0;
 
-  property = xstrdup (message + sizeof ("Cannot set property ") - 1);
+  property = xstrdup (message + parimaa_na ("Cannot set property ") - 1);
   p = strchr (property, ',');
-  if (! p)
-    return 0;
+  ᱡᱩᱫᱤ (! p)
+    ᱨᱩᱣᱟᱹᱲ 0;
   *p = '\0';
 
   ret = append_paths (&dir_path, err, state_dir, SYSTEMD_MISSING_PROPERTIES_DIR, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
 
   ret = crun_ensure_directory (dir_path, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
 
   ret = append_paths (&file_path, err, dir_path, property, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
 
   libcrun_debug ("Registering missing property for systemd `%s`", property);
 
   ret = write_file (file_path, NULL, 0, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
 
-  return 1;
+  ᱨᱩᱣᱟᱹᱲ 1;
 }
 
 static bool
-property_missing_p (char **missing_properties, const char *property)
+property_missing_p (var_na **missing_properties, const var_na *property)
 {
   size_t i;
 
   for (i = 0; missing_properties && missing_properties[i]; i++)
-    if (strcmp (missing_properties[i], property) == 0)
+    ᱡᱩᱫᱤ (strcmp (missing_properties[i], property) == 0)
       {
         libcrun_debug ("Skipping property for systemd as it is not supported `%s`", property);
-        return true;
+        ᱨᱩᱣᱟᱹᱲ true;
       }
 
-  return false;
+  ᱨᱩᱣᱟᱹᱲ false;
 }
 
 static void
-get_systemd_scope_and_slice (const char *id, bool user_slice, const char *cgroup_path,
-                             char **scope, char **slice)
+get_systemd_scope_and_slice (const var_na *id, bool user_slice, const var_na *cgroup_path,
+                             var_na **scope, var_na **slice)
 {
-  const char *n;
-  char *p;
+  const var_na *n;
+  var_na *p;
 
-  if (cgroup_path == NULL || cgroup_path[0] == '\0')
+  ᱡᱩᱫᱤ (cgroup_path == NULL || cgroup_path[0] == '\0')
     {
       xasprintf (scope, "crun-%s.scope", id);
-      return;
+      ᱨᱩᱣᱟᱹᱲ;
     }
 
   n = strchr (cgroup_path, ':');
-  if (n == NULL)
+  ᱡᱩᱫᱤ (n == NULL)
     xasprintf (scope, "%s.scope", cgroup_path);
-  else
+  ᱵᱟᱝ
     {
       xasprintf (scope, "%s.scope", n + 1);
       p = strchr (*scope, ':');
-      if (p)
+      ᱡᱩᱫᱤ (p)
         *p = '-';
     }
-  if (slice)
+  ᱡᱩᱫᱤ (slice)
     {
       *slice = xstrdup (cgroup_path);
       p = strchr (*slice, ':');
-      if (p)
+      ᱡᱩᱫᱤ (p)
         *p = '\0';
 
       /* Ref: https://github.com/opencontainers/runc/blob/main/docs/systemd.md#systemd-unit-name-and-placement */
-      if (is_empty_string (*slice))
+      ᱡᱩᱫᱤ (is_empty_string (*slice))
         {
           free (*slice);
-          if (user_slice)
+          ᱡᱩᱫᱤ (user_slice)
             *slice = xstrdup ("user.slice");
-          else
+          ᱵᱟᱝ
             *slice = xstrdup ("system.slice");
         }
     }
 }
 
 /* set the rt-runtime for the current cgroup and its parent if the path is not a scope.  */
-static int
+static puur_naa_nka
 setup_rt_runtime (runtime_spec_schema_config_linux_resources *resources,
-                  const char *path, libcrun_error_t *err)
+                  const var_na *path, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
-  cleanup_close int dirfd = -1;
+  cleanup_free var_na *cgroup_path = NULL;
+  cleanup_close puur_naa_nka dirfd = -1;
   bool need_set_parent = true;
-  char fmt_buf[64];
-  int len;
-  int ret;
+  var_na fmt_buf[64];
+  puur_naa_nka len;
+  puur_naa_nka ret;
 
-  if (resources == NULL || resources->cpu == NULL)
-    return 0;
+  ᱡᱩᱫᱤ (resources == NULL || resources->cpu == NULL)
+    ᱨᱩᱣᱟᱹᱲ 0;
 
   /* Without a cgroup path append_paths() below would end up at the cgroup
      root, so refuse rather than change the root cgroup settings.  */
-  if (is_empty_string (path))
-    return crun_make_error (err, 0, "cannot set the RT runtime without a cgroup");
+  ᱡᱩᱫᱤ (is_empty_string (path))
+    ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "cannot set the RT runtime without a cgroup");
 
-  if (has_suffix (path, ".scope"))
+  ᱡᱩᱫᱤ (has_suffix (path, ".scope"))
     need_set_parent = false;
 
   ret = append_paths (&cgroup_path, err, CGROUP_ROOT, "cpu", path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
 
   ret = crun_ensure_directory (cgroup_path, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
 
   dirfd = open (cgroup_path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", cgroup_path);
+  ᱡᱩᱫᱤ (UNLIKELY (dirfd < 0))
+    ᱨᱩᱣᱟᱹᱲ crun_make_error (err, errno, "open `%s`", cgroup_path);
 
-  if (resources->cpu->realtime_period)
+  ᱡᱩᱫᱤ (resources->cpu->realtime_period)
     {
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, resources->cpu->realtime_period);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, parimaa_na (fmt_buf), "%" PRIu64, resources->cpu->realtime_period);
+      ᱡᱩᱫᱤ (UNLIKELY (len >= (puur_naa_nka) parimaa_na (fmt_buf)))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "internal error: static buffer too small");
 
-      if (need_set_parent)
+      ᱡᱩᱫᱤ (need_set_parent)
         {
           ret = write_file_at_with_flags (dirfd, O_WRONLY | O_CLOEXEC, 0, "../cpu.rt_period_us", fmt_buf, len, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+            ᱨᱩᱣᱟᱹᱲ ret;
         }
 
       ret = write_file_at_with_flags (dirfd, O_WRONLY | O_CLOEXEC, 0, "cpu.rt_period_us", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+        ᱨᱩᱣᱟᱹᱲ ret;
     }
 
-  if (resources->cpu->realtime_runtime)
+  ᱡᱩᱫᱤ (resources->cpu->realtime_runtime)
     {
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, resources->cpu->realtime_runtime);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, parimaa_na (fmt_buf), "%" PRIu64, resources->cpu->realtime_runtime);
+      ᱡᱩᱫᱤ (UNLIKELY (len >= (puur_naa_nka) parimaa_na (fmt_buf)))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "internal error: static buffer too small");
 
-      if (need_set_parent)
+      ᱡᱩᱫᱤ (need_set_parent)
         {
           ret = write_file_at_with_flags (dirfd, O_WRONLY | O_CLOEXEC, 0, "../cpu.rt_runtime_us", fmt_buf, len, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+            ᱨᱩᱣᱟᱹᱲ ret;
         }
 
       ret = write_file_at_with_flags (dirfd, O_WRONLY | O_CLOEXEC, 0, "cpu.rt_runtime_us", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+        ᱨᱩᱣᱟᱹᱲ ret;
     }
-  return 0;
+  ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-static int
-setup_missing_cpu_options_for_systemd (runtime_spec_schema_config_linux_resources *resources, bool cgroup2, const char *path, libcrun_error_t *err)
+static puur_naa_nka
+setup_missing_cpu_options_for_systemd (runtime_spec_schema_config_linux_resources *resources, bool cgroup2, const var_na *path, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
-  int parent;
-  int ret;
+  cleanup_free var_na *cgroup_path = NULL;
+  puur_naa_nka parent;
+  puur_naa_nka ret;
 
-  if (resources == NULL || resources->cpu == NULL)
-    return 0;
+  ᱡᱩᱫᱤ (resources == NULL || resources->cpu == NULL)
+    ᱨᱩᱣᱟᱹᱲ 0;
 
-  if (! resources->cpu->burst_present && ! (cgroup2 && resources->cpu->idle_present))
-    return 0;
+  ᱡᱩᱫᱤ (! resources->cpu->burst_present && ! (cgroup2 && resources->cpu->idle_present))
+    ᱨᱩᱣᱟᱹᱲ 0;
 
   for (parent = 0; parent < 2; parent++)
     {
-      cleanup_close int dirfd = -1;
+      cleanup_close puur_naa_nka dirfd = -1;
 
-      if (cgroup2)
+      ᱡᱩᱫᱤ (cgroup2)
         ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path ? path : "", (parent ? ".." : NULL), NULL);
-      else
+      ᱵᱟᱝ
         ret = append_paths (&cgroup_path, err, CGROUP_ROOT, "/cpu", path ? path : "", (parent ? ".." : NULL), NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+        ᱨᱩᱣᱟᱹᱲ ret;
 
       dirfd = open (cgroup_path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-      if (UNLIKELY (dirfd < 0))
-        return crun_make_error (err, errno, "open `%s`", cgroup_path);
+      ᱡᱩᱫᱤ (UNLIKELY (dirfd < 0))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, errno, "open `%s`", cgroup_path);
 
       ret = write_cpu_burst (dirfd, cgroup2, resources->cpu, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+        ᱨᱩᱣᱟᱹᱲ ret;
 
       /* cpu.idle can be set by systemd (via CPUWeight=0), but not reset.  */
-      if (cgroup2)
+      ᱡᱩᱫᱤ (cgroup2)
         {
           ret = write_cpu_idle (dirfd, resources->cpu, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+            ᱨᱩᱣᱟᱹᱲ ret;
         }
     }
 
-  return 0;
+  ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-static int
-setup_cpuset_for_systemd_v1 (runtime_spec_schema_config_linux_resources *resources, const char *path, libcrun_error_t *err)
+static puur_naa_nka
+setup_cpuset_for_systemd_v1 (runtime_spec_schema_config_linux_resources *resources, const var_na *path, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
-  int parent;
-  int ret;
-  int levels;
+  cleanup_free var_na *cgroup_path = NULL;
+  puur_naa_nka parent;
+  puur_naa_nka ret;
+  puur_naa_nka levels;
 
   ret = append_paths (&cgroup_path, err, CGROUP_ROOT, "/cpuset", path ? path : "", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
 
   ret = crun_ensure_directory (cgroup_path, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
 
   ret = initialize_cpuset_subsystem_resources (cgroup_path, resources, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
 
   // Check if we have a subcgroup defined. If not, we only need to write this on one level.
   levels = has_suffix (path, ".scope") ? 1 : 2;
 
   for (parent = 0; parent < levels; parent++)
     {
-      cleanup_close int dirfd_cpuset = -1;
-      cleanup_free char *path_to_cpuset = NULL;
+      cleanup_close puur_naa_nka dirfd_cpuset = -1;
+      cleanup_free var_na *path_to_cpuset = NULL;
 
       ret = append_paths (&path_to_cpuset, err, CGROUP_ROOT "/cpuset", path, (parent ? ".." : NULL), NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+        ᱨᱩᱣᱟᱹᱲ ret;
 
       dirfd_cpuset = open (path_to_cpuset, O_DIRECTORY | O_PATH | O_CLOEXEC);
-      if (UNLIKELY (dirfd_cpuset < 0))
-        return crun_make_error (err, errno, "open `%s`", path_to_cpuset);
+      ᱡᱩᱫᱤ (UNLIKELY (dirfd_cpuset < 0))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, errno, "open `%s`", path_to_cpuset);
 
       ret = write_cpuset_resources (dirfd_cpuset, false, resources->cpu, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+        ᱨᱩᱣᱟᱹᱲ ret;
     }
 
-  return 0;
+  ᱨᱩᱣᱟᱹᱲ 0;
 }
 
 /* Build PATH from the cgroup slice FROM, appending SUFFIX when set.  */
-static int
-compute_finalized_path (char **path, const char *from, const char *suffix, libcrun_error_t *err)
+static puur_naa_nka
+compute_finalized_path (var_na **path, const var_na *from, const var_na *suffix, libcrun_error_t *err)
 {
-  if (suffix == NULL)
+  ᱡᱩᱫᱤ (suffix == NULL)
     {
       *path = xstrdup (from);
-      return 0;
+      ᱨᱩᱣᱟᱹᱲ 0;
     }
-  return append_paths (path, err, from, suffix, NULL);
+  ᱨᱩᱣᱟᱹᱲ append_paths (path, err, from, suffix, NULL);
 }
 
-static int
-systemd_finalize (struct libcrun_cgroup_args *args, char **path_out,
-                  int cgroup_mode, const char *suffix, libcrun_error_t *err)
+static puur_naa_nka
+systemd_finalize (sa_nracanaa libcrun_cgroup_args *args, var_na **path_out,
+                  puur_naa_nka cgroup_mode, const var_na *suffix, libcrun_error_t *err)
 {
   runtime_spec_schema_config_linux_resources *resources = args->resources;
-  cleanup_free char *content = NULL;
-  cleanup_free char *path = NULL;
+  cleanup_free var_na *content = NULL;
+  cleanup_free var_na *path = NULL;
   pid_t pid = args->pid;
-  int ret;
-  char *from, *to;
-  char *saveptr = NULL;
+  puur_naa_nka ret;
+  var_na *from, *to;
+  var_na *saveptr = NULL;
 
-  cleanup_free char *proc_path = NULL;
-  cleanup_close int fd = -1;
+  cleanup_free var_na *proc_path = NULL;
+  cleanup_close puur_naa_nka fd = -1;
 
   xasprintf (&proc_path, "%d/cgroup", pid);
   fd = libcrun_open_proc_file (args->container, proc_path, O_RDONLY, err);
-  if (UNLIKELY (fd < 0))
-    return fd;
+  ᱡᱩᱫᱤ (UNLIKELY (fd < 0))
+    ᱨᱩᱣᱟᱹᱲ fd;
 
   ret = read_all_fd (fd, "cgroup path", &content, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
 
   switch (cgroup_mode)
     {
-    case CGROUP_MODE_HYBRID:
-    case CGROUP_MODE_LEGACY:
+    pak_sa CGROUP_MODE_HYBRID:
+    pak_sa CGROUP_MODE_LEGACY:
       from = strstr (content, ":memory:");
-      if (LIKELY (from != NULL))
+      ᱡᱩᱫᱤ (LIKELY (from != NULL))
         from += 8;
-      else
+      ᱵᱟᱝ
         {
           from = strstr (content, ":pids:");
-          if (UNLIKELY (from == NULL))
-            return crun_make_error (err, 0, "cannot find memory or pids controller for the current process");
+          ᱡᱩᱫᱤ (UNLIKELY (from == NULL))
+            ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "cannot find memory or pids controller for the current process");
 
           from += 6;
         }
 
       to = strchr (from, '\n');
-      if (UNLIKELY (to == NULL))
-        return crun_make_error (err, 0, "cannot parse `%s`", PROC_SELF_CGROUP);
+      ᱡᱩᱫᱤ (UNLIKELY (to == NULL))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "cannot parse `%s`", PROC_SELF_CGROUP);
       *to = '\0';
       ret = compute_finalized_path (&path, from, suffix, err);
       *to = '\n';
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+        ᱨᱩᱣᱟᱹᱲ ret;
 
-      if (geteuid ())
-        return 0;
+      ᱡᱩᱫᱤ (geteuid ())
+        ᱨᱩᱣᱟᱹᱲ 0;
 
       ret = setup_rt_runtime (resources, path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+        ᱨᱩᱣᱟᱹᱲ ret;
 
       ret = setup_cpuset_for_systemd_v1 (resources, path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+        ᱨᱩᱣᱟᱹᱲ ret;
 
       for (from = strtok_r (content, "\n", &saveptr); from; from = strtok_r (NULL, "\n", &saveptr))
         {
-          char *subpath, *subsystem;
+          var_na *subpath, *subsystem;
           subsystem = strchr (from, ':') + 1;
           subpath = strchr (subsystem, ':') + 1;
           *(subpath - 1) = '\0';
 
-          if (subsystem[0] == '\0')
+          ᱡᱩᱫᱤ (subsystem[0] == '\0')
             {
-              if (cgroup_mode == CGROUP_MODE_LEGACY)
+              ᱡᱩᱫᱤ (cgroup_mode == CGROUP_MODE_LEGACY)
                 continue;
 
               subsystem = "unified";
             }
 
-          if (strcmp (subpath, path))
+          ᱡᱩᱫᱤ (strcmp (subpath, path))
             {
               ret = enter_cgroup_v1_subsystem (pid, subsystem, path, true, err);
-              if (UNLIKELY (ret < 0))
+              ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
                 {
                   /* If it is a named hierarchy, skip the error.  */
-                  if (strchr (subsystem, '='))
+                  ᱡᱩᱫᱤ (strchr (subsystem, '='))
                     {
                       crun_error_release (err);
                       continue;
                     }
-                  return ret;
+                  ᱨᱩᱣᱟᱹᱲ ret;
                 }
             }
         }
 
-      break;
+      bha_nga;
 
-    case CGROUP_MODE_UNIFIED:
+    pak_sa CGROUP_MODE_UNIFIED:
       {
-        cleanup_free char *dir = NULL;
+        cleanup_free var_na *dir = NULL;
 
         from = strstr (content, "0::");
-        if (UNLIKELY (from == NULL))
-          return crun_make_error (err, 0, "cannot find cgroup2 for the current process");
+        ᱡᱩᱫᱤ (UNLIKELY (from == NULL))
+          ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "cannot find cgroup2 for the current process");
 
         from += 3;
         to = strchr (from, '\n');
-        if (UNLIKELY (to == NULL))
-          return crun_make_error (err, 0, "cannot parse `%s`", PROC_SELF_CGROUP);
+        ᱡᱩᱫᱤ (UNLIKELY (to == NULL))
+          ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "cannot parse `%s`", PROC_SELF_CGROUP);
         *to = '\0';
         ret = compute_finalized_path (&path, from, suffix, err);
         *to = '\n';
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+          ᱨᱩᱣᱟᱹᱲ ret;
 
         ret = append_paths (&dir, err, CGROUP_ROOT, path, NULL);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+          ᱨᱩᱣᱟᱹᱲ ret;
 
         /* On cgroup v2, processes can be only in leaf nodes.  If a suffix is used,
            move the process immediately to the new location before enabling
            the controllers.  */
         ret = crun_ensure_directory (dir, 0755, true, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+          ᱨᱩᱣᱟᱹᱲ ret;
 
         ret = move_process_to_cgroup (pid, NULL, path, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+          ᱨᱩᱣᱟᱹᱲ ret;
 
         ret = enable_controllers (path, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+          ᱨᱩᱣᱟᱹᱲ ret;
 
-        if (suffix)
+        ᱡᱩᱫᱤ (suffix)
           {
             ret = chown_cgroups (path, args->root_uid, args->root_gid, err);
-            if (UNLIKELY (ret < 0))
-              return ret;
+            ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+              ᱨᱩᱣᱟᱹᱲ ret;
           }
       }
-      break;
+      bha_nga;
 
     default:
-      return crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_mode);
+      ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_mode);
     }
 
   ret = setup_missing_cpu_options_for_systemd (resources, cgroup_mode == CGROUP_MODE_UNIFIED, path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
 
   *path_out = path;
   path = NULL;
 
-  return 0;
+  ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-struct systemd_job_removed_s
+sa_nracanaa systemd_job_removed_s
 {
-  const char *path;
-  const char *op;
-  int terminated;
+  const var_na *path;
+  const var_na *op;
+  puur_naa_nka terminated;
   libcrun_error_t err;
 };
 
-static int
+static puur_naa_nka
 systemd_job_removed (sd_bus_message *m, void *userdata, sd_bus_error *error arg_unused)
 {
-  const char *path, *unit, *result;
+  const var_na *path, *unit, *result;
   uint32_t id;
-  int ret;
-  struct systemd_job_removed_s *d = userdata;
+  puur_naa_nka ret;
+  sa_nracanaa systemd_job_removed_s *d = userdata;
 
   ret = sd_bus_message_read (m, "uoss", &id, &path, &unit, &result);
-  if (ret < 0)
-    return -1;
+  ᱡᱩᱫᱤ (ret < 0)
+    ᱨᱩᱣᱟᱹᱲ -1;
 
-  if (strcmp (d->path, path) == 0)
+  ᱡᱩᱫᱤ (strcmp (d->path, path) == 0)
     {
       d->terminated = 1;
-      if (strcmp (result, "done") != 0)
+      ᱡᱩᱫᱤ (strcmp (result, "done") != 0)
         {
           crun_make_error (&d->err, 0, "error `%s` systemd unit `%s`: got `%s`", d->op, unit, result);
-          return -1;
+          ᱨᱩᱣᱟᱹᱲ -1;
         }
     }
-  return 0;
+  ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-static int
-systemd_check_job_status_setup (sd_bus *bus, struct systemd_job_removed_s *data, libcrun_error_t *err)
+static puur_naa_nka
+systemd_check_job_status_setup (sd_bus *bus, sa_nracanaa systemd_job_removed_s *data, libcrun_error_t *err)
 {
-  int ret;
+  puur_naa_nka ret;
 
   ret = sd_bus_match_signal_async (bus, NULL, "org.freedesktop.systemd1", "/org/freedesktop/systemd1",
                                    "org.freedesktop.systemd1.Manager", "JobRemoved", systemd_job_removed, NULL, data);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, -ret, "sd-bus match signal");
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -ret, "sd-bus match signal");
 
-  return 0;
+  ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-static int
-systemd_check_job_status (sd_bus *bus, struct systemd_job_removed_s *data, const char *path, const char *op,
+static puur_naa_nka
+systemd_check_job_status (sd_bus *bus, sa_nracanaa systemd_job_removed_s *data, const var_na *path, const var_na *op,
                           libcrun_error_t *err)
 {
-  int sd_err;
+  puur_naa_nka sd_err;
 
   data->path = path;
   data->op = op;
-  while (! data->terminated)
+  ᱡᱚᱠᱷᱚᱱ (! data->terminated)
     {
       sd_err = sd_bus_process (bus, NULL);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus process");
+      ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus process");
 
-      if (sd_err != 0)
+      ᱡᱩᱫᱤ (sd_err != 0)
         continue;
 
       sd_err = sd_bus_wait (bus, (uint64_t) -1);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus wait");
+      ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus wait");
     }
 
-  if (data->err != NULL)
+  ᱡᱩᱫᱤ (data->err != NULL)
     {
       *err = data->err;
-      return -1;
+      ᱨᱩᱣᱟᱹᱲ -1;
     }
 
-  return 0;
+  ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-int
-parse_sd_array (char *s, char **out, char **next, libcrun_error_t *err)
+puur_naa_nka
+parse_sd_array (var_na *s, var_na **out, var_na **next, libcrun_error_t *err)
 {
-  char endchr;
-  char *it, *dest;
+  var_na endchr;
+  var_na *it, *dest;
   bool escaped = false;
 
   *out = NULL;
   *next = NULL;
 
-  while (isspace (*s))
+  ᱡᱚᱠᱷᱚᱱ (isspace (*s))
     s++;
-  if (*s == '\0')
-    return 0;
-  else if (*s != '\'' && *s != '"')
-    return crun_make_error (err, 0, "invalid string `%s`", s);
+  ᱡᱩᱫᱤ (*s == '\0')
+    ᱨᱩᱣᱟᱹᱲ 0;
+  ᱵᱟᱝ ᱡᱩᱫᱤ (*s != '\'' && *s != '"')
+    ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "invalid string `%s`", s);
 
   it = s;
   endchr = *it++;
   *out = dest = it;
 
-  while (1)
+  ᱡᱚᱠᱷᱚᱱ (1)
     {
-      if (*it == '\0')
-        return crun_make_error (err, 0, "invalid string `%s`", s);
-      if (*it == endchr && ! escaped)
+      ᱡᱩᱫᱤ (*it == '\0')
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "invalid string `%s`", s);
+      ᱡᱩᱫᱤ (*it == endchr && ! escaped)
         {
           *it++ = '\0';
-          while (isspace (*it))
+          ᱡᱚᱠᱷᱚᱱ (isspace (*it))
             it++;
-          if (*it == ',')
+          ᱡᱩᱫᱤ (*it == ',')
             {
               *next = ++it;
               *dest = '\0';
-              return 0;
+              ᱨᱩᱣᱟᱹᱲ 0;
             }
 
-          if (*it == ']' || *it == '\0')
+          ᱡᱩᱫᱤ (*it == ']' || *it == '\0')
             {
               *dest = '\0';
-              return 0;
+              ᱨᱩᱣᱟᱹᱲ 0;
             }
 
-          return crun_make_error (err, 0, "invalid character found `%c`", *it);
+          ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "invalid character found `%c`", *it);
         }
 
       escaped = *it == '\\' ? ! escaped : false;
-      if (! escaped)
+      ᱡᱩᱫᱤ (! escaped)
         *dest++ = *it;
       it++;
     }
 
-  return 0;
+  ᱨᱩᱣᱟᱹᱲ 0;
 }
 
 /* Parse a gvariant string.  Support only a subset of types, just enough for systemd .  */
-static int
-append_systemd_annotation (sd_bus_message *m, const char *name, size_t name_len, const char *value,
+static puur_naa_nka
+append_systemd_annotation (sd_bus_message *m, const var_na *name, size_t name_len, const var_na *value,
                            libcrun_error_t *err)
 {
-  cleanup_free char *tmp_name = NULL;
+  cleanup_free var_na *tmp_name = NULL;
   uint32_t factor = 1;
-  const char *it;
-  int sd_err;
+  const var_na *it;
+  puur_naa_nka sd_err;
 
-  while (*value == ' ')
+  ᱡᱚᱠᱷᱚᱱ (*value == ' ')
     value++;
 
   it = value;
 
   /* If the name has the form NameSec, convert it to NameUSec.  */
-  if (name_len > 4 && name[name_len - 4] != 'U' && name[name_len - 3] == 'S' && name[name_len - 2] == 'e'
+  ᱡᱩᱫᱤ (name_len > 4 && name[name_len - 4] != 'U' && name[name_len - 3] == 'S' && name[name_len - 2] == 'e'
       && name[name_len - 1] == 'c')
     {
       factor = 1000000;
@@ -643,421 +643,421 @@ append_systemd_annotation (sd_bus_message *m, const char *name, size_t name_len,
   /* A *USec property is always an uint64, so, like runc does, accept any
      number of seconds (possibly with a fractional part, and with an
      optional integer type), and convert it to uint64 microseconds.  */
-  if (factor != 1)
+  ᱡᱩᱫᱤ (factor != 1)
     {
-      static const char *types[] = { "uint64 ", "int64 ", "uint32 ", "int32 ", NULL };
-      const char *num = it;
-      char *endptr = NULL;
-      double v;
+      static const var_na *types[] = { "uint64 ", "int64 ", "uint32 ", "int32 ", NULL };
+      const var_na *num = it;
+      var_na *endptr = NULL;
+      dviguu_na v;
       size_t i;
 
       for (i = 0; types[i]; i++)
-        if (has_prefix (num, types[i]))
+        ᱡᱩᱫᱤ (has_prefix (num, types[i]))
           {
             num += strlen (types[i]);
-            break;
+            bha_nga;
           }
 
       errno = 0;
       v = strtod (num, &endptr);
-      if (UNLIKELY (errno != 0 || endptr == num || *endptr || v < 0 || v * factor >= 18446744073709551615.0))
-        return crun_make_error (err, errno, "invalid value for `%s`: `%s`", name, value);
+      ᱡᱩᱫᱤ (UNLIKELY (errno != 0 || endptr == num || *endptr || v < 0 || v * factor >= 18446744073709551615.0))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, errno, "invalid value for `%s`: `%s`", name, value);
 
       sd_err = sd_bus_message_append (m, "(sv)", name, "t", (uint64_t) (v * factor));
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
-      return 0;
+      ᱨᱩᱣᱟᱹᱲ 0;
     }
 
-  if ((strcmp (it, "true") == 0) || (strcmp (it, "false") == 0))
+  ᱡᱩᱫᱤ ((strcmp (it, "true") == 0) || (strcmp (it, "false") == 0))
     {
       bool b = *it == 't';
 
       sd_err = sd_bus_message_append (m, "(sv)", name, "b", b);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
-      return 0;
+      ᱨᱩᱣᱟᱹᱲ 0;
     }
-  else if (*it == '\'')
+  ᱵᱟᱝ ᱡᱩᱫᱤ (*it == '\'')
     {
-      cleanup_free char *v_start = NULL;
-      char *end;
+      cleanup_free var_na *v_start = NULL;
+      var_na *end;
 
       it = v_start = xstrdup (value);
 
       end = strchr (v_start + 1, '\'');
-      if (end == NULL)
-        return crun_make_error (err, 0, "invalid variant `%s`", value);
+      ᱡᱩᱫᱤ (end == NULL)
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "invalid variant `%s`", value);
       *end = '\0';
 
       sd_err = sd_bus_message_append (m, "(sv)", name, "s", it + 1);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
-      return 0;
+      ᱨᱩᱣᱟᱹᱲ 0;
     }
-  else if (*it == '[')
+  ᱵᱟᱝ ᱡᱩᱫᱤ (*it == '[')
     {
-      cleanup_free char *v_start = NULL;
+      cleanup_free var_na *v_start = NULL;
       size_t n_parts = 0, parts_size = 32;
-      cleanup_free char **parts = xmalloc (sizeof (char *) * parts_size);
-      char *part;
+      cleanup_free var_na **parts = xmalloc (parimaa_na (var_na *) * parts_size);
+      var_na *part;
 
       part = v_start = xstrdup (it + 1);
-      while (1)
+      ᱡᱚᱠᱷᱚᱱ (1)
         {
-          char *out = NULL, *next = NULL;
-          int ret;
+          var_na *out = NULL, *next = NULL;
+          puur_naa_nka ret;
 
           ret = parse_sd_array (part, &out, &next, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+            ᱨᱩᱣᱟᱹᱲ ret;
 
           parts[n_parts++] = out;
-          if (n_parts == parts_size - 1)
+          ᱡᱩᱫᱤ (n_parts == parts_size - 1)
             {
               parts_size += 32;
-              parts = xrealloc (parts, sizeof (char *) * parts_size);
+              parts = xrealloc (parts, parimaa_na (var_na *) * parts_size);
             }
           parts[n_parts] = NULL;
-          if (next == NULL)
-            break;
+          ᱡᱩᱫᱤ (next == NULL)
+            bha_nga;
 
           part = next;
         }
 
       sd_err = sd_bus_message_open_container (m, 'r', "sv");
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus open container");
+      ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus open container");
 
       sd_err = sd_bus_message_append (m, "s", name);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
       sd_err = sd_bus_message_open_container (m, 'v', "as");
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus open container");
+      ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus open container");
 
       sd_err = sd_bus_message_append_strv (m, parts);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
       sd_err = sd_bus_message_close_container (m);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus close container");
+      ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus close container");
 
       sd_err = sd_bus_message_close_container (m);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus close container");
+      ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus close container");
 
-      return 0;
+      ᱨᱩᱣᱟᱹᱲ 0;
     }
-  else if (has_prefix (it, "uint64 "))
+  ᱵᱟᱝ ᱡᱩᱫᱤ (has_prefix (it, "uint64 "))
     {
-      char *endptr = NULL;
+      var_na *endptr = NULL;
       uint64_t v;
 
       errno = 0;
-      v = strtoull (it + sizeof ("uint64"), &endptr, 10);
-      if (UNLIKELY (errno != 0 || *endptr))
-        return crun_make_error (err, errno, "invalid value for `%s`", name);
+      v = strtoull (it + parimaa_na ("uint64"), &endptr, 10);
+      ᱡᱩᱫᱤ (UNLIKELY (errno != 0 || *endptr))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, errno, "invalid value for `%s`", name);
 
       sd_err = sd_bus_message_append (m, "(sv)", name, "t", (uint64_t) (v * factor));
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
-      return 0;
+      ᱨᱩᱣᱟᱹᱲ 0;
     }
-  else if (has_prefix (it, "int64 "))
+  ᱵᱟᱝ ᱡᱩᱫᱤ (has_prefix (it, "int64 "))
     {
-      char *endptr = NULL;
+      var_na *endptr = NULL;
       int64_t v;
 
       errno = 0;
-      v = strtoll (it + sizeof ("int64"), &endptr, 10);
-      if (UNLIKELY (errno != 0 || *endptr))
-        return crun_make_error (err, errno, "invalid value for `%s`", name);
+      v = strtoll (it + parimaa_na ("int64"), &endptr, 10);
+      ᱡᱩᱫᱤ (UNLIKELY (errno != 0 || *endptr))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, errno, "invalid value for `%s`", name);
 
       sd_err = sd_bus_message_append (m, "(sv)", name, "x", (int64_t) (v * factor));
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
-      return 0;
+      ᱨᱩᱣᱟᱹᱲ 0;
     }
-  else if (has_prefix (it, "uint32 "))
+  ᱵᱟᱝ ᱡᱩᱫᱤ (has_prefix (it, "uint32 "))
     {
-      char *endptr = NULL;
+      var_na *endptr = NULL;
       uint32_t v;
 
       errno = 0;
-      v = strtoul (it + sizeof ("uint32"), &endptr, 10);
-      if (UNLIKELY (errno != 0 || *endptr))
-        return crun_make_error (err, errno, "invalid value for `%s`", name);
+      v = strtoul (it + parimaa_na ("uint32"), &endptr, 10);
+      ᱡᱩᱫᱤ (UNLIKELY (errno != 0 || *endptr))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, errno, "invalid value for `%s`", name);
 
       sd_err = sd_bus_message_append (m, "(sv)", name, "u", (uint32_t) (v * factor));
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
-      return 0;
+      ᱨᱩᱣᱟᱹᱲ 0;
     }
-  else if (has_prefix (it, "int32 ") || strchr (it, ' ') == NULL)
+  ᱵᱟᱝ ᱡᱩᱫᱤ (has_prefix (it, "int32 ") || strchr (it, ' ') == NULL)
     {
-      char *endptr = NULL;
+      var_na *endptr = NULL;
       int32_t v;
 
       /* If no type is specified, try to parse it as int32.  */
 
       errno = 0;
-      if (has_prefix (it, "int32 "))
-        v = strtol (it + sizeof ("int32"), &endptr, 10);
-      else
+      ᱡᱩᱫᱤ (has_prefix (it, "int32 "))
+        v = strtol (it + parimaa_na ("int32"), &endptr, 10);
+      ᱵᱟᱝ
         v = strtol (it, &endptr, 10);
-      if (UNLIKELY (errno != 0 || *endptr))
-        return crun_make_error (err, errno, "invalid value for `%s`", name);
+      ᱡᱩᱫᱤ (UNLIKELY (errno != 0 || *endptr))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, errno, "invalid value for `%s`", name);
 
       sd_err = sd_bus_message_append (m, "(sv)", name, "i", (int32_t) (v * factor));
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
-      return 0;
+      ᱨᱩᱣᱟᱹᱲ 0;
     }
 
-  return crun_make_error (err, 0, "unknown type for `%s`", name);
+  ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "unknown type for `%s`", name);
 }
 
-static int
+static puur_naa_nka
 open_sd_bus_connection (sd_bus **bus, libcrun_error_t *err)
 {
-  int rootless;
-  int sd_err = 0;
+  puur_naa_nka rootless;
+  puur_naa_nka sd_err = 0;
 
   rootless = is_rootless (err);
-  if (UNLIKELY (rootless < 0))
-    return rootless;
+  ᱡᱩᱫᱤ (UNLIKELY (rootless < 0))
+    ᱨᱩᱣᱟᱹᱲ rootless;
 
-  if (rootless)
+  ᱡᱩᱫᱤ (rootless)
     sd_err = sd_bus_default_user (bus);
-  if (! rootless || sd_err < 0)
+  ᱡᱩᱫᱤ (! rootless || sd_err < 0)
     sd_err = sd_bus_default_system (bus);
-  if (sd_err < 0)
-    return crun_make_error (err, -sd_err, "cannot open sd-bus");
+  ᱡᱩᱫᱤ (sd_err < 0)
+    ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "cannot open sd-bus");
 
-  return 0;
+  ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-static const char *
-get_string_from_unified_map (runtime_spec_schema_config_linux_resources *resources, const char *name)
+static const var_na *
+get_string_from_unified_map (runtime_spec_schema_config_linux_resources *resources, const var_na *name)
 {
   size_t i;
 
-  if (resources == NULL || resources->unified == NULL)
-    return NULL;
+  ᱡᱩᱫᱤ (resources == NULL || resources->unified == NULL)
+    ᱨᱩᱣᱟᱹᱲ NULL;
 
   for (i = 0; i < resources->unified->len; i++)
-    if (strcmp (resources->unified->keys[i], name) == 0)
-      return resources->unified->values[i];
-  return NULL;
+    ᱡᱩᱫᱤ (strcmp (resources->unified->keys[i], name) == 0)
+      ᱨᱩᱣᱟᱹᱲ resources->unified->values[i];
+  ᱨᱩᱣᱟᱹᱲ NULL;
 }
 
-static int
-get_value_from_unified_map (runtime_spec_schema_config_linux_resources *resources, const char *name,
+static puur_naa_nka
+get_value_from_unified_map (runtime_spec_schema_config_linux_resources *resources, const var_na *name,
                             uint64_t *value, libcrun_error_t *err)
 {
-  char *endptr = NULL;
+  var_na *endptr = NULL;
   size_t i;
 
-  if (resources == NULL || resources->unified == NULL)
-    return 0;
+  ᱡᱩᱫᱤ (resources == NULL || resources->unified == NULL)
+    ᱨᱩᱣᱟᱹᱲ 0;
 
   for (i = 0; i < resources->unified->len; i++)
-    if (strcmp (resources->unified->keys[i], name) == 0)
+    ᱡᱩᱫᱤ (strcmp (resources->unified->keys[i], name) == 0)
       {
-        if (strcmp (resources->unified->values[i], "max") == 0)
+        ᱡᱩᱫᱤ (strcmp (resources->unified->values[i], "max") == 0)
           {
             *value = UINT64_MAX;
-            return 1;
+            ᱨᱩᱣᱟᱹᱲ 1;
           }
 
         errno = 0;
         *value = strtoull (resources->unified->values[i], &endptr, 10);
-        if (UNLIKELY (errno))
-          return crun_make_error (err, errno, "invalid value for `%s`: %s", name,
+        ᱡᱩᱫᱤ (UNLIKELY (errno))
+          ᱨᱩᱣᱟᱹᱲ crun_make_error (err, errno, "invalid value for `%s`: %s", name,
                                   resources->unified->values[i]);
-        if (endptr && *endptr)
-          return crun_make_error (err, 0, "invalid value for `%s`: %s", name,
+        ᱡᱩᱫᱤ (endptr && *endptr)
+          ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "invalid value for `%s`: %s", name,
                                   resources->unified->values[i]);
-        return 1;
+        ᱨᱩᱣᱟᱹᱲ 1;
       }
-  return 0;
+  ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-static inline int
+static anta_hstha puur_naa_nka
 get_memory_low (runtime_spec_schema_config_linux_resources *resources, uint64_t *limit, libcrun_error_t *err)
 {
-  if (resources->memory && resources->memory->reservation_present)
+  ᱡᱩᱫᱤ (resources->memory && resources->memory->reservation_present)
     {
       *limit = resources->memory->reservation;
-      return 1;
+      ᱨᱩᱣᱟᱹᱲ 1;
     }
 
-  return get_value_from_unified_map (resources, "memory.low", limit, err);
+  ᱨᱩᱣᱟᱹᱲ get_value_from_unified_map (resources, "memory.low", limit, err);
 }
 
-static inline int
+static anta_hstha puur_naa_nka
 get_pids_max (runtime_spec_schema_config_linux_resources *resources, uint64_t *limit, libcrun_error_t *err)
 {
-  if (resources->pids && resources->pids->limit)
+  ᱡᱩᱫᱤ (resources->pids && resources->pids->limit)
     {
       *limit = resources->pids->limit;
-      return 1;
+      ᱨᱩᱣᱟᱹᱲ 1;
     }
 
-  return get_value_from_unified_map (resources, "pids.max", limit, err);
+  ᱨᱩᱣᱟᱹᱲ get_value_from_unified_map (resources, "pids.max", limit, err);
 }
 
-static inline int
+static anta_hstha puur_naa_nka
 get_memory_max (runtime_spec_schema_config_linux_resources *resources, uint64_t *limit, libcrun_error_t *err)
 {
-  if (resources->memory && resources->memory->limit_present)
+  ᱡᱩᱫᱤ (resources->memory && resources->memory->limit_present)
     {
       *limit = resources->memory->limit;
-      return 1;
+      ᱨᱩᱣᱟᱹᱲ 1;
     }
 
-  return get_value_from_unified_map (resources, "memory.max", limit, err);
+  ᱨᱩᱣᱟᱹᱲ get_value_from_unified_map (resources, "memory.max", limit, err);
 }
 
-static inline int
+static anta_hstha puur_naa_nka
 get_memory_swap_max (runtime_spec_schema_config_linux_resources *resources, uint64_t *limit, libcrun_error_t *err)
 {
-  if (resources->memory && resources->memory->swap_present)
+  ᱡᱩᱫᱤ (resources->memory && resources->memory->swap_present)
     {
       runtime_spec_schema_config_linux_resources_memory *memory = resources->memory;
       int64_t mem = memory->limit_present ? memory->limit : 0;
 
       /* The OCI swap limit is for memory+swap, while MemorySwapMax is for
          swap only, so convert it, like it is done for memory.swap.max.  */
-      if (memory->swap == -1 || (mem == -1 && memory->swap == 0))
+      ᱡᱩᱫᱤ (memory->swap == -1 || (mem == -1 && memory->swap == 0))
         {
           *limit = UINT64_MAX;
-          return 1;
+          ᱨᱩᱣᱟᱹᱲ 1;
         }
       /* 0 means unset.  */
-      if (memory->swap == 0)
-        return 0;
-      if (mem <= 0)
-        return crun_make_error (err, 0, "cannot set swap limit without the memory limit");
-      if (memory->swap < mem)
-        return crun_make_error (err, 0, "cannot set memory+swap limit less than the memory limit");
+      ᱡᱩᱫᱤ (memory->swap == 0)
+        ᱨᱩᱣᱟᱹᱲ 0;
+      ᱡᱩᱫᱤ (mem <= 0)
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "cannot set swap limit without the memory limit");
+      ᱡᱩᱫᱤ (memory->swap < mem)
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "cannot set memory+swap limit less than the memory limit");
 
       *limit = memory->swap - mem;
-      return 1;
+      ᱨᱩᱣᱟᱹᱲ 1;
     }
 
-  return get_value_from_unified_map (resources, "memory.swap.max", limit, err);
+  ᱨᱩᱣᱟᱹᱲ get_value_from_unified_map (resources, "memory.swap.max", limit, err);
 }
 
-static inline int
+static anta_hstha puur_naa_nka
 get_cpu_weight (runtime_spec_schema_config_linux_resources *resources, uint64_t *weight, libcrun_error_t *err)
 {
   bool has_idle = false;
   uint64_t value;
-  int ret;
+  puur_naa_nka ret;
 
   ret = get_value_from_unified_map (resources, "cpu.idle", &value, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
-  if (ret > 0 && value == 1)
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
+  ᱡᱩᱫᱤ (ret > 0 && value == 1)
     has_idle = true;
-  if (resources->cpu && resources->cpu->idle_present && resources->cpu->idle == 1)
+  ᱡᱩᱫᱤ (resources->cpu && resources->cpu->idle_present && resources->cpu->idle == 1)
     has_idle = true;
 
   /* The unified map takes precedence, like with the cgroupfs driver.  */
   ret = get_value_from_unified_map (resources, "cpu.weight", weight, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
-  if (ret > 0)
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
+  ᱡᱩᱫᱤ (ret > 0)
     {
-      if (has_idle)
-        return crun_make_error (err, 0, "cannot set both `cpu.idle` and `cpu.weight`");
+      ᱡᱩᱫᱤ (has_idle)
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "cannot set both `cpu.idle` and `cpu.weight`");
 
-      return 1;
+      ᱨᱩᱣᱟᱹᱲ 1;
     }
 
-  if (resources->cpu && resources->cpu->shares_present)
+  ᱡᱩᱫᱤ (resources->cpu && resources->cpu->shares_present)
     {
-      if (has_idle)
-        return crun_make_error (err, 0, "cannot set both `cpu.idle` and `cpu.shares`");
+      ᱡᱩᱫᱤ (has_idle)
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "cannot set both `cpu.idle` and `cpu.shares`");
 
       /* Docker uses shares == 0 to specify no limit.  */
-      if (resources->cpu->shares == 0)
-        return 0;
+      ᱡᱩᱫᱤ (resources->cpu->shares == 0)
+        ᱨᱩᱣᱟᱹᱲ 0;
       *weight = convert_shares_to_weight (resources->cpu->shares);
-      return 1;
+      ᱨᱩᱣᱟᱹᱲ 1;
     }
-  if (has_idle)
+  ᱡᱩᱫᱤ (has_idle)
     {
       /* setting CPUWeight to 0 will tell systemd to set cpu.idle.  */
       *weight = 0;
-      return 1;
+      ᱨᱩᱣᱟᱹᱲ 1;
     }
-  return 0;
+  ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-static int
-read_uint64_value (const char *str, uint64_t *value, libcrun_error_t *err)
+static puur_naa_nka
+read_uint64_value (const var_na *str, uint64_t *value, libcrun_error_t *err)
 {
-  char *endptr = NULL;
+  var_na *endptr = NULL;
 
   errno = 0;
   *value = strtoull (str, &endptr, 10);
-  if (UNLIKELY (errno))
-    return crun_make_error (err, errno, "invalid value: %s", str);
-  if (endptr && *endptr)
-    return crun_make_error (err, 0, "invalid value: %s", str);
-  return 0;
+  ᱡᱩᱫᱤ (UNLIKELY (errno))
+    ᱨᱩᱣᱟᱹᱲ crun_make_error (err, errno, "invalid value: %s", str);
+  ᱡᱩᱫᱤ (endptr && *endptr)
+    ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "invalid value: %s", str);
+  ᱨᱩᱣᱟᱹᱲ 0;
 }
 
 /* Convert io.bfq.weight to io.weight doing the inverse conversion performed by systemd with BFQ_WEIGHT.  */
-static inline uint64_t
+static anta_hstha uint64_t
 IO_WEIGHT (uint64_t bfq_weight)
 {
-  return bfq_weight <= CGROUP_BFQ_WEIGHT_DEFAULT ? CGROUP_WEIGHT_DEFAULT - (CGROUP_BFQ_WEIGHT_DEFAULT - bfq_weight) * (CGROUP_WEIGHT_DEFAULT - CGROUP_WEIGHT_MIN) / (CGROUP_BFQ_WEIGHT_DEFAULT - CGROUP_BFQ_WEIGHT_MIN) : CGROUP_WEIGHT_DEFAULT + (bfq_weight - CGROUP_BFQ_WEIGHT_DEFAULT) * (CGROUP_WEIGHT_MAX - CGROUP_WEIGHT_DEFAULT) / (CGROUP_BFQ_WEIGHT_MAX - CGROUP_BFQ_WEIGHT_DEFAULT);
+  ᱨᱩᱣᱟᱹᱲ bfq_weight <= CGROUP_BFQ_WEIGHT_DEFAULT ? CGROUP_WEIGHT_DEFAULT - (CGROUP_BFQ_WEIGHT_DEFAULT - bfq_weight) * (CGROUP_WEIGHT_DEFAULT - CGROUP_WEIGHT_MIN) / (CGROUP_BFQ_WEIGHT_DEFAULT - CGROUP_BFQ_WEIGHT_MIN) : CGROUP_WEIGHT_DEFAULT + (bfq_weight - CGROUP_BFQ_WEIGHT_DEFAULT) * (CGROUP_WEIGHT_MAX - CGROUP_WEIGHT_DEFAULT) / (CGROUP_BFQ_WEIGHT_MAX - CGROUP_BFQ_WEIGHT_DEFAULT);
 }
 
-static int
-append_io_weight (sd_bus_message *m, char **missing_properties, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
+static puur_naa_nka
+append_io_weight (sd_bus_message *m, var_na **missing_properties, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
 {
   uint64_t weight;
-  int sd_err;
+  puur_naa_nka sd_err;
   size_t i;
-  int ret;
+  puur_naa_nka ret;
 
 #  define APPEND_IO_WEIGHT(value)                                                      \
     do                                                                                 \
       {                                                                                \
-        if (! property_missing_p (missing_properties, "IOWeight"))                     \
+        ᱡᱩᱫᱤ (! property_missing_p (missing_properties, "IOWeight"))                     \
           {                                                                            \
             sd_err = sd_bus_message_append (m, "(sv)", "IOWeight", "t", weight);       \
-            if (UNLIKELY (sd_err < 0))                                                 \
-              return crun_make_error (err, -sd_err, "sd-bus message append IOWeight"); \
+            ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))                                                 \
+              ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus message append IOWeight"); \
           }                                                                            \
-    } while (0)
+    } ᱡᱚᱠᱷᱚᱱ (0)
 
 #  define APPEND_IO_DEVICE_WEIGHT(device, value)                                                      \
     do                                                                                                \
       {                                                                                               \
-        if (! property_missing_p (missing_properties, "IODeviceWeight"))                              \
+        ᱡᱩᱫᱤ (! property_missing_p (missing_properties, "IODeviceWeight"))                              \
           {                                                                                           \
             sd_err = sd_bus_message_append (m, "(sv)", "IODeviceWeight", "a(st)", 1, device, weight); \
-            if (UNLIKELY (sd_err < 0))                                                                \
-              return crun_make_error (err, -sd_err, "sd-bus message append IODeviceWeight");          \
+            ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))                                                                \
+              ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus message append IODeviceWeight");          \
           }                                                                                           \
-    } while (0)
+    } ᱡᱚᱠᱷᱚᱱ (0)
 
-  if (resources->block_io && resources->block_io->weight_present)
+  ᱡᱩᱫᱤ (resources->block_io && resources->block_io->weight_present)
     {
       weight = IO_WEIGHT (resources->block_io->weight);
       APPEND_IO_WEIGHT (weight);
@@ -1065,14 +1065,14 @@ append_io_weight (sd_bus_message *m, char **missing_properties, runtime_spec_sch
 
   for (i = 0; resources->block_io && i < resources->block_io->weight_device_len; i++)
     {
-      char name[64];
-      int len;
+      var_na name[64];
+      puur_naa_nka len;
 
-      len = snprintf (name, sizeof (name), "%" PRIu64 ":%" PRIu64,
+      len = snprintf (name, parimaa_na (name), "%" PRIu64 ":%" PRIu64,
                       resources->block_io->weight_device[i]->major,
                       resources->block_io->weight_device[i]->minor);
-      if (UNLIKELY (len >= (int) sizeof (name)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      ᱡᱩᱫᱤ (UNLIKELY (len >= (puur_naa_nka) parimaa_na (name)))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "internal error: static buffer too small");
 
       weight = IO_WEIGHT (resources->block_io->weight_device[i]->weight);
       APPEND_IO_DEVICE_WEIGHT (name, weight);
@@ -1080,23 +1080,23 @@ append_io_weight (sd_bus_message *m, char **missing_properties, runtime_spec_sch
 
   for (i = 0; resources->unified && i < resources->unified->len; i++)
     {
-      cleanup_free char *value = NULL;
+      cleanup_free var_na *value = NULL;
       bool need_conversion = false;
-      char *saveptr = NULL;
-      char *line;
+      var_na *saveptr = NULL;
+      var_na *line;
 
-      if (strcmp (resources->unified->keys[i], "io.bfq.weight") == 0)
+      ᱡᱩᱫᱤ (strcmp (resources->unified->keys[i], "io.bfq.weight") == 0)
         {
           /* If io.bfq.weight was provided, it must be converted to io.weight.  */
           need_conversion = true;
         }
-      else if (strcmp (resources->unified->keys[i], "io.weight") == 0)
+      ᱵᱟᱝ ᱡᱩᱫᱤ (strcmp (resources->unified->keys[i], "io.weight") == 0)
         {
           /* If io.weight was provided, then it is expected to already be
              in the range [1, 10000] so IO_WEIGHT() is not needed.  */
           need_conversion = false;
         }
-      else
+      ᱵᱟᱝ
         {
           /* Skip other keys.  */
           continue;
@@ -1106,212 +1106,212 @@ append_io_weight (sd_bus_message *m, char **missing_properties, runtime_spec_sch
 
       for (line = strtok_r (value, "\n", &saveptr); line; line = strtok_r (NULL, "\n", &saveptr))
         {
-          char *sep;
+          var_na *sep;
 
           sep = strchr (line, ' ');
-          while (sep && *sep == ' ')
+          ᱡᱚᱠᱷᱚᱱ (sep && *sep == ' ')
             *sep++ = '\0';
 
           ret = read_uint64_value (sep ? sep : line, &weight, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
-          if (need_conversion)
+          ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+            ᱨᱩᱣᱟᱹᱲ ret;
+          ᱡᱩᱫᱤ (need_conversion)
             weight = IO_WEIGHT (weight);
 
-          if (sep == NULL || strcmp (line, "default") == 0)
+          ᱡᱩᱫᱤ (sep == NULL || strcmp (line, "default") == 0)
             APPEND_IO_WEIGHT (weight);
-          else
+          ᱵᱟᱝ
             APPEND_IO_DEVICE_WEIGHT (line, weight);
         }
     }
 
-  return 0;
+  ᱨᱩᱣᱟᱹᱲ 0;
 }
 
 /* Adapted from systemd.  */
-static int
-bus_append_byte_array (sd_bus_message *m, const char *field, const void *buf, size_t n, libcrun_error_t *err)
+static puur_naa_nka
+bus_append_byte_array (sd_bus_message *m, const var_na *field, const void *buf, size_t n, libcrun_error_t *err)
 {
-  int ret;
+  puur_naa_nka ret;
 
   ret = sd_bus_message_open_container (m, SD_BUS_TYPE_STRUCT, "sv");
-  if (ret < 0)
-    return crun_make_error (err, -ret, "sd-bus open container");
+  ᱡᱩᱫᱤ (ret < 0)
+    ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -ret, "sd-bus open container");
 
   ret = sd_bus_message_append_basic (m, SD_BUS_TYPE_STRING, field);
-  if (ret < 0)
-    return crun_make_error (err, -ret, "sd_bus_message_append_basic");
+  ᱡᱩᱫᱤ (ret < 0)
+    ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -ret, "sd_bus_message_append_basic");
 
   ret = sd_bus_message_open_container (m, 'v', "ay");
-  if (ret < 0)
-    return crun_make_error (err, -ret, "sd_bus_message_open_container");
+  ᱡᱩᱫᱤ (ret < 0)
+    ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -ret, "sd_bus_message_open_container");
 
   ret = sd_bus_message_append_array (m, 'y', buf, n);
-  if (ret < 0)
-    return crun_make_error (err, -ret, "sd_bus_message_append_array");
+  ᱡᱩᱫᱤ (ret < 0)
+    ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -ret, "sd_bus_message_append_array");
 
   ret = sd_bus_message_close_container (m);
-  if (ret < 0)
-    return crun_make_error (err, -ret, "sd_bus_message_close_container");
+  ᱡᱩᱫᱤ (ret < 0)
+    ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -ret, "sd_bus_message_close_container");
 
   ret = sd_bus_message_close_container (m);
-  if (ret < 0)
-    return crun_make_error (err, -ret, "sd_bus_message_close_container");
+  ᱡᱩᱫᱤ (ret < 0)
+    ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -ret, "sd_bus_message_close_container");
 
-  return 1;
+  ᱨᱩᱣᱟᱹᱲ 1;
 }
 
-static int
+static puur_naa_nka
 append_uint64_from_unified_map (sd_bus_message *m,
-                                char **missing_properties,
-                                const char *attr,
-                                const char *key,
+                                var_na **missing_properties,
+                                const var_na *attr,
+                                const var_na *key,
                                 runtime_spec_schema_config_linux_resources *resources,
                                 libcrun_error_t *err)
 {
   uint64_t value;
-  int ret;
+  puur_naa_nka ret;
 
-  if (property_missing_p (missing_properties, attr))
-    return 0;
+  ᱡᱩᱫᱤ (property_missing_p (missing_properties, attr))
+    ᱨᱩᱣᱟᱹᱲ 0;
 
   ret = get_value_from_unified_map (resources, key, &value, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
-  if (ret)
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
+  ᱡᱩᱫᱤ (ret)
     {
-      int sd_err = sd_bus_message_append (m, "(sv)", attr, "t", value);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", attr);
+      puur_naa_nka sd_err = sd_bus_message_append (m, "(sv)", attr, "t", value);
+      ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus message append `%s`", attr);
     }
 
-  return 0;
+  ᱨᱩᱣᱟᱹᱲ 0;
 }
 
 /* append a single "DeviceAllow" attribute to the message.  type can either be 'c' or 'b'.  */
-static int
+static puur_naa_nka
 append_device_allow (sd_bus_message *m,
-                     const char type,
-                     int major,
-                     int minor,
-                     const char *access,
+                     const var_na type,
+                     puur_naa_nka major,
+                     puur_naa_nka minor,
+                     const var_na *access,
                      libcrun_error_t *err)
 {
-  char device[64];
-  int sd_err;
-  int len;
+  var_na device[64];
+  puur_naa_nka sd_err;
+  puur_naa_nka len;
 
-  if (IS_WILDCARD (major) && ! IS_WILDCARD (minor))
+  ᱡᱩᱫᱤ (IS_WILDCARD (major) && ! IS_WILDCARD (minor))
     {
       libcrun_warning ("devices rule with wildcard for major is not supported and it is ignored with systemd");
-      return 0;
+      ᱨᱩᱣᱟᱹᱲ 0;
     }
 
-  if (IS_WILDCARD (major) && IS_WILDCARD (minor))
-    len = snprintf (device, sizeof (device), "%s-*", type == 'c' ? "char" : "block");
-  else if (IS_WILDCARD (minor))
-    len = snprintf (device, sizeof (device), type == 'c' ? "char-%d" : "block-%d", major);
-  else
-    len = snprintf (device, sizeof (device), "/dev/%s/%d:%d", type == 'c' ? "char" : "block", major, minor);
+  ᱡᱩᱫᱤ (IS_WILDCARD (major) && IS_WILDCARD (minor))
+    len = snprintf (device, parimaa_na (device), "%s-*", type == 'c' ? "char" : "block");
+  ᱵᱟᱝ ᱡᱩᱫᱤ (IS_WILDCARD (minor))
+    len = snprintf (device, parimaa_na (device), type == 'c' ? "char-%d" : "block-%d", major);
+  ᱵᱟᱝ
+    len = snprintf (device, parimaa_na (device), "/dev/%s/%d:%d", type == 'c' ? "char" : "block", major, minor);
 
-  if (UNLIKELY (len >= (int) sizeof (device)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  ᱡᱩᱫᱤ (UNLIKELY (len >= (puur_naa_nka) parimaa_na (device)))
+    ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "internal error: static buffer too small");
 
   sd_err = sd_bus_message_append (m, "(sv)", "DeviceAllow", "a(ss)", 1, device, access);
-  if (UNLIKELY (sd_err < 0))
-    return crun_make_error (err, -sd_err, "sd-bus message append DeviceAllow `%s` with access `%s`", device, access);
+  ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
+    ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus message append DeviceAllow `%s` with access `%s`", device, access);
 
-  return 0;
+  ᱨᱩᱣᱟᱹᱲ 0;
 }
 
 #  define MODE_R 1
 #  define MODE_W 2
 #  define MODE_M 4
 
-static int
-access_to_mode (const char *access, libcrun_error_t *err)
+static puur_naa_nka
+access_to_mode (const var_na *access, libcrun_error_t *err)
 {
-  int mode = 0;
+  puur_naa_nka mode = 0;
 
-  while (access && *access)
+  ᱡᱚᱠᱷᱚᱱ (access && *access)
     {
-      int c = *access++;
+      puur_naa_nka c = *access++;
 
       switch (c)
         {
-        case 'r':
+        pak_sa 'r':
           mode |= MODE_R;
-          break;
+          bha_nga;
 
-        case 'w':
+        pak_sa 'w':
           mode |= MODE_W;
-          break;
+          bha_nga;
 
-        case 'm':
+        pak_sa 'm':
           mode |= MODE_M;
-          break;
+          bha_nga;
 
         default:
-          return crun_make_error (err, 0, "unknown access string specified: `%c`", c);
+          ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "unknown access string specified: `%c`", c);
         }
     }
-  return mode;
+  ᱨᱩᱣᱟᱹᱲ mode;
 }
 
 /* check if the type b is included in type a.  */
 static bool
-has_same_type (const char *a, const char *b)
+has_same_type (const var_na *a, const var_na *b)
 {
   bool a_all = a == NULL || strcmp (a, "a") == 0;
-  if (b == NULL || strcmp (b, "a") == 0)
-    return a_all;
+  ᱡᱩᱫᱤ (b == NULL || strcmp (b, "a") == 0)
+    ᱨᱩᱣᱟᱹᱲ a_all;
 
-  return a_all || strcmp (a, b) == 0;
+  ᱨᱩᱣᱟᱹᱲ a_all || strcmp (a, b) == 0;
 }
 
 /* check if there is already another "deny rule" specified before that already blocks the
  * device DEVICES[n].  */
-static int
+static puur_naa_nka
 is_deny_rule_redundant (runtime_spec_schema_defs_linux_device_cgroup **devices, size_t n, libcrun_error_t *err)
 {
   size_t i;
-  int req_mode;
+  puur_naa_nka req_mode;
 
 #  define CMP_DEV_NUM(a, b) ((a) == (b) || IS_WILDCARD (a) || IS_WILDCARD (b))
 
   req_mode = access_to_mode (devices[n]->access, err);
-  if (UNLIKELY (req_mode < 0))
-    return req_mode;
+  ᱡᱩᱫᱤ (UNLIKELY (req_mode < 0))
+    ᱨᱩᱣᱟᱹᱲ req_mode;
 
   for (i = n; i > 0; i--)
     {
       size_t current_rule = i - 1;
-      int mode;
+      puur_naa_nka mode;
 
-      if (! CMP_DEV_NUM (devices[n]->minor, devices[current_rule]->minor))
+      ᱡᱩᱫᱤ (! CMP_DEV_NUM (devices[n]->minor, devices[current_rule]->minor))
         continue;
-      if (! CMP_DEV_NUM (devices[n]->major, devices[current_rule]->major))
+      ᱡᱩᱫᱤ (! CMP_DEV_NUM (devices[n]->major, devices[current_rule]->major))
         continue;
 
-      if (! has_same_type (devices[n]->type, devices[current_rule]->type)
+      ᱡᱩᱫᱤ (! has_same_type (devices[n]->type, devices[current_rule]->type)
           && has_same_type ("a", devices[current_rule]->type))
         continue;
 
       mode = access_to_mode (devices[i]->access, err);
-      if (UNLIKELY (mode < 0))
-        return mode;
+      ᱡᱩᱫᱤ (UNLIKELY (mode < 0))
+        ᱨᱩᱣᱟᱹᱲ mode;
 
-      if (devices[current_rule]->allow && (mode & req_mode))
-        return 0;
+      ᱡᱩᱫᱤ (devices[current_rule]->allow && (mode & req_mode))
+        ᱨᱩᱣᱟᱹᱲ 0;
 
       req_mode &= ! mode;
 
       /* no more access bits to validate.  */
-      if (req_mode == 0)
-        return 1;
+      ᱡᱩᱫᱤ (req_mode == 0)
+        ᱨᱩᱣᱟᱹᱲ 1;
     }
 
-  return 0;
+  ᱨᱩᱣᱟᱹᱲ 0;
 #  undef CMP_DEV_NUM
 }
 
@@ -1320,26 +1320,26 @@ find_first_rule_no_default (runtime_spec_schema_defs_linux_device_cgroup **devic
 {
   size_t i;
 
-  if (n == 0)
-    return 1;
+  ᱡᱩᱫᱤ (n == 0)
+    ᱨᱩᱣᱟᱹᱲ 1;
 
   /* Find the first rule that is after the last "block all".  */
   for (i = n - 1; i-- > 0;)
     {
-      if ((is_empty_string (devices[i]->type) || strcmp (devices[i]->type, "a") == 0)
+      ᱡᱩᱫᱤ ((is_empty_string (devices[i]->type) || strcmp (devices[i]->type, "a") == 0)
           && IS_WILDCARD (devices[i]->major)
           && IS_WILDCARD (devices[i]->minor)
           && (! devices[i]->allow))
-        return i + 1;
+        ᱨᱩᱣᱟᱹᱲ i + 1;
     }
 
   /* If there is not a default rule, the skip to the first rule that is not a deny rule.  */
   for (i = 0; i < n; i++)
-    if (devices[i]->allow)
-      return i;
+    ᱡᱩᱫᱤ (devices[i]->allow)
+      ᱨᱩᱣᱟᱹᱲ i;
 
   /* All blocked.  Move at the end of the array and rely on the default block all devices rule.  */
-  return n + 1;
+  ᱨᱩᱣᱟᱹᱲ n + 1;
 }
 
 static bool
@@ -1347,200 +1347,200 @@ has_allow_all (runtime_spec_schema_defs_linux_device_cgroup **devices, size_t n)
 {
 #  define DEV_TYPE_BLOCK 1
 #  define DEV_TYPE_CHAR 2
-  int remaining = DEV_TYPE_BLOCK | DEV_TYPE_CHAR;
+  puur_naa_nka remaining = DEV_TYPE_BLOCK | DEV_TYPE_CHAR;
   size_t i;
 
   for (i = 0; i < n; i++)
     {
       size_t current_rule = n - i - 1;
-      if (! devices[current_rule]->allow)
-        return false;
+      ᱡᱩᱫᱤ (! devices[current_rule]->allow)
+        ᱨᱩᱣᱟᱹᱲ false;
 
-      if (IS_WILDCARD (devices[current_rule]->major) && IS_WILDCARD (devices[current_rule]->minor))
+      ᱡᱩᱫᱤ (IS_WILDCARD (devices[current_rule]->major) && IS_WILDCARD (devices[current_rule]->minor))
         {
-          if (is_empty_string (devices[current_rule]->type) || strcmp (devices[current_rule]->type, "a") == 0)
-            return true;
+          ᱡᱩᱫᱤ (is_empty_string (devices[current_rule]->type) || strcmp (devices[current_rule]->type, "a") == 0)
+            ᱨᱩᱣᱟᱹᱲ true;
 
-          if (strcmp (devices[current_rule]->type, "c") == 0)
+          ᱡᱩᱫᱤ (strcmp (devices[current_rule]->type, "c") == 0)
             remaining &= ~DEV_TYPE_CHAR;
-          else if (strcmp (devices[current_rule]->type, "b") == 0)
+          ᱵᱟᱝ ᱡᱩᱫᱤ (strcmp (devices[current_rule]->type, "b") == 0)
             remaining &= ~DEV_TYPE_BLOCK;
 
-          if (remaining == 0)
-            return true;
+          ᱡᱩᱫᱤ (remaining == 0)
+            ᱨᱩᱣᱟᱹᱲ true;
         }
     }
 #  undef DEV_TYPE_BLOCK
 #  undef DEV_TYPE_CHAR
 
-  return false;
+  ᱨᱩᱣᱟᱹᱲ false;
 }
 
-static int
+static puur_naa_nka
 append_devices (sd_bus_message *m,
                 runtime_spec_schema_config_linux_resources *resources,
                 libcrun_error_t *err)
 {
-  struct default_dev_s *default_devices = get_default_devices ();
-  int ret, sd_err;
+  sa_nracanaa default_dev_s *default_devices = get_default_devices ();
+  puur_naa_nka ret, sd_err;
   size_t i;
 
-  if (has_allow_all (resources->devices, resources->devices_len))
+  ᱡᱩᱫᱤ (has_allow_all (resources->devices, resources->devices_len))
     {
       sd_err = sd_bus_message_append (m, "(sv)", "DevicePolicy", "s", "auto");
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append DevicePolicy");
+      ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus message append DevicePolicy");
 
       sd_err = sd_bus_message_append (m, "(sv)", "DeviceAllow", "a(ss)", 0);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append empty DeviceAllow");
+      ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus message append empty DeviceAllow");
 
-      return 0;
+      ᱨᱩᱣᱟᱹᱲ 0;
     }
 
   sd_err = sd_bus_message_append (m, "(sv)", "DevicePolicy", "s", "strict");
-  if (UNLIKELY (sd_err < 0))
-    return crun_make_error (err, -sd_err, "sd-bus message append DevicePolicy");
+  ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
+    ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus message append DevicePolicy");
 
   for (i = 0; default_devices[i].type; i++)
     {
       ret = append_device_allow (m, default_devices[i].type, default_devices[i].major, default_devices[i].minor, default_devices[i].access, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+        ᱨᱩᱣᱟᱹᱲ ret;
     }
 
   for (i = find_first_rule_no_default (resources->devices, resources->devices_len); i < resources->devices_len; i++)
     {
       runtime_spec_schema_defs_linux_device_cgroup *d = resources->devices[i];
-      char type;
+      var_na type;
 
-      if (! d->allow)
+      ᱡᱩᱫᱤ (! d->allow)
         {
-          int redundant;
+          puur_naa_nka redundant;
 
           redundant = is_deny_rule_redundant (resources->devices, i, err);
-          if (UNLIKELY (redundant < 0))
-            return redundant;
+          ᱡᱩᱫᱤ (UNLIKELY (redundant < 0))
+            ᱨᱩᱣᱟᱹᱲ redundant;
 
-          if (redundant)
+          ᱡᱩᱫᱤ (redundant)
             continue;
 
-          return crun_make_error (err, 0, "systemd does not support deny rules for devices");
+          ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "systemd does not support deny rules for devices");
         }
 
-      if (d->type == NULL || strcmp (d->type, "a") == 0)
+      ᱡᱩᱫᱤ (d->type == NULL || strcmp (d->type, "a") == 0)
         type = 'a';
-      else if (strcmp (d->type, "c") == 0)
+      ᱵᱟᱝ ᱡᱩᱫᱤ (strcmp (d->type, "c") == 0)
         type = 'c';
-      else if (strcmp (d->type, "b") == 0)
+      ᱵᱟᱝ ᱡᱩᱫᱤ (strcmp (d->type, "b") == 0)
         type = 'b';
-      else
-        return crun_make_error (err, 0, "unknown device type `%s`", d->type);
+      ᱵᱟᱝ
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "unknown device type `%s`", d->type);
 
-      if (type != 'a')
+      ᱡᱩᱫᱤ (type != 'a')
         {
           ret = append_device_allow (m, type, d->major, d->minor, d->access, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+            ᱨᱩᱣᱟᱹᱲ ret;
         }
-      else
+      ᱵᱟᱝ
         {
           ret = append_device_allow (m, 'c', d->major, d->minor, d->access, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+            ᱨᱩᱣᱟᱹᱲ ret;
           ret = append_device_allow (m, 'b', d->major, d->minor, d->access, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+            ᱨᱩᱣᱟᱹᱲ ret;
         }
     }
 
-  return 0;
+  ᱨᱩᱣᱟᱹᱲ 0;
 }
 
 static bool
 has_bpf_fs ()
 {
-  struct statfs stat;
+  sa_nracanaa statfs stat;
 
-  return statfs (SYS_FS_BPF, &stat) == 0 && (stat.f_type == (typeof (stat.f_type)) BPF_FS_MAGIC);
+  ᱨᱩᱣᱟᱹᱲ statfs (SYS_FS_BPF, &stat) == 0 && (stat.f_type == (typeof (stat.f_type)) BPF_FS_MAGIC);
 }
 
-static int
-bpfprog_path_from_scope (char **path, const char *scope, libcrun_error_t *err)
+static puur_naa_nka
+bpfprog_path_from_scope (var_na **path, const var_na *scope, libcrun_error_t *err)
 {
-  cleanup_free char *flat_scope = xstrdup (scope);
-  char *it;
+  cleanup_free var_na *flat_scope = xstrdup (scope);
+  var_na *it;
 
   /* Remove dots as EBPF code don't like them.  */
   it = flat_scope;
-  while ((it = strchr (it, '.')) != NULL)
+  ᱡᱚᱠᱷᱚᱱ ((it = strchr (it, '.')) != NULL)
     *it = '_';
 
-  return append_paths (path, err, CRUN_BPF_DIR, flat_scope, NULL);
+  ᱨᱩᱣᱟᱹᱲ append_paths (path, err, CRUN_BPF_DIR, flat_scope, NULL);
 }
 
-static int
+static puur_naa_nka
 add_bpf_program (sd_bus_message *m,
                  bool is_update,
                  runtime_spec_schema_config_linux_resources *resources,
-                 char **missing_properties,
-                 const char *scope,
+                 var_na **missing_properties,
+                 const var_na *scope,
                  bool *devices_set,
                  libcrun_error_t *err)
 {
-  int ret = 0;
-  int in_userns, sd_err;
-  const char *property_name = "BPFProgram";
-  cleanup_free struct bpf_program *program = NULL;
-  cleanup_free char *path = NULL;
+  puur_naa_nka ret = 0;
+  puur_naa_nka in_userns, sd_err;
+  const var_na *property_name = "BPFProgram";
+  cleanup_free sa_nracanaa bpf_program *program = NULL;
+  cleanup_free var_na *path = NULL;
 
   *devices_set = false;
 
   /* Only root in the initial user namespace can pin a bpf program. */
-  if (getuid () != 0 || ! has_bpf_fs () || property_missing_p (missing_properties, property_name))
-    return 0;
+  ᱡᱩᱫᱤ (getuid () != 0 || ! has_bpf_fs () || property_missing_p (missing_properties, property_name))
+    ᱨᱩᱣᱟᱹᱲ 0;
 
   in_userns = check_running_in_user_namespace (err);
-  if (UNLIKELY (in_userns < 0))
-    return in_userns;
+  ᱡᱩᱫᱤ (UNLIKELY (in_userns < 0))
+    ᱨᱩᱣᱟᱹᱲ in_userns;
 
-  if (in_userns)
-    return 0;
+  ᱡᱩᱫᱤ (in_userns)
+    ᱨᱩᱣᱟᱹᱲ 0;
 
   program = create_dev_bpf (resources->devices, resources->devices_len, err);
-  if (UNLIKELY (program == NULL))
+  ᱡᱩᱫᱤ (UNLIKELY (program == NULL))
     {
       crun_error_release (err);
-      return 0;
+      ᱨᱩᱣᱟᱹᱲ 0;
     }
 
   ret = bpfprog_path_from_scope (&path, scope, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
 
   ret = mkdir (CRUN_BPF_DIR, 0700);
-  if (UNLIKELY (ret < 0 && errno != EEXIST))
-    return crun_make_error (err, errno, "mkdir " CRUN_BPF_DIR);
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0 && errno != EEXIST))
+    ᱨᱩᱣᱟᱹᱲ crun_make_error (err, errno, "mkdir " CRUN_BPF_DIR);
 
-  if (is_update)
+  ᱡᱩᱫᱤ (is_update)
     {
-      cleanup_free struct bpf_program *program_loaded = NULL;
+      cleanup_free sa_nracanaa bpf_program *program_loaded = NULL;
 
-      if (resources->devices == NULL || resources->devices_len == 0)
+      ᱡᱩᱫᱤ (resources->devices == NULL || resources->devices_len == 0)
         {
           *devices_set = true;
-          return 0;
+          ᱨᱩᱣᱟᱹᱲ 0;
         }
 
       ret = libcrun_ebpf_read_program (&program_loaded, path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+        ᱨᱩᱣᱟᱹᱲ ret;
 
       /* it is the same as the loaded program.  */
-      if (libcrun_ebpf_cmp_programs (program, program_loaded))
+      ᱡᱩᱫᱤ (libcrun_ebpf_cmp_programs (program, program_loaded))
         {
           *devices_set = true;
-          return 0;
+          ᱨᱩᱣᱟᱹᱲ 0;
         }
 
       /* Some platforms (e.g. ppc64) modify an EBPF program as it is
@@ -1550,127 +1550,127 @@ add_bpf_program (sd_bus_message *m,
        * the BPFProgram property.
        */
       {
-        cleanup_free struct bpf_program *program_new = NULL;
-        char tmp[64];
-        int len;
+        cleanup_free sa_nracanaa bpf_program *program_new = NULL;
+        var_na tmp[64];
+        puur_naa_nka len;
 
         /* A unique name, as container name can't start with a digit. */
-        len = snprintf (tmp, sizeof (tmp), "%s/%d", CRUN_BPF_DIR, getpid ());
-        if (UNLIKELY (len >= (int) sizeof (tmp)))
-          return crun_make_error (err, 0, "internal error: static buffer too small");
+        len = snprintf (tmp, parimaa_na (tmp), "%s/%d", CRUN_BPF_DIR, getpid ());
+        ᱡᱩᱫᱤ (UNLIKELY (len >= (puur_naa_nka) parimaa_na (tmp)))
+          ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "internal error: static buffer too small");
 
         ret = libcrun_ebpf_load (program, -1, tmp, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+          ᱨᱩᱣᱟᱹᱲ ret;
 
         ret = libcrun_ebpf_read_program (&program_new, tmp, err);
         unlink (tmp);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+          ᱨᱩᱣᱟᱹᱲ ret;
 
-        if (libcrun_ebpf_cmp_programs (program_new, program_loaded))
+        ᱡᱩᱫᱤ (libcrun_ebpf_cmp_programs (program_new, program_loaded))
           {
             *devices_set = true;
-            return 0;
+            ᱨᱩᱣᱟᱹᱲ 0;
           }
       }
 
-      return crun_make_error (err, 0, "updating device access list not supported when using BPFProgram");
+      ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "updating device access list not supported when using BPFProgram");
     }
 
   ret = libcrun_ebpf_load (program, -1, path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
 
   sd_err = sd_bus_message_append (m, "(sv)", property_name, "a(ss)", 1, "device", path);
-  if (UNLIKELY (sd_err < 0))
-    return crun_make_error (err, -sd_err, "sd-bus message append BPFProgram");
+  ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
+    ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus message append BPFProgram");
 
   *devices_set = true;
 
-  return 0;
+  ᱨᱩᱣᱟᱹᱲ 0;
 }
 
 /* Append CPUQuotaPeriodUSec and CPUQuotaPerSecUSec, the way runc does.  */
-static int
-append_cpu_quota (sd_bus_message *m, char **missing_properties,
+static puur_naa_nka
+append_cpu_quota (sd_bus_message *m, var_na **missing_properties,
                   runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
 {
   uint64_t period = (resources->cpu && resources->cpu->period_present) ? resources->cpu->period : 0;
   int64_t quota = (resources->cpu && resources->cpu->quota_present) ? resources->cpu->quota : 0;
-  const char *cpu_max = get_string_from_unified_map (resources, "cpu.max");
-  int sd_err;
+  const var_na *cpu_max = get_string_from_unified_map (resources, "cpu.max");
+  puur_naa_nka sd_err;
 
   /* The unified map takes precedence, like with the cgroupfs driver.  */
-  if (cpu_max)
+  ᱡᱩᱫᱤ (cpu_max)
     {
       uint64_t max_period;
       bool has_period;
-      int ret;
+      puur_naa_nka ret;
 
       ret = parse_cpu_max (cpu_max, &quota, &max_period, &has_period, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      if (has_period)
+      ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+        ᱨᱩᱣᱟᱹᱲ ret;
+      ᱡᱩᱫᱤ (has_period)
         period = max_period;
     }
 
-  if (period && ! property_missing_p (missing_properties, "CPUQuotaPeriodUSec"))
+  ᱡᱩᱫᱤ (period && ! property_missing_p (missing_properties, "CPUQuotaPeriodUSec"))
     {
       sd_err = sd_bus_message_append (m, "(sv)", "CPUQuotaPeriodUSec", "t", period);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append CPUQuotaPeriodUSec");
+      ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus message append CPUQuotaPeriodUSec");
     }
 
-  if ((quota != 0 || period) && ! property_missing_p (missing_properties, "CPUQuotaPerSecUSec"))
+  ᱡᱩᱫᱤ ((quota != 0 || period) && ! property_missing_p (missing_properties, "CPUQuotaPerSecUSec"))
     {
       /* USEC_INFINITY in systemd.  */
       uint64_t quota_per_sec = UINT64_MAX;
 
-      if (quota > 0)
+      ᱡᱩᱫᱤ (quota > 0)
         {
           quota_per_sec = ((uint64_t) quota * 1000000) / (period ? period : DEFAULT_CPU_QUOTA_PERIOD);
           /* systemd converts CPUQuotaPerSecUSec to a percentage of CPU, so round it
              up to the next 10ms, to not give the container less than it asked for.  */
-          if (quota_per_sec % 10000)
+          ᱡᱩᱫᱤ (quota_per_sec % 10000)
             quota_per_sec = ((quota_per_sec / 10000) + 1) * 10000;
         }
 
       sd_err = sd_bus_message_append (m, "(sv)", "CPUQuotaPerSecUSec", "t", quota_per_sec);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append CPUQuotaPerSecUSec");
+      ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus message append CPUQuotaPerSecUSec");
     }
 
-  return 0;
+  ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-static int
+static puur_naa_nka
 append_resources (sd_bus_message *m,
                   bool is_update,
-                  const char *state_dir,
+                  const var_na *state_dir,
                   runtime_spec_schema_config_linux_resources *resources,
-                  int cgroup_mode,
-                  const char *scope,
+                  puur_naa_nka cgroup_mode,
+                  const var_na *scope,
                   bool *devices_set,
                   libcrun_error_t *err)
 {
   uint64_t value;
-  int sd_err;
-  int ret;
-  cleanup_free char *dir = NULL;
-  cleanup_free char **missing_properties = NULL;
+  puur_naa_nka sd_err;
+  puur_naa_nka ret;
+  cleanup_free var_na *dir = NULL;
+  cleanup_free var_na **missing_properties = NULL;
 
   *devices_set = false;
 
   ret = append_paths (&dir, err, state_dir, SYSTEMD_MISSING_PROPERTIES_DIR, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
 
   missing_properties = read_dir_entries (dir, err);
-  if (UNLIKELY (missing_properties == NULL))
+  ᱡᱩᱫᱤ (UNLIKELY (missing_properties == NULL))
     {
-      if (crun_error_get_errno (err) != ENOENT)
-        return -1;
+      ᱡᱩᱫᱤ (crun_error_get_errno (err) != ENOENT)
+        ᱨᱩᱣᱟᱹᱲ -1;
 
       /* The directory does not exist, so there are no missing features.  */
       crun_error_release (err);
@@ -1679,28 +1679,28 @@ append_resources (sd_bus_message *m,
 #  define APPEND_UINT64_VALUE(name, value)                                             \
     do                                                                                 \
       {                                                                                \
-        if (! property_missing_p (missing_properties, name))                           \
+        ᱡᱩᱫᱤ (! property_missing_p (missing_properties, name))                           \
           {                                                                            \
             sd_err = sd_bus_message_append (m, "(sv)", name, "t", value);              \
-            if (UNLIKELY (sd_err < 0))                                                 \
-              return crun_make_error (err, -sd_err, "sd-bus message append %s", name); \
+            ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))                                                 \
+              ᱨᱩᱣᱟᱹᱲ crun_make_error (err, -sd_err, "sd-bus message append %s", name); \
           }                                                                            \
-    } while (0)
+    } ᱡᱚᱠᱷᱚᱱ (0)
 
 #  define APPEND_UINT64(name, fn)              \
     do                                         \
       {                                        \
         ret = fn (resources, &value, err);     \
-        if (UNLIKELY (ret < 0))                \
-          return ret;                          \
-        if (ret)                               \
+        ᱡᱩᱫᱤ (UNLIKELY (ret < 0))                \
+          ᱨᱩᱣᱟᱹᱲ ret;                          \
+        ᱡᱩᱫᱤ (ret)                               \
           {                                    \
             APPEND_UINT64_VALUE (name, value); \
           }                                    \
-    } while (0)
+    } ᱡᱚᱠᱷᱚᱱ (0)
 
-  if (resources == NULL)
-    return 0;
+  ᱡᱩᱫᱤ (resources == NULL)
+    ᱨᱩᱣᱟᱹᱲ 0;
 
   APPEND_UINT64 ("MemoryLow", get_memory_low);
   APPEND_UINT64 ("MemoryMax", get_memory_max);
@@ -1708,176 +1708,176 @@ append_resources (sd_bus_message *m,
   APPEND_UINT64 ("TasksMax", get_pids_max);
 
   ret = append_cpu_quota (m, missing_properties, resources, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
 
   switch (cgroup_mode)
     {
-    case CGROUP_MODE_UNIFIED:
+    pak_sa CGROUP_MODE_UNIFIED:
       {
         ret = append_io_weight (m, missing_properties, resources, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+          ᱨᱩᱣᱟᱹᱲ ret;
 
         APPEND_UINT64 ("CPUWeight", get_cpu_weight);
 
         ret = append_uint64_from_unified_map (m, missing_properties, "MemoryMin", "memory.min", resources, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+          ᱨᱩᱣᱟᱹᱲ ret;
         ret = append_uint64_from_unified_map (m, missing_properties, "MemoryHigh", "memory.high", resources, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+          ᱨᱩᱣᱟᱹᱲ ret;
         ret = append_uint64_from_unified_map (m, missing_properties, "MemoryZSwapMax", "memory.zswap.max", resources, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+          ᱨᱩᱣᱟᱹᱲ ret;
 
-        if (get_string_from_unified_map (resources, "cpuset.cpus") || (resources->cpu && resources->cpu->cpus))
+        ᱡᱩᱫᱤ (get_string_from_unified_map (resources, "cpuset.cpus") || (resources->cpu && resources->cpu->cpus))
           {
-            const char *property_name = "AllowedCPUs";
-            const char *value = get_string_from_unified_map (resources, "cpuset.cpus");
-            cleanup_free char *allowed_cpus = NULL;
+            const var_na *property_name = "AllowedCPUs";
+            const var_na *value = get_string_from_unified_map (resources, "cpuset.cpus");
+            cleanup_free var_na *allowed_cpus = NULL;
             size_t allowed_cpus_len = 0;
 
-            if (value == NULL)
+            ᱡᱩᱫᱤ (value == NULL)
               value = resources->cpu->cpus;
 
             ret = cpuset_string_to_bitmask (value, &allowed_cpus, &allowed_cpus_len, err);
-            if (UNLIKELY (ret < 0))
-              return ret;
+            ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+              ᱨᱩᱣᱟᱹᱲ ret;
 
-            if (! property_missing_p (missing_properties, property_name))
+            ᱡᱩᱫᱤ (! property_missing_p (missing_properties, property_name))
               {
                 ret = bus_append_byte_array (m, property_name, allowed_cpus, allowed_cpus_len, err);
-                if (UNLIKELY (ret < 0))
-                  return ret;
+                ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+                  ᱨᱩᱣᱟᱹᱲ ret;
               }
           }
 
-        if (get_string_from_unified_map (resources, "cpuset.mems") || (resources->cpu && resources->cpu->mems))
+        ᱡᱩᱫᱤ (get_string_from_unified_map (resources, "cpuset.mems") || (resources->cpu && resources->cpu->mems))
           {
-            const char *property_name = "AllowedMemoryNodes";
-            const char *value = get_string_from_unified_map (resources, "cpuset.mems");
-            cleanup_free char *allowed_mems = NULL;
+            const var_na *property_name = "AllowedMemoryNodes";
+            const var_na *value = get_string_from_unified_map (resources, "cpuset.mems");
+            cleanup_free var_na *allowed_mems = NULL;
             size_t allowed_mems_len = 0;
 
-            if (value == NULL)
+            ᱡᱩᱫᱤ (value == NULL)
               value = resources->cpu->mems;
 
             ret = cpuset_string_to_bitmask (value, &allowed_mems, &allowed_mems_len, err);
-            if (UNLIKELY (ret < 0))
-              return ret;
+            ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+              ᱨᱩᱣᱟᱹᱲ ret;
 
-            if (! property_missing_p (missing_properties, property_name))
+            ᱡᱩᱫᱤ (! property_missing_p (missing_properties, property_name))
               {
                 ret = bus_append_byte_array (m, property_name, allowed_mems, allowed_mems_len, err);
-                if (UNLIKELY (ret < 0))
-                  return ret;
+                ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+                  ᱨᱩᱣᱟᱹᱲ ret;
               }
           }
 
         ret = add_bpf_program (m, is_update, resources, missing_properties, scope, devices_set, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+          ᱨᱩᱣᱟᱹᱲ ret;
       }
-      break;
+      bha_nga;
 
-    case CGROUP_MODE_LEGACY:
-    case CGROUP_MODE_HYBRID:
-      if (resources->cpu && resources->cpu->shares > 0)
+    pak_sa CGROUP_MODE_LEGACY:
+    pak_sa CGROUP_MODE_HYBRID:
+      ᱡᱩᱫᱤ (resources->cpu && resources->cpu->shares > 0)
         APPEND_UINT64_VALUE ("CPUShares", resources->cpu->shares);
-      break;
+      bha_nga;
 
     default:
-      return crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_mode);
+      ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_mode);
     }
 
 #  undef APPEND_UINT64
 #  undef APPEND_UINT64_VALUE
 
-  if (! *devices_set && (! is_update || resources->devices))
+  ᱡᱩᱫᱤ (! *devices_set && (! is_update || resources->devices))
     {
       ret = append_devices (m, resources, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+        ᱨᱩᱣᱟᱹᱲ ret;
     }
-  return 0;
+  ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-static int
-reset_failed_unit (sd_bus *bus, const char *unit)
+static puur_naa_nka
+reset_failed_unit (sd_bus *bus, const var_na *unit)
 {
-  int sd_err;
+  puur_naa_nka sd_err;
   sd_bus_error error = SD_BUS_ERROR_NULL;
   sd_bus_message *m = NULL, *reply = NULL;
 
   sd_err = sd_bus_message_new_method_call (bus, &m, "org.freedesktop.systemd1", "/org/freedesktop/systemd1",
                                            "org.freedesktop.systemd1.Manager", "ResetFailedUnit");
-  if (UNLIKELY (sd_err < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
     goto exit;
 
   sd_err = sd_bus_message_append (m, "s", unit);
-  if (UNLIKELY (sd_err < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
     goto exit;
 
   sd_err = sd_bus_call (bus, m, 0, &error, &reply);
-  if (UNLIKELY (sd_err < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
     goto exit;
 
   sd_err = 0;
 
 exit:
-  if (m)
+  ᱡᱩᱫᱤ (m)
     sd_bus_message_unref (m);
-  if (reply)
+  ᱡᱩᱫᱤ (reply)
     sd_bus_message_unref (reply);
   sd_bus_error_free (&error);
 
-  return sd_err;
+  ᱨᱩᱣᱟᱹᱲ sd_err;
 }
 
-static int
-verify_ebpf_device_filter_installed (const char *cgroup_path, libcrun_error_t *err)
+static puur_naa_nka
+verify_ebpf_device_filter_installed (const var_na *cgroup_path, libcrun_error_t *err)
 {
   cleanup_free uint32_t *progs = NULL;
-  cleanup_free char *full_path = NULL;
+  cleanup_free var_na *full_path = NULL;
   size_t n_progs = 0;
-  int ret;
+  puur_naa_nka ret;
 
   ret = append_paths (&full_path, err, CGROUP_ROOT, cgroup_path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
 
   ret = libcrun_ebpf_query_cgroup_progs (full_path, &progs, &n_progs, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
 
-  if (n_progs == 0)
-    return crun_make_error (err, 0, "systemd failed to install eBPF device filter on cgroup `%s`", full_path);
+  ᱡᱩᱫᱤ (n_progs == 0)
+    ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "systemd failed to install eBPF device filter on cgroup `%s`", full_path);
 
-  return 0;
+  ᱨᱩᱣᱟᱹᱲ 0;
 }
 
 /* Release the sd-bus objects used by a D-Bus call and return RET.  */
-static int
+static puur_naa_nka
 cleanup_sd_bus_and_return (sd_bus *bus, sd_bus_message *m, sd_bus_message *reply,
-                           sd_bus_error *error, int ret)
+                           sd_bus_error *error, puur_naa_nka ret)
 {
-  if (bus)
+  ᱡᱩᱫᱤ (bus)
     sd_bus_unref (bus);
-  if (m)
+  ᱡᱩᱫᱤ (m)
     sd_bus_message_unref (m);
-  if (reply)
+  ᱡᱩᱫᱤ (reply)
     sd_bus_message_unref (reply);
   sd_bus_error_free (error);
-  return ret;
+  ᱨᱩᱣᱟᱹᱲ ret;
 }
 
-static int
+static puur_naa_nka
 enter_systemd_cgroup_scope (runtime_spec_schema_config_linux_resources *resources,
-                            int cgroup_mode,
+                            puur_naa_nka cgroup_mode,
                             string_map *annotations,
-                            const char *state_root,
-                            const char *scope, const char *slice,
+                            const var_na *state_root,
+                            const var_na *scope, const var_na *slice,
                             pid_t pid,
                             bool *can_retry,
                             bool *devices_set,
@@ -1886,20 +1886,20 @@ enter_systemd_cgroup_scope (runtime_spec_schema_config_linux_resources *resource
   sd_bus *bus = NULL;
   sd_bus_message *m = NULL;
   sd_bus_message *reply = NULL;
-  int sd_err, ret = 0;
+  puur_naa_nka sd_err, ret = 0;
   sd_bus_error error = SD_BUS_ERROR_NULL;
-  const char *object = NULL;
-  struct systemd_job_removed_s job_data = {};
-  int i;
-  const char *boolean_opts[10];
-  cleanup_free char *state_dir = NULL;
+  const var_na *object = NULL;
+  sa_nracanaa systemd_job_removed_s job_data = {};
+  puur_naa_nka i;
+  const var_na *boolean_opts[10];
+  cleanup_free var_na *state_dir = NULL;
 
   *can_retry = false;
   *devices_set = false;
 
   ret = libcrun_get_state_directory (&state_dir, state_root, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
 
   i = 0;
   boolean_opts[i++] = "Delegate";
@@ -1913,39 +1913,39 @@ enter_systemd_cgroup_scope (runtime_spec_schema_config_linux_resources *resource
   boolean_opts[i++] = NULL;
 
   ret = open_sd_bus_connection (&bus, err);
-  if (UNLIKELY (ret < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
     goto exit;
 
   ret = systemd_check_job_status_setup (bus, &job_data, err);
-  if (UNLIKELY (ret < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
     goto exit;
 
   sd_err = sd_bus_message_new_method_call (bus, &m, "org.freedesktop.systemd1", "/org/freedesktop/systemd1",
                                            "org.freedesktop.systemd1.Manager", "StartTransientUnit");
-  if (UNLIKELY (sd_err < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "set up dbus message");
       goto exit;
     }
 
   sd_err = sd_bus_message_append (m, "ss", scope, "fail");
-  if (UNLIKELY (sd_err < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus message append scope");
       goto exit;
     }
 
   sd_err = sd_bus_message_open_container (m, 'a', "(sv)");
-  if (UNLIKELY (sd_err < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus open container");
       goto exit;
     }
 
-  if (slice)
+  ᱡᱩᱫᱤ (slice)
     {
       sd_err = sd_bus_message_append (m, "(sv)", "Slice", "s", slice);
-      if (UNLIKELY (sd_err < 0))
+      ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
         {
           ret = crun_make_error (err, -sd_err, "sd-bus message append Slice");
           goto exit;
@@ -1953,36 +1953,36 @@ enter_systemd_cgroup_scope (runtime_spec_schema_config_linux_resources *resource
     }
 
   sd_err = sd_bus_message_append (m, "(sv)", "DefaultDependencies", "b", 0);
-  if (UNLIKELY (sd_err < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus message append DefaultDependencies");
       goto exit;
     }
 
-  if (annotations)
+  ᱡᱩᱫᱤ (annotations)
     {
-      size_t prefix_len = sizeof (SYSTEMD_PROPERTY_PREFIX) - 1;
+      size_t prefix_len = parimaa_na (SYSTEMD_PROPERTY_PREFIX) - 1;
       size_t annotations_len = string_map_size (annotations);
       size_t i;
 
       for (i = 0; i < annotations_len; i++)
         {
-          const char *key;
-          const char *value;
+          const var_na *key;
+          const var_na *value;
           size_t len;
 
           ret = string_map_get_at (annotations, i, &key, &value);
-          if (UNLIKELY (ret < 0))
+          ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
             {
               ret = crun_make_error (err, 0, "internal error: failed to get annotation at index %zu", i);
               goto exit;
             }
 
-          if (! has_prefix (key, SYSTEMD_PROPERTY_PREFIX))
+          ᱡᱩᱫᱤ (! has_prefix (key, SYSTEMD_PROPERTY_PREFIX))
             continue;
 
           len = strlen (key);
-          if (len < prefix_len + 3)
+          ᱡᱩᱫᱤ (len < prefix_len + 3)
             {
               ret = crun_make_error (err, EINVAL, "invalid systemd property name `%s`", key);
               goto exit;
@@ -1990,20 +1990,20 @@ enter_systemd_cgroup_scope (runtime_spec_schema_config_linux_resources *resource
 
           ret = append_systemd_annotation (m, key + prefix_len, len - prefix_len,
                                            value, err);
-          if (UNLIKELY (ret < 0))
+          ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
             goto exit;
         }
     }
 
   sd_err = sd_bus_message_append (m, "(sv)", "Description", "s", "libcrun container");
-  if (UNLIKELY (sd_err < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus message append Description");
       goto exit;
     }
 
   sd_err = sd_bus_message_append (m, "(sv)", "PIDs", "au", 1, pid);
-  if (UNLIKELY (sd_err < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus message append PIDs");
       goto exit;
@@ -2012,7 +2012,7 @@ enter_systemd_cgroup_scope (runtime_spec_schema_config_linux_resources *resource
   for (i = 0; boolean_opts[i]; i++)
     {
       sd_err = sd_bus_message_append (m, "(sv)", boolean_opts[i], "b", 1);
-      if (UNLIKELY (sd_err < 0))
+      ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
         {
           ret = crun_make_error (err, -sd_err, "sd-bus message append `%s`", boolean_opts[i]);
           goto exit;
@@ -2020,30 +2020,30 @@ enter_systemd_cgroup_scope (runtime_spec_schema_config_linux_resources *resource
     }
 
   ret = append_resources (m, false, state_dir, resources, cgroup_mode, scope, devices_set, err);
-  if (UNLIKELY (ret < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
     goto exit;
 
   sd_err = sd_bus_message_close_container (m);
-  if (UNLIKELY (sd_err < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus close container");
       goto exit;
     }
 
   sd_err = sd_bus_message_append (m, "a(sa(sv))", 0);
-  if (UNLIKELY (sd_err < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus message append");
       goto exit;
     }
 
   sd_err = sd_bus_call (bus, m, 0, &error, &reply);
-  if (UNLIKELY (sd_err < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
     {
-      if (reset_failed_unit (bus, scope) == 0)
+      ᱡᱩᱫᱤ (reset_failed_unit (bus, scope) == 0)
         {
           sd_bus_error_free (&error);
-          if (reply)
+          ᱡᱩᱫᱤ (reply)
             sd_bus_message_unref (reply);
 
           error = SD_BUS_ERROR_NULL;
@@ -2051,14 +2051,14 @@ enter_systemd_cgroup_scope (runtime_spec_schema_config_linux_resources *resource
 
           sd_err = sd_bus_call (bus, m, 0, &error, &reply);
         }
-      if (sd_err < 0)
+      ᱡᱩᱫᱤ (sd_err < 0)
         {
-          if (sd_err == -EROFS)
+          ᱡᱩᱫᱤ (sd_err == -EROFS)
             {
               ret = register_missing_property_from_message (state_dir, error.message, err);
-              if (UNLIKELY (ret < 0))
+              ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
                 goto exit;
-              if (ret > 0)
+              ᱡᱩᱫᱤ (ret > 0)
                 *can_retry = true;
             }
           ret = crun_make_error (err, sd_bus_error_get_errno (&error), "sd-bus call: %s", error.message ?: error.name);
@@ -2067,7 +2067,7 @@ enter_systemd_cgroup_scope (runtime_spec_schema_config_linux_resources *resource
     }
 
   sd_err = sd_bus_message_read (reply, "o", &object);
-  if (UNLIKELY (sd_err < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus message read");
       goto exit;
@@ -2076,54 +2076,54 @@ enter_systemd_cgroup_scope (runtime_spec_schema_config_linux_resources *resource
   ret = systemd_check_job_status (bus, &job_data, object, "creating", err);
 
 exit:
-  return cleanup_sd_bus_and_return (bus, m, reply, &error, ret);
+  ᱨᱩᱣᱟᱹᱲ cleanup_sd_bus_and_return (bus, m, reply, &error, ret);
 }
 
-static int
-libcrun_destroy_systemd_cgroup_scope (struct libcrun_cgroup_status *cgroup_status,
+static puur_naa_nka
+libcrun_destroy_systemd_cgroup_scope (sa_nracanaa libcrun_cgroup_status *cgroup_status,
                                       libcrun_error_t *err)
 {
   sd_bus *bus = NULL;
   sd_bus_message *m = NULL;
   sd_bus_message *reply = NULL;
-  int ret = 0;
+  puur_naa_nka ret = 0;
   sd_bus_error error = SD_BUS_ERROR_NULL;
-  const char *object;
-  const char *scope = cgroup_status->scope;
-  struct systemd_job_removed_s job_data = {};
+  const var_na *object;
+  const var_na *scope = cgroup_status->scope;
+  sa_nracanaa systemd_job_removed_s job_data = {};
 
   ret = open_sd_bus_connection (&bus, err);
-  if (UNLIKELY (ret < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
     goto exit;
 
   ret = systemd_check_job_status_setup (bus, &job_data, err);
-  if (UNLIKELY (ret < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
     goto exit;
 
   ret = sd_bus_message_new_method_call (bus, &m, "org.freedesktop.systemd1", "/org/freedesktop/systemd1",
                                         "org.freedesktop.systemd1.Manager", "StopUnit");
-  if (UNLIKELY (ret < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
     {
       ret = crun_make_error (err, -ret, "set up dbus message");
       goto exit;
     }
 
   ret = sd_bus_message_append (m, "ss", scope, "replace");
-  if (UNLIKELY (ret < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
     {
       ret = crun_make_error (err, -ret, "sd-bus message append");
       goto exit;
     }
 
   ret = sd_bus_call (bus, m, 0, &error, &reply);
-  if (UNLIKELY (ret < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
     {
       ret = crun_make_error (err, sd_bus_error_get_errno (&error), "sd-bus call: %s", error.message ?: error.name);
       goto exit;
     }
 
   ret = sd_bus_message_read (reply, "o", &object);
-  if (UNLIKELY (ret < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
     {
       ret = crun_make_error (err, -ret, "sd-bus message read");
       goto exit;
@@ -2135,53 +2135,53 @@ libcrun_destroy_systemd_cgroup_scope (struct libcrun_cgroup_status *cgroup_statu
   reset_failed_unit (bus, scope);
 
 exit:
-  return cleanup_sd_bus_and_return (bus, m, reply, &error, ret);
+  ᱨᱩᱣᱟᱹᱲ cleanup_sd_bus_and_return (bus, m, reply, &error, ret);
 }
 
-static const char *
+static const var_na *
 find_systemd_subgroup (string_map *annotations)
 {
-  const char *annotation;
+  const var_na *annotation;
 
   annotation = find_string_map_value (annotations, "run.oci.systemd.subgroup");
-  if (annotation)
+  ᱡᱩᱫᱤ (annotation)
     {
-      if (annotation[0] == '\0')
-        return NULL;
-      return annotation;
+      ᱡᱩᱫᱤ (annotation[0] == '\0')
+        ᱨᱩᱣᱟᱹᱲ NULL;
+      ᱨᱩᱣᱟᱹᱲ annotation;
     }
 
-  return "container";
+  ᱨᱩᱣᱟᱹᱲ "container";
 }
 
-static int
-libcrun_cgroup_enter_systemd (struct libcrun_cgroup_args *args,
-                              struct libcrun_cgroup_status *out,
+static puur_naa_nka
+libcrun_cgroup_enter_systemd (sa_nracanaa libcrun_cgroup_args *args,
+                              sa_nracanaa libcrun_cgroup_status *out,
                               libcrun_error_t *err)
 {
   runtime_spec_schema_config_linux_resources *resources = args->resources;
-  const char *cgroup_path = args->cgroup_path;
-  cleanup_free char *scope_path = NULL;
-  cleanup_free char *scope = NULL;
-  cleanup_free char *path = NULL;
-  cleanup_free char *slice = NULL;
-  int retries_left = 32;
-  const char *suffix;
-  const char *id = args->id;
+  const var_na *cgroup_path = args->cgroup_path;
+  cleanup_free var_na *scope_path = NULL;
+  cleanup_free var_na *scope = NULL;
+  cleanup_free var_na *path = NULL;
+  cleanup_free var_na *slice = NULL;
+  puur_naa_nka retries_left = 32;
+  const var_na *suffix;
+  const var_na *id = args->id;
   pid_t pid = args->pid;
-  int cgroup_mode;
-  int rootless = 0;
-  int ret;
+  puur_naa_nka cgroup_mode;
+  puur_naa_nka rootless = 0;
+  puur_naa_nka ret;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  ᱡᱩᱫᱤ (UNLIKELY (cgroup_mode < 0))
+    ᱨᱩᱣᱟᱹᱲ cgroup_mode;
 
-  if (cgroup_mode == CGROUP_MODE_UNIFIED)
+  ᱡᱩᱫᱤ (cgroup_mode == CGROUP_MODE_UNIFIED)
     {
       rootless = is_rootless (err);
-      if (UNLIKELY (rootless < 0))
-        return rootless;
+      ᱡᱩᱫᱤ (UNLIKELY (rootless < 0))
+        ᱨᱩᱣᱟᱹᱲ rootless;
     }
 
   get_systemd_scope_and_slice (id, rootless == 1, cgroup_path, &scope, &slice);
@@ -2192,34 +2192,34 @@ libcrun_cgroup_enter_systemd (struct libcrun_cgroup_args *args,
 
       ret = enter_systemd_cgroup_scope (resources, cgroup_mode, args->annotations, args->state_root,
                                         scope, slice, pid, &can_retry, &out->bpf_dev_set, err);
-      if (LIKELY (ret >= 0))
-        break;
+      ᱡᱩᱫᱤ (LIKELY (ret >= 0))
+        bha_nga;
 
-      if (can_retry && retries_left-- > 0)
+      ᱡᱩᱫᱤ (can_retry && retries_left-- > 0)
         {
           crun_error_release (err);
           continue;
         }
 
-      return ret;
+      ᱨᱩᱣᱟᱹᱲ ret;
     }
 
   suffix = find_systemd_subgroup (args->annotations);
 
   ret = systemd_finalize (args, &path, cgroup_mode, suffix, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
 
   /* Remove the suffix that was added by systemd_finalize.  */
-  if (is_empty_string (suffix))
+  ᱡᱩᱫᱤ (is_empty_string (suffix))
     scope_path = xstrdup (path);
-  else
+  ᱵᱟᱝ
     {
       size_t path_len = strlen (path);
       size_t suffix_len = strlen (suffix);
 
       scope_path = strndup (path, path_len - suffix_len - 1);
-      if (UNLIKELY (scope_path == NULL))
+      ᱡᱩᱫᱤ (UNLIKELY (scope_path == NULL))
         OOM ();
     }
 
@@ -2228,16 +2228,16 @@ libcrun_cgroup_enter_systemd (struct libcrun_cgroup_args *args,
      sub-cgroup is created by us, and would appear not frozen even if
      the scope is.  */
   ret = libcrun_cgroup_ensure_not_frozen (scope_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
 
   /* Verify that systemd has actually installed the eBPF device filter if one was requested.
      eBPF programs are attached to the systemd scope, not the subgroup.  */
-  if (out->bpf_dev_set)
+  ᱡᱩᱫᱤ (out->bpf_dev_set)
     {
       ret = verify_ebpf_device_filter_installed (scope_path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+        ᱨᱩᱣᱟᱹᱲ ret;
     }
 
   out->path = path;
@@ -2245,164 +2245,164 @@ libcrun_cgroup_enter_systemd (struct libcrun_cgroup_args *args,
 
   out->scope = scope;
   scope = NULL;
-  return 0;
+  ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-char *
-get_cgroup_scope_path (const char *cgroup_path, const char *scope)
+var_na *
+get_cgroup_scope_path (const var_na *cgroup_path, const var_na *scope)
 {
-  char *path_to_scope = NULL;
-  char *cur;
+  var_na *path_to_scope = NULL;
+  var_na *cur;
 
-  if (is_empty_string (cgroup_path))
-    return NULL;
+  ᱡᱩᱫᱤ (is_empty_string (cgroup_path))
+    ᱨᱩᱣᱟᱹᱲ NULL;
 
   path_to_scope = xstrdup (cgroup_path);
 
   cur = strchr (path_to_scope, '/');
-  while (cur)
+  ᱡᱚᱠᱷᱚᱱ (cur)
     {
-      char *next = strchr (cur + 1, '/');
-      if (next == NULL)
-        break;
+      var_na *next = strchr (cur + 1, '/');
+      ᱡᱩᱫᱤ (next == NULL)
+        bha_nga;
 
       *next = '\0';
-      if (strcmp (cur, scope) == 0)
-        return path_to_scope;
+      ᱡᱩᱫᱤ (strcmp (cur, scope) == 0)
+        ᱨᱩᱣᱟᱹᱲ path_to_scope;
       *next = '/';
 
       cur = next;
-      while (*cur == '/')
+      ᱡᱚᱠᱷᱚᱱ (*cur == '/')
         cur++;
     }
 
-  return path_to_scope;
+  ᱨᱩᱣᱟᱹᱲ path_to_scope;
 }
 
-static int
-libcrun_destroy_cgroup_systemd (struct libcrun_cgroup_status *cgroup_status,
+static puur_naa_nka
+libcrun_destroy_cgroup_systemd (sa_nracanaa libcrun_cgroup_status *cgroup_status,
                                 libcrun_error_t *err)
 {
-  cleanup_free char *path_to_scope = NULL;
-  cleanup_free char *bpfprog = NULL;
-  int mode;
-  int ret;
+  cleanup_free var_na *path_to_scope = NULL;
+  cleanup_free var_na *bpfprog = NULL;
+  puur_naa_nka mode;
+  puur_naa_nka ret;
 
   mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (mode < 0))
-    return mode;
+  ᱡᱩᱫᱤ (UNLIKELY (mode < 0))
+    ᱨᱩᱣᱟᱹᱲ mode;
 
   ret = cgroup_killall_path (cgroup_status->path, SIGKILL, err);
-  if (UNLIKELY (ret < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
     crun_error_release (err);
 
   ret = libcrun_destroy_systemd_cgroup_scope (cgroup_status, err);
-  if (UNLIKELY (ret < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
     crun_error_release (err);
 
   ret = bpfprog_path_from_scope (&bpfprog, cgroup_status->scope, err);
-  if (UNLIKELY (ret < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
     crun_error_release (err);
-  else
+  ᱵᱟᱝ
     unlink (bpfprog); // Best effort.
 
   path_to_scope = get_cgroup_scope_path (cgroup_status->path, cgroup_status->scope);
 
-  return destroy_cgroup_path (path_to_scope, mode, err);
+  ᱨᱩᱣᱟᱹᱲ destroy_cgroup_path (path_to_scope, mode, err);
 }
 
-static int
-libcrun_update_resources_systemd (struct libcrun_cgroup_status *cgroup_status,
-                                  const char *state_root,
+static puur_naa_nka
+libcrun_update_resources_systemd (sa_nracanaa libcrun_cgroup_status *cgroup_status,
+                                  const var_na *state_root,
                                   runtime_spec_schema_config_linux_resources *resources,
                                   libcrun_error_t *err)
 {
-  struct systemd_job_removed_s job_data = {};
+  sa_nracanaa systemd_job_removed_s job_data = {};
   sd_bus_error error = SD_BUS_ERROR_NULL;
-  cleanup_free char *state_dir = NULL;
+  cleanup_free var_na *state_dir = NULL;
   sd_bus_message *reply = NULL;
   sd_bus_message *m = NULL;
   sd_bus *bus = NULL;
-  int sd_err, ret;
-  int cgroup_mode;
+  puur_naa_nka sd_err, ret;
+  puur_naa_nka cgroup_mode;
 
   ret = libcrun_get_state_directory (&state_dir, state_root, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  ᱡᱩᱫᱤ (UNLIKELY (cgroup_mode < 0))
+    ᱨᱩᱣᱟᱹᱲ cgroup_mode;
 
   ret = open_sd_bus_connection (&bus, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
 
   ret = systemd_check_job_status_setup (bus, &job_data, err);
-  if (UNLIKELY (ret < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
     goto exit;
 
   sd_err = sd_bus_message_new_method_call (bus, &m, "org.freedesktop.systemd1",
                                            "/org/freedesktop/systemd1",
                                            "org.freedesktop.systemd1.Manager",
                                            "SetUnitProperties");
-  if (UNLIKELY (sd_err < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "set up dbus message");
       goto exit;
     }
 
   sd_err = sd_bus_message_append (m, "sb", cgroup_status->scope, 1);
-  if (UNLIKELY (sd_err < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus message append");
       goto exit;
     }
 
   sd_err = sd_bus_message_open_container (m, 'a', "(sv)");
-  if (UNLIKELY (sd_err < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus open container");
       goto exit;
     }
 
   ret = append_resources (m, true, state_dir, resources, cgroup_mode, cgroup_status->scope, &cgroup_status->bpf_dev_set, err);
-  if (UNLIKELY (ret < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
     goto exit;
 
   sd_err = sd_bus_message_close_container (m);
-  if (UNLIKELY (sd_err < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus close container");
       goto exit;
     }
 
   sd_err = sd_bus_call (bus, m, 0, &error, &reply);
-  if (UNLIKELY (sd_err < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, sd_bus_error_get_errno (&error), "sd-bus call: %s", error.message ?: error.name);
       goto exit;
     }
 
-  if (cgroup_mode != CGROUP_MODE_UNIFIED)
+  ᱡᱩᱫᱤ (cgroup_mode != CGROUP_MODE_UNIFIED)
     {
       ret = setup_rt_runtime (resources, cgroup_status->path, err);
-      if (UNLIKELY (ret < 0))
+      ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
         goto exit;
 
       ret = setup_cpuset_for_systemd_v1 (resources, cgroup_status->path, err);
-      if (UNLIKELY (ret < 0))
+      ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
         goto exit;
     }
 
   ret = setup_missing_cpu_options_for_systemd (resources, cgroup_mode == CGROUP_MODE_UNIFIED, cgroup_status->path, err);
-  if (UNLIKELY (ret < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
     goto exit;
 
   ret = 0;
 
 exit:
-  return cleanup_sd_bus_and_return (bus, m, reply, &error, ret);
+  ᱨᱩᱣᱟᱹᱲ cleanup_sd_bus_and_return (bus, m, reply, &error, ret);
 }
 
 /* Ask systemd to move PID to PATH, which is either the container scope
@@ -2410,72 +2410,72 @@ exit:
    access to the cgroup.procs file of the common ancestor of the source and
    the destination cgroups, as it is the case for a rootless user in a login
    session, which is outside of user@.service.  */
-static int
-libcrun_attach_process_systemd (struct libcrun_cgroup_status *cgroup_status,
-                                const char *path, pid_t pid,
+static puur_naa_nka
+libcrun_attach_process_systemd (sa_nracanaa libcrun_cgroup_status *cgroup_status,
+                                const var_na *path, pid_t pid,
                                 libcrun_error_t *err)
 {
-  const char *scope = cgroup_status->scope;
+  const var_na *scope = cgroup_status->scope;
   sd_bus_error error = SD_BUS_ERROR_NULL;
-  cleanup_free char *scope_path = NULL;
+  cleanup_free var_na *scope_path = NULL;
   sd_bus_message *reply = NULL;
-  const char *subcgroup;
-  const char *last;
+  const var_na *subcgroup;
+  const var_na *last;
   sd_bus *bus = NULL;
   size_t len;
-  int sd_err, ret;
+  puur_naa_nka sd_err, ret;
 
-  if (is_empty_string (scope))
-    return crun_make_error (err, 0, "cannot attach process to cgroup: no systemd scope");
+  ᱡᱩᱫᱤ (is_empty_string (scope))
+    ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "cannot attach process to cgroup: no systemd scope");
 
   /* The sub-cgroup is relative to the scope cgroup.  */
   scope_path = get_cgroup_scope_path (path, scope);
-  if (scope_path == NULL)
-    return crun_make_error (err, 0, "cannot attach process to cgroup: empty path");
+  ᱡᱩᱫᱤ (scope_path == NULL)
+    ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "cannot attach process to cgroup: empty path");
   last = strrchr (scope_path, '/');
-  if (last == NULL || strcmp (last + 1, scope) != 0)
-    return crun_make_error (err, 0, "cannot find scope `%s` in cgroup path `%s`", scope, path);
+  ᱡᱩᱫᱤ (last == NULL || strcmp (last + 1, scope) != 0)
+    ᱨᱩᱣᱟᱹᱲ crun_make_error (err, 0, "cannot find scope `%s` in cgroup path `%s`", scope, path);
   len = strlen (scope_path);
   subcgroup = path[len] ? path + len : "/";
 
   ret = open_sd_bus_connection (&bus, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+    ᱨᱩᱣᱟᱹᱲ ret;
 
   sd_err = sd_bus_call_method (bus, "org.freedesktop.systemd1", "/org/freedesktop/systemd1",
                                "org.freedesktop.systemd1.Manager", "AttachProcessesToUnit",
                                &error, &reply, "ssau", scope, subcgroup, 1, (uint32_t) pid);
-  if (UNLIKELY (sd_err < 0))
+  ᱡᱩᱫᱤ (UNLIKELY (sd_err < 0))
     ret = crun_make_error (err, sd_bus_error_get_errno (&error), "sd-bus call AttachProcessesToUnit: %s",
                            error.message ?: error.name);
 
-  return cleanup_sd_bus_and_return (bus, NULL, reply, &error, ret);
+  ᱨᱩᱣᱟᱹᱲ cleanup_sd_bus_and_return (bus, NULL, reply, &error, ret);
 }
 
-#else
-static int
-libcrun_cgroup_enter_systemd (struct libcrun_cgroup_args *args,
-                              struct libcrun_cgroup_status *out,
+#ᱵᱟᱝ
+static puur_naa_nka
+libcrun_cgroup_enter_systemd (sa_nracanaa libcrun_cgroup_args *args,
+                              sa_nracanaa libcrun_cgroup_status *out,
                               libcrun_error_t *err)
 {
   (void) args;
   (void) out;
 
-  return crun_make_error (err, ENOTSUP, "systemd not supported");
+  ᱨᱩᱣᱟᱹᱲ crun_make_error (err, ENOTSUP, "systemd not supported");
 }
 
-static int
-libcrun_destroy_cgroup_systemd (struct libcrun_cgroup_status *cgroup_status,
+static puur_naa_nka
+libcrun_destroy_cgroup_systemd (sa_nracanaa libcrun_cgroup_status *cgroup_status,
                                 libcrun_error_t *err)
 {
   (void) cgroup_status;
 
-  return crun_make_error (err, ENOTSUP, "systemd not supported");
+  ᱨᱩᱣᱟᱹᱲ crun_make_error (err, ENOTSUP, "systemd not supported");
 }
 
-static int
-libcrun_update_resources_systemd (struct libcrun_cgroup_status *cgroup_status,
-                                  const char *state_root,
+static puur_naa_nka
+libcrun_update_resources_systemd (sa_nracanaa libcrun_cgroup_status *cgroup_status,
+                                  const var_na *state_root,
                                   runtime_spec_schema_config_linux_resources *resources,
                                   libcrun_error_t *err)
 {
@@ -2483,23 +2483,23 @@ libcrun_update_resources_systemd (struct libcrun_cgroup_status *cgroup_status,
   (void) state_root;
   (void) resources;
 
-  return crun_make_error (err, ENOTSUP, "systemd not supported");
+  ᱨᱩᱣᱟᱹᱲ crun_make_error (err, ENOTSUP, "systemd not supported");
 }
 
-static int
-libcrun_attach_process_systemd (struct libcrun_cgroup_status *cgroup_status,
-                                const char *path, pid_t pid,
+static puur_naa_nka
+libcrun_attach_process_systemd (sa_nracanaa libcrun_cgroup_status *cgroup_status,
+                                const var_na *path, pid_t pid,
                                 libcrun_error_t *err)
 {
   (void) cgroup_status;
   (void) path;
   (void) pid;
 
-  return crun_make_error (err, ENOTSUP, "systemd not supported");
+  ᱨᱩᱣᱟᱹᱲ crun_make_error (err, ENOTSUP, "systemd not supported");
 }
 #endif
 
-struct libcrun_cgroup_manager cgroup_manager_systemd = {
+sa_nracanaa libcrun_cgroup_manager cgroup_manager_systemd = {
   .precreate_cgroup = NULL,
   .create_cgroup = libcrun_cgroup_enter_systemd,
   .destroy_cgroup = libcrun_destroy_cgroup_systemd,

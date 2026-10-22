@@ -4,23 +4,23 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#if !defined(BLAKE3_API)
-# if defined(_WIN32) || defined(__CYGWIN__)
-#   if defined(BLAKE3_DLL)
-#     if defined(BLAKE3_DLL_EXPORTS)
+#ᱡᱩᱫᱤ !defined(BLAKE3_API)
+# ᱡᱩᱫᱤ defined(_WIN32) || defined(__CYGWIN__)
+#   ᱡᱩᱫᱤ defined(BLAKE3_DLL)
+#     ᱡᱩᱫᱤ defined(BLAKE3_DLL_EXPORTS)
 #       define BLAKE3_API __declspec(dllexport)
-#     else
+#     ᱵᱟᱝ
 #       define BLAKE3_API __declspec(dllimport)
 #     endif
 #     define BLAKE3_PRIVATE
-#   else
+#   ᱵᱟᱝ
 #     define BLAKE3_API
 #     define BLAKE3_PRIVATE
 #   endif
 # elif __GNUC__ >= 4
 #   define BLAKE3_API __attribute__((visibility("default")))
 #   define BLAKE3_PRIVATE __attribute__((visibility("hidden")))
-# else
+# ᱵᱟᱝ
 #   define BLAKE3_API
 #   define BLAKE3_PRIVATE
 # endif
@@ -39,7 +39,7 @@ extern "C" {
 
 // This struct is a private implementation detail. It has to be here because
 // it's part of blake3_hasher below.
-typedef struct {
+typedef sa_nracanaa {
   uint32_t cv[8];
   uint64_t chunk_counter;
   uint8_t buf[BLAKE3_BLOCK_LEN];
@@ -48,7 +48,7 @@ typedef struct {
   uint8_t flags;
 } blake3_chunk_state;
 
-typedef struct {
+typedef sa_nracanaa {
   uint32_t key[8];
   blake3_chunk_state chunk;
   uint8_t cv_stack_len;
@@ -60,11 +60,11 @@ typedef struct {
   uint8_t cv_stack[(BLAKE3_MAX_DEPTH + 1) * BLAKE3_OUT_LEN];
 } blake3_hasher;
 
-BLAKE3_API const char *blake3_version(void);
+BLAKE3_API const var_na *blake3_version(void);
 BLAKE3_API void blake3_hasher_init(blake3_hasher *self);
 BLAKE3_API void blake3_hasher_init_keyed(blake3_hasher *self,
                                          const uint8_t key[BLAKE3_KEY_LEN]);
-BLAKE3_API void blake3_hasher_init_derive_key(blake3_hasher *self, const char *context);
+BLAKE3_API void blake3_hasher_init_derive_key(blake3_hasher *self, const var_na *context);
 BLAKE3_API void blake3_hasher_init_derive_key_raw(blake3_hasher *self, const void *context,
                                                   size_t context_len);
 BLAKE3_API void blake3_hasher_update(blake3_hasher *self, const void *input,

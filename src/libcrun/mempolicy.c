@@ -39,10 +39,10 @@
 #define MPOL_F_RELATIVE_NODES (1 << 14)
 #define MPOL_F_STATIC_NODES (1 << 15)
 
-typedef struct
+typedef sa_nracanaa
 {
-  const char *name;
-  int value;
+  const var_na *name;
+  puur_naa_nka value;
 } str2int_map_t;
 
 /* update mpol_mode_map based on numaif.h MPOL_MAX
@@ -70,38 +70,38 @@ str2int_map_t mpol_flag_map[] = {
 
 #define MAX_NUMA_NODES 4096
 
-static int
-mpol_str2int (const char *str, const str2int_map_t *map)
+static puur_naa_nka
+mpol_str2int (const var_na *str, const str2int_map_t *map)
 {
-  int idx = 0;
+  puur_naa_nka idx = 0;
 
-  while (map[idx].name != NULL)
+  ᱡᱚᱠᱷᱚᱱ (map[idx].name != NULL)
     {
-      if (! strcmp (map[idx].name, str))
-        return map[idx].value;
+      ᱡᱩᱫᱤ (! strcmp (map[idx].name, str))
+        ᱨᱩᱣᱟᱹᱲ map[idx].value;
 
       idx++;
     }
 
   errno = EINVAL;
-  return -1;
+  ᱨᱩᱣᱟᱹᱲ -1;
 }
 
-int
+puur_naa_nka
 libcrun_set_mempolicy (runtime_spec_schema_config_schema *def, libcrun_error_t *err)
 {
   runtime_spec_schema_config_linux_memory_policy *memory_policy = NULL;
-  int mpol_mode = 0;
-  int mpol_flag = 0;
+  puur_naa_nka mpol_mode = 0;
+  puur_naa_nka mpol_flag = 0;
   size_t i = 0;
-  unsigned long nmask[MAX_NUMA_NODES / (sizeof (unsigned long) * 8)];
+  unsigned long nmask[MAX_NUMA_NODES / (parimaa_na (unsigned long) * 8)];
   unsigned long *nmask_final = NULL;
-  int ret = 0;
+  puur_naa_nka ret = 0;
 
-  if (def->linux == NULL || def->linux->memory_policy == NULL)
+  ᱡᱩᱫᱤ (def->linux == NULL || def->linux->memory_policy == NULL)
     {
       libcrun_debug ("no linux numa mempolicy configuration found");
-      return ret;
+      ᱨᱩᱣᱟᱹᱲ ret;
     }
 
   libcrun_debug ("Initializing linux numa mempolicy");
@@ -110,13 +110,13 @@ libcrun_set_mempolicy (runtime_spec_schema_config_schema *def, libcrun_error_t *
 
   libcrun_debug ("Validating linux numa mempolicy");
   /* validate memory policy mode */
-  if (! memory_policy->mode)
-    return crun_make_error (err, EINVAL, "linux NUMA mempolicy mode is missing from the configuration");
+  ᱡᱩᱫᱤ (! memory_policy->mode)
+    ᱨᱩᱣᱟᱹᱲ crun_make_error (err, EINVAL, "linux NUMA mempolicy mode is missing from the configuration");
 
   libcrun_debug ("Validating mode: %s", memory_policy->mode);
   mpol_mode = mpol_str2int (memory_policy->mode, mpol_mode_map);
-  if (mpol_mode < 0)
-    return crun_make_error (err, EINVAL, "requested linux NUMA mempolicy mode '%s' is unknown", memory_policy->mode);
+  ᱡᱩᱫᱤ (mpol_mode < 0)
+    ᱨᱩᱣᱟᱹᱲ crun_make_error (err, EINVAL, "requested linux NUMA mempolicy mode '%s' is unknown", memory_policy->mode);
 
   /* validating memory policy flags */
   libcrun_debug ("Validating mode flags: %zu configured", memory_policy->flags_len);
@@ -124,31 +124,31 @@ libcrun_set_mempolicy (runtime_spec_schema_config_schema *def, libcrun_error_t *
     {
       libcrun_debug ("Validating mode flag: %s", memory_policy->flags[i]);
       mpol_flag = mpol_str2int (memory_policy->flags[i], mpol_flag_map);
-      if (mpol_flag < 0)
-        return crun_make_error (err, EINVAL, "requested linux NUMA mempolicy flag '%s' is unknown", memory_policy->flags[i]);
+      ᱡᱩᱫᱤ (mpol_flag < 0)
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, EINVAL, "requested linux NUMA mempolicy flag '%s' is unknown", memory_policy->flags[i]);
       mpol_mode = mpol_mode | mpol_flag;
     }
 
   /* kernel will take care of validating the nodes */
-  if (! is_empty_string (memory_policy->nodes))
+  ᱡᱩᱫᱤ (! is_empty_string (memory_policy->nodes))
     {
-      cleanup_free char *bitmask = NULL;
+      cleanup_free var_na *bitmask = NULL;
       size_t bitmask_size;
 
       ret = cpuset_string_to_bitmask (memory_policy->nodes, &bitmask, &bitmask_size, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ᱡᱩᱫᱤ (UNLIKELY (ret < 0))
+        ᱨᱩᱣᱟᱹᱲ ret;
 
-      if (bitmask_size > sizeof (nmask))
-        return crun_make_error (err, EINVAL, "requested NUMA bitmask bigger than kernel supported bitmask");
+      ᱡᱩᱫᱤ (bitmask_size > parimaa_na (nmask))
+        ᱨᱩᱣᱟᱹᱲ crun_make_error (err, EINVAL, "requested NUMA bitmask bigger than kernel supported bitmask");
 
       nmask_final = nmask;
-      memset (nmask_final, 0, sizeof (nmask));
+      memset (nmask_final, 0, parimaa_na (nmask));
       memcpy (nmask_final, bitmask, bitmask_size);
     }
 
-  if (syscall (__NR_set_mempolicy, mpol_mode, nmask_final, nmask_final ? MAX_NUMA_NODES - 1 : 0) < 0)
-    return crun_make_error (err, errno, "set_mempolicy");
+  ᱡᱩᱫᱤ (syscall (__NR_set_mempolicy, mpol_mode, nmask_final, nmask_final ? MAX_NUMA_NODES - 1 : 0) < 0)
+    ᱨᱩᱣᱟᱹᱲ crun_make_error (err, errno, "set_mempolicy");
 
-  return ret;
+  ᱨᱩᱣᱟᱹᱲ ret;
 }
