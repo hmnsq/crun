@@ -17,22 +17,22 @@
  */
 #ifndef TERMINAL_H
 #define TERMINAL_H
-#include <config.h>
+#شامل <config.h>
 
-#include "container.h"
-#include <termios.h>
+#شامل "container.h"
+#شامل <termios.h>
 
-void cleanup_terminalp (void *p);
+تهی cleanup_terminalp (تهی *p);
 #define cleanup_terminal __attribute__ ((cleanup (cleanup_terminalp)))
 
-int libcrun_new_terminal (char **pty, libcrun_error_t *err);
+صحیح libcrun_new_terminal (نویسه **pty, libcrun_error_t *err);
 
-int libcrun_set_stdio (int ptmx_fd, char *pty, libcrun_error_t *err);
+صحیح libcrun_set_stdio (صحیح ptmx_fd, نویسه *pty, libcrun_error_t *err);
 
-int libcrun_set_raw (int fd, void **current_status, libcrun_error_t *err);
+صحیح libcrun_set_raw (صحیح fd, تهی **current_status, libcrun_error_t *err);
 
-int libcrun_clear_onlcr (int fd, libcrun_error_t *err);
+صحیح libcrun_clear_onlcr (صحیح fd, libcrun_error_t *err);
 
-int libcrun_terminal_setup_size (int fd, unsigned short rows, unsigned short cols, libcrun_error_t *err);
+صحیح libcrun_terminal_setup_size (صحیح fd, unsigned short rows, unsigned short cols, libcrun_error_t *err);
 
 #endif

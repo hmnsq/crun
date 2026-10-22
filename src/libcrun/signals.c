@@ -2,7 +2,7 @@
 /* Command-line: gperf --lookup-function-name libcrun_signal_in_word_set -m 100 --null-strings --pic -tCEG -S1 src/libcrun/signals.perf  */
 /* Computed positions: -k'2,4,$' */
 
-#if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
+#اگر !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
       && ('%' == 37) && ('&' == 38) && ('\'' == 39) && ('(' == 40) \
       && (')' == 41) && ('*' == 42) && ('+' == 43) && (',' == 44) \
       && ('-' == 45) && ('.' == 46) && ('/' == 47) && ('0' == 48) \
@@ -33,38 +33,38 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include <stddef.h>
-#include <stdlib.h>
-#include "utils.h"
+#شامل <config.h>
+#شامل <stddef.h>
+#شامل <stdlib.h>
+#شامل "utils.h"
 #line 27 "src/libcrun/signals.perf"
-struct signal_s
+ساختار signal_s
 {
-  int name;
-  int value;
+  صحیح name;
+  صحیح مقدار;
 };
-enum
+شمارش
   {
     TOTAL_KEYWORDS = 62,
     MIN_WORD_LENGTH = 2,
     MAX_WORD_LENGTH = 8,
-    MIN_HASH_VALUE = 13,
-    MAX_HASH_VALUE = 86
+    MIN_HASH_مقدار = 13,
+    MAX_HASH_مقدار = 86
   };
 
 /* maximum key range = 74, duplicates = 0 */
 
 #ifdef __GNUC__
 __inline
-#else
+#وگرنه
 #ifdef __cplusplus
-inline
+درونخطی
 #endif
 #endif
-static unsigned int
-hash (register const char *str, register size_t len)
+ایستا unsigned صحیح
+hash (ثبات ثابت نویسه *str, ثبات size_t len)
 {
-  static const unsigned char asso_values[] =
+  ایستا ثابت unsigned نویسه asso_مقادیر[] =
     {
       87, 87, 87, 87, 87, 87, 87, 87, 87, 87,
       87, 87, 87, 87, 87, 87, 87, 87, 87, 87,
@@ -93,87 +93,87 @@ hash (register const char *str, register size_t len)
       87, 87, 87, 87, 87, 87, 87, 87, 87, 87,
       87, 87, 87, 87, 87, 87
     };
-  register unsigned int hval = len;
+  ثبات unsigned صحیح hval = len;
 
-  switch (hval)
+  انتخاب (hval)
     {
-      default:
-        hval += asso_values[(unsigned char)str[3]];
+      پیشفرض:
+        hval += asso_مقادیر[(unsigned نویسه)str[3]];
       /*FALLTHROUGH*/
-      case 3:
-      case 2:
-        hval += asso_values[(unsigned char)str[1]];
-        break;
+      حالت 3:
+      حالت 2:
+        hval += asso_مقادیر[(unsigned نویسه)str[1]];
+        بشکن;
     }
-  return hval + asso_values[(unsigned char)str[len - 1]];
+  بازگشت hval + asso_مقادیر[(unsigned نویسه)str[len - 1]];
 }
 
-struct stringpool_t
+ساختار stringpool_t
   {
-    char stringpool_str0[sizeof("ILL")];
-    char stringpool_str1[sizeof("HUP")];
-    char stringpool_str2[sizeof("KILL")];
-    char stringpool_str3[sizeof("TTOU")];
-    char stringpool_str4[sizeof("QUIT")];
-    char stringpool_str5[sizeof("STOP")];
-    char stringpool_str6[sizeof("RTMIN+2")];
-    char stringpool_str7[sizeof("RTMIN+12")];
-    char stringpool_str8[sizeof("RTMAX-2")];
-    char stringpool_str9[sizeof("RTMAX-12")];
-    char stringpool_str10[sizeof("RTMIN+1")];
-    char stringpool_str11[sizeof("RTMIN+11")];
-    char stringpool_str12[sizeof("RTMAX-1")];
-    char stringpool_str13[sizeof("RTMAX-11")];
-    char stringpool_str14[sizeof("RTMIN+4")];
-    char stringpool_str15[sizeof("RTMIN+14")];
-    char stringpool_str16[sizeof("RTMAX-4")];
-    char stringpool_str17[sizeof("RTMAX-14")];
-    char stringpool_str18[sizeof("RTMIN+3")];
-    char stringpool_str19[sizeof("RTMIN+13")];
-    char stringpool_str20[sizeof("RTMAX-3")];
-    char stringpool_str21[sizeof("RTMAX-13")];
-    char stringpool_str22[sizeof("BUS")];
-    char stringpool_str23[sizeof("VTALRM")];
-    char stringpool_str24[sizeof("INT")];
-    char stringpool_str25[sizeof("FPE")];
-    char stringpool_str26[sizeof("CONT")];
-    char stringpool_str27[sizeof("STKFLT")];
-    char stringpool_str28[sizeof("USR2")];
-    char stringpool_str29[sizeof("TRAP")];
-    char stringpool_str30[sizeof("TSTP")];
-    char stringpool_str31[sizeof("RTMIN")];
-    char stringpool_str32[sizeof("RTMIN+5")];
-    char stringpool_str33[sizeof("RTMIN+15")];
-    char stringpool_str34[sizeof("RTMAX-5")];
-    char stringpool_str35[sizeof("RTMIN+9")];
-    char stringpool_str36[sizeof("USR1")];
-    char stringpool_str37[sizeof("RTMAX-9")];
-    char stringpool_str38[sizeof("ALRM")];
-    char stringpool_str39[sizeof("IO")];
-    char stringpool_str40[sizeof("RTMIN+8")];
-    char stringpool_str41[sizeof("RTMIN+7")];
-    char stringpool_str42[sizeof("RTMAX-8")];
-    char stringpool_str43[sizeof("RTMAX-7")];
-    char stringpool_str44[sizeof("RTMIN+6")];
-    char stringpool_str45[sizeof("RTMIN+10")];
-    char stringpool_str46[sizeof("RTMAX-6")];
-    char stringpool_str47[sizeof("RTMAX-10")];
-    char stringpool_str48[sizeof("SYS")];
-    char stringpool_str49[sizeof("XFSZ")];
-    char stringpool_str50[sizeof("RTMAX")];
-    char stringpool_str51[sizeof("PWR")];
-    char stringpool_str52[sizeof("SEGV")];
-    char stringpool_str53[sizeof("XCPU")];
-    char stringpool_str54[sizeof("WINCH")];
-    char stringpool_str55[sizeof("URG")];
-    char stringpool_str56[sizeof("CHLD")];
-    char stringpool_str57[sizeof("TTIN")];
-    char stringpool_str58[sizeof("PIPE")];
-    char stringpool_str59[sizeof("ABRT")];
-    char stringpool_str60[sizeof("TERM")];
-    char stringpool_str61[sizeof("PROF")];
+    نویسه stringpool_str0[اندازه("ILL")];
+    نویسه stringpool_str1[اندازه("HUP")];
+    نویسه stringpool_str2[اندازه("KILL")];
+    نویسه stringpool_str3[اندازه("TTOU")];
+    نویسه stringpool_str4[اندازه("QUIT")];
+    نویسه stringpool_str5[اندازه("STOP")];
+    نویسه stringpool_str6[اندازه("RTMIN+2")];
+    نویسه stringpool_str7[اندازه("RTMIN+12")];
+    نویسه stringpool_str8[اندازه("RTMAX-2")];
+    نویسه stringpool_str9[اندازه("RTMAX-12")];
+    نویسه stringpool_str10[اندازه("RTMIN+1")];
+    نویسه stringpool_str11[اندازه("RTMIN+11")];
+    نویسه stringpool_str12[اندازه("RTMAX-1")];
+    نویسه stringpool_str13[اندازه("RTMAX-11")];
+    نویسه stringpool_str14[اندازه("RTMIN+4")];
+    نویسه stringpool_str15[اندازه("RTMIN+14")];
+    نویسه stringpool_str16[اندازه("RTMAX-4")];
+    نویسه stringpool_str17[اندازه("RTMAX-14")];
+    نویسه stringpool_str18[اندازه("RTMIN+3")];
+    نویسه stringpool_str19[اندازه("RTMIN+13")];
+    نویسه stringpool_str20[اندازه("RTMAX-3")];
+    نویسه stringpool_str21[اندازه("RTMAX-13")];
+    نویسه stringpool_str22[اندازه("BUS")];
+    نویسه stringpool_str23[اندازه("VTALRM")];
+    نویسه stringpool_str24[اندازه("INT")];
+    نویسه stringpool_str25[اندازه("FPE")];
+    نویسه stringpool_str26[اندازه("CONT")];
+    نویسه stringpool_str27[اندازه("STKFLT")];
+    نویسه stringpool_str28[اندازه("USR2")];
+    نویسه stringpool_str29[اندازه("TRAP")];
+    نویسه stringpool_str30[اندازه("TSTP")];
+    نویسه stringpool_str31[اندازه("RTMIN")];
+    نویسه stringpool_str32[اندازه("RTMIN+5")];
+    نویسه stringpool_str33[اندازه("RTMIN+15")];
+    نویسه stringpool_str34[اندازه("RTMAX-5")];
+    نویسه stringpool_str35[اندازه("RTMIN+9")];
+    نویسه stringpool_str36[اندازه("USR1")];
+    نویسه stringpool_str37[اندازه("RTMAX-9")];
+    نویسه stringpool_str38[اندازه("ALRM")];
+    نویسه stringpool_str39[اندازه("IO")];
+    نویسه stringpool_str40[اندازه("RTMIN+8")];
+    نویسه stringpool_str41[اندازه("RTMIN+7")];
+    نویسه stringpool_str42[اندازه("RTMAX-8")];
+    نویسه stringpool_str43[اندازه("RTMAX-7")];
+    نویسه stringpool_str44[اندازه("RTMIN+6")];
+    نویسه stringpool_str45[اندازه("RTMIN+10")];
+    نویسه stringpool_str46[اندازه("RTMAX-6")];
+    نویسه stringpool_str47[اندازه("RTMAX-10")];
+    نویسه stringpool_str48[اندازه("SYS")];
+    نویسه stringpool_str49[اندازه("XFSZ")];
+    نویسه stringpool_str50[اندازه("RTMAX")];
+    نویسه stringpool_str51[اندازه("PWR")];
+    نویسه stringpool_str52[اندازه("SEGV")];
+    نویسه stringpool_str53[اندازه("XCPU")];
+    نویسه stringpool_str54[اندازه("WINCH")];
+    نویسه stringpool_str55[اندازه("URG")];
+    نویسه stringpool_str56[اندازه("CHLD")];
+    نویسه stringpool_str57[اندازه("TTIN")];
+    نویسه stringpool_str58[اندازه("PIPE")];
+    نویسه stringpool_str59[اندازه("ABRT")];
+    نویسه stringpool_str60[اندازه("TERM")];
+    نویسه stringpool_str61[اندازه("PROF")];
   };
-static const struct stringpool_t stringpool_contents =
+ایستا ثابت ساختار stringpool_t stringpool_contents =
   {
     "ILL",
     "HUP",
@@ -238,376 +238,376 @@ static const struct stringpool_t stringpool_contents =
     "TERM",
     "PROF"
   };
-#define stringpool ((const char *) &stringpool_contents)
+#define stringpool ((ثابت نویسه *) &stringpool_contents)
 
-static const struct signal_s wordlist[] =
+ایستا ثابت ساختار signal_s wordlist[] =
   {
 #line 36 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str0, 4},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str0, 4},
 #line 33 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str1, 1},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str1, 1},
 #line 41 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str2, 9},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str2, 9},
 #line 54 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str3, 22},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str3, 22},
 #line 35 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str4, 3},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str4, 3},
 #line 51 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str5, 19},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str5, 19},
 #line 66 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str6, 36},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str6, 36},
 #line 76 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str7, 46},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str7, 46},
 #line 92 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str8, 62},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str8, 62},
 #line 82 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str9, 52},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str9, 52},
 #line 65 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str10, 35},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str10, 35},
 #line 75 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str11, 45},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str11, 45},
 #line 93 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str12, 63},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str12, 63},
 #line 83 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str13, 53},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str13, 53},
 #line 68 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str14, 38},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str14, 38},
 #line 78 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str15, 48},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str15, 48},
 #line 90 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str16, 60},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str16, 60},
 #line 80 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str17, 50},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str17, 50},
 #line 67 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str18, 37},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str18, 37},
 #line 77 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str19, 47},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str19, 47},
 #line 91 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str20, 61},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str20, 61},
 #line 81 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str21, 51},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str21, 51},
 #line 39 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str22, 7},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str22, 7},
 #line 58 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str23, 26},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str23, 26},
 #line 34 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str24, 2},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str24, 2},
 #line 40 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str25, 8},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str25, 8},
 #line 50 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str26, 18},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str26, 18},
 #line 48 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str27, 16},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str27, 16},
 #line 44 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str28, 12},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str28, 12},
 #line 37 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str29, 5},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str29, 5},
 #line 52 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str30, 20},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str30, 20},
 #line 64 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str31, 34},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str31, 34},
 #line 69 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str32, 39},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str32, 39},
 #line 79 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str33, 49},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str33, 49},
 #line 89 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str34, 59},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str34, 59},
 #line 73 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str35, 43},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str35, 43},
 #line 42 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str36, 10},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str36, 10},
 #line 85 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str37, 55},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str37, 55},
 #line 46 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str38, 14},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str38, 14},
 #line 61 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str39, 29},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str39, 29},
 #line 72 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str40, 42},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str40, 42},
 #line 71 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str41, 41},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str41, 41},
 #line 86 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str42, 56},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str42, 56},
 #line 87 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str43, 57},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str43, 57},
 #line 70 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str44, 40},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str44, 40},
 #line 74 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str45, 44},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str45, 44},
 #line 88 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str46, 58},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str46, 58},
 #line 84 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str47, 54},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str47, 54},
 #line 63 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str48, 31},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str48, 31},
 #line 57 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str49, 25},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str49, 25},
 #line 94 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str50, 64},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str50, 64},
 #line 62 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str51, 30},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str51, 30},
 #line 43 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str52, 11},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str52, 11},
 #line 56 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str53, 24},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str53, 24},
 #line 60 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str54, 28},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str54, 28},
 #line 55 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str55, 23},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str55, 23},
 #line 49 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str56, 17},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str56, 17},
 #line 53 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str57, 21},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str57, 21},
 #line 45 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str58, 13},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str58, 13},
 #line 38 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str59, 6},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str59, 6},
 #line 47 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str60, 15},
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str60, 15},
 #line 59 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str61, 27}
+    {(صحیح)(size_t)&((ساختار stringpool_t *)0)->stringpool_str61, 27}
   };
 
-const struct signal_s *
-libcrun_signal_in_word_set (register const char *str, register size_t len)
+ثابت ساختار signal_s *
+libcrun_signal_in_word_set (ثبات ثابت نویسه *str, ثبات size_t len)
 {
-  if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
+  اگر (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
-      register unsigned int key = hash (str, len);
+      ثبات unsigned صحیح کلید = hash (str, len);
 
-      if (key <= MAX_HASH_VALUE && key >= MIN_HASH_VALUE)
+      اگر (کلید <= MAX_HASH_مقدار && کلید >= MIN_HASH_مقدار)
         {
-          register const struct signal_s *resword;
+          ثبات ثابت ساختار signal_s *resword;
 
-          switch (key - 13)
+          انتخاب (کلید - 13)
             {
-              case 0:
+              حالت 0:
                 resword = &wordlist[0];
-                goto compare;
-              case 1:
+                برو compare;
+              حالت 1:
                 resword = &wordlist[1];
-                goto compare;
-              case 6:
+                برو compare;
+              حالت 6:
                 resword = &wordlist[2];
-                goto compare;
-              case 7:
+                برو compare;
+              حالت 7:
                 resword = &wordlist[3];
-                goto compare;
-              case 8:
+                برو compare;
+              حالت 8:
                 resword = &wordlist[4];
-                goto compare;
-              case 9:
+                برو compare;
+              حالت 9:
                 resword = &wordlist[5];
-                goto compare;
-              case 10:
+                برو compare;
+              حالت 10:
                 resword = &wordlist[6];
-                goto compare;
-              case 11:
+                برو compare;
+              حالت 11:
                 resword = &wordlist[7];
-                goto compare;
-              case 12:
+                برو compare;
+              حالت 12:
                 resword = &wordlist[8];
-                goto compare;
-              case 13:
+                برو compare;
+              حالت 13:
                 resword = &wordlist[9];
-                goto compare;
-              case 14:
+                برو compare;
+              حالت 14:
                 resword = &wordlist[10];
-                goto compare;
-              case 15:
+                برو compare;
+              حالت 15:
                 resword = &wordlist[11];
-                goto compare;
-              case 16:
+                برو compare;
+              حالت 16:
                 resword = &wordlist[12];
-                goto compare;
-              case 17:
+                برو compare;
+              حالت 17:
                 resword = &wordlist[13];
-                goto compare;
-              case 18:
+                برو compare;
+              حالت 18:
                 resword = &wordlist[14];
-                goto compare;
-              case 19:
+                برو compare;
+              حالت 19:
                 resword = &wordlist[15];
-                goto compare;
-              case 20:
+                برو compare;
+              حالت 20:
                 resword = &wordlist[16];
-                goto compare;
-              case 21:
+                برو compare;
+              حالت 21:
                 resword = &wordlist[17];
-                goto compare;
-              case 22:
+                برو compare;
+              حالت 22:
                 resword = &wordlist[18];
-                goto compare;
-              case 23:
+                برو compare;
+              حالت 23:
                 resword = &wordlist[19];
-                goto compare;
-              case 24:
+                برو compare;
+              حالت 24:
                 resword = &wordlist[20];
-                goto compare;
-              case 25:
+                برو compare;
+              حالت 25:
                 resword = &wordlist[21];
-                goto compare;
-              case 26:
+                برو compare;
+              حالت 26:
                 resword = &wordlist[22];
-                goto compare;
-              case 27:
+                برو compare;
+              حالت 27:
                 resword = &wordlist[23];
-                goto compare;
-              case 28:
+                برو compare;
+              حالت 28:
                 resword = &wordlist[24];
-                goto compare;
-              case 29:
+                برو compare;
+              حالت 29:
                 resword = &wordlist[25];
-                goto compare;
-              case 30:
+                برو compare;
+              حالت 30:
                 resword = &wordlist[26];
-                goto compare;
-              case 31:
+                برو compare;
+              حالت 31:
                 resword = &wordlist[27];
-                goto compare;
-              case 32:
+                برو compare;
+              حالت 32:
                 resword = &wordlist[28];
-                goto compare;
-              case 33:
+                برو compare;
+              حالت 33:
                 resword = &wordlist[29];
-                goto compare;
-              case 34:
+                برو compare;
+              حالت 34:
                 resword = &wordlist[30];
-                goto compare;
-              case 35:
+                برو compare;
+              حالت 35:
                 resword = &wordlist[31];
-                goto compare;
-              case 36:
+                برو compare;
+              حالت 36:
                 resword = &wordlist[32];
-                goto compare;
-              case 37:
+                برو compare;
+              حالت 37:
                 resword = &wordlist[33];
-                goto compare;
-              case 38:
+                برو compare;
+              حالت 38:
                 resword = &wordlist[34];
-                goto compare;
-              case 39:
+                برو compare;
+              حالت 39:
                 resword = &wordlist[35];
-                goto compare;
-              case 40:
+                برو compare;
+              حالت 40:
                 resword = &wordlist[36];
-                goto compare;
-              case 41:
+                برو compare;
+              حالت 41:
                 resword = &wordlist[37];
-                goto compare;
-              case 42:
+                برو compare;
+              حالت 42:
                 resword = &wordlist[38];
-                goto compare;
-              case 43:
+                برو compare;
+              حالت 43:
                 resword = &wordlist[39];
-                goto compare;
-              case 44:
+                برو compare;
+              حالت 44:
                 resword = &wordlist[40];
-                goto compare;
-              case 45:
+                برو compare;
+              حالت 45:
                 resword = &wordlist[41];
-                goto compare;
-              case 46:
+                برو compare;
+              حالت 46:
                 resword = &wordlist[42];
-                goto compare;
-              case 47:
+                برو compare;
+              حالت 47:
                 resword = &wordlist[43];
-                goto compare;
-              case 48:
+                برو compare;
+              حالت 48:
                 resword = &wordlist[44];
-                goto compare;
-              case 49:
+                برو compare;
+              حالت 49:
                 resword = &wordlist[45];
-                goto compare;
-              case 50:
+                برو compare;
+              حالت 50:
                 resword = &wordlist[46];
-                goto compare;
-              case 51:
+                برو compare;
+              حالت 51:
                 resword = &wordlist[47];
-                goto compare;
-              case 52:
+                برو compare;
+              حالت 52:
                 resword = &wordlist[48];
-                goto compare;
-              case 53:
+                برو compare;
+              حالت 53:
                 resword = &wordlist[49];
-                goto compare;
-              case 54:
+                برو compare;
+              حالت 54:
                 resword = &wordlist[50];
-                goto compare;
-              case 55:
+                برو compare;
+              حالت 55:
                 resword = &wordlist[51];
-                goto compare;
-              case 56:
+                برو compare;
+              حالت 56:
                 resword = &wordlist[52];
-                goto compare;
-              case 57:
+                برو compare;
+              حالت 57:
                 resword = &wordlist[53];
-                goto compare;
-              case 58:
+                برو compare;
+              حالت 58:
                 resword = &wordlist[54];
-                goto compare;
-              case 59:
+                برو compare;
+              حالت 59:
                 resword = &wordlist[55];
-                goto compare;
-              case 60:
+                برو compare;
+              حالت 60:
                 resword = &wordlist[56];
-                goto compare;
-              case 61:
+                برو compare;
+              حالت 61:
                 resword = &wordlist[57];
-                goto compare;
-              case 62:
+                برو compare;
+              حالت 62:
                 resword = &wordlist[58];
-                goto compare;
-              case 63:
+                برو compare;
+              حالت 63:
                 resword = &wordlist[59];
-                goto compare;
-              case 70:
+                برو compare;
+              حالت 70:
                 resword = &wordlist[60];
-                goto compare;
-              case 73:
+                برو compare;
+              حالت 73:
                 resword = &wordlist[61];
-                goto compare;
+                برو compare;
             }
-          return 0;
+          بازگشت 0;
         compare:
           {
-            register const char *s = resword->name + stringpool;
+            ثبات ثابت نویسه *s = resword->name + stringpool;
 
-            if (*str == *s && !strcmp (str + 1, s + 1))
-              return resword;
+            اگر (*str == *s && !strcmp (str + 1, s + 1))
+              بازگشت resword;
           }
         }
     }
-  return 0;
+  بازگشت 0;
 }
 #line 95 "src/libcrun/signals.perf"
 
-int
-str2sig (const char *name)
+صحیح
+str2sig (ثابت نویسه *name)
 {
-  const struct signal_s *s;
+  ثابت ساختار signal_s *s;
 
-  if (has_prefix (name, "SIG"))
+  اگر (has_prefix (name, "SIG"))
     name += 3;
 
   s = libcrun_signal_in_word_set (name, strlen (name));
-  if (s == NULL)
+  اگر (s == پوچ)
     {
-      long int value;
+      long صحیح مقدار;
 
-      if (!isdigit(name[0]))
+      اگر (!isdigit(name[0]))
         {
           errno = EINVAL;
-          return -1;
+          بازگشت -1;
         }
 
       errno = 0;
-      value = strtol (name, NULL, 10);
-      if (errno != 0)
-        return -1;
+      مقدار = strtol (name, پوچ, 10);
+      اگر (errno != 0)
+        بازگشت -1;
 
-      return value;
+      بازگشت مقدار;
     }
 
-  return s->value;
+  بازگشت s->مقدار;
 }

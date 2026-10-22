@@ -18,12 +18,12 @@
 #ifndef CGROUP_H
 #define CGROUP_H
 
-#include "container.h"
-#include "string_map.h"
-#include <unistd.h>
+#شامل "container.h"
+#شامل "string_map.h"
+#شامل <unistd.h>
 
-#ifndef CGROUP_ROOT
-#  define CGROUP_ROOT "/sys/fs/cgroup"
+#ifndef CGROUP_ریشه
+#  define CGROUP_ریشه "/sys/fs/cgroup"
 #endif
 
 #ifndef SELF_CGROUP
@@ -34,60 +34,60 @@
 #  define PROC_SELF_CGROUP "/proc/" SELF_CGROUP
 #endif
 
-enum
+شمارش
 {
   CGROUP_MODE_UNIFIED = 1,
   CGROUP_MODE_LEGACY,
   CGROUP_MODE_HYBRID
 };
 
-enum
+شمارش
 {
   CGROUP_MANAGER_CGROUPFS = 1,
   CGROUP_MANAGER_SYSTEMD,
   CGROUP_MANAGER_DISABLED
 };
 
-struct libcrun_cgroup_status;
+ساختار libcrun_cgroup_status;
 
-struct libcrun_cgroup_args
+ساختار libcrun_cgroup_args
 {
   runtime_spec_schema_config_linux_resources *resources;
   string_map *annotations;
-  const char *cgroup_path;
-  int manager;
+  ثابت نویسه *cgroup_path;
+  صحیح manager;
   pid_t pid;
-  uid_t root_uid;
-  gid_t root_gid;
-  const char *id;
+  uid_t ریشه_uid;
+  gid_t ریشه_gid;
+  ثابت نویسه *id;
   bool joined;
   /* The path of the cgroup created by libcrun_cgroup_preenter, when there
      is no status for it yet.  */
-  char *precreated_path;
+  نویسه *precreated_path;
 
-  const char *state_root;
+  ثابت نویسه *state_ریشه;
   libcrun_container_t *container;
 };
 
 /* cgroup life-cycle management.  */
-int libcrun_cgroup_preenter (struct libcrun_cgroup_args *args, int *dirfd, libcrun_error_t *err);
-void libcrun_cgroup_preenter_cleanup (struct libcrun_cgroup_args *args);
-int libcrun_cgroup_enter (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status **out, libcrun_error_t *err);
-int libcrun_cgroup_enter_finalize (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status *cgroup_status, libcrun_error_t *err);
-int libcrun_cgroup_destroy (struct libcrun_cgroup_status *cgroup_status, libcrun_error_t *err);
+صحیح libcrun_cgroup_preenter (ساختار libcrun_cgroup_args *args, صحیح *dirfd, libcrun_error_t *err);
+تهی libcrun_cgroup_preenter_cleanup (ساختار libcrun_cgroup_args *args);
+صحیح libcrun_cgroup_enter (ساختار libcrun_cgroup_args *args, ساختار libcrun_cgroup_status **out, libcrun_error_t *err);
+صحیح libcrun_cgroup_enter_finalize (ساختار libcrun_cgroup_args *args, ساختار libcrun_cgroup_status *cgroup_status, libcrun_error_t *err);
+صحیح libcrun_cgroup_destroy (ساختار libcrun_cgroup_status *cgroup_status, libcrun_error_t *err);
 
 /* Handle the cgroup status.  */
-int libcrun_cgroup_get_status (struct libcrun_cgroup_status *cgroup_status, libcrun_container_status_t *status,
+صحیح libcrun_cgroup_get_status (ساختار libcrun_cgroup_status *cgroup_status, libcrun_container_status_t *status,
                                libcrun_error_t *err);
-void libcrun_cgroup_status_free (struct libcrun_cgroup_status *cgroup_status);
+تهی libcrun_cgroup_status_free (ساختار libcrun_cgroup_status *cgroup_status);
 
-struct libcrun_cgroup_status *libcrun_cgroup_make_status (libcrun_container_status_t *status);
+ساختار libcrun_cgroup_status *libcrun_cgroup_make_status (libcrun_container_status_t *status);
 
-static inline void
-cgroup_status_freep (struct libcrun_cgroup_status **p)
+ایستا درونخطی تهی
+cgroup_status_freep (ساختار libcrun_cgroup_status **p)
 {
-  struct libcrun_cgroup_status *s = *p;
-  if (s)
+  ساختار libcrun_cgroup_status *s = *p;
+  اگر (s)
     libcrun_cgroup_status_free (s);
 }
 #define cleanup_cgroup_status __attribute__ ((cleanup (cgroup_status_freep)))
@@ -95,24 +95,24 @@ cgroup_status_freep (struct libcrun_cgroup_status **p)
 
 /* Operations on the cgroup.  */
 
-int libcrun_cgroup_killall (struct libcrun_cgroup_status *cgroup_status, int signal, libcrun_error_t *err);
+صحیح libcrun_cgroup_killall (ساختار libcrun_cgroup_status *cgroup_status, صحیح سیگنال, libcrun_error_t *err);
 
-int libcrun_cgroup_has_oom (struct libcrun_cgroup_status *status, libcrun_error_t *err);
+صحیح libcrun_cgroup_has_oom (ساختار libcrun_cgroup_status *status, libcrun_error_t *err);
 
-int libcrun_cgroup_read_pids (struct libcrun_cgroup_status *status, bool recurse, pid_t **pids, libcrun_error_t *err);
+صحیح libcrun_cgroup_read_pids (ساختار libcrun_cgroup_status *status, bool recurse, pid_t **pids, libcrun_error_t *err);
 
-int libcrun_update_cgroup_resources (struct libcrun_cgroup_status *status,
-                                     const char *state_root,
+صحیح libcrun_update_cgroup_resources (ساختار libcrun_cgroup_status *status,
+                                     ثابت نویسه *state_ریشه,
                                      runtime_spec_schema_config_linux_resources *resources,
                                      libcrun_error_t *err);
 
-int libcrun_cgroup_is_container_paused (struct libcrun_cgroup_status *status, bool *paused, libcrun_error_t *err);
+صحیح libcrun_cgroup_is_container_paused (ساختار libcrun_cgroup_status *status, bool *paused, libcrun_error_t *err);
 
 /* Move PID to the cgroup PATH, which is the container cgroup described by STATUS
    or its sub-cgroup.  */
-int libcrun_cgroup_join_process (struct libcrun_cgroup_status *status, const char *path, pid_t pid, pid_t init_pid,
+صحیح libcrun_cgroup_join_process (ساختار libcrun_cgroup_status *status, ثابت نویسه *path, pid_t pid, pid_t init_pid,
                                  libcrun_error_t *err);
 
-int libcrun_cgroup_pause_unpause (struct libcrun_cgroup_status *status, const bool pause, libcrun_error_t *err);
+صحیح libcrun_cgroup_pause_unpause (ساختار libcrun_cgroup_status *status, ثابت bool pause, libcrun_error_t *err);
 
 #endif

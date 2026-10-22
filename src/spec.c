@@ -16,79 +16,79 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#شامل <config.h>
+#شامل <stdio.h>
+#شامل <stdlib.h>
+#شامل <argp.h>
+#شامل <string.h>
+#شامل <unistd.h>
+#شامل <errno.h>
 
-#include "crun.h"
+#شامل "crun.h"
 
-static char doc[] = "OCI runtime";
+ایستا نویسه doc[] = "OCI runtime";
 
-struct spec_options_s
+ساختار spec_options_s
 {
   bool rootless;
 };
 
-enum
+شمارش
 {
   OPTION_ROOTLESS = 1000
 };
 
-static const char *bundle;
-static const char *fname;
+ایستا ثابت نویسه *bundle;
+ایستا ثابت نویسه *fname;
 
-static struct spec_options_s spec_options;
+ایستا ساختار spec_options_s spec_options;
 
-static struct argp_option options[] = { { "bundle", 'b', "DIR", 0, "path to the root of the bundle dir (default \".\")", 0 },
+ایستا ساختار argp_option options[] = { { "bundle", 'b', "DIR", 0, "path to the root of the bundle dir (default \".\")", 0 },
                                         { "file", 'f', "PATH", 0, "destination file", 0 },
                                         { "rootless", OPTION_ROOTLESS, 0, 0, "spec for the rootless case", 0 },
                                         {
                                             0,
                                         } };
 
-static char args_doc[] = "spec";
+ایستا نویسه args_doc[] = "spec";
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+ایستا error_t
+parse_opt (صحیح کلید, نویسه *arg, ساختار argp_state *state)
 {
-  switch (key)
+  انتخاب (کلید)
     {
-    case 'b':
+    حالت 'b':
       bundle = argp_mandatory_argument (arg, state);
-      break;
+      بشکن;
 
-    case 'f':
+    حالت 'f':
       fname = argp_mandatory_argument (arg, state);
-      break;
+      بشکن;
 
-    case OPTION_ROOTLESS:
+    حالت OPTION_ROOTLESS:
       spec_options.rootless = true;
-      break;
+      بشکن;
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    پیشفرض:
+      بازگشت ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  بازگشت 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+ایستا ساختار argp run_argp = { options, parse_opt, args_doc, doc, پوچ, پوچ, پوچ };
 
-int
-crun_command_spec (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+صحیح
+crun_command_spec (ساختار crun_global_arguments *global_args, صحیح argc, نویسه **argv, libcrun_error_t *err)
 {
-  int first_arg;
-  cleanup_context libcrun_context_t *crun_context = NULL;
-  cleanup_file FILE *f = NULL;
-  cleanup_free char *bundle_cleanup = NULL;
-  cleanup_free char *spec = NULL;
-  const char *where;
-  int ret;
-  int close_ret;
+  صحیح first_arg;
+  cleanup_context libcrun_context_t *crun_context = پوچ;
+  cleanup_file FILE *f = پوچ;
+  cleanup_free نویسه *bundle_cleanup = پوچ;
+  cleanup_free نویسه *spec = پوچ;
+  ثابت نویسه *where;
+  صحیح ret;
+  صحیح close_ret;
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &spec_options);
   crun_assert_n_args (argc - first_arg, 0, 0);
@@ -96,51 +96,51 @@ crun_command_spec (struct crun_global_arguments *global_args, int argc, char **a
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
   /* Change dir only if -b or --bundle is defined and make sure the bundle is an absolute path.  */
-  if (bundle != NULL)
+  اگر (bundle != پوچ)
     {
-      if (bundle[0] != '/')
+      اگر (bundle[0] != '/')
         {
-          bundle_cleanup = realpath (bundle, NULL);
-          if (bundle_cleanup == NULL)
+          bundle_cleanup = realpath (bundle, پوچ);
+          اگر (bundle_cleanup == پوچ)
             libcrun_fail_with_error (errno, "realpath `%s` failed", bundle);
           bundle = bundle_cleanup;
         }
 
-      if (chdir (bundle) < 0)
+      اگر (chdir (bundle) < 0)
         libcrun_fail_with_error (errno, "chdir `%s` failed", bundle);
     }
 
   where = fname ? fname : "config.json";
 
-  if (fname == NULL)
+  اگر (fname == پوچ)
     {
       ret = access (where, F_OK);
-      if (ret == 0)
-        return libcrun_make_error (err, 0, "`%s` already exists", where);
+      اگر (ret == 0)
+        بازگشت libcrun_make_error (err, 0, "`%s` already exists", where);
     }
 
   f = fopen (where, "w+e");
-  if (f == NULL)
-    return libcrun_make_error (err, errno, "cannot open `%s`", where);
+  اگر (f == پوچ)
+    بازگشت libcrun_make_error (err, errno, "cannot open `%s`", where);
 
   ret = libcrun_container_spec_json (! spec_options.rootless, &spec, err);
-  if (UNLIKELY (ret < 0))
-    goto out;
+  اگر (UNLIKELY (ret < 0))
+    برو out;
 
-  if (fputs (spec, f) == EOF)
+  اگر (fputs (spec, f) == EOF)
     ret = libcrun_make_error (err, errno, "cannot write to `%s`", where);
-  else
+  وگرنه
     ret = 0;
 
 out:
   close_ret = fclose (f);
-  f = NULL;
-  if (close_ret < 0 && ret >= 0)
-    return libcrun_make_error (err, errno, "cannot close `%s`", where);
+  f = پوچ;
+  اگر (close_ret < 0 && ret >= 0)
+    بازگشت libcrun_make_error (err, errno, "cannot close `%s`", where);
 
-  return ret;
+  بازگشت ret;
 }

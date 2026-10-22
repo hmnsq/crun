@@ -16,60 +16,60 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <git-version.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <libgen.h>
-#include <errno.h>
-#include <limits.h>
+#شامل <config.h>
+#شامل <git-version.h>
+#شامل <stdlib.h>
+#شامل <argp.h>
+#شامل <string.h>
+#شامل <libgen.h>
+#شامل <errno.h>
+#شامل <limits.h>
 
 #ifdef HAVE_DLOPEN
 #  include <dlfcn.h>
 #endif
 
-#include "crun.h"
+#شامل "crun.h"
 
 /* Commands.  */
-#include "run.h"
-#include "delete.h"
-#include "kill.h"
-#include "list.h"
-#include "start.h"
-#include "create.h"
-#include "exec.h"
-#include "state.h"
-#include "update.h"
-#include "spec.h"
-#include "pause.h"
-#include "unpause.h"
-#include "oci_features.h"
-#include "ps.h"
-#include "checkpoint.h"
-#include "mounts.h"
-#include "restore.h"
+#شامل "run.h"
+#شامل "delete.h"
+#شامل "kill.h"
+#شامل "list.h"
+#شامل "start.h"
+#شامل "create.h"
+#شامل "exec.h"
+#شامل "state.h"
+#شامل "update.h"
+#شامل "spec.h"
+#شامل "pause.h"
+#شامل "unpause.h"
+#شامل "oci_features.h"
+#شامل "ps.h"
+#شامل "checkpoint.h"
+#شامل "mounts.h"
+#شامل "restore.h"
 
 /* crun exec exits with the exit code of the executed process, so use this
    code for its own errors, to tell those apart (like runc and ssh do).  */
 #define EXIT_EXEC_FAILURE 255
 
-static struct crun_global_arguments arguments;
+ایستا ساختار crun_global_arguments arguments;
 
-struct commands_s
+ساختار commands_s
 {
-  int value;
-  const char *name;
-  int (*handler) (struct crun_global_arguments *, int, char **, libcrun_error_t *);
+  صحیح مقدار;
+  ثابت نویسه *name;
+  صحیح (*handler) (ساختار crun_global_arguments *, صحیح, نویسه **, libcrun_error_t *);
 };
 
-int
-init_libcrun_context (libcrun_context_t *con, const char *id, struct crun_global_arguments *glob, libcrun_error_t *err)
+صحیح
+init_libcrun_context (libcrun_context_t *con, ثابت نویسه *id, ساختار crun_global_arguments *glob, libcrun_error_t *err)
 {
-  int ret;
+  صحیح ret;
 
   libcrun_context_set_id (con, id);
-  libcrun_context_set_state_root (con, glob->root);
+  libcrun_context_set_state_ریشه (con, glob->ریشه);
   libcrun_context_set_systemd_cgroup (con, glob->option_systemd_cgroup);
   libcrun_context_set_force_no_cgroup (con, glob->option_force_no_cgroup);
   libcrun_context_set_notify_socket (con, getenv ("NOTIFY_SOCKET"));
@@ -79,38 +79,38 @@ init_libcrun_context (libcrun_context_t *con, const char *id, struct crun_global
   libcrun_context_set_handler (con, glob->handler);
 
   ret = libcrun_context_init_logging (con, glob->log, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
-  if (glob->log_format)
+  اگر (glob->log_format)
     {
       ret = libcrun_set_log_format (glob->log_format, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        بازگشت ret;
     }
 
   libcrun_set_verbosity (glob->verbosity);
   libcrun_debug ("Using debug verbosity");
 
-  return 0;
+  بازگشت 0;
 }
 
 /* Allocate a public libcrun context (with handlers loaded) for a subcommand.
    Terminates the process on failure.  */
 libcrun_context_t *
-new_libcrun_context (struct crun_global_arguments *glob)
+new_libcrun_context (ساختار crun_global_arguments *glob)
 {
-  libcrun_error_t err = NULL;
+  libcrun_error_t err = پوچ;
   libcrun_context_t *con;
 
-  con = libcrun_context_new (NULL, glob->root, &err);
-  if (UNLIKELY (con == NULL))
+  con = libcrun_context_new (پوچ, glob->ریشه, &err);
+  اگر (UNLIKELY (con == پوچ))
     libcrun_fail_with_error (libcrun_error_get_status (err), "%s", libcrun_error_get_message (err));
 
-  return con;
+  بازگشت con;
 }
 
-enum
+شمارش
 {
   COMMAND_CREATE = 1000,
   COMMAND_DELETE,
@@ -131,7 +131,7 @@ enum
   COMMAND_MOUNTS,
 };
 
-struct commands_s commands[] = { { COMMAND_CREATE, "create", crun_command_create },
+ساختار commands_s commands[] = { { COMMAND_CREATE, "create", crun_command_create },
                                  { COMMAND_DELETE, "delete", crun_command_delete },
                                  { COMMAND_EXEC, "exec", crun_command_exec },
                                  { COMMAND_LIST, "list", crun_command_list },
@@ -145,7 +145,7 @@ struct commands_s commands[] = { { COMMAND_CREATE, "create", crun_command_create
                                  { COMMAND_PAUSE, "pause", crun_command_pause },
                                  { COMMAND_UNPAUSE, "resume", crun_command_unpause },
                                  { COMMAND_FEATURES, "features", crun_command_features },
-#if HAVE_CRIU && HAVE_DLOPEN
+#اگر HAVE_CRIU && HAVE_DLOPEN
                                  { COMMAND_CHECKPOINT, "checkpoint", crun_command_checkpoint },
                                  { COMMAND_RESTORE, "restore", crun_command_restore },
 #endif
@@ -154,8 +154,8 @@ struct commands_s commands[] = { { COMMAND_CREATE, "create", crun_command_create
                                      0,
                                  } };
 
-static char doc[] = "\nCOMMANDS:\n"
-#if HAVE_CRIU && HAVE_DLOPEN
+ایستا نویسه doc[] = "\nCOMMANDS:\n"
+#اگر HAVE_CRIU && HAVE_DLOPEN
                     "\tcheckpoint  - checkpoint a container\n"
 #endif
                     "\tcreate      - create a container\n"
@@ -166,7 +166,7 @@ static char doc[] = "\nCOMMANDS:\n"
                     "\tmounts      - add or remove mounts from a running container\n"
                     "\tkill        - send a signal to the container init process\n"
                     "\tps          - show the processes in the container\n"
-#if HAVE_CRIU && HAVE_DLOPEN
+#اگر HAVE_CRIU && HAVE_DLOPEN
                     "\trestore     - restore a container\n"
 #endif
                     "\trun         - run a container\n"
@@ -177,19 +177,19 @@ static char doc[] = "\nCOMMANDS:\n"
                     "\tresume      - unpause the processes in the container\n"
                     "\tupdate      - update container resource constraints\n";
 
-static char args_doc[] = "COMMAND [OPTION...]";
+ایستا نویسه args_doc[] = "COMMAND [OPTION...]";
 
-static struct commands_s *
-get_command (const char *arg)
+ایستا ساختار commands_s *
+get_command (ثابت نویسه *arg)
 {
-  struct commands_s *it;
-  for (it = commands; it->value; it++)
-    if (strcmp (it->name, arg) == 0)
-      return it;
-  return NULL;
+  ساختار commands_s *it;
+  برای (it = commands; it->مقدار; it++)
+    اگر (strcmp (it->name, arg) == 0)
+      بازگشت it;
+  بازگشت پوچ;
 }
 
-enum
+شمارش
 {
   OPTION_VERSION = 'v',
   OPTION_VERSION_CAP = 'V',
@@ -199,43 +199,43 @@ enum
   OPTION_LOG,
   OPTION_LOG_FORMAT,
   OPTION_LOG_LEVEL,
-  OPTION_ROOT,
+  OPTION_ریشه,
   OPTION_ROOTLESS
 };
 
-const char *argp_program_bug_address = "https://github.com/containers/crun/issues";
+ثابت نویسه *argp_program_bug_address = "https://github.com/containers/crun/issues";
 
-static struct argp_option options[] = { { "debug", OPTION_DEBUG, 0, 0, "produce verbose output, similar to --log-level=debug", 0 },
+ایستا ساختار argp_option options[] = { { "debug", OPTION_DEBUG, 0, 0, "produce verbose output, similar to --log-level=debug", 0 },
                                         { "cgroup-manager", OPTION_CGROUP_MANAGER, "MANAGER", 0, "cgroup manager", 0 },
                                         { "systemd-cgroup", OPTION_SYSTEMD_CGROUP, 0, 0, "use systemd cgroups", 0 },
                                         { "log", OPTION_LOG, "FILE", 0, "log destination: '[file:]PATH', 'journald:ID' or 'syslog:ID' (defaults to stderr)", 0 },
                                         { "log-format", OPTION_LOG_FORMAT, "FORMAT", 0, "log format: 'text' (default) or 'json'", 0 },
                                         { "log-level", OPTION_LOG_LEVEL, "LEVEL", 0, "log level to use: 'error' (default), 'warning' or 'debug'", 0 },
-                                        { "root", OPTION_ROOT, "DIR", 0, NULL, 0 },
-                                        { "rootless", OPTION_ROOTLESS, "VALUE", 0, NULL, 0 },
-                                        { "version", OPTION_VERSION, 0, 0, NULL, 0 },
+                                        { "root", OPTION_ریشه, "DIR", 0, پوچ, 0 },
+                                        { "rootless", OPTION_ROOTLESS, "VALUE", 0, پوچ, 0 },
+                                        { "version", OPTION_VERSION, 0, 0, پوچ, 0 },
                                         // alias OPTION_VERSION_CAP with OPTION_VERSION
-                                        { NULL, OPTION_VERSION_CAP, 0, OPTION_ALIAS, NULL, 0 },
+                                        { پوچ, OPTION_VERSION_CAP, 0, OPTION_ALIAS, پوچ, 0 },
                                         {
                                             0,
                                         } };
 
-static void
-print_version (FILE *stream, struct argp_state *state arg_unused)
+ایستا تهی
+print_version (FILE *stream, ساختار argp_state *state arg_unused)
 {
-  libcrun_error_t err = NULL;
-  cleanup_free char *rundir = NULL;
+  libcrun_error_t err = پوچ;
+  cleanup_free نویسه *rundir = پوچ;
   libcrun_context_t *ctx;
-  char **tags;
-  int ret;
+  نویسه **tags;
+  صحیح ret;
 
   fprintf (stream, "%s version %s\n", PACKAGE_NAME, PACKAGE_VERSION);
   fprintf (stream, "commit: %s\n", GIT_VERSION);
 
-  ret = libcrun_get_state_dir (&rundir, arguments.root, NULL, &err);
-  if (LIKELY (ret == 0))
+  ret = libcrun_get_state_dir (&rundir, arguments.ریشه, پوچ, &err);
+  اگر (LIKELY (ret == 0))
     fprintf (stream, "rundir: %s\n", rundir);
-  else
+  وگرنه
     libcrun_error_release (&err);
 
   fprintf (stream, "spec: 1.0.0\n");
@@ -254,214 +254,214 @@ print_version (FILE *stream, struct argp_state *state arg_unused)
 #ifdef HAVE_EBPF
   fprintf (stream, "+EBPF ");
 #endif
-#if HAVE_CRIU && HAVE_DLOPEN
+#اگر HAVE_CRIU && HAVE_DLOPEN
   fprintf (stream, "+CRIU ");
 #endif
 
-  ctx = libcrun_context_new (NULL, arguments.root, &err);
-  if (ctx)
+  ctx = libcrun_context_new (پوچ, arguments.ریشه, &err);
+  اگر (ctx)
     {
       tags = libcrun_context_get_handler_feature_tags (ctx, &err);
-      if (tags)
+      اگر (tags)
         {
-          for (size_t i = 0; tags[i]; i++)
+          برای (size_t i = 0; tags[i]; i++)
             {
               fprintf (stream, "+%s ", tags[i]);
-              free (tags[i]);
+              آزاد (tags[i]);
             }
-          free (tags);
+          آزاد (tags);
         }
-      else
+      وگرنه
         libcrun_error_release (&err);
       libcrun_context_free (ctx);
     }
-  else
+  وگرنه
     libcrun_error_release (&err);
 
   fprintf (stream, "+JSON_C\n");
 }
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+ایستا error_t
+parse_opt (صحیح کلید, نویسه *arg, ساختار argp_state *state)
 {
-  const char *tmp;
+  ثابت نویسه *tmp;
 
-  switch (key)
+  انتخاب (کلید)
     {
-    case OPTION_DEBUG:
+    حالت OPTION_DEBUG:
       arguments.verbosity = LIBCRUN_VERBOSITY_DEBUG;
-      break;
+      بشکن;
 
-    case OPTION_CGROUP_MANAGER:
+    حالت OPTION_CGROUP_MANAGER:
       tmp = argp_mandatory_argument (arg, state);
-      if (strcmp (tmp, "systemd") == 0)
+      اگر (strcmp (tmp, "systemd") == 0)
         {
           arguments.option_force_no_cgroup = false;
           arguments.option_systemd_cgroup = true;
         }
-      else if (strcmp (tmp, "cgroupfs") == 0)
+      وگرنه اگر (strcmp (tmp, "cgroupfs") == 0)
         {
           arguments.option_force_no_cgroup = false;
           arguments.option_systemd_cgroup = false;
         }
-      else if (strcmp (tmp, "disabled") == 0)
+      وگرنه اگر (strcmp (tmp, "disabled") == 0)
         {
           arguments.option_systemd_cgroup = false;
           arguments.option_force_no_cgroup = true;
         }
-      else
+      وگرنه
         {
           libcrun_fail_with_error (0, "unknown cgroup manager specified");
         }
-      break;
+      بشکن;
 
-    case OPTION_SYSTEMD_CGROUP:
+    حالت OPTION_SYSTEMD_CGROUP:
       arguments.option_force_no_cgroup = false;
       arguments.option_systemd_cgroup = true;
-      break;
+      بشکن;
 
-    case OPTION_LOG:
+    حالت OPTION_LOG:
       arguments.log = argp_mandatory_argument (arg, state);
-      break;
+      بشکن;
 
-    case OPTION_LOG_FORMAT:
+    حالت OPTION_LOG_FORMAT:
       arguments.log_format = argp_mandatory_argument (arg, state);
-      break;
+      بشکن;
 
-    case OPTION_LOG_LEVEL:
+    حالت OPTION_LOG_LEVEL:
       tmp = argp_mandatory_argument (arg, state);
-      if (strcmp (tmp, "error") == 0)
+      اگر (strcmp (tmp, "error") == 0)
         {
           arguments.verbosity = LIBCRUN_VERBOSITY_ERROR;
         }
-      else if (strcmp (tmp, "warning") == 0)
+      وگرنه اگر (strcmp (tmp, "warning") == 0)
         {
           arguments.verbosity = LIBCRUN_VERBOSITY_WARNING;
         }
-      else if (strcmp (tmp, "debug") == 0)
+      وگرنه اگر (strcmp (tmp, "debug") == 0)
         {
           arguments.verbosity = LIBCRUN_VERBOSITY_DEBUG;
         }
-      else
+      وگرنه
         {
           libcrun_fail_with_error (0, "unknown verbosity `%s` specified", arg);
         }
-      break;
+      بشکن;
 
-    case OPTION_ROOT:
-      arguments.root = argp_mandatory_argument (arg, state);
-      break;
+    حالت OPTION_ریشه:
+      arguments.ریشه = argp_mandatory_argument (arg, state);
+      بشکن;
 
-    case OPTION_ROOTLESS:
+    حالت OPTION_ROOTLESS:
       /* Ignored.  So that a runc command line won't fail.  */
-      break;
+      بشکن;
 
-    case ARGP_KEY_NO_ARGS:
+    حالت ARGP_کلید_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a command");
 
-    case OPTION_VERSION:
-    case OPTION_VERSION_CAP:
+    حالت OPTION_VERSION:
+    حالت OPTION_VERSION_CAP:
       print_version (stdout, state);
       exit (EXIT_SUCCESS);
-    default:
-      return ARGP_ERR_UNKNOWN;
+    پیشفرض:
+      بازگشت ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  بازگشت 0;
 }
 
-static struct commands_s *command;
+ایستا ساختار commands_s *command;
 
-void
-crun_assert_n_args (int n, int min, int max)
+تهی
+crun_assert_n_args (صحیح n, صحیح min, صحیح max)
 {
-  if (min >= 0 && n < min)
+  اگر (min >= 0 && n < min)
     libcrun_fail_with_error (0, "`%s` requires a minimum of %d arguments", command->name, min);
-  if (max >= 0 && n > max)
+  اگر (max >= 0 && n > max)
     libcrun_fail_with_error (0, "`%s` requires a maximum of %d arguments", command->name, max);
 }
 
-char *
-argp_mandatory_argument (char *arg, struct argp_state *state)
+نویسه *
+argp_mandatory_argument (نویسه *arg, ساختار argp_state *state)
 {
-  if (arg)
-    return arg;
-  return state->argv[state->next++];
+  اگر (arg)
+    بازگشت arg;
+  بازگشت state->argv[state->next++];
 }
 
 /* Parse a numeric value from STR, aborting on an out-of-range or malformed
    value.  KIND names the field for error messages.  If ENDPTR is not NULL it
    is set past the parsed number (so the caller can continue parsing, e.g. a
    "UID:GID" pair); otherwise the whole string must be a valid number.  */
-int
-parse_id_or_fail (const char *str, char **endptr, const char *kind)
+صحیح
+parse_id_or_fail (ثابت نویسه *str, نویسه **endptr, ثابت نویسه *kind)
 {
-  char *end = NULL;
+  نویسه *end = پوچ;
   long long l;
 
   errno = 0;
   l = strtoll (str, &end, 10);
-  if (end == str)
+  اگر (end == str)
     libcrun_fail_with_error (0, "invalid %s specified", kind);
-  if (errno == ERANGE)
+  اگر (errno == ERANGE)
     libcrun_fail_with_error (0, "invalid %s specified", kind);
-  if (l < INT_MIN || l > INT_MAX)
+  اگر (l < INT_MIN || l > INT_MAX)
     libcrun_fail_with_error (0, "invalid %s specified", kind);
 
-  if (endptr)
+  اگر (endptr)
     *endptr = end;
-  else if (*end != '\0')
+  وگرنه اگر (*end != '\0')
     libcrun_fail_with_error (0, "invalid %s specified", kind);
 
-  return (int) l;
+  بازگشت (صحیح) l;
 }
 
-static struct argp argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+ایستا ساختار argp argp = { options, parse_opt, args_doc, doc, پوچ, پوچ, پوچ };
 
-int ensure_cloned_binary (void);
+صحیح ensure_cloned_دودویی (تهی);
 
-static void
-fill_handler_from_argv0 (char *argv0, struct crun_global_arguments *args)
+ایستا تهی
+fill_handler_from_argv0 (نویسه *argv0, ساختار crun_global_arguments *args)
 {
-  const char *b = basename (argv0);
+  ثابت نویسه *b = basename (argv0);
 #ifdef HAVE_LIBKRUN
-  if (strcmp (b, "krun") == 0)
+  اگر (strcmp (b, "krun") == 0)
     {
       args->handler = "krun";
-      return;
+      بازگشت;
     }
 #endif
-  if (strncmp (b, "crun-", 5) == 0 && b[5] != '\0')
+  اگر (strncmp (b, "crun-", 5) == 0 && b[5] != '\0')
     args->handler = b + 5;
 }
 
-static char **
-copy_args (char **argv, int argc)
+ایستا نویسه **
+copy_args (نویسه **argv, صحیح argc)
 {
-  char **buff = xmalloc0 ((argc + 1) * sizeof (char *));
-  for (int i = 0; i < argc; i++)
+  نویسه **buff = xmalloc0 ((argc + 1) * اندازه (نویسه *));
+  برای (صحیح i = 0; i < argc; i++)
     buff[i] = argv[i];
 
-  return buff;
+  بازگشت buff;
 }
 
-int
-main (int argc, char **argv)
+صحیح
+اصلی (صحیح argc, نویسه **argv)
 {
-  libcrun_error_t err = NULL;
-  int ret, first_argument = 0;
+  libcrun_error_t err = پوچ;
+  صحیح ret, first_argument = 0;
 
   arguments.argc = argc;
   arguments.argv = argv;
 
 #ifdef DYNLOAD_LIBCRUN
-  if (ensure_cloned_binary () < 0)
+  اگر (ensure_cloned_دودویی () < 0)
     {
       fprintf (stderr, "Failed to re-execute libcrun via memory file descriptor\n");
       exit (EXIT_FAILURE);
     }
   /* Resolve all libcrun weak dependencies.  */
-  if (dlopen ("libcrun.so", RTLD_GLOBAL | RTLD_DEEPBIND | RTLD_LAZY) == NULL)
+  اگر (dlopen ("libcrun.so", RTLD_GLOBAL | RTLD_DEEPBIND | RTLD_LAZY) == پوچ)
     libcrun_fail_with_error (0, "could not load `libcrun.so`: `%s`", dlerror ());
 #endif
 
@@ -469,17 +469,17 @@ main (int argc, char **argv)
   argp_parse (&argp, argc, argv, ARGP_IN_ORDER, &first_argument, &arguments);
 
   command = get_command (argv[first_argument]);
-  if (command == NULL)
+  اگر (command == پوچ)
     libcrun_fail_with_error (0, "unknown command %s", argv[first_argument]);
 
-  int command_argc = argc - first_argument;
-  cleanup_free char **command_argv = copy_args (argv + first_argument, command_argc);
+  صحیح command_argc = argc - first_argument;
+  cleanup_free نویسه **command_argv = copy_args (argv + first_argument, command_argc);
   command_argv[0] = argv[0];
 
   ret = command->handler (&arguments, command_argc, command_argv, &err);
-  if (ret && err)
+  اگر (ret && err)
     {
-      if (command->value == COMMAND_EXEC)
+      اگر (command->مقدار == COMMAND_EXEC)
         {
           libcrun_error (libcrun_error_get_status (err), "%s", libcrun_error_get_message (err));
           exit (EXIT_EXEC_FAILURE);
@@ -487,5 +487,5 @@ main (int argc, char **argv)
       libcrun_fail_with_error (libcrun_error_get_status (err), "%s", libcrun_error_get_message (err));
     }
 
-  return ret;
+  بازگشت ret;
 }

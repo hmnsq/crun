@@ -18,8 +18,8 @@
 #ifndef CREATE_H
 #define CREATE_H
 
-#include "crun.h"
+#شامل "crun.h"
 
-int crun_command_create (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+صحیح crun_command_create (ساختار crun_global_arguments *global_args, صحیح argc, نویسه **argv, libcrun_error_t *error);
 
 #endif

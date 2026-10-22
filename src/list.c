@@ -16,19 +16,19 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#شامل <config.h>
+#شامل <stdio.h>
+#شامل <stdlib.h>
+#شامل <argp.h>
+#شامل <string.h>
+#شامل <unistd.h>
+#شامل <errno.h>
 
-#include "crun.h"
+#شامل "crun.h"
 
-static char doc[] = "OCI runtime";
+ایستا نویسه doc[] = "OCI runtime";
 
-enum
+شمارش
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -37,64 +37,64 @@ enum
   OPTION_PRESERVE_FDS
 };
 
-struct list_options_s
+ساختار list_options_s
 {
   bool quiet;
-  int format;
+  صحیح format;
 };
 
-enum
+شمارش
 {
   LIST_TABLE = 100,
   LIST_JSON,
 };
 
-static struct list_options_s list_options;
+ایستا ساختار list_options_s list_options;
 
-static struct argp_option options[]
+ایستا ساختار argp_option options[]
     = { { "quiet", 'q', 0, 0, "show only IDs", 0 },
         { "format", 'f', "FORMAT", 0, "select one of: table or json (default: \"table\")", 0 },
         {
             0,
         } };
 
-static char args_doc[] = "list";
+ایستا نویسه args_doc[] = "list";
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state arg_unused)
+ایستا error_t
+parse_opt (صحیح کلید, نویسه *arg, ساختار argp_state *state arg_unused)
 {
-  switch (key)
+  انتخاب (کلید)
     {
-    case 'q':
+    حالت 'q':
       list_options.quiet = true;
-      break;
-    case 'f':
-      if (strcmp (arg, "table") == 0)
+      بشکن;
+    حالت 'f':
+      اگر (strcmp (arg, "table") == 0)
         list_options.format = LIST_TABLE;
-      else if (strcmp (arg, "json") == 0)
+      وگرنه اگر (strcmp (arg, "json") == 0)
         list_options.format = LIST_JSON;
-      else
+      وگرنه
         libcrun_fail_with_error (0, "invalid format `%s`", arg);
-      break;
+      بشکن;
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    پیشفرض:
+      بازگشت ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  بازگشت 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+ایستا ساختار argp run_argp = { options, parse_opt, args_doc, doc, پوچ, پوچ, پوچ };
 
-int
-crun_command_list (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+صحیح
+crun_command_list (ساختار crun_global_arguments *global_args, صحیح argc, نویسه **argv, libcrun_error_t *err)
 {
-  int first_arg;
-  int ret, max_length = 4;
-  cleanup_context libcrun_context_t *crun_context = NULL;
-  libcrun_container_list_t *list = NULL;
+  صحیح first_arg;
+  صحیح ret, max_length = 4;
+  cleanup_context libcrun_context_t *crun_context = پوچ;
+  libcrun_container_list_t *list = پوچ;
   libcrun_container_iter_t *it;
-  const char *name;
+  ثابت نویسه *name;
 
   list_options.format = LIST_TABLE;
 
@@ -104,65 +104,65 @@ crun_command_list (struct crun_global_arguments *global_args, int argc, char **a
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
-  if (list_options.format == LIST_JSON)
+  اگر (list_options.format == LIST_JSON)
     {
-      cleanup_free char *json = NULL;
+      cleanup_free نویسه *json = پوچ;
 
       ret = libcrun_container_list_json (crun_context, &json, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        بازگشت ret;
 
       fputs (json, stdout);
-      return 0;
+      بازگشت 0;
     }
 
   ret = libcrun_container_list (crun_context, &list, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
-  for (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
+  برای (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
     {
-      int l = strlen (name);
-      if (l > max_length)
+      صحیح l = strlen (name);
+      اگر (l > max_length)
         max_length = l;
     }
   libcrun_container_iter_free (it);
 
   max_length++;
 
-  if (! list_options.quiet)
+  اگر (! list_options.quiet)
     printf ("%-*s%-10s%-8s %-39s %-30s %s\n", max_length, "NAME", "PID", "STATUS", "BUNDLE PATH", "CREATED", "OWNER");
 
-  for (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
+  برای (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
     {
-      libcrun_status_t *status = NULL;
+      libcrun_status_t *status = پوچ;
 
       ret = libcrun_container_status_load (crun_context, name, &status, err);
-      if (UNLIKELY (ret < 0))
+      اگر (UNLIKELY (ret < 0))
         {
           libcrun_error_report_and_release (err);
-          continue;
+          ادامه;
         }
-      if (list_options.quiet)
+      اگر (list_options.quiet)
         printf ("%s\n", name);
-      else
+      وگرنه
         {
           libcrun_container_state_t state;
-          int running = 0;
-          int pid = libcrun_status_get_pid (status);
+          صحیح running = 0;
+          صحیح pid = libcrun_status_get_pid (status);
 
           ret = libcrun_status_get_state (status, &state, &running, err);
-          if (UNLIKELY (ret < 0))
+          اگر (UNLIKELY (ret < 0))
             {
               libcrun_error_report_and_release (err);
               libcrun_container_status_free (status);
-              continue;
+              ادامه;
             }
 
-          if (! running)
+          اگر (! running)
             pid = 0;
 
           printf ("%-*s%-10d%-8s %-39s %-30s %s\n", max_length, name, pid,
@@ -175,5 +175,5 @@ crun_command_list (struct crun_global_arguments *global_args, int argc, char **a
   libcrun_container_iter_free (it);
 
   libcrun_container_list_free (list);
-  return ret >= 0 ? 0 : ret;
+  بازگشت ret >= 0 ? 0 : ret;
 }

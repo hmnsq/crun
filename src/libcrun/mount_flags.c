@@ -2,7 +2,7 @@
 /* Command-line: gperf --lookup-function-name libcrun_mount_flag_in_word_set -m 100 -tCEG -S1 src/libcrun/mount_flags.perf  */
 /* Computed positions: -k'1-4' */
 
-#if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
+#اگر !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
       && ('%' == 37) && ('&' == 38) && ('\'' == 39) && ('(' == 40) \
       && (')' == 41) && ('*' == 42) && ('+' == 43) && (',' == 44) \
       && ('-' == 45) && ('.' == 46) && ('/' == 47) && ('0' == 48) \
@@ -33,41 +33,41 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include <stddef.h>
-#include <stdlib.h>
+#شامل <config.h>
+#شامل <stddef.h>
+#شامل <stdlib.h>
 
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/mount.h>
+#شامل <fcntl.h>
+#شامل <unistd.h>
+#شامل <sys/mount.h>
 
-#include "utils.h"
-#include "mount_flags.h"
+#شامل "utils.h"
+#شامل "mount_flags.h"
 
 #line 34 "src/libcrun/mount_flags.perf"
-struct propagation_flags_s;
-enum
+ساختار propagation_flags_s;
+شمارش
   {
     TOTAL_KEYWORDS = 63,
     MIN_WORD_LENGTH = 2,
     MAX_WORD_LENGTH = 14,
-    MIN_HASH_VALUE = 2,
-    MAX_HASH_VALUE = 96
+    MIN_HASH_مقدار = 2,
+    MAX_HASH_مقدار = 96
   };
 
 /* maximum key range = 95, duplicates = 0 */
 
 #ifdef __GNUC__
 __inline
-#else
+#وگرنه
 #ifdef __cplusplus
-inline
+درونخطی
 #endif
 #endif
-static unsigned int
-hash (register const char *str, register size_t len)
+ایستا unsigned صحیح
+hash (ثبات ثابت نویسه *str, ثبات size_t len)
 {
-  static const unsigned char asso_values[] =
+  ایستا ثابت unsigned نویسه asso_مقادیر[] =
     {
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
@@ -96,27 +96,27 @@ hash (register const char *str, register size_t len)
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
       97, 97, 97, 97, 97, 97
     };
-  register unsigned int hval = len;
+  ثبات unsigned صحیح hval = len;
 
-  switch (hval)
+  انتخاب (hval)
     {
-      default:
-        hval += asso_values[(unsigned char)str[3]];
+      پیشفرض:
+        hval += asso_مقادیر[(unsigned نویسه)str[3]];
       /*FALLTHROUGH*/
-      case 3:
-        hval += asso_values[(unsigned char)str[2]];
+      حالت 3:
+        hval += asso_مقادیر[(unsigned نویسه)str[2]];
       /*FALLTHROUGH*/
-      case 2:
-        hval += asso_values[(unsigned char)str[1]];
+      حالت 2:
+        hval += asso_مقادیر[(unsigned نویسه)str[1]];
       /*FALLTHROUGH*/
-      case 1:
-        hval += asso_values[(unsigned char)str[0]];
-        break;
+      حالت 1:
+        hval += asso_مقادیر[(unsigned نویسه)str[0]];
+        بشکن;
     }
-  return hval;
+  بازگشت hval;
 }
 
-static const struct propagation_flags_s wordlist[] =
+ایستا ثابت ساختار propagation_flags_s wordlist[] =
   {
 #line 40 "src/libcrun/mount_flags.perf"
     {"rw", 1, MS_RDONLY, 0},
@@ -246,240 +246,240 @@ static const struct propagation_flags_s wordlist[] =
     {"copy-symlink", 0, 0, OPTION_COPY_SYMLINK}
   };
 
-const struct propagation_flags_s *
-libcrun_mount_flag_in_word_set (register const char *str, register size_t len)
+ثابت ساختار propagation_flags_s *
+libcrun_mount_flag_in_word_set (ثبات ثابت نویسه *str, ثبات size_t len)
 {
-  if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
+  اگر (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
-      register unsigned int key = hash (str, len);
+      ثبات unsigned صحیح کلید = hash (str, len);
 
-      if (key <= MAX_HASH_VALUE && key >= MIN_HASH_VALUE)
+      اگر (کلید <= MAX_HASH_مقدار && کلید >= MIN_HASH_مقدار)
         {
-          register const struct propagation_flags_s *resword;
+          ثبات ثابت ساختار propagation_flags_s *resword;
 
-          switch (key - 2)
+          انتخاب (کلید - 2)
             {
-              case 0:
+              حالت 0:
                 resword = &wordlist[0];
-                goto compare;
-              case 1:
+                برو compare;
+              حالت 1:
                 resword = &wordlist[1];
-                goto compare;
-              case 4:
+                برو compare;
+              حالت 4:
                 resword = &wordlist[2];
-                goto compare;
-              case 5:
+                برو compare;
+              حالت 5:
                 resword = &wordlist[3];
-                goto compare;
-              case 9:
+                برو compare;
+              حالت 9:
                 resword = &wordlist[4];
-                goto compare;
-              case 10:
+                برو compare;
+              حالت 10:
                 resword = &wordlist[5];
-                goto compare;
-              case 11:
+                برو compare;
+              حالت 11:
                 resword = &wordlist[6];
-                goto compare;
-              case 13:
+                برو compare;
+              حالت 13:
                 resword = &wordlist[7];
-                goto compare;
-              case 15:
+                برو compare;
+              حالت 15:
                 resword = &wordlist[8];
-                goto compare;
-              case 16:
+                برو compare;
+              حالت 16:
                 resword = &wordlist[9];
-                goto compare;
-              case 17:
+                برو compare;
+              حالت 17:
                 resword = &wordlist[10];
-                goto compare;
-              case 18:
+                برو compare;
+              حالت 18:
                 resword = &wordlist[11];
-                goto compare;
-              case 19:
+                برو compare;
+              حالت 19:
                 resword = &wordlist[12];
-                goto compare;
-              case 20:
+                برو compare;
+              حالت 20:
                 resword = &wordlist[13];
-                goto compare;
-              case 21:
+                برو compare;
+              حالت 21:
                 resword = &wordlist[14];
-                goto compare;
-              case 22:
+                برو compare;
+              حالت 22:
                 resword = &wordlist[15];
-                goto compare;
-              case 23:
+                برو compare;
+              حالت 23:
                 resword = &wordlist[16];
-                goto compare;
-              case 24:
+                برو compare;
+              حالت 24:
                 resword = &wordlist[17];
-                goto compare;
-              case 25:
+                برو compare;
+              حالت 25:
                 resword = &wordlist[18];
-                goto compare;
-              case 26:
+                برو compare;
+              حالت 26:
                 resword = &wordlist[19];
-                goto compare;
-              case 28:
+                برو compare;
+              حالت 28:
                 resword = &wordlist[20];
-                goto compare;
-              case 29:
+                برو compare;
+              حالت 29:
                 resword = &wordlist[21];
-                goto compare;
-              case 30:
+                برو compare;
+              حالت 30:
                 resword = &wordlist[22];
-                goto compare;
-              case 31:
+                برو compare;
+              حالت 31:
                 resword = &wordlist[23];
-                goto compare;
-              case 32:
+                برو compare;
+              حالت 32:
                 resword = &wordlist[24];
-                goto compare;
-              case 33:
+                برو compare;
+              حالت 33:
                 resword = &wordlist[25];
-                goto compare;
-              case 34:
+                برو compare;
+              حالت 34:
                 resword = &wordlist[26];
-                goto compare;
-              case 35:
+                برو compare;
+              حالت 35:
                 resword = &wordlist[27];
-                goto compare;
-              case 36:
+                برو compare;
+              حالت 36:
                 resword = &wordlist[28];
-                goto compare;
-              case 37:
+                برو compare;
+              حالت 37:
                 resword = &wordlist[29];
-                goto compare;
-              case 38:
+                برو compare;
+              حالت 38:
                 resword = &wordlist[30];
-                goto compare;
-              case 39:
+                برو compare;
+              حالت 39:
                 resword = &wordlist[31];
-                goto compare;
-              case 40:
+                برو compare;
+              حالت 40:
                 resword = &wordlist[32];
-                goto compare;
-              case 41:
+                برو compare;
+              حالت 41:
                 resword = &wordlist[33];
-                goto compare;
-              case 42:
+                برو compare;
+              حالت 42:
                 resword = &wordlist[34];
-                goto compare;
-              case 43:
+                برو compare;
+              حالت 43:
                 resword = &wordlist[35];
-                goto compare;
-              case 44:
+                برو compare;
+              حالت 44:
                 resword = &wordlist[36];
-                goto compare;
-              case 45:
+                برو compare;
+              حالت 45:
                 resword = &wordlist[37];
-                goto compare;
-              case 46:
+                برو compare;
+              حالت 46:
                 resword = &wordlist[38];
-                goto compare;
-              case 47:
+                برو compare;
+              حالت 47:
                 resword = &wordlist[39];
-                goto compare;
-              case 48:
+                برو compare;
+              حالت 48:
                 resword = &wordlist[40];
-                goto compare;
-              case 49:
+                برو compare;
+              حالت 49:
                 resword = &wordlist[41];
-                goto compare;
-              case 50:
+                برو compare;
+              حالت 50:
                 resword = &wordlist[42];
-                goto compare;
-              case 51:
+                برو compare;
+              حالت 51:
                 resword = &wordlist[43];
-                goto compare;
-              case 52:
+                برو compare;
+              حالت 52:
                 resword = &wordlist[44];
-                goto compare;
-              case 53:
+                برو compare;
+              حالت 53:
                 resword = &wordlist[45];
-                goto compare;
-              case 54:
+                برو compare;
+              حالت 54:
                 resword = &wordlist[46];
-                goto compare;
-              case 55:
+                برو compare;
+              حالت 55:
                 resword = &wordlist[47];
-                goto compare;
-              case 56:
+                برو compare;
+              حالت 56:
                 resword = &wordlist[48];
-                goto compare;
-              case 57:
+                برو compare;
+              حالت 57:
                 resword = &wordlist[49];
-                goto compare;
-              case 58:
+                برو compare;
+              حالت 58:
                 resword = &wordlist[50];
-                goto compare;
-              case 59:
+                برو compare;
+              حالت 59:
                 resword = &wordlist[51];
-                goto compare;
-              case 60:
+                برو compare;
+              حالت 60:
                 resword = &wordlist[52];
-                goto compare;
-              case 61:
+                برو compare;
+              حالت 61:
                 resword = &wordlist[53];
-                goto compare;
-              case 62:
+                برو compare;
+              حالت 62:
                 resword = &wordlist[54];
-                goto compare;
-              case 63:
+                برو compare;
+              حالت 63:
                 resword = &wordlist[55];
-                goto compare;
-              case 65:
+                برو compare;
+              حالت 65:
                 resword = &wordlist[56];
-                goto compare;
-              case 67:
+                برو compare;
+              حالت 67:
                 resword = &wordlist[57];
-                goto compare;
-              case 68:
+                برو compare;
+              حالت 68:
                 resword = &wordlist[58];
-                goto compare;
-              case 75:
+                برو compare;
+              حالت 75:
                 resword = &wordlist[59];
-                goto compare;
-              case 84:
+                برو compare;
+              حالت 84:
                 resword = &wordlist[60];
-                goto compare;
-              case 85:
+                برو compare;
+              حالت 85:
                 resword = &wordlist[61];
-                goto compare;
-              case 94:
+                برو compare;
+              حالت 94:
                 resword = &wordlist[62];
-                goto compare;
+                برو compare;
             }
-          return 0;
+          بازگشت 0;
         compare:
           {
-            register const char *s = resword->name;
+            ثبات ثابت نویسه *s = resword->name;
 
-            if (*str == *s && !strcmp (str + 1, s + 1))
-              return resword;
+            اگر (*str == *s && !strcmp (str + 1, s + 1))
+              بازگشت resword;
           }
         }
     }
-  return 0;
+  بازگشت 0;
 }
 #line 99 "src/libcrun/mount_flags.perf"
 
 
-const struct propagation_flags_s *
-libcrun_str2mount_flags (const char *name)
+ثابت ساختار propagation_flags_s *
+libcrun_str2mount_flags (ثابت نویسه *name)
 {
-  return libcrun_mount_flag_in_word_set (name, strlen (name));
+  بازگشت libcrun_mount_flag_in_word_set (name, strlen (name));
 }
 
-const struct propagation_flags_s *
-get_mount_flags_from_wordlist (void)
+ثابت ساختار propagation_flags_s *
+get_mount_flags_from_wordlist (تهی)
 {
-  struct propagation_flags_s *flags;
+  ساختار propagation_flags_s *flags;
   size_t i;
-  size_t num_wordlist_flags = sizeof (wordlist) / sizeof (wordlist[0]);
+  size_t رقم_wordlist_flags = اندازه (wordlist) / اندازه (wordlist[0]);
 
-  flags = xmalloc0 ((sizeof (struct propagation_flags_s) + 1) * num_wordlist_flags);
-  for (i = 0; i < num_wordlist_flags; i++)
+  flags = xmalloc0 ((اندازه (ساختار propagation_flags_s) + 1) * رقم_wordlist_flags);
+  برای (i = 0; i < رقم_wordlist_flags; i++)
     flags[i].name = wordlist[i].name;
 
-  return flags;
+  بازگشت flags;
 }

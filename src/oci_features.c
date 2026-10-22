@@ -15,55 +15,55 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#شامل <config.h>
+#شامل <stdio.h>
+#شامل <stdlib.h>
+#شامل <argp.h>
+#شامل <string.h>
+#شامل <unistd.h>
+#شامل <errno.h>
 
-#include "crun.h"
+#شامل "crun.h"
 
-static char doc[] = "OCI runtime";
+ایستا نویسه doc[] = "OCI runtime";
 
-static struct argp_option options[] = { { 0 } };
+ایستا ساختار argp_option options[] = { { 0 } };
 
-static char args_doc[] = "features";
+ایستا نویسه args_doc[] = "features";
 
-static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+ایستا error_t
+parse_opt (صحیح کلید, نویسه *arg arg_unused, ساختار argp_state *state arg_unused)
 {
-  if (key != ARGP_KEY_NO_ARGS)
+  اگر (کلید != ARGP_کلید_NO_ARGS)
     {
-      return ARGP_ERR_UNKNOWN;
+      بازگشت ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  بازگشت 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+ایستا ساختار argp run_argp = { options, parse_opt, args_doc, doc, پوچ, پوچ, پوچ };
 
-int
-crun_command_features (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+صحیح
+crun_command_features (ساختار crun_global_arguments *global_args, صحیح argc, نویسه **argv, libcrun_error_t *err)
 {
-  cleanup_free char *json = NULL;
-  int first_arg = 0, ret = 0;
-  cleanup_context libcrun_context_t *crun_context = NULL;
+  cleanup_free نویسه *json = پوچ;
+  صحیح first_arg = 0, ret = 0;
+  cleanup_context libcrun_context_t *crun_context = پوچ;
 
   argp_parse (&run_argp, argc, argv, 0, 0, &options);
 
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
   ret = libcrun_container_get_features_json (crun_context, &json, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
   printf ("%s", json);
 
-  return 0;
+  بازگشت 0;
 }

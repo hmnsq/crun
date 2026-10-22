@@ -18,154 +18,154 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include <stdlib.h>
-#include <errno.h>
-#include "string_map.h"
-#include "utils.h"
+#شامل <config.h>
+#شامل <stdlib.h>
+#شامل <errno.h>
+#شامل "string_map.h"
+#شامل "utils.h"
 
-#include <ocispec/runtime_spec_schema_config_schema.h>
+#شامل <ocispec/runtime_spec_schema_config_schema.h>
 
-struct kv_s
+ساختار kv_s
 {
-  char *key;
-  char *value;
+  نویسه *کلید;
+  نویسه *مقدار;
 };
 
-struct string_map_s
+ساختار string_map_s
 {
   size_t len;
-  struct kv_s *kvs;
+  ساختار kv_s *kvs;
 
 #ifdef HAVE_HSEARCH_R
-  struct hsearch_data htab;
+  ساختار hsearch_data htab;
   bool htab_initialized;
 #endif
 
   bool sorted;
 };
 
-static int
-compare_kv (const void *a, const void *b)
+ایستا صحیح
+compare_kv (ثابت تهی *a, ثابت تهی *b)
 {
-  return strcmp (((struct kv_s *) a)->key, ((struct kv_s *) b)->key);
+  بازگشت strcmp (((ساختار kv_s *) a)->کلید, ((ساختار kv_s *) b)->کلید);
 }
 
-const char *
-find_string_map_value (string_map *map, const char *name)
+ثابت نویسه *
+find_string_map_مقدار (string_map *map, ثابت نویسه *name)
 
 {
-  struct kv_s *r, key;
+  ساختار kv_s *r, کلید;
 
-  if (map == NULL || map->len == 0)
-    return NULL;
+  اگر (map == پوچ || map->len == 0)
+    بازگشت پوچ;
 
 #ifdef HAVE_HSEARCH_R
   ENTRY e, *ep;
 
   /* Do not bother with hash tables for small maps.  */
-  if (map->len < 8)
-    goto fallback;
+  اگر (map->len < 8)
+    برو fallback;
 
-  if (! map->htab_initialized)
+  اگر (! map->htab_initialized)
     {
       size_t i;
 
-      if (hcreate_r (map->len, &map->htab) == 0)
-        goto fallback;
+      اگر (hcreate_r (map->len, &map->htab) == 0)
+        برو fallback;
 
-      for (i = 0; i < map->len; i++)
+      برای (i = 0; i < map->len; i++)
         {
-          e.key = (char *) map->kvs[i].key;
-          e.data = map->kvs[i].value;
-          if (hsearch_r (e, ENTER, &ep, &map->htab) == 0)
+          e.کلید = (نویسه *) map->kvs[i].کلید;
+          e.data = map->kvs[i].مقدار;
+          اگر (hsearch_r (e, ENTER, &ep, &map->htab) == 0)
             {
               hdestroy_r (&map->htab);
-              goto fallback;
+              برو fallback;
             }
         }
       map->htab_initialized = true;
     }
 
-  e.key = (char *) name;
-  if (hsearch_r (e, FIND, &ep, &map->htab) == 0)
-    return NULL;
+  e.کلید = (نویسه *) name;
+  اگر (hsearch_r (e, FIND, &ep, &map->htab) == 0)
+    بازگشت پوچ;
 
-  return ep->data;
+  بازگشت ep->data;
 
 fallback:
 #endif
 
-  if (! map->sorted)
+  اگر (! map->sorted)
     {
-      qsort (map->kvs, map->len, sizeof (struct kv_s), compare_kv);
+      qsort (map->kvs, map->len, اندازه (ساختار kv_s), compare_kv);
       map->sorted = true;
     }
 
-  key.key = (char *) name;
+  کلید.کلید = (نویسه *) name;
 
-  r = bsearch (&key, map->kvs, map->len, sizeof (struct kv_s), compare_kv);
-  return r ? r->value : NULL;
+  r = bsearch (&کلید, map->kvs, map->len, اندازه (ساختار kv_s), compare_kv);
+  بازگشت r ? r->مقدار : پوچ;
 }
 
 string_map *
 make_string_map_from_json (json_map_string_string *jmap)
 {
-  struct string_map_s *new_map = xmalloc0 (sizeof (struct string_map_s));
+  ساختار string_map_s *new_map = xmalloc0 (اندازه (ساختار string_map_s));
   size_t i;
 
-  if (jmap == NULL)
-    return new_map;
+  اگر (jmap == پوچ)
+    بازگشت new_map;
 
   new_map->len = jmap->len;
-  new_map->kvs = xmalloc0 (sizeof (struct kv_s) * (jmap->len + 1));
+  new_map->kvs = xmalloc0 (اندازه (ساختار kv_s) * (jmap->len + 1));
 
-  for (i = 0; i < jmap->len; i++)
+  برای (i = 0; i < jmap->len; i++)
     {
-      new_map->kvs[i].key = xstrdup (jmap->keys[i]);
-      new_map->kvs[i].value = xstrdup (jmap->values[i]);
+      new_map->kvs[i].کلید = xstrdup (jmap->کلیدها[i]);
+      new_map->kvs[i].مقدار = xstrdup (jmap->مقادیر[i]);
     }
 
-  return new_map;
+  بازگشت new_map;
 }
 
-int
-string_map_get_at (string_map *map, size_t index, const char **name, const char **value)
+صحیح
+string_map_get_at (string_map *map, size_t index, ثابت نویسه **name, ثابت نویسه **مقدار)
 {
-  if (map == NULL || index >= map->len)
+  اگر (map == پوچ || index >= map->len)
     {
       errno = ERANGE;
-      return -1;
+      بازگشت -1;
     }
 
-  *name = map->kvs[index].key;
-  *value = map->kvs[index].value;
+  *name = map->kvs[index].کلید;
+  *مقدار = map->kvs[index].مقدار;
 
-  return 0;
+  بازگشت 0;
 }
 
-void
+تهی
 free_string_map (string_map *map)
 {
   size_t i;
 
-  if (map == NULL)
-    return;
+  اگر (map == پوچ)
+    بازگشت;
 
-  if (map->htab_initialized)
+  اگر (map->htab_initialized)
     hdestroy_r (&map->htab);
 
-  for (i = 0; i < map->len; i++)
+  برای (i = 0; i < map->len; i++)
     {
-      free (map->kvs[i].key);
-      free (map->kvs[i].value);
+      آزاد (map->kvs[i].کلید);
+      آزاد (map->kvs[i].مقدار);
     }
-  free (map->kvs);
-  free (map);
+  آزاد (map->kvs);
+  آزاد (map);
 }
 
 size_t
 string_map_size (string_map *map)
 {
-  return map->len;
+  بازگشت map->len;
 }

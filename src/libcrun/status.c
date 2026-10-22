@@ -17,247 +17,247 @@
  */
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "status.h"
-#include "utils.h"
-#include "json_gen_utils.h"
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <json-c/json.h>
-#include <ocispec/json_common.h>
-#include <sys/mount.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <dirent.h>
-#include <signal.h>
-#include <limits.h>
+#شامل <config.h>
+#شامل "status.h"
+#شامل "utils.h"
+#شامل "json_gen_utils.h"
+#شامل <stdlib.h>
+#شامل <unistd.h>
+#شامل <fcntl.h>
+#شامل <json-c/json.h>
+#شامل <ocispec/json_common.h>
+#شامل <sys/mount.h>
+#شامل <sys/stat.h>
+#شامل <sys/types.h>
+#شامل <dirent.h>
+#شامل <signal.h>
+#شامل <limits.h>
 
 #define STEAL_POINTER(x, y) \
-  do                        \
+  انجامبده                        \
     {                       \
       *x = y;               \
-      y = NULL;             \
-  } while (0)
+      y = پوچ;             \
+  } وقتی (0)
 
-struct pid_stat
+ساختار pid_stat
 {
-  char state;
-  long num_threads;
+  نویسه state;
+  long رقم_threads;
   unsigned long long starttime;
 };
 
-static inline bool
-is_valid_id_char (char c)
+ایستا درونخطی bool
+is_valid_id_char (نویسه c)
 {
-  if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'))
-    return true;
-  return c == '_' || c == '+' || c == '.' || c == '-';
+  اگر ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'))
+    بازگشت true;
+  بازگشت c == '_' || c == '+' || c == '.' || c == '-';
 }
 
-static int
-validate_id (const char *id, libcrun_error_t *err)
+ایستا صحیح
+validate_id (ثابت نویسه *id, libcrun_error_t *err)
 {
-  if (id == NULL)
-    return 0;
+  اگر (id == پوچ)
+    بازگشت 0;
 
-  if (id[0] == '\0')
-    return crun_make_error (err, 0, "empty container ID");
+  اگر (id[0] == '\0')
+    بازگشت crun_make_error (err, 0, "empty container ID");
 
-  if (id[0] == '.')
-    return crun_make_error (err, 0, "invalid container ID `%s`", id);
+  اگر (id[0] == '.')
+    بازگشت crun_make_error (err, 0, "invalid container ID `%s`", id);
 
-  for (size_t i = 0; id[i]; i++)
+  برای (size_t i = 0; id[i]; i++)
     {
-      if (! is_valid_id_char (id[i]))
-        return crun_make_error (err, 0, "invalid character `%c` in the container ID `%s`", id[i], id);
+      اگر (! is_valid_id_char (id[i]))
+        بازگشت crun_make_error (err, 0, "invalid character `%c` in the container ID `%s`", id[i], id);
     }
 
-  return 0;
+  بازگشت 0;
 }
 
-int
-get_run_directory (char **out, const char *state_root, libcrun_error_t *err)
+صحیح
+get_run_directory (نویسه **out, ثابت نویسه *state_ریشه, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_free char *root = NULL;
+  صحیح ret;
+  cleanup_free نویسه *ریشه = پوچ;
 
-  if (state_root)
-    root = xstrdup (state_root);
-  if (root == NULL)
+  اگر (state_ریشه)
+    ریشه = xstrdup (state_ریشه);
+  اگر (ریشه == پوچ)
     {
-      const char *runtime_dir = getenv ("XDG_RUNTIME_DIR");
-      if (runtime_dir && runtime_dir[0] != '\0')
+      ثابت نویسه *runtime_dir = getenv ("XDG_RUNTIME_DIR");
+      اگر (runtime_dir && runtime_dir[0] != '\0')
         {
-          ret = append_paths (&root, err, runtime_dir, "crun", NULL);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = append_paths (&ریشه, err, runtime_dir, "crun", پوچ);
+          اگر (UNLIKELY (ret < 0))
+            بازگشت ret;
         }
     }
-  if (root == NULL)
-    root = xstrdup ("/run/crun");
+  اگر (ریشه == پوچ)
+    ریشه = xstrdup ("/run/crun");
 
-  ret = crun_ensure_directory (root, 0700, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = crun_ensure_directory (ریشه, 0700, false, err);
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
-  STEAL_POINTER (out, root);
+  STEAL_POINTER (out, ریشه);
 
-  return 0;
+  بازگشت 0;
 }
 
-int
-get_shared_empty_directory_path (char **out, const char *state_root, libcrun_error_t *err)
+صحیح
+get_shared_empty_directory_path (نویسه **out, ثابت نویسه *state_ریشه, libcrun_error_t *err)
 {
-  cleanup_free char *run_dir = NULL;
-  int ret;
+  cleanup_free نویسه *run_dir = پوچ;
+  صحیح ret;
 
-  ret = get_run_directory (&run_dir, state_root, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_run_directory (&run_dir, state_ریشه, err);
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
-  ret = append_paths (out, err, run_dir, ".empty-directory", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (out, err, run_dir, ".empty-directory", پوچ);
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
   /* Ensure the empty directory exists */
   ret = crun_ensure_directory (*out, 0555, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
-  return 0;
+  بازگشت 0;
 }
 
-int
-libcrun_get_state_directory (char **out, const char *state_root, const char *id, libcrun_error_t *err)
+صحیح
+libcrun_get_state_directory (نویسه **out, ثابت نویسه *state_ریشه, ثابت نویسه *id, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_free char *path = NULL;
-  cleanup_free char *root = NULL;
+  صحیح ret;
+  cleanup_free نویسه *path = پوچ;
+  cleanup_free نویسه *ریشه = پوچ;
 
   ret = validate_id (id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
-  ret = get_run_directory (&root, state_root, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_run_directory (&ریشه, state_ریشه, err);
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
-  ret = append_paths (&path, err, root, id, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&path, err, ریشه, id, پوچ);
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
   STEAL_POINTER (out, path);
 
-  return 0;
+  بازگشت 0;
 }
 
-static int
-get_state_directory_status_file (char **out, const char *state_root, const char *id, libcrun_error_t *err)
+ایستا صحیح
+get_state_directory_status_file (نویسه **out, ثابت نویسه *state_ریشه, ثابت نویسه *id, libcrun_error_t *err)
 {
-  cleanup_free char *dir = NULL;
-  int ret;
+  cleanup_free نویسه *dir = پوچ;
+  صحیح ret;
 
-  ret = libcrun_get_state_directory (&dir, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_get_state_directory (&dir, state_ریشه, id, err);
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
-  return append_paths (out, err, dir, "status", NULL);
+  بازگشت append_paths (out, err, dir, "status", پوچ);
 }
 
-static int
-read_pid_stat (pid_t pid, struct pid_stat *st, libcrun_error_t *err)
+ایستا صحیح
+read_pid_stat (pid_t pid, ساختار pid_stat *st, libcrun_error_t *err)
 {
-  cleanup_free char *buffer = NULL;
-  cleanup_close int fd = -1;
-  char pid_stat_file[64];
-  char *it, *s;
-  int i, ret;
+  cleanup_free نویسه *buffer = پوچ;
+  cleanup_close صحیح fd = -1;
+  نویسه pid_stat_file[64];
+  نویسه *it, *s;
+  صحیح i, ret;
 
-  ret = snprintf (pid_stat_file, sizeof (pid_stat_file), "/proc/%d/stat", pid);
-  if (UNLIKELY (ret >= (int) sizeof (pid_stat_file)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  ret = snprintf (pid_stat_file, اندازه (pid_stat_file), "/proc/%d/stat", pid);
+  اگر (UNLIKELY (ret >= (صحیح) اندازه (pid_stat_file)))
+    بازگشت crun_make_error (err, 0, "internal error: static buffer too small");
 
   fd = open (pid_stat_file, O_RDONLY | O_CLOEXEC);
-  if (fd < 0)
+  اگر (fd < 0)
     {
       /* The process already exited.  */
-      if (errno == ENOENT || errno == ESRCH)
+      اگر (errno == ENOENT || errno == ESRCH)
         {
-          memset (st, 0, sizeof (*st));
-          return 0;
+          memset (st, 0, اندازه (*st));
+          بازگشت 0;
         }
-      return crun_make_error (err, errno, "open state file `%s`", pid_stat_file);
+      بازگشت crun_make_error (err, errno, "open state file `%s`", pid_stat_file);
     }
 
-  ret = read_all_fd (fd, pid_stat_file, &buffer, NULL, err);
-  if (ret < 0)
+  ret = read_all_fd (fd, pid_stat_file, &buffer, پوچ, err);
+  اگر (ret < 0)
     {
       st->starttime = 0;
-      st->num_threads = 0;
+      st->رقم_threads = 0;
       st->state = 'X';
       /* The process already exited.  */
       libcrun_error_release (err);
-      return 0;
+      بازگشت 0;
     }
 
-  s = NULL;
+  s = پوچ;
 
   /* Skip the first two arguments.  */
-  for (it = buffer; it; it = strchr (it + 1, ')'))
+  برای (it = buffer; it; it = strchr (it + 1, ')'))
     s = it + 1;
 
-  if (s)
-    while (*s == ' ')
+  اگر (s)
+    وقتی (*s == ' ')
       s++;
 
-  if (s == NULL || *s == '\0')
-    return crun_make_error (err, 0, "could not read process state");
+  اگر (s == پوچ || *s == '\0')
+    بازگشت crun_make_error (err, 0, "could not read process state");
 
   st->state = *s;
 
   /* Seek to the starttime argument.  */
-  for (it = s + 1, i = 0; i < 19; i++)
+  برای (it = s + 1, i = 0; i < 19; i++)
     {
       it = strchr (it, ' ');
-      if (it == NULL)
-        return crun_make_error (err, 0, "could not read process start time");
+      اگر (it == پوچ)
+        بازگشت crun_make_error (err, 0, "could not read process start time");
       it++;
 
       /* num_threads is the second argument before starttime.  */
-      if (i == 16)
-        st->num_threads = strtol (it, NULL, 10);
+      اگر (i == 16)
+        st->رقم_threads = strtol (it, پوچ, 10);
     }
 
   errno = 0;
-  st->starttime = strtoull (it, NULL, 10);
-  if (errno != 0)
-    return crun_make_error (err, errno, "parse process start time");
+  st->starttime = strtoull (it, پوچ, 10);
+  اگر (errno != 0)
+    بازگشت crun_make_error (err, errno, "parse process start time");
 
-  return 0;
+  بازگشت 0;
 }
 
-int
-libcrun_write_container_status (const char *state_root, const char *id, libcrun_container_status_t *status,
+صحیح
+libcrun_write_container_status (ثابت نویسه *state_ریشه, ثابت نویسه *id, libcrun_container_status_t *status,
                                 libcrun_error_t *err)
 {
-  int r, ret;
-  cleanup_free char *file_tmp = NULL;
-  cleanup_free char *file = NULL;
+  صحیح r, ret;
+  cleanup_free نویسه *file_tmp = پوچ;
+  cleanup_free نویسه *file = پوچ;
   size_t len;
-  cleanup_close int fd_write = -1;
-  const char *buf = NULL;
-  struct pid_stat st;
-  const char *tmp;
-  cleanup_json_gen json_gen_ctx *gen = NULL;
+  cleanup_close صحیح fd_write = -1;
+  ثابت نویسه *buf = پوچ;
+  ساختار pid_stat st;
+  ثابت نویسه *tmp;
+  cleanup_json_gen json_gen_ctx *gen = پوچ;
 
-  ret = get_state_directory_status_file (&file, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_state_directory_status_file (&file, state_ریشه, id, err);
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
   ret = read_pid_stat (status->pid, &st, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
   /* read_pid_stat returns a start time of 0 when the process already exited,
      e.g. a restored container that terminated before the status is written.
@@ -269,57 +269,57 @@ libcrun_write_container_status (const char *state_root, const char *id, libcrun_
 
   xasprintf (&file_tmp, "%s.tmp", file);
   fd_write = open (file_tmp, O_CREAT | O_WRONLY | O_CLOEXEC, 0700);
-  if (UNLIKELY (fd_write < 0))
-    return crun_make_error (err, errno, "cannot open status file");
+  اگر (UNLIKELY (fd_write < 0))
+    بازگشت crun_make_error (err, errno, "cannot open status file");
 
-  if (! json_gen_init (&gen, NULL))
-    return crun_make_error (err, 0, "json_gen_init failed");
+  اگر (! json_gen_init (&gen, پوچ))
+    بازگشت crun_make_error (err, 0, "json_gen_init failed");
 
   json_gen_config (gen, json_gen_beautify, 1);
 
   GEN_OR_FAIL (json_gen_map_open (gen));
 
-  GEN_KEY (gen, "pid");
+  GEN_کلید (gen, "pid");
   GEN_OR_FAIL (map_int (gen, status->pid));
 
-  GEN_KEY (gen, "process-start-time");
+  GEN_کلید (gen, "process-start-time");
   GEN_OR_FAIL (map_uint (gen, status->process_start_time));
 
-  GEN_KEY (gen, "cgroup-path");
+  GEN_کلید (gen, "cgroup-path");
   tmp = status->cgroup_path ? status->cgroup_path : "";
   GEN_STR (gen, tmp);
 
-  GEN_KEY (gen, "scope");
+  GEN_کلید (gen, "scope");
   tmp = status->scope ? status->scope : "";
   GEN_STR (gen, tmp);
 
-  GEN_KEY (gen, "rootfs");
+  GEN_کلید (gen, "rootfs");
   GEN_STR (gen, status->rootfs);
 
-  GEN_KEY (gen, "systemd-cgroup");
+  GEN_کلید (gen, "systemd-cgroup");
   GEN_OR_FAIL (json_gen_bool (gen, status->systemd_cgroup));
 
-  GEN_KEY (gen, "bundle");
+  GEN_کلید (gen, "bundle");
   GEN_STR (gen, status->bundle);
 
-  GEN_KEY (gen, "created");
+  GEN_کلید (gen, "created");
   GEN_STR (gen, status->created);
 
-  if (status->owner)
+  اگر (status->owner)
     {
-      GEN_KEY (gen, "owner");
+      GEN_کلید (gen, "owner");
       GEN_STR (gen, status->owner);
     }
 
-  GEN_KEY (gen, "detached");
+  GEN_کلید (gen, "detached");
   GEN_OR_FAIL (json_gen_bool (gen, status->detached));
 
-  GEN_KEY (gen, "no-new-keyring");
+  GEN_کلید (gen, "no-new-keyring");
   GEN_OR_FAIL (json_gen_bool (gen, status->no_new_keyring));
 
-  if (status->external_descriptors)
+  اگر (status->external_descriptors)
     {
-      GEN_KEY (gen, "external_descriptors");
+      GEN_کلید (gen, "external_descriptors");
       GEN_STR (gen, status->external_descriptors);
     }
 
@@ -328,426 +328,426 @@ libcrun_write_container_status (const char *state_root, const char *id, libcrun_
   GEN_OR_FAIL (json_gen_get_buf (gen, &buf, &len));
 
   ret = safe_write (fd_write, "status file", buf, len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
   close_and_reset (&fd_write);
 
-  if (UNLIKELY (rename (file_tmp, file) < 0))
-    return crun_make_error (err, errno, "cannot rename status file");
+  اگر (UNLIKELY (rename (file_tmp, file) < 0))
+    بازگشت crun_make_error (err, errno, "cannot rename status file");
 
-  return 0;
+  بازگشت 0;
 
 gen_error:
-  return json_gen_error_to_crun_error (r, err);
+  بازگشت json_gen_error_to_crun_error (r, err);
 }
 
-int
-libcrun_read_container_status (libcrun_container_status_t *status, const char *state_root, const char *id,
+صحیح
+libcrun_read_container_status (libcrun_container_status_t *status, ثابت نویسه *state_ریشه, ثابت نویسه *id,
                                libcrun_error_t *err)
 {
-  cleanup_free char *buffer = NULL;
-  int ret;
-  cleanup_free char *file = NULL;
-  json_object *doc = NULL;
+  cleanup_free نویسه *buffer = پوچ;
+  صحیح ret;
+  cleanup_free نویسه *file = پوچ;
+  json_object *doc = پوچ;
   json_object *tmp;
-  const char *val;
+  ثابت نویسه *val;
 
-  ret = get_state_directory_status_file (&file, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_state_directory_status_file (&file, state_ریشه, id, err);
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
-  ret = read_all_file (file, &buffer, NULL, err);
-  if (UNLIKELY (ret < 0))
+  ret = read_all_file (file, &buffer, پوچ, err);
+  اگر (UNLIKELY (ret < 0))
     {
 
-      if (crun_error_get_errno (err) == ENOENT)
+      اگر (crun_error_get_errno (err) == ENOENT)
         {
-          cleanup_free char *statedir = NULL;
+          cleanup_free نویسه *statedir = پوچ;
           libcrun_error_t tmp_err;
-          int tmp_ret;
+          صحیح tmp_ret;
 
-          tmp_ret = libcrun_get_state_directory (&statedir, state_root, id, &tmp_err);
-          if (UNLIKELY (tmp_ret < 0))
+          tmp_ret = libcrun_get_state_directory (&statedir, state_ریشه, id, &tmp_err);
+          اگر (UNLIKELY (tmp_ret < 0))
             crun_error_release (&tmp_err);
-          else
+          وگرنه
             {
               tmp_ret = crun_path_exists (statedir, &tmp_err);
-              if (UNLIKELY (tmp_ret < 0))
+              اگر (UNLIKELY (tmp_ret < 0))
                 crun_error_release (&tmp_err);
-              else if (tmp_ret == 0)
-                return crun_error_wrap (err, "container `%s` does not exist", id);
+              وگرنه اگر (tmp_ret == 0)
+                بازگشت crun_error_wrap (err, "container `%s` does not exist", id);
             }
         }
-      return ret;
+      بازگشت ret;
     }
 
-  ret = parse_json_file (&doc, buffer, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = parse_json_file (&doc, buffer, پوچ, err);
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
   {
     tmp = json_object_object_get (doc, "pid");
-    if (UNLIKELY (tmp == NULL))
+    اگر (UNLIKELY (tmp == پوچ))
       {
         ret = crun_make_error (err, 0, "`pid` missing in `%s`", file);
-        goto exit;
+        برو exit;
       }
-    if (UNLIKELY (! json_object_is_type (tmp, json_type_int)))
+    اگر (UNLIKELY (! json_object_is_type (tmp, json_type_int)))
       {
         ret = crun_make_error (err, 0, "`pid` is not a numeric value in `%s`", file);
-        goto exit;
+        برو exit;
       }
     status->pid = (pid_t) json_object_get_int64 (tmp);
   }
   {
     tmp = json_object_object_get (doc, "process-start-time");
-    if (UNLIKELY (tmp == NULL))
+    اگر (UNLIKELY (tmp == پوچ))
       status->process_start_time = 0; /* backwards compatibility */
-    else if (UNLIKELY (! json_object_is_type (tmp, json_type_int)))
+    وگرنه اگر (UNLIKELY (! json_object_is_type (tmp, json_type_int)))
       {
         ret = crun_make_error (err, 0, "`process-start-time` is not a numeric value in `%s`", file);
-        goto exit;
+        برو exit;
       }
-    else
+    وگرنه
       status->process_start_time = json_object_get_uint64 (tmp);
   }
   {
     tmp = json_object_object_get (doc, "cgroup-path");
-    if (UNLIKELY (tmp == NULL))
+    اگر (UNLIKELY (tmp == پوچ))
       {
         ret = crun_make_error (err, 0, "`cgroup-path` missing in `%s`", file);
-        goto exit;
+        برو exit;
       }
     val = json_object_get_string (tmp);
-    if (UNLIKELY (val == NULL))
+    اگر (UNLIKELY (val == پوچ))
       {
         ret = crun_make_error (err, 0, "`cgroup-path` is not a string in `%s`", file);
-        goto exit;
+        برو exit;
       }
     status->cgroup_path = xstrdup (val);
   }
   {
     tmp = json_object_object_get (doc, "scope");
-    val = tmp ? json_object_get_string (tmp) : NULL;
-    status->scope = val ? xstrdup (val) : NULL;
+    val = tmp ? json_object_get_string (tmp) : پوچ;
+    status->scope = val ? xstrdup (val) : پوچ;
   }
   {
     tmp = json_object_object_get (doc, "rootfs");
-    if (UNLIKELY (tmp == NULL))
+    اگر (UNLIKELY (tmp == پوچ))
       {
         ret = crun_make_error (err, 0, "`rootfs` missing in `%s`", file);
-        goto exit;
+        برو exit;
       }
     val = json_object_get_string (tmp);
-    if (UNLIKELY (val == NULL))
+    اگر (UNLIKELY (val == پوچ))
       {
         ret = crun_make_error (err, 0, "`rootfs` is not a string in `%s`", file);
-        goto exit;
+        برو exit;
       }
     status->rootfs = xstrdup (val);
   }
   {
     tmp = json_object_object_get (doc, "systemd-cgroup");
-    status->systemd_cgroup = tmp != NULL && json_object_get_boolean (tmp);
+    status->systemd_cgroup = tmp != پوچ && json_object_get_boolean (tmp);
   }
   {
     tmp = json_object_object_get (doc, "bundle");
-    if (UNLIKELY (tmp == NULL))
+    اگر (UNLIKELY (tmp == پوچ))
       {
         ret = crun_make_error (err, 0, "`bundle` missing in `%s`", file);
-        goto exit;
+        برو exit;
       }
     val = json_object_get_string (tmp);
-    if (UNLIKELY (val == NULL))
+    اگر (UNLIKELY (val == پوچ))
       {
         ret = crun_make_error (err, 0, "`bundle` is not a string in `%s`", file);
-        goto exit;
+        برو exit;
       }
     status->bundle = xstrdup (val);
   }
   {
     tmp = json_object_object_get (doc, "created");
-    if (UNLIKELY (tmp == NULL))
+    اگر (UNLIKELY (tmp == پوچ))
       {
         ret = crun_make_error (err, 0, "`created` missing in `%s`", file);
-        goto exit;
+        برو exit;
       }
     val = json_object_get_string (tmp);
-    if (UNLIKELY (val == NULL))
+    اگر (UNLIKELY (val == پوچ))
       {
         ret = crun_make_error (err, 0, "`created` is not a string in `%s`", file);
-        goto exit;
+        برو exit;
       }
     status->created = xstrdup (val);
   }
   {
     tmp = json_object_object_get (doc, "owner");
-    val = tmp ? json_object_get_string (tmp) : NULL;
-    status->owner = val ? xstrdup (val) : NULL;
+    val = tmp ? json_object_get_string (tmp) : پوچ;
+    status->owner = val ? xstrdup (val) : پوچ;
   }
   {
     tmp = json_object_object_get (doc, "detached");
-    status->detached = tmp != NULL && json_object_get_boolean (tmp);
+    status->detached = tmp != پوچ && json_object_get_boolean (tmp);
   }
   {
     tmp = json_object_object_get (doc, "no-new-keyring");
-    status->no_new_keyring = tmp != NULL && json_object_get_boolean (tmp);
+    status->no_new_keyring = tmp != پوچ && json_object_get_boolean (tmp);
   }
   {
     tmp = json_object_object_get (doc, "external_descriptors");
-    val = tmp ? json_object_get_string (tmp) : NULL;
-    status->external_descriptors = val ? xstrdup (val) : NULL;
+    val = tmp ? json_object_get_string (tmp) : پوچ;
+    status->external_descriptors = val ? xstrdup (val) : پوچ;
   }
   ret = 0;
 
 exit:
   json_object_put (doc);
-  return ret;
+  بازگشت ret;
 }
 
-int
-libcrun_status_check_directories (const char *state_root, const char *id, libcrun_error_t *err)
+صحیح
+libcrun_status_check_directories (ثابت نویسه *state_ریشه, ثابت نویسه *id, libcrun_error_t *err)
 {
-  cleanup_free char *dir = NULL;
-  int ret;
+  cleanup_free نویسه *dir = پوچ;
+  صحیح ret;
 
-  ret = libcrun_get_state_directory (&dir, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_get_state_directory (&dir, state_ریشه, id, err);
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
   ret = crun_path_exists (dir, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
-  if (ret)
-    return crun_make_error (err, 0, "container `%s` already exists", id);
+  اگر (ret)
+    بازگشت crun_make_error (err, 0, "container `%s` already exists", id);
 
-  if (UNLIKELY (mkdir (dir, 0700) < 0))
-    return crun_make_error (err, 0, "cannot create state directory for `%s`", id);
+  اگر (UNLIKELY (mkdir (dir, 0700) < 0))
+    بازگشت crun_make_error (err, 0, "cannot create state directory for `%s`", id);
 
-  return 0;
+  بازگشت 0;
 }
 
 /* Upper bound on the directories visited while removing a tree, so that an
    attacker constantly creating new ones cannot keep the walk going forever.  */
 #define RMDIRFD_MAX_MOVES (1U << 20)
 
-static int
-rmdirfd_move_to (DIR **d, const char *name, libcrun_error_t *err)
+ایستا صحیح
+rmdirfd_move_to (DIR **d, ثابت نویسه *name, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
+  cleanup_close صحیح fd = -1;
   DIR *new_d;
 
   fd = openat (dirfd (*d), name, O_DIRECTORY | O_RDONLY | O_NOFOLLOW | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "cannot open directory `%s`", name);
+  اگر (UNLIKELY (fd < 0))
+    بازگشت crun_make_error (err, errno, "cannot open directory `%s`", name);
 
   new_d = fdopendir (fd);
-  if (UNLIKELY (new_d == NULL))
-    return crun_make_error (err, errno, "cannot open directory `%s`", name);
+  اگر (UNLIKELY (new_d == پوچ))
+    بازگشت crun_make_error (err, errno, "cannot open directory `%s`", name);
 
   fd = -1;
 
   closedir (*d);
   *d = new_d;
-  return 0;
+  بازگشت 0;
 }
 
-static int
-rmdirfd (const char *namedir, int fd, libcrun_error_t *err)
+ایستا صحیح
+rmdirfd (ثابت نویسه *namedir, صحیح fd, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_dir DIR *d = NULL;
-  struct dirent *de;
-  struct stat root_st;
-  bool is_root = true;
-  unsigned int budget = RMDIRFD_MAX_MOVES;
-  __attribute__ ((unused)) cleanup_close int fd_cleanup = fd;
+  صحیح ret;
+  cleanup_dir DIR *d = پوچ;
+  ساختار dirent *de;
+  ساختار stat ریشه_st;
+  bool is_ریشه = true;
+  unsigned صحیح budget = RMDIRFD_MAX_MOVES;
+  __attribute__ ((unused)) cleanup_close صحیح fd_cleanup = fd;
 
-  ret = fstat (fd, &root_st);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "stat `%s`", namedir);
+  ret = fstat (fd, &ریشه_st);
+  اگر (UNLIKELY (ret < 0))
+    بازگشت crun_make_error (err, errno, "stat `%s`", namedir);
 
   d = fdopendir (fd);
-  if (d == NULL)
-    return crun_make_error (err, errno, "cannot open directory `%s`", namedir);
+  اگر (d == پوچ)
+    بازگشت crun_make_error (err, errno, "cannot open directory `%s`", namedir);
 
   /* Now D owns FD. */
   fd_cleanup = -1;
 
-  for (;;)
+  برای (;;)
     {
       errno = 0;
       de = readdir (d);
-      if (de == NULL)
+      اگر (de == پوچ)
         {
-          struct stat st;
+          ساختار stat st;
 
-          if (UNLIKELY (errno != 0))
-            return crun_make_error (err, errno, "cannot read directory");
+          اگر (UNLIKELY (errno != 0))
+            بازگشت crun_make_error (err, errno, "cannot read directory");
 
-          if (is_root)
-            break;
+          اگر (is_ریشه)
+            بشکن;
 
-          if (UNLIKELY (--budget == 0))
-            return crun_make_error (err, ELOOP, "the directory tree keeps changing while removing `%s`", namedir);
+          اگر (UNLIKELY (--budget == 0))
+            بازگشت crun_make_error (err, ELOOP, "the directory tree keeps changing while removing `%s`", namedir);
 
           ret = rmdirfd_move_to (&d, "..", err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          اگر (UNLIKELY (ret < 0))
+            بازگشت ret;
 
           ret = fstat (dirfd (d), &st);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "stat `..`");
+          اگر (UNLIKELY (ret < 0))
+            بازگشت crun_make_error (err, errno, "stat `..`");
 
-          is_root = st.st_dev == root_st.st_dev && st.st_ino == root_st.st_ino;
-          continue;
+          is_ریشه = st.st_dev == ریشه_st.st_dev && st.st_ino == ریشه_st.st_ino;
+          ادامه;
         }
 
-      if ((strcmp (de->d_name, ".") == 0) || (strcmp (de->d_name, "..") == 0))
-        continue;
+      اگر ((strcmp (de->d_name, ".") == 0) || (strcmp (de->d_name, "..") == 0))
+        ادامه;
 
       /* Ignore errors here and keep deleting, the final unlinkat (AT_REMOVEDIR) will fail anyway.  */
       ret = unlinkat (dirfd (d), de->d_name, 0);
-      if (ret < 0)
+      اگر (ret < 0)
         {
         retry_unlink:
           ret = unlinkat (dirfd (d), de->d_name, AT_REMOVEDIR);
-          if (ret < 0 && errno == EBUSY)
+          اگر (ret < 0 && errno == EBUSY)
             {
-              cleanup_close int tfd = openat (dirfd (d), de->d_name, O_CLOEXEC | O_PATH | O_NOFOLLOW);
-              if (tfd >= 0)
+              cleanup_close صحیح tfd = openat (dirfd (d), de->d_name, O_CLOEXEC | O_PATH | O_NOFOLLOW);
+              اگر (tfd >= 0)
                 {
                   proc_fd_path_t procpath;
 
                   get_proc_self_fd_path (procpath, tfd);
-                  if (umount2 (procpath, MNT_DETACH) == 0)
-                    goto retry_unlink;
+                  اگر (umount2 (procpath, MNT_DETACH) == 0)
+                    برو retry_unlink;
                 }
-              if (! is_root)
-                return crun_make_error (err, EBUSY, "cannot rm directory `%s`", de->d_name);
+              اگر (! is_ریشه)
+                بازگشت crun_make_error (err, EBUSY, "cannot rm directory `%s`", de->d_name);
             }
-          else if (ret < 0 && errno == ENOTEMPTY)
+          وگرنه اگر (ret < 0 && errno == ENOTEMPTY)
             {
-              if (UNLIKELY (--budget == 0))
-                return crun_make_error (err, ELOOP, "the directory tree keeps changing while removing `%s`", namedir);
+              اگر (UNLIKELY (--budget == 0))
+                بازگشت crun_make_error (err, ELOOP, "the directory tree keeps changing while removing `%s`", namedir);
 
               ret = rmdirfd_move_to (&d, de->d_name, err);
-              if (UNLIKELY (ret < 0))
-                return ret;
+              اگر (UNLIKELY (ret < 0))
+                بازگشت ret;
 
-              is_root = false;
+              is_ریشه = false;
             }
-          else if (ret < 0 && errno != ENOENT && ! is_root)
+          وگرنه اگر (ret < 0 && errno != ENOENT && ! is_ریشه)
             {
-              return crun_make_error (err, errno, "cannot rm `%s`", de->d_name);
+              بازگشت crun_make_error (err, errno, "cannot rm `%s`", de->d_name);
             }
         }
     }
 
-  return 0;
+  بازگشت 0;
 }
 
-int
-libcrun_container_delete_status (const char *state_root, const char *id, libcrun_error_t *err)
+صحیح
+libcrun_container_delete_status (ثابت نویسه *state_ریشه, ثابت نویسه *id, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_close int rundir_dfd = -1;
-  cleanup_close int dfd = -1;
-  cleanup_free char *dir = NULL;
+  صحیح ret;
+  cleanup_close صحیح rundir_dfd = -1;
+  cleanup_close صحیح dfd = -1;
+  cleanup_free نویسه *dir = پوچ;
 
   ret = validate_id (id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
-  ret = get_run_directory (&dir, state_root, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_run_directory (&dir, state_ریشه, err);
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
   rundir_dfd = TEMP_FAILURE_RETRY (open (dir, O_DIRECTORY | O_PATH | O_CLOEXEC));
-  if (UNLIKELY (rundir_dfd < 0))
-    return crun_make_error (err, errno, "cannot open run directory `%s`", dir);
+  اگر (UNLIKELY (rundir_dfd < 0))
+    بازگشت crun_make_error (err, errno, "cannot open run directory `%s`", dir);
 
   dfd = openat (rundir_dfd, id, O_DIRECTORY | O_RDONLY | O_CLOEXEC);
-  if (UNLIKELY (dfd < 0))
-    return crun_make_error (err, errno, "cannot open directory `%s/%s`", dir, id);
+  اگر (UNLIKELY (dfd < 0))
+    بازگشت crun_make_error (err, errno, "cannot open directory `%s/%s`", dir, id);
 
   ret = rmdirfd (dir, dfd, err);
 
   /* rmdirfd owns DFD.  */
   dfd = -1;
 
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
   ret = unlinkat (rundir_dfd, id, AT_REMOVEDIR);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "cannot rm state directory `%s/%s`", dir, id);
+  اگر (UNLIKELY (ret < 0))
+    بازگشت crun_make_error (err, errno, "cannot rm state directory `%s/%s`", dir, id);
 
-  return 0;
+  بازگشت 0;
 }
 
-void
+تهی
 libcrun_free_container_status (libcrun_container_status_t *status)
 {
-  if (status == NULL)
-    return;
-  free (status->cgroup_path);
-  free (status->bundle);
-  free (status->rootfs);
-  free (status->external_descriptors);
-  free (status->created);
-  free (status->scope);
-  free (status->owner);
+  اگر (status == پوچ)
+    بازگشت;
+  آزاد (status->cgroup_path);
+  آزاد (status->bundle);
+  آزاد (status->rootfs);
+  آزاد (status->external_descriptors);
+  آزاد (status->created);
+  آزاد (status->scope);
+  آزاد (status->owner);
 }
 
-int
-libcrun_get_containers_list (libcrun_container_list_t **out, const char *state_root, libcrun_error_t *err)
+صحیح
+libcrun_get_containers_list (libcrun_container_list_t **out, ثابت نویسه *state_ریشه, libcrun_error_t *err)
 {
-  struct dirent *next;
-  cleanup_container_list libcrun_container_list_t *tmp = NULL;
-  cleanup_free char *root = NULL;
-  cleanup_dir DIR *dir = NULL;
-  int ret;
+  ساختار dirent *next;
+  cleanup_container_list libcrun_container_list_t *tmp = پوچ;
+  cleanup_free نویسه *ریشه = پوچ;
+  cleanup_dir DIR *dir = پوچ;
+  صحیح ret;
 
-  *out = NULL;
+  *out = پوچ;
 
-  ret = get_run_directory (&root, state_root, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_run_directory (&ریشه, state_ریشه, err);
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
-  dir = opendir (root);
-  if (UNLIKELY (dir == NULL))
-    return crun_make_error (err, errno, "cannot opendir `%s`", root);
+  dir = opendir (ریشه);
+  اگر (UNLIKELY (dir == پوچ))
+    بازگشت crun_make_error (err, errno, "cannot opendir `%s`", ریشه);
 
-  for (next = readdir (dir); next; next = readdir (dir))
+  برای (next = readdir (dir); next; next = readdir (dir))
     {
-      int exists;
-      cleanup_free char *status_file = NULL;
+      صحیح exists;
+      cleanup_free نویسه *status_file = پوچ;
 
       libcrun_container_list_t *next_container;
 
-      if (next->d_name[0] == '.')
-        continue;
+      اگر (next->d_name[0] == '.')
+        ادامه;
 
-      ret = append_paths (&status_file, err, root, next->d_name, "status", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&status_file, err, ریشه, next->d_name, "status", پوچ);
+      اگر (UNLIKELY (ret < 0))
+        بازگشت ret;
 
       exists = crun_path_exists (status_file, err);
-      if (exists < 0)
+      اگر (exists < 0)
         {
-          return exists;
+          بازگشت exists;
         }
 
-      if (! exists)
+      اگر (! exists)
         {
           libcrun_error (errno, "error opening file `%s`", status_file);
-          continue;
+          ادامه;
         }
 
-      next_container = xmalloc (sizeof (libcrun_container_list_t));
+      next_container = xmalloc (اندازه (libcrun_container_list_t));
       next_container->name = xstrdup (next->d_name);
       next_container->next = tmp;
       tmp = next_container;
@@ -755,18 +755,18 @@ libcrun_get_containers_list (libcrun_container_list_t **out, const char *state_r
 
   STEAL_POINTER (out, tmp);
 
-  return 0;
+  بازگشت 0;
 }
 
-void
+تهی
 libcrun_free_containers_list (libcrun_container_list_t *list)
 {
   libcrun_container_list_t *next;
-  while (list)
+  وقتی (list)
     {
       next = list->next;
-      free (list->name);
-      free (list);
+      آزاد (list->name);
+      آزاد (list);
       list = next;
     }
 }
@@ -777,326 +777,326 @@ libcrun_free_containers_list (libcrun_container_list_t *list)
     0: pid not valid
     1: pid valid and container in the running/created/paused state
 */
-int
+صحیح
 libcrun_check_pid_valid (libcrun_container_status_t *status, libcrun_error_t *err)
 {
-  struct pid_stat st;
-  int ret;
+  ساختار pid_stat st;
+  صحیح ret;
 
   /* For backwards compatibility, check start time only if available. */
-  if (! status->process_start_time)
-    return 1;
+  اگر (! status->process_start_time)
+    بازگشت 1;
 
   ret = read_pid_stat (status->pid, &st, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
-  if (status->process_start_time != st.starttime || st.state == 'X')
-    return 0; /* stopped */
+  اگر (status->process_start_time != st.starttime || st.state == 'X')
+    بازگشت 0; /* stopped */
 
   /* /proc/PID/stat describes only the thread group leader.  If it exited on
      its own, it stays a zombie while other threads of the process are still
      running.  */
-  if (st.state == 'Z' && st.num_threads <= 1)
-    return 0; /* stopped */
+  اگر (st.state == 'Z' && st.رقم_threads <= 1)
+    بازگشت 0; /* stopped */
 
-  return 1; /* running, created, or paused */
+  بازگشت 1; /* running, created, or paused */
 }
 
-int
+صحیح
 libcrun_is_container_running (libcrun_container_status_t *status, libcrun_error_t *err)
 {
-  int ret;
+  صحیح ret;
 
   ret = kill (status->pid, 0);
-  if (UNLIKELY (ret < 0) && errno != ESRCH)
-    return crun_make_error (err, errno, "kill");
+  اگر (UNLIKELY (ret < 0) && errno != ESRCH)
+    بازگشت crun_make_error (err, errno, "kill");
 
-  if (ret == 0)
-    return libcrun_check_pid_valid (status, err);
+  اگر (ret == 0)
+    بازگشت libcrun_check_pid_valid (status, err);
 
-  return 0; /* stopped */
+  بازگشت 0; /* stopped */
 }
 
-static int
-get_exec_fifo_path (char **out, const char *state_root, const char *id, libcrun_error_t *err)
+ایستا صحیح
+get_exec_fifo_path (نویسه **out, ثابت نویسه *state_ریشه, ثابت نویسه *id, libcrun_error_t *err)
 {
-  cleanup_free char *state_dir = NULL;
-  int ret;
+  cleanup_free نویسه *state_dir = پوچ;
+  صحیح ret;
 
-  ret = libcrun_get_state_directory (&state_dir, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_get_state_directory (&state_dir, state_ریشه, id, err);
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
-  return append_paths (out, err, state_dir, "exec.fifo", NULL);
+  بازگشت append_paths (out, err, state_dir, "exec.fifo", پوچ);
 }
 
-int
-libcrun_status_create_exec_fifo (const char *state_root, const char *id, libcrun_error_t *err)
+صحیح
+libcrun_status_create_exec_fifo (ثابت نویسه *state_ریشه, ثابت نویسه *id, libcrun_error_t *err)
 {
-  cleanup_free char *fifo_path = NULL;
-  int ret, fd = -1;
+  cleanup_free نویسه *fifo_path = پوچ;
+  صحیح ret, fd = -1;
 
-  ret = get_exec_fifo_path (&fifo_path, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_exec_fifo_path (&fifo_path, state_ریشه, id, err);
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
   libcrun_debug ("Creating exec fifo: %s", fifo_path);
   ret = mkfifo (fifo_path, 0600);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "mkfifo");
+  اگر (UNLIKELY (ret < 0))
+    بازگشت crun_make_error (err, errno, "mkfifo");
 
   fd = open (fifo_path, O_NONBLOCK | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "cannot open pipe `%s`", fifo_path);
+  اگر (UNLIKELY (fd < 0))
+    بازگشت crun_make_error (err, errno, "cannot open pipe `%s`", fifo_path);
 
-  return fd;
+  بازگشت fd;
 }
 
-int
-libcrun_status_write_exec_fifo (const char *state_root, const char *id, libcrun_error_t *err)
+صحیح
+libcrun_status_write_exec_fifo (ثابت نویسه *state_ریشه, ثابت نویسه *id, libcrun_error_t *err)
 {
-  cleanup_free char *fifo_path = NULL;
-  char buffer[1] = {
+  cleanup_free نویسه *fifo_path = پوچ;
+  نویسه buffer[1] = {
     0,
   };
-  cleanup_close int fd = -1;
-  int ret;
+  cleanup_close صحیح fd = -1;
+  صحیح ret;
 
-  ret = get_exec_fifo_path (&fifo_path, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_exec_fifo_path (&fifo_path, state_ریشه, id, err);
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
   fd = open (fifo_path, O_WRONLY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "cannot open `%s`", fifo_path);
+  اگر (UNLIKELY (fd < 0))
+    بازگشت crun_make_error (err, errno, "cannot open `%s`", fifo_path);
 
   ret = unlink (fifo_path);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "unlink `%s`", fifo_path);
+  اگر (UNLIKELY (ret < 0))
+    بازگشت crun_make_error (err, errno, "unlink `%s`", fifo_path);
 
-  ret = TEMP_FAILURE_RETRY (write (fd, buffer, 1));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "write to exec.fifo");
+  ret = TEMP_FAILURE_RETRY (اكتب (fd, buffer, 1));
+  اگر (UNLIKELY (ret < 0))
+    بازگشت crun_make_error (err, errno, "write to exec.fifo");
 
-  return 0;
+  بازگشت 0;
 }
 
-int
-libcrun_status_has_read_exec_fifo (const char *state_root, const char *id, libcrun_error_t *err)
+صحیح
+libcrun_status_has_read_exec_fifo (ثابت نویسه *state_ریشه, ثابت نویسه *id, libcrun_error_t *err)
 {
-  cleanup_free char *fifo_path = NULL;
-  int ret;
+  cleanup_free نویسه *fifo_path = پوچ;
+  صحیح ret;
 
-  ret = get_exec_fifo_path (&fifo_path, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_exec_fifo_path (&fifo_path, state_ریشه, id, err);
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
-  return crun_path_exists (fifo_path, err);
+  بازگشت crun_path_exists (fifo_path, err);
 }
 
-struct libcrun_status_s
+ساختار libcrun_status_s
 {
   libcrun_container_status_t status;
-  char *id;
-  char *state_root;
+  نویسه *id;
+  نویسه *state_ریشه;
 
   /* The live state requires probing the container (and its cgroup), so it is
      resolved on demand and cached here.  */
   bool state_resolved;
   libcrun_container_state_t state;
-  int running;
+  صحیح running;
 };
 
-int
-libcrun_container_status_load (libcrun_context_t *context, const char *id, libcrun_status_t **out, libcrun_error_t *err)
+صحیح
+libcrun_container_status_load (libcrun_context_t *context, ثابت نویسه *id, libcrun_status_t **out, libcrun_error_t *err)
 {
   libcrun_status_t *st;
-  int ret;
+  صحیح ret;
 
-  st = xmalloc0 (sizeof (*st));
+  st = xmalloc0 (اندازه (*st));
 
-  ret = libcrun_read_container_status (&st->status, context->state_root, id, err);
-  if (UNLIKELY (ret < 0))
+  ret = libcrun_read_container_status (&st->status, context->state_ریشه, id, err);
+  اگر (UNLIKELY (ret < 0))
     {
-      free (st);
-      return ret;
+      آزاد (st);
+      بازگشت ret;
     }
 
   st->id = xstrdup (id);
-  st->state_root = xstrdup (context->state_root);
+  st->state_ریشه = xstrdup (context->state_ریشه);
 
   *out = st;
-  return 0;
+  بازگشت 0;
 }
 
-void
+تهی
 libcrun_container_status_free (libcrun_status_t *st)
 {
-  if (st == NULL)
-    return;
+  اگر (st == پوچ)
+    بازگشت;
   libcrun_free_container_status (&st->status);
-  free (st->state_root);
-  free (st->id);
-  free (st);
+  آزاد (st->state_ریشه);
+  آزاد (st->id);
+  آزاد (st);
 }
 
-int
-libcrun_status_get_state (libcrun_status_t *st, libcrun_container_state_t *state, int *running, libcrun_error_t *err)
+صحیح
+libcrun_status_get_state (libcrun_status_t *st, libcrun_container_state_t *state, صحیح *running, libcrun_error_t *err)
 {
-  if (! st->state_resolved)
+  اگر (! st->state_resolved)
     {
-      const char *state_string = NULL;
-      int ret;
+      ثابت نویسه *state_string = پوچ;
+      صحیح ret;
 
-      ret = libcrun_get_container_state_string (st->id, &st->status, st->state_root, &state_string, &st->running, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_get_container_state_string (st->id, &st->status, st->state_ریشه, &state_string, &st->running, err);
+      اگر (UNLIKELY (ret < 0))
+        بازگشت ret;
 
-      if (state_string == NULL)
+      اگر (state_string == پوچ)
         st->state = LIBCRUN_CONTAINER_STATUS_STOPPED;
-      else if (strcmp (state_string, "creating") == 0)
+      وگرنه اگر (strcmp (state_string, "creating") == 0)
         st->state = LIBCRUN_CONTAINER_STATUS_CREATING;
-      else if (strcmp (state_string, "created") == 0)
+      وگرنه اگر (strcmp (state_string, "created") == 0)
         st->state = LIBCRUN_CONTAINER_STATUS_CREATED;
-      else if (strcmp (state_string, "running") == 0)
+      وگرنه اگر (strcmp (state_string, "running") == 0)
         st->state = LIBCRUN_CONTAINER_STATUS_RUNNING;
-      else if (strcmp (state_string, "paused") == 0)
+      وگرنه اگر (strcmp (state_string, "paused") == 0)
         st->state = LIBCRUN_CONTAINER_STATUS_PAUSED;
-      else
+      وگرنه
         st->state = LIBCRUN_CONTAINER_STATUS_STOPPED;
 
       st->state_resolved = true;
     }
 
-  if (state)
+  اگر (state)
     *state = st->state;
-  if (running)
+  اگر (running)
     *running = st->running;
-  return 0;
+  بازگشت 0;
 }
 
-const char *
+ثابت نویسه *
 libcrun_container_state_to_string (libcrun_container_state_t state)
 {
-  switch (state)
+  انتخاب (state)
     {
-    case LIBCRUN_CONTAINER_STATUS_CREATING:
-      return "creating";
-    case LIBCRUN_CONTAINER_STATUS_CREATED:
-      return "created";
-    case LIBCRUN_CONTAINER_STATUS_RUNNING:
-      return "running";
-    case LIBCRUN_CONTAINER_STATUS_PAUSED:
-      return "paused";
-    case LIBCRUN_CONTAINER_STATUS_STOPPED:
-      return "stopped";
+    حالت LIBCRUN_CONTAINER_STATUS_CREATING:
+      بازگشت "creating";
+    حالت LIBCRUN_CONTAINER_STATUS_CREATED:
+      بازگشت "created";
+    حالت LIBCRUN_CONTAINER_STATUS_RUNNING:
+      بازگشت "running";
+    حالت LIBCRUN_CONTAINER_STATUS_PAUSED:
+      بازگشت "paused";
+    حالت LIBCRUN_CONTAINER_STATUS_STOPPED:
+      بازگشت "stopped";
     }
-  return "unknown";
+  بازگشت "unknown";
 }
 
 pid_t
 libcrun_status_get_pid (libcrun_status_t *st)
 {
-  return st->status.pid;
+  بازگشت st->status.pid;
 }
 
-const char *
+ثابت نویسه *
 libcrun_status_get_bundle (libcrun_status_t *st)
 {
-  return st->status.bundle;
+  بازگشت st->status.bundle;
 }
 
-const char *
+ثابت نویسه *
 libcrun_status_get_rootfs (libcrun_status_t *st)
 {
-  return st->status.rootfs;
+  بازگشت st->status.rootfs;
 }
 
-const char *
+ثابت نویسه *
 libcrun_status_get_created (libcrun_status_t *st)
 {
-  return st->status.created;
+  بازگشت st->status.created;
 }
 
-const char *
+ثابت نویسه *
 libcrun_status_get_owner (libcrun_status_t *st)
 {
-  return st->status.owner;
+  بازگشت st->status.owner;
 }
 
-const char *
+ثابت نویسه *
 libcrun_status_get_scope (libcrun_status_t *st)
 {
-  return st->status.scope;
+  بازگشت st->status.scope;
 }
 
-const char *
+ثابت نویسه *
 libcrun_status_get_external_descriptors (libcrun_status_t *st)
 {
-  return st->status.external_descriptors;
+  بازگشت st->status.external_descriptors;
 }
 
-int
-libcrun_container_get_state_string (libcrun_context_t *context, const char *id, const char **out, int *running,
+صحیح
+libcrun_container_get_state_string (libcrun_context_t *context, ثابت نویسه *id, ثابت نویسه **out, صحیح *running,
                                     libcrun_error_t *err)
 {
   cleanup_container_status libcrun_container_status_t status = {};
-  int local_running;
-  int ret;
+  صحیح local_running;
+  صحیح ret;
 
-  ret = libcrun_read_container_status (&status, context->state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_read_container_status (&status, context->state_ریشه, id, err);
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
-  ret = libcrun_get_container_state_string (id, &status, context->state_root, out, &local_running, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_get_container_state_string (id, &status, context->state_ریشه, out, &local_running, err);
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
-  if (running)
+  اگر (running)
     *running = local_running;
-  return 0;
+  بازگشت 0;
 }
 
-int
-libcrun_get_state_dir (char **out, const char *state_root, const char *id, libcrun_error_t *err)
+صحیح
+libcrun_get_state_dir (نویسه **out, ثابت نویسه *state_ریشه, ثابت نویسه *id, libcrun_error_t *err)
 {
-  return libcrun_get_state_directory (out, state_root, id, err);
+  بازگشت libcrun_get_state_directory (out, state_ریشه, id, err);
 }
 
-int
+صحیح
 libcrun_container_list (libcrun_context_t *context, libcrun_container_list_t **out, libcrun_error_t *err)
 {
-  return libcrun_get_containers_list (out, context->state_root, err);
+  بازگشت libcrun_get_containers_list (out, context->state_ریشه, err);
 }
 
 libcrun_container_iter_t *
 libcrun_container_list_iter (libcrun_container_list_t *l)
 {
-  libcrun_container_iter_t *it = xmalloc0 (sizeof (*it));
+  libcrun_container_iter_t *it = xmalloc0 (اندازه (*it));
   it->cur = l;
-  return it;
+  بازگشت it;
 }
 
 bool
-libcrun_container_iter_next (libcrun_container_iter_t *it, const char **id)
+libcrun_container_iter_next (libcrun_container_iter_t *it, ثابت نویسه **id)
 {
-  if (it == NULL || it->cur == NULL)
-    return false;
+  اگر (it == پوچ || it->cur == پوچ)
+    بازگشت false;
 
-  if (id)
+  اگر (id)
     *id = it->cur->name;
   it->cur = it->cur->next;
-  return true;
+  بازگشت true;
 }
 
-void
+تهی
 libcrun_container_iter_free (libcrun_container_iter_t *it)
 {
-  free (it);
+  آزاد (it);
 }
 
-void
+تهی
 libcrun_container_list_free (libcrun_container_list_t *l)
 {
   libcrun_free_containers_list (l);

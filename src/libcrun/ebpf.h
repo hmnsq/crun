@@ -18,31 +18,31 @@
 #ifndef EBPF_H
 #define EBPF_H
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include "error.h"
-#include <errno.h>
-#include <argp.h>
-#include <ocispec/runtime_spec_schema_config_schema.h>
-#include "container.h"
+#شامل <config.h>
+#شامل <stdio.h>
+#شامل <stdlib.h>
+#شامل "error.h"
+#شامل <errno.h>
+#شامل <argp.h>
+#شامل <ocispec/runtime_spec_schema_config_schema.h>
+#شامل "container.h"
 
 #define SYS_FS_BPF "/sys/fs/bpf"
 #define CRUN_BPF_DIR SYS_FS_BPF "/crun"
 
-struct bpf_program;
+ساختار bpf_program;
 
-struct bpf_program *bpf_program_new (size_t size);
-struct bpf_program *bpf_program_append (struct bpf_program *p, void *data, size_t size);
+ساختار bpf_program *bpf_program_new (size_t size);
+ساختار bpf_program *bpf_program_append (ساختار bpf_program *p, تهی *data, size_t size);
 
-struct bpf_program *bpf_program_init_dev (struct bpf_program *program, libcrun_error_t *err);
-struct bpf_program *bpf_program_append_dev (struct bpf_program *program, const char *access, char type, int major,
-                                            int minor, bool accept, libcrun_error_t *err);
-struct bpf_program *bpf_program_complete_dev (struct bpf_program *program, libcrun_error_t *err);
+ساختار bpf_program *bpf_program_init_dev (ساختار bpf_program *program, libcrun_error_t *err);
+ساختار bpf_program *bpf_program_append_dev (ساختار bpf_program *program, ثابت نویسه *access, نویسه type, صحیح major,
+                                            صحیح minor, bool accept, libcrun_error_t *err);
+ساختار bpf_program *bpf_program_complete_dev (ساختار bpf_program *program, libcrun_error_t *err);
 
-int libcrun_ebpf_load (struct bpf_program *program, int dirfd, const char *pin, libcrun_error_t *err);
-int libcrun_ebpf_read_program (struct bpf_program **program, const char *path, libcrun_error_t *err);
-int libcrun_ebpf_query_cgroup_progs (const char *cgroup_path, uint32_t **progs_out, size_t *n_progs_out, libcrun_error_t *err);
-bool libcrun_ebpf_cmp_programs (struct bpf_program *program1, struct bpf_program *program2);
+صحیح libcrun_ebpf_load (ساختار bpf_program *program, صحیح dirfd, ثابت نویسه *pin, libcrun_error_t *err);
+صحیح libcrun_ebpf_read_program (ساختار bpf_program **program, ثابت نویسه *path, libcrun_error_t *err);
+صحیح libcrun_ebpf_query_cgroup_progs (ثابت نویسه *cgroup_path, uint32_t **progs_out, size_t *n_progs_out, libcrun_error_t *err);
+bool libcrun_ebpf_cmp_programs (ساختار bpf_program *program1, ساختار bpf_program *program2);
 
 #endif

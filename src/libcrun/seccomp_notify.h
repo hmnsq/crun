@@ -18,24 +18,24 @@
 #ifndef SECCOMP_NOTIFY_H
 #define SECCOMP_NOTIFY_H
 
-#include <config.h>
-#include "error.h"
+#شامل <config.h>
+#شامل "error.h"
 
-#if ! (HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES)
+#اگر ! (HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES)
 #  define SECCOMP_NOTIFY_SKIP_TYPEDEF
 #endif
-#include "seccomp_notify_plugin.h"
+#شامل "seccomp_notify_plugin.h"
 
-struct seccomp_notify_context_s;
+ساختار seccomp_notify_context_s;
 
-LIBCRUN_PUBLIC int libcrun_load_seccomp_notify_plugins (struct seccomp_notify_context_s **out, const char *plugins,
-                                                        struct libcrun_load_seccomp_notify_conf_s *conf,
+LIBCRUN_PUBLIC صحیح libcrun_load_seccomp_notify_plugins (ساختار seccomp_notify_context_s **out, ثابت نویسه *plugins,
+                                                        ساختار libcrun_load_seccomp_notify_conf_s *conf,
                                                         libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, int seccomp_fd,
+LIBCRUN_PUBLIC صحیح libcrun_seccomp_notify_plugins (ساختار seccomp_notify_context_s *ctx, صحیح seccomp_fd,
                                                    libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_free_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, libcrun_error_t *err);
+LIBCRUN_PUBLIC صحیح libcrun_free_seccomp_notify_plugins (ساختار seccomp_notify_context_s *ctx, libcrun_error_t *err);
 
 #define cleanup_seccomp_notify_context __attribute__ ((cleanup (cleanup_seccomp_notify_pluginsp)))
-void cleanup_seccomp_notify_pluginsp (void *p);
+تهی cleanup_seccomp_notify_pluginsp (تهی *p);
 
 #endif

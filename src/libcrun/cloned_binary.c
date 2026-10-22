@@ -40,29 +40,29 @@
  */
 
 #define _GNU_SOURCE
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include <limits.h>
-#include <fcntl.h>
-#include <errno.h>
+#شامل <unistd.h>
+#شامل <stdio.h>
+#شامل <stdlib.h>
+#شامل <stdbool.h>
+#شامل <string.h>
+#شامل <limits.h>
+#شامل <fcntl.h>
+#شامل <errno.h>
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/statfs.h>
-#include <sys/vfs.h>
-#include <sys/mman.h>
-#include <sys/mount.h>
-#include <sys/sendfile.h>
-#include <sys/syscall.h>
+#شامل <sys/types.h>
+#شامل <sys/stat.h>
+#شامل <sys/statfs.h>
+#شامل <sys/vfs.h>
+#شامل <sys/mman.h>
+#شامل <sys/mount.h>
+#شامل <sys/sendfile.h>
+#شامل <sys/syscall.h>
 
-#include "utils.h"
-#include "linux.h"
+#شامل "utils.h"
+#شامل "linux.h"
 
 /* Use our own wrapper for memfd_create. */
-#if !defined(SYS_memfd_create) && defined(__NR_memfd_create)
+#اگر !defined(SYS_memfd_create) && defined(__NR_memfd_create)
 #  define SYS_memfd_create __NR_memfd_create
 #endif
 /* memfd_create(2) flags -- copied from <linux/memfd.h>. */
@@ -70,13 +70,13 @@
 #  define MFD_CLOEXEC       0x0001U
 #  define MFD_ALLOW_SEALING 0x0002U
 #endif
-int memfd_create(const char *name, unsigned int flags)
+صحیح memfd_create(ثابت نویسه *name, unsigned صحیح flags)
 {
 #ifdef SYS_memfd_create
-	return syscall(SYS_memfd_create, name, flags);
-#else
+	بازگشت syscall(SYS_memfd_create, name, flags);
+#وگرنه
 	errno = ENOSYS;
-	return -1;
+	بازگشت -1;
 #endif
 }
 
@@ -96,7 +96,7 @@ int memfd_create(const char *name, unsigned int flags)
 #  define F_SEAL_WRITE  0x0008	/* prevent writes */
 #endif
 
-#define CLONED_BINARY_ENV "_LIBCONTAINER_CLONED_BINARY"
+#define CLONED_دودویی_ENV "_LIBCONTAINER_CLONED_BINARY"
 #define CRUN_MEMFD_COMMENT "crun_cloned:/proc/self/exe"
 #define CRUN_MEMFD_SEALS \
 	(F_SEAL_SEAL | F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE)
@@ -106,15 +106,15 @@ int memfd_create(const char *name, unsigned int flags)
  * /proc/self/exe a memfd). F_GET_SEALS will only succeed for memfds (or rather
  * for shmem files), and we want to be sure it's actually sealed.
  */
-static int is_self_cloned(void)
+ایستا صحیح is_self_cloned(تهی)
 {
-	int fd, ret, is_cloned = 0;
-	struct stat statbuf = {};
-	struct statfs fsbuf = {};
+	صحیح fd, ret, is_cloned = 0;
+	ساختار stat statbuf = {};
+	ساختار statfs fsbuf = {};
 
 	fd = open("/proc/self/exe", O_RDONLY|O_CLOEXEC);
-	if (fd < 0)
-		return -ENOTRECOVERABLE;
+	اگر (fd < 0)
+		بازگشت -ENOTRECOVERABLE;
 
 	/*
 	 * Is the binary a fully-sealed memfd? We don't need CLONED_BINARY_ENV for
@@ -123,9 +123,9 @@ static int is_self_cloned(void)
 	 * memfd to /usr/bin/crun to allow reuse).
 	 */
 	ret = fcntl(fd, F_GET_SEALS);
-	if (ret >= 0) {
+	اگر (ret >= 0) {
 		is_cloned = (ret == CRUN_MEMFD_SEALS);
-		goto out;
+		برو out;
 	}
 
 	/* Is the binary on a read-only filesystem? We can't detect bind-mounts in
@@ -134,9 +134,9 @@ static int is_self_cloned(void)
 	 * such as truly read-only filesystems like squashfs/erofs as well as
 	 * things like the ostree read-only bind mount.
 	 */
-	if (fstatfs(fd, &fsbuf) >= 0 && (fsbuf.f_flags & MS_RDONLY)) {
+	اگر (fstatfs(fd, &fsbuf) >= 0 && (fsbuf.f_flags & MS_RDONLY)) {
 		is_cloned = true;
-		goto out;
+		برو out;
 	}
 
 	/*
@@ -144,9 +144,9 @@ static int is_self_cloned(void)
 	 * writeable (or we can't tell if they're fully safe) and thus we must
 	 * check the environment as an extra layer of defence.
 	 */
-	if (!getenv(CLONED_BINARY_ENV)) {
+	اگر (!getenv(CLONED_دودویی_ENV)) {
 		is_cloned = false;
-		goto out;
+		برو out;
 	}
 
 	/*
@@ -157,48 +157,48 @@ static int is_self_cloned(void)
 	 * cannot fake (because unlinking requires being able to resolve the
 	 * path that you want to unlink).
 	 */
-	if (fstat(fd, &statbuf) >= 0)
+	اگر (fstat(fd, &statbuf) >= 0)
 		is_cloned |= (statbuf.st_nlink == 0);
 
 out:
 	close(fd);
-	return is_cloned;
+	بازگشت is_cloned;
 }
 
 /* Read a given file into a new buffer, and providing the length. */
-static char *read_file(char *path, size_t *length)
+ایستا نویسه *read_file(نویسه *path, size_t *length)
 {
-	int fd;
-	char buf[4096], *copy = NULL;
+	صحیح fd;
+	نویسه buf[4096], *copy = پوچ;
 
-	if (!length)
-		return NULL;
+	اگر (!length)
+		بازگشت پوچ;
 
 	fd = open(path, O_RDONLY | O_CLOEXEC);
-	if (fd < 0)
-		return NULL;
+	اگر (fd < 0)
+		بازگشت پوچ;
 
 	*length = 0;
-	for (;;) {
+	برای (;;) {
 		ssize_t n;
 
-		n = read(fd, buf, sizeof(buf));
-		if (n < 0)
-			goto error;
-		if (!n)
-			break;
+		n = اقرأ(fd, buf, اندازه(buf));
+		اگر (n < 0)
+			برو error;
+		اگر (!n)
+			بشکن;
 
-		copy = xrealloc(copy, (*length + n) * sizeof(*copy));
+		copy = xrealloc(copy, (*length + n) * اندازه(*copy));
 		memcpy(copy + *length, buf, n);
 		*length += n;
 	}
 	close(fd);
-	return copy;
+	بازگشت copy;
 
 error:
 	close(fd);
-	free(copy);
-	return NULL;
+	آزاد(copy);
+	بازگشت پوچ;
 }
 
 /*
@@ -206,22 +206,22 @@ error:
  * NUL-delimited data, within the given length and adds a pointer to each entry
  * to the array of pointers.
  */
-static int parse_xargs(char *data, int data_length, char ***output)
+ایستا صحیح parse_xargs(نویسه *data, صحیح data_length, نویسه ***output)
 {
-	int num = 0;
-	char *cur = data;
+	صحیح رقم = 0;
+	نویسه *cur = data;
 
-	if (!data || *output != NULL)
-		return -1;
+	اگر (!data || *output != پوچ)
+		بازگشت -1;
 
-	while (cur < data + data_length) {
-		num++;
-		*output = xrealloc(*output, (num + 1) * sizeof(**output));
-		(*output)[num - 1] = cur;
+	وقتی (cur < data + data_length) {
+		رقم++;
+		*output = xrealloc(*output, (رقم + 1) * اندازه(**output));
+		(*output)[رقم - 1] = cur;
 		cur += strlen(cur) + 1;
 	}
-	(*output)[num] = NULL;
-	return num;
+	(*output)[رقم] = پوچ;
+	بازگشت رقم;
 }
 
 /*
@@ -229,26 +229,26 @@ static int parse_xargs(char *data, int data_length, char ***output)
  * This is necessary because we are running in a context where we don't have a
  * main() that we can just get the arguments from.
  */
-static int fetchve(char ***argv)
+ایستا صحیح fetchve(نویسه ***argv)
 {
-	char *cmdline = NULL;
+	نویسه *cmdline = پوچ;
 	size_t cmdline_size;
 
 	cmdline = read_file("/proc/self/cmdline", &cmdline_size);
-	if (!cmdline)
-		goto error;
+	اگر (!cmdline)
+		برو error;
 
-	if (parse_xargs(cmdline, cmdline_size, argv) <= 0)
-		goto error;
+	اگر (parse_xargs(cmdline, cmdline_size, argv) <= 0)
+		برو error;
 
-	return 0;
+	بازگشت 0;
 
 error:
-	free(cmdline);
-	return -EINVAL;
+	آزاد(cmdline);
+	بازگشت -EINVAL;
 }
 
-enum {
+شمارش {
 	EFD_NONE = 0,
 	EFD_MEMFD,
 	EFD_FILE,
@@ -260,21 +260,21 @@ enum {
  * have the mkostemp(3) fallback.
  */
 #ifndef O_TMPFILE
-#  if defined(__O_TMPFILE) && defined(O_DIRECTORY)
+#  اگر defined(__O_TMPFILE) && defined(O_DIRECTORY)
 #    define O_TMPFILE (__O_TMPFILE | O_DIRECTORY)
 #  endif
 #endif
 
-static int make_execfd(int *fdtype)
+ایستا صحیح make_execfd(صحیح *fdtype)
 {
-	int fd = -1;
-	char template[PATH_MAX] = {0};
-	char *prefix = getenv("_LIBCONTAINER_STATEDIR");
+	صحیح fd = -1;
+	نویسه template[PATH_MAX] = {0};
+	نویسه *prefix = getenv("_LIBCONTAINER_STATEDIR");
 
-	if (!prefix || *prefix != '/')
+	اگر (!prefix || *prefix != '/')
 		prefix = "/tmp";
-	if (snprintf(template, sizeof(template), "%s/crun.XXXXXX", prefix) < 0)
-		return -1;
+	اگر (snprintf(template, اندازه(template), "%s/crun.XXXXXX", prefix) < 0)
+		بازگشت -1;
 
 	/*
 	 * Now try memfd, it's much nicer than actually creating a file in STATEDIR
@@ -283,10 +283,10 @@ static int make_execfd(int *fdtype)
 	 */
 	*fdtype = EFD_MEMFD;
 	fd = memfd_create(CRUN_MEMFD_COMMENT, MFD_CLOEXEC | MFD_ALLOW_SEALING);
-	if (fd >= 0)
-		return fd;
-	if (errno != ENOSYS && errno != EINVAL)
-		goto error;
+	اگر (fd >= 0)
+		بازگشت fd;
+	اگر (errno != ENOSYS && errno != EINVAL)
+		برو error;
 
 #ifdef O_TMPFILE
 	/*
@@ -296,8 +296,8 @@ static int make_execfd(int *fdtype)
 	 */
 	*fdtype = EFD_FILE;
 	fd = open(prefix, O_TMPFILE | O_EXCL | O_RDWR | O_CLOEXEC, 0700);
-	if (fd >= 0) {
-		struct stat statbuf = {};
+	اگر (fd >= 0) {
+		ساختار stat statbuf = {};
 		bool working_otmpfile = false;
 
 		/*
@@ -306,18 +306,18 @@ static int make_execfd(int *fdtype)
 		 * if we get nlink != 0 (or EISDIR) then we know that this kernel
 		 * doesn't support O_TMPFILE.
 		 */
-		if (fstat(fd, &statbuf) >= 0)
+		اگر (fstat(fd, &statbuf) >= 0)
 			working_otmpfile = (statbuf.st_nlink == 0);
 
-		if (working_otmpfile)
-			return fd;
+		اگر (working_otmpfile)
+			بازگشت fd;
 
 		/* Pretend that we got EISDIR since O_TMPFILE failed. */
 		close(fd);
 		errno = EISDIR;
 	}
-	if (errno != EISDIR)
-		goto error;
+	اگر (errno != EISDIR)
+		برو error;
 #endif /* defined(O_TMPFILE) */
 
 	/*
@@ -326,69 +326,69 @@ static int make_execfd(int *fdtype)
 	 */
 	*fdtype = EFD_FILE;
 	fd = mkostemp(template, O_CLOEXEC);
-	if (fd >= 0) {
-		if (unlink(template) >= 0)
-			return fd;
+	اگر (fd >= 0) {
+		اگر (unlink(template) >= 0)
+			بازگشت fd;
 		close(fd);
 	}
 
 error:
 	*fdtype = EFD_NONE;
-	return -1;
+	بازگشت -1;
 }
 
-static int seal_execfd(int *fd, int fdtype)
+ایستا صحیح seal_execfd(صحیح *fd, صحیح fdtype)
 {
-	switch (fdtype) {
-	case EFD_MEMFD:
-		return fcntl(*fd, F_ADD_SEALS, CRUN_MEMFD_SEALS);
-	case EFD_FILE: {
+	انتخاب (fdtype) {
+	حالت EFD_MEMFD:
+		بازگشت fcntl(*fd, F_ADD_SEALS, CRUN_MEMFD_SEALS);
+	حالت EFD_FILE: {
 		/* Need to re-open our pseudo-memfd as an O_PATH to avoid execve(2) giving -ETXTBSY. */
-		int newfd;
-		char fdpath[PATH_MAX] = {0};
+		صحیح newfd;
+		نویسه fdpath[PATH_MAX] = {0};
 
-		if (fchmod(*fd, 0100) < 0)
-			return -1;
+		اگر (fchmod(*fd, 0100) < 0)
+			بازگشت -1;
 
-		if (snprintf(fdpath, sizeof(fdpath), "/proc/self/fd/%d", *fd) < 0)
-			return -1;
+		اگر (snprintf(fdpath, اندازه(fdpath), "/proc/self/fd/%d", *fd) < 0)
+			بازگشت -1;
 
 		newfd = open(fdpath, O_PATH | O_CLOEXEC);
-		if (newfd < 0)
-			return -1;
+		اگر (newfd < 0)
+			بازگشت -1;
 
 		close(*fd);
 		*fd = newfd;
-		return 0;
+		بازگشت 0;
 	}
-	default:
-	   break;
+	پیشفرض:
+	   بشکن;
 	}
-	return -1;
+	بازگشت -1;
 }
 
-static int try_bindfd_mount_api(void)
+ایستا صحیح try_bindfd_mount_api(تهی)
 {
 	libcrun_error_t err;
-	int mountfd = get_bind_mount (-1, "/proc/self/exe", false, true, false, MS_PRIVATE, &err);
-	if (mountfd < 0) {
+	صحیح mountfd = get_bind_mount (-1, "/proc/self/exe", false, true, false, MS_PRIVATE, &err);
+	اگر (mountfd < 0) {
 		crun_error_release (&err);
-		return -1;
+		بازگشت -1;
 	}
-	return mountfd;
+	بازگشت mountfd;
 }
 
-static int try_bindfd(void)
+ایستا صحیح try_bindfd(تهی)
 {
 	mode_t mask;
-	int fd, ret = -1;
-	char template[PATH_MAX] = {0};
-	char *prefix = getenv("_LIBCONTAINER_STATEDIR");
+	صحیح fd, ret = -1;
+	نویسه template[PATH_MAX] = {0};
+	نویسه *prefix = getenv("_LIBCONTAINER_STATEDIR");
 
-	if (!prefix || *prefix != '/')
+	اگر (!prefix || *prefix != '/')
 		prefix = "/tmp";
-	if (snprintf(template, sizeof(template), "%s/crun.XXXXXX", prefix) < 0)
-		return ret;
+	اگر (snprintf(template, اندازه(template), "%s/crun.XXXXXX", prefix) < 0)
+		بازگشت ret;
 
 	/*
 	 * We need somewhere to mount it, mounting anything over /proc/self is a
@@ -397,8 +397,8 @@ static int try_bindfd(void)
 	mask = umask(0700);
 	fd = mkstemp(template);
 	umask(mask);
-	if (fd < 0)
-		return ret;
+	اگر (fd < 0)
+		بازگشت ret;
 	close(fd);
 
 	/*
@@ -407,10 +407,10 @@ static int try_bindfd(void)
 	 * complicated and it's only worth doing if someone actually needs it.
 	 */
 	ret = -EPERM;
-	if (mount("/proc/self/exe", template, "", MS_BIND, "") < 0)
-		goto out;
-	if (mount("", template, "", MS_REMOUNT | MS_BIND | MS_RDONLY, "") < 0)
-		goto out_umount;
+	اگر (mount("/proc/self/exe", template, "", MS_BIND, "") < 0)
+		برو out;
+	اگر (mount("", template, "", MS_REMOUNT | MS_BIND | MS_RDONLY, "") < 0)
+		برو out_umount;
 
 
 	/* Get read-only handle that we're sure can't be made read-write. */
@@ -422,8 +422,8 @@ out_umount:
 	 * read-write and that would be quite bad (the fd would be made read-write
 	 * too, invalidating the protection).
 	 */
-	if (umount2(template, MNT_DETACH) < 0) {
-		if (ret >= 0)
+	اگر (umount2(template, MNT_DETACH) < 0) {
+		اگر (ret >= 0)
 			close(ret);
 		ret = -ENOTRECOVERABLE;
 	}
@@ -434,60 +434,60 @@ out:
 	 * there's an empty file left around in STATEDIR.
 	 */
 	unlink(template);
-	return ret;
+	بازگشت ret;
 }
 
-static ssize_t fd_to_fd(int outfd, int infd)
+ایستا ssize_t fd_to_fd(صحیح outfd, صحیح infd)
 {
 	ssize_t total = 0;
-	char buffer[4096];
+	نویسه buffer[4096];
 
-	for (;;) {
+	برای (;;) {
 		ssize_t nread, nwritten = 0;
 
-		nread = read(infd, buffer, sizeof(buffer));
-		if (nread < 0)
-			return -1;
-		if (!nread)
-			break;
+		nread = اقرأ(infd, buffer, اندازه(buffer));
+		اگر (nread < 0)
+			بازگشت -1;
+		اگر (!nread)
+			بشکن;
 
-		do {
-			ssize_t n = write(outfd, buffer + nwritten, nread - nwritten);
-			if (n < 0)
-				return -1;
+		انجامبده {
+			ssize_t n = اكتب(outfd, buffer + nwritten, nread - nwritten);
+			اگر (n < 0)
+				بازگشت -1;
 			nwritten += n;
-		} while(nwritten < nread);
+		} وقتی(nwritten < nread);
 
 		total += nwritten;
 	}
 
-	return total;
+	بازگشت total;
 }
 
-static int clone_binary(void)
+ایستا صحیح clone_دودویی(تهی)
 {
-	cleanup_close int execfd = -1;
-	struct stat statbuf = {};
+	cleanup_close صحیح execfd = -1;
+	ساختار stat statbuf = {};
 	ssize_t sent = 0;
-	int fdtype = EFD_NONE;
+	صحیح fdtype = EFD_NONE;
 
 	/*
 	 * Before we resort to copying, let's try creating an ro-binfd in one shot
 	 * by getting a handle for a read-only bind-mount of the execfd.
 	 */
 	execfd = try_bindfd_mount_api();
-	if (execfd >= 0) {
+	اگر (execfd >= 0) {
 		/* Transfer ownership to caller */
-		int ret_execfd = execfd;
+		صحیح ret_execfd = execfd;
 		execfd = -1;
-		return ret_execfd;
+		بازگشت ret_execfd;
 	}
 	execfd = try_bindfd();
-	if (execfd >= 0) {
+	اگر (execfd >= 0) {
 		/* Transfer ownership to caller */
-		int ret_execfd = execfd;
+		صحیح ret_execfd = execfd;
 		execfd = -1;
-		return ret_execfd;
+		بازگشت ret_execfd;
 	}
 
 	/*
@@ -495,69 +495,69 @@ static int clone_binary(void)
 	 * can seal the contents.
 	 */
 	execfd = make_execfd(&fdtype);
-	if (execfd < 0 || fdtype == EFD_NONE)
-		return -ENOTRECOVERABLE;
+	اگر (execfd < 0 || fdtype == EFD_NONE)
+		بازگشت -ENOTRECOVERABLE;
 
 	{
-		cleanup_close int binfd = -1;
+		cleanup_close صحیح binfd = -1;
 		binfd = open("/proc/self/exe", O_RDONLY | O_CLOEXEC);
-		if (binfd < 0)
-			goto error;
+		اگر (binfd < 0)
+			برو error;
 
-		if (fstat(binfd, &statbuf) < 0)
-			goto error;
+		اگر (fstat(binfd, &statbuf) < 0)
+			برو error;
 
-		while (sent < statbuf.st_size) {
-			int n = sendfile(execfd, binfd, NULL, statbuf.st_size - sent);
-			if (n < 0) {
+		وقتی (sent < statbuf.st_size) {
+			صحیح n = sendfile(execfd, binfd, پوچ, statbuf.st_size - sent);
+			اگر (n < 0) {
 				/* sendfile can fail so we fallback to a dumb user-space copy. */
 				n = fd_to_fd(execfd, binfd);
-				if (n < 0)
-					goto error;
+				اگر (n < 0)
+					برو error;
 			}
 			sent += n;
 		}
 	}
-	if (sent != statbuf.st_size)
-		goto error;
+	اگر (sent != statbuf.st_size)
+		برو error;
 
-	if (seal_execfd(&execfd, fdtype) < 0)
-		goto error;
+	اگر (seal_execfd(&execfd, fdtype) < 0)
+		برو error;
 
 	{
 		/* Transfer ownership to caller */
-		int ret_execfd = execfd;
+		صحیح ret_execfd = execfd;
 		execfd = -1;
-		return ret_execfd;
+		بازگشت ret_execfd;
 	}
 error:
-	return -EIO;
+	بازگشت -EIO;
 }
 
 /* Get cheap access to the environment. */
-extern char **environ;
+بیرونی نویسه **environ;
 
-int ensure_cloned_binary(void)
+صحیح ensure_cloned_دودویی(تهی)
 {
-	cleanup_close int execfd = -1;
-	char **argv = NULL;
+	cleanup_close صحیح execfd = -1;
+	نویسه **argv = پوچ;
 
 	/* Check that we're not self-cloned, and if we are then bail. */
-	int cloned = is_self_cloned();
-	if (cloned > 0 || cloned == -ENOTRECOVERABLE)
-		return cloned;
+	صحیح cloned = is_self_cloned();
+	اگر (cloned > 0 || cloned == -ENOTRECOVERABLE)
+		بازگشت cloned;
 
-	if (fetchve(&argv) < 0)
-		return -EINVAL;
+	اگر (fetchve(&argv) < 0)
+		بازگشت -EINVAL;
 
-	execfd = clone_binary();
-	if (execfd < 0)
-		return -EIO;
+	execfd = clone_دودویی();
+	اگر (execfd < 0)
+		بازگشت -EIO;
 
-	if (putenv(CLONED_BINARY_ENV "=1"))
-		goto error;
+	اگر (putenv(CLONED_دودویی_ENV "=1"))
+		برو error;
 
 	fexecve(execfd, argv, environ);
 error:
-	return -ENOEXEC;
+	بازگشت -ENOEXEC;
 }

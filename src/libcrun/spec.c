@@ -17,16 +17,16 @@
  */
 #define _GNU_SOURCE
 
-#include <config.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <errno.h>
-#include "spec.h"
-#include "utils.h"
-#include "cgroup.h"
-#include "cgroup-utils.h"
+#شامل <config.h>
+#شامل <stdbool.h>
+#شامل <stdio.h>
+#شامل <errno.h>
+#شامل "spec.h"
+#شامل "utils.h"
+#شامل "cgroup.h"
+#شامل "cgroup-utils.h"
 
-static const char spec_file[] = "\
+ایستا ثابت نویسه spec_file[] = "\
 {\n\
 	\"ociVersion\": \"1.0.0\",\n\
 	\"process\": {\n\
@@ -76,7 +76,7 @@ static const char spec_file[] = "\
 		],\n\
 		\"noNewPrivileges\": true\n\
 	},\n\
-	\"root\": {\n\
+	\"ریشه\": {\n\
 		\"path\": \"rootfs\",\n\
 		\"readonly\": true\n\
 	},\n\
@@ -189,7 +189,7 @@ static const char spec_file[] = "\
 			\"/proc/acpi\",\n\
 			\"/proc/asound\",\n\
 			\"/proc/kcore\",\n\
-			\"/proc/keys\",\n\
+			\"/proc/کلیدها\",\n\
 			\"/proc/latency_stats\",\n\
 			\"/proc/timer_list\",\n\
 			\"/proc/timer_stats\",\n\
@@ -207,59 +207,59 @@ static const char spec_file[] = "\
 	}\n\
 }\n";
 
-static const char *spec_pts_tty_group = ",\n\
+ایستا ثابت نویسه *spec_pts_tty_group = ",\n\
 				\"gid=5\"\n";
 
-static const char *spec_user = "\
+ایستا ثابت نویسه *spec_user = "\
 			{\n\
 				\"type\": \"user\"\n\
 			},\n";
 
-static const char *spec_cgroupns = "\
+ایستا ثابت نویسه *spec_cgroupns = "\
 			{\n\
 				\"type\": \"cgroup\"\n\
 			},\n";
 
-int
-libcrun_container_spec (bool root, FILE *out, libcrun_error_t *err)
+صحیح
+libcrun_container_spec (bool ریشه, FILE *out, libcrun_error_t *err)
 {
-  int ret;
-  int cgroup_mode;
+  صحیح ret;
+  صحیح cgroup_mode;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  اگر (UNLIKELY (cgroup_mode < 0))
+    بازگشت cgroup_mode;
 
   ret = fprintf (out, spec_file,
-                 root ? spec_pts_tty_group : "\n",
-                 root ? "" : spec_user,
+                 ریشه ? spec_pts_tty_group : "\n",
+                 ریشه ? "" : spec_user,
                  cgroup_mode == CGROUP_MODE_UNIFIED ? spec_cgroupns : "");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fprintf failed");
+  اگر (UNLIKELY (ret < 0))
+    بازگشت crun_make_error (err, errno, "fprintf failed");
 
-  return ret;
+  بازگشت ret;
 }
 
-int
-libcrun_container_spec_json (bool root, char **out, libcrun_error_t *err)
+صحیح
+libcrun_container_spec_json (bool ریشه, نویسه **out, libcrun_error_t *err)
 {
-  char *buffer = NULL;
+  نویسه *buffer = پوچ;
   size_t len = 0;
   FILE *f;
-  int ret;
+  صحیح ret;
 
   f = open_memstream (&buffer, &len);
-  if (f == NULL)
-    return crun_make_error (err, errno, "open_memstream");
+  اگر (f == پوچ)
+    بازگشت crun_make_error (err, errno, "open_memstream");
 
-  ret = libcrun_container_spec (root, f, err);
+  ret = libcrun_container_spec (ریشه, f, err);
   fclose (f);
-  if (UNLIKELY (ret < 0))
+  اگر (UNLIKELY (ret < 0))
     {
-      free (buffer);
-      return ret;
+      آزاد (buffer);
+      بازگشت ret;
     }
 
   *out = buffer;
-  return 0;
+  بازگشت 0;
 }

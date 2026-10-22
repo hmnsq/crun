@@ -18,14 +18,14 @@
 #ifndef RUN_CREATE_H
 #define RUN_CREATE_H
 
-#include "crun.h"
+#شامل "crun.h"
 
-typedef int (*container_run_create_func_t) (libcrun_context_t *, libcrun_container_t *, unsigned int, libcrun_error_t *);
-typedef unsigned int (*get_options_func_t) ();
+تعریفنوع صحیح (*container_run_create_func_t) (libcrun_context_t *, libcrun_container_t *, unsigned صحیح, libcrun_error_t *);
+تعریفنوع unsigned صحیح (*get_options_func_t) ();
 
-int crun_run_create_internal (struct crun_global_arguments *global_args, int argc, char **argv,
+صحیح crun_run_create_internal (ساختار crun_global_arguments *global_args, صحیح argc, نویسه **argv,
                               container_run_create_func_t container_run_create_func, get_options_func_t get_options_func,
-                              libcrun_context_t *crun_context, struct argp *run_argp, const char **config_file,
-                              const char **bundle, libcrun_error_t *err);
+                              libcrun_context_t *crun_context, ساختار argp *run_argp, ثابت نویسه **config_file,
+                              ثابت نویسه **bundle, libcrun_error_t *err);
 
 #endif

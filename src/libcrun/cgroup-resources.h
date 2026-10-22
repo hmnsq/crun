@@ -18,29 +18,29 @@
 #ifndef CGROUP_RESOURCES_H
 #define CGROUP_RESOURCES_H
 
-#include "container.h"
-#include "cgroup.h"
-#include <unistd.h>
+#شامل "container.h"
+#شامل "cgroup.h"
+#شامل <unistd.h>
 
-struct default_dev_s
+ساختار default_dev_s
 {
-  char type;
-  int major;
-  int minor;
-  const char *access;
+  نویسه type;
+  صحیح major;
+  صحیح minor;
+  ثابت نویسه *access;
 };
-struct default_dev_s *get_default_devices ();
+ساختار default_dev_s *get_default_devices ();
 
-int check_memory_before_update (const char *path, runtime_spec_schema_config_linux_resources *resources,
+صحیح check_memory_before_update (ثابت نویسه *path, runtime_spec_schema_config_linux_resources *resources,
                                 libcrun_error_t *err);
 
-int update_cgroup_resources (const char *path,
-                             const char *state_root,
+صحیح update_cgroup_resources (ثابت نویسه *path,
+                             ثابت نویسه *state_ریشه,
                              runtime_spec_schema_config_linux_resources *resources,
                              bool need_devices,
                              libcrun_error_t *err);
 
-struct bpf_program *create_dev_bpf (runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
+ساختار bpf_program *create_dev_bpf (runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
                                     libcrun_error_t *err);
 
 #endif

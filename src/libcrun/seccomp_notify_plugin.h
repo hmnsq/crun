@@ -19,12 +19,12 @@
 
 #  include <linux/seccomp.h>
 
-struct libcrun_load_seccomp_notify_conf_s
+ساختار libcrun_load_seccomp_notify_conf_s
 {
-  const char *runtime_root_path;
-  const char *name;
-  const char *bundle_path;
-  const char *oci_config_path;
+  ثابت نویسه *runtime_ریشه_path;
+  ثابت نویسه *name;
+  ثابت نویسه *bundle_path;
+  ثابت نویسه *oci_config_path;
 };
 
 /* The plugin doesn't know how to handle the request.  */
@@ -39,7 +39,7 @@ struct libcrun_load_seccomp_notify_conf_s
 #  ifndef SECCOMP_NOTIFY_SKIP_TYPEDEF
 
 /* Configure the plugin.  Return an opaque pointer that will be used for successive calls.  */
-typedef int (*run_oci_seccomp_notify_start_cb) (void **opaque, struct libcrun_load_seccomp_notify_conf_s *conf,
+تعریفنوع صحیح (*run_oci_seccomp_notify_start_cb) (تهی **opaque, ساختار libcrun_load_seccomp_notify_conf_s *conf,
                                                 size_t size_configuration);
 
 /* Try to handle a single request.  It MUST be defined.
@@ -49,15 +49,15 @@ typedef int (*run_oci_seccomp_notify_start_cb) (void **opaque, struct libcrun_lo
    RUN_OCI_SECCOMP_NOTIFY_HANDLE_DELAYED_RESPONSE: the notification will be handled internally by the plugin and
    forwarded to seccomp_fd. It is useful for asynchronous handling.
 */
-typedef int (*run_oci_seccomp_notify_handle_request_cb) (void *opaque, struct seccomp_notif_sizes *sizes,
-                                                         struct seccomp_notif *sreq, struct seccomp_notif_resp *sresp,
-                                                         int seccomp_fd, int *handled);
+تعریفنوع صحیح (*run_oci_seccomp_notify_handle_request_cb) (تهی *opaque, ساختار seccomp_notif_sizes *sizes,
+                                                         ساختار seccomp_notif *sreq, ساختار seccomp_notif_resp *sresp,
+                                                         صحیح seccomp_fd, صحیح *handled);
 
 /* Stop the plugin.  The opaque value is the return value from run_oci_seccomp_notify_start.  */
-typedef int (*run_oci_seccomp_notify_stop_cb) (void *opaque);
+تعریفنوع صحیح (*run_oci_seccomp_notify_stop_cb) (تهی *opaque);
 
 /* Retrieve the API version used by the plugin.  It MUST return 1. */
-typedef int (*run_oci_seccomp_notify_plugin_version_cb) ();
+تعریفنوع صحیح (*run_oci_seccomp_notify_plugin_version_cb) ();
 
 #  endif
 

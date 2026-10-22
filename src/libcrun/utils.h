@@ -18,28 +18,28 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <argp.h>
-#include "error.h"
-#include <dirent.h>
-#include <unistd.h>
-#include <signal.h>
-#include <fcntl.h>
-#include <ocispec/runtime_spec_schema_config_schema.h>
-#include <sys/wait.h>
-#include "container.h"
+#شامل <config.h>
+#شامل <stdio.h>
+#شامل <stdlib.h>
+#شامل <string.h>
+#شامل <errno.h>
+#شامل <argp.h>
+#شامل "error.h"
+#شامل <dirent.h>
+#شامل <unistd.h>
+#شامل <signal.h>
+#شامل <fcntl.h>
+#شامل <ocispec/runtime_spec_schema_config_schema.h>
+#شامل <sys/wait.h>
+#شامل "container.h"
 
 #ifndef TEMP_FAILURE_RETRY
 #  define TEMP_FAILURE_RETRY(expression)      \
     (__extension__ ({                         \
-      long int __result;                      \
-      do                                      \
-        __result = (long int) (expression);   \
-      while (__result < 0 && errno == EINTR); \
+      long صحیح __result;                      \
+      انجامبده                                      \
+        __result = (long صحیح) (expression);   \
+      وقتی (__result < 0 && errno == EINTR); \
       __result;                               \
     }))
 #endif
@@ -59,497 +59,497 @@
 
 #define WRITE_FILE_DEFAULT_FLAGS (O_CLOEXEC | O_CREAT | O_TRUNC | O_WRONLY)
 
-__attribute__ ((malloc)) static inline void *
+__attribute__ ((malloc)) ایستا درونخطی تهی *
 xmalloc (size_t size)
 {
-  void *res = malloc (size);
-  if (UNLIKELY (res == NULL))
+  تهی *res = malloc (size);
+  اگر (UNLIKELY (res == پوچ))
     OOM ();
-  return res;
+  بازگشت res;
 }
 
-__attribute__ ((malloc)) static inline void *
+__attribute__ ((malloc)) ایستا درونخطی تهی *
 xmalloc0 (size_t size)
 {
-  void *res = calloc (1, size);
-  if (UNLIKELY (res == NULL))
+  تهی *res = calloc (1, size);
+  اگر (UNLIKELY (res == پوچ))
     OOM ();
-  return res;
+  بازگشت res;
 }
 
-__attribute__ ((malloc)) static inline void *
-xrealloc (void *ptr, size_t size)
+__attribute__ ((malloc)) ایستا درونخطی تهی *
+xrealloc (تهی *ptr, size_t size)
 {
-  void *res = realloc (ptr, size);
-  if (UNLIKELY (res == NULL))
+  تهی *res = realloc (ptr, size);
+  اگر (UNLIKELY (res == پوچ))
     OOM ();
-  return res;
+  بازگشت res;
 }
 
-static inline void
-cleanup_freep (void *p)
+ایستا درونخطی تهی
+cleanup_freep (تهی *p)
 {
-  void **pp = (void **) p;
-  free (*pp);
+  تهی **pp = (تهی **) p;
+  آزاد (*pp);
 }
 
-static inline void
+ایستا درونخطی تهی
 cleanup_filep (FILE **f)
 {
   FILE *file = *f;
-  if (file)
-    (void) fclose (file);
+  اگر (file)
+    (تهی) fclose (file);
 }
 
-static inline void
-cleanup_closep (void *p)
+ایستا درونخطی تهی
+cleanup_closep (تهی *p)
 {
-  int *pp = (int *) p;
-  if (*pp >= 0)
+  صحیح *pp = (صحیح *) p;
+  اگر (*pp >= 0)
     TEMP_FAILURE_RETRY (close (*pp));
 }
 
-static inline void
-cleanup_pidp (void *p)
+ایستا درونخطی تهی
+cleanup_pidp (تهی *p)
 {
   pid_t *pp = (pid_t *) p;
-  if (*pp > 0)
+  اگر (*pp > 0)
     {
       TEMP_FAILURE_RETRY (kill (*pp, SIGKILL));
-      TEMP_FAILURE_RETRY (waitpid (*pp, NULL, 0));
+      TEMP_FAILURE_RETRY (waitpid (*pp, پوچ, 0));
     }
 }
 
-struct libcrun_mmap_s
+ساختار libcrun_mmap_s
 {
-  void *addr;
+  تهی *addr;
   size_t length;
 };
 
-int libcrun_mmap (struct libcrun_mmap_s **ret, void *addr, size_t length,
-                  int prot, int flags, int fd, off_t offset,
+صحیح libcrun_mmap (ساختار libcrun_mmap_s **ret, تهی *addr, size_t length,
+                  صحیح prot, صحیح flags, صحیح fd, off_t offset,
                   libcrun_error_t *err);
 
-int libcrun_munmap (struct libcrun_mmap_s *mmap, libcrun_error_t *err);
+صحیح libcrun_munmap (ساختار libcrun_mmap_s *mmap, libcrun_error_t *err);
 
-static inline void
-cleanup_mmapp (void *p)
+ایستا درونخطی تهی
+cleanup_mmapp (تهی *p)
 {
-  int ret;
-  libcrun_error_t tmp_err = NULL;
-  struct libcrun_mmap_s **mm;
+  صحیح ret;
+  libcrun_error_t tmp_err = پوچ;
+  ساختار libcrun_mmap_s **mm;
 
-  mm = (struct libcrun_mmap_s **) p;
-  if (*mm == NULL)
-    return;
+  mm = (ساختار libcrun_mmap_s **) p;
+  اگر (*mm == پوچ)
+    بازگشت;
 
   ret = libcrun_munmap (*mm, &tmp_err);
-  if (UNLIKELY (ret < 0))
+  اگر (UNLIKELY (ret < 0))
     crun_error_release (&tmp_err);
 }
 
-struct libcrun_fd_map
+ساختار libcrun_fd_map
 {
   size_t nfds;
-  int fds[];
+  صحیح fds[];
 };
 
-static inline struct libcrun_fd_map *
+ایستا درونخطی ساختار libcrun_fd_map *
 make_libcrun_fd_map (size_t len)
 {
-  struct libcrun_fd_map *ret;
+  ساختار libcrun_fd_map *ret;
   size_t i;
 
-  ret = (struct libcrun_fd_map *) xmalloc (sizeof (*ret) + sizeof (int) * len);
+  ret = (ساختار libcrun_fd_map *) xmalloc (اندازه (*ret) + اندازه (صحیح) * len);
   ret->nfds = len;
-  for (i = 0; i < len; i++)
+  برای (i = 0; i < len; i++)
     ret->fds[i] = -1;
 
-  return ret;
+  بازگشت ret;
 }
 
-static inline void
-cleanup_close_mapp (struct libcrun_fd_map **p)
+ایستا درونخطی تهی
+cleanup_close_mapp (ساختار libcrun_fd_map **p)
 {
-  struct libcrun_fd_map *m = *p;
+  ساختار libcrun_fd_map *m = *p;
   size_t i;
 
-  if (m == NULL)
-    return;
+  اگر (m == پوچ)
+    بازگشت;
 
-  for (i = 0; i < m->nfds; i++)
-    if (m->fds[i] >= 0)
+  برای (i = 0; i < m->nfds; i++)
+    اگر (m->fds[i] >= 0)
       TEMP_FAILURE_RETRY (close (m->fds[i]));
 
-  free (m);
+  آزاد (m);
 }
 
-static inline void
-cleanup_close_vecp (int **p)
+ایستا درونخطی تهی
+cleanup_close_vecp (صحیح **p)
 {
-  int *pp = *p;
-  int i;
+  صحیح *pp = *p;
+  صحیح i;
 
-  if (pp == NULL)
-    return;
+  اگر (pp == پوچ)
+    بازگشت;
 
-  for (i = 0; pp[i] >= 0; i++)
+  برای (i = 0; pp[i] >= 0; i++)
     TEMP_FAILURE_RETRY (close (pp[i]));
 }
 
-static inline void
+ایستا درونخطی تهی
 cleanup_dirp (DIR **p)
 {
   DIR *dir = *p;
-  if (dir)
+  اگر (dir)
     closedir (dir);
 }
 
-static inline int
-close_and_reset (int *fd)
+ایستا درونخطی صحیح
+close_and_reset (صحیح *fd)
 {
-  int ret = 0;
-  if (*fd >= 0)
+  صحیح ret = 0;
+  اگر (*fd >= 0)
     {
       ret = TEMP_FAILURE_RETRY (close (*fd));
-      if (LIKELY (ret == 0))
+      اگر (LIKELY (ret == 0))
         *fd = -1;
     }
-  return ret;
+  بازگشت ret;
 }
 
-static inline char *
-xstrdup (const char *str)
+ایستا درونخطی نویسه *
+xstrdup (ثابت نویسه *str)
 {
-  char *ret;
-  if (str == NULL)
-    return NULL;
+  نویسه *ret;
+  اگر (str == پوچ)
+    بازگشت پوچ;
 
   ret = strdup (str);
-  if (ret == NULL)
+  اگر (ret == پوچ)
     OOM ();
 
-  return ret;
+  بازگشت ret;
 }
 
-void consume_trailing_slashes (char *path);
+تهی consume_trailing_slashes (نویسه *path);
 
 #define consume_slashes(t) \
   ({                       \
     typeof (t) _s = (t);   \
-    while (*_s == '/')     \
+    وقتی (*_s == '/')     \
       _s++;                \
     _s;                    \
   })
 
-static inline bool
-path_is_slash_dev (const char *path)
+ایستا درونخطی bool
+path_is_slash_dev (ثابت نویسه *path)
 {
   path = consume_slashes (path);
 
-  if (strncmp (path, "dev", 3))
-    return false;
+  اگر (strncmp (path, "dev", 3))
+    بازگشت false;
 
   path += 3;
 
   /* Check there are only '/' left.  */
-  for (; *path; path++)
-    if (*path != '/')
-      return false;
+  برای (; *path; path++)
+    اگر (*path != '/')
+      بازگشت false;
 
-  return true;
+  بازگشت true;
 }
 
-int xasprintf (char **str, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
+صحیح xasprintf (نویسه **str, ثابت نویسه *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 
-int crun_path_exists (const char *path, libcrun_error_t *err);
+صحیح crun_path_exists (ثابت نویسه *path, libcrun_error_t *err);
 
-int write_file_at_with_flags (int dirfd, int flags, mode_t mode, const char *name, const void *data, size_t len, libcrun_error_t *err);
+صحیح write_file_at_with_flags (صحیح dirfd, صحیح flags, mode_t mode, ثابت نویسه *name, ثابت تهی *data, size_t len, libcrun_error_t *err);
 
-static inline int
-write_file (const char *name, const void *data, size_t len, libcrun_error_t *err)
+ایستا درونخطی صحیح
+write_file (ثابت نویسه *name, ثابت تهی *data, size_t len, libcrun_error_t *err)
 {
-  return write_file_at_with_flags (AT_FDCWD, WRITE_FILE_DEFAULT_FLAGS, 0700, name, data, len, err);
+  بازگشت write_file_at_with_flags (AT_FDCWD, WRITE_FILE_DEFAULT_FLAGS, 0700, name, data, len, err);
 }
 
-static inline int
-write_file_at (int dirfd, const char *name, const void *data, size_t len, libcrun_error_t *err)
+ایستا درونخطی صحیح
+write_file_at (صحیح dirfd, ثابت نویسه *name, ثابت تهی *data, size_t len, libcrun_error_t *err)
 {
-  return write_file_at_with_flags (dirfd, WRITE_FILE_DEFAULT_FLAGS, 0700, name, data, len, err);
+  بازگشت write_file_at_with_flags (dirfd, WRITE_FILE_DEFAULT_FLAGS, 0700, name, data, len, err);
 }
 
-int crun_ensure_directory (const char *path, int mode, bool nofollow, libcrun_error_t *err);
+صحیح crun_ensure_directory (ثابت نویسه *path, صحیح mode, bool nofollow, libcrun_error_t *err);
 
-int crun_ensure_directory_at (int dirfd, const char *path, int mode, bool nofollow, libcrun_error_t *err);
+صحیح crun_ensure_directory_at (صحیح dirfd, ثابت نویسه *path, صحیح mode, bool nofollow, libcrun_error_t *err);
 
-int crun_safe_create_and_open_ref_at (bool dir, int dirfd, const char *dirpath, const char *path, int mode, libcrun_error_t *err);
+صحیح crun_safe_create_and_open_ref_at (bool dir, صحیح dirfd, ثابت نویسه *dirpath, ثابت نویسه *path, صحیح mode, libcrun_error_t *err);
 
-int crun_safe_ensure_directory_at (int dirfd, const char *dirpath, const char *path, int mode,
+صحیح crun_safe_ensure_directory_at (صحیح dirfd, ثابت نویسه *dirpath, ثابت نویسه *path, صحیح mode,
                                    libcrun_error_t *err);
 
-int crun_safe_ensure_file_at (int dirfd, const char *dirpath, const char *path, int mode,
+صحیح crun_safe_ensure_file_at (صحیح dirfd, ثابت نویسه *dirpath, ثابت نویسه *path, صحیح mode,
                               libcrun_error_t *err);
 
-int crun_dir_p (const char *path, bool nofollow, libcrun_error_t *err);
+صحیح crun_dir_p (ثابت نویسه *path, bool nofollow, libcrun_error_t *err);
 
-int crun_dir_p_at (int dirfd, const char *path, bool nofollow, libcrun_error_t *err);
+صحیح crun_dir_p_at (صحیح dirfd, ثابت نویسه *path, bool nofollow, libcrun_error_t *err);
 
-int detach_process ();
+صحیح detach_process ();
 
-int create_file_if_missing_at (int dirfd, const char *file, mode_t mode, libcrun_error_t *err);
+صحیح create_file_if_missing_at (صحیح dirfd, ثابت نویسه *file, mode_t mode, libcrun_error_t *err);
 
-int check_running_in_user_namespace (libcrun_error_t *err);
+صحیح check_running_in_user_namespace (libcrun_error_t *err);
 
-int set_selinux_label (libcrun_container_t *container, const char *label, bool now, libcrun_error_t *err);
+صحیح set_selinux_label (libcrun_container_t *container, ثابت نویسه *label, bool now, libcrun_error_t *err);
 
-int add_selinux_mount_label (char **ret, const char *data, const char *label, const char *context_type, libcrun_error_t *err);
+صحیح add_selinux_mount_label (نویسه **ret, ثابت نویسه *data, ثابت نویسه *label, ثابت نویسه *context_type, libcrun_error_t *err);
 
-int set_apparmor_profile (libcrun_container_t *container, const char *profile, bool no_new_privileges, bool now, libcrun_error_t *err);
+صحیح set_apparmor_profile (libcrun_container_t *container, ثابت نویسه *profile, bool no_new_privileges, bool now, libcrun_error_t *err);
 
-int read_all_fd_with_size_hint (int fd, const char *description, char **out, size_t *len, size_t hint, libcrun_error_t *err);
+صحیح read_all_fd_with_size_hint (صحیح fd, ثابت نویسه *description, نویسه **out, size_t *len, size_t hint, libcrun_error_t *err);
 
-int read_all_fd_with_max_size (int fd, const char *description, char **out, size_t *len, size_t max_size, libcrun_error_t *err);
+صحیح read_all_fd_with_max_size (صحیح fd, ثابت نویسه *description, نویسه **out, size_t *len, size_t max_size, libcrun_error_t *err);
 
-static inline int
-read_all_fd (int fd, const char *description, char **out, size_t *len, libcrun_error_t *err)
+ایستا درونخطی صحیح
+read_all_fd (صحیح fd, ثابت نویسه *description, نویسه **out, size_t *len, libcrun_error_t *err)
 {
-  return read_all_fd_with_size_hint (fd, description, out, len, 0, err);
+  بازگشت read_all_fd_with_size_hint (fd, description, out, len, 0, err);
 }
 
-int get_realpath_to_file (int dirfd, const char *path_name, char **absolute_path, libcrun_error_t *err);
+صحیح get_realpath_to_file (صحیح dirfd, ثابت نویسه *path_name, نویسه **absolute_path, libcrun_error_t *err);
 
-int read_all_file (const char *path, char **out, size_t *len, libcrun_error_t *err);
+صحیح read_all_file (ثابت نویسه *path, نویسه **out, size_t *len, libcrun_error_t *err);
 
-int read_all_file_at (int dirfd, const char *path, char **out, size_t *len, libcrun_error_t *err);
+صحیح read_all_file_at (صحیح dirfd, ثابت نویسه *path, نویسه **out, size_t *len, libcrun_error_t *err);
 
-int open_unix_domain_client_socket (const char *path, int dgram, libcrun_error_t *err);
+صحیح open_unix_domain_client_socket (ثابت نویسه *path, صحیح dgram, libcrun_error_t *err);
 
-int open_unix_domain_socket (const char *path, int dgram, libcrun_error_t *err);
+صحیح open_unix_domain_socket (ثابت نویسه *path, صحیح dgram, libcrun_error_t *err);
 
-int send_fd_to_socket (int server, int fd, libcrun_error_t *err);
+صحیح send_fd_to_socket (صحیح server, صحیح fd, libcrun_error_t *err);
 
-int send_fd_to_socket_with_payload (int server, int fd, const char *payload, size_t payload_len, libcrun_error_t *err);
+صحیح send_fd_to_socket_with_payload (صحیح server, صحیح fd, ثابت نویسه *payload, size_t payload_len, libcrun_error_t *err);
 
-int create_socket_pair (int *pair, libcrun_error_t *err);
+صحیح create_socket_pair (صحیح *pair, libcrun_error_t *err);
 
-int receive_fd_from_socket (int from, libcrun_error_t *err);
+صحیح receive_fd_from_socket (صحیح from, libcrun_error_t *err);
 
-int receive_fd_from_socket_with_payload (int from, char *payload, size_t payload_len, libcrun_error_t *err);
+صحیح receive_fd_from_socket_with_payload (صحیح from, نویسه *payload, size_t payload_len, libcrun_error_t *err);
 
-int create_signalfd (sigset_t *mask, libcrun_error_t *err);
+صحیح create_signalfd (sigset_t *mask, libcrun_error_t *err);
 
-int epoll_helper (int *in_fds, int *in_levelfds, int *out_fds, int *out_levelfds, libcrun_error_t *err);
+صحیح epoll_helper (صحیح *in_fds, صحیح *in_levelfds, صحیح *out_fds, صحیح *out_levelfds, libcrun_error_t *err);
 
-int copy_from_fd_to_fd (int src, int dst, int consume, libcrun_error_t *err);
+صحیح copy_from_fd_to_fd (صحیح src, صحیح dst, صحیح consume, libcrun_error_t *err);
 
-int run_process (char **args, libcrun_error_t *err);
+صحیح run_process (نویسه **args, libcrun_error_t *err);
 
-int format_default_id_mapping (char **out, uid_t container_id, uid_t host_uid, uid_t host_id, int is_uid, libcrun_error_t *err);
+صحیح format_default_id_mapping (نویسه **out, uid_t container_id, uid_t host_uid, uid_t host_id, صحیح is_uid, libcrun_error_t *err);
 
-int run_process_with_stdin_timeout_envp (char *path, char **args, const char *cwd, int timeout, char **envp,
-                                         char *stdin, size_t stdin_len, int out_fd, int err_fd, bool can_ignore_chdir_errors, libcrun_error_t *err);
+صحیح run_process_with_stdin_timeout_envp (نویسه *path, نویسه **args, ثابت نویسه *cwd, صحیح timeout, نویسه **envp,
+                                         نویسه *stdin, size_t stdin_len, صحیح out_fd, صحیح err_fd, bool can_ignore_chdir_errors, libcrun_error_t *err);
 
-int mark_or_close_fds_ge_than (libcrun_container_t *container, int n, bool close_now, libcrun_error_t *err);
+صحیح mark_or_close_fds_ge_than (libcrun_container_t *container, صحیح n, bool close_now, libcrun_error_t *err);
 
-void get_current_timestamp (char *out, size_t len);
+تهی get_current_timestamp (نویسه *out, size_t len);
 
-int set_blocking_fd (int fd, bool blocking, libcrun_error_t *err);
+صحیح set_blocking_fd (صحیح fd, bool blocking, libcrun_error_t *err);
 
 /* Exported for the language bindings (python/, lua/), which parse a
    process JSON blob before calling libcrun_container_exec.  */
-LIBCRUN_PUBLIC int parse_json_file (json_object **out, const char *jsondata, struct parser_context *ctx, libcrun_error_t *err);
+LIBCRUN_PUBLIC صحیح parse_json_file (json_object **out, ثابت نویسه *jsondata, ساختار parser_context *ctx, libcrun_error_t *err);
 
 /* Check that the string STR has the prefix PREFIX.  */
-static inline int
-has_prefix (const char *str, const char *prefix)
+ایستا درونخطی صحیح
+has_prefix (ثابت نویسه *str, ثابت نویسه *prefix)
 {
   size_t prefix_len;
 
-  if (! str || ! prefix)
-    return 0;
+  اگر (! str || ! prefix)
+    بازگشت 0;
 
   prefix_len = strlen (prefix);
-  return strlen (str) >= prefix_len && memcmp (str, prefix, prefix_len) == 0;
+  بازگشت strlen (str) >= prefix_len && memcmp (str, prefix, prefix_len) == 0;
 }
 
 /* Check that the string STR has the prefix PREFIX/ (followed by a slash).  */
-static inline int
-has_dir_prefix (const char *str, const char *prefix)
+ایستا درونخطی صحیح
+has_dir_prefix (ثابت نویسه *str, ثابت نویسه *prefix)
 {
   size_t prefix_len;
 
-  if (! str || ! prefix)
-    return 0;
+  اگر (! str || ! prefix)
+    بازگشت 0;
 
   prefix_len = strlen (prefix);
-  return strlen (str) > prefix_len && memcmp (str, prefix, prefix_len) == 0 && str[prefix_len] == '/';
+  بازگشت strlen (str) > prefix_len && memcmp (str, prefix, prefix_len) == 0 && str[prefix_len] == '/';
 }
 
-int find_executable (char **exec_path, const char *executable_path, const char *cwd, libcrun_error_t *err);
+صحیح find_executable (نویسه **exec_path, ثابت نویسه *executable_path, ثابت نویسه *cwd, libcrun_error_t *err);
 
-int copy_recursive_fd_to_fd (int srcfd, int destfd, const char *srcname, const char *destname, libcrun_error_t *err);
+صحیح copy_recursive_fd_to_fd (صحیح srcfd, صحیح destfd, ثابت نویسه *srcname, ثابت نویسه *destname, libcrun_error_t *err);
 
-int set_home_env (uid_t uid);
+صحیح set_home_env (uid_t uid);
 
-int libcrun_initialize_selinux (libcrun_container_t *container, libcrun_error_t *err);
+صحیح libcrun_initialize_selinux (libcrun_container_t *container, libcrun_error_t *err);
 
-int libcrun_initialize_apparmor (libcrun_error_t *err);
+صحیح libcrun_initialize_apparmor (libcrun_error_t *err);
 
-const char *find_annotation (libcrun_container_t *container, const char *name);
+ثابت نویسه *find_annotation (libcrun_container_t *container, ثابت نویسه *name);
 
-int get_file_type_at (int dirfd, mode_t *mode, bool nofollow, const char *path);
+صحیح get_file_type_at (صحیح dirfd, mode_t *mode, bool nofollow, ثابت نویسه *path);
 
-int get_file_type (mode_t *mode, bool nofollow, const char *path);
+صحیح get_file_type (mode_t *mode, bool nofollow, ثابت نویسه *path);
 
-int get_file_type_fd (int fd, mode_t *mode);
+صحیح get_file_type_fd (صحیح fd, mode_t *mode);
 
-char *get_user_name (uid_t uid);
+نویسه *get_user_name (uid_t uid);
 
-int safe_openat (int dirfd, const char *rootfs, const char *path, int flags, int mode,
+صحیح safe_openat (صحیح dirfd, ثابت نویسه *rootfs, ثابت نویسه *path, صحیح flags, صحیح mode,
                  libcrun_error_t *err);
 
-int safe_write (int fd, const char *fname, const void *buf, size_t count, libcrun_error_t *err);
+صحیح safe_write (صحیح fd, ثابت نویسه *fname, ثابت تهی *buf, size_t شمار, libcrun_error_t *err);
 
-int append_paths (char **out, libcrun_error_t *err, ...) __attribute__ ((sentinel));
+صحیح append_paths (نویسه **out, libcrun_error_t *err, ...) __attribute__ ((sentinel));
 
-int str2sig (const char *name);
+صحیح str2sig (ثابت نویسه *name);
 
-int base64_decode (const char *iptr, size_t isize, char *optr, size_t osize, size_t *nbytes);
-int has_suffix (const char *source, const char *suffix);
-char *libcrun_sysctl_key_to_proc_path (const char *key);
-char *str_join_array (int offset, size_t size, char *const array[], const char *joint);
+صحیح base64_decode (ثابت نویسه *iptr, size_t isize, نویسه *optr, size_t osize, size_t *nbytes);
+صحیح has_suffix (ثابت نویسه *source, ثابت نویسه *suffix);
+نویسه *libcrun_sysctl_کلید_to_proc_path (ثابت نویسه *کلید);
+نویسه *str_join_array (صحیح offset, size_t size, نویسه *ثابت array[], ثابت نویسه *joint);
 
-ssize_t safe_readlinkat (int dfd, const char *name, char **buffer, ssize_t hint, libcrun_error_t *err);
+ssize_t safe_readlinkat (صحیح dfd, ثابت نویسه *name, نویسه **buffer, ssize_t hint, libcrun_error_t *err);
 
-char **read_dir_entries (const char *path, libcrun_error_t *err);
+نویسه **read_dir_entries (ثابت نویسه *path, libcrun_error_t *err);
 
-static inline bool
-is_empty_string (const char *s)
+ایستا درونخطی bool
+is_empty_string (ثابت نویسه *s)
 {
-  return s == NULL || s[0] == '\0';
+  بازگشت s == پوچ || s[0] == '\0';
 }
 
 /* Like strlen(), but a NULL string has length 0.  */
-static inline size_t
-safe_strlen (const char *s)
+ایستا درونخطی size_t
+safe_strlen (ثابت نویسه *s)
 {
-  return s == NULL ? 0 : strlen (s);
+  بازگشت s == پوچ ? 0 : strlen (s);
 }
 
-static inline bool
-path_has_dot_dot_component (const char *path)
+ایستا درونخطی bool
+path_has_dot_dot_component (ثابت نویسه *path)
 {
-  if (path == NULL)
-    return false;
-  cleanup_free char *npath = xstrdup (path);
-  char *cur, *it;
+  اگر (path == پوچ)
+    بازگشت false;
+  cleanup_free نویسه *npath = xstrdup (path);
+  نویسه *cur, *it;
 
   cur = npath;
   it = strchr (cur, '/');
-  while (cur)
+  وقتی (cur)
     {
-      if (it)
+      اگر (it)
         *it = '\0';
 
-      if (strcmp (cur, "..") == 0)
-        return true;
+      اگر (strcmp (cur, "..") == 0)
+        بازگشت true;
 
-      if (it == NULL)
-        break;
+      اگر (it == پوچ)
+        بشکن;
 
       cur = consume_slashes (it + 1);
       *it = '/';
       it = strchr (cur, '/');
     }
-  return false;
+  بازگشت false;
 }
 
-static inline int
-waitpid_ignore_stopped (pid_t pid, int *status, int options)
+ایستا درونخطی صحیح
+waitpid_ignore_stopped (pid_t pid, صحیح *status, صحیح options)
 {
-  int ret, s;
-  do
+  صحیح ret, s;
+  انجامبده
     {
       s = 0;
       ret = TEMP_FAILURE_RETRY (waitpid (pid, &s, options));
-      if (ret < 0)
-        return ret;
-  } while (WIFSTOPPED (s) || WIFCONTINUED (s));
+      اگر (ret < 0)
+        بازگشت ret;
+  } وقتی (WIFSTOPPED (s) || WIFCONTINUED (s));
 
-  if (status)
+  اگر (status)
     *status = s;
 
-  return ret;
+  بازگشت ret;
 }
 
-static inline int
-get_process_exit_status (int status)
+ایستا درونخطی صحیح
+get_process_exit_status (صحیح status)
 {
-  if (WIFEXITED (status))
-    return WEXITSTATUS (status);
-  if (WIFSIGNALED (status))
-    return 128 + WTERMSIG (status);
+  اگر (WIFEXITED (status))
+    بازگشت WEXITSTATUS (status);
+  اگر (WIFSIGNALED (status))
+    بازگشت 128 + WTERMSIG (status);
 
-  return -1;
+  بازگشت -1;
 }
 
-uid_t get_overflow_uid (void);
-gid_t get_overflow_gid (void);
+uid_t get_overflow_uid (تهی);
+gid_t get_overflow_gid (تهی);
 
 /* Adapted from systemd.  Include space for the NUL byte.  */
 #define DECIMAL_STR_MAX(type)                                        \
-  ((size_t) 2U + (sizeof (type) <= 1 ? 3U : sizeof (type) <= 2 ? 5U  \
-                                        : sizeof (type) <= 4   ? 10U \
-                                        : sizeof (type) <= 8   ? 20U \
-                                                               : sizeof (int[-2 * (sizeof (type) > 8)])))
+  ((size_t) 2U + (اندازه (type) <= 1 ? 3U : اندازه (type) <= 2 ? 5U  \
+                                        : اندازه (type) <= 4   ? 10U \
+                                        : اندازه (type) <= 8   ? 20U \
+                                                               : اندازه (صحیح[-2 * (اندازه (type) > 8)])))
 
-#define _STRLEN(s) (sizeof (s) - 1)
+#define _STRLEN(s) (اندازه (s) - 1)
 
 /* _STRLEN("self") < DECIMAL_STR_MAX (pid_t), so we don't need to calculate the length of both.  */
 #define PROC_PID_FD_STRLEN (_STRLEN ("/proc/") + DECIMAL_STR_MAX (pid_t) \
-                            + _STRLEN ("/fd/") + DECIMAL_STR_MAX (int))
+                            + _STRLEN ("/fd/") + DECIMAL_STR_MAX (صحیح))
 
 /* A buffer long enough to hold either /proc/self/fd/$FD or a /proc/$PID/fd/$FD path.  */
-typedef char proc_fd_path_t[PROC_PID_FD_STRLEN];
+تعریفنوع نویسه proc_fd_path_t[PROC_PID_FD_STRLEN];
 
 #undef _STRLEN
 
-static inline void
-get_proc_fd_path (proc_fd_path_t path, pid_t pid, int fd)
+ایستا درونخطی تهی
+get_proc_fd_path (proc_fd_path_t path, pid_t pid, صحیح fd)
 {
-  const size_t max_len = sizeof (proc_fd_path_t);
+  ثابت size_t max_len = اندازه (proc_fd_path_t);
   size_t n;
 
-  if (pid)
+  اگر (pid)
     n = snprintf (path, max_len, "/proc/%d/fd/%d", pid, fd);
-  else
+  وگرنه
     n = snprintf (path, max_len, "/proc/self/fd/%d", fd);
 
-  if (UNLIKELY (n >= max_len))
+  اگر (UNLIKELY (n >= max_len))
     abort ();
 }
 
-static inline void
-get_proc_self_fd_path (proc_fd_path_t path, int fd)
+ایستا درونخطی تهی
+get_proc_self_fd_path (proc_fd_path_t path, صحیح fd)
 {
   get_proc_fd_path (path, 0, fd);
 }
 
-static inline void
-get_self_fd_path (proc_fd_path_t path, int fd)
+ایستا درونخطی تهی
+get_self_fd_path (proc_fd_path_t path, صحیح fd)
 {
-  snprintf (path, sizeof (proc_fd_path_t), "self/fd/%d", fd);
+  snprintf (path, اندازه (proc_fd_path_t), "self/fd/%d", fd);
 }
 
-static inline int
-validate_options (unsigned int specified_options, unsigned int supported_options, libcrun_error_t *err)
+ایستا درونخطی صحیح
+validate_options (unsigned صحیح specified_options, unsigned صحیح supported_options, libcrun_error_t *err)
 {
-  if (! ! (~supported_options & specified_options))
-    return crun_make_error (err, 0, "internal error: unknown options %d", specified_options);
-  return 0;
+  اگر (! ! (~supported_options & specified_options))
+    بازگشت crun_make_error (err, 0, "internal error: unknown options %d", specified_options);
+  بازگشت 0;
 }
 
-extern int cpuset_string_to_bitmask (const char *str, char **out, size_t *out_size, libcrun_error_t *err);
+بیرونی صحیح cpuset_string_to_bitmask (ثابت نویسه *str, نویسه **out, size_t *out_size, libcrun_error_t *err);
 
 /*
  * A channel_fd_pair takes care of copying data between two file descriptors.
@@ -559,11 +559,11 @@ extern int cpuset_string_to_bitmask (const char *str, char **out, size_t *out_si
  * ready to accept the data, the channel_fd_pair will buffer the data until it
  * can be written.
  */
-struct channel_fd_pair;
+ساختار channel_fd_pair;
 
-struct channel_fd_pair *channel_fd_pair_new (int in_fd, int out_fd, size_t size);
+ساختار channel_fd_pair *channel_fd_pair_new (صحیح in_fd, صحیح out_fd, size_t size);
 
-void channel_fd_pair_free (struct channel_fd_pair *channel);
+تهی channel_fd_pair_free (ساختار channel_fd_pair *channel);
 
 /* Process the data in the channel_fd_pair.  This function will read data from
  * the input file descriptor and write it to the output file descriptor.  If
@@ -571,21 +571,21 @@ void channel_fd_pair_free (struct channel_fd_pair *channel);
  * buffered.  If epollfd is provided, the in_fd and out_fd will be registered
  * and unregistered as necessary.
  */
-int channel_fd_pair_process (struct channel_fd_pair *channel, int epollfd, libcrun_error_t *err);
+صحیح channel_fd_pair_process (ساختار channel_fd_pair *channel, صحیح epollfd, libcrun_error_t *err);
 
-static inline void
-cleanup_channel_fd_pairp (void *p)
+ایستا درونخطی تهی
+cleanup_channel_fd_pairp (تهی *p)
 {
-  struct channel_fd_pair **pp = (struct channel_fd_pair **) p;
-  if (*pp == NULL)
-    return;
+  ساختار channel_fd_pair **pp = (ساختار channel_fd_pair **) p;
+  اگر (*pp == پوچ)
+    بازگشت;
 
   channel_fd_pair_free (*pp);
 }
 #define cleanup_channel_fd_pair __attribute__ ((cleanup (cleanup_channel_fd_pairp)))
 
-int libcrun_get_cached_proc_fd (libcrun_container_t *container, libcrun_error_t *err);
-int libcrun_open_proc_file (libcrun_container_t *container, const char *path, int flags, libcrun_error_t *err);
-int libcrun_open_proc_pid_file (libcrun_container_t *container, pid_t pid, const char *path, int flags, libcrun_error_t *err);
+صحیح libcrun_get_cached_proc_fd (libcrun_container_t *container, libcrun_error_t *err);
+صحیح libcrun_open_proc_file (libcrun_container_t *container, ثابت نویسه *path, صحیح flags, libcrun_error_t *err);
+صحیح libcrun_open_proc_pid_file (libcrun_container_t *container, pid_t pid, ثابت نویسه *path, صحیح flags, libcrun_error_t *err);
 
 #endif

@@ -16,40 +16,40 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <limits.h>
+#شامل <config.h>
+#شامل <stdio.h>
+#شامل <stdlib.h>
+#شامل <argp.h>
+#شامل <string.h>
+#شامل <unistd.h>
+#شامل <errno.h>
+#شامل <limits.h>
 
-#include "crun.h"
+#شامل "crun.h"
 
-static char doc[] = "OCI runtime";
+ایستا نویسه doc[] = "OCI runtime";
 
-struct exec_options_s
+ساختار exec_options_s
 {
   bool tty;
   bool detach;
   bool no_new_privs;
-  int preserve_fds;
-  const char *process;
-  const char *console_socket;
-  const char *pid_file;
-  char *process_label;
-  char *apparmor;
-  char *cwd;
-  char *user;
-  char **env;
-  char **cap;
+  صحیح preserve_fds;
+  ثابت نویسه *process;
+  ثابت نویسه *console_socket;
+  ثابت نویسه *pid_file;
+  نویسه *process_label;
+  نویسه *apparmor;
+  نویسه *cwd;
+  نویسه *user;
+  نویسه **env;
+  نویسه **cap;
   size_t cap_size;
   size_t env_size;
-  char *cgroup;
+  نویسه *cgroup;
 };
 
-enum
+شمارش
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -61,9 +61,9 @@ enum
   OPTION_CGROUP,
 };
 
-static struct exec_options_s exec_options;
+ایستا ساختار exec_options_s exec_options;
 
-static struct argp_option options[]
+ایستا ساختار argp_option options[]
     = { { "console-socket", OPTION_CONSOLE_SOCKET, "SOCKET", 0,
           "path to a socket that will receive the ptmx end of the tty", 0 },
         { "tty", 't', "TTY", OPTION_ARG_OPTIONAL, "allocate a pseudo-TTY", 0 },
@@ -83,127 +83,127 @@ static struct argp_option options[]
             0,
         } };
 
-static char args_doc[] = "exec CONTAINER cmd";
+ایستا نویسه args_doc[] = "exec CONTAINER cmd";
 
-static void
-append_to_string_array (char ***arr, size_t *size, const char *arg)
+ایستا تهی
+append_to_string_array (نویسه ***arr, size_t *size, ثابت نویسه *arg)
 {
-  *arr = xrealloc (*arr, (*size + 2) * sizeof (**arr));
-  (*arr)[*size + 1] = NULL;
+  *arr = xrealloc (*arr, (*size + 2) * اندازه (**arr));
+  (*arr)[*size + 1] = پوچ;
   (*arr)[*size] = xstrdup (arg);
   (*size)++;
 }
 
-static void
-append_env (const char *arg)
+ایستا تهی
+append_env (ثابت نویسه *arg)
 {
   append_to_string_array (&exec_options.env, &exec_options.env_size, arg);
 }
 
-static void
-append_cap (const char *arg)
+ایستا تهی
+append_cap (ثابت نویسه *arg)
 {
   append_to_string_array (&exec_options.cap, &exec_options.cap_size, arg);
 }
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+ایستا error_t
+parse_opt (صحیح کلید, نویسه *arg, ساختار argp_state *state)
 {
-  switch (key)
+  انتخاب (کلید)
     {
-    case OPTION_CONSOLE_SOCKET:
+    حالت OPTION_CONSOLE_SOCKET:
       exec_options.console_socket = arg;
-      break;
+      بشکن;
 
-    case OPTION_PID_FILE:
+    حالت OPTION_PID_FILE:
       exec_options.pid_file = arg;
-      break;
+      بشکن;
 
-    case OPTION_NO_NEW_PRIVS:
+    حالت OPTION_NO_NEW_PRIVS:
       exec_options.no_new_privs = true;
-      break;
+      بشکن;
 
-    case OPTION_PROCESS_LABEL:
+    حالت OPTION_PROCESS_LABEL:
       exec_options.process_label = argp_mandatory_argument (arg, state);
-      break;
+      بشکن;
 
-    case OPTION_APPARMOR:
+    حالت OPTION_APPARMOR:
       exec_options.apparmor = argp_mandatory_argument (arg, state);
-      break;
+      بشکن;
 
-    case OPTION_PRESERVE_FDS:
-      exec_options.preserve_fds = parse_id_or_fail (argp_mandatory_argument (arg, state), NULL, "preserve-fds");
-      break;
+    حالت OPTION_PRESERVE_FDS:
+      exec_options.preserve_fds = parse_id_or_fail (argp_mandatory_argument (arg, state), پوچ, "preserve-fds");
+      بشکن;
 
-    case OPTION_CGROUP:
+    حالت OPTION_CGROUP:
       exec_options.cgroup = argp_mandatory_argument (arg, state);
-      break;
+      بشکن;
 
-    case 'd':
+    حالت 'd':
       exec_options.detach = true;
-      break;
+      بشکن;
 
-    case 'p':
+    حالت 'p':
       exec_options.process = arg;
-      break;
+      بشکن;
 
-    case 't':
-      exec_options.tty = arg == NULL || (strcmp (arg, "false") != 0 && strcmp (arg, "no") != 0);
-      break;
+    حالت 't':
+      exec_options.tty = arg == پوچ || (strcmp (arg, "false") != 0 && strcmp (arg, "no") != 0);
+      بشکن;
 
-    case 'u':
+    حالت 'u':
       exec_options.user = arg;
-      break;
+      بشکن;
 
-    case 'e':
+    حالت 'e':
       append_env (arg);
-      break;
+      بشکن;
 
-    case 'c':
+    حالت 'c':
       append_cap (arg);
-      break;
+      بشکن;
 
-    case OPTION_CWD:
+    حالت OPTION_CWD:
       exec_options.cwd = xstrdup (arg);
-      break;
+      بشکن;
 
-    case ARGP_KEY_NO_ARGS:
+    حالت ARGP_کلید_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    پیشفرض:
+      بازگشت ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  بازگشت 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+ایستا ساختار argp run_argp = { options, parse_opt, args_doc, doc, پوچ, پوچ, پوچ };
 
 /* Minimal growable string buffer used to assemble the OCI Process JSON.  The
    binary is a pure consumer of the public API, so it builds the process as a
    JSON string rather than reaching for the internal ocispec types.  */
-struct strbuf
+ساختار strbuf
 {
-  char *buf;
+  نویسه *buf;
   size_t len;
   size_t cap;
 };
 
-static void
-sb_ensure (struct strbuf *sb, size_t extra)
+ایستا تهی
+sb_ensure (ساختار strbuf *sb, size_t extra)
 {
-  if (sb->len + extra + 1 > sb->cap)
+  اگر (sb->len + extra + 1 > sb->cap)
     {
       size_t ncap = sb->cap ? sb->cap : 256;
-      while (ncap < sb->len + extra + 1)
+      وقتی (ncap < sb->len + extra + 1)
         ncap *= 2;
       sb->buf = xrealloc (sb->buf, ncap);
       sb->cap = ncap;
     }
 }
 
-static void
-sb_puts (struct strbuf *sb, const char *s)
+ایستا تهی
+sb_puts (ساختار strbuf *sb, ثابت نویسه *s)
 {
   size_t l = strlen (s);
   sb_ensure (sb, l);
@@ -212,8 +212,8 @@ sb_puts (struct strbuf *sb, const char *s)
   sb->buf[sb->len] = '\0';
 }
 
-static void
-sb_putc (struct strbuf *sb, char c)
+ایستا تهی
+sb_putc (ساختار strbuf *sb, نویسه c)
 {
   sb_ensure (sb, 1);
   sb->buf[sb->len++] = c;
@@ -221,58 +221,58 @@ sb_putc (struct strbuf *sb, char c)
 }
 
 /* Append S as a quoted, escaped JSON string.  */
-static void
-sb_put_json_string (struct strbuf *sb, const char *s)
+ایستا تهی
+sb_put_json_string (ساختار strbuf *sb, ثابت نویسه *s)
 {
   sb_putc (sb, '"');
-  for (; *s; s++)
+  برای (; *s; s++)
     {
-      unsigned char c = (unsigned char) *s;
-      switch (c)
+      unsigned نویسه c = (unsigned نویسه) *s;
+      انتخاب (c)
         {
-        case '"':
+        حالت '"':
           sb_puts (sb, "\\\"");
-          break;
-        case '\\':
+          بشکن;
+        حالت '\\':
           sb_puts (sb, "\\\\");
-          break;
-        case '\b':
+          بشکن;
+        حالت '\b':
           sb_puts (sb, "\\b");
-          break;
-        case '\f':
+          بشکن;
+        حالت '\f':
           sb_puts (sb, "\\f");
-          break;
-        case '\n':
+          بشکن;
+        حالت '\n':
           sb_puts (sb, "\\n");
-          break;
-        case '\r':
+          بشکن;
+        حالت '\r':
           sb_puts (sb, "\\r");
-          break;
-        case '\t':
+          بشکن;
+        حالت '\t':
           sb_puts (sb, "\\t");
-          break;
-        default:
-          if (c < 0x20)
+          بشکن;
+        پیشفرض:
+          اگر (c < 0x20)
             {
-              char tmp[8];
-              snprintf (tmp, sizeof (tmp), "\\u%04x", c);
+              نویسه tmp[8];
+              snprintf (tmp, اندازه (tmp), "\\u%04x", c);
               sb_puts (sb, tmp);
             }
-          else
+          وگرنه
             sb_putc (sb, c);
         }
     }
   sb_putc (sb, '"');
 }
 
-static void
-sb_put_json_string_array (struct strbuf *sb, char **arr, size_t len)
+ایستا تهی
+sb_put_json_string_array (ساختار strbuf *sb, نویسه **arr, size_t len)
 {
   size_t i;
   sb_putc (sb, '[');
-  for (i = 0; i < len; i++)
+  برای (i = 0; i < len; i++)
     {
-      if (i)
+      اگر (i)
         sb_putc (sb, ',');
       sb_put_json_string (sb, arr[i]);
     }
@@ -281,48 +281,48 @@ sb_put_json_string_array (struct strbuf *sb, char **arr, size_t len)
 
 /* Read the whole file at PATH into a NUL-terminated string.  A PATH of `-`
    reads from stdin.  */
-static char *
-read_file_to_string (const char *path, libcrun_error_t *err)
+ایستا نویسه *
+read_file_to_string (ثابت نویسه *path, libcrun_error_t *err)
 {
-  cleanup_file FILE *f = NULL;
-  struct strbuf sb = { 0 };
-  char chunk[4096];
+  cleanup_file FILE *f = پوچ;
+  ساختار strbuf sb = { 0 };
+  نویسه chunk[4096];
   size_t n;
 
-  if (strcmp (path, "-") == 0)
+  اگر (strcmp (path, "-") == 0)
     path = "/dev/stdin";
 
   f = fopen (path, "re");
-  if (f == NULL)
+  اگر (f == پوچ)
     {
       libcrun_make_error (err, errno, "cannot open `%s`", path);
-      return NULL;
+      بازگشت پوچ;
     }
 
-  while ((n = fread (chunk, 1, sizeof (chunk), f)) > 0)
+  وقتی ((n = fread (chunk, 1, اندازه (chunk), f)) > 0)
     {
       sb_ensure (&sb, n);
       memcpy (sb.buf + sb.len, chunk, n);
       sb.len += n;
       sb.buf[sb.len] = '\0';
     }
-  if (ferror (f))
+  اگر (ferror (f))
     {
-      free (sb.buf);
+      آزاد (sb.buf);
       libcrun_make_error (err, errno, "cannot read `%s`", path);
-      return NULL;
+      بازگشت پوچ;
     }
 
-  if (sb.buf == NULL)
+  اگر (sb.buf == پوچ)
     sb.buf = xstrdup ("");
-  return sb.buf;
+  بازگشت sb.buf;
 }
 
 /* Build the OCI Process JSON from the CLI options.  */
-static char *
-build_process_json (struct crun_global_arguments *global_args arg_unused, char **args, size_t args_len)
+ایستا نویسه *
+build_process_json (ساختار crun_global_arguments *global_args arg_unused, نویسه **args, size_t args_len)
 {
-  struct strbuf sb = { 0 };
+  ساختار strbuf sb = { 0 };
 
   sb_putc (&sb, '{');
 
@@ -337,52 +337,52 @@ build_process_json (struct crun_global_arguments *global_args arg_unused, char *
   sb_puts (&sb, ",\"terminal\":");
   sb_puts (&sb, exec_options.tty ? "true" : "false");
 
-  if (exec_options.env_size > 0)
+  اگر (exec_options.env_size > 0)
     {
       sb_puts (&sb, ",\"env\":");
       sb_put_json_string_array (&sb, exec_options.env, exec_options.env_size);
     }
 
-  if (exec_options.user)
+  اگر (exec_options.user)
     {
-      char *endptr = NULL;
-      char *gidstr;
-      int uid, gid = 0;
-      char tmp[32];
+      نویسه *endptr = پوچ;
+      نویسه *gidstr;
+      صحیح uid, gid = 0;
+      نویسه tmp[32];
 
       uid = parse_id_or_fail (exec_options.user, &endptr, "UID");
-      if (*endptr == ':')
+      اگر (*endptr == ':')
         {
           gidstr = endptr + 1;
           gid = parse_id_or_fail (gidstr, &endptr, "GID");
-          if (*endptr != '\0')
+          اگر (*endptr != '\0')
             libcrun_fail_with_error (0, "invalid USERSPEC specified");
         }
-      else if (*endptr != '\0')
+      وگرنه اگر (*endptr != '\0')
         libcrun_fail_with_error (0, "invalid USERSPEC specified");
 
       sb_puts (&sb, ",\"user\":{\"uid\":");
-      snprintf (tmp, sizeof (tmp), "%d", uid);
+      snprintf (tmp, اندازه (tmp), "%d", uid);
       sb_puts (&sb, tmp);
       sb_puts (&sb, ",\"gid\":");
-      snprintf (tmp, sizeof (tmp), "%d", gid);
+      snprintf (tmp, اندازه (tmp), "%d", gid);
       sb_puts (&sb, tmp);
       sb_putc (&sb, '}');
     }
 
-  if (exec_options.process_label != NULL)
+  اگر (exec_options.process_label != پوچ)
     {
       sb_puts (&sb, ",\"selinuxLabel\":");
       sb_put_json_string (&sb, exec_options.process_label);
     }
 
-  if (exec_options.apparmor != NULL)
+  اگر (exec_options.apparmor != پوچ)
     {
       sb_puts (&sb, ",\"apparmorProfile\":");
       sb_put_json_string (&sb, exec_options.apparmor);
     }
 
-  if (exec_options.cap_size > 0)
+  اگر (exec_options.cap_size > 0)
     {
       sb_puts (&sb, ",\"capabilities\":{");
       sb_puts (&sb, "\"effective\":");
@@ -397,24 +397,24 @@ build_process_json (struct crun_global_arguments *global_args arg_unused, char *
     }
 
   /* noNewPrivileges remains at the config default unless explicitly requested.  */
-  if (exec_options.no_new_privs)
+  اگر (exec_options.no_new_privs)
     sb_puts (&sb, ",\"noNewPrivileges\":true");
 
   sb_putc (&sb, '}');
 
-  return sb.buf;
+  بازگشت sb.buf;
 }
 
-int
-crun_command_exec (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+صحیح
+crun_command_exec (ساختار crun_global_arguments *global_args, صحیح argc, نویسه **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret = 0;
-  cleanup_context libcrun_context_t *crun_context = NULL;
-  cleanup_free char *process_json = NULL;
-  struct libcrun_exec_options_s exec_opts;
+  صحیح first_arg = 0, ret = 0;
+  cleanup_context libcrun_context_t *crun_context = پوچ;
+  cleanup_free نویسه *process_json = پوچ;
+  ساختار libcrun_exec_options_s exec_opts;
 
-  memset (&exec_opts, 0, sizeof (exec_opts));
-  exec_opts.struct_size = sizeof (exec_opts);
+  memset (&exec_opts, 0, اندازه (exec_opts));
+  exec_opts.struct_size = اندازه (exec_opts);
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &exec_options);
   crun_assert_n_args (argc - first_arg, exec_options.process ? 1 : 2, -1);
@@ -423,33 +423,33 @@ crun_command_exec (struct crun_global_arguments *global_args, int argc, char **a
 
   libcrun_context_set_preserve_fds (crun_context, exec_options.preserve_fds);
 
-  if (getenv ("LISTEN_FDS"))
+  اگر (getenv ("LISTEN_FDS"))
     {
-      int listen_fds = strtoll (getenv ("LISTEN_FDS"), NULL, 10);
+      صحیح listen_fds = strtoll (getenv ("LISTEN_FDS"), پوچ, 10);
       libcrun_context_set_listen_fds (crun_context, listen_fds);
       libcrun_context_set_preserve_fds (crun_context, exec_options.preserve_fds + listen_fds);
     }
 
   /* The process file may be passed as /dev/fd/N, so read it before
      closing the file descriptors.  */
-  if (exec_options.process)
+  اگر (exec_options.process)
     {
       process_json = read_file_to_string (exec_options.process, err);
-      if (process_json == NULL)
-        return -1;
+      اگر (process_json == پوچ)
+        بازگشت -1;
       exec_opts.merge_env = false;
     }
-  else
+  وگرنه
     {
-      cleanup_free char **args = NULL;
+      cleanup_free نویسه **args = پوچ;
       size_t args_len = argc - first_arg - 1;
       size_t i;
 
       /* argv[first_arg] is the container id, the command follows it.  */
-      args = xmalloc0 ((args_len + 1) * sizeof (*args));
-      for (i = 0; i < args_len; i++)
+      args = xmalloc0 ((args_len + 1) * اندازه (*args));
+      برای (i = 0; i < args_len; i++)
         args[i] = argv[first_arg + i + 1];
-      args[i] = NULL;
+      args[i] = پوچ;
 
       process_json = build_process_json (global_args, args, args_len);
       exec_opts.merge_env = true;
@@ -458,12 +458,12 @@ crun_command_exec (struct crun_global_arguments *global_args, int argc, char **a
   /* Close the file descriptors inherited from the caller, so they do
      not leak into the container.  */
   ret = libcrun_close_inherited_fds (crun_context, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    بازگشت ret;
 
   libcrun_context_set_detach (crun_context, exec_options.detach);
   libcrun_context_set_console_socket (crun_context, exec_options.console_socket);
@@ -472,5 +472,5 @@ crun_command_exec (struct crun_global_arguments *global_args, int argc, char **a
   exec_opts.process_json = process_json;
   exec_opts.cgroup = exec_options.cgroup;
 
-  return libcrun_container_exec_with_options_json (crun_context, argv[first_arg], &exec_opts, err);
+  بازگشت libcrun_container_exec_with_options_json (crun_context, argv[first_arg], &exec_opts, err);
 }
