@@ -26,9 +26,9 @@
 
 #include "crun.h"
 
-static char doc[] = "OCI runtime";
+static var_na doc[] = "OCI runtime";
 
-enum
+ga_nanaa
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -37,54 +37,54 @@ enum
   OPTION_PRESERVE_FDS
 };
 
-struct ps_options_s
+sa_nracanaa ps_options_s
 {
-  int format;
+  ចំនួនគត់ format;
 };
 
-enum
+ga_nanaa
 {
   PS_TABLE = 100,
   PS_JSON,
 };
 
-static struct ps_options_s ps_options;
+static sa_nracanaa ps_options_s ps_options;
 
-static struct argp_option options[] = { { "format", 'f', "FORMAT", 0, "select the output format", 0 },
+static sa_nracanaa argp_option options[] = { { "format", 'f', "FORMAT", 0, "select the output format", 0 },
                                         {
                                             0,
                                         } };
 
-static char args_doc[] = "ps";
+static var_na args_doc[] = "ps";
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state arg_unused)
+parse_opt (ចំនួនគត់ key, var_na *arg, sa_nracanaa argp_state *state arg_unused)
 {
   switch (key)
     {
-    case 'f':
-      if (strcmp (arg, "table") == 0)
+    pak_sa 'f':
+      ប្រសិនបើ (strcmp (arg, "table") == 0)
         ps_options.format = PS_TABLE;
-      else if (strcmp (arg, "json") == 0)
+      បើមិនដូច្នេះ ប្រសិនបើ (strcmp (arg, "json") == 0)
         ps_options.format = PS_JSON;
-      else
+      បើមិនដូច្នេះ
         libcrun_fail_with_error (0, "invalid format `%s`", arg);
-      break;
+      bha_nga;
 
     default:
-      return ARGP_ERR_UNKNOWN;
+      ត្រឡប់ ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  ត្រឡប់ 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+static sa_nracanaa argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-int
-crun_command_ps (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+ចំនួនគត់
+crun_command_ps (sa_nracanaa crun_global_arguments *global_args, ចំនួនគត់ argc, var_na **argv, libcrun_error_t *err)
 {
-  int first_arg;
-  int ret;
+  ចំនួនគត់ first_arg;
+  ចំនួនគត់ ret;
   cleanup_free pid_t *pids = NULL;
   cleanup_context libcrun_context_t *crun_context = NULL;
   size_t i;
@@ -97,31 +97,31 @@ crun_command_ps (struct crun_global_arguments *global_args, int argc, char **arg
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ប្រសិនបើ (UNLIKELY (ret < 0))
+    ត្រឡប់ ret;
 
   ret = libcrun_container_read_pids (crun_context, argv[first_arg], true, &pids, err);
-  if (UNLIKELY (ret < 0))
+  ប្រសិនបើ (UNLIKELY (ret < 0))
     {
       libcrun_error_report_and_release (err);
-      return ret;
+      ត្រឡប់ ret;
     }
 
   switch (ps_options.format)
     {
-    case PS_JSON:
+    pak_sa PS_JSON:
       printf ("[\n");
-      for (i = 0; pids && pids[i]; i++)
+      សម្រាប់ (i = 0; pids && pids[i]; i++)
         printf ("  %d%s\n", pids[i], pids[i + 1] ? "," : "");
       printf ("]\n");
-      break;
+      bha_nga;
 
-    case PS_TABLE:
+    pak_sa PS_TABLE:
       printf ("PID\n");
-      for (i = 0; pids && pids[i]; i++)
+      សម្រាប់ (i = 0; pids && pids[i]; i++)
         printf ("%d\n", pids[i]);
-      break;
+      bha_nga;
     }
 
-  return 0;
+  ត្រឡប់ 0;
 }

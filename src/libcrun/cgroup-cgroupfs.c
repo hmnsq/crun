@@ -37,28 +37,28 @@
 #include <fcntl.h>
 #include <libgen.h>
 
-static char *
-make_cgroup_path (const char *path, const char *id)
+static var_na *
+make_cgroup_path (const var_na *path, const var_na *id)
 {
-  char *ret;
+  var_na *ret;
 
-  if (path == NULL)
+  ប្រសិនបើ (path == NULL)
     xasprintf (&ret, "/%s", id);
-  else if (path[0] == '/')
+  បើមិនដូច្នេះ ប្រសិនបើ (path[0] == '/')
     ret = xstrdup (path);
-  else
+  បើមិនដូច្នេះ
     xasprintf (&ret, "/%s", path);
 
-  return ret;
+  ត្រឡប់ ret;
 }
 
-static int
-libcrun_precreate_cgroup_cgroupfs (struct libcrun_cgroup_args *args, int *dirfd, libcrun_error_t *err)
+static ចំនួនគត់
+libcrun_precreate_cgroup_cgroupfs (sa_nracanaa libcrun_cgroup_args *args, ចំនួនគត់ *dirfd, libcrun_error_t *err)
 {
-  cleanup_free char *sub_path = make_cgroup_path (args->cgroup_path, args->id);
-  cleanup_free char *cgroup_path = NULL;
-  cleanup_free char *parent_path = NULL;
-  int ret;
+  cleanup_free var_na *sub_path = make_cgroup_path (args->cgroup_path, args->id);
+  cleanup_free var_na *cgroup_path = NULL;
+  cleanup_free var_na *parent_path = NULL;
+  ចំនួនគត់ ret;
 
   /* No need to check the mode since this feature is supported only on cgroup v2, and
      libcrun_cgroup_preenter already performs this check.  */
@@ -68,131 +68,131 @@ libcrun_precreate_cgroup_cgroupfs (struct libcrun_cgroup_args *args, int *dirfd,
   /* The container process is created directly in the cgroup, so check it
      now: once it is there, it is too late.  */
   ret = libcrun_cgroup_ensure_not_frozen (sub_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ប្រសិនបើ (UNLIKELY (ret < 0))
+    ត្រឡប់ ret;
 
   ret = append_paths (&cgroup_path, err, CGROUP_ROOT, sub_path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ប្រសិនបើ (UNLIKELY (ret < 0))
+    ត្រឡប់ ret;
 
   parent_path = xstrdup (cgroup_path);
   ret = crun_ensure_directory (dirname (parent_path), 0755, true, err);
-  if (UNLIKELY (ret < 0))
+  ប្រសិនបើ (UNLIKELY (ret < 0))
     {
       libcrun_error_release (err);
-      return 0;
+      ត្រឡប់ 0;
     }
 
   /* Remember the cgroup created here, so it can be removed if the container
      creation fails before there is a status for it.  A pre-existing cgroup is
      left alone.  */
-  if (mkdir (cgroup_path, 0755) == 0)
+  ប្រសិនបើ (mkdir (cgroup_path, 0755) == 0)
     args->precreated_path = xstrdup (cgroup_path);
-  else if (errno != EEXIST)
-    return 0;
+  បើមិនដូច្នេះ ប្រសិនបើ (errno != EEXIST)
+    ត្រឡប់ 0;
 
   ret = enable_controllers (sub_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ប្រសិនបើ (UNLIKELY (ret < 0))
+    ត្រឡប់ ret;
 
   *dirfd = open (cgroup_path, O_CLOEXEC | O_NOFOLLOW | O_DIRECTORY | O_PATH);
-  if (UNLIKELY (*dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", cgroup_path);
+  ប្រសិនបើ (UNLIKELY (*dirfd < 0))
+    ត្រឡប់ crun_make_error (err, errno, "open `%s`", cgroup_path);
 
-  return 0;
+  ត្រឡប់ 0;
 }
 
-static int
-make_new_sibling_cgroup (char **out, const char *id, libcrun_error_t *err)
+static ចំនួនគត់
+make_new_sibling_cgroup (var_na **out, const var_na *id, libcrun_error_t *err)
 {
-  cleanup_free char *current_cgroup = NULL;
-  char *dir;
-  int ret;
+  cleanup_free var_na *current_cgroup = NULL;
+  var_na *dir;
+  ចំនួនគត់ ret;
 
   ret = libcrun_get_cgroup_process (0, &current_cgroup, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ប្រសិនបើ (UNLIKELY (ret < 0))
+    ត្រឡប់ ret;
 
   dir = dirname (current_cgroup);
 
   append_paths (out, err, dir, id, NULL);
-  return 0;
+  ត្រឡប់ 0;
 }
 
-static int
-libcrun_cgroup_enter_cgroupfs (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status *out, libcrun_error_t *err)
+static ចំនួនគត់
+libcrun_cgroup_enter_cgroupfs (sa_nracanaa libcrun_cgroup_args *args, sa_nracanaa libcrun_cgroup_status *out, libcrun_error_t *err)
 {
   pid_t pid = args->pid;
-  int cgroup_mode;
-  int ret;
+  ចំនួនគត់ cgroup_mode;
+  ចំនួនគត់ ret;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  ប្រសិនបើ (UNLIKELY (cgroup_mode < 0))
+    ត្រឡប់ cgroup_mode;
 
   out->path = make_cgroup_path (args->cgroup_path, args->id);
 
   /* If the cgroup was already joined via CLONE_INTO_CGROUP, the controllers
      were already enabled by precreate_cgroup.  */
-  if (args->joined)
-    return 0;
+  ប្រសិនបើ (args->joined)
+    ត្រឡប់ 0;
 
-  if (cgroup_mode == CGROUP_MODE_UNIFIED)
+  ប្រសិនបើ (cgroup_mode == CGROUP_MODE_UNIFIED)
     {
       ret = enable_controllers (out->path, err);
-      if (UNLIKELY (ret < 0))
+      ប្រសិនបើ (UNLIKELY (ret < 0))
         {
           /* If the generated path cannot be used attempt to create the new cgroup
              as a sibling of the current one.  */
-          if (args->cgroup_path == NULL)
+          ប្រសិនបើ (args->cgroup_path == NULL)
             {
               libcrun_error_t tmp_err = NULL;
-              int tmp_ret;
+              ចំនួនគត់ tmp_ret;
 
               free (out->path);
               out->path = NULL;
 
               tmp_ret = make_new_sibling_cgroup (&out->path, args->id, &tmp_err);
-              if (UNLIKELY (tmp_ret < 0))
+              ប្រសិនបើ (UNLIKELY (tmp_ret < 0))
                 {
                   crun_error_release (&tmp_err);
-                  return ret;
+                  ត្រឡប់ ret;
                 }
 
               crun_error_release (err);
               ret = enable_controllers (out->path, err);
             }
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ប្រសិនបើ (UNLIKELY (ret < 0))
+            ត្រឡប់ ret;
         }
     }
 
   ret = libcrun_cgroup_ensure_not_frozen (out->path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ប្រសិនបើ (UNLIKELY (ret < 0))
+    ត្រឡប់ ret;
 
-  return enter_cgroup (cgroup_mode, pid, 0, out->path, true, err);
+  ត្រឡប់ enter_cgroup (cgroup_mode, pid, 0, out->path, true, err);
 }
 
-static int
-libcrun_destroy_cgroup_cgroupfs (struct libcrun_cgroup_status *cgroup_status,
+static ចំនួនគត់
+libcrun_destroy_cgroup_cgroupfs (sa_nracanaa libcrun_cgroup_status *cgroup_status,
                                  libcrun_error_t *err)
 {
-  int mode;
-  int ret;
+  ចំនួនគត់ mode;
+  ចំនួនគត់ ret;
 
   mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (mode < 0))
-    return mode;
+  ប្រសិនបើ (UNLIKELY (mode < 0))
+    ត្រឡប់ mode;
 
   ret = cgroup_killall_path (cgroup_status->path, SIGKILL, err);
-  if (UNLIKELY (ret < 0))
+  ប្រសិនបើ (UNLIKELY (ret < 0))
     crun_error_release (err);
 
-  return destroy_cgroup_path (cgroup_status->path, mode, err);
+  ត្រឡប់ destroy_cgroup_path (cgroup_status->path, mode, err);
 }
 
-struct libcrun_cgroup_manager cgroup_manager_cgroupfs = {
+sa_nracanaa libcrun_cgroup_manager cgroup_manager_cgroupfs = {
   .precreate_cgroup = libcrun_precreate_cgroup_cgroupfs,
   .create_cgroup = libcrun_cgroup_enter_cgroupfs,
   .destroy_cgroup = libcrun_destroy_cgroup_cgroupfs,

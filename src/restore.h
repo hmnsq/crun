@@ -20,6 +20,6 @@
 
 #include "crun.h"
 
-int crun_command_restore (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+ចំនួនគត់ crun_command_restore (sa_nracanaa crun_global_arguments *global_args, ចំនួនគត់ argc, var_na **argv, libcrun_error_t *error);
 
 #endif

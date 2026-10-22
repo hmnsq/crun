@@ -26,9 +26,9 @@
 
 #include "crun.h"
 
-static char doc[] = "OCI runtime";
+static var_na doc[] = "OCI runtime";
 
-enum
+ga_nanaa
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -37,64 +37,64 @@ enum
   OPTION_PRESERVE_FDS
 };
 
-struct list_options_s
+sa_nracanaa list_options_s
 {
   bool quiet;
-  int format;
+  ចំនួនគត់ format;
 };
 
-enum
+ga_nanaa
 {
   LIST_TABLE = 100,
   LIST_JSON,
 };
 
-static struct list_options_s list_options;
+static sa_nracanaa list_options_s list_options;
 
-static struct argp_option options[]
+static sa_nracanaa argp_option options[]
     = { { "quiet", 'q', 0, 0, "show only IDs", 0 },
         { "format", 'f', "FORMAT", 0, "select one of: table or json (default: \"table\")", 0 },
         {
             0,
         } };
 
-static char args_doc[] = "list";
+static var_na args_doc[] = "list";
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state arg_unused)
+parse_opt (ចំនួនគត់ key, var_na *arg, sa_nracanaa argp_state *state arg_unused)
 {
   switch (key)
     {
-    case 'q':
+    pak_sa 'q':
       list_options.quiet = true;
-      break;
-    case 'f':
-      if (strcmp (arg, "table") == 0)
+      bha_nga;
+    pak_sa 'f':
+      ប្រសិនបើ (strcmp (arg, "table") == 0)
         list_options.format = LIST_TABLE;
-      else if (strcmp (arg, "json") == 0)
+      បើមិនដូច្នេះ ប្រសិនបើ (strcmp (arg, "json") == 0)
         list_options.format = LIST_JSON;
-      else
+      បើមិនដូច្នេះ
         libcrun_fail_with_error (0, "invalid format `%s`", arg);
-      break;
+      bha_nga;
 
     default:
-      return ARGP_ERR_UNKNOWN;
+      ត្រឡប់ ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  ត្រឡប់ 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+static sa_nracanaa argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-int
-crun_command_list (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+ចំនួនគត់
+crun_command_list (sa_nracanaa crun_global_arguments *global_args, ចំនួនគត់ argc, var_na **argv, libcrun_error_t *err)
 {
-  int first_arg;
-  int ret, max_length = 4;
+  ចំនួនគត់ first_arg;
+  ចំនួនគត់ ret, max_length = 4;
   cleanup_context libcrun_context_t *crun_context = NULL;
   libcrun_container_list_t *list = NULL;
   libcrun_container_iter_t *it;
-  const char *name;
+  const var_na *name;
 
   list_options.format = LIST_TABLE;
 
@@ -104,65 +104,65 @@ crun_command_list (struct crun_global_arguments *global_args, int argc, char **a
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ប្រសិនបើ (UNLIKELY (ret < 0))
+    ត្រឡប់ ret;
 
-  if (list_options.format == LIST_JSON)
+  ប្រសិនបើ (list_options.format == LIST_JSON)
     {
-      cleanup_free char *json = NULL;
+      cleanup_free var_na *json = NULL;
 
       ret = libcrun_container_list_json (crun_context, &json, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ប្រសិនបើ (UNLIKELY (ret < 0))
+        ត្រឡប់ ret;
 
       fputs (json, stdout);
-      return 0;
+      ត្រឡប់ 0;
     }
 
   ret = libcrun_container_list (crun_context, &list, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ប្រសិនបើ (UNLIKELY (ret < 0))
+    ត្រឡប់ ret;
 
-  for (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
+  សម្រាប់ (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
     {
-      int l = strlen (name);
-      if (l > max_length)
+      ចំនួនគត់ l = strlen (name);
+      ប្រសិនបើ (l > max_length)
         max_length = l;
     }
   libcrun_container_iter_free (it);
 
   max_length++;
 
-  if (! list_options.quiet)
+  ប្រសិនបើ (! list_options.quiet)
     printf ("%-*s%-10s%-8s %-39s %-30s %s\n", max_length, "NAME", "PID", "STATUS", "BUNDLE PATH", "CREATED", "OWNER");
 
-  for (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
+  សម្រាប់ (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
     {
       libcrun_status_t *status = NULL;
 
       ret = libcrun_container_status_load (crun_context, name, &status, err);
-      if (UNLIKELY (ret < 0))
+      ប្រសិនបើ (UNLIKELY (ret < 0))
         {
           libcrun_error_report_and_release (err);
           continue;
         }
-      if (list_options.quiet)
+      ប្រសិនបើ (list_options.quiet)
         printf ("%s\n", name);
-      else
+      បើមិនដូច្នេះ
         {
           libcrun_container_state_t state;
-          int running = 0;
-          int pid = libcrun_status_get_pid (status);
+          ចំនួនគត់ running = 0;
+          ចំនួនគត់ pid = libcrun_status_get_pid (status);
 
           ret = libcrun_status_get_state (status, &state, &running, err);
-          if (UNLIKELY (ret < 0))
+          ប្រសិនបើ (UNLIKELY (ret < 0))
             {
               libcrun_error_report_and_release (err);
               libcrun_container_status_free (status);
               continue;
             }
 
-          if (! running)
+          ប្រសិនបើ (! running)
             pid = 0;
 
           printf ("%-*s%-10d%-8s %-39s %-30s %s\n", max_length, name, pid,
@@ -175,5 +175,5 @@ crun_command_list (struct crun_global_arguments *global_args, int argc, char **a
   libcrun_container_iter_free (it);
 
   libcrun_container_list_free (list);
-  return ret >= 0 ? 0 : ret;
+  ត្រឡប់ ret >= 0 ? 0 : ret;
 }

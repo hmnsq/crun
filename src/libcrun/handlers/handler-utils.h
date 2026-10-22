@@ -21,6 +21,6 @@
 #include "../container.h"
 #include <unistd.h>
 
-int wasm_can_handle_container (libcrun_container_t *container, libcrun_error_t *err);
+ចំនួនគត់ wasm_can_handle_container (libcrun_container_t *container, libcrun_error_t *err);
 
 #endif
