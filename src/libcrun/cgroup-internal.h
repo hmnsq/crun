@@ -18,13 +18,13 @@
 #ifndef CGROUP_INTERNAL_H
 #define CGROUP_INTERNAL_H
 
-#include "container.h"
-#include "utils.h"
+#अन्तर्भाव "container.h"
+#अन्तर्भाव "utils.h"
 
-#include <stdint.h>
-#include <math.h>
+#अन्तर्भाव <stdint.h>
+#अन्तर्भाव <math.h>
 
-enum
+गणना
 {
   CGROUP_MEMORY = 1 << 0,
   CGROUP_CPU = 1 << 1,
@@ -35,88 +35,88 @@ enum
   CGROUP_MISC = 1 << 6,
 };
 
-struct libcrun_cgroup_status
+संरचना libcrun_cgroup_status
 {
-  char *path;
-  char *scope;
+  वर्ण *path;
+  वर्ण *scope;
 
-  int manager;
+  पूर्णाङ्क manager;
 
   bool bpf_dev_set;
 };
 
 /* Forward declaration for function pointers below.  */
-struct libcrun_cgroup_args;
+संरचना libcrun_cgroup_args;
 
-struct libcrun_cgroup_manager
+संरचना libcrun_cgroup_manager
 {
   /* Create a new cgroup and fill PATH in OUT.  */
-  int (*create_cgroup) (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status *out, libcrun_error_t *err);
-  int (*precreate_cgroup) (struct libcrun_cgroup_args *args, int *dirfd, libcrun_error_t *err);
+  पूर्णाङ्क (*create_cgroup) (संरचना libcrun_cgroup_args *args, संरचना libcrun_cgroup_status *out, libcrun_error_t *err);
+  पूर्णाङ्क (*precreate_cgroup) (संरचना libcrun_cgroup_args *args, पूर्णाङ्क *dirfd, libcrun_error_t *err);
   /* Destroy the cgroup and kill any process if needed.  */
-  int (*destroy_cgroup) (struct libcrun_cgroup_status *cgroup_status, libcrun_error_t *err);
+  पूर्णाङ्क (*destroy_cgroup) (संरचना libcrun_cgroup_status *cgroup_status, libcrun_error_t *err);
   /* Additional resources configuration specific to this manager.  */
-  int (*update_resources) (struct libcrun_cgroup_status *cgroup_status, const char *state_root, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err);
+  पूर्णाङ्क (*update_resources) (संरचना libcrun_cgroup_status *cgroup_status, ध्रुव वर्ण *state_मूलम्, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err);
   /* Move PID to the cgroup PATH (the container cgroup or its sub-cgroup) by
      other means than writing to cgroup.procs.  Optional.  */
-  int (*attach_process) (struct libcrun_cgroup_status *cgroup_status, const char *path, pid_t pid, libcrun_error_t *err);
+  पूर्णाङ्क (*attach_process) (संरचना libcrun_cgroup_status *cgroup_status, ध्रुव वर्ण *path, pid_t pid, libcrun_error_t *err);
 };
 
-int move_process_to_cgroup (pid_t pid, const char *subsystem, const char *path, libcrun_error_t *err);
-int enter_cgroup_v1_subsystem (pid_t pid, const char *subsystem, const char *path, bool create_if_missing,
+पूर्णाङ्क move_process_to_cgroup (pid_t pid, ध्रुव वर्ण *subsystem, ध्रुव वर्ण *path, libcrun_error_t *err);
+पूर्णाङ्क enter_cgroup_v1_subsystem (pid_t pid, ध्रुव वर्ण *subsystem, ध्रुव वर्ण *path, bool create_if_missing,
                                libcrun_error_t *err);
-int enable_controllers (const char *path, libcrun_error_t *err);
-int chown_cgroups (const char *path, uid_t uid, gid_t gid, libcrun_error_t *err);
-int cgroup_killall_path (const char *path, int signal, libcrun_error_t *err);
+पूर्णाङ्क enable_controllers (ध्रुव वर्ण *path, libcrun_error_t *err);
+पूर्णाङ्क chown_cgroups (ध्रुव वर्ण *path, uid_t uid, gid_t gid, libcrun_error_t *err);
+पूर्णाङ्क cgroup_killall_path (ध्रुव वर्ण *path, पूर्णाङ्क सङ्केत, libcrun_error_t *err);
 
-int libcrun_cgroup_read_pids_from_path (const char *path, bool recurse, pid_t **pids, libcrun_error_t *err);
+पूर्णाङ्क libcrun_cgroup_read_pids_from_path (ध्रुव वर्ण *path, bool recurse, pid_t **pids, libcrun_error_t *err);
 
-bool read_proc_cgroup (char *content, char **saveptr, char **id, char **controller_list, char **path);
+bool read_proc_cgroup (वर्ण *content, वर्ण **saveptr, वर्ण **id, वर्ण **controller_list, वर्ण **path);
 
-static inline int
+स्थिर अन्तःस्थ पूर्णाङ्क
 is_rootless (libcrun_error_t *err)
 {
-  if (geteuid ())
-    return 1;
+  जइ (geteuid ())
+    प्रत्यागम 1;
 
-  return check_running_in_user_namespace (err);
+  प्रत्यागम check_running_in_user_namespace (err);
 }
 
-static inline int
-write_cgroup_file (int dirfd, const char *name, const void *data, size_t len, libcrun_error_t *err)
+स्थिर अन्तःस्थ पूर्णाङ्क
+write_cgroup_file (पूर्णाङ्क dirfd, ध्रुव वर्ण *name, ध्रुव शून्य *data, size_t len, libcrun_error_t *err)
 {
-  return write_file_at_with_flags (dirfd, O_WRONLY | O_CLOEXEC, 0, name, data, len, err);
+  प्रत्यागम write_file_at_with_flags (dirfd, O_WRONLY | O_CLOEXEC, 0, name, data, len, err);
 }
 
-int libcrun_cgroup_pause_unpause_path (const char *cgroup_path, const bool pause, libcrun_error_t *err);
+पूर्णाङ्क libcrun_cgroup_pause_unpause_path (ध्रुव वर्ण *cgroup_path, ध्रुव bool pause, libcrun_error_t *err);
 
-static inline uint64_t
+स्थिर अन्तःस्थ uint64_t
 convert_shares_to_weight (uint64_t shares)
 {
-  double l, exponent;
+  द्विगुण l, exponent;
 
   /* The value of 0 means "unset".  */
-  if (shares == 0)
-    return 0;
-  if (shares <= 2)
-    return 1;
-  if (shares >= 262144)
-    return 10000;
+  जइ (shares == 0)
+    प्रत्यागम 0;
+  जइ (shares <= 2)
+    प्रत्यागम 1;
+  जइ (shares >= 262144)
+    प्रत्यागम 10000;
 
-  l = log2 ((double) shares);
+  l = log2 ((द्विगुण) shares);
 
   /* Quadratic function which fits min, max, and default.  */
   exponent = (l * l + 125 * l) / 612.0 - 7.0 / 34.0;
 
-  return (uint64_t) ceil (pow (10, exponent));
+  प्रत्यागम (uint64_t) ceil (pow (10, exponent));
 }
 
-int initialize_cpuset_subsystem (const char *path, libcrun_error_t *err);
-int initialize_cpuset_subsystem_resources (const char *path, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err);
+पूर्णाङ्क initialize_cpuset_subsystem (ध्रुव वर्ण *path, libcrun_error_t *err);
+पूर्णाङ्क initialize_cpuset_subsystem_resources (ध्रुव वर्ण *path, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err);
 
-int write_cpuset_resources (int dirfd_cpuset, int cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err);
+पूर्णाङ्क write_cpuset_resources (पूर्णाङ्क dirfd_cpuset, पूर्णाङ्क cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err);
 
-int write_cpu_idle (int cpu_dirfd, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err);
-int write_cpu_burst (int cpu_dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err);
+पूर्णाङ्क write_cpu_idle (पूर्णाङ्क cpu_dirfd, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err);
+पूर्णाङ्क write_cpu_burst (पूर्णाङ्क cpu_dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err);
 
 #endif
