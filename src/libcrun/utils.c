@@ -17,49 +17,49 @@
  */
 
 #define _GNU_SOURCE
-#include <config.h>
-#include "utils.h"
-#include "ring_buffer.h"
-#include <stdarg.h>
-#include <inttypes.h>
-#include <unistd.h>
-#include <string.h>
-#include <libgen.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/un.h>
-#include <sys/socket.h>
-#include <sys/signalfd.h>
-#include <sys/epoll.h>
-#include <sys/syscall.h>
-#include <sys/wait.h>
-#include <pwd.h>
-#include <grp.h>
-#include <time.h>
-#include <sys/time.h>
-#include <sys/xattr.h>
-#include <sys/sysmacros.h>
-#include <sys/vfs.h>
-#include <linux/magic.h>
-#include <limits.h>
-#include <sys/mman.h>
+#অন্তর্ভাব <config.h>
+#অন্তর্ভাব "utils.h"
+#অন্তর্ভাব "ring_buffer.h"
+#অন্তর্ভাব <stdarg.h>
+#অন্তর্ভাব <inttypes.h>
+#অন্তর্ভাব <unistd.h>
+#অন্তর্ভাব <string.h>
+#অন্তর্ভাব <libgen.h>
+#অন্তর্ভাব <fcntl.h>
+#অন্তর্ভাব <sys/stat.h>
+#অন্তর্ভাব <sys/types.h>
+#অন্তর্ভাব <sys/un.h>
+#অন্তর্ভাব <sys/socket.h>
+#অন্তর্ভাব <sys/signalfd.h>
+#অন্তর্ভাব <sys/epoll.h>
+#অন্তর্ভাব <sys/syscall.h>
+#অন্তর্ভাব <sys/wait.h>
+#অন্তর্ভাব <pwd.h>
+#অন্তর্ভাব <grp.h>
+#অন্তর্ভাব <time.h>
+#অন্তর্ভাব <sys/time.h>
+#অন্তর্ভাব <sys/xattr.h>
+#অন্তর্ভাব <sys/sysmacros.h>
+#অন্তর্ভাব <sys/vfs.h>
+#অন্তর্ভাব <linux/magic.h>
+#অন্তর্ভাব <limits.h>
+#অন্তর্ভাব <sys/mman.h>
 #ifdef HAVE_LINUX_OPENAT2_H
 #  include <linux/openat2.h>
 #endif
-#if HAVE_STDATOMIC_H
+#যদি HAVE_STDATOMIC_H
 #  include <stdatomic.h>
-#else
-#  define atomic_long volatile long
-#  define atomic_int volatile int
+#অন্যথা
+#  define atomic_long অস্থির long
+#  define atomic_int অস্থির পূর্ণসংখ্যা
 #endif
-#include "syscalls.h"
+#অন্তর্ভাব "syscalls.h"
 
 #ifndef CLOSE_RANGE_CLOEXEC
 #  define CLOSE_RANGE_CLOEXEC (1U << 2)
 #endif
-#ifndef RESOLVE_IN_ROOT
-#  define RESOLVE_IN_ROOT 0x10
+#ifndef RESOLVE_IN_মূল
+#  define RESOLVE_IN_মূল 0x10
 #endif
 #ifndef __NR_close_range
 #  define __NR_close_range 436
@@ -74,305 +74,305 @@
 #define MAX_READLINKS 32
 #define MAX_OPENAT2_EAGAIN_RETRIES 128
 
-int
-crun_path_exists (const char *path, libcrun_error_t *err)
+পূর্ণসংখ্যা
+crun_path_exists (ধ্রুবক অক্ষর *path, libcrun_error_t *err)
 {
-  int ret = access (path, F_OK);
-  if (ret < 0)
+  পূর্ণসংখ্যা ret = access (path, F_OK);
+  যদি (ret < 0)
     {
-      if (errno == ENOENT)
-        return 0;
-      return crun_make_error (err, errno, "access `%s`", path);
+      যদি (errno == ENOENT)
+        ফেরত 0;
+      ফেরত crun_make_error (err, errno, "access `%s`", path);
     }
-  return 1;
+  ফেরত 1;
 }
 
-int
-xasprintf (char **str, const char *fmt, ...)
+পূর্ণসংখ্যা
+xasprintf (অক্ষর **str, ধ্রুবক অক্ষর *fmt, ...)
 {
-  int ret;
+  পূর্ণসংখ্যা ret;
   va_list args_list;
 
   va_start (args_list, fmt);
 
   ret = vasprintf (str, fmt, args_list);
-  if (UNLIKELY (ret < 0))
+  যদি (UNLIKELY (ret < 0))
     OOM ();
 
   va_end (args_list);
-  return ret;
+  ফেরত ret;
 }
 
-int
-write_file_at_with_flags (int dirfd, int flags, mode_t mode, const char *name, const void *data, size_t len, libcrun_error_t *err)
+পূর্ণসংখ্যা
+write_file_at_with_flags (পূর্ণসংখ্যা dirfd, পূর্ণসংখ্যা flags, mode_t mode, ধ্রুবক অক্ষর *name, ধ্রুবক শূন্য *তথ্য, size_t len, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
-  int ret = 0;
+  cleanup_close পূর্ণসংখ্যা fd = -1;
+  পূর্ণসংখ্যা ret = 0;
 
   fd = openat (dirfd, name, O_CLOEXEC | O_WRONLY | flags, mode);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s` for writing", name);
+  যদি (UNLIKELY (fd < 0))
+    ফেরত crun_make_error (err, errno, "open `%s` for writing", name);
 
-  ret = safe_write (fd, name, data, len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = safe_write (fd, name, তথ্য, len, err);
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
-  return (len > INT_MAX) ? INT_MAX : (int) len;
+  ফেরত (len > INT_MAX) ? INT_MAX : (পূর্ণসংখ্যা) len;
 }
 
-int
+পূর্ণসংখ্যা
 detach_process ()
 {
   pid_t pid;
-  if (setsid () < 0)
-    return -1;
+  যদি (setsid () < 0)
+    ফেরত -1;
   pid = fork ();
-  if (pid < 0)
-    return -1;
-  if (pid != 0)
+  যদি (pid < 0)
+    ফেরত -1;
+  যদি (pid != 0)
     _safe_exit (EXIT_SUCCESS);
-  return 0;
+  ফেরত 0;
 }
 
-int
-get_file_type_fd (int fd, mode_t *mode)
+পূর্ণসংখ্যা
+get_file_type_fd (পূর্ণসংখ্যা fd, mode_t *mode)
 {
-  struct stat st;
-  int ret;
+  কাঠামো stat st;
+  পূর্ণসংখ্যা ret;
 
 #ifdef HAVE_STATX
-  struct statx stx = {
+  কাঠামো statx stx = {
     0,
   };
 
   ret = statx (fd, "", AT_EMPTY_PATH | AT_STATX_DONT_SYNC, STATX_TYPE, &stx);
-  if (UNLIKELY (ret < 0))
+  যদি (UNLIKELY (ret < 0))
     {
-      if (errno == ENOSYS || errno == EINVAL)
-        goto fallback;
+      যদি (errno == ENOSYS || errno == EINVAL)
+        যাও fallback;
 
-      return ret;
+      ফেরত ret;
     }
   *mode = stx.stx_mode;
-  return ret;
+  ফেরত ret;
 
 fallback:
 #endif
   ret = fstat (fd, &st);
   *mode = st.st_mode;
-  return ret;
+  ফেরত ret;
 }
 
-int
-get_file_type_at (int dirfd, mode_t *mode, bool nofollow, const char *path)
+পূর্ণসংখ্যা
+get_file_type_at (পূর্ণসংখ্যা dirfd, mode_t *mode, bool nofollow, ধ্রুবক অক্ষর *path)
 {
-  int empty_path = path == NULL ? AT_EMPTY_PATH : 0;
-  struct stat st;
-  int ret;
+  পূর্ণসংখ্যা empty_path = path == ফাঁকা ? AT_EMPTY_PATH : 0;
+  কাঠামো stat st;
+  পূর্ণসংখ্যা ret;
 
 #ifdef HAVE_STATX
-  struct statx stx = {
+  কাঠামো statx stx = {
     0,
   };
 
   ret = statx (dirfd, path ?: "", empty_path | (nofollow ? AT_SYMLINK_NOFOLLOW : 0) | AT_STATX_DONT_SYNC, STATX_TYPE, &stx);
-  if (UNLIKELY (ret < 0))
+  যদি (UNLIKELY (ret < 0))
     {
-      if (errno == ENOSYS || errno == EINVAL)
-        goto fallback;
+      যদি (errno == ENOSYS || errno == EINVAL)
+        যাও fallback;
 
-      return ret;
+      ফেরত ret;
     }
   *mode = stx.stx_mode;
-  return ret;
+  ফেরত ret;
 
 fallback:
 #endif
   ret = fstatat (dirfd, path ?: "", &st, empty_path | (nofollow ? AT_SYMLINK_NOFOLLOW : 0));
   *mode = st.st_mode;
-  return ret;
+  ফেরত ret;
 }
 
-int
-get_file_type (mode_t *mode, bool nofollow, const char *path)
+পূর্ণসংখ্যা
+get_file_type (mode_t *mode, bool nofollow, ধ্রুবক অক্ষর *path)
 {
-  return get_file_type_at (AT_FDCWD, mode, nofollow, path);
+  ফেরত get_file_type_at (AT_FDCWD, mode, nofollow, path);
 }
 
-int
-create_file_if_missing_at (int dirfd, const char *file, mode_t mode, libcrun_error_t *err)
+পূর্ণসংখ্যা
+create_file_if_missing_at (পূর্ণসংখ্যা dirfd, ধ্রুবক অক্ষর *file, mode_t mode, libcrun_error_t *err)
 {
-  cleanup_close int fd_write = openat (dirfd, file, O_CLOEXEC | O_CREAT | O_WRONLY | O_NOFOLLOW | O_NONBLOCK, mode);
-  if (fd_write < 0)
+  cleanup_close পূর্ণসংখ্যা fd_write = openat (dirfd, file, O_CLOEXEC | O_CREAT | O_WRONLY | O_NOFOLLOW | O_NONBLOCK, mode);
+  যদি (fd_write < 0)
     {
-      int saved_errno = errno;
+      পূর্ণসংখ্যা saved_errno = errno;
       mode_t tmp_mode;
-      int ret;
+      পূর্ণসংখ্যা ret;
 
       /* On errors, check if the file already exists.  */
       ret = get_file_type_at (dirfd, &tmp_mode, true, file);
-      if (ret == 0 && S_ISREG (tmp_mode))
-        return 0;
+      যদি (ret == 0 && S_ISREG (tmp_mode))
+        ফেরত 0;
 
-      return crun_make_error (err, saved_errno, "create file `%s`", file);
+      ফেরত crun_make_error (err, saved_errno, "create file `%s`", file);
     }
-  return 0;
+  ফেরত 0;
 }
 
-static int
-ensure_directory_internal_at (int dirfd, char *path, size_t len, int mode, libcrun_error_t *err)
+স্থির পূর্ণসংখ্যা
+ensure_directory_internal_at (পূর্ণসংখ্যা dirfd, অক্ষর *path, size_t len, পূর্ণসংখ্যা mode, libcrun_error_t *err)
 {
-  char *it = path + len;
-  int ret = 0;
+  অক্ষর *it = path + len;
+  পূর্ণসংখ্যা ret = 0;
   bool parent_created = false;
 
-  for (;;)
+  জন্য (;;)
     {
       ret = mkdirat (dirfd, path, mode);
-      if (ret == 0 || errno == EEXIST)
-        return 0;
+      যদি (ret == 0 || errno == EEXIST)
+        ফেরত 0;
 
-      int saved_errno = errno;
-      if (parent_created || errno != ENOENT)
+      পূর্ণসংখ্যা saved_errno = errno;
+      যদি (parent_created || errno != ENOENT)
         {
-          libcrun_error_t tmp_err = NULL;
+          libcrun_error_t tmp_err = ফাঁকা;
 
           /* On errors check if the directory already exists.  */
           ret = crun_dir_p (path, false, &tmp_err);
-          if (ret > 0)
-            return 0;
-          if (ret < 0)
+          যদি (ret > 0)
+            ফেরত 0;
+          যদি (ret < 0)
             crun_error_release (&tmp_err);
 
-          return crun_make_error (err, saved_errno, "create directory `%s`", path);
+          ফেরত crun_make_error (err, saved_errno, "create directory `%s`", path);
         }
 
-      while (it > path && *it != '/')
+      যখন (it > path && *it != '/')
         {
           it--;
           len--;
         }
-      if (it == path)
-        return 0;
+      যদি (it == path)
+        ফেরত 0;
 
       *it = '\0';
       ret = ensure_directory_internal_at (dirfd, path, len - 1, mode, err);
       *it = '/';
-      if (UNLIKELY (ret < 0))
-        return ret;
+      যদি (UNLIKELY (ret < 0))
+        ফেরত ret;
 
       parent_created = true;
     }
-  return ret;
+  ফেরত ret;
 }
 
-int
-crun_ensure_directory_at (int dirfd, const char *path, int mode, bool nofollow, libcrun_error_t *err)
+পূর্ণসংখ্যা
+crun_ensure_directory_at (পূর্ণসংখ্যা dirfd, ধ্রুবক অক্ষর *path, পূর্ণসংখ্যা mode, bool nofollow, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_free char *tmp = xstrdup (path);
+  পূর্ণসংখ্যা ret;
+  cleanup_free অক্ষর *tmp = xstrdup (path);
   ret = ensure_directory_internal_at (dirfd, tmp, strlen (tmp), mode, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
   ret = crun_dir_p_at (dirfd, path, nofollow, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
-  if (ret == 0)
-    return crun_make_error (err, ENOTDIR, "the path `%s` is not a directory", path);
+  যদি (ret == 0)
+    ফেরত crun_make_error (err, ENOTDIR, "the path `%s` is not a directory", path);
 
-  return 0;
+  ফেরত 0;
 }
 
-static int
-check_fd_is_path (const char *path, int fd, const char *fdname, libcrun_error_t *err)
+স্থির পূর্ণসংখ্যা
+check_fd_is_path (ধ্রুবক অক্ষর *path, পূর্ণসংখ্যা fd, ধ্রুবক অক্ষর *fdname, libcrun_error_t *err)
 {
   proc_fd_path_t fdpath;
   size_t path_len = strlen (path);
-  char link[PATH_MAX];
-  int ret;
+  অক্ষর link[PATH_MAX];
+  পূর্ণসংখ্যা ret;
 
   get_proc_self_fd_path (fdpath, fd);
-  ret = TEMP_FAILURE_RETRY (readlink (fdpath, link, sizeof (link)));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "readlink `%s`", fdname);
+  ret = অস্থায়ী_FAILURE_RETRY (readlink (fdpath, link, আকার (link)));
+  যদি (UNLIKELY (ret < 0))
+    ফেরত crun_make_error (err, errno, "readlink `%s`", fdname);
 
-  if (((size_t) ret) != path_len || memcmp (link, path, path_len))
-    return crun_make_error (err, 0, "target `%s` does not point to the directory `%s`", fdname, path);
+  যদি (((size_t) ret) != path_len || memcmp (link, path, path_len))
+    ফেরত crun_make_error (err, 0, "target `%s` does not point to the directory `%s`", fdname, path);
 
-  return 0;
+  ফেরত 0;
 }
 
-static int
-check_fd_under_path (const char *rootfs, size_t rootfslen, int fd, const char *fdname, libcrun_error_t *err)
+স্থির পূর্ণসংখ্যা
+check_fd_under_path (ধ্রুবক অক্ষর *rootfs, size_t rootfslen, পূর্ণসংখ্যা fd, ধ্রুবক অক্ষর *fdname, libcrun_error_t *err)
 {
   proc_fd_path_t fdpath;
-  char link[PATH_MAX];
-  int ret;
+  অক্ষর link[PATH_MAX];
+  পূর্ণসংখ্যা ret;
 
   /* Every path is under "/", there is nothing to verify.  The check below
      would reject any path since it expects a '/' right after the rootfs.  */
-  if (rootfslen == 0 || (rootfslen == 1 && rootfs[0] == '/'))
-    return 0;
+  যদি (rootfslen == 0 || (rootfslen == 1 && rootfs[0] == '/'))
+    ফেরত 0;
 
   get_proc_self_fd_path (fdpath, fd);
-  ret = TEMP_FAILURE_RETRY (readlink (fdpath, link, sizeof (link)));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "readlink `%s`", fdname);
+  ret = অস্থায়ী_FAILURE_RETRY (readlink (fdpath, link, আকার (link)));
+  যদি (UNLIKELY (ret < 0))
+    ফেরত crun_make_error (err, errno, "readlink `%s`", fdname);
 
-  if (((size_t) ret) <= rootfslen || memcmp (link, rootfs, rootfslen) != 0 || link[rootfslen] != '/')
-    return crun_make_error (err, 0, "target `%s` not under the directory `%s`", fdname, rootfs);
+  যদি (((size_t) ret) <= rootfslen || memcmp (link, rootfs, rootfslen) != 0 || link[rootfslen] != '/')
+    ফেরত crun_make_error (err, 0, "target `%s` not under the directory `%s`", fdname, rootfs);
 
-  return 0;
+  ফেরত 0;
 }
 
 /* Check if *oldfd is a valid fd and close it.  Then store newfd into *oldfd.  */
-static void
-close_and_replace (int *oldfd, int newfd)
+স্থির শূন্য
+close_and_replace (পূর্ণসংখ্যা *oldfd, পূর্ণসংখ্যা newfd)
 {
-  if (*oldfd >= 0)
-    TEMP_FAILURE_RETRY (close (*oldfd));
+  যদি (*oldfd >= 0)
+    অস্থায়ী_FAILURE_RETRY (close (*oldfd));
 
   *oldfd = newfd;
 }
 
 /* Defined in chroot_realpath.c  */
-char *chroot_realpath (const char *chroot, const char *path, char resolved_path[]);
+অক্ষর *chroot_realpath (ধ্রুবক অক্ষর *chroot, ধ্রুবক অক্ষর *path, অক্ষর resolved_path[]);
 
 /* DIRFD must be a file descriptor for ROOTFS itself: PATH is resolved
    against ROOTFS and the result is then opened relatively to DIRFD.  */
-static int
-safe_openat_fallback (int dirfd, const char *rootfs, const char *path, int flags,
-                      int mode, libcrun_error_t *err)
+স্থির পূর্ণসংখ্যা
+safe_openat_fallback (পূর্ণসংখ্যা dirfd, ধ্রুবক অক্ষর *rootfs, ধ্রুবক অক্ষর *path, পূর্ণসংখ্যা flags,
+                      পূর্ণসংখ্যা mode, libcrun_error_t *err)
 {
-  cleanup_free char *parent_path = NULL;
-  const char *last_component = NULL;
-  const char *orig_path = path;
-  const char *path_in_chroot;
-  cleanup_close int fd = -1;
-  char resolved[PATH_MAX];
-  char buffer[PATH_MAX];
+  cleanup_free অক্ষর *parent_path = ফাঁকা;
+  ধ্রুবক অক্ষর *last_component = ফাঁকা;
+  ধ্রুবক অক্ষর *orig_path = path;
+  ধ্রুবক অক্ষর *path_in_chroot;
+  cleanup_close পূর্ণসংখ্যা fd = -1;
+  অক্ষর resolved[PATH_MAX];
+  অক্ষর বাফার[PATH_MAX];
   size_t rootfs_len = safe_strlen (rootfs);
-  int ret;
+  পূর্ণসংখ্যা ret;
 
   /* chroot_realpath resolves the last component as well, so when O_NOFOLLOW
      is requested resolve only the parent directory and let openat(2) deal
      with the last component, otherwise a symlink would be followed even
      though the caller asked not to.  */
-  if (flags & O_NOFOLLOW)
+  যদি (flags & O_NOFOLLOW)
     {
-      char *sep;
+      অক্ষর *sep;
 
       parent_path = xstrdup (path);
       sep = strrchr (parent_path, '/');
-      if (sep == NULL)
+      যদি (sep == ফাঁকা)
         {
           /* No parent directory, the entire path is the last component.  */
           last_component = path;
           parent_path[0] = '\0';
         }
-      else if (sep[1] != '\0')
+      অন্যথা যদি (sep[1] != '\0')
         {
           *sep = '\0';
           last_component = path + (sep - parent_path) + 1;
@@ -380,201 +380,201 @@ safe_openat_fallback (int dirfd, const char *rootfs, const char *path, int flags
       /* A trailing '/' forces the symlink to be resolved anyway, so in that
          case keep resolving the entire path.  */
 
-      if (last_component)
+      যদি (last_component)
         path = parent_path;
     }
 
-  path_in_chroot = chroot_realpath (rootfs, path, buffer);
-  if (path_in_chroot == NULL)
-    return crun_make_error (err, errno, "cannot resolve `%s` under rootfs", orig_path);
+  path_in_chroot = chroot_realpath (rootfs, path, বাফার);
+  যদি (path_in_chroot == ফাঁকা)
+    ফেরত crun_make_error (err, errno, "cannot resolve `%s` under rootfs", orig_path);
 
   /* When rootfs is "/" or not set, chroot_realpath returns the path
      unchanged, so drop the prefix only when it is really there.  */
-  if (rootfs_len > 0 && strncmp (path_in_chroot, rootfs, rootfs_len) == 0)
+  যদি (rootfs_len > 0 && strncmp (path_in_chroot, rootfs, rootfs_len) == 0)
     path_in_chroot += rootfs_len;
   path_in_chroot = consume_slashes (path_in_chroot);
 
-  if (last_component)
+  যদি (last_component)
     {
-      ret = snprintf (resolved, sizeof (resolved), "%s%s%s", path_in_chroot,
+      ret = snprintf (resolved, আকার (resolved), "%s%s%s", path_in_chroot,
                       path_in_chroot[0] == '\0' ? "" : "/", last_component);
-      if (UNLIKELY (ret >= (int) sizeof (resolved)))
-        return crun_make_error (err, ENAMETOOLONG, "resolve `%s` under rootfs", orig_path);
+      যদি (UNLIKELY (ret >= (পূর্ণসংখ্যা) আকার (resolved)))
+        ফেরত crun_make_error (err, ENAMETOOLONG, "resolve `%s` under rootfs", orig_path);
 
       path_in_chroot = resolved;
     }
 
   /* If the path is empty we are at the root, dup the dirfd itself.  */
-  if (path_in_chroot[0] == '\0')
+  যদি (path_in_chroot[0] == '\0')
     {
       ret = dup (dirfd);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "dup `%s`", rootfs_len ? rootfs : "/");
-      return ret;
+      যদি (UNLIKELY (ret < 0))
+        ফেরত crun_make_error (err, errno, "dup `%s`", rootfs_len ? rootfs : "/");
+      ফেরত ret;
     }
 
   ret = openat (dirfd, path_in_chroot, flags, mode);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "open `%s`", orig_path);
+  যদি (UNLIKELY (ret < 0))
+    ফেরত crun_make_error (err, errno, "open `%s`", orig_path);
 
   fd = ret;
 
   ret = check_fd_under_path (rootfs, rootfs_len, fd, orig_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
   ret = fd;
   fd = -1;
-  return ret;
+  ফেরত ret;
 }
 
-int
-safe_openat (int dirfd, const char *rootfs, const char *path, int flags, int mode,
+পূর্ণসংখ্যা
+safe_openat (পূর্ণসংখ্যা dirfd, ধ্রুবক অক্ষর *rootfs, ধ্রুবক অক্ষর *path, পূর্ণসংখ্যা flags, পূর্ণসংখ্যা mode,
              libcrun_error_t *err)
 {
-  static bool openat2_supported = true;
-  int retries = MAX_OPENAT2_EAGAIN_RETRIES;
-  int ret;
+  স্থির bool openat2_supported = true;
+  পূর্ণসংখ্যা retries = MAX_OPENAT2_EAGAIN_RETRIES;
+  পূর্ণসংখ্যা ret;
 
-  if (is_empty_string (path))
+  যদি (is_empty_string (path))
     {
-      cleanup_close int fd = -1;
+      cleanup_close পূর্ণসংখ্যা fd = -1;
 
       /* A container without a rootfs of its own uses the host root.  */
-      if (is_empty_string (rootfs))
+      যদি (is_empty_string (rootfs))
         rootfs = "/";
 
       fd = open (rootfs, flags, mode);
-      if (UNLIKELY (fd < 0))
-        return crun_make_error (err, errno, "open `%s`", rootfs);
+      যদি (UNLIKELY (fd < 0))
+        ফেরত crun_make_error (err, errno, "open `%s`", rootfs);
 
       /* Skip the readlink-based check when opening the root
          directory itself (rootfs="/", path="").  After pivot_root,
          "/" can only refer to the container root so the readlink
          verification is redundant, and after setns the /proc-based
          readlink may not be reachable by path yet.  */
-      if (rootfs[0] != '/' || rootfs[1] != '\0')
+      যদি (rootfs[0] != '/' || rootfs[1] != '\0')
         {
           ret = check_fd_is_path (rootfs, fd, path, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          যদি (UNLIKELY (ret < 0))
+            ফেরত ret;
         }
 
       ret = fd;
       fd = -1;
-      return ret;
+      ফেরত ret;
     }
 
-  if (openat2_supported)
+  যদি (openat2_supported)
     {
     repeat:
-      ret = syscall_openat2 (dirfd, path, flags, mode, RESOLVE_IN_ROOT);
-      if (UNLIKELY (ret < 0))
+      ret = syscall_openat2 (dirfd, path, flags, mode, RESOLVE_IN_মূল);
+      যদি (UNLIKELY (ret < 0))
         {
-          if (errno == EINTR)
-            goto repeat;
+          যদি (errno == EINTR)
+            যাও repeat;
           /* With RESOLVE_IN_ROOT the kernel returns EAGAIN when a rename or a
              mount happened anywhere on the system while a ".." component was
              being resolved.  Any process can cause that, so give up after a
              bounded number of attempts instead of retrying forever.  */
-          if (errno == EAGAIN && retries-- > 0)
-            goto repeat;
-          if (errno == ENOSYS)
+          যদি (errno == EAGAIN && retries-- > 0)
+            যাও repeat;
+          যদি (errno == ENOSYS)
             openat2_supported = false;
-          if (errno == ENOSYS || errno == EINVAL || errno == EPERM)
-            return safe_openat_fallback (dirfd, rootfs, path, flags, mode, err);
+          যদি (errno == ENOSYS || errno == EINVAL || errno == EPERM)
+            ফেরত safe_openat_fallback (dirfd, rootfs, path, flags, mode, err);
 
-          return crun_make_error (err, errno, "openat2 `%s`", path);
+          ফেরত crun_make_error (err, errno, "openat2 `%s`", path);
         }
 
-      return ret;
+      ফেরত ret;
     }
 
-  return safe_openat_fallback (dirfd, rootfs, path, flags, mode, err);
+  ফেরত safe_openat_fallback (dirfd, rootfs, path, flags, mode, err);
 }
 
 ssize_t
-safe_readlinkat (int dfd, const char *name, char **buffer, ssize_t hint, libcrun_error_t *err)
+safe_readlinkat (পূর্ণসংখ্যা dfd, ধ্রুবক অক্ষর *name, অক্ষর **বাফার, ssize_t hint, libcrun_error_t *err)
 {
   /* Add 1 to make room for the NUL terminator.  */
-  ssize_t buf_size = hint > 0 ? hint + 1 : 512;
-  cleanup_free char *tmp_buf = NULL;
-  ssize_t size;
+  ssize_t buf_আকার = hint > 0 ? hint + 1 : 512;
+  cleanup_free অক্ষর *tmp_buf = ফাঁকা;
+  ssize_t আকার_2;
 
-  do
+  করো
     {
-      if (tmp_buf != NULL)
-        buf_size += 256;
+      যদি (tmp_buf != ফাঁকা)
+        buf_আকার += 256;
 
-      tmp_buf = xrealloc (tmp_buf, buf_size);
+      tmp_buf = xrealloc (tmp_buf, buf_আকার);
 
-      size = readlinkat (dfd, name, tmp_buf, buf_size);
-      if (UNLIKELY (size < 0))
-        return crun_make_error (err, errno, "readlink `%s`", name);
-  } while (size == buf_size);
+      আকার_2 = readlinkat (dfd, name, tmp_buf, buf_আকার);
+      যদি (UNLIKELY (আকার_2 < 0))
+        ফেরত crun_make_error (err, errno, "readlink `%s`", name);
+  } যখন (আকার_2 == buf_আকার);
 
   /* Always NUL terminate the buffer.  */
-  tmp_buf[size] = '\0';
+  tmp_buf[আকার_2] = '\0';
 
   /* Move ownership to BUFFER.  */
-  *buffer = tmp_buf;
-  tmp_buf = NULL;
+  *বাফার = tmp_buf;
+  tmp_buf = ফাঁকা;
 
-  return size;
+  ফেরত আকার_2;
 }
 
-static int crun_safe_ensure_at (bool do_open, bool dir, bool follow_symlinks, int dirfd, const char *dirpath,
-                                const char *path, int mode, int max_readlinks, libcrun_error_t *err);
+স্থির পূর্ণসংখ্যা crun_safe_ensure_at (bool do_open, bool dir, bool follow_symlinks, পূর্ণসংখ্যা dirfd, ধ্রুবক অক্ষর *dirpath,
+                                ধ্রুবক অক্ষর *path, পূর্ণসংখ্যা mode, পূর্ণসংখ্যা max_readlinks, libcrun_error_t *err);
 
 /* CUR is a symlink in the directory CWD, NPATH is the path up to and
    including CUR, and REST is what follows CUR in the path, or NULL.
    Restart the lookup with the symlink target in place of CUR, so that
    anything missing on the way to the target is created.  */
-static int
-crun_safe_ensure_follow_symlink (bool do_open, bool dir, bool follow_symlinks, int dirfd, const char *dirpath, int cwd,
-                                 const char *npath, const char *cur, const char *rest,
-                                 int mode, int max_readlinks, libcrun_error_t *err)
+স্থির পূর্ণসংখ্যা
+crun_safe_ensure_follow_symlink (bool do_open, bool dir, bool follow_symlinks, পূর্ণসংখ্যা dirfd, ধ্রুবক অক্ষর *dirpath, পূর্ণসংখ্যা cwd,
+                                 ধ্রুবক অক্ষর *npath, ধ্রুবক অক্ষর *cur, ধ্রুবক অক্ষর *rest,
+                                 পূর্ণসংখ্যা mode, পূর্ণসংখ্যা max_readlinks, libcrun_error_t *err)
 {
-  cleanup_free char *target = NULL;
-  cleanup_free char *new_path = NULL;
+  cleanup_free অক্ষর *target = ফাঁকা;
+  cleanup_free অক্ষর *new_path = ফাঁকা;
   ssize_t ret;
 
   ret = safe_readlinkat (cwd, cur, &target, 0, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
   /* A relative target is relative to the directory containing the symlink,
      which is the path before CUR.  */
-  xasprintf (&new_path, "%.*s%s%s%s", target[0] == '/' ? 0 : (int) (cur - npath), npath, target,
+  xasprintf (&new_path, "%.*s%s%s%s", target[0] == '/' ? 0 : (পূর্ণসংখ্যা) (cur - npath), npath, target,
              rest ? "/" : "", rest ? rest : "");
 
-  return crun_safe_ensure_at (do_open, dir, follow_symlinks, dirfd, dirpath, new_path, mode, max_readlinks - 1, err);
+  ফেরত crun_safe_ensure_at (do_open, dir, follow_symlinks, dirfd, dirpath, new_path, mode, max_readlinks - 1, err);
 }
 
-static int
-crun_safe_ensure_at (bool do_open, bool dir, bool follow_symlinks, int dirfd, const char *dirpath,
-                     const char *path, int mode, int max_readlinks, libcrun_error_t *err)
+স্থির পূর্ণসংখ্যা
+crun_safe_ensure_at (bool do_open, bool dir, bool follow_symlinks, পূর্ণসংখ্যা dirfd, ধ্রুবক অক্ষর *dirpath,
+                     ধ্রুবক অক্ষর *path, পূর্ণসংখ্যা mode, পূর্ণসংখ্যা max_readlinks, libcrun_error_t *err)
 {
-  cleanup_close int wd_cleanup = -1;
-  cleanup_free char *npath = NULL;
+  cleanup_close পূর্ণসংখ্যা wd_cleanup = -1;
+  cleanup_free অক্ষর *npath = ফাঁকা;
   bool last_component = false;
   size_t depth = 0;
-  char *cur;
-  char *it;
-  int cwd;
-  int ret;
+  অক্ষর *cur;
+  অক্ষর *it;
+  পূর্ণসংখ্যা cwd;
+  পূর্ণসংখ্যা ret;
 
-  if (max_readlinks <= 0)
-    return crun_make_error (err, ELOOP, "resolve path `%s`", path);
+  যদি (max_readlinks <= 0)
+    ফেরত crun_make_error (err, ELOOP, "resolve path `%s`", path);
 
   path = consume_slashes (path);
 
   /* Empty path, nothing to do.  */
-  if (*path == '\0')
+  যদি (*path == '\0')
     {
-      if (do_open)
-        return open (dirpath, O_CLOEXEC | O_PATH, 0);
-      return 0;
+      যদি (do_open)
+        ফেরত open (dirpath, O_CLOEXEC | O_PATH, 0);
+      ফেরত 0;
     }
 
   npath = xstrdup (path);
@@ -582,696 +582,696 @@ crun_safe_ensure_at (bool do_open, bool dir, bool follow_symlinks, int dirfd, co
   cwd = dirfd;
   cur = npath;
   it = strchr (npath, '/');
-  while (cur)
+  যখন (cur)
     {
-      if (it)
+      যদি (it)
         *it = '\0';
-      else
+      অন্যথা
         last_component = true;
 
-      if (cur[0] == '\0')
-        break;
+      যদি (cur[0] == '\0')
+        বিরতি;
 
-      if (strcmp (cur, ".") == 0)
-        goto next;
-      else if (strcmp (cur, ".."))
+      যদি (strcmp (cur, ".") == 0)
+        যাও পরবর্তী;
+      অন্যথা যদি (strcmp (cur, ".."))
         depth++;
-      else
+      অন্যথা
         {
-          if (depth)
+          যদি (depth)
             depth--;
-          else
+          অন্যথা
             {
               /* Start from the root.  */
               close_and_reset (&wd_cleanup);
               cwd = dirfd;
-              goto next;
+              যাও পরবর্তী;
             }
         }
 
-      if (last_component && ! dir)
+      যদি (last_component && ! dir)
         {
           ret = openat (cwd, cur, O_CLOEXEC | O_CREAT | O_WRONLY | O_NOFOLLOW | O_NONBLOCK, 0700);
-          if (UNLIKELY (ret < 0))
+          যদি (UNLIKELY (ret < 0))
             {
               /* If the last component is a symlink, repeat the lookup with the resolved path.
                  That lookup is confined to DIRFD, so its result is final: an openat without
                  O_NOFOLLOW would follow the symlink from the process root instead.  */
-              if (errno == ELOOP)
-                return crun_safe_ensure_follow_symlink (do_open, dir, follow_symlinks, dirfd, dirpath, cwd, npath, cur, NULL,
+              যদি (errno == ELOOP)
+                ফেরত crun_safe_ensure_follow_symlink (do_open, dir, follow_symlinks, dirfd, dirpath, cwd, npath, cur, ফাঁকা,
                                                         mode, max_readlinks, err);
 
               /* If the previous openat fails, attempt to open the file in O_PATH mode.  */
               ret = openat (cwd, cur, O_CLOEXEC | O_PATH | O_NOFOLLOW, 0);
-              if (ret < 0)
-                return crun_make_error (err, errno, "open `%s/%s`", dirpath, npath);
+              যদি (ret < 0)
+                ফেরত crun_make_error (err, errno, "open `%s/%s`", dirpath, npath);
             }
 
-          if (do_open)
-            return ret;
+          যদি (do_open)
+            ফেরত ret;
 
           close_and_replace (&wd_cleanup, ret);
-          return 0;
+          ফেরত 0;
         }
 
       ret = mkdirat (cwd, cur, mode);
-      if (ret < 0)
+      যদি (ret < 0)
         {
           mode_t st_mode;
 
-          if (errno != EEXIST)
-            return crun_make_error (err, errno, "mkdir `/%s`", npath);
+          যদি (errno != EEXIST)
+            ফেরত crun_make_error (err, errno, "mkdir `/%s`", npath);
 
           /* If asked to, follow a symlink here, so that a dangling one gets
              its target created, and the lookup of a relative target or a ".."
              after it starts from the right directory.  This is done for mount
              targets, not for the working directory, where both crun and runc
              have always failed with a dangling symlink.  */
-          if (follow_symlinks && get_file_type_at (cwd, &st_mode, true, cur) == 0 && S_ISLNK (st_mode))
-            return crun_safe_ensure_follow_symlink (do_open, dir, follow_symlinks, dirfd, dirpath, cwd, npath, cur,
-                                                    it ? it + 1 : NULL, mode, max_readlinks, err);
+          যদি (follow_symlinks && get_file_type_at (cwd, &st_mode, true, cur) == 0 && S_ISLNK (st_mode))
+            ফেরত crun_safe_ensure_follow_symlink (do_open, dir, follow_symlinks, dirfd, dirpath, cwd, npath, cur,
+                                                    it ? it + 1 : ফাঁকা, mode, max_readlinks, err);
         }
 
       /* The type of an existing component is not known yet, so open it with
          O_PATH: a FIFO must not block and a device must not be opened.  */
       cwd = safe_openat (dirfd, dirpath, npath, O_PATH | O_CLOEXEC, 0, err);
-      if (UNLIKELY (cwd < 0))
-        return crun_error_wrap (err, "creating `/%s`", path);
+      যদি (UNLIKELY (cwd < 0))
+        ফেরত crun_error_wrap (err, "creating `/%s`", path);
 
-      if (! last_component)
+      যদি (! last_component)
         {
           mode_t st_mode;
 
-          ret = get_file_type_at (cwd, &st_mode, true, NULL);
-          if (UNLIKELY (ret < 0))
+          ret = get_file_type_at (cwd, &st_mode, true, ফাঁকা);
+          যদি (UNLIKELY (ret < 0))
             {
-              int saved_errno = errno;
+              পূর্ণসংখ্যা saved_errno = errno;
 
               close (cwd);
-              return crun_make_error (err, saved_errno, "stat `%s`", npath);
+              ফেরত crun_make_error (err, saved_errno, "stat `%s`", npath);
             }
-          if ((st_mode & S_IFMT) != S_IFDIR)
+          যদি ((st_mode & S_IFMT) != S_IFDIR)
             {
               close (cwd);
-              return crun_make_error (err, ENOTDIR, "error creating directory `%s` since `%s` exists and it is not a directory", path, npath);
+              ফেরত crun_make_error (err, ENOTDIR, "error creating directory `%s` since `%s` exists and it is not a directory", path, npath);
             }
         }
 
       close_and_replace (&wd_cleanup, cwd);
 
-    next:
-      if (it == NULL)
-        break;
+    পরবর্তী:
+      যদি (it == ফাঁকা)
+        বিরতি;
 
       cur = consume_slashes (it + 1);
       *it = '/';
       it = strchr (cur, '/');
     }
 
-  if (do_open)
+  যদি (do_open)
     {
-      if (cwd == dirfd)
+      যদি (cwd == dirfd)
         {
           ret = dup (dirfd);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "dup `%s`", dirpath);
-          return ret;
+          যদি (UNLIKELY (ret < 0))
+            ফেরত crun_make_error (err, errno, "dup `%s`", dirpath);
+          ফেরত ret;
         }
 
       wd_cleanup = -1;
-      return cwd;
+      ফেরত cwd;
     }
 
-  return 0;
+  ফেরত 0;
 }
 
-int
-crun_safe_create_and_open_ref_at (bool dir, int dirfd, const char *dirpath, const char *path, int mode, libcrun_error_t *err)
+পূর্ণসংখ্যা
+crun_safe_create_and_open_ref_at (bool dir, পূর্ণসংখ্যা dirfd, ধ্রুবক অক্ষর *dirpath, ধ্রুবক অক্ষর *path, পূর্ণসংখ্যা mode, libcrun_error_t *err)
 {
-  int ret;
+  পূর্ণসংখ্যা ret;
 
   /* If the file/dir already exists, just open it.  */
   ret = safe_openat (dirfd, dirpath, path, O_PATH | O_CLOEXEC, 0, err);
-  if (LIKELY (ret >= 0))
-    return ret;
+  যদি (LIKELY (ret >= 0))
+    ফেরত ret;
 
   crun_error_release (err);
-  return crun_safe_ensure_at (true, dir, true, dirfd, dirpath, path, mode, MAX_READLINKS, err);
+  ফেরত crun_safe_ensure_at (true, dir, true, dirfd, dirpath, path, mode, MAX_READLINKS, err);
 }
 
-int
-crun_safe_ensure_directory_at (int dirfd, const char *dirpath, const char *path, int mode,
+পূর্ণসংখ্যা
+crun_safe_ensure_directory_at (পূর্ণসংখ্যা dirfd, ধ্রুবক অক্ষর *dirpath, ধ্রুবক অক্ষর *path, পূর্ণসংখ্যা mode,
                                libcrun_error_t *err)
 {
-  return crun_safe_ensure_at (false, true, false, dirfd, dirpath, path, mode, MAX_READLINKS, err);
+  ফেরত crun_safe_ensure_at (false, true, false, dirfd, dirpath, path, mode, MAX_READLINKS, err);
 }
 
-int
-crun_safe_ensure_file_at (int dirfd, const char *dirpath, const char *path, int mode,
+পূর্ণসংখ্যা
+crun_safe_ensure_file_at (পূর্ণসংখ্যা dirfd, ধ্রুবক অক্ষর *dirpath, ধ্রুবক অক্ষর *path, পূর্ণসংখ্যা mode,
                           libcrun_error_t *err)
 {
-  return crun_safe_ensure_at (false, false, false, dirfd, dirpath, path, mode, MAX_READLINKS, err);
+  ফেরত crun_safe_ensure_at (false, false, false, dirfd, dirpath, path, mode, MAX_READLINKS, err);
 }
 
-int
-crun_ensure_directory (const char *path, int mode, bool nofollow, libcrun_error_t *err)
+পূর্ণসংখ্যা
+crun_ensure_directory (ধ্রুবক অক্ষর *path, পূর্ণসংখ্যা mode, bool nofollow, libcrun_error_t *err)
 {
-  return crun_ensure_directory_at (AT_FDCWD, path, mode, nofollow, err);
+  ফেরত crun_ensure_directory_at (AT_FDCWD, path, mode, nofollow, err);
 }
 
-static int
-get_file_size (int fd, off_t *size)
+স্থির পূর্ণসংখ্যা
+get_file_আকার (পূর্ণসংখ্যা fd, off_t *আকার_2)
 {
-  struct stat st;
-  int ret;
+  কাঠামো stat st;
+  পূর্ণসংখ্যা ret;
 #ifdef HAVE_STATX
-  struct statx stx = {
+  কাঠামো statx stx = {
     0,
   };
 
-  ret = statx (fd, "", AT_EMPTY_PATH | AT_SYMLINK_NOFOLLOW | AT_STATX_DONT_SYNC, STATX_SIZE, &stx);
-  if (UNLIKELY (ret < 0))
+  ret = statx (fd, "", AT_EMPTY_PATH | AT_SYMLINK_NOFOLLOW | AT_STATX_DONT_SYNC, STATX_আকার, &stx);
+  যদি (UNLIKELY (ret < 0))
     {
-      if (errno == ENOSYS || errno == EINVAL)
-        goto fallback;
-      return ret;
+      যদি (errno == ENOSYS || errno == EINVAL)
+        যাও fallback;
+      ফেরত ret;
     }
-  *size = stx.stx_size;
+  *আকার_2 = stx.stx_size;
 
-  return ret;
+  ফেরত ret;
 
 fallback:
 #endif
   ret = fstat (fd, &st);
-  *size = st.st_size;
-  return ret;
+  *আকার_2 = st.st_size;
+  ফেরত ret;
 }
 
-int
-crun_dir_p_at (int dirfd, const char *path, bool nofollow, libcrun_error_t *err)
+পূর্ণসংখ্যা
+crun_dir_p_at (পূর্ণসংখ্যা dirfd, ধ্রুবক অক্ষর *path, bool nofollow, libcrun_error_t *err)
 {
   mode_t mode;
-  int ret;
+  পূর্ণসংখ্যা ret;
 
   ret = get_file_type_at (dirfd, &mode, nofollow, path);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "stat `%s`", path);
+  যদি (UNLIKELY (ret < 0))
+    ফেরত crun_make_error (err, errno, "stat `%s`", path);
 
-  return S_ISDIR (mode) ? 1 : 0;
+  ফেরত S_ISDIR (mode) ? 1 : 0;
 }
 
-int
-crun_dir_p (const char *path, bool nofollow, libcrun_error_t *err)
+পূর্ণসংখ্যা
+crun_dir_p (ধ্রুবক অক্ষর *path, bool nofollow, libcrun_error_t *err)
 {
-  return crun_dir_p_at (AT_FDCWD, path, nofollow, err);
+  ফেরত crun_dir_p_at (AT_FDCWD, path, nofollow, err);
 }
 
 /* Detect the user namespace from the mapping in /proc/self/uid_map.  It cannot
    tell apart the initial user namespace from a user namespace with a full
    identity mapping, so it is used only as a fallback.  */
-static int
+স্থির পূর্ণসংখ্যা
 check_running_in_user_namespace_uid_map (libcrun_error_t *err)
 {
-  cleanup_free char *buffer = NULL;
+  cleanup_free অক্ষর *বাফার = ফাঁকা;
   size_t len;
-  int ret;
+  পূর্ণসংখ্যা ret;
 
-  ret = read_all_file ("/proc/self/uid_map", &buffer, &len, err);
-  if (UNLIKELY (ret < 0))
+  ret = read_all_file ("/proc/self/uid_map", &বাফার, &len, err);
+  যদি (UNLIKELY (ret < 0))
     {
       /* If the file does not exist, then the kernel does not support user namespaces and we for sure aren't in one.  */
-      if (crun_error_get_errno (err) == ENOENT)
+      যদি (crun_error_get_errno (err) == ENOENT)
         {
           crun_error_release (err);
-          return 0;
+          ফেরত 0;
         }
-      return ret;
+      ফেরত ret;
     }
 
-  return strstr (buffer, "4294967295") ? 0 : 1;
+  ফেরত strstr (বাফার, "4294967295") ? 0 : 1;
 }
 
 /* OpenVZ exposes /proc/vz both on the host and inside containers, while
    /proc/bc is only exposed on the host.  This follows systemd's OpenVZ
    detection.  */
-static bool
+স্থির bool
 running_in_openvz ()
 {
-  if (access ("/proc/vz", F_OK) < 0)
-    return false;
+  যদি (access ("/proc/vz", F_OK) < 0)
+    ফেরত false;
 
-  return access ("/proc/bc", F_OK) < 0 && errno == ENOENT;
+  ফেরত access ("/proc/bc", F_OK) < 0 && errno == ENOENT;
 }
 
-int
+পূর্ণসংখ্যা
 check_running_in_user_namespace (libcrun_error_t *err)
 {
-  static atomic_int run_in_userns = -1;
-  struct stat st;
-  int ret;
+  স্থির atomic_int run_in_userns = -1;
+  কাঠামো stat st;
+  পূর্ণসংখ্যা ret;
 
   ret = run_in_userns;
-  if (ret >= 0)
-    return ret;
+  যদি (ret >= 0)
+    ফেরত ret;
 
   ret = stat ("/proc/self/ns/user", &st);
-  if (ret == 0)
+  যদি (ret == 0)
     {
       /* The inode is definitive when it matches.  OpenVZ virtualizes the
          namespace inode numbers exposed through procfs, so a mismatch must fall
          back to the uid_map detection there.  */
-      if (st.st_ino == PROC_USER_INIT_INO)
+      যদি (st.st_ino == PROC_USER_INIT_INO)
         {
           run_in_userns = 0;
-          return run_in_userns;
+          ফেরত run_in_userns;
         }
 
-      if (! running_in_openvz ())
+      যদি (! running_in_openvz ())
         {
           run_in_userns = 1;
-          return run_in_userns;
+          ফেরত run_in_userns;
         }
     }
-  else if (UNLIKELY (errno != ENOENT))
-    return crun_make_error (err, errno, "stat `/proc/self/ns/user`");
+  অন্যথা যদি (UNLIKELY (errno != ENOENT))
+    ফেরত crun_make_error (err, errno, "stat `/proc/self/ns/user`");
 
   /* Kernels older than 3.8 do not expose the user namespace here even though
      they can still support user namespaces, so the uid_map is all we have.  */
   ret = check_running_in_user_namespace_uid_map (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
   run_in_userns = ret;
-  return run_in_userns;
+  ফেরত run_in_userns;
 }
 
-static size_t
-get_page_size ()
+স্থির size_t
+get_page_আকার ()
 {
-  static atomic_long cached_pagesize = 0;
+  স্থির atomic_long cached_pagesize = 0;
   atomic_long pagesize = cached_pagesize;
-  if (pagesize == 0)
+  যদি (pagesize == 0)
     {
       pagesize = (long) sysconf (_SC_PAGESIZE);
       cached_pagesize = pagesize;
     }
-  return (size_t) pagesize;
+  ফেরত (size_t) pagesize;
 }
 
-static int selinux_enabled = -1;
-static int apparmor_enabled = -1;
+স্থির পূর্ণসংখ্যা selinux_enabled = -1;
+স্থির পূর্ণসংখ্যা apparmor_enabled = -1;
 
-int
+পূর্ণসংখ্যা
 libcrun_initialize_selinux (libcrun_container_t *container, libcrun_error_t *err)
 {
-  cleanup_free char *out = NULL;
-  cleanup_close int fd = -1;
+  cleanup_free অক্ষর *out = ফাঁকা;
+  cleanup_close পূর্ণসংখ্যা fd = -1;
   size_t len;
-  int ret;
+  পূর্ণসংখ্যা ret;
 
-  if (selinux_enabled >= 0)
-    return selinux_enabled;
+  যদি (selinux_enabled >= 0)
+    ফেরত selinux_enabled;
 
   fd = libcrun_open_proc_file (container, "mounts", O_RDONLY, err);
-  if (UNLIKELY (fd < 0))
-    return fd;
+  যদি (UNLIKELY (fd < 0))
+    ফেরত fd;
 
-  ret = read_all_fd_with_size_hint (fd, "mounts", &out, &len, get_page_size (), err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_fd_with_আকার_hint (fd, "mounts", &out, &len, get_page_আকার (), err);
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
   selinux_enabled = strstr (out, "selinux") ? 1 : 0;
 
-  return selinux_enabled;
+  ফেরত selinux_enabled;
 }
 
-int
+পূর্ণসংখ্যা
 libcrun_initialize_apparmor (libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
-  int size;
-  char buf[1];
+  cleanup_close পূর্ণসংখ্যা fd = -1;
+  পূর্ণসংখ্যা আকার_2;
+  অক্ষর buf[1];
 
-  if (apparmor_enabled >= 0)
-    return apparmor_enabled;
+  যদি (apparmor_enabled >= 0)
+    ফেরত apparmor_enabled;
 
   fd = open ("/sys/module/apparmor/parameters/enabled", O_RDONLY | O_CLOEXEC);
-  if (fd == -1)
+  যদি (fd == -1)
     {
-      if (errno == ENOENT)
+      যদি (errno == ENOENT)
         {
           apparmor_enabled = 0;
-          return 0;
+          ফেরত 0;
         }
 
-      return crun_make_error (err, errno, "open `/sys/module/apparmor/parameters/enabled`");
+      ফেরত crun_make_error (err, errno, "open `/sys/module/apparmor/parameters/enabled`");
     }
 
-  size = TEMP_FAILURE_RETRY (read (fd, buf, sizeof (buf)));
+  আকার_2 = অস্থায়ী_FAILURE_RETRY (পঠ (fd, buf, আকার (buf)));
 
-  apparmor_enabled = size > 0 && buf[0] == 'Y' ? 1 : 0;
+  apparmor_enabled = আকার_2 > 0 && buf[0] == 'Y' ? 1 : 0;
 
-  return apparmor_enabled;
+  ফেরত apparmor_enabled;
 }
 
-static int
+স্থির পূর্ণসংখ্যা
 libcrun_is_selinux_enabled (libcrun_error_t *err)
 {
-  if (selinux_enabled < 0)
-    return crun_make_error (err, 0, "SELinux is not initialized correctly");
-  return selinux_enabled;
+  যদি (selinux_enabled < 0)
+    ফেরত crun_make_error (err, 0, "SELinux is not initialized correctly");
+  ফেরত selinux_enabled;
 }
 
-int
-add_selinux_mount_label (char **retlabel, const char *data, const char *label, const char *context_type, libcrun_error_t *err)
+পূর্ণসংখ্যা
+add_selinux_mount_label (অক্ষর **retlabel, ধ্রুবক অক্ষর *তথ্য, ধ্রুবক অক্ষর *label, ধ্রুবক অক্ষর *context_type, libcrun_error_t *err)
 {
-  int ret;
+  পূর্ণসংখ্যা ret;
 
   ret = libcrun_is_selinux_enabled (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
-  if (label && ret)
+  যদি (label && ret)
     {
-      if (data && *data)
-        xasprintf (retlabel, "%s,%s=\"%s\"", data, context_type, label);
-      else
+      যদি (তথ্য && *তথ্য)
+        xasprintf (retlabel, "%s,%s=\"%s\"", তথ্য, context_type, label);
+      অন্যথা
         xasprintf (retlabel, "%s=\"%s\"", context_type, label);
-      return 0;
+      ফেরত 0;
     }
-  *retlabel = xstrdup (data);
-  return 0;
+  *retlabel = xstrdup (তথ্য);
+  ফেরত 0;
 }
 
-static const char *
-lsm_attr_path (libcrun_container_t *container, const char *lsm, const char *fname, libcrun_error_t *err)
+স্থির ধ্রুবক অক্ষর *
+lsm_attr_path (libcrun_container_t *container, ধ্রুবক অক্ষর *lsm, ধ্রুবক অক্ষর *fname, libcrun_error_t *err)
 {
-  cleanup_close int attr_dirfd = -1;
-  cleanup_close int lsm_dirfd = -1;
-  char *attr_path = NULL;
+  cleanup_close পূর্ণসংখ্যা attr_dirfd = -1;
+  cleanup_close পূর্ণসংখ্যা lsm_dirfd = -1;
+  অক্ষর *attr_path = ফাঁকা;
 
   attr_dirfd = libcrun_open_proc_file (container, "thread-self/attr", O_DIRECTORY | O_PATH, err);
-  if (UNLIKELY (attr_dirfd < 0))
-    return NULL;
+  যদি (UNLIKELY (attr_dirfd < 0))
+    ফেরত ফাঁকা;
 
   // Check for newer scoped interface in /proc/thread-self/attr/<lsm>
-  if (lsm != NULL)
+  যদি (lsm != ফাঁকা)
     {
       lsm_dirfd = openat (attr_dirfd, lsm, O_DIRECTORY | O_PATH | O_CLOEXEC);
 
-      if (UNLIKELY (lsm_dirfd < 0 && errno != ENOENT))
+      যদি (UNLIKELY (lsm_dirfd < 0 && errno != ENOENT))
         {
           crun_make_error (err, errno, "open `/proc/thread-self/attr/%s`", lsm);
-          return NULL;
+          ফেরত ফাঁকা;
         }
     }
   // Use scoped interface if available, fall back to unscoped
   xasprintf (&attr_path, "thread-self/attr/%s%s%s", lsm_dirfd >= 0 ? lsm : "", lsm_dirfd >= 0 ? "/" : "", fname);
 
-  return attr_path;
+  ফেরত attr_path;
 }
 
-static int
-check_proc_super_magic (int fd, const char *path, libcrun_error_t *err)
+স্থির পূর্ণসংখ্যা
+check_proc_super_magic (পূর্ণসংখ্যা fd, ধ্রুবক অক্ষর *path, libcrun_error_t *err)
 {
-  struct statfs sfs;
+  কাঠামো statfs sfs;
 
-  int ret = fstatfs (fd, &sfs);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "statfs `%s`", path);
+  পূর্ণসংখ্যা ret = fstatfs (fd, &sfs);
+  যদি (UNLIKELY (ret < 0))
+    ফেরত crun_make_error (err, errno, "statfs `%s`", path);
 
-  if (sfs.f_type != PROC_SUPER_MAGIC)
-    return crun_make_error (err, 0, "the file `%s` is not on a `procfs` file system", path);
+  যদি (sfs.f_type != PROC_SUPER_MAGIC)
+    ফেরত crun_make_error (err, 0, "the file `%s` is not on a `procfs` file system", path);
 
-  return 0;
+  ফেরত 0;
 }
 
-static int
-set_security_attr (libcrun_container_t *container, const char *lsm, const char *fname, const char *data, libcrun_error_t *err)
+স্থির পূর্ণসংখ্যা
+set_security_attr (libcrun_container_t *container, ধ্রুবক অক্ষর *lsm, ধ্রুবক অক্ষর *fname, ধ্রুবক অক্ষর *তথ্য, libcrun_error_t *err)
 {
-  int ret;
+  পূর্ণসংখ্যা ret;
 
-  cleanup_free const char *attr_path = lsm_attr_path (container, lsm, fname, err);
-  cleanup_close int fd = -1;
+  cleanup_free ধ্রুবক অক্ষর *attr_path = lsm_attr_path (container, lsm, fname, err);
+  cleanup_close পূর্ণসংখ্যা fd = -1;
 
-  if (UNLIKELY (attr_path == NULL))
-    return -1;
+  যদি (UNLIKELY (attr_path == ফাঁকা))
+    ফেরত -1;
 
   fd = libcrun_open_proc_file (container, attr_path, O_WRONLY | O_CLOEXEC, err);
-  if (UNLIKELY (fd < 0))
-    return fd;
+  যদি (UNLIKELY (fd < 0))
+    ফেরত fd;
 
   ret = check_proc_super_magic (fd, attr_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
   // Write out data
-  ret = TEMP_FAILURE_RETRY (write (fd, data, strlen (data)));
-  if (UNLIKELY (ret < 0))
+  ret = অস্থায়ী_FAILURE_RETRY (লিখ (fd, তথ্য, strlen (তথ্য)));
+  যদি (UNLIKELY (ret < 0))
     {
       /* ENOENT from the write is AppArmor telling the profile is unknown.
          The data is "<op> <profile>".  */
-      if (errno == ENOENT && lsm != NULL && strcmp (lsm, "apparmor") == 0)
+      যদি (errno == ENOENT && lsm != ফাঁকা && strcmp (lsm, "apparmor") == 0)
         {
-          const char *profile = strchr (data, ' ');
+          ধ্রুবক অক্ষর *profile = strchr (তথ্য, ' ');
 
-          return crun_make_error (err, 0, "apply apparmor profile `%s`: profile not loaded", profile ? profile + 1 : data);
+          ফেরত crun_make_error (err, 0, "apply apparmor profile `%s`: profile not loaded", profile ? profile + 1 : তথ্য);
         }
-      return crun_make_error (err, errno, "write to file `%s`", attr_path);
+      ফেরত crun_make_error (err, errno, "write to file `%s`", attr_path);
     }
 
-  return 0;
+  ফেরত 0;
 }
 
-int
-set_selinux_label (libcrun_container_t *container, const char *label, bool now, libcrun_error_t *err)
+পূর্ণসংখ্যা
+set_selinux_label (libcrun_container_t *container, ধ্রুবক অক্ষর *label, bool now, libcrun_error_t *err)
 {
-  int ret;
+  পূর্ণসংখ্যা ret;
 
   ret = libcrun_is_selinux_enabled (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
-  if (ret)
-    return set_security_attr (container, NULL, now ? "current" : "exec", label, err);
-  return 0;
+  যদি (ret)
+    ফেরত set_security_attr (container, ফাঁকা, now ? "current" : "exec", label, err);
+  ফেরত 0;
 }
 
-static int
+স্থির পূর্ণসংখ্যা
 libcrun_is_apparmor_enabled (libcrun_error_t *err)
 {
-  if (apparmor_enabled < 0)
-    return crun_make_error (err, 0, "AppArmor is not initialized correctly");
-  return apparmor_enabled;
+  যদি (apparmor_enabled < 0)
+    ফেরত crun_make_error (err, 0, "AppArmor is not initialized correctly");
+  ফেরত apparmor_enabled;
 }
 
-static int
+স্থির পূর্ণসংখ্যা
 is_current_process_confined (libcrun_container_t *container, libcrun_error_t *err)
 {
 #define UNCONFINED "unconfined"
-#define UNCONFINED_LEN (ssize_t) (sizeof (UNCONFINED) - 1)
-  cleanup_free const char *attr_path = lsm_attr_path (container, "apparmor", "current", err);
-  cleanup_close int fd = -1;
+#define UNCONFINED_LEN (ssize_t) (আকার (UNCONFINED) - 1)
+  cleanup_free ধ্রুবক অক্ষর *attr_path = lsm_attr_path (container, "apparmor", "current", err);
+  cleanup_close পূর্ণসংখ্যা fd = -1;
   /* Only the "unconfined" token plus one delimiter byte are inspected.  */
-  char buf[UNCONFINED_LEN + 1];
+  অক্ষর buf[UNCONFINED_LEN + 1];
 
-  if (UNLIKELY (attr_path == NULL))
-    return -1;
+  যদি (UNLIKELY (attr_path == ফাঁকা))
+    ফেরত -1;
 
   fd = libcrun_open_proc_file (container, attr_path, O_RDONLY | O_CLOEXEC, err);
-  if (UNLIKELY (fd < 0))
-    return fd;
+  যদি (UNLIKELY (fd < 0))
+    ফেরত fd;
 
-  if (UNLIKELY (check_proc_super_magic (fd, attr_path, err)))
-    return -1;
+  যদি (UNLIKELY (check_proc_super_magic (fd, attr_path, err)))
+    ফেরত -1;
 
-  ssize_t bytes_read = TEMP_FAILURE_RETRY (read (fd, buf, sizeof (buf)));
-  if (UNLIKELY (bytes_read < 0))
-    return crun_make_error (err, errno, "read from `%s`", attr_path);
+  ssize_t bytes_read = অস্থায়ী_FAILURE_RETRY (পঠ (fd, buf, আকার (buf)));
+  যদি (UNLIKELY (bytes_read < 0))
+    ফেরত crun_make_error (err, errno, "read from `%s`", attr_path);
 
   /* The process is unconfined only when the attribute is exactly the token
      "unconfined", optionally followed by a delimiter.  Anything shorter (a
      short read), or a longer profile name such as "unconfined_foo", means the
      process is confined.  When in doubt default to confined, which is the safe
      assumption for the caller.  */
-  if (bytes_read < UNCONFINED_LEN || memcmp (buf, UNCONFINED, UNCONFINED_LEN) != 0)
-    return 1;
-  if (bytes_read == UNCONFINED_LEN || buf[UNCONFINED_LEN] == '\n' || buf[UNCONFINED_LEN] == ' ')
-    return 0;
-  return 1;
+  যদি (bytes_read < UNCONFINED_LEN || memcmp (buf, UNCONFINED, UNCONFINED_LEN) != 0)
+    ফেরত 1;
+  যদি (bytes_read == UNCONFINED_LEN || buf[UNCONFINED_LEN] == '\n' || buf[UNCONFINED_LEN] == ' ')
+    ফেরত 0;
+  ফেরত 1;
 #undef UNCONFINED
 #undef UNCONFINED_LEN
 }
 
-int
-set_apparmor_profile (libcrun_container_t *container, const char *profile, bool no_new_privileges, bool now, libcrun_error_t *err)
+পূর্ণসংখ্যা
+set_apparmor_profile (libcrun_container_t *container, ধ্রুবক অক্ষর *profile, bool no_new_privileges, bool now, libcrun_error_t *err)
 {
-  int ret;
+  পূর্ণসংখ্যা ret;
 
   ret = libcrun_is_apparmor_enabled (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
-  if (ret)
+  যদি (ret)
     {
-      cleanup_free char *buf = NULL;
+      cleanup_free অক্ষর *buf = ফাঁকা;
       ret = is_current_process_confined (container, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      যদি (UNLIKELY (ret < 0))
+        ফেরত ret;
       // if confined only way for apparmor to allow change of profile with NNP is with stacking
       xasprintf (&buf, "%s %s", no_new_privileges && ret ? "stack" : now ? "changeprofile"
                                                                          : "exec",
                  profile);
 
-      return set_security_attr (container, "apparmor", now ? "current" : "exec", buf, err);
+      ফেরত set_security_attr (container, "apparmor", now ? "current" : "exec", buf, err);
     }
-  return 0;
+  ফেরত 0;
 }
 
-static int
-read_all_fd_internal (int fd, const char *description, char **out, size_t *len, size_t size_hint, size_t max_size, libcrun_error_t *err)
+স্থির পূর্ণসংখ্যা
+read_all_fd_internal (পূর্ণসংখ্যা fd, ধ্রুবক অক্ষর *description, অক্ষর **out, size_t *len, size_t আকার_hint, size_t max_আকার, libcrun_error_t *err)
 {
-  cleanup_free char *buf = NULL;
+  cleanup_free অক্ষর *buf = ফাঁকা;
   size_t nread, allocated;
   size_t pagesize = 0;
-  off_t size = 0;
-  int ret;
+  off_t আকার_2 = 0;
+  পূর্ণসংখ্যা ret;
 
-  if (size_hint)
-    allocated = size_hint;
-  else
+  যদি (আকার_hint)
+    allocated = আকার_hint;
+  অন্যথা
     {
-      ret = get_file_size (fd, &size);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "stat `%s`", description);
+      ret = get_file_আকার (fd, &আকার_2);
+      যদি (UNLIKELY (ret < 0))
+        ফেরত crun_make_error (err, errno, "stat `%s`", description);
 
-      if (max_size && (size_t) size > max_size)
-        return crun_make_error (err, EFBIG, "`%s` is bigger than %zu bytes", description, max_size);
+      যদি (max_আকার && (size_t) আকার_2 > max_আকার)
+        ফেরত crun_make_error (err, EFBIG, "`%s` is bigger than %zu bytes", description, max_আকার);
 
-      allocated = size == 0 ? 1023 : size;
+      allocated = আকার_2 == 0 ? 1023 : আকার_2;
     }
 
   /* NUL terminate the buffer.  */
   buf = xmalloc (allocated + 1);
   nread = 0;
-  while ((size && nread < (size_t) size) || size == 0)
+  যখন ((আকার_2 && nread < (size_t) আকার_2) || আকার_2 == 0)
     {
-      ret = TEMP_FAILURE_RETRY (read (fd, buf + nread, allocated - nread));
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "read from file `%s`", description);
+      ret = অস্থায়ী_FAILURE_RETRY (পঠ (fd, buf + nread, allocated - nread));
+      যদি (UNLIKELY (ret < 0))
+        ফেরত crun_make_error (err, errno, "read from file `%s`", description);
 
-      if (ret == 0)
-        break;
+      যদি (ret == 0)
+        বিরতি;
 
       nread += ret;
 
-      if (max_size && nread > max_size)
-        return crun_make_error (err, EFBIG, "`%s` is bigger than %zu bytes", description, max_size);
+      যদি (max_আকার && nread > max_আকার)
+        ফেরত crun_make_error (err, EFBIG, "`%s` is bigger than %zu bytes", description, max_আকার);
 
-      if (nread == allocated)
+      যদি (nread == allocated)
         {
-          if (size)
-            break;
+          যদি (আকার_2)
+            বিরতি;
 
-          if (pagesize == 0)
-            pagesize = get_page_size ();
+          যদি (pagesize == 0)
+            pagesize = get_page_আকার ();
 
           allocated += pagesize;
 
           buf = xrealloc (buf, allocated + 1);
         }
     }
-  if (nread + 1 < allocated)
+  যদি (nread + 1 < allocated)
     {
       /* shrink the buffer to the used size if it was allocated a bigger block.  */
-      char *tmp = realloc (buf, nread + 1);
-      if (tmp)
+      অক্ষর *tmp = realloc (buf, nread + 1);
+      যদি (tmp)
         buf = tmp;
     }
 
   buf[nread] = '\0';
   *out = buf;
-  buf = NULL;
-  if (len)
+  buf = ফাঁকা;
+  যদি (len)
     *len = nread;
-  return 0;
+  ফেরত 0;
 }
 
-int
-read_all_fd_with_size_hint (int fd, const char *description, char **out, size_t *len, size_t size_hint, libcrun_error_t *err)
+পূর্ণসংখ্যা
+read_all_fd_with_আকার_hint (পূর্ণসংখ্যা fd, ধ্রুবক অক্ষর *description, অক্ষর **out, size_t *len, size_t আকার_hint, libcrun_error_t *err)
 {
-  return read_all_fd_internal (fd, description, out, len, size_hint, 0, err);
+  ফেরত read_all_fd_internal (fd, description, out, len, আকার_hint, 0, err);
 }
 
-int
-read_all_fd_with_max_size (int fd, const char *description, char **out, size_t *len, size_t max_size, libcrun_error_t *err)
+পূর্ণসংখ্যা
+read_all_fd_with_max_আকার (পূর্ণসংখ্যা fd, ধ্রুবক অক্ষর *description, অক্ষর **out, size_t *len, size_t max_আকার, libcrun_error_t *err)
 {
-  return read_all_fd_internal (fd, description, out, len, 0, max_size, err);
+  ফেরত read_all_fd_internal (fd, description, out, len, 0, max_আকার, err);
 }
 
-int
-read_all_file_at (int dirfd, const char *path, char **out, size_t *len, libcrun_error_t *err)
+পূর্ণসংখ্যা
+read_all_file_at (পূর্ণসংখ্যা dirfd, ধ্রুবক অক্ষর *path, অক্ষর **out, size_t *len, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
+  cleanup_close পূর্ণসংখ্যা fd = -1;
 
-  fd = TEMP_FAILURE_RETRY (openat (dirfd, path, O_RDONLY | O_CLOEXEC));
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s`", path);
+  fd = অস্থায়ী_FAILURE_RETRY (openat (dirfd, path, O_RDONLY | O_CLOEXEC));
+  যদি (UNLIKELY (fd < 0))
+    ফেরত crun_make_error (err, errno, "open `%s`", path);
 
-  return read_all_fd (fd, path, out, len, err);
+  ফেরত read_all_fd (fd, path, out, len, err);
 }
 
-int
-read_all_file (const char *path, char **out, size_t *len, libcrun_error_t *err)
+পূর্ণসংখ্যা
+read_all_file (ধ্রুবক অক্ষর *path, অক্ষর **out, size_t *len, libcrun_error_t *err)
 {
-  if (strcmp (path, "-") == 0)
+  যদি (strcmp (path, "-") == 0)
     path = "/dev/stdin";
 
-  return read_all_file_at (AT_FDCWD, path, out, len, err);
+  ফেরত read_all_file_at (AT_FDCWD, path, out, len, err);
 }
 
-int
-get_realpath_to_file (int dirfd, const char *path_name, char **absolute_path, libcrun_error_t *err)
+পূর্ণসংখ্যা
+get_realpath_to_file (পূর্ণসংখ্যা dirfd, ধ্রুবক অক্ষর *path_name, অক্ষর **absolute_path, libcrun_error_t *err)
 {
-  cleanup_close int targetfd = -1;
+  cleanup_close পূর্ণসংখ্যা targetfd = -1;
 
-  targetfd = TEMP_FAILURE_RETRY (openat (dirfd, path_name, O_RDONLY | O_CLOEXEC));
-  if (UNLIKELY (targetfd < 0))
-    return crun_make_error (err, errno, "open `%s`", path_name);
-  else
+  targetfd = অস্থায়ী_FAILURE_RETRY (openat (dirfd, path_name, O_RDONLY | O_CLOEXEC));
+  যদি (UNLIKELY (targetfd < 0))
+    ফেরত crun_make_error (err, errno, "open `%s`", path_name);
+  অন্যথা
     {
       ssize_t len;
       proc_fd_path_t target_fd_path;
 
       get_proc_self_fd_path (target_fd_path, targetfd);
       len = safe_readlinkat (AT_FDCWD, target_fd_path, absolute_path, 0, err);
-      if (UNLIKELY (len < 0))
-        return crun_error_wrap (err, "error unable to provide absolute path to file `%s`", path_name);
+      যদি (UNLIKELY (len < 0))
+        ফেরত crun_error_wrap (err, "error unable to provide absolute path to file `%s`", path_name);
     }
 
-  return 0;
+  ফেরত 0;
 }
 
-int
-open_unix_domain_client_socket (const char *path, int dgram, libcrun_error_t *err)
+পূর্ণসংখ্যা
+open_unix_domain_client_socket (ধ্রুবক অক্ষর *path, পূর্ণসংখ্যা dgram, libcrun_error_t *err)
 {
-  struct sockaddr_un addr = {};
-  int ret;
+  কাঠামো sockaddr_un addr = {};
+  পূর্ণসংখ্যা ret;
   proc_fd_path_t name_buf;
-  cleanup_close int destfd = -1;
-  cleanup_close int fd = -1;
+  cleanup_close পূর্ণসংখ্যা destfd = -1;
+  cleanup_close পূর্ণসংখ্যা fd = -1;
 
   libcrun_debug ("Opening UNIX domain socket: %s", path);
 
   fd = socket (AF_UNIX, dgram ? SOCK_DGRAM : SOCK_STREAM, 0);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "create UNIX socket");
+  যদি (UNLIKELY (fd < 0))
+    ফেরত crun_make_error (err, errno, "create UNIX socket");
 
-  if (strlen (path) >= sizeof (addr.sun_path))
+  যদি (strlen (path) >= আকার (addr.sun_path))
     {
       destfd = open (path, O_PATH | O_CLOEXEC);
-      if (UNLIKELY (destfd < 0))
-        return crun_make_error (err, errno, "open `%s`", path);
+      যদি (UNLIKELY (destfd < 0))
+        ফেরত crun_make_error (err, errno, "open `%s`", path);
 
       get_proc_self_fd_path (name_buf, destfd);
 
@@ -1279,318 +1279,318 @@ open_unix_domain_client_socket (const char *path, int dgram, libcrun_error_t *er
     }
 
   size_t path_len = strlen (path);
-  if (path_len >= sizeof (addr.sun_path))
-    return crun_make_error (err, ENAMETOOLONG, "socket path too long: `%s`", path);
+  যদি (path_len >= আকার (addr.sun_path))
+    ফেরত crun_make_error (err, ENAMETOOLONG, "socket path too long: `%s`", path);
 
   memcpy (addr.sun_path, path, path_len + 1);
   addr.sun_family = AF_UNIX;
-  ret = connect (fd, (struct sockaddr *) &addr, sizeof (addr));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "connect socket to `%s`", path);
+  ret = connect (fd, (কাঠামো sockaddr *) &addr, আকার (addr));
+  যদি (UNLIKELY (ret < 0))
+    ফেরত crun_make_error (err, errno, "connect socket to `%s`", path);
 
   ret = fd;
   fd = -1;
 
-  return ret;
+  ফেরত ret;
 }
 
-int
-open_unix_domain_socket (const char *path, int dgram, libcrun_error_t *err)
+পূর্ণসংখ্যা
+open_unix_domain_socket (ধ্রুবক অক্ষর *path, পূর্ণসংখ্যা dgram, libcrun_error_t *err)
 {
-  struct sockaddr_un addr = {};
+  কাঠামো sockaddr_un addr = {};
   proc_fd_path_t name_buf;
-  int ret;
-  cleanup_close int dirfd = -1;
-  cleanup_close int fd = socket (AF_UNIX, dgram ? SOCK_DGRAM : SOCK_STREAM, 0);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "create UNIX socket");
+  পূর্ণসংখ্যা ret;
+  cleanup_close পূর্ণসংখ্যা dirfd = -1;
+  cleanup_close পূর্ণসংখ্যা fd = socket (AF_UNIX, dgram ? SOCK_DGRAM : SOCK_STREAM, 0);
+  যদি (UNLIKELY (fd < 0))
+    ফেরত crun_make_error (err, errno, "create UNIX socket");
 
-  if (strlen (path) >= sizeof (addr.sun_path))
+  যদি (strlen (path) >= আকার (addr.sun_path))
     {
-      cleanup_free char *dpath = xstrdup (path);
-      cleanup_free char *bpath = xstrdup (path);
-      const char *parent_dir = dirname (dpath);
-      const char *base = basename (bpath);
-      int n;
+      cleanup_free অক্ষর *dpath = xstrdup (path);
+      cleanup_free অক্ষর *bpath = xstrdup (path);
+      ধ্রুবক অক্ষর *parent_dir = dirname (dpath);
+      ধ্রুবক অক্ষর *base = basename (bpath);
+      পূর্ণসংখ্যা n;
 
       dirfd = open (parent_dir, O_PATH | O_DIRECTORY | O_CLOEXEC);
-      if (UNLIKELY (dirfd < 0))
-        return crun_make_error (err, errno, "open directory `%s`", parent_dir);
+      যদি (UNLIKELY (dirfd < 0))
+        ফেরত crun_make_error (err, errno, "open directory `%s`", parent_dir);
 
       get_proc_self_fd_path (name_buf, dirfd);
 
-      n = snprintf (addr.sun_path, sizeof (addr.sun_path), "%s/%s", name_buf, base);
-      if (n < 0 || (size_t) n >= sizeof (addr.sun_path))
-        return crun_make_error (err, ENAMETOOLONG, "socket path too long: `%s`", path);
+      n = snprintf (addr.sun_path, আকার (addr.sun_path), "%s/%s", name_buf, base);
+      যদি (n < 0 || (size_t) n >= আকার (addr.sun_path))
+        ফেরত crun_make_error (err, ENAMETOOLONG, "socket path too long: `%s`", path);
     }
-  else
+  অন্যথা
     {
       size_t path_len = strlen (path);
       memcpy (addr.sun_path, path, path_len + 1);
     }
 
   addr.sun_family = AF_UNIX;
-  ret = bind (fd, (struct sockaddr *) &addr, sizeof (addr));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "bind socket to `%s`", path);
+  ret = bind (fd, (কাঠামো sockaddr *) &addr, আকার (addr));
+  যদি (UNLIKELY (ret < 0))
+    ফেরত crun_make_error (err, errno, "bind socket to `%s`", path);
 
-  if (! dgram)
+  যদি (! dgram)
     {
       ret = listen (fd, 1);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "listen on socket");
+      যদি (UNLIKELY (ret < 0))
+        ফেরত crun_make_error (err, errno, "listen on socket");
     }
 
   ret = fd;
   fd = -1;
 
-  return ret;
+  ফেরত ret;
 }
 
-int
-send_fd_to_socket (int server, int fd, libcrun_error_t *err)
+পূর্ণসংখ্যা
+send_fd_to_socket (পূর্ণসংখ্যা server, পূর্ণসংখ্যা fd, libcrun_error_t *err)
 {
-  return send_fd_to_socket_with_payload (server, fd, NULL, 0, err);
+  ফেরত send_fd_to_socket_with_payload (server, fd, ফাঁকা, 0, err);
 }
 
-int
-send_fd_to_socket_with_payload (int server, int fd, const char *payload, size_t payload_len, libcrun_error_t *err)
+পূর্ণসংখ্যা
+send_fd_to_socket_with_payload (পূর্ণসংখ্যা server, পূর্ণসংখ্যা fd, ধ্রুবক অক্ষর *payload, size_t payload_len, libcrun_error_t *err)
 {
-  int ret;
-  struct cmsghdr *cmsg = NULL;
-  struct iovec iov[2];
-  struct msghdr msg = {};
-  char ctrl_buf[CMSG_SPACE (1 + sizeof (int))] = {};
-  char data[1];
+  পূর্ণসংখ্যা ret;
+  কাঠামো cmsghdr *cmsg = ফাঁকা;
+  কাঠামো iovec iov[2];
+  কাঠামো msghdr বার্তা = {};
+  অক্ষর ctrl_buf[CMSG_SPACE (1 + আকার (পূর্ণসংখ্যা))] = {};
+  অক্ষর তথ্য[1];
 
-  data[0] = ' ';
-  iov[0].iov_base = data;
-  iov[0].iov_len = sizeof (data);
+  তথ্য[0] = ' ';
+  iov[0].iov_base = তথ্য;
+  iov[0].iov_len = আকার (তথ্য);
 
-  if (payload_len > 0)
+  যদি (payload_len > 0)
     {
-      iov[0].iov_base = (void *) payload;
+      iov[0].iov_base = (শূন্য *) payload;
       iov[0].iov_len = payload_len;
     }
 
-  msg.msg_name = NULL;
-  msg.msg_namelen = 0;
-  msg.msg_iov = iov;
-  msg.msg_iovlen = 1;
-  msg.msg_controllen = CMSG_SPACE (sizeof (int));
-  msg.msg_control = ctrl_buf;
+  বার্তা.বার্তা_name = ফাঁকা;
+  বার্তা.বার্তা_namelen = 0;
+  বার্তা.বার্তা_iov = iov;
+  বার্তা.বার্তা_iovlen = 1;
+  বার্তা.বার্তা_controllen = CMSG_SPACE (আকার (পূর্ণসংখ্যা));
+  বার্তা.বার্তা_control = ctrl_buf;
 
-  cmsg = CMSG_FIRSTHDR (&msg);
+  cmsg = CMSG_FIRSTHDR (&বার্তা);
   cmsg->cmsg_level = SOL_SOCKET;
   cmsg->cmsg_type = SCM_RIGHTS;
-  cmsg->cmsg_len = CMSG_LEN (sizeof (int));
+  cmsg->cmsg_len = CMSG_LEN (আকার (পূর্ণসংখ্যা));
 
-  *((int *) CMSG_DATA (cmsg)) = fd;
+  *((পূর্ণসংখ্যা *) CMSG_তথ্য (cmsg)) = fd;
 
-  ret = TEMP_FAILURE_RETRY (sendmsg (server, &msg, 0));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "sendmsg");
-  return 0;
+  ret = অস্থায়ী_FAILURE_RETRY (sendmsg (server, &বার্তা, 0));
+  যদি (UNLIKELY (ret < 0))
+    ফেরত crun_make_error (err, errno, "sendmsg");
+  ফেরত 0;
 }
 
-int
-receive_fd_from_socket_with_payload (int from, char *payload, size_t payload_len, libcrun_error_t *err)
+পূর্ণসংখ্যা
+receive_fd_from_socket_with_payload (পূর্ণসংখ্যা from, অক্ষর *payload, size_t payload_len, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
-  int ret;
-  struct iovec iov[1];
-  struct msghdr msg = {};
-  char ctrl_buf[CMSG_SPACE (sizeof (int))] = {};
-  char data[1];
-  struct cmsghdr *cmsg;
+  cleanup_close পূর্ণসংখ্যা fd = -1;
+  পূর্ণসংখ্যা ret;
+  কাঠামো iovec iov[1];
+  কাঠামো msghdr বার্তা = {};
+  অক্ষর ctrl_buf[CMSG_SPACE (আকার (পূর্ণসংখ্যা))] = {};
+  অক্ষর তথ্য[1];
+  কাঠামো cmsghdr *cmsg;
 
-  data[0] = ' ';
-  iov[0].iov_base = data;
-  iov[0].iov_len = sizeof (data);
+  তথ্য[0] = ' ';
+  iov[0].iov_base = তথ্য;
+  iov[0].iov_len = আকার (তথ্য);
 
-  if (payload_len > 0)
+  যদি (payload_len > 0)
     {
-      iov[0].iov_base = (void *) payload;
+      iov[0].iov_base = (শূন্য *) payload;
       iov[0].iov_len = payload_len;
     }
 
-  msg.msg_name = NULL;
-  msg.msg_namelen = 0;
-  msg.msg_iov = iov;
-  msg.msg_iovlen = 1;
-  msg.msg_controllen = CMSG_SPACE (sizeof (int));
-  msg.msg_control = ctrl_buf;
+  বার্তা.বার্তা_name = ফাঁকা;
+  বার্তা.বার্তা_namelen = 0;
+  বার্তা.বার্তা_iov = iov;
+  বার্তা.বার্তা_iovlen = 1;
+  বার্তা.বার্তা_controllen = CMSG_SPACE (আকার (পূর্ণসংখ্যা));
+  বার্তা.বার্তা_control = ctrl_buf;
 
-  ret = TEMP_FAILURE_RETRY (recvmsg (from, &msg, 0));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "recvmsg");
-  if (UNLIKELY (ret == 0))
-    return crun_make_error (err, 0, "read FD: connection closed");
+  ret = অস্থায়ী_FAILURE_RETRY (recvmsg (from, &বার্তা, 0));
+  যদি (UNLIKELY (ret < 0))
+    ফেরত crun_make_error (err, errno, "recvmsg");
+  যদি (UNLIKELY (ret == 0))
+    ফেরত crun_make_error (err, 0, "read FD: connection closed");
 
-  cmsg = CMSG_FIRSTHDR (&msg);
-  if (cmsg == NULL)
-    return crun_make_error (err, 0, "no msg received");
-  memcpy (&fd, CMSG_DATA (cmsg), sizeof (fd));
+  cmsg = CMSG_FIRSTHDR (&বার্তা);
+  যদি (cmsg == ফাঁকা)
+    ফেরত crun_make_error (err, 0, "no msg received");
+  memcpy (&fd, CMSG_তথ্য (cmsg), আকার (fd));
 
   ret = fd;
   fd = -1;
-  return ret;
+  ফেরত ret;
 }
 
-int
-receive_fd_from_socket (int from, libcrun_error_t *err)
+পূর্ণসংখ্যা
+receive_fd_from_socket (পূর্ণসংখ্যা from, libcrun_error_t *err)
 {
-  return receive_fd_from_socket_with_payload (from, NULL, 0, err);
+  ফেরত receive_fd_from_socket_with_payload (from, ফাঁকা, 0, err);
 }
 
-int
-create_socket_pair (int *pair, libcrun_error_t *err)
+পূর্ণসংখ্যা
+create_socket_pair (পূর্ণসংখ্যা *pair, libcrun_error_t *err)
 {
-  int ret = socketpair (AF_UNIX, SOCK_SEQPACKET, 0, pair);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "socketpair");
-  return 0;
+  পূর্ণসংখ্যা ret = socketpair (AF_UNIX, SOCK_SEQPACKET, 0, pair);
+  যদি (UNLIKELY (ret < 0))
+    ফেরত crun_make_error (err, errno, "socketpair");
+  ফেরত 0;
 }
 
-int
+পূর্ণসংখ্যা
 create_signalfd (sigset_t *mask, libcrun_error_t *err)
 {
-  int ret = signalfd (-1, mask, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "signalfd");
-  return ret;
+  পূর্ণসংখ্যা ret = signalfd (-1, mask, 0);
+  যদি (UNLIKELY (ret < 0))
+    ফেরত crun_make_error (err, errno, "signalfd");
+  ফেরত ret;
 }
 
-static int
-epoll_helper_toggle (int epollfd, int fd, int events, libcrun_error_t *err)
+স্থির পূর্ণসংখ্যা
+epoll_helper_toggle (পূর্ণসংখ্যা epollfd, পূর্ণসংখ্যা fd, পূর্ণসংখ্যা events, libcrun_error_t *err)
 {
-  struct epoll_event ev = {};
+  কাঠামো epoll_event ev = {};
   bool add = events != 0;
-  int ret;
+  পূর্ণসংখ্যা ret;
 
   ev.events = events;
-  ev.data.fd = fd;
+  ev.তথ্য.fd = fd;
   ret = epoll_ctl (epollfd, add ? EPOLL_CTL_ADD : EPOLL_CTL_DEL, fd, &ev);
   /* The fd is already registered, possibly with a different mask.  */
-  if (UNLIKELY (ret < 0 && errno == EEXIST))
+  যদি (UNLIKELY (ret < 0 && errno == EEXIST))
     ret = epoll_ctl (epollfd, EPOLL_CTL_MOD, fd, &ev);
-  if (UNLIKELY (ret < 0))
+  যদি (UNLIKELY (ret < 0))
     {
       /* ENOENT: not registered.  EPERM: the fd is not supported by epoll,
          such as a regular file or /dev/null, and is always ready.  */
-      if (errno == ENOENT || errno == EPERM)
-        return 0;
-      return crun_make_error (err, errno, "epoll_ctl `%s` `%d`", add ? "add" : "del", fd);
+      যদি (errno == ENOENT || errno == EPERM)
+        ফেরত 0;
+      ফেরত crun_make_error (err, errno, "epoll_ctl `%s` `%d`", add ? "add" : "del", fd);
     }
-  return 0;
+  ফেরত 0;
 }
 
-int
-epoll_helper (int *in_fds, int *in_levelfds, int *out_fds, int *out_levelfds, libcrun_error_t *err)
+পূর্ণসংখ্যা
+epoll_helper (পূর্ণসংখ্যা *in_fds, পূর্ণসংখ্যা *in_levelfds, পূর্ণসংখ্যা *out_fds, পূর্ণসংখ্যা *out_levelfds, libcrun_error_t *err)
 {
-  struct epoll_event ev;
-  cleanup_close int epollfd = -1;
-  int ret;
+  কাঠামো epoll_event ev;
+  cleanup_close পূর্ণসংখ্যা epollfd = -1;
+  পূর্ণসংখ্যা ret;
 
-  int *it;
+  পূর্ণসংখ্যা *it;
   epollfd = epoll_create1 (0);
-  if (UNLIKELY (epollfd < 0))
-    return crun_make_error (err, errno, "epoll_create1");
+  যদি (UNLIKELY (epollfd < 0))
+    ফেরত crun_make_error (err, errno, "epoll_create1");
 
 #define ADD_FDS(FDS, EVENTS)                                            \
-  for (it = FDS; *it >= 0; it++)                                        \
+  জন্য (it = FDS; *it >= 0; it++)                                        \
     {                                                                   \
       ev.events = EVENTS;                                               \
-      ev.data.fd = *it;                                                 \
+      ev.তথ্য.fd = *it;                                                 \
       ret = epoll_ctl (epollfd, EPOLL_CTL_ADD, *it, &ev);               \
-      if (UNLIKELY (ret < 0))                                           \
-        return crun_make_error (err, errno, "epoll_ctl add `%d`", *it); \
+      যদি (UNLIKELY (ret < 0))                                           \
+        ফেরত crun_make_error (err, errno, "epoll_ctl add `%d`", *it); \
     }
 
-  if (in_fds)
+  যদি (in_fds)
     ADD_FDS (in_fds, EPOLLIN);
-  if (in_levelfds)
+  যদি (in_levelfds)
     ADD_FDS (in_levelfds, EPOLLIN | EPOLLET);
-  if (out_fds)
+  যদি (out_fds)
     ADD_FDS (out_fds, EPOLLOUT);
-  if (out_levelfds)
+  যদি (out_levelfds)
     ADD_FDS (out_levelfds, EPOLLOUT | EPOLLET);
 
   ret = epollfd;
   epollfd = -1;
-  return ret;
+  ফেরত ret;
 }
 
-int
-copy_from_fd_to_fd (int src, int dst, int consume, libcrun_error_t *err)
+পূর্ণসংখ্যা
+copy_from_fd_to_fd (পূর্ণসংখ্যা src, পূর্ণসংখ্যা dst, পূর্ণসংখ্যা consume, libcrun_error_t *err)
 {
-  int ret;
+  পূর্ণসংখ্যা ret;
   ssize_t nread;
-  size_t pagesize = get_page_size ();
+  size_t pagesize = get_page_আকার ();
 #ifdef HAVE_COPY_FILE_RANGE
   bool can_copy_file_range = true;
 #endif
-  do
+  করো
     {
-      cleanup_free char *buffer = NULL;
+      cleanup_free অক্ষর *বাফার = ফাঁকা;
       ssize_t remaining;
 
 #ifdef HAVE_COPY_FILE_RANGE
-      if (can_copy_file_range)
+      যদি (can_copy_file_range)
         {
-          nread = copy_file_range (src, NULL, dst, NULL, pagesize, 0);
-          if (nread < 0 && (errno == EINVAL || errno == EXDEV))
+          nread = copy_file_range (src, ফাঁকা, dst, ফাঁকা, pagesize, 0);
+          যদি (nread < 0 && (errno == EINVAL || errno == EXDEV))
             {
               can_copy_file_range = false;
-              goto fallback;
+              যাও fallback;
             }
-          if (consume && nread < 0 && errno == EAGAIN)
-            return 0;
-          if (nread < 0 && errno == EIO)
-            return 0;
-          if (UNLIKELY (nread < 0))
-            return crun_make_error (err, errno, "copy_file_range");
-          continue;
+          যদি (consume && nread < 0 && errno == EAGAIN)
+            ফেরত 0;
+          যদি (nread < 0 && errno == EIO)
+            ফেরত 0;
+          যদি (UNLIKELY (nread < 0))
+            ফেরত crun_make_error (err, errno, "copy_file_range");
+          চালু;
         }
     fallback:
 #endif
 
-      buffer = xmalloc (pagesize);
-      nread = TEMP_FAILURE_RETRY (read (src, buffer, pagesize));
-      if (consume && nread < 0 && errno == EAGAIN)
-        return 0;
-      if (nread < 0 && errno == EIO)
-        return 0;
-      if (UNLIKELY (nread < 0))
-        return crun_make_error (err, errno, "read");
+      বাফার = xmalloc (pagesize);
+      nread = অস্থায়ী_FAILURE_RETRY (পঠ (src, বাফার, pagesize));
+      যদি (consume && nread < 0 && errno == EAGAIN)
+        ফেরত 0;
+      যদি (nread < 0 && errno == EIO)
+        ফেরত 0;
+      যদি (UNLIKELY (nread < 0))
+        ফেরত crun_make_error (err, errno, "read");
 
       remaining = nread;
-      while (remaining)
+      যখন (remaining)
         {
-          ret = TEMP_FAILURE_RETRY (write (dst, buffer + nread - remaining, remaining));
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "write");
+          ret = অস্থায়ী_FAILURE_RETRY (লিখ (dst, বাফার + nread - remaining, remaining));
+          যদি (UNLIKELY (ret < 0))
+            ফেরত crun_make_error (err, errno, "write");
           remaining -= ret;
         }
-  } while (consume && nread);
+  } যখন (consume && nread);
 
-  return 0;
+  ফেরত 0;
 }
 
-int
-run_process (char **args, libcrun_error_t *err)
+পূর্ণসংখ্যা
+run_process (অক্ষর **args, libcrun_error_t *err)
 {
   pid_t pid = fork ();
-  if (UNLIKELY (pid < 0))
-    return crun_make_error (err, errno, "fork");
-  if (pid)
+  যদি (UNLIKELY (pid < 0))
+    ফেরত crun_make_error (err, errno, "fork");
+  যদি (pid)
     {
-      int r, status;
-      r = TEMP_FAILURE_RETRY (waitpid (pid, &status, 0));
-      if (r < 0)
-        return crun_make_error (err, errno, "waitpid");
-      if (WIFEXITED (status) || WIFSIGNALED (status))
-        return WEXITSTATUS (status);
+      পূর্ণসংখ্যা r, status;
+      r = অস্থায়ী_FAILURE_RETRY (waitpid (pid, &status, 0));
+      যদি (r < 0)
+        ফেরত crun_make_error (err, errno, "waitpid");
+      যদি (WIFEXITED (status) || WIFSIGNALED (status))
+        ফেরত WEXITSTATUS (status);
     }
 
   execvp (args[0], args);
@@ -1598,218 +1598,218 @@ run_process (char **args, libcrun_error_t *err)
 }
 
 #ifndef HAVE_FGETPWENT_R
-static unsigned
-atou (char **s)
+স্থির unsigned
+atou (অক্ষর **s)
 {
   unsigned x;
-  for (x = 0; **s >= '0' && **s <= '9'; ++*s)
+  জন্য (x = 0; **s >= '0' && **s <= '9'; ++*s)
     x = 10 * x + (**s - '0');
-  return x;
+  ফেরত x;
 }
 
-int
-fgetpwent_r (FILE *f, struct passwd *pw, char *line, size_t size, struct passwd **res)
+পূর্ণসংখ্যা
+fgetpwent_r (FILE *f, কাঠামো passwd *pw, অক্ষর *সারি, size_t আকার_2, কাঠামো passwd **res)
 {
-  char *s;
-  int rv = 0;
-  for (;;)
+  অক্ষর *s;
+  পূর্ণসংখ্যা rv = 0;
+  জন্য (;;)
     {
-      line[size - 1] = '\xff';
-      if ((fgets (line, size, f) == NULL) || ferror (f) || line[size - 1] != '\xff')
+      সারি[আকার_2 - 1] = '\xff';
+      যদি ((fgets (সারি, আকার_2, f) == ফাঁকা) || ferror (f) || সারি[আকার_2 - 1] != '\xff')
         {
-          rv = (line[size - 1] != '\xff') ? ERANGE : ENOENT;
-          line = 0;
+          rv = (সারি[আকার_2 - 1] != '\xff') ? ERANGE : ENOENT;
+          সারি = 0;
           pw = 0;
-          break;
+          বিরতি;
         }
-      line[strcspn (line, "\n")] = 0;
+      সারি[strcspn (সারি, "\n")] = 0;
 
-      s = line;
+      s = সারি;
       pw->pw_name = s++;
-      if (! (s = strchr (s, ':')))
-        continue;
+      যদি (! (s = strchr (s, ':')))
+        চালু;
 
       *s++ = 0;
       pw->pw_passwd = s;
-      if (! (s = strchr (s, ':')))
-        continue;
+      যদি (! (s = strchr (s, ':')))
+        চালু;
 
       *s++ = 0;
       pw->pw_uid = atou (&s);
-      if (*s != ':')
-        continue;
+      যদি (*s != ':')
+        চালু;
 
       *s++ = 0;
       pw->pw_gid = atou (&s);
-      if (*s != ':')
-        continue;
+      যদি (*s != ':')
+        চালু;
 
       *s++ = 0;
       pw->pw_gecos = s;
-      if (! (s = strchr (s, ':')))
-        continue;
+      যদি (! (s = strchr (s, ':')))
+        চালু;
 
       *s++ = 0;
       pw->pw_dir = s;
-      if (! (s = strchr (s, ':')))
-        continue;
+      যদি (! (s = strchr (s, ':')))
+        চালু;
 
       *s++ = 0;
       pw->pw_shell = s;
-      break;
+      বিরতি;
     }
   *res = pw;
-  if (rv)
+  যদি (rv)
     errno = rv;
-  return rv;
+  ফেরত rv;
 }
 #endif
 
-int
+পূর্ণসংখ্যা
 set_home_env (uid_t id)
 {
-  struct passwd pwd;
-  cleanup_free char *buf = NULL;
-  long buf_size;
-  cleanup_file FILE *stream = NULL;
+  কাঠামো passwd pwd;
+  cleanup_free অক্ষর *buf = ফাঁকা;
+  long buf_আকার;
+  cleanup_file FILE *stream = ফাঁকা;
 
-  buf_size = sysconf (_SC_GETPW_R_SIZE_MAX);
-  if (buf_size < 0)
-    buf_size = 1024;
+  buf_আকার = sysconf (_SC_GETPW_R_SIZE_MAX);
+  যদি (buf_আকার < 0)
+    buf_আকার = 1024;
 
-  buf = xmalloc (buf_size);
+  buf = xmalloc (buf_আকার);
 
   stream = fopen ("/etc/passwd", "re");
-  if (stream == NULL)
-    return -1;
+  যদি (stream == ফাঁকা)
+    ফেরত -1;
 
-  for (;;)
+  জন্য (;;)
     {
-      struct passwd *ret_pw = NULL;
+      কাঠামো passwd *ret_pw = ফাঁকা;
 
-      int ret = fgetpwent_r (stream, &pwd, buf, buf_size, &ret_pw);
-      if (UNLIKELY (ret != 0))
+      পূর্ণসংখ্যা ret = fgetpwent_r (stream, &pwd, buf, buf_আকার, &ret_pw);
+      যদি (UNLIKELY (ret != 0))
         {
-          if (ret == EINTR)
-            continue;
+          যদি (ret == EINTR)
+            চালু;
 
-          if (ret != ERANGE)
+          যদি (ret != ERANGE)
             {
               /* Let callers handle the error if the user was not found. */
               errno = ret;
-              return -1;
+              ফেরত -1;
             }
 
-          buf_size *= 2;
-          buf = xrealloc (buf, buf_size);
-          continue;
+          buf_আকার *= 2;
+          buf = xrealloc (buf, buf_আকার);
+          চালু;
         }
 
-      if (ret_pw && ret_pw->pw_uid == id)
+      যদি (ret_pw && ret_pw->pw_uid == id)
         {
-          if (UNLIKELY (setenv ("HOME", ret_pw->pw_dir, 1) < 0))
+          যদি (UNLIKELY (setenv ("HOME", ret_pw->pw_dir, 1) < 0))
             OOM ();
-          else
-            return 0;
+          অন্যথা
+            ফেরত 0;
         }
     }
 }
 
 /*if subuid or subgid exist, take the first range for the user */
-static int
-getsubidrange (uid_t id, int is_uid, uint32_t *from, uint32_t *len)
+স্থির পূর্ণসংখ্যা
+getsubidrange (uid_t id, পূর্ণসংখ্যা is_uid, uint32_t *from, uint32_t *len)
 {
-  cleanup_file FILE *input = NULL;
-  cleanup_free char *lineptr = NULL;
+  cleanup_file FILE *প্রবেশ = ফাঁকা;
+  cleanup_free অক্ষর *lineptr = ফাঁকা;
   size_t lenlineptr = 0, len_name;
-  long buf_size;
-  cleanup_free char *buf = NULL;
-  const char *name;
-  struct passwd pwd;
+  long buf_আকার;
+  cleanup_free অক্ষর *buf = ফাঁকা;
+  ধ্রুবক অক্ষর *name;
+  কাঠামো passwd pwd;
 
-  buf_size = sysconf (_SC_GETPW_R_SIZE_MAX);
-  if (buf_size < 0)
-    buf_size = 1024;
+  buf_আকার = sysconf (_SC_GETPW_R_SIZE_MAX);
+  যদি (buf_আকার < 0)
+    buf_আকার = 1024;
 
-  buf = xmalloc (buf_size);
-  for (;;)
+  buf = xmalloc (buf_আকার);
+  জন্য (;;)
     {
-      int ret;
-      struct passwd *ret_pw = NULL;
+      পূর্ণসংখ্যা ret;
+      কাঠামো passwd *ret_pw = ফাঁকা;
 
-      ret = getpwuid_r (id, &pwd, buf, buf_size, &ret_pw);
-      if (LIKELY (ret == 0))
+      ret = getpwuid_r (id, &pwd, buf, buf_আকার, &ret_pw);
+      যদি (LIKELY (ret == 0))
         {
-          if (ret_pw)
+          যদি (ret_pw)
             {
               name = ret_pw->pw_name;
-              break;
+              বিরতি;
             }
-          return -1;
+          ফেরত -1;
         }
 
-      if (ret != ERANGE)
-        return -1;
+      যদি (ret != ERANGE)
+        ফেরত -1;
 
-      buf_size *= 2;
-      buf = xrealloc (buf, buf_size);
+      buf_আকার *= 2;
+      buf = xrealloc (buf, buf_আকার);
     }
 
   len_name = strlen (name);
 
-  input = fopen (is_uid ? "/etc/subuid" : "/etc/subgid", "re");
-  if (input == NULL)
-    return -1;
+  প্রবেশ = fopen (is_uid ? "/etc/subuid" : "/etc/subgid", "re");
+  যদি (প্রবেশ == ফাঁকা)
+    ফেরত -1;
 
-  for (;;)
+  জন্য (;;)
     {
-      char *endptr;
-      ssize_t read = getline (&lineptr, &lenlineptr, input);
-      if (read < 0)
-        return -1;
+      অক্ষর *endptr;
+      ssize_t পঠ = getline (&lineptr, &lenlineptr, প্রবেশ);
+      যদি (পঠ < 0)
+        ফেরত -1;
 
-      if (read < (ssize_t) (len_name + 2))
-        continue;
+      যদি (পঠ < (ssize_t) (len_name + 2))
+        চালু;
 
-      if (memcmp (lineptr, name, len_name) || lineptr[len_name] != ':')
-        continue;
+      যদি (memcmp (lineptr, name, len_name) || lineptr[len_name] != ':')
+        চালু;
 
       *from = strtoull (&lineptr[len_name + 1], &endptr, 10);
 
-      if (endptr >= &lineptr[read])
-        return -1;
+      যদি (endptr >= &lineptr[পঠ])
+        ফেরত -1;
 
       *len = strtoull (&endptr[1], &endptr, 10);
 
-      return 0;
+      ফেরত 0;
     }
 }
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 
-int
-format_default_id_mapping (char **out, uid_t container_id, uid_t host_uid, uid_t host_id, int is_uid, libcrun_error_t *err)
+পূর্ণসংখ্যা
+format_default_id_mapping (অক্ষর **out, uid_t container_id, uid_t host_uid, uid_t host_id, পূর্ণসংখ্যা is_uid, libcrun_error_t *err)
 {
   uint32_t from = 0, available = 0;
-  cleanup_free char *buffer = NULL;
-  int written = 0;
-  int ret, remaining;
+  cleanup_free অক্ষর *বাফার = ফাঁকা;
+  পূর্ণসংখ্যা written = 0;
+  পূর্ণসংখ্যা ret, remaining;
 
-  *out = NULL;
+  *out = ফাঁকা;
 
-  if (getsubidrange (host_uid, is_uid, &from, &available) < 0)
-    return 0;
+  যদি (getsubidrange (host_uid, is_uid, &from, &available) < 0)
+    ফেরত 0;
 
   /* More than enough space for all the mappings.  */
   remaining = 15 * 5 * 3;
-  buffer = xmalloc (remaining + 1);
+  বাফার = xmalloc (remaining + 1);
 
-  if (container_id > 0)
+  যদি (container_id > 0)
     {
       uint32_t used = MIN (container_id, available);
-      ret = snprintf (buffer + written, remaining, "%d %" PRIu32 " %" PRIu32 "\n", 0, from, used);
-      if (UNLIKELY (ret >= remaining))
-        return crun_make_error (err, 0, "internal error: allocated buffer too small");
+      ret = snprintf (বাফার + written, remaining, "%d %" PRIu32 " %" PRIu32 "\n", 0, from, used);
+      যদি (UNLIKELY (ret >= remaining))
+        ফেরত crun_make_error (err, 0, "internal error: allocated buffer too small");
 
       written += ret;
       remaining -= ret;
@@ -1819,84 +1819,84 @@ format_default_id_mapping (char **out, uid_t container_id, uid_t host_uid, uid_t
     }
 
   /* Host ID -> Container ID.  */
-  ret = snprintf (buffer + written, remaining, "%d %d 1\n", container_id, host_id);
-  if (UNLIKELY (ret >= remaining))
-    return crun_make_error (err, 0, "internal error: allocated buffer too small");
+  ret = snprintf (বাফার + written, remaining, "%d %d 1\n", container_id, host_id);
+  যদি (UNLIKELY (ret >= remaining))
+    ফেরত crun_make_error (err, 0, "internal error: allocated buffer too small");
   written += ret;
   remaining -= ret;
 
   /* Last mapping: use any id that is left.  */
-  if (available)
+  যদি (available)
     {
-      ret = snprintf (buffer + written, remaining, "%d %" PRIu32 " %" PRIu32 "\n", container_id + 1, from, available);
-      if (UNLIKELY (ret >= remaining))
-        return crun_make_error (err, 0, "internal error: allocated buffer too small");
+      ret = snprintf (বাফার + written, remaining, "%d %" PRIu32 " %" PRIu32 "\n", container_id + 1, from, available);
+      যদি (UNLIKELY (ret >= remaining))
+        ফেরত crun_make_error (err, 0, "internal error: allocated buffer too small");
       written += ret;
       remaining -= ret;
     }
 
-  *out = buffer;
-  buffer = NULL;
-  return written;
+  *out = বাফার;
+  বাফার = ফাঁকা;
+  ফেরত written;
 }
 
-static int
-unset_cloexec_flag (int fd)
+স্থির পূর্ণসংখ্যা
+unset_cloexec_flag (পূর্ণসংখ্যা fd)
 {
-  int flags = fcntl (fd, F_GETFD);
-  if (flags == -1)
-    return -1;
+  পূর্ণসংখ্যা flags = fcntl (fd, F_GETFD);
+  যদি (flags == -1)
+    ফেরত -1;
 
   flags &= ~FD_CLOEXEC;
 
-  return fcntl (fd, F_SETFD, flags);
+  ফেরত fcntl (fd, F_SETFD, flags);
 }
 
-static void __attribute__ ((__noreturn__))
-run_process_child (char *path, char **args, const char *cwd, char **envp, int pipe_r,
-                   int pipe_w, int out_fd, int err_fd, bool can_ignore_chdir_errors)
+স্থির শূন্য __attribute__ ((__noreturn__))
+run_process_child (অক্ষর *path, অক্ষর **args, ধ্রুবক অক্ষর *cwd, অক্ষর **envp, পূর্ণসংখ্যা pipe_r,
+                   পূর্ণসংখ্যা pipe_w, পূর্ণসংখ্যা out_fd, পূর্ণসংখ্যা err_fd, bool can_ignore_chdir_errors)
 {
-  char *tmp_args[] = { path, NULL };
-  libcrun_error_t err = NULL;
-  int dev_null_fd = -1;
-  int ret;
+  অক্ষর *tmp_args[] = { path, ফাঁকা };
+  libcrun_error_t err = ফাঁকা;
+  পূর্ণসংখ্যা dev_null_fd = -1;
+  পূর্ণসংখ্যা ret;
 
-  ret = mark_or_close_fds_ge_than (NULL, 3, false, &err);
-  if (UNLIKELY (ret < 0))
-    libcrun_fail_with_error ((err)->status, "%s", (err)->msg);
+  ret = mark_or_close_fds_ge_than (ফাঁকা, 3, false, &err);
+  যদি (UNLIKELY (ret < 0))
+    libcrun_fail_with_error ((err)->status, "%s", (err)->বার্তা);
 
-  if (out_fd < 0 || err_fd < 0)
+  যদি (out_fd < 0 || err_fd < 0)
     {
       dev_null_fd = open ("/dev/null", O_WRONLY | O_CLOEXEC);
-      if (UNLIKELY (dev_null_fd < 0))
+      যদি (UNLIKELY (dev_null_fd < 0))
         _safe_exit (EXIT_FAILURE);
     }
 
-  TEMP_FAILURE_RETRY (close (pipe_w));
+  অস্থায়ী_FAILURE_RETRY (close (pipe_w));
   dup2 (pipe_r, 0);
-  TEMP_FAILURE_RETRY (close (pipe_r));
+  অস্থায়ী_FAILURE_RETRY (close (pipe_r));
 
   dup2 (out_fd >= 0 ? out_fd : dev_null_fd, 1);
   dup2 (err_fd >= 0 ? err_fd : dev_null_fd, 2);
 
-  if (out_fd >= 0)
+  যদি (out_fd >= 0)
     unset_cloexec_flag (1);
-  if (err_fd >= 0)
+  যদি (err_fd >= 0)
     unset_cloexec_flag (2);
 
-  if (dev_null_fd >= 0)
-    TEMP_FAILURE_RETRY (close (dev_null_fd));
-  if (out_fd >= 0)
-    TEMP_FAILURE_RETRY (close (out_fd));
-  if (err_fd >= 0)
-    TEMP_FAILURE_RETRY (close (err_fd));
+  যদি (dev_null_fd >= 0)
+    অস্থায়ী_FAILURE_RETRY (close (dev_null_fd));
+  যদি (out_fd >= 0)
+    অস্থায়ী_FAILURE_RETRY (close (out_fd));
+  যদি (err_fd >= 0)
+    অস্থায়ী_FAILURE_RETRY (close (err_fd));
 
-  if (args == NULL)
+  যদি (args == ফাঁকা)
     args = tmp_args;
 
-  if (cwd && chdir (cwd) < 0)
+  যদি (cwd && chdir (cwd) < 0)
     {
-      if (! can_ignore_chdir_errors || (errno != EACCES && errno != EPERM))
+      যদি (! can_ignore_chdir_errors || (errno != EACCES && errno != EPERM))
         _safe_exit (EXIT_FAILURE);
     }
 
@@ -1905,43 +1905,43 @@ run_process_child (char *path, char **args, const char *cwd, char **envp, int pi
 }
 
 /* It changes the signals mask for the current process.  */
-int
-run_process_with_stdin_timeout_envp (char *path, char **args, const char *cwd, int timeout,
-                                     char **envp, char *stdin, size_t stdin_len, int out_fd,
-                                     int err_fd, bool can_ignore_chdir_errors, libcrun_error_t *err)
+পূর্ণসংখ্যা
+run_process_with_stdin_timeout_envp (অক্ষর *path, অক্ষর **args, ধ্রুবক অক্ষর *cwd, পূর্ণসংখ্যা timeout,
+                                     অক্ষর **envp, অক্ষর *stdin, size_t stdin_len, পূর্ণসংখ্যা out_fd,
+                                     পূর্ণসংখ্যা err_fd, bool can_ignore_chdir_errors, libcrun_error_t *err)
 {
-  int stdin_pipe[2];
+  পূর্ণসংখ্যা stdin_pipe[2];
   pid_t pid;
-  int ret;
-  cleanup_close int pipe_r = -1;
-  cleanup_close int pipe_w = -1;
+  পূর্ণসংখ্যা ret;
+  cleanup_close পূর্ণসংখ্যা pipe_r = -1;
+  cleanup_close পূর্ণসংখ্যা pipe_w = -1;
   sigset_t oldmask, mask;
-  int r, status;
+  পূর্ণসংখ্যা r, status;
 
   sigemptyset (&mask);
 
   ret = pipe2 (stdin_pipe, O_CLOEXEC);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "pipe");
+  যদি (UNLIKELY (ret < 0))
+    ফেরত crun_make_error (err, errno, "pipe");
   pipe_r = stdin_pipe[0];
   pipe_w = stdin_pipe[1];
 
-  if (timeout > 0)
+  যদি (timeout > 0)
     {
       sigaddset (&mask, SIGCHLD);
       ret = sigprocmask (SIG_BLOCK, &mask, &oldmask);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "sigprocmask");
+      যদি (UNLIKELY (ret < 0))
+        ফেরত crun_make_error (err, errno, "sigprocmask");
     }
 
   pid = fork ();
-  if (UNLIKELY (pid < 0))
+  যদি (UNLIKELY (pid < 0))
     {
       ret = crun_make_error (err, errno, "fork");
-      goto restore_sig_mask_and_exit;
+      যাও restore_sig_mask_and_exit;
     }
 
-  if (pid == 0)
+  যদি (pid == 0)
     {
       /* run_process_child doesn't return.  */
       run_process_child (path, args, cwd, envp, pipe_r, pipe_w, out_fd, err_fd, can_ignore_chdir_errors);
@@ -1949,210 +1949,210 @@ run_process_with_stdin_timeout_envp (char *path, char **args, const char *cwd, i
 
   close_and_reset (&pipe_r);
 
-  ret = TEMP_FAILURE_RETRY (write (pipe_w, stdin, stdin_len));
-  if (UNLIKELY (ret < 0))
+  ret = অস্থায়ী_FAILURE_RETRY (লিখ (pipe_w, stdin, stdin_len));
+  যদি (UNLIKELY (ret < 0))
     {
       /* Ignore EPIPE as the container process could have already
          been terminated.  */
-      if (errno != EPIPE)
+      যদি (errno != EPIPE)
         {
           ret = crun_make_error (err, errno, "write to pipe");
-          goto restore_sig_mask_and_exit;
+          যাও restore_sig_mask_and_exit;
         }
     }
 
   close_and_reset (&pipe_w);
 
-  if (timeout)
+  যদি (timeout)
     {
-      time_t start = time (NULL);
+      time_t start = time (ফাঁকা);
       time_t now;
-      for (now = start; now - start < timeout; now = time (NULL))
+      জন্য (now = start; now - start < timeout; now = time (ফাঁকা))
         {
           siginfo_t info;
-          int elapsed = now - start;
-          struct timespec ts_timeout = { .tv_sec = timeout - elapsed, .tv_nsec = 0 };
+          পূর্ণসংখ্যা elapsed = now - start;
+          কাঠামো timespec ts_timeout = { .tv_sec = timeout - elapsed, .tv_nsec = 0 };
 
           ret = sigtimedwait (&mask, &info, &ts_timeout);
-          if (UNLIKELY (ret < 0 && errno != EAGAIN))
+          যদি (UNLIKELY (ret < 0 && errno != EAGAIN))
             {
               ret = crun_make_error (err, errno, "sigtimedwait");
-              goto restore_sig_mask_and_exit;
+              যাও restore_sig_mask_and_exit;
             }
 
-          if (info.si_signo == SIGCHLD && info.si_pid == pid)
-            goto read_waitpid;
+          যদি (info.si_signo == SIGCHLD && info.si_pid == pid)
+            যাও read_waitpid;
 
-          if (ret < 0 && errno == EAGAIN)
-            goto timeout;
+          যদি (ret < 0 && errno == EAGAIN)
+            যাও timeout;
         }
     timeout:
       kill (pid, SIGKILL);
 
       ret = crun_make_error (err, 0, "timeout expired for `%s`", path);
-      goto restore_sig_mask_and_exit;
+      যাও restore_sig_mask_and_exit;
     }
 
 read_waitpid:
   r = waitpid_ignore_stopped (pid, &status, 0);
-  if (r < 0)
+  যদি (r < 0)
     ret = crun_make_error (err, errno, "waitpid");
-  else
+  অন্যথা
     ret = get_process_exit_status (status);
 
   /* Prevent to cleanup the pid again.  */
   pid = 0;
 
 restore_sig_mask_and_exit:
-  if (timeout > 0)
+  যদি (timeout > 0)
     {
       /* Cleanup the zombie process.  */
-      if (pid > 0)
+      যদি (pid > 0)
         {
           kill (pid, SIGKILL);
-          TEMP_FAILURE_RETRY (waitpid (pid, &status, 0));
+          অস্থায়ী_FAILURE_RETRY (waitpid (pid, &status, 0));
         }
-      r = sigprocmask (SIG_UNBLOCK, &oldmask, NULL);
-      if (UNLIKELY (r < 0 && ret >= 0))
+      r = sigprocmask (SIG_UNBLOCK, &oldmask, ফাঁকা);
+      যদি (UNLIKELY (r < 0 && ret >= 0))
         ret = crun_make_error (err, errno, "restoring signal mask with sigprocmask");
     }
-  return ret;
+  ফেরত ret;
 }
 
-int
-mark_or_close_fds_ge_than (libcrun_container_t *container, int n, bool close_now, libcrun_error_t *err)
+পূর্ণসংখ্যা
+mark_or_close_fds_ge_than (libcrun_container_t *container, পূর্ণসংখ্যা n, bool close_now, libcrun_error_t *err)
 {
-  cleanup_close int cfd = -1;
-  cleanup_dir DIR *dir = NULL;
-  int ret;
-  int fd;
-  struct dirent *next;
+  cleanup_close পূর্ণসংখ্যা cfd = -1;
+  cleanup_dir DIR *dir = ফাঁকা;
+  পূর্ণসংখ্যা ret;
+  পূর্ণসংখ্যা fd;
+  কাঠামো dirent *পরবর্তী;
 
 #ifdef ENABLE_GCOV
   /* Flush gcov data before closing all fds.  Any code coverage after this point will be lost.  */
-  if (close_now)
+  যদি (close_now)
     GCOV_DUMP ();
 #endif
 
   ret = syscall_close_range (n, UINT_MAX, close_now ? 0 : CLOSE_RANGE_CLOEXEC);
-  if (ret == 0)
+  যদি (ret == 0)
     {
-      if (close_now && container && container->proc_fd >= n)
+      যদি (close_now && container && container->proc_fd >= n)
         container->proc_fd = -1;
-      return 0;
+      ফেরত 0;
     }
-  if (ret < 0 && errno != EINVAL && errno != ENOSYS && errno != EPERM)
-    return crun_make_error (err, errno, "close_range from `%d`", n);
+  যদি (ret < 0 && errno != EINVAL && errno != ENOSYS && errno != EPERM)
+    ফেরত crun_make_error (err, errno, "close_range from `%d`", n);
 
   cfd = libcrun_open_proc_file (container, "self/fd", O_DIRECTORY | O_RDONLY, err);
-  if (UNLIKELY (cfd < 0))
-    return cfd;
+  যদি (UNLIKELY (cfd < 0))
+    ফেরত cfd;
 
   ret = check_proc_super_magic (cfd, "self/fd", err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
   dir = fdopendir (cfd);
-  if (UNLIKELY (dir == NULL))
-    return crun_make_error (err, errno, "fdopendir `self/fd`");
+  যদি (UNLIKELY (dir == ফাঁকা))
+    ফেরত crun_make_error (err, errno, "fdopendir `self/fd`");
 
   /* Now it is owned by dir.  */
   cfd = -1;
 
   fd = dirfd (dir);
-  for (next = readdir (dir); next; next = readdir (dir))
+  জন্য (পরবর্তী = readdir (dir); পরবর্তী; পরবর্তী = readdir (dir))
     {
-      int val;
-      const char *name = next->d_name;
-      if (name[0] == '.')
-        continue;
+      পূর্ণসংখ্যা val;
+      ধ্রুবক অক্ষর *name = পরবর্তী->d_name;
+      যদি (name[0] == '.')
+        চালু;
 
-      val = strtoll (name, NULL, 10);
-      if (val < n || val == fd)
-        continue;
+      val = strtoll (name, ফাঁকা, 10);
+      যদি (val < n || val == fd)
+        চালু;
 
-      if (close_now)
+      যদি (close_now)
         {
           ret = close (val);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "close fd `%d`", val);
+          যদি (UNLIKELY (ret < 0))
+            ফেরত crun_make_error (err, errno, "close fd `%d`", val);
 
-          if (container && val == container->proc_fd)
+          যদি (container && val == container->proc_fd)
             container->proc_fd = -1;
         }
-      else
+      অন্যথা
         {
           ret = fcntl (val, F_SETFD, FD_CLOEXEC);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "cannot set CLOEXEC for fd `%d`", val);
+          যদি (UNLIKELY (ret < 0))
+            ফেরত crun_make_error (err, errno, "cannot set CLOEXEC for fd `%d`", val);
         }
     }
-  return 0;
+  ফেরত 0;
 }
 
-void
-get_current_timestamp (char *out, size_t len)
+শূন্য
+get_current_timestamp (অক্ষর *out, size_t len)
 {
-  struct timeval tv;
-  struct tm now;
-  char timestamp[64];
+  কাঠামো timeval tv;
+  কাঠামো tm now;
+  অক্ষর timestamp[64];
 
-  gettimeofday (&tv, NULL);
+  gettimeofday (&tv, ফাঁকা);
   gmtime_r (&tv.tv_sec, &now);
-  strftime (timestamp, sizeof (timestamp), "%Y-%m-%dT%H:%M:%S", &now);
+  strftime (timestamp, আকার (timestamp), "%Y-%m-%dT%H:%M:%S", &now);
 
-  (void) snprintf (out, len, "%s.%06lldZ", timestamp, (long long int) tv.tv_usec);
+  (শূন্য) snprintf (out, len, "%s.%06lldZ", timestamp, (long long পূর্ণসংখ্যা) tv.tv_usec);
   out[len - 1] = '\0';
 }
 
-int
-set_blocking_fd (int fd, bool blocking, libcrun_error_t *err)
+পূর্ণসংখ্যা
+set_blocking_fd (পূর্ণসংখ্যা fd, bool blocking, libcrun_error_t *err)
 {
-  int ret, flags = fcntl (fd, F_GETFL, 0);
-  if (UNLIKELY (flags < 0))
-    return crun_make_error (err, errno, "fcntl");
+  পূর্ণসংখ্যা ret, flags = fcntl (fd, F_GETFL, 0);
+  যদি (UNLIKELY (flags < 0))
+    ফেরত crun_make_error (err, errno, "fcntl");
 
   ret = fcntl (fd, F_SETFL, blocking ? flags & ~O_NONBLOCK : flags | O_NONBLOCK);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fcntl");
-  return 0;
+  যদি (UNLIKELY (ret < 0))
+    ফেরত crun_make_error (err, errno, "fcntl");
+  ফেরত 0;
 }
 
-int
-parse_json_file (json_object **out, const char *jsondata, struct parser_context *ctx arg_unused, libcrun_error_t *err)
+পূর্ণসংখ্যা
+parse_json_file (json_object **out, ধ্রুবক অক্ষর *jsondata, কাঠামো parser_context *ctx arg_unused, libcrun_error_t *err)
 {
-  struct json_tokener *tok;
-  enum json_tokener_error jerr;
+  কাঠামো json_tokener *tok;
+  গণনা json_tokener_error jerr;
 
-  *err = NULL;
+  *err = ফাঁকা;
 
-  if (UNLIKELY (jsondata == NULL))
-    return crun_make_error (err, 0, "JSON data is NULL");
+  যদি (UNLIKELY (jsondata == ফাঁকা))
+    ফেরত crun_make_error (err, 0, "JSON data is NULL");
 
   tok = json_tokener_new ();
-  if (UNLIKELY (tok == NULL))
-    return crun_make_error (err, 0, "cannot allocate JSON tokener");
+  যদি (UNLIKELY (tok == ফাঁকা))
+    ফেরত crun_make_error (err, 0, "cannot allocate JSON tokener");
 
   json_tokener_set_flags (tok, JSON_TOKENER_VALIDATE_UTF8);
 
-  *out = json_tokener_parse_ex (tok, jsondata, (int) strlen (jsondata));
+  *out = json_tokener_parse_ex (tok, jsondata, (পূর্ণসংখ্যা) strlen (jsondata));
   jerr = json_tokener_get_error (tok);
-  if (*out == NULL || jerr != json_tokener_success)
+  যদি (*out == ফাঁকা || jerr != json_tokener_success)
     {
-      int saved_pos = (int) tok->char_offset;
+      পূর্ণসংখ্যা saved_pos = (পূর্ণসংখ্যা) tok->char_offset;
 
       json_tokener_free (tok);
-      if (*out)
+      যদি (*out)
         {
           json_object_put (*out);
-          *out = NULL;
+          *out = ফাঁকা;
         }
-      return crun_make_error (err, 0, "cannot parse the data: %s at position %d",
+      ফেরত crun_make_error (err, 0, "cannot parse the data: %s at position %d",
                               json_tokener_error_desc (jerr), saved_pos);
     }
 
   json_tokener_free (tok);
-  return 0;
+  ফেরত 0;
 }
 
 #define CHECK_ACCESS_NOT_EXECUTABLE 1
@@ -2165,67 +2165,67 @@ parse_json_file (json_object **out, const char *jsondata, struct parser_context 
    - CHECK_ACCESS_NOT_REGULAR if it not a regular file
    - -errno for any other generic error
  */
-static int
-check_access (const char *path)
+স্থির পূর্ণসংখ্যা
+check_access (ধ্রুবক অক্ষর *path)
 {
-  int ret;
+  পূর্ণসংখ্যা ret;
   mode_t mode;
 
 #ifdef HAVE_EACCESS
 #  define ACCESS(path, mode) (eaccess (path, mode))
-#else
+#অন্যথা
 #  define ACCESS(path, mode) (access (path, mode))
 #endif
 
   ret = ACCESS (path, X_OK);
-  if (ret < 0)
+  যদি (ret < 0)
     {
       /* If the file is not executable, check if it exists.  */
-      if (errno == EACCES)
+      যদি (errno == EACCES)
         {
-          int saved_errno = errno;
+          পূর্ণসংখ্যা saved_errno = errno;
           ret = ACCESS (path, F_OK);
           errno = saved_errno;
 
-          if (ret == 0)
-            return CHECK_ACCESS_NOT_EXECUTABLE;
+          যদি (ret == 0)
+            ফেরত CHECK_ACCESS_NOT_EXECUTABLE;
         }
-      return -errno;
+      ফেরত -errno;
     }
 
   ret = get_file_type (&mode, false, path);
-  if (UNLIKELY (ret < 0))
-    return -errno;
+  যদি (UNLIKELY (ret < 0))
+    ফেরত -errno;
 
-  if (! S_ISREG (mode))
-    return CHECK_ACCESS_NOT_REGULAR;
+  যদি (! S_ISREG (mode))
+    ফেরত CHECK_ACCESS_NOT_REGULAR;
 
   /* It exists, is executable and is a regular file.  */
-  return 0;
+  ফেরত 0;
 }
 
-int
-find_executable (char **out, const char *executable_path, const char *cwd, libcrun_error_t *err)
+পূর্ণসংখ্যা
+find_executable (অক্ষর **out, ধ্রুবক অক্ষর *executable_path, ধ্রুবক অক্ষর *cwd, libcrun_error_t *err)
 {
-  cleanup_free char *cwd_executable_path = NULL;
-  cleanup_free char *tmp = NULL;
-  int last_error = -ENOENT;
-  char *it, *end;
-  int ret;
+  cleanup_free অক্ষর *cwd_executable_path = ফাঁকা;
+  cleanup_free অক্ষর *tmp = ফাঁকা;
+  পূর্ণসংখ্যা last_error = -ENOENT;
+  অক্ষর *it, *end;
+  পূর্ণসংখ্যা ret;
 
-  *out = NULL;
+  *out = ফাঁকা;
 
-  if (executable_path == NULL || executable_path[0] == '\0')
-    return crun_make_error (err, ENOENT, "cannot find `` in $PATH");
+  যদি (executable_path == ফাঁকা || executable_path[0] == '\0')
+    ফেরত crun_make_error (err, ENOENT, "cannot find `` in $PATH");
 
-  if (executable_path[0] != '/' && strchr (executable_path, '/'))
+  যদি (executable_path[0] != '/' && strchr (executable_path, '/'))
     {
-      cleanup_free char *cwd_allocated = NULL;
+      cleanup_free অক্ষর *cwd_allocated = ফাঁকা;
 
-      if (cwd == NULL)
+      যদি (cwd == ফাঁকা)
         {
-          cwd_allocated = getcwd (NULL, 0);
-          if (cwd_allocated == NULL)
+          cwd_allocated = getcwd (ফাঁকা, 0);
+          যদি (cwd_allocated == ফাঁকা)
             OOM ();
 
           cwd = cwd_allocated;
@@ -2233,308 +2233,308 @@ find_executable (char **out, const char *executable_path, const char *cwd, libcr
 
       /* Make sure the path starts with a '/' so it will hit the check
          for absolute paths.  */
-      ret = append_paths (&cwd_executable_path, err, "/", cwd, executable_path, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&cwd_executable_path, err, "/", cwd, executable_path, ফাঁকা);
+      যদি (UNLIKELY (ret < 0))
+        ফেরত ret;
       executable_path = cwd_executable_path;
     }
 
   /* Absolute path.  It doesn't need to lookup $PATH.  */
-  if (executable_path[0] == '/')
+  যদি (executable_path[0] == '/')
     {
       ret = check_access (executable_path);
-      if (LIKELY (ret == 0))
+      যদি (LIKELY (ret == 0))
         {
           *out = xstrdup (executable_path);
-          return 0;
+          ফেরত 0;
         }
       last_error = ret;
-      goto fail;
+      যাও fail;
     }
 
   end = tmp = xstrdup (getenv ("PATH"));
 
-  while ((it = strsep (&end, ":")))
+  যখন ((it = strsep (&end, ":")))
     {
-      cleanup_free char *path = NULL;
+      cleanup_free অক্ষর *path = ফাঁকা;
 
-      if (it == end)
+      যদি (it == end)
         it = ".";
 
-      ret = append_paths (&path, err, it, executable_path, NULL);
-      if (UNLIKELY (ret < 0))
+      ret = append_paths (&path, err, it, executable_path, ফাঁকা);
+      যদি (UNLIKELY (ret < 0))
         {
           crun_error_release (err);
-          continue;
+          চালু;
         }
 
       ret = check_access (path);
-      if (ret == 0)
+      যদি (ret == 0)
         {
           /* Change owner.  */
           *out = path;
-          path = NULL;
-          return 0;
+          path = ফাঁকা;
+          ফেরত 0;
         }
 
-      if (ret == -ENOENT)
-        continue;
+      যদি (ret == -ENOENT)
+        চালু;
 
       last_error = ret;
     }
 
 fail:
-  switch (last_error)
+  নির্বাচন (last_error)
     {
-    case CHECK_ACCESS_NOT_EXECUTABLE:
-      return crun_make_error (err, EPERM, "the path `%s` exists but it is not executable", executable_path);
+    ক্ষেত্র CHECK_ACCESS_NOT_EXECUTABLE:
+      ফেরত crun_make_error (err, EPERM, "the path `%s` exists but it is not executable", executable_path);
 
-    case CHECK_ACCESS_NOT_REGULAR:
-      return crun_make_error (err, EPERM, "the path `%s` is not a regular file", executable_path);
+    ক্ষেত্র CHECK_ACCESS_NOT_REGULAR:
+      ফেরত crun_make_error (err, EPERM, "the path `%s` is not a regular file", executable_path);
 
-    default:
+    পূর্বনির্ধারিত:
       errno = -last_error;
-      if (errno == ENOENT)
-        return crun_make_error (err, errno, "executable file `%s` not found%s", executable_path, executable_path[0] == '/' ? "" : " in $PATH");
-      return crun_make_error (err, errno, "open `%s`", executable_path);
+      যদি (errno == ENOENT)
+        ফেরত crun_make_error (err, errno, "executable file `%s` not found%s", executable_path, executable_path[0] == '/' ? "" : " in $PATH");
+      ফেরত crun_make_error (err, errno, "open `%s`", executable_path);
     }
 }
 
 #ifdef HAVE_FGETXATTR
 
-static ssize_t
-safe_read_xattr (char **ret, int sfd, const char *srcname, const char *name, size_t initial_size, libcrun_error_t *err)
+স্থির ssize_t
+safe_read_xattr (অক্ষর **ret, পূর্ণসংখ্যা sfd, ধ্রুবক অক্ষর *srcname, ধ্রুবক অক্ষর *name, size_t initial_আকার, libcrun_error_t *err)
 {
-  cleanup_free char *buffer = NULL;
-  ssize_t current_size;
+  cleanup_free অক্ষর *বাফার = ফাঁকা;
+  ssize_t current_আকার;
   ssize_t s;
 
-  current_size = (ssize_t) initial_size;
-  buffer = xmalloc (current_size + 1);
+  current_আকার = (ssize_t) initial_আকার;
+  বাফার = xmalloc (current_আকার + 1);
 
-  while (1)
+  যখন (1)
     {
-      s = fgetxattr (sfd, name, buffer, current_size);
-      if (UNLIKELY (s < 0))
-        return crun_make_error (err, errno, "get xattr `%s` from `%s`", name, srcname);
+      s = fgetxattr (sfd, name, বাফার, current_আকার);
+      যদি (UNLIKELY (s < 0))
+        ফেরত crun_make_error (err, errno, "get xattr `%s` from `%s`", name, srcname);
 
-      if (s < current_size)
-        break;
+      যদি (s < current_আকার)
+        বিরতি;
 
-      current_size *= 2;
-      buffer = xrealloc (buffer, current_size + 1);
+      current_আকার *= 2;
+      বাফার = xrealloc (বাফার, current_আকার + 1);
     }
 
-  if (s <= 0)
-    return s;
+  যদি (s <= 0)
+    ফেরত s;
 
-  buffer[s] = '\0';
+  বাফার[s] = '\0';
 
   /* Change owner.  */
-  *ret = buffer;
-  buffer = NULL;
+  *ret = বাফার;
+  বাফার = ফাঁকা;
 
-  return s;
+  ফেরত s;
 }
 
-static ssize_t
-copy_xattr (int sfd, int dfd, const char *srcname, const char *destname, libcrun_error_t *err)
+স্থির ssize_t
+copy_xattr (পূর্ণসংখ্যা sfd, পূর্ণসংখ্যা dfd, ধ্রুবক অক্ষর *srcname, ধ্রুবক অক্ষর *destname, libcrun_error_t *err)
 {
-  cleanup_free char *buf = NULL;
+  cleanup_free অক্ষর *buf = ফাঁকা;
   ssize_t xattr_len;
-  char *it;
+  অক্ষর *it;
 
-  xattr_len = flistxattr (sfd, NULL, 0);
-  if (UNLIKELY (xattr_len < 0))
+  xattr_len = flistxattr (sfd, ফাঁকা, 0);
+  যদি (UNLIKELY (xattr_len < 0))
     {
-      if (errno == ENOTSUP)
-        return 0;
+      যদি (errno == ENOTSUP)
+        ফেরত 0;
 
-      return crun_make_error (err, errno, "flistxattr `%s`", srcname);
+      ফেরত crun_make_error (err, errno, "flistxattr `%s`", srcname);
     }
 
-  if (xattr_len == 0)
-    return 0;
+  যদি (xattr_len == 0)
+    ফেরত 0;
 
   buf = xmalloc (xattr_len + 1);
 
   xattr_len = flistxattr (sfd, buf, xattr_len + 1);
-  if (UNLIKELY (xattr_len < 0))
-    return crun_make_error (err, errno, "flistxattr `%s`", srcname);
+  যদি (UNLIKELY (xattr_len < 0))
+    ফেরত crun_make_error (err, errno, "flistxattr `%s`", srcname);
 
-  for (it = buf; it - buf < xattr_len; it += strlen (it) + 1)
+  জন্য (it = buf; it - buf < xattr_len; it += strlen (it) + 1)
     {
-      cleanup_free char *v = NULL;
+      cleanup_free অক্ষর *v = ফাঁকা;
       ssize_t s;
 
       s = safe_read_xattr (&v, sfd, srcname, it, 256, err);
-      if (UNLIKELY (s < 0))
-        return s;
+      যদি (UNLIKELY (s < 0))
+        ফেরত s;
 
       s = fsetxattr (dfd, it, v, s, 0);
-      if (UNLIKELY (s < 0))
+      যদি (UNLIKELY (s < 0))
         {
-          if (errno == EINVAL || errno == EOPNOTSUPP)
-            continue;
+          যদি (errno == EINVAL || errno == EOPNOTSUPP)
+            চালু;
 
-          return crun_make_error (err, errno, "fsetxattr `%s` to `%s`", it, destname);
+          ফেরত crun_make_error (err, errno, "fsetxattr `%s` to `%s`", it, destname);
         }
     }
 
-  return 0;
+  ফেরত 0;
 }
 
 #endif
 
-static int
-copy_rec_stat_file_at (int dfd, const char *path, mode_t *mode, off_t *size, dev_t *rdev, uid_t *uid, gid_t *gid)
+স্থির পূর্ণসংখ্যা
+copy_rec_stat_file_at (পূর্ণসংখ্যা dfd, ধ্রুবক অক্ষর *path, mode_t *mode, off_t *আকার_2, dev_t *rdev, uid_t *uid, gid_t *gid)
 {
-  struct stat st;
-  int ret;
+  কাঠামো stat st;
+  পূর্ণসংখ্যা ret;
 
 #ifdef HAVE_STATX
-  struct statx stx = {
+  কাঠামো statx stx = {
     0,
   };
 
   ret = statx (dfd, path, AT_SYMLINK_NOFOLLOW | AT_STATX_DONT_SYNC,
-               STATX_TYPE | STATX_MODE | STATX_SIZE | STATX_UID | STATX_GID, &stx);
-  if (UNLIKELY (ret < 0))
+               STATX_TYPE | STATX_MODE | STATX_আকার | STATX_UID | STATX_GID, &stx);
+  যদি (UNLIKELY (ret < 0))
     {
-      if (errno == ENOSYS || errno == EINVAL)
-        goto fallback;
+      যদি (errno == ENOSYS || errno == EINVAL)
+        যাও fallback;
 
-      return ret;
+      ফেরত ret;
     }
 
   *mode = stx.stx_mode;
-  *size = stx.stx_size;
+  *আকার_2 = stx.stx_size;
   *rdev = makedev (stx.stx_rdev_major, stx.stx_rdev_minor);
   *uid = stx.stx_uid;
   *gid = stx.stx_gid;
 
-  return ret;
+  ফেরত ret;
 
 fallback:
 #endif
   ret = fstatat (dfd, path, &st, AT_SYMLINK_NOFOLLOW);
 
   *mode = st.st_mode;
-  *size = st.st_size;
+  *আকার_2 = st.st_size;
   *rdev = st.st_rdev;
   *uid = st.st_uid;
   *gid = st.st_gid;
 
-  return ret;
+  ফেরত ret;
 }
 
-int
-copy_recursive_fd_to_fd (int srcdirfd, int dfd, const char *srcname, const char *destname, libcrun_error_t *err)
+পূর্ণসংখ্যা
+copy_recursive_fd_to_fd (পূর্ণসংখ্যা srcdirfd, পূর্ণসংখ্যা dfd, ধ্রুবক অক্ষর *srcname, ধ্রুবক অক্ষর *destname, libcrun_error_t *err)
 {
-  cleanup_close int destdirfd = dfd;
-  cleanup_dir DIR *dsrcfd = NULL;
-  struct dirent *de;
+  cleanup_close পূর্ণসংখ্যা destdirfd = dfd;
+  cleanup_dir DIR *dsrcfd = ফাঁকা;
+  কাঠামো dirent *de;
 
   dsrcfd = fdopendir (srcdirfd);
-  if (UNLIKELY (dsrcfd == NULL))
+  যদি (UNLIKELY (dsrcfd == ফাঁকা))
     {
-      TEMP_FAILURE_RETRY (close (srcdirfd));
-      return crun_make_error (err, errno, "open directory `%s`", destname);
+      অস্থায়ী_FAILURE_RETRY (close (srcdirfd));
+      ফেরত crun_make_error (err, errno, "open directory `%s`", destname);
     }
 
-  for (de = readdir (dsrcfd); de; de = readdir (dsrcfd))
+  জন্য (de = readdir (dsrcfd); de; de = readdir (dsrcfd))
     {
-      cleanup_close int srcfd = -1;
-      cleanup_close int destfd = -1;
-      cleanup_free char *target_buf = NULL;
-      int ret;
+      cleanup_close পূর্ণসংখ্যা srcfd = -1;
+      cleanup_close পূর্ণসংখ্যা destfd = -1;
+      cleanup_free অক্ষর *target_buf = ফাঁকা;
+      পূর্ণসংখ্যা ret;
       mode_t mode;
       off_t st_size;
       dev_t rdev;
       uid_t uid;
       gid_t gid;
 
-      if (strcmp (de->d_name, ".") == 0 || strcmp (de->d_name, "..") == 0)
-        continue;
+      যদি (strcmp (de->d_name, ".") == 0 || strcmp (de->d_name, "..") == 0)
+        চালু;
 
       ret = copy_rec_stat_file_at (dirfd (dsrcfd), de->d_name, &mode, &st_size, &rdev, &uid, &gid);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "stat `%s/%s`", srcname, de->d_name);
+      যদি (UNLIKELY (ret < 0))
+        ফেরত crun_make_error (err, errno, "stat `%s/%s`", srcname, de->d_name);
 
-      switch (mode & S_IFMT)
+      নির্বাচন (mode & S_IFMT)
         {
-        case S_IFREG:
+        ক্ষেত্র S_IFREG:
           srcfd = openat (dirfd (dsrcfd), de->d_name, O_NONBLOCK | O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
-          if (UNLIKELY (srcfd < 0))
-            return crun_make_error (err, errno, "open `%s/%s`", srcname, de->d_name);
+          যদি (UNLIKELY (srcfd < 0))
+            ফেরত crun_make_error (err, errno, "open `%s/%s`", srcname, de->d_name);
 
           destfd = openat (destdirfd, de->d_name, O_RDWR | O_CREAT | O_CLOEXEC | O_NOFOLLOW, 0777);
-          if (UNLIKELY (destfd < 0))
-            return crun_make_error (err, errno, "open `%s/%s`", destname, de->d_name);
+          যদি (UNLIKELY (destfd < 0))
+            ফেরত crun_make_error (err, errno, "open `%s/%s`", destname, de->d_name);
 
           ret = copy_from_fd_to_fd (srcfd, destfd, 1, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          যদি (UNLIKELY (ret < 0))
+            ফেরত ret;
 
 #ifdef HAVE_FGETXATTR
-          ret = (int) copy_xattr (srcfd, destfd, de->d_name, de->d_name, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = (পূর্ণসংখ্যা) copy_xattr (srcfd, destfd, de->d_name, de->d_name, err);
+          যদি (UNLIKELY (ret < 0))
+            ফেরত ret;
 #endif
 
-          TEMP_FAILURE_RETRY (close (destfd));
+          অস্থায়ী_FAILURE_RETRY (close (destfd));
           destfd = -1;
-          break;
+          বিরতি;
 
-        case S_IFDIR:
+        ক্ষেত্র S_IFDIR:
           ret = mkdirat (destdirfd, de->d_name, mode);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "mkdir `%s/%s`", destname, de->d_name);
+          যদি (UNLIKELY (ret < 0))
+            ফেরত crun_make_error (err, errno, "mkdir `%s/%s`", destname, de->d_name);
 
           srcfd = openat (dirfd (dsrcfd), de->d_name, O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
-          if (UNLIKELY (srcfd < 0))
-            return crun_make_error (err, errno, "open directory `%s/%s`", srcname, de->d_name);
+          যদি (UNLIKELY (srcfd < 0))
+            ফেরত crun_make_error (err, errno, "open directory `%s/%s`", srcname, de->d_name);
 
           destfd = openat (destdirfd, de->d_name, O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
-          if (UNLIKELY (destfd < 0))
-            return crun_make_error (err, errno, "open directory `%s/%s`", srcname, de->d_name);
+          যদি (UNLIKELY (destfd < 0))
+            ফেরত crun_make_error (err, errno, "open directory `%s/%s`", srcname, de->d_name);
 
 #ifdef HAVE_FGETXATTR
-          ret = (int) copy_xattr (srcfd, destfd, de->d_name, de->d_name, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = (পূর্ণসংখ্যা) copy_xattr (srcfd, destfd, de->d_name, de->d_name, err);
+          যদি (UNLIKELY (ret < 0))
+            ফেরত ret;
 #endif
 
           // copy_recursive_fd_to_fd closes srcfd and destfd
           ret = copy_recursive_fd_to_fd (srcfd, destfd, de->d_name, de->d_name, err);
           srcfd = destfd = -1;
-          if (UNLIKELY (ret < 0))
-            return ret;
-          break;
+          যদি (UNLIKELY (ret < 0))
+            ফেরত ret;
+          বিরতি;
 
-        case S_IFLNK:
+        ক্ষেত্র S_IFLNK:
           ret = safe_readlinkat (dirfd (dsrcfd), de->d_name, &target_buf, st_size, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          যদি (UNLIKELY (ret < 0))
+            ফেরত ret;
 
           ret = symlinkat (target_buf, destdirfd, de->d_name);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "symlinkat `%s/%s`", destname, de->d_name);
-          break;
+          যদি (UNLIKELY (ret < 0))
+            ফেরত crun_make_error (err, errno, "symlinkat `%s/%s`", destname, de->d_name);
+          বিরতি;
 
-        case S_IFBLK:
-        case S_IFCHR:
-        case S_IFIFO:
-        case S_IFSOCK:
+        ক্ষেত্র S_IFBLK:
+        ক্ষেত্র S_IFCHR:
+        ক্ষেত্র S_IFIFO:
+        ক্ষেত্র S_IFSOCK:
           ret = mknodat (destdirfd, de->d_name, mode, rdev);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "mknodat `%s/%s`", destname, de->d_name);
-          break;
+          যদি (UNLIKELY (ret < 0))
+            ফেরত crun_make_error (err, errno, "mknodat `%s/%s`", destname, de->d_name);
+          বিরতি;
         }
 
       ret = fchownat (destdirfd, de->d_name, uid, gid, AT_SYMLINK_NOFOLLOW);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "fchownat `%s/%s`", destname, de->d_name);
+      যদি (UNLIKELY (ret < 0))
+        ফেরত crun_make_error (err, errno, "fchownat `%s/%s`", destname, de->d_name);
 
       /*
        * ALLPERMS is not defined by POSIX
@@ -2544,115 +2544,115 @@ copy_recursive_fd_to_fd (int srcdirfd, int dfd, const char *srcname, const char 
 #endif
 
       ret = fchmodat (destdirfd, de->d_name, mode & ALLPERMS, AT_SYMLINK_NOFOLLOW);
-      if (UNLIKELY (ret < 0))
+      যদি (UNLIKELY (ret < 0))
         {
           /* If the operation fails with ENOTSUP we are dealing with a symlink, so ignore it.  */
-          if (errno == ENOTSUP)
-            continue;
+          যদি (errno == ENOTSUP)
+            চালু;
 
-          return crun_make_error (err, errno, "fchmodat `%s/%s`", destname, de->d_name);
+          ফেরত crun_make_error (err, errno, "fchmodat `%s/%s`", destname, de->d_name);
         }
     }
 
-  return 0;
+  ফেরত 0;
 }
 
-const char *
-find_annotation (libcrun_container_t *container, const char *name)
+ধ্রুবক অক্ষর *
+find_annotation (libcrun_container_t *container, ধ্রুবক অক্ষর *name)
 {
-  if (container->container_def->annotations == NULL)
-    return NULL;
+  যদি (container->container_def->annotations == ফাঁকা)
+    ফেরত ফাঁকা;
 
-  return find_string_map_value (container->annotations, name);
+  ফেরত find_string_map_মান (container->annotations, name);
 }
 
-int
-safe_write (int fd, const char *fname, const void *buf, size_t count, libcrun_error_t *err)
+পূর্ণসংখ্যা
+safe_write (পূর্ণসংখ্যা fd, ধ্রুবক অক্ষর *fname, ধ্রুবক শূন্য *buf, size_t গুনতি, libcrun_error_t *err)
 {
   size_t written = 0;
-  while (written < count)
+  যখন (written < গুনতি)
     {
-      ssize_t w = write (fd, (const char *) buf + written, count - written);
-      if (UNLIKELY (w < 0))
+      ssize_t w = লিখ (fd, (ধ্রুবক অক্ষর *) buf + written, গুনতি - written);
+      যদি (UNLIKELY (w < 0))
         {
-          if (errno == EINTR || errno == EAGAIN)
-            continue;
-          return crun_make_error (err, errno, "write to `%s`", fname);
+          যদি (errno == EINTR || errno == EAGAIN)
+            চালু;
+          ফেরত crun_make_error (err, errno, "write to `%s`", fname);
         }
       written += w;
     }
-  return 0;
+  ফেরত 0;
 }
 
 #define MAX_PARTS 32
 
-int
-append_paths (char **out, libcrun_error_t *err, ...)
+পূর্ণসংখ্যা
+append_paths (অক্ষর **out, libcrun_error_t *err, ...)
 {
-  const char *parts[MAX_PARTS];
+  ধ্রুবক অক্ষর *parts[MAX_PARTS];
   size_t sizes[MAX_PARTS];
-  size_t total_len = 0;
+  size_t যোগ_len = 0;
   size_t n_parts = 0;
   size_t copied = 0;
   va_list ap;
   size_t i;
 
   va_start (ap, err);
-  for (;;)
+  জন্য (;;)
     {
-      const char *part;
-      size_t size;
+      ধ্রুবক অক্ষর *part;
+      size_t আকার_2;
 
-      part = va_arg (ap, const char *);
-      if (part == NULL)
-        break;
+      part = va_arg (ap, ধ্রুবক অক্ষর *);
+      যদি (part == ফাঁকা)
+        বিরতি;
 
-      if (n_parts == MAX_PARTS)
+      যদি (n_parts == MAX_PARTS)
         {
           va_end (ap);
-          return crun_make_error (err, EINVAL, "too many paths specified");
+          ফেরত crun_make_error (err, EINVAL, "too many paths specified");
         }
 
-      if (n_parts == 0)
+      যদি (n_parts == 0)
         {
           /* For the first component allow only one '/'.  */
-          while (part[0] == '/' && part[1] == '/')
+          যখন (part[0] == '/' && part[1] == '/')
             part++;
         }
-      else
+      অন্যথা
         {
           /* And drop any initial '/' for other components.  */
-          while (part[0] == '/')
+          যখন (part[0] == '/')
             part++;
         }
 
-      size = strlen (part);
-      if (size == 0)
-        continue;
+      আকার_2 = strlen (part);
+      যদি (আকার_2 == 0)
+        চালু;
 
-      while (size > 1 && part[size - 1] == '/')
-        size--;
+      যখন (আকার_2 > 1 && part[আকার_2 - 1] == '/')
+        আকার_2--;
 
       parts[n_parts] = part;
-      sizes[n_parts] = size;
+      sizes[n_parts] = আকার_2;
 
       n_parts++;
     }
   va_end (ap);
 
-  total_len = n_parts + 1;
-  for (i = 0; i < n_parts; i++)
-    total_len += sizes[i];
+  যোগ_len = n_parts + 1;
+  জন্য (i = 0; i < n_parts; i++)
+    যোগ_len += sizes[i];
 
-  *out = xmalloc (total_len);
+  *out = xmalloc (যোগ_len);
 
   copied = 0;
-  for (i = 0; i < n_parts; i++)
+  জন্য (i = 0; i < n_parts; i++)
     {
       bool has_trailing_slash;
 
       has_trailing_slash = copied > 0 && (*out)[copied - 1] == '/';
-      if (i > 0 && ! has_trailing_slash)
+      যদি (i > 0 && ! has_trailing_slash)
         {
           (*out)[copied] = '/';
           copied += 1;
@@ -2662,521 +2662,521 @@ append_paths (char **out, libcrun_error_t *err, ...)
       copied += sizes[i];
     }
   (*out)[copied] = '\0';
-  return 0;
+  ফেরত 0;
 }
 
-#if __has_attribute(__nonstring__)
+#যদি __has_attribute(__nonstring__)
 #  define __nonstring __attribute__ ((__nonstring__))
-#else
+#অন্যথা
 #  define __nonstring
 #endif
 
 /* Adapted from mailutils 0.6.91 (distributed under LGPL 2.0+)  */
-static int
-b64_input (char c)
+স্থির পূর্ণসংখ্যা
+b64_প্রবেশ (অক্ষর c)
 {
-  const char table[64] __nonstring = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-  int i;
+  ধ্রুবক অক্ষর table[64] __nonstring = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  পূর্ণসংখ্যা i;
 
-  for (i = 0; i < 64; i++)
+  জন্য (i = 0; i < 64; i++)
     {
-      if (table[i] == c)
-        return i;
+      যদি (table[i] == c)
+        ফেরত i;
     }
-  return -1;
+  ফেরত -1;
 }
 
-int
-base64_decode (const char *iptr, size_t isize, char *optr, size_t osize, size_t *nbytes)
+পূর্ণসংখ্যা
+base64_decode (ধ্রুবক অক্ষর *iptr, size_t isize, অক্ষর *optr, size_t osize, size_t *nbytes)
 {
-  int i = 0, tmp = 0, pad = 0;
+  পূর্ণসংখ্যা i = 0, tmp = 0, pad = 0;
   size_t consumed = 0;
-  unsigned char data[4];
+  unsigned অক্ষর তথ্য[4];
 
   *nbytes = 0;
-  while (consumed < isize && (*nbytes) + 3 < osize)
+  যখন (consumed < isize && (*nbytes) + 3 < osize)
     {
-      while ((i < 4) && (consumed < isize))
+      যখন ((i < 4) && (consumed < isize))
         {
-          tmp = b64_input (*iptr++);
+          tmp = b64_প্রবেশ (*iptr++);
           consumed++;
-          if (tmp != -1)
+          যদি (tmp != -1)
             {
-              if (UNLIKELY (pad > 0))
-                return -1;
-              data[i++] = tmp;
+              যদি (UNLIKELY (pad > 0))
+                ফেরত -1;
+              তথ্য[i++] = tmp;
             }
-          else if (*(iptr - 1) == '=')
+          অন্যথা যদি (*(iptr - 1) == '=')
             {
-              data[i++] = '\0';
+              তথ্য[i++] = '\0';
               pad++;
             }
         }
 
       /* I have an entire block of data 32 bits get the output data.  */
-      if (i == 4)
+      যদি (i == 4)
         {
-          if (UNLIKELY (pad > 2))
-            return -1;
-          *optr++ = (data[0] << 2) | ((data[1] & 0x30) >> 4);
-          *optr++ = ((data[1] & 0xf) << 4) | ((data[2] & 0x3c) >> 2);
-          *optr++ = ((data[2] & 0x3) << 6) | data[3];
+          যদি (UNLIKELY (pad > 2))
+            ফেরত -1;
+          *optr++ = (তথ্য[0] << 2) | ((তথ্য[1] & 0x30) >> 4);
+          *optr++ = ((তথ্য[1] & 0xf) << 4) | ((তথ্য[2] & 0x3c) >> 2);
+          *optr++ = ((তথ্য[2] & 0x3) << 6) | তথ্য[3];
           (*nbytes) += 3 - pad;
         }
-      else
+      অন্যথা
         {
           /* I did not get all the data.  */
           consumed -= i;
-          return consumed;
+          ফেরত consumed;
         }
       i = 0;
     }
-  return consumed;
+  ফেরত consumed;
 }
 
-char *
+অক্ষর *
 get_user_name (uid_t uid)
 {
-  struct passwd pd;
-  struct passwd *temp_result_ptr;
-  char pwdbuffer[200];
-  if (! getpwuid_r (uid, &pd, pwdbuffer, sizeof (pwdbuffer), &temp_result_ptr))
-    return xstrdup (pd.pw_name);
-  return xstrdup ("");
+  কাঠামো passwd pd;
+  কাঠামো passwd *অস্থায়ী_ফলাফল_ptr;
+  অক্ষর pwdbuffer[200];
+  যদি (! getpwuid_r (uid, &pd, pwdbuffer, আকার (pwdbuffer), &অস্থায়ী_ফলাফল_ptr))
+    ফেরত xstrdup (pd.pw_name);
+  ফেরত xstrdup ("");
 }
 
 /* Convert a sysctl key to its /proc/sys path according to sysctl.d(5).
    If the first separator is '/', remaining slashes and dots are left intact.
    If the first separator is '.', dots and slashes are interchanged.  */
-char *
-libcrun_sysctl_key_to_proc_path (const char *key)
+অক্ষর *
+libcrun_sysctl_চাবি_to_proc_path (ধ্রুবক অক্ষর *চাবি)
 {
-  const char *sep;
-  char *ret, *it;
+  ধ্রুবক অক্ষর *sep;
+  অক্ষর *ret, *it;
 
-  sep = strpbrk (key, "./");
+  sep = strpbrk (চাবি, "./");
 
   /* No separator at all, or the key is already in the path form.  */
-  if (sep == NULL || *sep == '/')
-    return xstrdup (key);
+  যদি (sep == ফাঁকা || *sep == '/')
+    ফেরত xstrdup (চাবি);
 
-  ret = xstrdup (key);
-  for (it = ret; *it; it++)
+  ret = xstrdup (চাবি);
+  জন্য (it = ret; *it; it++)
     {
-      if (*it == '.')
+      যদি (*it == '.')
         *it = '/';
-      else if (*it == '/')
+      অন্যথা যদি (*it == '/')
         *it = '.';
     }
 
-  return ret;
+  ফেরত ret;
 }
 
-int
-has_suffix (const char *str, const char *suffix)
+পূর্ণসংখ্যা
+has_suffix (ধ্রুবক অক্ষর *str, ধ্রুবক অক্ষর *suffix)
 {
-  if (! str || ! suffix)
-    return 0;
+  যদি (! str || ! suffix)
+    ফেরত 0;
   size_t lenstr = strlen (str);
   size_t lensuffix = strlen (suffix);
-  if (lensuffix > lenstr)
-    return 0;
-  return memcmp (str + lenstr - lensuffix, suffix, lensuffix) == 0;
+  যদি (lensuffix > lenstr)
+    ফেরত 0;
+  ফেরত memcmp (str + lenstr - lensuffix, suffix, lensuffix) == 0;
 }
 
-char *
-str_join_array (int offset, size_t size, char *const array[], const char *joint)
+অক্ষর *
+str_join_array (পূর্ণসংখ্যা offset, size_t আকার_2, অক্ষর *ধ্রুবক array[], ধ্রুবক অক্ষর *joint)
 {
   size_t jlen;
-  cleanup_free size_t *lens = NULL;
-  size_t i, total_size = (size - 1) * (jlen = strlen (joint)) + 1;
-  char *result, *p;
+  cleanup_free size_t *lens = ফাঁকা;
+  size_t i, যোগ_আকার = (আকার_2 - 1) * (jlen = strlen (joint)) + 1;
+  অক্ষর *ফলাফল, *p;
 
-  lens = xmalloc (size * sizeof (*lens));
+  lens = xmalloc (আকার_2 * আকার (*lens));
 
-  for (i = 0; i < size; ++i)
+  জন্য (i = 0; i < আকার_2; ++i)
     {
-      total_size += (lens[i] = strlen (array[i]));
+      যোগ_আকার += (lens[i] = strlen (array[i]));
     }
-  p = result = xmalloc (total_size);
-  for (i = offset; i < size; ++i)
+  p = ফলাফল = xmalloc (যোগ_আকার);
+  জন্য (i = offset; i < আকার_2; ++i)
     {
       memcpy (p, array[i], lens[i]);
       p += lens[i];
-      if (i < size - 1)
+      যদি (i < আকার_2 - 1)
         {
           memcpy (p, joint, jlen);
           p += jlen;
         }
     }
   *p = '\0';
-  return result;
+  ফেরত ফলাফল;
 }
 
-int
-libcrun_mmap (struct libcrun_mmap_s **ret, void *addr, size_t length,
-              int prot, int flags, int fd, off_t offset,
+পূর্ণসংখ্যা
+libcrun_mmap (কাঠামো libcrun_mmap_s **ret, শূন্য *addr, size_t দৈর্ঘ্য,
+              পূর্ণসংখ্যা prot, পূর্ণসংখ্যা flags, পূর্ণসংখ্যা fd, off_t offset,
               libcrun_error_t *err)
 {
-  struct libcrun_mmap_s *mmap_s = NULL;
+  কাঠামো libcrun_mmap_s *mmap_s = ফাঁকা;
 
-  void *mapped = mmap (addr, length, prot, flags, fd, offset);
-  if (mapped == MAP_FAILED)
-    return crun_make_error (err, errno, "mmap");
+  শূন্য *mapped = mmap (addr, দৈর্ঘ্য, prot, flags, fd, offset);
+  যদি (mapped == MAP_FAILED)
+    ফেরত crun_make_error (err, errno, "mmap");
 
-  mmap_s = xmalloc (sizeof (struct libcrun_mmap_s));
+  mmap_s = xmalloc (আকার (কাঠামো libcrun_mmap_s));
   mmap_s->addr = mapped;
-  mmap_s->length = length;
+  mmap_s->দৈর্ঘ্য = দৈর্ঘ্য;
 
   *ret = mmap_s;
 
-  return 0;
+  ফেরত 0;
 }
 
-int
-libcrun_munmap (struct libcrun_mmap_s *mmap, libcrun_error_t *err)
+পূর্ণসংখ্যা
+libcrun_munmap (কাঠামো libcrun_mmap_s *mmap, libcrun_error_t *err)
 {
-  int ret;
+  পূর্ণসংখ্যা ret;
 
-  ret = munmap (mmap->addr, mmap->length);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "munmap");
+  ret = munmap (mmap->addr, mmap->দৈর্ঘ্য);
+  যদি (UNLIKELY (ret < 0))
+    ফেরত crun_make_error (err, errno, "munmap");
 
-  free (mmap);
+  মুক্ত (mmap);
 
-  return 0;
+  ফেরত 0;
 }
 
-static long
-read_file_as_long_or_default (const char *path, long def_value)
+স্থির long
+read_file_as_long_or_default (ধ্রুবক অক্ষর *path, long def_মান)
 {
-  cleanup_free char *content = NULL;
-  libcrun_error_t tmp_err = NULL;
-  char *endptr;
+  cleanup_free অক্ষর *content = ফাঁকা;
+  libcrun_error_t tmp_err = ফাঁকা;
+  অক্ষর *endptr;
   long val;
-  int ret;
+  পূর্ণসংখ্যা ret;
 
-  ret = read_all_file (path, &content, NULL, &tmp_err);
-  if (UNLIKELY (ret < 0))
+  ret = read_all_file (path, &content, ফাঁকা, &tmp_err);
+  যদি (UNLIKELY (ret < 0))
     {
       crun_error_release (&tmp_err);
-      return def_value;
+      ফেরত def_মান;
     }
 
   errno = 0;
   val = strtol (content, &endptr, 10);
-  if (UNLIKELY (errno))
-    return def_value;
-  if (endptr == content || (*endptr && *endptr != '\n'))
-    return def_value;
-  return val;
+  যদি (UNLIKELY (errno))
+    ফেরত def_মান;
+  যদি (endptr == content || (*endptr && *endptr != '\n'))
+    ফেরত def_মান;
+  ফেরত val;
 }
 
 #define DEFAULT_OVERFLOW_ID 65534
 
 uid_t
-get_overflow_uid (void)
+get_overflow_uid (শূন্য)
 {
-  static atomic_long cached_uid = -1;
+  স্থির atomic_long cached_uid = -1;
   atomic_long uid = cached_uid;
-  if (uid == -1)
+  যদি (uid == -1)
     {
       uid = read_file_as_long_or_default ("/proc/sys/kernel/overflowuid", DEFAULT_OVERFLOW_ID);
       cached_uid = uid;
     }
-  return uid;
+  ফেরত uid;
 }
 
 gid_t
-get_overflow_gid (void)
+get_overflow_gid (শূন্য)
 {
-  static atomic_long cached_gid = -1;
+  স্থির atomic_long cached_gid = -1;
   atomic_long gid = cached_gid;
-  if (gid == -1)
+  যদি (gid == -1)
     {
       gid = read_file_as_long_or_default ("/proc/sys/kernel/overflowgid", DEFAULT_OVERFLOW_ID);
       cached_gid = gid;
     }
-  return gid;
+  ফেরত gid;
 }
 
-void
-consume_trailing_slashes (char *path)
+শূন্য
+consume_trailing_slashes (অক্ষর *path)
 {
-  if (! path || path[0] == '\0')
-    return;
+  যদি (! path || path[0] == '\0')
+    ফেরত;
 
-  char *last = path + strlen (path);
+  অক্ষর *last = path + strlen (path);
 
-  while (last > path && *(last - 1) == '/')
+  যখন (last > path && *(last - 1) == '/')
     last--;
 
   *last = '\0';
 }
 
-char **
-read_dir_entries (const char *path, libcrun_error_t *err)
+অক্ষর **
+read_dir_entries (ধ্রুবক অক্ষর *path, libcrun_error_t *err)
 {
-  cleanup_dir DIR *dir = NULL;
+  cleanup_dir DIR *dir = ফাঁকা;
   size_t n_entries = 0;
-  size_t entries_size = 16;
-  char **entries = NULL;
-  struct dirent *de;
+  size_t entries_আকার = 16;
+  অক্ষর **entries = ফাঁকা;
+  কাঠামো dirent *de;
 
   dir = opendir (path);
-  if (UNLIKELY (dir == NULL))
+  যদি (UNLIKELY (dir == ফাঁকা))
     {
       crun_make_error (err, errno, "opendir `%s`", path);
-      return NULL;
+      ফেরত ফাঁকা;
     }
 
-  entries = xmalloc (entries_size * sizeof (char *));
-  while ((de = readdir (dir)))
+  entries = xmalloc (entries_আকার * আকার (অক্ষর *));
+  যখন ((de = readdir (dir)))
     {
-      if (strcmp (de->d_name, ".") == 0 || strcmp (de->d_name, "..") == 0)
-        continue;
-      if (n_entries == entries_size)
+      যদি (strcmp (de->d_name, ".") == 0 || strcmp (de->d_name, "..") == 0)
+        চালু;
+      যদি (n_entries == entries_আকার)
         {
-          entries_size *= 2;
-          entries = xrealloc (entries, entries_size * sizeof (char *));
+          entries_আকার *= 2;
+          entries = xrealloc (entries, entries_আকার * আকার (অক্ষর *));
         }
       entries[n_entries++] = xstrdup (de->d_name);
     }
-  entries = xrealloc (entries, (n_entries + 1) * sizeof (char *));
-  entries[n_entries] = NULL;
+  entries = xrealloc (entries, (n_entries + 1) * আকার (অক্ষর *));
+  entries[n_entries] = ফাঁকা;
 
-  return entries;
+  ফেরত entries;
 }
 
-int
-cpuset_string_to_bitmask (const char *str, char **out, size_t *out_size, libcrun_error_t *err)
+পূর্ণসংখ্যা
+cpuset_string_to_bitmask (ধ্রুবক অক্ষর *str, অক্ষর **out, size_t *out_আকার, libcrun_error_t *err)
 {
-  cleanup_free char *mask = NULL;
-  size_t mask_size = 0;
-  const char *p = str;
-  char *endptr;
+  cleanup_free অক্ষর *mask = ফাঁকা;
+  size_t mask_আকার = 0;
+  ধ্রুবক অক্ষর *p = str;
+  অক্ষর *endptr;
 
-  while (*p)
+  যখন (*p)
     {
       long long start_range, end_range;
 
-      if (*p < '0' || *p > '9')
-        goto invalid_input;
+      যদি (*p < '0' || *p > '9')
+        যাও invalid_প্রবেশ;
 
       start_range = strtoll (p, &endptr, 10);
-      if (start_range < 0)
-        goto invalid_input;
+      যদি (start_range < 0)
+        যাও invalid_প্রবেশ;
 
       p = endptr;
 
-      if (*p != '-')
+      যদি (*p != '-')
         end_range = start_range;
-      else
+      অন্যথা
         {
           p++;
 
-          if (*p < '0' || *p > '9')
-            goto invalid_input;
+          যদি (*p < '0' || *p > '9')
+            যাও invalid_প্রবেশ;
 
           end_range = strtoll (p, &endptr, 10);
 
-          if (end_range < start_range)
-            goto invalid_input;
+          যদি (end_range < start_range)
+            যাও invalid_প্রবেশ;
 
           p = endptr;
         }
 
       /* Just set some limit.  */
-      if (end_range > (1 << 20))
-        goto invalid_input;
+      যদি (end_range > (1 << 20))
+        যাও invalid_প্রবেশ;
 
-      if (end_range >= (long long) (mask_size * CHAR_BIT))
+      যদি (end_range >= (long long) (mask_আকার * CHAR_BIT))
         {
-          size_t new_mask_size = (end_range / CHAR_BIT) + 1;
-          mask = xrealloc (mask, new_mask_size);
-          memset (mask + mask_size, 0, new_mask_size - mask_size);
-          mask_size = new_mask_size;
+          size_t new_mask_আকার = (end_range / CHAR_BIT) + 1;
+          mask = xrealloc (mask, new_mask_আকার);
+          memset (mask + mask_আকার, 0, new_mask_আকার - mask_আকার);
+          mask_আকার = new_mask_আকার;
         }
 
-      for (long long i = start_range; i <= end_range; i++)
+      জন্য (long long i = start_range; i <= end_range; i++)
         mask[i / CHAR_BIT] |= (1 << (i % CHAR_BIT));
 
-      if (*p == ',')
+      যদি (*p == ',')
         p++;
-      else if (*p)
-        goto invalid_input;
+      অন্যথা যদি (*p)
+        যাও invalid_প্রবেশ;
     }
 
   *out = mask;
-  mask = NULL;
-  *out_size = mask_size;
+  mask = ফাঁকা;
+  *out_আকার = mask_আকার;
 
-  return 0;
+  ফেরত 0;
 
-invalid_input:
-  return crun_make_error (err, 0, "cannot parse input `%s`", str);
+invalid_প্রবেশ:
+  ফেরত crun_make_error (err, 0, "cannot parse input `%s`", str);
 }
 
-struct channel_fd_pair
+কাঠামো channel_fd_pair
 {
-  struct ring_buffer *rb;
+  কাঠামো ring_বাফার *rb;
 
-  int in_fd;
-  int out_fd;
+  পূর্ণসংখ্যা in_fd;
+  পূর্ণসংখ্যা out_fd;
 
-  int infd_epoll_events;
-  int outfd_epoll_events;
+  পূর্ণসংখ্যা infd_epoll_events;
+  পূর্ণসংখ্যা outfd_epoll_events;
 };
 
-struct channel_fd_pair *
-channel_fd_pair_new (int in_fd, int out_fd, size_t size)
+কাঠামো channel_fd_pair *
+channel_fd_pair_new (পূর্ণসংখ্যা in_fd, পূর্ণসংখ্যা out_fd, size_t আকার_2)
 {
-  struct channel_fd_pair *channel = xmalloc (sizeof (struct channel_fd_pair));
+  কাঠামো channel_fd_pair *channel = xmalloc (আকার (কাঠামো channel_fd_pair));
   channel->in_fd = in_fd;
   channel->out_fd = out_fd;
   channel->infd_epoll_events = -1;
   channel->outfd_epoll_events = -1;
-  channel->rb = ring_buffer_make (size);
-  return channel;
+  channel->rb = ring_বাফার_make (আকার_2);
+  ফেরত channel;
 }
 
-void
-channel_fd_pair_free (struct channel_fd_pair *channel)
+শূন্য
+channel_fd_pair_free (কাঠামো channel_fd_pair *channel)
 {
-  if (channel == NULL)
-    return;
+  যদি (channel == ফাঁকা)
+    ফেরত;
 
-  ring_buffer_free (channel->rb);
-  free (channel);
+  ring_বাফার_free (channel->rb);
+  মুক্ত (channel);
 }
 
-int
-channel_fd_pair_process (struct channel_fd_pair *channel, int epollfd, libcrun_error_t *err)
+পূর্ণসংখ্যা
+channel_fd_pair_process (কাঠামো channel_fd_pair *channel, পূর্ণসংখ্যা epollfd, libcrun_error_t *err)
 {
-  bool is_input_eagain = false, is_output_eagain = false, repeat;
-  int ret, i;
+  bool is_প্রবেশ_eagain = false, is_output_eagain = false, repeat;
+  পূর্ণসংখ্যা ret, i;
 
   /* This function is called from an epoll loop.  Use a hard limit to avoid infinite loops
      and prevent other events from being processed.  */
-  for (i = 0, repeat = true; i < 1000 && repeat; i++)
+  জন্য (i = 0, repeat = true; i < 1000 && repeat; i++)
     {
       repeat = false;
-      if (ring_buffer_get_space_available (channel->rb) > 0)
+      যদি (ring_বাফার_get_space_available (channel->rb) > 0)
         {
-          ret = ring_buffer_read (channel->rb, channel->in_fd, &is_input_eagain, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
-          if (ret > 0)
+          ret = ring_বাফার_read (channel->rb, channel->in_fd, &is_প্রবেশ_eagain, err);
+          যদি (UNLIKELY (ret < 0))
+            ফেরত ret;
+          যদি (ret > 0)
             repeat = true;
         }
-      if (ring_buffer_get_data_available (channel->rb) > 0)
+      যদি (ring_বাফার_get_তথ্য_available (channel->rb) > 0)
         {
-          ret = ring_buffer_write (channel->rb, channel->out_fd, &is_output_eagain, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
-          if (ret > 0)
+          ret = ring_বাফার_write (channel->rb, channel->out_fd, &is_output_eagain, err);
+          যদি (UNLIKELY (ret < 0))
+            ফেরত ret;
+          যদি (ret > 0)
             repeat = true;
         }
     }
 
-  if (epollfd >= 0)
+  যদি (epollfd >= 0)
     {
-      size_t available = ring_buffer_get_space_available (channel->rb);
-      size_t used = ring_buffer_get_data_available (channel->rb);
-      int events;
+      size_t available = ring_বাফার_get_space_available (channel->rb);
+      size_t used = ring_বাফার_get_তথ্য_available (channel->rb);
+      পূর্ণসংখ্যা events;
 
       /* If there is space available in the buffer and the output is not
          blocked, we want to read more.  When the output got EAGAIN, stop
          reading until the output fd becomes writable again to avoid a
          busy loop when the consumer is not draining the pipe.  */
-      events = (available > 0 && ! is_output_eagain) ? (EPOLLIN | (is_input_eagain ? EPOLLET : 0)) : 0;
-      if (events != channel->infd_epoll_events)
+      events = (available > 0 && ! is_output_eagain) ? (EPOLLIN | (is_প্রবেশ_eagain ? EPOLLET : 0)) : 0;
+      যদি (events != channel->infd_epoll_events)
         {
           ret = epoll_helper_toggle (epollfd, channel->in_fd, events, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          যদি (UNLIKELY (ret < 0))
+            ফেরত ret;
           channel->infd_epoll_events = events;
         }
 
       /* If there is data available in the buffer, we want to write as soon as
          it is possible.  */
       events = (used > 0) ? (EPOLLOUT | (is_output_eagain ? EPOLLET : 0)) : 0;
-      if (events != channel->outfd_epoll_events)
+      যদি (events != channel->outfd_epoll_events)
         {
           ret = epoll_helper_toggle (epollfd, channel->out_fd, events, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          যদি (UNLIKELY (ret < 0))
+            ফেরত ret;
           channel->outfd_epoll_events = events;
         }
     }
-  return 0;
+  ফেরত 0;
 }
 
-static int
+স্থির পূর্ণসংখ্যা
 open_proc (libcrun_error_t *err)
 {
-  int fd;
+  পূর্ণসংখ্যা fd;
 
 #ifdef HAVE_NEW_MOUNT_API
-  cleanup_close int fsfd = -1;
-  int ret;
+  cleanup_close পূর্ণসংখ্যা fsfd = -1;
+  পূর্ণসংখ্যা ret;
 
   fsfd = syscall_fsopen ("proc", FSOPEN_CLOEXEC);
-  if (fsfd >= 0)
+  যদি (fsfd >= 0)
     {
-      ret = syscall_fsconfig (fsfd, FSCONFIG_CMD_CREATE, NULL, NULL, 0);
-      if (ret >= 0)
+      ret = syscall_fsconfig (fsfd, FSCONFIG_CMD_CREATE, ফাঁকা, ফাঁকা, 0);
+      যদি (ret >= 0)
         {
           fd = syscall_fsmount (fsfd, FSMOUNT_CLOEXEC, 0);
-          if (fd >= 0)
-            return fd;
+          যদি (fd >= 0)
+            ফেরত fd;
         }
     }
 #endif
 
   fd = open ("/proc", O_PATH | O_DIRECTORY | O_CLOEXEC);
-  if (fd < 0)
-    return crun_make_error (err, errno, "open `/proc`");
-  return fd;
+  যদি (fd < 0)
+    ফেরত crun_make_error (err, errno, "open `/proc`");
+  ফেরত fd;
 }
 
-int
+পূর্ণসংখ্যা
 libcrun_get_cached_proc_fd (libcrun_container_t *container, libcrun_error_t *err)
 {
-  if (! container)
-    return open_proc (err);
+  যদি (! container)
+    ফেরত open_proc (err);
 
-  if (container->proc_fd < 0)
+  যদি (container->proc_fd < 0)
     container->proc_fd = open_proc (err);
 
-  return container->proc_fd;
+  ফেরত container->proc_fd;
 }
 
-int
-libcrun_open_proc_file (libcrun_container_t *container, const char *path, int flags, libcrun_error_t *err)
+পূর্ণসংখ্যা
+libcrun_open_proc_file (libcrun_container_t *container, ধ্রুবক অক্ষর *path, পূর্ণসংখ্যা flags, libcrun_error_t *err)
 {
-  int proc_fd, fd, saved_errno;
+  পূর্ণসংখ্যা proc_fd, fd, saved_errno;
 
   proc_fd = libcrun_get_cached_proc_fd (container, err);
-  if (proc_fd < 0)
-    return proc_fd;
+  যদি (proc_fd < 0)
+    ফেরত proc_fd;
 
-  fd = TEMP_FAILURE_RETRY (openat (proc_fd, path, flags | O_CLOEXEC));
+  fd = অস্থায়ী_FAILURE_RETRY (openat (proc_fd, path, flags | O_CLOEXEC));
   saved_errno = errno;
   /* requires closing if not cached */
-  if (! container)
-    TEMP_FAILURE_RETRY (close (proc_fd));
+  যদি (! container)
+    অস্থায়ী_FAILURE_RETRY (close (proc_fd));
 
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, saved_errno, "openat `/proc/%s`", path);
+  যদি (UNLIKELY (fd < 0))
+    ফেরত crun_make_error (err, saved_errno, "openat `/proc/%s`", path);
 
-  return fd;
+  ফেরত fd;
 }
 
-int
-libcrun_open_proc_pid_file (libcrun_container_t *container, pid_t pid, const char *path, int flags, libcrun_error_t *err)
+পূর্ণসংখ্যা
+libcrun_open_proc_pid_file (libcrun_container_t *container, pid_t pid, ধ্রুবক অক্ষর *path, পূর্ণসংখ্যা flags, libcrun_error_t *err)
 {
-  cleanup_free char *full_path = NULL;
+  cleanup_free অক্ষর *full_path = ফাঁকা;
   xasprintf (&full_path, "%d/%s", pid, path);
-  return libcrun_open_proc_file (container, full_path, flags, err);
+  ফেরত libcrun_open_proc_file (container, full_path, flags, err);
 }

@@ -18,8 +18,8 @@
 #ifndef RUN_H
 #define RUN_H
 
-#include "crun.h"
+#অন্তর্ভাব "crun.h"
 
-int crun_command_run (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+পূর্ণসংখ্যা crun_command_run (কাঠামো crun_global_arguments *global_args, পূর্ণসংখ্যা argc, অক্ষর **argv, libcrun_error_t *error);
 
 #endif

@@ -18,154 +18,154 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include <stdlib.h>
-#include <errno.h>
-#include "string_map.h"
-#include "utils.h"
+#অন্তর্ভাব <config.h>
+#অন্তর্ভাব <stdlib.h>
+#অন্তর্ভাব <errno.h>
+#অন্তর্ভাব "string_map.h"
+#অন্তর্ভাব "utils.h"
 
-#include <ocispec/runtime_spec_schema_config_schema.h>
+#অন্তর্ভাব <ocispec/runtime_spec_schema_config_schema.h>
 
-struct kv_s
+কাঠামো kv_s
 {
-  char *key;
-  char *value;
+  অক্ষর *চাবি;
+  অক্ষর *মান;
 };
 
-struct string_map_s
+কাঠামো string_map_s
 {
   size_t len;
-  struct kv_s *kvs;
+  কাঠামো kv_s *kvs;
 
 #ifdef HAVE_HSEARCH_R
-  struct hsearch_data htab;
+  কাঠামো hsearch_তথ্য htab;
   bool htab_initialized;
 #endif
 
   bool sorted;
 };
 
-static int
-compare_kv (const void *a, const void *b)
+স্থির পূর্ণসংখ্যা
+compare_kv (ধ্রুবক শূন্য *a, ধ্রুবক শূন্য *b)
 {
-  return strcmp (((struct kv_s *) a)->key, ((struct kv_s *) b)->key);
+  ফেরত strcmp (((কাঠামো kv_s *) a)->চাবি, ((কাঠামো kv_s *) b)->চাবি);
 }
 
-const char *
-find_string_map_value (string_map *map, const char *name)
+ধ্রুবক অক্ষর *
+find_string_map_মান (string_map *map, ধ্রুবক অক্ষর *name)
 
 {
-  struct kv_s *r, key;
+  কাঠামো kv_s *r, চাবি;
 
-  if (map == NULL || map->len == 0)
-    return NULL;
+  যদি (map == ফাঁকা || map->len == 0)
+    ফেরত ফাঁকা;
 
 #ifdef HAVE_HSEARCH_R
   ENTRY e, *ep;
 
   /* Do not bother with hash tables for small maps.  */
-  if (map->len < 8)
-    goto fallback;
+  যদি (map->len < 8)
+    যাও fallback;
 
-  if (! map->htab_initialized)
+  যদি (! map->htab_initialized)
     {
       size_t i;
 
-      if (hcreate_r (map->len, &map->htab) == 0)
-        goto fallback;
+      যদি (hcreate_r (map->len, &map->htab) == 0)
+        যাও fallback;
 
-      for (i = 0; i < map->len; i++)
+      জন্য (i = 0; i < map->len; i++)
         {
-          e.key = (char *) map->kvs[i].key;
-          e.data = map->kvs[i].value;
-          if (hsearch_r (e, ENTER, &ep, &map->htab) == 0)
+          e.চাবি = (অক্ষর *) map->kvs[i].চাবি;
+          e.তথ্য = map->kvs[i].মান;
+          যদি (hsearch_r (e, ENTER, &ep, &map->htab) == 0)
             {
               hdestroy_r (&map->htab);
-              goto fallback;
+              যাও fallback;
             }
         }
       map->htab_initialized = true;
     }
 
-  e.key = (char *) name;
-  if (hsearch_r (e, FIND, &ep, &map->htab) == 0)
-    return NULL;
+  e.চাবি = (অক্ষর *) name;
+  যদি (hsearch_r (e, FIND, &ep, &map->htab) == 0)
+    ফেরত ফাঁকা;
 
-  return ep->data;
+  ফেরত ep->তথ্য;
 
 fallback:
 #endif
 
-  if (! map->sorted)
+  যদি (! map->sorted)
     {
-      qsort (map->kvs, map->len, sizeof (struct kv_s), compare_kv);
+      qsort (map->kvs, map->len, আকার (কাঠামো kv_s), compare_kv);
       map->sorted = true;
     }
 
-  key.key = (char *) name;
+  চাবি.চাবি = (অক্ষর *) name;
 
-  r = bsearch (&key, map->kvs, map->len, sizeof (struct kv_s), compare_kv);
-  return r ? r->value : NULL;
+  r = bsearch (&চাবি, map->kvs, map->len, আকার (কাঠামো kv_s), compare_kv);
+  ফেরত r ? r->মান : ফাঁকা;
 }
 
 string_map *
 make_string_map_from_json (json_map_string_string *jmap)
 {
-  struct string_map_s *new_map = xmalloc0 (sizeof (struct string_map_s));
+  কাঠামো string_map_s *new_map = xmalloc0 (আকার (কাঠামো string_map_s));
   size_t i;
 
-  if (jmap == NULL)
-    return new_map;
+  যদি (jmap == ফাঁকা)
+    ফেরত new_map;
 
   new_map->len = jmap->len;
-  new_map->kvs = xmalloc0 (sizeof (struct kv_s) * (jmap->len + 1));
+  new_map->kvs = xmalloc0 (আকার (কাঠামো kv_s) * (jmap->len + 1));
 
-  for (i = 0; i < jmap->len; i++)
+  জন্য (i = 0; i < jmap->len; i++)
     {
-      new_map->kvs[i].key = xstrdup (jmap->keys[i]);
-      new_map->kvs[i].value = xstrdup (jmap->values[i]);
+      new_map->kvs[i].চাবি = xstrdup (jmap->চাবিগুলি[i]);
+      new_map->kvs[i].মান = xstrdup (jmap->মানসমূহ[i]);
     }
 
-  return new_map;
+  ফেরত new_map;
 }
 
-int
-string_map_get_at (string_map *map, size_t index, const char **name, const char **value)
+পূর্ণসংখ্যা
+string_map_get_at (string_map *map, size_t সূচক, ধ্রুবক অক্ষর **name, ধ্রুবক অক্ষর **মান)
 {
-  if (map == NULL || index >= map->len)
+  যদি (map == ফাঁকা || সূচক >= map->len)
     {
       errno = ERANGE;
-      return -1;
+      ফেরত -1;
     }
 
-  *name = map->kvs[index].key;
-  *value = map->kvs[index].value;
+  *name = map->kvs[সূচক].চাবি;
+  *মান = map->kvs[সূচক].মান;
 
-  return 0;
+  ফেরত 0;
 }
 
-void
+শূন্য
 free_string_map (string_map *map)
 {
   size_t i;
 
-  if (map == NULL)
-    return;
+  যদি (map == ফাঁকা)
+    ফেরত;
 
-  if (map->htab_initialized)
+  যদি (map->htab_initialized)
     hdestroy_r (&map->htab);
 
-  for (i = 0; i < map->len; i++)
+  জন্য (i = 0; i < map->len; i++)
     {
-      free (map->kvs[i].key);
-      free (map->kvs[i].value);
+      মুক্ত (map->kvs[i].চাবি);
+      মুক্ত (map->kvs[i].মান);
     }
-  free (map->kvs);
-  free (map);
+  মুক্ত (map->kvs);
+  মুক্ত (map);
 }
 
 size_t
-string_map_size (string_map *map)
+string_map_আকার (string_map *map)
 {
-  return map->len;
+  ফেরত map->len;
 }

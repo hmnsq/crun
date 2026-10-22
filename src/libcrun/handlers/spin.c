@@ -17,10 +17,10 @@
  */
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "../custom-handler.h"
-#include "../linux.h"
-#include <sys/stat.h>
+#অন্তর্ভাব <config.h>
+#অন্তর্ভাব "../custom-handler.h"
+#অন্তর্ভাব "../linux.h"
+#অন্তর্ভাব <sys/stat.h>
 
 #ifdef HAVE_DLOPEN
 #  include <dlfcn.h>
@@ -30,18 +30,18 @@
 
 #endif
 
-#if HAVE_DLOPEN && HAVE_SPIN
-static int
-spin_exec (void *cookie arg_unused, libcrun_container_t *container arg_unused,
-           const char *pathname arg_unused, char *const argv[] arg_unused)
+#যদি HAVE_DLOPEN && HAVE_SPIN
+স্থির পূর্ণসংখ্যা
+spin_exec (শূন্য *cookie arg_unused, libcrun_container_t *container arg_unused,
+           ধ্রুবক অক্ষর *pathname arg_unused, অক্ষর *ধ্রুবক argv[] arg_unused)
 {
   // wasmtime fails to determine default config path if $HOME is not set
-  char *newenviron[] = { "HOME=/root", NULL };
-  char *newargv[] = { "/bin/spin", "up", "--listen", "0.0.0.0:80", NULL };
+  অক্ষর *newenviron[] = { "HOME=/root", ফাঁকা };
+  অক্ষর *newargv[] = { "/bin/spin", "up", "--listen", "0.0.0.0:80", ফাঁকা };
 
   // spin up needs a /tmp folder
-  int dir_result = mkdir ("/tmp", 0777);
-  if (dir_result != 0 && errno != EEXIST)
+  পূর্ণসংখ্যা dir_ফলাফল = mkdir ("/tmp", 0777);
+  যদি (dir_ফলাফল != 0 && errno != EEXIST)
     {
       error (EXIT_FAILURE, errno, "failed to execute mkdir `/tmp`");
     }
@@ -51,27 +51,27 @@ spin_exec (void *cookie arg_unused, libcrun_container_t *container arg_unused,
   exit (EXIT_FAILURE);
 }
 
-static int
-spin_load (void **cookie arg_unused, libcrun_error_t *err)
+স্থির পূর্ণসংখ্যা
+spin_load (শূন্য **cookie arg_unused, libcrun_error_t *err)
 {
-  struct stat st = { 0 };
-  if (stat ("/usr/local/bin/spin", &st) == -1)
+  কাঠামো stat st = { 0 };
+  যদি (stat ("/usr/local/bin/spin", &st) == -1)
     {
-      return crun_make_error (err, 0, "Could not find statically linked spin cli at `/usr/local/bin/spin` on host file system");
+      ফেরত crun_make_error (err, 0, "Could not find statically linked spin cli at `/usr/local/bin/spin` on host file system");
     }
-  return 0;
+  ফেরত 0;
 }
 
-static int
-spin_configure_container (void *cookie arg_unused, enum handler_configure_phase phase,
+স্থির পূর্ণসংখ্যা
+spin_configure_container (শূন্য *cookie arg_unused, গণনা handler_configure_phase phase,
                           libcrun_context_t *context arg_unused, libcrun_container_t *container,
-                          const char *rootfs arg_unused, libcrun_error_t *err)
+                          ধ্রুবক অক্ষর *rootfs arg_unused, libcrun_error_t *err)
 {
-  int ret;
-  if (phase != HANDLER_CONFIGURE_MOUNTS)
-    return 0;
+  পূর্ণসংখ্যা ret;
+  যদি (phase != HANDLER_CONFIGURE_MOUNTS)
+    ফেরত 0;
 
-  char *options[] = {
+  অক্ষর *options[] = {
     "ro",
     "rprivate",
     "nosuid",
@@ -80,38 +80,38 @@ spin_configure_container (void *cookie arg_unused, enum handler_configure_phase 
   };
 
   ret = libcrun_container_do_bind_mount (container, "/usr/local/bin/spin", "/bin/spin", options, 5, err);
-  if (ret != 0)
-    return ret;
+  যদি (ret != 0)
+    ফেরত ret;
 
   /* release any error if set since we are going to be returning from here */
   crun_error_release (err);
 
-  return 0;
+  ফেরত 0;
 }
 
-static int
-spin_unload (void *cookie arg_unused, libcrun_error_t *err arg_unused)
+স্থির পূর্ণসংখ্যা
+spin_unload (শূন্য *cookie arg_unused, libcrun_error_t *err arg_unused)
 {
-  return 0;
+  ফেরত 0;
 }
 
-static int
+স্থির পূর্ণসংখ্যা
 spin_can_handle_container (libcrun_container_t *container, libcrun_error_t *err arg_unused)
 {
-  const char *entrypoint_executable;
+  ধ্রুবক অক্ষর *entrypoint_executable;
 
-  if (container->container_def->process == NULL || container->container_def->process->args == NULL)
-    return 0;
+  যদি (container->container_def->process == ফাঁকা || container->container_def->process->args == ফাঁকা)
+    ফেরত 0;
 
   entrypoint_executable = container->container_def->process->args[0];
-  return strcmp (entrypoint_executable, "/") ? 0 : 1;
+  ফেরত strcmp (entrypoint_executable, "/") ? 0 : 1;
 }
 
-struct custom_handler_s handler_spin = {
+কাঠামো custom_handler_s handler_spin = {
   .name = "spin",
-  .alias = NULL,
+  .alias = ফাঁকা,
   .feature_string = "WASM:spin",
-  .supports_open_tree_namespace = false,
+  .supports_open_বৃক্ষ_namespace = false,
   .load = spin_load,
   .unload = spin_unload,
   .run_func = spin_exec,

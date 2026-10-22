@@ -18,34 +18,34 @@
 #ifndef CGROUP_UTILS_H
 #define CGROUP_UTILS_H
 
-#include "container.h"
-#include "cgroup.h"
-#include <unistd.h>
+#অন্তর্ভাব "container.h"
+#অন্তর্ভাব "cgroup.h"
+#অন্তর্ভাব <unistd.h>
 
-int libcrun_move_process_to_cgroup (pid_t pid, pid_t init_pid, const char *path, bool create_if_missing, libcrun_error_t *err);
+পূর্ণসংখ্যা libcrun_move_process_to_cgroup (pid_t pid, pid_t init_pid, ধ্রুবক অক্ষর *path, bool create_if_missing, libcrun_error_t *err);
 
-int libcrun_move_self_to_cgroups (const char *content, libcrun_error_t *err);
+পূর্ণসংখ্যা libcrun_move_self_to_cgroups (ধ্রুবক অক্ষর *content, libcrun_error_t *err);
 
-int libcrun_cgroups_create_symlinks (int dirfd, libcrun_error_t *err);
+পূর্ণসংখ্যা libcrun_cgroups_create_symlinks (পূর্ণসংখ্যা dirfd, libcrun_error_t *err);
 
-int libcrun_get_cgroup_process (pid_t pid, char **path, bool absolute, libcrun_error_t *err);
+পূর্ণসংখ্যা libcrun_get_cgroup_process (pid_t pid, অক্ষর **path, bool absolute, libcrun_error_t *err);
 
-int libcrun_get_cgroup_process_at (int dirfd, char **path, bool absolute, libcrun_error_t *err);
+পূর্ণসংখ্যা libcrun_get_cgroup_process_at (পূর্ণসংখ্যা dirfd, অক্ষর **path, bool absolute, libcrun_error_t *err);
 
-int libcrun_get_cgroup_mode (libcrun_error_t *err);
+পূর্ণসংখ্যা libcrun_get_cgroup_mode (libcrun_error_t *err);
 
-int libcrun_get_cgroup_dirfd (struct libcrun_cgroup_status *status, const char *sub_cgroup, libcrun_error_t *err);
+পূর্ণসংখ্যা libcrun_get_cgroup_dirfd (কাঠামো libcrun_cgroup_status *status, ধ্রুবক অক্ষর *sub_cgroup, libcrun_error_t *err);
 
-int maybe_make_cgroup_threaded (const char *path, libcrun_error_t *err);
+পূর্ণসংখ্যা maybe_make_cgroup_threaded (ধ্রুবক অক্ষর *path, libcrun_error_t *err);
 
-int libcrun_migrate_all_pids_to_cgroup (pid_t init_pid, char *from, char *to, libcrun_error_t *err);
+পূর্ণসংখ্যা libcrun_migrate_all_pids_to_cgroup (pid_t init_pid, অক্ষর *from, অক্ষর *to, libcrun_error_t *err);
 
-int destroy_cgroup_path (const char *path, int mode, libcrun_error_t *err);
+পূর্ণসংখ্যা destroy_cgroup_path (ধ্রুবক অক্ষর *path, পূর্ণসংখ্যা mode, libcrun_error_t *err);
 
-int get_cgroup_dirfd_path (int dirfd, char **path, libcrun_error_t *err);
+পূর্ণসংখ্যা get_cgroup_dirfd_path (পূর্ণসংখ্যা dirfd, অক্ষর **path, libcrun_error_t *err);
 
-int libcrun_cgroup_ensure_not_frozen (const char *cgroup_path, libcrun_error_t *err);
+পূর্ণসংখ্যা libcrun_cgroup_ensure_not_frozen (ধ্রুবক অক্ষর *cgroup_path, libcrun_error_t *err);
 
-int parse_cpu_max (const char *value, int64_t *quota, uint64_t *period, bool *has_period, libcrun_error_t *err);
+পূর্ণসংখ্যা parse_cpu_max (ধ্রুবক অক্ষর *মান, int64_t *quota, uint64_t *period, bool *has_period, libcrun_error_t *err);
 
 #endif

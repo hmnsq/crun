@@ -19,35 +19,35 @@
 #ifndef CRIU_H
 #define CRIU_H
 
-#include <config.h>
-#include "container.h"
-#include "error.h"
-#include "utils.h"
+#অন্তর্ভাব <config.h>
+#অন্তর্ভাব "container.h"
+#অন্তর্ভাব "error.h"
+#অন্তর্ভাব "utils.h"
 
-#if HAVE_CRIU && HAVE_DLOPEN
+#যদি HAVE_CRIU && HAVE_DLOPEN
 
-int libcrun_container_checkpoint_linux_criu (libcrun_container_status_t *status, libcrun_container_t *container,
+পূর্ণসংখ্যা libcrun_container_checkpoint_linux_criu (libcrun_container_status_t *status, libcrun_container_t *container,
                                              libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err);
 
-int libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcrun_container_t *container,
+পূর্ণসংখ্যা libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcrun_container_t *container,
                                           libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err);
 
-#else
+#অন্যথা
 
-static inline int
+স্থির অন্তঃরেখ পূর্ণসংখ্যা
 libcrun_container_checkpoint_linux_criu (arg_unused libcrun_container_status_t *status,
                                          arg_unused libcrun_container_t *container,
                                          arg_unused libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
 {
-  return crun_make_error (err, 0, "compiled without CRIU support. Checkpointing not available");
+  ফেরত crun_make_error (err, 0, "compiled without CRIU support. Checkpointing not available");
 }
 
-static inline int
+স্থির অন্তঃরেখ পূর্ণসংখ্যা
 libcrun_container_restore_linux_criu (arg_unused libcrun_container_status_t *status,
                                       arg_unused libcrun_container_t *container,
                                       arg_unused libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
 {
-  return crun_make_error (err, 0, "compiled without CRIU support. Restore not available");
+  ফেরত crun_make_error (err, 0, "compiled without CRIU support. Restore not available");
 }
 
 #endif

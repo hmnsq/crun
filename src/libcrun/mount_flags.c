@@ -2,7 +2,7 @@
 /* Command-line: gperf --lookup-function-name libcrun_mount_flag_in_word_set -m 100 -tCEG -S1 src/libcrun/mount_flags.perf  */
 /* Computed positions: -k'1-4' */
 
-#if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
+#যদি !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
       && ('%' == 37) && ('&' == 38) && ('\'' == 39) && ('(' == 40) \
       && (')' == 41) && ('*' == 42) && ('+' == 43) && (',' == 44) \
       && ('-' == 45) && ('.' == 46) && ('/' == 47) && ('0' == 48) \
@@ -33,41 +33,41 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include <stddef.h>
-#include <stdlib.h>
+#অন্তর্ভাব <config.h>
+#অন্তর্ভাব <stddef.h>
+#অন্তর্ভাব <stdlib.h>
 
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/mount.h>
+#অন্তর্ভাব <fcntl.h>
+#অন্তর্ভাব <unistd.h>
+#অন্তর্ভাব <sys/mount.h>
 
-#include "utils.h"
-#include "mount_flags.h"
+#অন্তর্ভাব "utils.h"
+#অন্তর্ভাব "mount_flags.h"
 
 #line 34 "src/libcrun/mount_flags.perf"
-struct propagation_flags_s;
-enum
+কাঠামো propagation_flags_s;
+গণনা
   {
-    TOTAL_KEYWORDS = 63,
-    MIN_WORD_LENGTH = 2,
-    MAX_WORD_LENGTH = 14,
-    MIN_HASH_VALUE = 2,
-    MAX_HASH_VALUE = 96
+    যোগ_KEYWORDS = 63,
+    MIN_WORD_দৈর্ঘ্য = 2,
+    MAX_WORD_দৈর্ঘ্য = 14,
+    MIN_HASH_মান = 2,
+    MAX_HASH_মান = 96
   };
 
 /* maximum key range = 95, duplicates = 0 */
 
 #ifdef __GNUC__
 __inline
-#else
+#অন্যথা
 #ifdef __cplusplus
-inline
+অন্তঃরেখ
 #endif
 #endif
-static unsigned int
-hash (register const char *str, register size_t len)
+স্থির unsigned পূর্ণসংখ্যা
+hash (নিবন্ধ ধ্রুবক অক্ষর *str, নিবন্ধ size_t len)
 {
-  static const unsigned char asso_values[] =
+  স্থির ধ্রুবক unsigned অক্ষর asso_মানসমূহ[] =
     {
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
@@ -96,27 +96,27 @@ hash (register const char *str, register size_t len)
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
       97, 97, 97, 97, 97, 97
     };
-  register unsigned int hval = len;
+  নিবন্ধ unsigned পূর্ণসংখ্যা hval = len;
 
-  switch (hval)
+  নির্বাচন (hval)
     {
-      default:
-        hval += asso_values[(unsigned char)str[3]];
+      পূর্বনির্ধারিত:
+        hval += asso_মানসমূহ[(unsigned অক্ষর)str[3]];
       /*FALLTHROUGH*/
-      case 3:
-        hval += asso_values[(unsigned char)str[2]];
+      ক্ষেত্র 3:
+        hval += asso_মানসমূহ[(unsigned অক্ষর)str[2]];
       /*FALLTHROUGH*/
-      case 2:
-        hval += asso_values[(unsigned char)str[1]];
+      ক্ষেত্র 2:
+        hval += asso_মানসমূহ[(unsigned অক্ষর)str[1]];
       /*FALLTHROUGH*/
-      case 1:
-        hval += asso_values[(unsigned char)str[0]];
-        break;
+      ক্ষেত্র 1:
+        hval += asso_মানসমূহ[(unsigned অক্ষর)str[0]];
+        বিরতি;
     }
-  return hval;
+  ফেরত hval;
 }
 
-static const struct propagation_flags_s wordlist[] =
+স্থির ধ্রুবক কাঠামো propagation_flags_s wordlist[] =
   {
 #line 40 "src/libcrun/mount_flags.perf"
     {"rw", 1, MS_RDONLY, 0},
@@ -246,240 +246,240 @@ static const struct propagation_flags_s wordlist[] =
     {"copy-symlink", 0, 0, OPTION_COPY_SYMLINK}
   };
 
-const struct propagation_flags_s *
-libcrun_mount_flag_in_word_set (register const char *str, register size_t len)
+ধ্রুবক কাঠামো propagation_flags_s *
+libcrun_mount_flag_in_word_set (নিবন্ধ ধ্রুবক অক্ষর *str, নিবন্ধ size_t len)
 {
-  if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
+  যদি (len <= MAX_WORD_দৈর্ঘ্য && len >= MIN_WORD_দৈর্ঘ্য)
     {
-      register unsigned int key = hash (str, len);
+      নিবন্ধ unsigned পূর্ণসংখ্যা চাবি = hash (str, len);
 
-      if (key <= MAX_HASH_VALUE && key >= MIN_HASH_VALUE)
+      যদি (চাবি <= MAX_HASH_মান && চাবি >= MIN_HASH_মান)
         {
-          register const struct propagation_flags_s *resword;
+          নিবন্ধ ধ্রুবক কাঠামো propagation_flags_s *resword;
 
-          switch (key - 2)
+          নির্বাচন (চাবি - 2)
             {
-              case 0:
+              ক্ষেত্র 0:
                 resword = &wordlist[0];
-                goto compare;
-              case 1:
+                যাও compare;
+              ক্ষেত্র 1:
                 resword = &wordlist[1];
-                goto compare;
-              case 4:
+                যাও compare;
+              ক্ষেত্র 4:
                 resword = &wordlist[2];
-                goto compare;
-              case 5:
+                যাও compare;
+              ক্ষেত্র 5:
                 resword = &wordlist[3];
-                goto compare;
-              case 9:
+                যাও compare;
+              ক্ষেত্র 9:
                 resword = &wordlist[4];
-                goto compare;
-              case 10:
+                যাও compare;
+              ক্ষেত্র 10:
                 resword = &wordlist[5];
-                goto compare;
-              case 11:
+                যাও compare;
+              ক্ষেত্র 11:
                 resword = &wordlist[6];
-                goto compare;
-              case 13:
+                যাও compare;
+              ক্ষেত্র 13:
                 resword = &wordlist[7];
-                goto compare;
-              case 15:
+                যাও compare;
+              ক্ষেত্র 15:
                 resword = &wordlist[8];
-                goto compare;
-              case 16:
+                যাও compare;
+              ক্ষেত্র 16:
                 resword = &wordlist[9];
-                goto compare;
-              case 17:
+                যাও compare;
+              ক্ষেত্র 17:
                 resword = &wordlist[10];
-                goto compare;
-              case 18:
+                যাও compare;
+              ক্ষেত্র 18:
                 resword = &wordlist[11];
-                goto compare;
-              case 19:
+                যাও compare;
+              ক্ষেত্র 19:
                 resword = &wordlist[12];
-                goto compare;
-              case 20:
+                যাও compare;
+              ক্ষেত্র 20:
                 resword = &wordlist[13];
-                goto compare;
-              case 21:
+                যাও compare;
+              ক্ষেত্র 21:
                 resword = &wordlist[14];
-                goto compare;
-              case 22:
+                যাও compare;
+              ক্ষেত্র 22:
                 resword = &wordlist[15];
-                goto compare;
-              case 23:
+                যাও compare;
+              ক্ষেত্র 23:
                 resword = &wordlist[16];
-                goto compare;
-              case 24:
+                যাও compare;
+              ক্ষেত্র 24:
                 resword = &wordlist[17];
-                goto compare;
-              case 25:
+                যাও compare;
+              ক্ষেত্র 25:
                 resword = &wordlist[18];
-                goto compare;
-              case 26:
+                যাও compare;
+              ক্ষেত্র 26:
                 resword = &wordlist[19];
-                goto compare;
-              case 28:
+                যাও compare;
+              ক্ষেত্র 28:
                 resword = &wordlist[20];
-                goto compare;
-              case 29:
+                যাও compare;
+              ক্ষেত্র 29:
                 resword = &wordlist[21];
-                goto compare;
-              case 30:
+                যাও compare;
+              ক্ষেত্র 30:
                 resword = &wordlist[22];
-                goto compare;
-              case 31:
+                যাও compare;
+              ক্ষেত্র 31:
                 resword = &wordlist[23];
-                goto compare;
-              case 32:
+                যাও compare;
+              ক্ষেত্র 32:
                 resword = &wordlist[24];
-                goto compare;
-              case 33:
+                যাও compare;
+              ক্ষেত্র 33:
                 resword = &wordlist[25];
-                goto compare;
-              case 34:
+                যাও compare;
+              ক্ষেত্র 34:
                 resword = &wordlist[26];
-                goto compare;
-              case 35:
+                যাও compare;
+              ক্ষেত্র 35:
                 resword = &wordlist[27];
-                goto compare;
-              case 36:
+                যাও compare;
+              ক্ষেত্র 36:
                 resword = &wordlist[28];
-                goto compare;
-              case 37:
+                যাও compare;
+              ক্ষেত্র 37:
                 resword = &wordlist[29];
-                goto compare;
-              case 38:
+                যাও compare;
+              ক্ষেত্র 38:
                 resword = &wordlist[30];
-                goto compare;
-              case 39:
+                যাও compare;
+              ক্ষেত্র 39:
                 resword = &wordlist[31];
-                goto compare;
-              case 40:
+                যাও compare;
+              ক্ষেত্র 40:
                 resword = &wordlist[32];
-                goto compare;
-              case 41:
+                যাও compare;
+              ক্ষেত্র 41:
                 resword = &wordlist[33];
-                goto compare;
-              case 42:
+                যাও compare;
+              ক্ষেত্র 42:
                 resword = &wordlist[34];
-                goto compare;
-              case 43:
+                যাও compare;
+              ক্ষেত্র 43:
                 resword = &wordlist[35];
-                goto compare;
-              case 44:
+                যাও compare;
+              ক্ষেত্র 44:
                 resword = &wordlist[36];
-                goto compare;
-              case 45:
+                যাও compare;
+              ক্ষেত্র 45:
                 resword = &wordlist[37];
-                goto compare;
-              case 46:
+                যাও compare;
+              ক্ষেত্র 46:
                 resword = &wordlist[38];
-                goto compare;
-              case 47:
+                যাও compare;
+              ক্ষেত্র 47:
                 resword = &wordlist[39];
-                goto compare;
-              case 48:
+                যাও compare;
+              ক্ষেত্র 48:
                 resword = &wordlist[40];
-                goto compare;
-              case 49:
+                যাও compare;
+              ক্ষেত্র 49:
                 resword = &wordlist[41];
-                goto compare;
-              case 50:
+                যাও compare;
+              ক্ষেত্র 50:
                 resword = &wordlist[42];
-                goto compare;
-              case 51:
+                যাও compare;
+              ক্ষেত্র 51:
                 resword = &wordlist[43];
-                goto compare;
-              case 52:
+                যাও compare;
+              ক্ষেত্র 52:
                 resword = &wordlist[44];
-                goto compare;
-              case 53:
+                যাও compare;
+              ক্ষেত্র 53:
                 resword = &wordlist[45];
-                goto compare;
-              case 54:
+                যাও compare;
+              ক্ষেত্র 54:
                 resword = &wordlist[46];
-                goto compare;
-              case 55:
+                যাও compare;
+              ক্ষেত্র 55:
                 resword = &wordlist[47];
-                goto compare;
-              case 56:
+                যাও compare;
+              ক্ষেত্র 56:
                 resword = &wordlist[48];
-                goto compare;
-              case 57:
+                যাও compare;
+              ক্ষেত্র 57:
                 resword = &wordlist[49];
-                goto compare;
-              case 58:
+                যাও compare;
+              ক্ষেত্র 58:
                 resword = &wordlist[50];
-                goto compare;
-              case 59:
+                যাও compare;
+              ক্ষেত্র 59:
                 resword = &wordlist[51];
-                goto compare;
-              case 60:
+                যাও compare;
+              ক্ষেত্র 60:
                 resword = &wordlist[52];
-                goto compare;
-              case 61:
+                যাও compare;
+              ক্ষেত্র 61:
                 resword = &wordlist[53];
-                goto compare;
-              case 62:
+                যাও compare;
+              ক্ষেত্র 62:
                 resword = &wordlist[54];
-                goto compare;
-              case 63:
+                যাও compare;
+              ক্ষেত্র 63:
                 resword = &wordlist[55];
-                goto compare;
-              case 65:
+                যাও compare;
+              ক্ষেত্র 65:
                 resword = &wordlist[56];
-                goto compare;
-              case 67:
+                যাও compare;
+              ক্ষেত্র 67:
                 resword = &wordlist[57];
-                goto compare;
-              case 68:
+                যাও compare;
+              ক্ষেত্র 68:
                 resword = &wordlist[58];
-                goto compare;
-              case 75:
+                যাও compare;
+              ক্ষেত্র 75:
                 resword = &wordlist[59];
-                goto compare;
-              case 84:
+                যাও compare;
+              ক্ষেত্র 84:
                 resword = &wordlist[60];
-                goto compare;
-              case 85:
+                যাও compare;
+              ক্ষেত্র 85:
                 resword = &wordlist[61];
-                goto compare;
-              case 94:
+                যাও compare;
+              ক্ষেত্র 94:
                 resword = &wordlist[62];
-                goto compare;
+                যাও compare;
             }
-          return 0;
+          ফেরত 0;
         compare:
           {
-            register const char *s = resword->name;
+            নিবন্ধ ধ্রুবক অক্ষর *s = resword->name;
 
-            if (*str == *s && !strcmp (str + 1, s + 1))
-              return resword;
+            যদি (*str == *s && !strcmp (str + 1, s + 1))
+              ফেরত resword;
           }
         }
     }
-  return 0;
+  ফেরত 0;
 }
 #line 99 "src/libcrun/mount_flags.perf"
 
 
-const struct propagation_flags_s *
-libcrun_str2mount_flags (const char *name)
+ধ্রুবক কাঠামো propagation_flags_s *
+libcrun_str2mount_flags (ধ্রুবক অক্ষর *name)
 {
-  return libcrun_mount_flag_in_word_set (name, strlen (name));
+  ফেরত libcrun_mount_flag_in_word_set (name, strlen (name));
 }
 
-const struct propagation_flags_s *
-get_mount_flags_from_wordlist (void)
+ধ্রুবক কাঠামো propagation_flags_s *
+get_mount_flags_from_wordlist (শূন্য)
 {
-  struct propagation_flags_s *flags;
+  কাঠামো propagation_flags_s *flags;
   size_t i;
-  size_t num_wordlist_flags = sizeof (wordlist) / sizeof (wordlist[0]);
+  size_t অঙ্ক_wordlist_flags = আকার (wordlist) / আকার (wordlist[0]);
 
-  flags = xmalloc0 ((sizeof (struct propagation_flags_s) + 1) * num_wordlist_flags);
-  for (i = 0; i < num_wordlist_flags; i++)
+  flags = xmalloc0 ((আকার (কাঠামো propagation_flags_s) + 1) * অঙ্ক_wordlist_flags);
+  জন্য (i = 0; i < অঙ্ক_wordlist_flags; i++)
     flags[i].name = wordlist[i].name;
 
-  return flags;
+  ফেরত flags;
 }

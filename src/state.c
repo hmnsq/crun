@@ -16,19 +16,19 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#অন্তর্ভাব <config.h>
+#অন্তর্ভাব <stdio.h>
+#অন্তর্ভাব <stdlib.h>
+#অন্তর্ভাব <argp.h>
+#অন্তর্ভাব <string.h>
+#অন্তর্ভাব <unistd.h>
+#অন্তর্ভাব <errno.h>
 
-#include "crun.h"
+#অন্তর্ভাব "crun.h"
 
-static char doc[] = "OCI runtime";
+স্থির অক্ষর doc[] = "OCI runtime";
 
-enum
+গণনা
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -37,41 +37,41 @@ enum
   OPTION_PRESERVE_FDS
 };
 
-struct state_options_s
+কাঠামো state_options_s
 {
 };
 
-static struct state_options_s state_options;
+স্থির কাঠামো state_options_s state_options;
 
-static struct argp_option options[] = { {
+স্থির কাঠামো argp_option options[] = { {
     0,
 } };
 
-static char args_doc[] = "state CONTAINER";
+স্থির অক্ষর args_doc[] = "state CONTAINER";
 
-static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+স্থির error_t
+parse_opt (পূর্ণসংখ্যা চাবি, অক্ষর *arg arg_unused, কাঠামো argp_state *state arg_unused)
 {
-  switch (key)
+  নির্বাচন (চাবি)
     {
-    case ARGP_KEY_NO_ARGS:
+    ক্ষেত্র ARGP_চাবি_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    পূর্বনির্ধারিত:
+      ফেরত ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  ফেরত 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+স্থির কাঠামো argp run_argp = { options, parse_opt, args_doc, doc, ফাঁকা, ফাঁকা, ফাঁকা };
 
-int
-crun_command_state (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+পূর্ণসংখ্যা
+crun_command_state (কাঠামো crun_global_arguments *global_args, পূর্ণসংখ্যা argc, অক্ষর **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
-  cleanup_context libcrun_context_t *crun_context = NULL;
-  cleanup_free char *state = NULL;
+  পূর্ণসংখ্যা first_arg = 0, ret;
+  cleanup_context libcrun_context_t *crun_context = ফাঁকা;
+  cleanup_free অক্ষর *state = ফাঁকা;
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &state_options);
   crun_assert_n_args (argc - first_arg, 1, 1);
@@ -79,13 +79,13 @@ crun_command_state (struct crun_global_arguments *global_args, int argc, char **
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
   ret = libcrun_container_state_json (crun_context, argv[first_arg], &state, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
   fputs (state, stdout);
-  return 0;
+  ফেরত 0;
 }

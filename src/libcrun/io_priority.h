@@ -18,11 +18,11 @@
 #ifndef IO_PRIORITY_H
 #define IO_PRIORITY_H
 
-#include <config.h>
-#include "error.h"
-#include "container.h"
-#include "status.h"
+#অন্তর্ভাব <config.h>
+#অন্তর্ভাব "error.h"
+#অন্তর্ভাব "container.h"
+#অন্তর্ভাব "status.h"
 
-int libcrun_set_io_priority (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err);
+পূর্ণসংখ্যা libcrun_set_io_priority (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err);
 
 #endif

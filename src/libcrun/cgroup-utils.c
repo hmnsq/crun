@@ -18,154 +18,154 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "cgroup.h"
-#include "cgroup-internal.h"
-#include "cgroup-systemd.h"
-#include "cgroup-utils.h"
-#include "cgroup-setup.h"
-#include "ebpf.h"
-#include "utils.h"
-#include "status.h"
-#include <string.h>
-#include <sys/types.h>
-#include <signal.h>
-#include <sys/vfs.h>
-#include <inttypes.h>
-#include <time.h>
-#include <poll.h>
-#include <sys/inotify.h>
+#অন্তর্ভাব <config.h>
+#অন্তর্ভাব "cgroup.h"
+#অন্তর্ভাব "cgroup-internal.h"
+#অন্তর্ভাব "cgroup-systemd.h"
+#অন্তর্ভাব "cgroup-utils.h"
+#অন্তর্ভাব "cgroup-setup.h"
+#অন্তর্ভাব "ebpf.h"
+#অন্তর্ভাব "utils.h"
+#অন্তর্ভাব "status.h"
+#অন্তর্ভাব <string.h>
+#অন্তর্ভাব <sys/types.h>
+#অন্তর্ভাব <signal.h>
+#অন্তর্ভাব <sys/vfs.h>
+#অন্তর্ভাব <inttypes.h>
+#অন্তর্ভাব <time.h>
+#অন্তর্ভাব <poll.h>
+#অন্তর্ভাব <sys/inotify.h>
 
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <libgen.h>
+#অন্তর্ভাব <sys/stat.h>
+#অন্তর্ভাব <sys/types.h>
+#অন্তর্ভাব <fcntl.h>
+#অন্তর্ভাব <libgen.h>
 
-struct symlink_s
+কাঠামো symlink_s
 {
-  const char *name;
-  const char *target;
+  ধ্রুবক অক্ষর *name;
+  ধ্রুবক অক্ষর *target;
 };
 
-static struct symlink_s cgroup_symlinks[] = { { "cpu", "cpu,cpuacct" },
+স্থির কাঠামো symlink_s cgroup_symlinks[] = { { "cpu", "cpu,cpuacct" },
                                               { "cpuacct", "cpu,cpuacct" },
                                               { "net_cls", "net_cls,net_prio" },
                                               { "net_prio", "net_cls,net_prio" },
-                                              { NULL, NULL } };
+                                              { ফাঁকা, ফাঁকা } };
 
-int
-libcrun_cgroups_create_symlinks (int dirfd, libcrun_error_t *err)
+পূর্ণসংখ্যা
+libcrun_cgroups_create_symlinks (পূর্ণসংখ্যা dirfd, libcrun_error_t *err)
 {
-  int i;
+  পূর্ণসংখ্যা i;
 
-  for (i = 0; cgroup_symlinks[i].name; i++)
+  জন্য (i = 0; cgroup_symlinks[i].name; i++)
     {
-      int ret;
+      পূর্ণসংখ্যা ret;
 
       ret = symlinkat (cgroup_symlinks[i].target, dirfd, cgroup_symlinks[i].name);
-      if (UNLIKELY (ret < 0))
+      যদি (UNLIKELY (ret < 0))
         {
-          if (errno == ENOENT || errno == EEXIST)
-            continue;
-          return crun_make_error (err, errno, "symlinkat `%s`", cgroup_symlinks[i].name);
+          যদি (errno == ENOENT || errno == EEXIST)
+            চালু;
+          ফেরত crun_make_error (err, errno, "symlinkat `%s`", cgroup_symlinks[i].name);
         }
     }
-  return 0;
+  ফেরত 0;
 }
 
-int
-maybe_make_cgroup_threaded (const char *path, libcrun_error_t *err)
+পূর্ণসংখ্যা
+maybe_make_cgroup_threaded (ধ্রুবক অক্ষর *path, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path_type = NULL;
-  const char *const threaded = "threaded";
-  cleanup_free char *content = NULL;
-  cleanup_free char *buffer = NULL;
-  const char *parent;
-  size_t size;
-  char *it;
-  int ret;
+  cleanup_free অক্ষর *cgroup_path_type = ফাঁকা;
+  ধ্রুবক অক্ষর *ধ্রুবক threaded = "threaded";
+  cleanup_free অক্ষর *content = ফাঁকা;
+  cleanup_free অক্ষর *বাফার = ফাঁকা;
+  ধ্রুবক অক্ষর *parent;
+  size_t আকার_2;
+  অক্ষর *it;
+  পূর্ণসংখ্যা ret;
 
-  if (path == NULL)
-    return 0;
+  যদি (path == ফাঁকা)
+    ফেরত 0;
 
   path = consume_slashes (path);
 
-  if (path[0] == '\0')
-    return 0;
+  যদি (path[0] == '\0')
+    ফেরত 0;
 
-  ret = append_paths (&cgroup_path_type, err, CGROUP_ROOT, path, "cgroup.type", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_path_type, err, CGROUP_মূল, path, "cgroup.type", ফাঁকা);
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
-  ret = read_all_file (cgroup_path_type, &content, &size, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file (cgroup_path_type, &content, &আকার_2, err);
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
-  if (size > 0)
+  যদি (আকার_2 > 0)
     {
-      it = content + size - 1;
-      while (*it == '\n' && it > content)
+      it = content + আকার_2 - 1;
+      যখন (*it == '\n' && it > content)
         *it-- = '\0';
     }
 
-  if (strcmp (content, "domain") == 0 || strcmp (content, "domain threaded") == 0)
-    return 0;
+  যদি (strcmp (content, "domain") == 0 || strcmp (content, "domain threaded") == 0)
+    ফেরত 0;
 
-  buffer = xstrdup (path);
-  parent = consume_slashes (dirname (buffer));
-  if (parent[0] && strcmp (parent, "."))
+  বাফার = xstrdup (path);
+  parent = consume_slashes (dirname (বাফার));
+  যদি (parent[0] && strcmp (parent, "."))
     {
       ret = maybe_make_cgroup_threaded (parent, err);
-      if (ret < 0)
-        return ret;
+      যদি (ret < 0)
+        ফেরত ret;
     }
-  return write_cgroup_file (AT_FDCWD, cgroup_path_type, threaded, strlen (threaded), err);
+  ফেরত write_cgroup_file (AT_FDCWD, cgroup_path_type, threaded, strlen (threaded), err);
 }
 
-int
-move_process_to_cgroup (pid_t pid, const char *subsystem, const char *path, libcrun_error_t *err)
+পূর্ণসংখ্যা
+move_process_to_cgroup (pid_t pid, ধ্রুবক অক্ষর *subsystem, ধ্রুবক অক্ষর *path, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path_procs = NULL;
-  char pid_str[16];
-  int ret;
+  cleanup_free অক্ষর *cgroup_path_procs = ফাঁকা;
+  অক্ষর pid_str[16];
+  পূর্ণসংখ্যা ret;
 
-  ret = append_paths (&cgroup_path_procs, err, CGROUP_ROOT,
+  ret = append_paths (&cgroup_path_procs, err, CGROUP_মূল,
                       subsystem ? subsystem : "", path ? path : "",
-                      "cgroup.procs", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+                      "cgroup.procs", ফাঁকা);
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
-  ret = snprintf (pid_str, sizeof (pid_str), "%d", pid);
-  if (UNLIKELY (ret >= (int) sizeof (pid_str)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  ret = snprintf (pid_str, আকার (pid_str), "%d", pid);
+  যদি (UNLIKELY (ret >= (পূর্ণসংখ্যা) আকার (pid_str)))
+    ফেরত crun_make_error (err, 0, "internal error: static buffer too small");
 
   ret = write_cgroup_file (AT_FDCWD, cgroup_path_procs, pid_str, strlen (pid_str), err);
-  if (UNLIKELY (ret < 0))
+  যদি (UNLIKELY (ret < 0))
     {
-      if (crun_error_get_errno (err) == EOPNOTSUPP)
+      যদি (crun_error_get_errno (err) == EOPNOTSUPP)
         {
-          libcrun_error_t tmp_err = NULL;
-          int mode;
+          libcrun_error_t tmp_err = ফাঁকা;
+          পূর্ণসংখ্যা mode;
 
           mode = libcrun_get_cgroup_mode (&tmp_err);
-          if (UNLIKELY (mode < 0 || mode != CGROUP_MODE_UNIFIED))
+          যদি (UNLIKELY (mode < 0 || mode != CGROUP_MODE_UNIFIED))
             {
               crun_error_release (&tmp_err);
-              return ret;
+              ফেরত ret;
             }
 
           crun_error_release (err);
 
           ret = maybe_make_cgroup_threaded (path, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          যদি (UNLIKELY (ret < 0))
+            ফেরত ret;
 
-          return write_cgroup_file (AT_FDCWD, cgroup_path_procs, pid_str, strlen (pid_str), err);
+          ফেরত write_cgroup_file (AT_FDCWD, cgroup_path_procs, pid_str, strlen (pid_str), err);
         }
 
-      return ret;
+      ফেরত ret;
     }
-  return ret;
+  ফেরত ret;
 }
 
 #ifndef CGROUP2_SUPER_MAGIC
@@ -176,180 +176,180 @@ move_process_to_cgroup (pid_t pid, const char *subsystem, const char *path, libc
 #  define TMPFS_MAGIC 0x01021994
 #endif
 
-static int
+স্থির পূর্ণসংখ্যা
 detect_cgroup_mode (libcrun_error_t *err)
 {
-  struct statfs stat;
-  int ret;
+  কাঠামো statfs stat;
+  পূর্ণসংখ্যা ret;
 
-  ret = statfs (CGROUP_ROOT, &stat);
-  if (ret < 0)
-    return crun_make_error (err, errno, "statfs `" CGROUP_ROOT "`");
-  if (stat.f_type == CGROUP2_SUPER_MAGIC)
-    return CGROUP_MODE_UNIFIED;
-  if (stat.f_type != TMPFS_MAGIC)
-    return crun_make_error (err, 0, "invalid file system type on `" CGROUP_ROOT "`");
-  ret = statfs (CGROUP_ROOT "/unified", &stat);
-  if (ret < 0 && errno != ENOENT)
-    return crun_make_error (err, errno, "statfs `" CGROUP_ROOT "/unified`");
-  if (ret < 0)
-    return CGROUP_MODE_LEGACY;
-  return stat.f_type == CGROUP2_SUPER_MAGIC ? CGROUP_MODE_HYBRID : CGROUP_MODE_LEGACY;
+  ret = statfs (CGROUP_মূল, &stat);
+  যদি (ret < 0)
+    ফেরত crun_make_error (err, errno, "statfs `" CGROUP_মূল "`");
+  যদি (stat.f_type == CGROUP2_SUPER_MAGIC)
+    ফেরত CGROUP_MODE_UNIFIED;
+  যদি (stat.f_type != TMPFS_MAGIC)
+    ফেরত crun_make_error (err, 0, "invalid file system type on `" CGROUP_মূল "`");
+  ret = statfs (CGROUP_মূল "/unified", &stat);
+  যদি (ret < 0 && errno != ENOENT)
+    ফেরত crun_make_error (err, errno, "statfs `" CGROUP_মূল "/unified`");
+  যদি (ret < 0)
+    ফেরত CGROUP_MODE_LEGACY;
+  ফেরত stat.f_type == CGROUP2_SUPER_MAGIC ? CGROUP_MODE_HYBRID : CGROUP_MODE_LEGACY;
 }
 
-int
+পূর্ণসংখ্যা
 libcrun_get_cgroup_mode (libcrun_error_t *err)
 {
-  int tmp;
-  static int cgroup_mode = 0;
+  পূর্ণসংখ্যা tmp;
+  স্থির পূর্ণসংখ্যা cgroup_mode = 0;
 
-  if (cgroup_mode)
-    return cgroup_mode;
+  যদি (cgroup_mode)
+    ফেরত cgroup_mode;
 
   tmp = detect_cgroup_mode (err);
-  if (UNLIKELY (tmp < 0))
-    return tmp;
+  যদি (UNLIKELY (tmp < 0))
+    ফেরত tmp;
 
   cgroup_mode = tmp;
 
-  return cgroup_mode;
+  ফেরত cgroup_mode;
 }
 
-static int
-get_cgroup_process_from_content (char *content, int cgroup_mode, char **path, bool absolute, libcrun_error_t *err)
+স্থির পূর্ণসংখ্যা
+get_cgroup_process_from_content (অক্ষর *content, পূর্ণসংখ্যা cgroup_mode, অক্ষর **path, bool absolute, libcrun_error_t *err)
 {
-  char *cg_path = NULL;
-  char *controller;
-  char *saveptr;
-  bool has_data;
+  অক্ষর *cg_path = ফাঁকা;
+  অক্ষর *controller;
+  অক্ষর *saveptr;
+  bool has_তথ্য;
 
-  for (has_data = read_proc_cgroup (content, &saveptr, NULL, &controller, &cg_path);
-       has_data;
-       has_data = read_proc_cgroup (NULL, &saveptr, NULL, &controller, &cg_path))
+  জন্য (has_তথ্য = read_proc_cgroup (content, &saveptr, ফাঁকা, &controller, &cg_path);
+       has_তথ্য;
+       has_তথ্য = read_proc_cgroup (ফাঁকা, &saveptr, ফাঁকা, &controller, &cg_path))
     {
-      if (cgroup_mode == CGROUP_MODE_UNIFIED)
+      যদি (cgroup_mode == CGROUP_MODE_UNIFIED)
         {
-          if (strcmp (controller, "") == 0 && strlen (cg_path) > 0)
-            goto found;
+          যদি (strcmp (controller, "") == 0 && strlen (cg_path) > 0)
+            যাও found;
         }
-      else
+      অন্যথা
         {
-          if (strcmp (controller, "memory"))
-            goto found;
+          যদি (strcmp (controller, "memory"))
+            যাও found;
         }
     }
 
-  return crun_make_error (err, 0, "cannot find cgroup for the process");
+  ফেরত crun_make_error (err, 0, "cannot find cgroup for the process");
 
 found:
-  if (absolute)
-    return append_paths (path, err, CGROUP_ROOT, cg_path, NULL);
+  যদি (absolute)
+    ফেরত append_paths (path, err, CGROUP_মূল, cg_path, ফাঁকা);
 
   *path = xstrdup (cg_path);
-  return 0;
+  ফেরত 0;
 }
 
-int
-libcrun_get_cgroup_process_at (int dirfd, char **path, bool absolute, libcrun_error_t *err)
+পূর্ণসংখ্যা
+libcrun_get_cgroup_process_at (পূর্ণসংখ্যা dirfd, অক্ষর **path, bool absolute, libcrun_error_t *err)
 {
-  cleanup_free char *content = NULL;
-  size_t content_size;
-  int cgroup_mode;
-  int ret;
+  cleanup_free অক্ষর *content = ফাঁকা;
+  size_t content_আকার;
+  পূর্ণসংখ্যা cgroup_mode;
+  পূর্ণসংখ্যা ret;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  যদি (UNLIKELY (cgroup_mode < 0))
+    ফেরত cgroup_mode;
 
-  ret = read_all_file_at (dirfd, SELF_CGROUP, &content, &content_size, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file_at (dirfd, SELF_CGROUP, &content, &content_আকার, err);
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
-  return get_cgroup_process_from_content (content, cgroup_mode, path, absolute, err);
+  ফেরত get_cgroup_process_from_content (content, cgroup_mode, path, absolute, err);
 }
 
-int
-libcrun_get_cgroup_process (pid_t pid, char **path, bool absolute, libcrun_error_t *err)
+পূর্ণসংখ্যা
+libcrun_get_cgroup_process (pid_t pid, অক্ষর **path, bool absolute, libcrun_error_t *err)
 {
-  cleanup_free char *content = NULL;
-  char proc_cgroup_file[64];
-  size_t content_size;
-  int cgroup_mode;
-  int ret;
+  cleanup_free অক্ষর *content = ফাঁকা;
+  অক্ষর proc_cgroup_file[64];
+  size_t content_আকার;
+  পূর্ণসংখ্যা cgroup_mode;
+  পূর্ণসংখ্যা ret;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  যদি (UNLIKELY (cgroup_mode < 0))
+    ফেরত cgroup_mode;
 
-  if (pid == 0)
+  যদি (pid == 0)
     strcpy (proc_cgroup_file, PROC_SELF_CGROUP);
-  else
+  অন্যথা
     {
-      int len = snprintf (proc_cgroup_file, sizeof (proc_cgroup_file), "/proc/%d/cgroup", pid);
-      if (UNLIKELY (len >= (int) sizeof (proc_cgroup_file)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      পূর্ণসংখ্যা len = snprintf (proc_cgroup_file, আকার (proc_cgroup_file), "/proc/%d/cgroup", pid);
+      যদি (UNLIKELY (len >= (পূর্ণসংখ্যা) আকার (proc_cgroup_file)))
+        ফেরত crun_make_error (err, 0, "internal error: static buffer too small");
     }
 
-  ret = read_all_file (proc_cgroup_file, &content, &content_size, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file (proc_cgroup_file, &content, &content_আকার, err);
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
-  return get_cgroup_process_from_content (content, cgroup_mode, path, absolute, err);
+  ফেরত get_cgroup_process_from_content (content, cgroup_mode, path, absolute, err);
 }
 
-static int
-read_pids_file (int dfd, const char *file, pid_t **pids, size_t *n_pids, size_t *allocated, libcrun_error_t *err)
+স্থির পূর্ণসংখ্যা
+read_pids_file (পূর্ণসংখ্যা dfd, ধ্রুবক অক্ষর *file, pid_t **pids, size_t *n_pids, size_t *allocated, libcrun_error_t *err)
 {
-  cleanup_close int tasksfd = -1;
-  cleanup_free char *buffer = NULL;
-  char *saveptr = NULL;
+  cleanup_close পূর্ণসংখ্যা tasksfd = -1;
+  cleanup_free অক্ষর *বাফার = ফাঁকা;
+  অক্ষর *saveptr = ফাঁকা;
   size_t n_new_pids;
   size_t len;
-  char *it;
-  int ret;
+  অক্ষর *it;
+  পূর্ণসংখ্যা ret;
 
   tasksfd = openat (dfd, file, O_RDONLY | O_CLOEXEC);
-  if (tasksfd < 0)
+  যদি (tasksfd < 0)
     {
       /* The cgroup was removed concurrently (e.g. while killing the
          container), there are no processes left to account for.  */
-      if (errno == ENOENT || errno == ENODEV)
-        return 0;
-      return crun_make_error (err, errno, "open `%s`", file);
+      যদি (errno == ENOENT || errno == ENODEV)
+        ফেরত 0;
+      ফেরত crun_make_error (err, errno, "open `%s`", file);
     }
 
-  ret = read_all_fd (tasksfd, file, &buffer, &len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_fd (tasksfd, file, &বাফার, &len, err);
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
-  if (len > 0)
+  যদি (len > 0)
     {
-      for (n_new_pids = 0, it = buffer; it; it = strchr (it + 1, '\n'))
+      জন্য (n_new_pids = 0, it = বাফার; it; it = strchr (it + 1, '\n'))
         n_new_pids++;
 
-      if (*allocated < *n_pids + n_new_pids + 1)
+      যদি (*allocated < *n_pids + n_new_pids + 1)
         {
           *allocated = *n_pids + n_new_pids + 1;
-          *pids = xrealloc (*pids, sizeof (pid_t) * *allocated);
+          *pids = xrealloc (*pids, আকার (pid_t) * *allocated);
         }
 
-      for (it = strtok_r (buffer, "\n", &saveptr); it; it = strtok_r (NULL, "\n", &saveptr))
+      জন্য (it = strtok_r (বাফার, "\n", &saveptr); it; it = strtok_r (ফাঁকা, "\n", &saveptr))
         {
-          pid_t pid = strtoul (it, NULL, 10);
+          pid_t pid = strtoul (it, ফাঁকা, 10);
 
-          if (pid > 0)
+          যদি (pid > 0)
             (*pids)[(*n_pids)++] = pid;
         }
       (*pids)[*n_pids] = 0;
     }
 
-  return 0;
+  ফেরত 0;
 }
 
 /* A sub-cgroup still to be visited by a walk of the cgroup tree.  */
-struct cgroup_walk_dir_s
+কাঠামো cgroup_walk_dir_s
 {
-  char *name;
+  অক্ষর *name;
   size_t depth;
   bool entered;
 };
@@ -359,29 +359,29 @@ struct cgroup_walk_dir_s
    out of file descriptors on a deep chain of sub-cgroups.  Only the current
    directory is kept open, the sub-cgroups still to visit are queued by name
    and the walk goes back to a parent through "..".  */
-struct cgroup_walk_s
+কাঠামো cgroup_walk_s
 {
-  int dfd;
+  পূর্ণসংখ্যা dfd;
   size_t depth;
-  struct cgroup_walk_dir_s *dirs;
+  কাঠামো cgroup_walk_dir_s *dirs;
   size_t n_dirs;
   size_t allocated;
 };
 
-static void
-cgroup_walk_pop (struct cgroup_walk_s *walk)
+স্থির শূন্য
+cgroup_walk_বের_করো (কাঠামো cgroup_walk_s *walk)
 {
-  free (walk->dirs[--walk->n_dirs].name);
+  মুক্ত (walk->dirs[--walk->n_dirs].name);
 }
 
-static void
-cleanup_cgroup_walkp (struct cgroup_walk_s *walk)
+স্থির শূন্য
+cleanup_cgroup_walkp (কাঠামো cgroup_walk_s *walk)
 {
-  int saved_errno = errno;
+  পূর্ণসংখ্যা saved_errno = errno;
 
-  while (walk->n_dirs > 0)
-    cgroup_walk_pop (walk);
-  free (walk->dirs);
+  যখন (walk->n_dirs > 0)
+    cgroup_walk_বের_করো (walk);
+  মুক্ত (walk->dirs);
   close_and_reset (&walk->dfd);
   errno = saved_errno;
 }
@@ -391,41 +391,41 @@ cleanup_cgroup_walkp (struct cgroup_walk_s *walk)
 /* Make DFD the current directory of the walk and queue its sub-directories.
    DFD must be the root of the walk or a child of the current directory, and
    it is owned by the walk afterwards.  On error -1 is returned with errno set.  */
-static int
-cgroup_walk_enter (struct cgroup_walk_s *walk, int dfd)
+স্থির পূর্ণসংখ্যা
+cgroup_walk_enter (কাঠামো cgroup_walk_s *walk, পূর্ণসংখ্যা dfd)
 {
-  cleanup_close int dfd_clone = -1;
-  cleanup_dir DIR *dir = NULL;
-  struct dirent *de;
+  cleanup_close পূর্ণসংখ্যা dfd_clone = -1;
+  cleanup_dir DIR *dir = ফাঁকা;
+  কাঠামো dirent *de;
 
   close_and_reset (&walk->dfd);
   walk->dfd = dfd;
   walk->depth++;
 
   dfd_clone = openat (dfd, ".", O_RDONLY | O_DIRECTORY | O_CLOEXEC);
-  if (UNLIKELY (dfd_clone < 0))
-    return -1;
+  যদি (UNLIKELY (dfd_clone < 0))
+    ফেরত -1;
 
   dir = fdopendir (dfd_clone);
-  if (UNLIKELY (dir == NULL))
-    return -1;
+  যদি (UNLIKELY (dir == ফাঁকা))
+    ফেরত -1;
   /* fdopendir takes ownership of dfd_clone.  */
   dfd_clone = -1;
 
-  for (de = readdir (dir); de; de = readdir (dir))
+  জন্য (de = readdir (dir); de; de = readdir (dir))
     {
-      struct cgroup_walk_dir_s *d;
+      কাঠামো cgroup_walk_dir_s *d;
 
-      if (strcmp (de->d_name, ".") == 0 || strcmp (de->d_name, "..") == 0)
-        continue;
+      যদি (strcmp (de->d_name, ".") == 0 || strcmp (de->d_name, "..") == 0)
+        চালু;
 
-      if (de->d_type != DT_DIR)
-        continue;
+      যদি (de->d_type != DT_DIR)
+        চালু;
 
-      if (walk->n_dirs == walk->allocated)
+      যদি (walk->n_dirs == walk->allocated)
         {
           walk->allocated = walk->allocated * 2 + 32;
-          walk->dirs = xrealloc (walk->dirs, sizeof (*walk->dirs) * walk->allocated);
+          walk->dirs = xrealloc (walk->dirs, আকার (*walk->dirs) * walk->allocated);
         }
 
       d = &walk->dirs[walk->n_dirs++];
@@ -434,157 +434,157 @@ cgroup_walk_enter (struct cgroup_walk_s *walk, int dfd)
       d->entered = false;
     }
 
-  return 0;
+  ফেরত 0;
 }
 
 /* Store in *D the next queued sub-directory, or NULL once there are no more,
    and make its parent the current directory of the walk.  On error -1 is
    returned with errno set.  */
-static int
-cgroup_walk_next (struct cgroup_walk_s *walk, struct cgroup_walk_dir_s **d)
+স্থির পূর্ণসংখ্যা
+cgroup_walk_পরবর্তী (কাঠামো cgroup_walk_s *walk, কাঠামো cgroup_walk_dir_s **d)
 {
-  *d = walk->n_dirs > 0 ? &walk->dirs[walk->n_dirs - 1] : NULL;
+  *d = walk->n_dirs > 0 ? &walk->dirs[walk->n_dirs - 1] : ফাঁকা;
 
-  while (*d && walk->depth >= (*d)->depth)
+  যখন (*d && walk->depth >= (*d)->depth)
     {
-      int parent;
+      পূর্ণসংখ্যা parent;
 
       parent = openat (walk->dfd, "..", O_DIRECTORY | O_PATH | O_CLOEXEC);
-      if (UNLIKELY (parent < 0))
-        return -1;
+      যদি (UNLIKELY (parent < 0))
+        ফেরত -1;
 
       close_and_reset (&walk->dfd);
       walk->dfd = parent;
       walk->depth--;
     }
 
-  return 0;
+  ফেরত 0;
 }
 
-static int
-read_pids_cgroup_file (int dfd, const char *file, bool recurse, pid_t **pids, size_t *n_pids, size_t *allocated, libcrun_error_t *err)
+স্থির পূর্ণসংখ্যা
+read_pids_cgroup_file (পূর্ণসংখ্যা dfd, ধ্রুবক অক্ষর *file, bool recurse, pid_t **pids, size_t *n_pids, size_t *allocated, libcrun_error_t *err)
 {
-  cleanup_cgroup_walk struct cgroup_walk_s walk = { .dfd = -1 };
-  int dfd_clone;
-  int ret;
+  cleanup_cgroup_walk কাঠামো cgroup_walk_s walk = { .dfd = -1 };
+  পূর্ণসংখ্যা dfd_clone;
+  পূর্ণসংখ্যা ret;
 
   ret = read_pids_file (dfd, file, pids, n_pids, allocated, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
-  if (! recurse)
-    return 0;
+  যদি (! recurse)
+    ফেরত 0;
 
   dfd_clone = openat (dfd, ".", O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (dfd_clone < 0))
-    return crun_make_error (err, errno, "open cgroup sub-directory");
+  যদি (UNLIKELY (dfd_clone < 0))
+    ফেরত crun_make_error (err, errno, "open cgroup sub-directory");
 
   ret = cgroup_walk_enter (&walk, dfd_clone);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "open cgroup sub-directory");
+  যদি (UNLIKELY (ret < 0))
+    ফেরত crun_make_error (err, errno, "open cgroup sub-directory");
 
-  for (;;)
+  জন্য (;;)
     {
-      struct cgroup_walk_dir_s *d;
-      cleanup_close int nfd = -1;
+      কাঠামো cgroup_walk_dir_s *d;
+      cleanup_close পূর্ণসংখ্যা nfd = -1;
 
-      ret = cgroup_walk_next (&walk, &d);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "open parent cgroup directory");
-      if (d == NULL)
-        break;
+      ret = cgroup_walk_পরবর্তী (&walk, &d);
+      যদি (UNLIKELY (ret < 0))
+        ফেরত crun_make_error (err, errno, "open parent cgroup directory");
+      যদি (d == ফাঁকা)
+        বিরতি;
 
       nfd = openat (walk.dfd, d->name, O_DIRECTORY | O_PATH | O_CLOEXEC);
-      if (UNLIKELY (nfd < 0))
+      যদি (UNLIKELY (nfd < 0))
         {
-          int saved_errno = errno;
+          পূর্ণসংখ্যা saved_errno = errno;
 
-          if (saved_errno == ENOENT)
+          যদি (saved_errno == ENOENT)
             {
-              cgroup_walk_pop (&walk);
-              continue;
+              cgroup_walk_বের_করো (&walk);
+              চালু;
             }
-          return crun_make_error (err, saved_errno, "open cgroup directory `%s`", d->name);
+          ফেরত crun_make_error (err, saved_errno, "open cgroup directory `%s`", d->name);
         }
 
-      cgroup_walk_pop (&walk);
+      cgroup_walk_বের_করো (&walk);
 
       ret = read_pids_file (nfd, file, pids, n_pids, allocated, err);
-      if (UNLIKELY (ret < 0))
+      যদি (UNLIKELY (ret < 0))
         {
-          int e = crun_error_get_errno (err);
+          পূর্ণসংখ্যা e = crun_error_get_errno (err);
 
           /* Reading `cgroup.procs` of a threaded cgroup fails with
              EOPNOTSUPP.  Its processes are already listed by its
              threaded domain root, which was read before.  A cgroup
              removed meanwhile has nothing left to list.  */
-          if (e != EOPNOTSUPP && e != ENOENT && e != ENODEV)
-            return ret;
+          যদি (e != EOPNOTSUPP && e != ENOENT && e != ENODEV)
+            ফেরত ret;
           crun_error_release (err);
-          continue;
+          চালু;
         }
 
       ret = cgroup_walk_enter (&walk, nfd);
       nfd = -1;
-      if (UNLIKELY (ret < 0) && errno != ENOENT && errno != ENODEV)
-        return crun_make_error (err, errno, "open cgroup sub-directory");
+      যদি (UNLIKELY (ret < 0) && errno != ENOENT && errno != ENODEV)
+        ফেরত crun_make_error (err, errno, "open cgroup sub-directory");
     }
 
-  return 0;
+  ফেরত 0;
 }
 
-static int
-read_pids_cgroup (int dfd, bool recurse, pid_t **pids, size_t *n_pids, size_t *allocated, libcrun_error_t *err)
+স্থির পূর্ণসংখ্যা
+read_pids_cgroup (পূর্ণসংখ্যা dfd, bool recurse, pid_t **pids, size_t *n_pids, size_t *allocated, libcrun_error_t *err)
 {
-  int ret;
+  পূর্ণসংখ্যা ret;
 
   ret = read_pids_cgroup_file (dfd, "cgroup.procs", recurse, pids, n_pids, allocated, err);
-  if (ret < 0 && crun_error_get_errno (err) == EOPNOTSUPP)
+  যদি (ret < 0 && crun_error_get_errno (err) == EOPNOTSUPP)
     {
       /* A threaded cgroup has no `cgroup.procs`, list its threads instead.  */
       crun_error_release (err);
       ret = read_pids_cgroup_file (dfd, "cgroup.threads", recurse, pids, n_pids, allocated, err);
     }
-  return ret;
+  ফেরত ret;
 }
 
-static int
-rmdir_all_fd (int dfd)
+স্থির পূর্ণসংখ্যা
+rmdir_all_fd (পূর্ণসংখ্যা dfd)
 {
-  cleanup_cgroup_walk struct cgroup_walk_s walk = { .dfd = -1 };
-  int ret;
+  cleanup_cgroup_walk কাঠামো cgroup_walk_s walk = { .dfd = -1 };
+  পূর্ণসংখ্যা ret;
 
   ret = cgroup_walk_enter (&walk, dfd);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
-  for (;;)
+  জন্য (;;)
     {
-      struct cgroup_walk_dir_s *d;
-      int child_dfd;
+      কাঠামো cgroup_walk_dir_s *d;
+      পূর্ণসংখ্যা child_dfd;
 
-      ret = cgroup_walk_next (&walk, &d);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      if (d == NULL)
-        break;
+      ret = cgroup_walk_পরবর্তী (&walk, &d);
+      যদি (UNLIKELY (ret < 0))
+        ফেরত ret;
+      যদি (d == ফাঁকা)
+        বিরতি;
 
       ret = unlinkat (walk.dfd, d->name, AT_REMOVEDIR);
-      if (ret == 0 || errno != EBUSY || d->entered)
+      যদি (ret == 0 || errno != EBUSY || d->entered)
         {
-          cgroup_walk_pop (&walk);
-          continue;
+          cgroup_walk_বের_করো (&walk);
+          চালু;
         }
 
       child_dfd = openat (walk.dfd, d->name, O_DIRECTORY | O_CLOEXEC);
-      if (UNLIKELY (child_dfd < 0))
+      যদি (UNLIKELY (child_dfd < 0))
         {
-          if (errno == ENOENT)
+          যদি (errno == ENOENT)
             {
-              cgroup_walk_pop (&walk);
-              continue;
+              cgroup_walk_বের_করো (&walk);
+              চালু;
             }
-          return child_dfd;
+          ফেরত child_dfd;
         }
 
       /* Keep the directory queued, so that removing it is retried once its
@@ -592,473 +592,473 @@ rmdir_all_fd (int dfd)
       d->entered = true;
 
       ret = cgroup_walk_enter (&walk, child_dfd);
-      if (UNLIKELY (ret < 0) && errno != ENOENT && errno != ENODEV)
-        return ret;
+      যদি (UNLIKELY (ret < 0) && errno != ENOENT && errno != ENODEV)
+        ফেরত ret;
     }
 
-  return 0;
+  ফেরত 0;
 }
 
-static int
-rmdir_all (const char *path)
+স্থির পূর্ণসংখ্যা
+rmdir_all (ধ্রুবক অক্ষর *path)
 {
-  int ret;
-  int dfd = open (path, O_DIRECTORY | O_CLOEXEC);
-  if (UNLIKELY (dfd < 0))
-    return dfd;
+  পূর্ণসংখ্যা ret;
+  পূর্ণসংখ্যা dfd = open (path, O_DIRECTORY | O_CLOEXEC);
+  যদি (UNLIKELY (dfd < 0))
+    ফেরত dfd;
 
   ret = rmdir_all_fd (dfd);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
-  return rmdir (path);
+  ফেরত rmdir (path);
 }
 
-static int
-read_pids_from_path (const char *path, bool recurse, bool threads, pid_t **pids, libcrun_error_t *err)
+স্থির পূর্ণসংখ্যা
+read_pids_from_path (ধ্রুবক অক্ষর *path, bool recurse, bool threads, pid_t **pids, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
-  cleanup_close int dirfd = -1;
+  cleanup_free অক্ষর *cgroup_path = ফাঁকা;
+  cleanup_close পূর্ণসংখ্যা dirfd = -1;
   size_t n_pids, allocated;
-  int mode;
-  int ret;
+  পূর্ণসংখ্যা mode;
+  পূর্ণসংখ্যা ret;
 
-  if (path == NULL || *path == '\0')
-    return 0;
+  যদি (path == ফাঁকা || *path == '\0')
+    ফেরত 0;
 
   mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (mode < 0))
-    return mode;
+  যদি (UNLIKELY (mode < 0))
+    ফেরত mode;
 
-  switch (mode)
+  নির্বাচন (mode)
     {
-    case CGROUP_MODE_UNIFIED:
-      ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      break;
+    ক্ষেত্র CGROUP_MODE_UNIFIED:
+      ret = append_paths (&cgroup_path, err, CGROUP_মূল, path, ফাঁকা);
+      যদি (UNLIKELY (ret < 0))
+        ফেরত ret;
+      বিরতি;
 
-    case CGROUP_MODE_HYBRID:
-    case CGROUP_MODE_LEGACY:
-      ret = append_paths (&cgroup_path, err, CGROUP_ROOT "/memory", path, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      break;
+    ক্ষেত্র CGROUP_MODE_HYBRID:
+    ক্ষেত্র CGROUP_MODE_LEGACY:
+      ret = append_paths (&cgroup_path, err, CGROUP_মূল "/memory", path, ফাঁকা);
+      যদি (UNLIKELY (ret < 0))
+        ফেরত ret;
+      বিরতি;
 
-    default:
-      return crun_make_error (err, 0, "invalid cgroup mode `%d`", mode);
+    পূর্বনির্ধারিত:
+      ফেরত crun_make_error (err, 0, "invalid cgroup mode `%d`", mode);
     }
 
   dirfd = open (cgroup_path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (dirfd < 0)
-    return crun_make_error (err, errno, "open `%s`", cgroup_path);
+  যদি (dirfd < 0)
+    ফেরত crun_make_error (err, errno, "open `%s`", cgroup_path);
 
   n_pids = 0;
   allocated = 0;
 
   /* On cgroup v1 `cgroup.procs` lists the thread group of every task in the
      cgroup, so there is no need to read `tasks` there.  */
-  if (threads && mode == CGROUP_MODE_UNIFIED)
-    return read_pids_cgroup_file (dirfd, "cgroup.threads", recurse, pids, &n_pids, &allocated, err);
+  যদি (threads && mode == CGROUP_MODE_UNIFIED)
+    ফেরত read_pids_cgroup_file (dirfd, "cgroup.threads", recurse, pids, &n_pids, &allocated, err);
 
-  return read_pids_cgroup (dirfd, recurse, pids, &n_pids, &allocated, err);
+  ফেরত read_pids_cgroup (dirfd, recurse, pids, &n_pids, &allocated, err);
 }
 
-int
-libcrun_cgroup_read_pids_from_path (const char *path, bool recurse, pid_t **pids, libcrun_error_t *err)
+পূর্ণসংখ্যা
+libcrun_cgroup_read_pids_from_path (ধ্রুবক অক্ষর *path, bool recurse, pid_t **pids, libcrun_error_t *err)
 {
-  return read_pids_from_path (path, recurse, false, pids, err);
+  ফেরত read_pids_from_path (path, recurse, false, pids, err);
 }
 
 /* same semantic as strtok_r.  */
 bool
-read_proc_cgroup (char *content, char **saveptr, char **id, char **controller_list, char **path)
+read_proc_cgroup (অক্ষর *content, অক্ষর **saveptr, অক্ষর **id, অক্ষর **controller_list, অক্ষর **path)
 {
-  char *it;
+  অক্ষর *it;
 
   it = strtok_r (content, "\n", saveptr);
-  if (it == NULL)
-    return false;
+  যদি (it == ফাঁকা)
+    ফেরত false;
 
-  if (id)
+  যদি (id)
     *id = it;
 
   it = strchr (it, ':');
-  if (it == NULL)
-    return false;
+  যদি (it == ফাঁকা)
+    ফেরত false;
   *it++ = '\0';
 
-  if (controller_list)
+  যদি (controller_list)
     *controller_list = it;
 
   it = strchr (it, ':');
-  if (it == NULL)
-    return false;
+  যদি (it == ফাঁকা)
+    ফেরত false;
   *it++ = '\0';
 
-  if (path)
+  যদি (path)
     *path = it;
 
-  return true;
+  ফেরত true;
 }
 
-int
-destroy_cgroup_path (const char *path, int mode, libcrun_error_t *err)
+পূর্ণসংখ্যা
+destroy_cgroup_path (ধ্রুবক অক্ষর *path, পূর্ণসংখ্যা mode, libcrun_error_t *err)
 {
   bool repeat = true;
-  int retry_count = 0;
-  const int max_attempts = 500;
-  int ret;
+  পূর্ণসংখ্যা retry_গুনতি = 0;
+  ধ্রুবক পূর্ণসংখ্যা max_attempts = 500;
+  পূর্ণসংখ্যা ret;
 
   /* Without a path there is nothing to destroy.  Bail out early, since
      append_paths() stops at the first NULL argument and would otherwise
      be left pointing at the cgroup root.  */
-  if (is_empty_string (path))
-    return 0;
+  যদি (is_empty_string (path))
+    ফেরত 0;
 
-  do
+  করো
     {
       repeat = false;
 
-      if (mode == CGROUP_MODE_UNIFIED)
+      যদি (mode == CGROUP_MODE_UNIFIED)
         {
-          cleanup_free char *cgroup_path = NULL;
+          cleanup_free অক্ষর *cgroup_path = ফাঁকা;
 
-          ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = append_paths (&cgroup_path, err, CGROUP_মূল, path, ফাঁকা);
+          যদি (UNLIKELY (ret < 0))
+            ফেরত ret;
           ret = rmdir (cgroup_path);
-          if (ret < 0 && errno == EBUSY)
+          যদি (ret < 0 && errno == EBUSY)
             {
               ret = rmdir_all (cgroup_path);
-              if (ret < 0)
+              যদি (ret < 0)
                 {
-                  if (retry_count >= max_attempts)
-                    return crun_make_error (err, errno, "cannot delete path `%s`", cgroup_path);
+                  যদি (retry_গুনতি >= max_attempts)
+                    ফেরত crun_make_error (err, errno, "cannot delete path `%s`", cgroup_path);
 
-                  retry_count++;
+                  retry_গুনতি++;
                   repeat = true;
                 }
             }
         }
-      else
+      অন্যথা
         {
-          cleanup_free char *content = NULL;
-          size_t content_size;
-          char *controller;
-          char *saveptr;
-          bool has_data;
+          cleanup_free অক্ষর *content = ফাঁকা;
+          size_t content_আকার;
+          অক্ষর *controller;
+          অক্ষর *saveptr;
+          bool has_তথ্য;
 
-          ret = read_all_file (PROC_SELF_CGROUP, &content, &content_size, err);
-          if (UNLIKELY (ret < 0))
+          ret = read_all_file (PROC_SELF_CGROUP, &content, &content_আকার, err);
+          যদি (UNLIKELY (ret < 0))
             {
-              if (crun_error_get_errno (err) == ENOENT)
+              যদি (crun_error_get_errno (err) == ENOENT)
                 {
                   crun_error_release (err);
-                  return 0;
+                  ফেরত 0;
                 }
-              return ret;
+              ফেরত ret;
             }
 
-          for (has_data = read_proc_cgroup (content, &saveptr, NULL, &controller, NULL);
-               has_data;
-               has_data = read_proc_cgroup (NULL, &saveptr, NULL, &controller, NULL))
+          জন্য (has_তথ্য = read_proc_cgroup (content, &saveptr, ফাঁকা, &controller, ফাঁকা);
+               has_তথ্য;
+               has_তথ্য = read_proc_cgroup (ফাঁকা, &saveptr, ফাঁকা, &controller, ফাঁকা))
             {
-              cleanup_free char *cgroup_path = NULL;
-              char *subsystem;
-              if (has_prefix (controller, "name="))
+              cleanup_free অক্ষর *cgroup_path = ফাঁকা;
+              অক্ষর *subsystem;
+              যদি (has_prefix (controller, "name="))
                 controller += 5;
 
               subsystem = controller[0] == '\0' ? "unified" : controller;
-              if (mode == CGROUP_MODE_LEGACY && strcmp (subsystem, "unified") == 0)
-                continue;
+              যদি (mode == CGROUP_MODE_LEGACY && strcmp (subsystem, "unified") == 0)
+                চালু;
 
-              ret = append_paths (&cgroup_path, err, CGROUP_ROOT, subsystem, path, NULL);
-              if (UNLIKELY (ret < 0))
-                return ret;
+              ret = append_paths (&cgroup_path, err, CGROUP_মূল, subsystem, path, ফাঁকা);
+              যদি (UNLIKELY (ret < 0))
+                ফেরত ret;
 
               ret = rmdir (cgroup_path);
-              if (ret < 0 && errno == EBUSY)
+              যদি (ret < 0 && errno == EBUSY)
                 {
                   ret = rmdir_all (cgroup_path);
-                  if (ret < 0)
+                  যদি (ret < 0)
                     {
-                      if (retry_count >= max_attempts)
-                        return crun_make_error (err, errno, "cannot destroy subsystem `%s` at path `%s`", subsystem, cgroup_path);
-                      retry_count++;
+                      যদি (retry_গুনতি >= max_attempts)
+                        ফেরত crun_make_error (err, errno, "cannot destroy subsystem `%s` at path `%s`", subsystem, cgroup_path);
+                      retry_গুনতি++;
                       repeat = true;
                     }
                 }
             }
         }
 
-      if (repeat)
+      যদি (repeat)
         {
-          struct timespec req = {
+          কাঠামো timespec req = {
             .tv_sec = 0,
             .tv_nsec = 10000000,
           };
 
-          nanosleep (&req, NULL);
+          nanosleep (&req, ফাঁকা);
 
           ret = cgroup_killall_path (path, SIGKILL, err);
-          if (UNLIKELY (ret < 0))
+          যদি (UNLIKELY (ret < 0))
             crun_error_release (err);
         }
-  } while (repeat);
+  } যখন (repeat);
 
-  return 0;
+  ফেরত 0;
 }
 
-int
-chown_cgroups (const char *path, uid_t uid, gid_t gid, libcrun_error_t *err)
+পূর্ণসংখ্যা
+chown_cgroups (ধ্রুবক অক্ষর *path, uid_t uid, gid_t gid, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
-  cleanup_free char *delegate = NULL;
-  cleanup_close int dfd = -1;
-  size_t delegate_size;
-  char *saveptr = NULL;
-  char *name;
-  int ret;
+  cleanup_free অক্ষর *cgroup_path = ফাঁকা;
+  cleanup_free অক্ষর *delegate = ফাঁকা;
+  cleanup_close পূর্ণসংখ্যা dfd = -1;
+  size_t delegate_আকার;
+  অক্ষর *saveptr = ফাঁকা;
+  অক্ষর *name;
+  পূর্ণসংখ্যা ret;
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_path, err, CGROUP_মূল, path, ফাঁকা);
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
   dfd = open (cgroup_path, O_CLOEXEC | O_PATH);
-  if (UNLIKELY (dfd < 0))
-    return crun_make_error (err, errno, "open `%s`", cgroup_path);
+  যদি (UNLIKELY (dfd < 0))
+    ফেরত crun_make_error (err, errno, "open `%s`", cgroup_path);
 
-  ret = read_all_file ("/sys/kernel/cgroup/delegate", &delegate, &delegate_size, err);
-  if (UNLIKELY (ret < 0))
+  ret = read_all_file ("/sys/kernel/cgroup/delegate", &delegate, &delegate_আকার, err);
+  যদি (UNLIKELY (ret < 0))
     {
-      if (crun_error_get_errno (err) == ENOENT)
+      যদি (crun_error_get_errno (err) == ENOENT)
         {
           crun_error_release (err);
-          return 0;
+          ফেরত 0;
         }
-      return ret;
+      ফেরত ret;
     }
 
   ret = fchownat (dfd, "", uid, gid, AT_EMPTY_PATH | AT_SYMLINK_NOFOLLOW);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "cannot chown `%s`", cgroup_path);
+  যদি (UNLIKELY (ret < 0))
+    ফেরত crun_make_error (err, errno, "cannot chown `%s`", cgroup_path);
 
-  for (name = strtok_r (delegate, "\n", &saveptr); name; name = strtok_r (NULL, "\n", &saveptr))
+  জন্য (name = strtok_r (delegate, "\n", &saveptr); name; name = strtok_r (ফাঁকা, "\n", &saveptr))
     {
       ret = fchownat (dfd, name, uid, gid, AT_SYMLINK_NOFOLLOW);
-      if (UNLIKELY (ret < 0))
+      যদি (UNLIKELY (ret < 0))
         {
-          if (errno == ENOENT)
-            continue;
+          যদি (errno == ENOENT)
+            চালু;
 
-          return crun_make_error (err, errno, "cannot chown `%s/%s`", cgroup_path, name);
+          ফেরত crun_make_error (err, errno, "cannot chown `%s/%s`", cgroup_path, name);
         }
     }
 
-  return 0;
+  ফেরত 0;
 }
 
-static int
-libcrun_cgroup_pause_unpause_with_mode (const char *cgroup_path, int cgroup_mode, const bool pause,
+স্থির পূর্ণসংখ্যা
+libcrun_cgroup_pause_unpause_with_mode (ধ্রুবক অক্ষর *cgroup_path, পূর্ণসংখ্যা cgroup_mode, ধ্রুবক bool pause,
                                         libcrun_error_t *err)
 {
-  cleanup_free char *path = NULL;
-  const char *state = "";
-  int ret;
+  cleanup_free অক্ষর *path = ফাঁকা;
+  ধ্রুবক অক্ষর *state = "";
+  পূর্ণসংখ্যা ret;
 
-  if (cgroup_path == NULL || cgroup_path[0] == '\0')
-    return crun_make_error (err, 0, "cannot %s the container without a cgroup", pause ? "pause" : "resume");
+  যদি (cgroup_path == ফাঁকা || cgroup_path[0] == '\0')
+    ফেরত crun_make_error (err, 0, "cannot %s the container without a cgroup", pause ? "pause" : "resume");
 
-  if (cgroup_mode == CGROUP_MODE_UNIFIED)
+  যদি (cgroup_mode == CGROUP_MODE_UNIFIED)
     {
       state = pause ? "1" : "0";
-      ret = append_paths (&path, err, CGROUP_ROOT, cgroup_path, "cgroup.freeze", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&path, err, CGROUP_মূল, cgroup_path, "cgroup.freeze", ফাঁকা);
+      যদি (UNLIKELY (ret < 0))
+        ফেরত ret;
     }
-  else
+  অন্যথা
     {
       state = pause ? "FROZEN" : "THAWED";
-      ret = append_paths (&path, err, CGROUP_ROOT "/freezer", cgroup_path, "freezer.state", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&path, err, CGROUP_মূল "/freezer", cgroup_path, "freezer.state", ফাঁকা);
+      যদি (UNLIKELY (ret < 0))
+        ফেরত ret;
     }
 
   ret = write_cgroup_file (AT_FDCWD, path, state, strlen (state), err);
-  if (ret >= 0)
-    return 0;
-  return ret;
+  যদি (ret >= 0)
+    ফেরত 0;
+  ফেরত ret;
 }
 
-int
-libcrun_cgroup_pause_unpause_path (const char *cgroup_path, const bool pause, libcrun_error_t *err)
+পূর্ণসংখ্যা
+libcrun_cgroup_pause_unpause_path (ধ্রুবক অক্ষর *cgroup_path, ধ্রুবক bool pause, libcrun_error_t *err)
 {
-  int cgroup_mode;
+  পূর্ণসংখ্যা cgroup_mode;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  যদি (UNLIKELY (cgroup_mode < 0))
+    ফেরত cgroup_mode;
 
-  return libcrun_cgroup_pause_unpause_with_mode (cgroup_path, cgroup_mode, pause, err);
+  ফেরত libcrun_cgroup_pause_unpause_with_mode (cgroup_path, cgroup_mode, pause, err);
 }
 
 /* Fail if the cgroup at CGROUP_PATH exists and is frozen: a process in a
    frozen cgroup cannot make any progress, so the container creation would
    hang forever.  */
-int
-libcrun_cgroup_ensure_not_frozen (const char *cgroup_path, libcrun_error_t *err)
+পূর্ণসংখ্যা
+libcrun_cgroup_ensure_not_frozen (ধ্রুবক অক্ষর *cgroup_path, libcrun_error_t *err)
 {
-  cleanup_free char *content = NULL;
-  cleanup_free char *path = NULL;
-  const char *frozen;
-  int cgroup_mode;
-  int ret;
+  cleanup_free অক্ষর *content = ফাঁকা;
+  cleanup_free অক্ষর *path = ফাঁকা;
+  ধ্রুবক অক্ষর *frozen;
+  পূর্ণসংখ্যা cgroup_mode;
+  পূর্ণসংখ্যা ret;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  যদি (UNLIKELY (cgroup_mode < 0))
+    ফেরত cgroup_mode;
 
-  if (cgroup_mode == CGROUP_MODE_UNIFIED)
+  যদি (cgroup_mode == CGROUP_MODE_UNIFIED)
     {
       frozen = "1";
-      ret = append_paths (&path, err, CGROUP_ROOT, cgroup_path, "cgroup.freeze", NULL);
+      ret = append_paths (&path, err, CGROUP_মূল, cgroup_path, "cgroup.freeze", ফাঁকা);
     }
-  else
+  অন্যথা
     {
       frozen = "FROZEN";
-      ret = append_paths (&path, err, CGROUP_ROOT "/freezer", cgroup_path, "freezer.state", NULL);
+      ret = append_paths (&path, err, CGROUP_মূল "/freezer", cgroup_path, "freezer.state", ফাঁকা);
     }
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
-  ret = read_all_file (path, &content, NULL, err);
-  if (UNLIKELY (ret < 0))
+  ret = read_all_file (path, &content, ফাঁকা, err);
+  যদি (UNLIKELY (ret < 0))
     {
       /* Either the cgroup does not exist yet, or there is no freezer.  */
-      if (crun_error_get_errno (err) == ENOENT)
+      যদি (crun_error_get_errno (err) == ENOENT)
         {
           crun_error_release (err);
-          return 0;
+          ফেরত 0;
         }
-      return ret;
+      ফেরত ret;
     }
 
-  if (strstr (content, frozen))
-    return crun_make_error (err, 0, "container's cgroup unexpectedly frozen");
+  যদি (strstr (content, frozen))
+    ফেরত crun_make_error (err, 0, "container's cgroup unexpectedly frozen");
 
-  return 0;
+  ফেরত 0;
 }
 
 #define CGROUP_KILL_WAIT_SEC 1
 
 /* Watch cgroup.events of PATH, so that a later wait_cgroup_unpopulated does
    not miss a change.  Return -1 if the watch cannot be set up.  */
-static int
-watch_cgroup_events (const char *path)
+স্থির পূর্ণসংখ্যা
+watch_cgroup_events (ধ্রুবক অক্ষর *path)
 {
-  cleanup_free char *events_file = NULL;
-  cleanup_close int fd = -1;
-  libcrun_error_t tmp_err = NULL;
-  int ret;
+  cleanup_free অক্ষর *events_file = ফাঁকা;
+  cleanup_close পূর্ণসংখ্যা fd = -1;
+  libcrun_error_t tmp_err = ফাঁকা;
+  পূর্ণসংখ্যা ret;
 
-  ret = append_paths (&events_file, &tmp_err, CGROUP_ROOT, path, "cgroup.events", NULL);
-  if (UNLIKELY (ret < 0))
+  ret = append_paths (&events_file, &tmp_err, CGROUP_মূল, path, "cgroup.events", ফাঁকা);
+  যদি (UNLIKELY (ret < 0))
     {
       crun_error_release (&tmp_err);
-      return -1;
+      ফেরত -1;
     }
 
   fd = inotify_init1 (IN_CLOEXEC | IN_NONBLOCK);
-  if (UNLIKELY (fd < 0))
-    return -1;
+  যদি (UNLIKELY (fd < 0))
+    ফেরত -1;
 
   ret = inotify_add_watch (fd, events_file, IN_MODIFY);
-  if (UNLIKELY (ret < 0))
-    return -1;
+  যদি (UNLIKELY (ret < 0))
+    ফেরত -1;
 
   ret = fd;
   fd = -1;
-  return ret;
+  ফেরত ret;
 }
 
 /* Wait up to a short timeout for the cgroup to have no processes left.
    Return 1 if the cgroup is not populated anymore, 0 otherwise.  */
-static int
-wait_cgroup_unpopulated (const char *path, int inotify_fd)
+স্থির পূর্ণসংখ্যা
+wait_cgroup_unpopulated (ধ্রুবক অক্ষর *path, পূর্ণসংখ্যা inotify_fd)
 {
-  cleanup_free char *events_file = NULL;
-  libcrun_error_t tmp_err = NULL;
-  struct timespec timeout = {
+  cleanup_free অক্ষর *events_file = ফাঁকা;
+  libcrun_error_t tmp_err = ফাঁকা;
+  কাঠামো timespec timeout = {
     .tv_sec = CGROUP_KILL_WAIT_SEC,
     .tv_nsec = 0,
   };
-  int ret;
+  পূর্ণসংখ্যা ret;
 
-  ret = append_paths (&events_file, &tmp_err, CGROUP_ROOT, path, "cgroup.events", NULL);
-  if (UNLIKELY (ret < 0))
+  ret = append_paths (&events_file, &tmp_err, CGROUP_মূল, path, "cgroup.events", ফাঁকা);
+  যদি (UNLIKELY (ret < 0))
     {
       crun_error_release (&tmp_err);
-      return 0;
+      ফেরত 0;
     }
 
-  for (;;)
+  জন্য (;;)
     {
-      cleanup_free char *content = NULL;
-      char buf[4096];
-      struct pollfd pfd = { .fd = inotify_fd, .events = POLLIN };
+      cleanup_free অক্ষর *content = ফাঁকা;
+      অক্ষর buf[4096];
+      কাঠামো pollfd pfd = { .fd = inotify_fd, .events = POLLIN };
 
-      ret = read_all_file (events_file, &content, NULL, &tmp_err);
-      if (UNLIKELY (ret < 0))
+      ret = read_all_file (events_file, &content, ফাঁকা, &tmp_err);
+      যদি (UNLIKELY (ret < 0))
         {
           crun_error_release (&tmp_err);
-          return 0;
+          ফেরত 0;
         }
 
-      if (strstr (content, "populated 0"))
-        return 1;
+      যদি (strstr (content, "populated 0"))
+        ফেরত 1;
 
-      ret = TEMP_FAILURE_RETRY (ppoll (&pfd, 1, &timeout, NULL));
-      if (ret <= 0)
-        return 0;
+      ret = অস্থায়ী_FAILURE_RETRY (ppoll (&pfd, 1, &timeout, ফাঁকা));
+      যদি (ret <= 0)
+        ফেরত 0;
 
-      while (read (inotify_fd, buf, sizeof (buf)) > 0)
+      যখন (পঠ (inotify_fd, buf, আকার (buf)) > 0)
         ;
     }
 }
 
-int
-cgroup_killall_path (const char *path, int signal, libcrun_error_t *err)
+পূর্ণসংখ্যা
+cgroup_killall_path (ধ্রুবক অক্ষর *path, পূর্ণসংখ্যা সংকেত, libcrun_error_t *err)
 {
   bool frozen = false;
-  cleanup_close int inotify_fd = -1;
-  int ret;
+  cleanup_close পূর্ণসংখ্যা inotify_fd = -1;
+  পূর্ণসংখ্যা ret;
   size_t i;
-  cleanup_free pid_t *pids = NULL;
+  cleanup_free pid_t *pids = ফাঁকা;
 
-  if (path == NULL || *path == '\0')
-    return 0;
+  যদি (path == ফাঁকা || *path == '\0')
+    ফেরত 0;
 
   /* If the signal is SIGKILL, try to kill each process using the `cgroup.kill` file.
      The kernel signals the thread group leaders, and that has no effect on a
      process whose leader already exited while other threads are still running.
      If the cgroup is not empty shortly after the write, go on and signal
      whatever is still listed in the cgroup.  */
-  if (signal == SIGKILL)
+  যদি (সংকেত == SIGKILL)
     {
-      cleanup_free char *kill_file = NULL;
+      cleanup_free অক্ষর *kill_file = ফাঁকা;
 
-      ret = append_paths (&kill_file, err, CGROUP_ROOT, path, "cgroup.kill", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&kill_file, err, CGROUP_মূল, path, "cgroup.kill", ফাঁকা);
+      যদি (UNLIKELY (ret < 0))
+        ফেরত ret;
 
       inotify_fd = watch_cgroup_events (path);
 
       ret = write_cgroup_file (AT_FDCWD, kill_file, "1", 1, err);
-      if (ret >= 0 && inotify_fd >= 0 && wait_cgroup_unpopulated (path, inotify_fd))
-        return 0;
+      যদি (ret >= 0 && inotify_fd >= 0 && wait_cgroup_unpopulated (path, inotify_fd))
+        ফেরত 0;
 
-      if (UNLIKELY (ret < 0))
+      যদি (UNLIKELY (ret < 0))
         crun_error_release (err);
     }
 
@@ -1066,96 +1066,96 @@ cgroup_killall_path (const char *path, int signal, libcrun_error_t *err)
      killed.  Once frozen, make sure the cgroup is always thawed again on any
      exit path, otherwise the container would be left frozen and unresponsive.  */
   ret = libcrun_cgroup_pause_unpause_path (path, true, err);
-  if (UNLIKELY (ret < 0))
+  যদি (UNLIKELY (ret < 0))
     crun_error_release (err);
-  else
+  অন্যথা
     frozen = true;
 
   /* On cgroup v2 a process is listed in `cgroup.procs` of the cgroup of its
      leader, and a process whose leader exited is not listed anywhere once it
      is moved to another cgroup.  For SIGKILL enumerate the threads instead,
      kill() accepts any thread ID and always targets the whole process.  */
-  ret = read_pids_from_path (path, true, signal == SIGKILL, &pids, err);
-  if (UNLIKELY (ret < 0))
+  ret = read_pids_from_path (path, true, সংকেত == SIGKILL, &pids, err);
+  যদি (UNLIKELY (ret < 0))
     {
-      if (crun_error_get_errno (err) != ENOENT)
-        goto thaw;
+      যদি (crun_error_get_errno (err) != ENOENT)
+        যাও thaw;
 
       /* If the file doesn't exist then the container was already killed.  */
       crun_error_release (err);
     }
 
-  for (i = 0; pids && pids[i]; i++)
+  জন্য (i = 0; pids && pids[i]; i++)
     {
-      ret = kill (pids[i], signal);
-      if (UNLIKELY (ret < 0 && errno != ESRCH))
+      ret = kill (pids[i], সংকেত);
+      যদি (UNLIKELY (ret < 0 && errno != ESRCH))
         {
           ret = crun_make_error (err, errno, "kill process `%d`", pids[i]);
-          goto thaw;
+          যাও thaw;
         }
     }
 
   ret = 0;
 
 thaw:
-  if (frozen)
+  যদি (frozen)
     {
-      libcrun_error_t thaw_err = NULL;
+      libcrun_error_t thaw_err = ফাঁকা;
 
       /* Thawing is best-effort: do not clobber a pending error with a
          thaw failure, but never leave the cgroup frozen.  */
-      if (libcrun_cgroup_pause_unpause_path (path, false, &thaw_err) < 0)
+      যদি (libcrun_cgroup_pause_unpause_path (path, false, &thaw_err) < 0)
         crun_error_release (&thaw_err);
     }
 
-  return ret;
+  ফেরত ret;
 }
 
-static int
-read_available_controllers (const char *path, libcrun_error_t *err)
+স্থির পূর্ণসংখ্যা
+read_available_controllers (ধ্রুবক অক্ষর *path, libcrun_error_t *err)
 {
-  cleanup_free char *controllers = NULL;
-  cleanup_free char *buf = NULL;
-  char *saveptr = NULL;
-  const char *token;
-  int available = 0;
+  cleanup_free অক্ষর *controllers = ফাঁকা;
+  cleanup_free অক্ষর *buf = ফাঁকা;
+  অক্ষর *saveptr = ফাঁকা;
+  ধ্রুবক অক্ষর *token;
+  পূর্ণসংখ্যা available = 0;
   ssize_t ret;
 
-  ret = append_paths (&controllers, err, CGROUP_ROOT, path, "cgroup.controllers", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&controllers, err, CGROUP_মূল, path, "cgroup.controllers", ফাঁকা);
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
-  ret = read_all_file (controllers, &buf, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file (controllers, &buf, ফাঁকা, err);
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
-  for (token = strtok_r (buf, " \n", &saveptr); token; token = strtok_r (NULL, " \n", &saveptr))
+  জন্য (token = strtok_r (buf, " \n", &saveptr); token; token = strtok_r (ফাঁকা, " \n", &saveptr))
     {
-      if (strcmp (token, "memory") == 0)
+      যদি (strcmp (token, "memory") == 0)
         available |= CGROUP_MEMORY;
-      else if (strcmp (token, "cpu") == 0)
+      অন্যথা যদি (strcmp (token, "cpu") == 0)
         available |= CGROUP_CPU;
-      else if (strcmp (token, "cpuset") == 0)
+      অন্যথা যদি (strcmp (token, "cpuset") == 0)
         available |= CGROUP_CPUSET;
-      else if (strcmp (token, "hugetlb") == 0)
+      অন্যথা যদি (strcmp (token, "hugetlb") == 0)
         available |= CGROUP_HUGETLB;
-      else if (strcmp (token, "pids") == 0)
+      অন্যথা যদি (strcmp (token, "pids") == 0)
         available |= CGROUP_PIDS;
-      else if (strcmp (token, "io") == 0)
+      অন্যথা যদি (strcmp (token, "io") == 0)
         available |= CGROUP_IO;
-      else if (strcmp (token, "misc") == 0)
+      অন্যথা যদি (strcmp (token, "misc") == 0)
         available |= CGROUP_MISC;
     }
-  return available;
+  ফেরত available;
 }
 
-static int
-write_controller_file (const char *path, int controllers_to_enable, libcrun_error_t *err)
+স্থির পূর্ণসংখ্যা
+write_controller_file (ধ্রুবক অক্ষর *path, পূর্ণসংখ্যা controllers_to_enable, libcrun_error_t *err)
 {
-  cleanup_free char *subtree_control = NULL;
-  cleanup_free char *controllers = NULL;
+  cleanup_free অক্ষর *subtree_control = ফাঁকা;
+  cleanup_free অক্ষর *controllers = ফাঁকা;
   size_t controllers_len = 0;
-  int ret;
+  পূর্ণসংখ্যা ret;
 
   controllers_len = xasprintf (
       &controllers, "%s %s %s %s %s %s %s", (controllers_to_enable & CGROUP_CPU) ? "+cpu" : "",
@@ -1164,54 +1164,54 @@ write_controller_file (const char *path, int controllers_to_enable, libcrun_erro
       (controllers_to_enable & CGROUP_HUGETLB) ? "+hugetlb" : "",
       (controllers_to_enable & CGROUP_MISC) ? "+misc" : "");
 
-  ret = append_paths (&subtree_control, err, CGROUP_ROOT, path, "cgroup.subtree_control", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&subtree_control, err, CGROUP_মূল, path, "cgroup.subtree_control", ফাঁকা);
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
   ret = write_cgroup_file (AT_FDCWD, subtree_control, controllers, controllers_len, err);
-  if (UNLIKELY (ret < 0))
+  যদি (UNLIKELY (ret < 0))
     {
-      cleanup_free char *controllers_copy = xmalloc (controllers_len + 1);
-      int attempts_left;
-      char *saveptr = NULL;
-      const char *token;
-      int e;
+      cleanup_free অক্ষর *controllers_copy = xmalloc (controllers_len + 1);
+      পূর্ণসংখ্যা attempts_বাম;
+      অক্ষর *saveptr = ফাঁকা;
+      ধ্রুবক অক্ষর *token;
+      পূর্ণসংখ্যা e;
 
       e = crun_error_get_errno (err);
-      if (e != EPERM && e != EACCES && e != EBUSY && e != ENOENT && e != EOPNOTSUPP)
-        return crun_error_wrap (err, "enable controllers `%s`", controllers);
+      যদি (e != EPERM && e != EACCES && e != EBUSY && e != ENOENT && e != EOPNOTSUPP)
+        ফেরত crun_error_wrap (err, "enable controllers `%s`", controllers);
 
       /* ENOENT can mean both that the file doesn't exist or the controller is not present.  */
-      if (e == ENOENT)
+      যদি (e == ENOENT)
         {
-          libcrun_error_t tmp_err = NULL;
-          int exists;
+          libcrun_error_t tmp_err = ফাঁকা;
+          পূর্ণসংখ্যা exists;
 
           exists = crun_path_exists (subtree_control, &tmp_err);
-          if (UNLIKELY (exists < 0))
+          যদি (UNLIKELY (exists < 0))
             {
               crun_error_release (&tmp_err);
-              return ret;
+              ফেরত ret;
             }
           /* If the file doesn't exist, then return the original ENOENT.  */
-          if (exists == 0)
-            return ret;
+          যদি (exists == 0)
+            ফেরত ret;
         }
 
       crun_error_release (err);
 
-      if (e == EOPNOTSUPP)
+      যদি (e == EOPNOTSUPP)
         {
           ret = maybe_make_cgroup_threaded (path, err);
-          if (UNLIKELY (ret < 0))
-            return crun_error_wrap (err, "make cgroup threaded");
+          যদি (UNLIKELY (ret < 0))
+            ফেরত crun_error_wrap (err, "make cgroup threaded");
         }
 
       /* It seems the kernel can return EBUSY when a process was moved to a sub-cgroup
          and the controllers are enabled in its parent cgroup.  Retry a few times when
          it happens.  */
-      for (attempts_left = 1000; attempts_left >= 0; attempts_left--)
+      জন্য (attempts_বাম = 1000; attempts_বাম >= 0; attempts_বাম--)
         {
-          int controllers_written;
+          পূর্ণসংখ্যা controllers_written;
           bool repeat = false;
 
           memcpy (controllers_copy, controllers, controllers_len);
@@ -1219,343 +1219,343 @@ write_controller_file (const char *path, int controllers_to_enable, libcrun_erro
           controllers_written = 0;
 
           /* Fallback to write each one individually.  */
-          for (token = strtok_r (controllers_copy, " ", &saveptr); token; token = strtok_r (NULL, " ", &saveptr))
+          জন্য (token = strtok_r (controllers_copy, " ", &saveptr); token; token = strtok_r (ফাঁকা, " ", &saveptr))
             {
               ret = write_cgroup_file (AT_FDCWD, subtree_control, token, strlen (token), err);
-              if (ret < 0)
+              যদি (ret < 0)
                 {
                   e = crun_error_get_errno (err);
                   crun_error_release (err);
 
-                  if (e == EBUSY)
+                  যদি (e == EBUSY)
                     repeat = true;
 
-                  continue;
+                  চালু;
                 }
 
               controllers_written++;
             }
 
-          if (! repeat)
-            break;
+          যদি (! repeat)
+            বিরতি;
 
           /* If there was any controller written, just try once more without any delay.  */
-          if (controllers_written > 0 && attempts_left > 2)
+          যদি (controllers_written > 0 && attempts_বাম > 2)
             {
-              attempts_left = 1;
-              continue;
+              attempts_বাম = 1;
+              চালু;
             }
 
-          if (attempts_left > 0)
+          যদি (attempts_বাম > 0)
             {
-              struct timespec delay = {
+              কাঠামো timespec delay = {
                 .tv_sec = 0,
                 .tv_nsec = 1000000,
               };
-              nanosleep (&delay, NULL);
+              nanosleep (&delay, ফাঁকা);
             }
         }
 
       /* Refresh what controllers are available.  */
-      return read_available_controllers (path, err);
+      ফেরত read_available_controllers (path, err);
     }
 
   /* All controllers were enabled successfully.  */
-  return controllers_to_enable;
+  ফেরত controllers_to_enable;
 }
 
-int
-enable_controllers (const char *path, libcrun_error_t *err)
+পূর্ণসংখ্যা
+enable_controllers (ধ্রুবক অক্ষর *path, libcrun_error_t *err)
 {
-  cleanup_free char *tmp_path = NULL;
-  char *it;
-  int ret, controllers_to_enable;
+  cleanup_free অক্ষর *tmp_path = ফাঁকা;
+  অক্ষর *it;
+  পূর্ণসংখ্যা ret, controllers_to_enable;
 
   xasprintf (&tmp_path, "%s/", path);
 
   ret = read_available_controllers ("", err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
   controllers_to_enable = ret;
 
   /* Enable all possible controllers in the root cgroup.  */
   ret = write_controller_file ("", controllers_to_enable, err);
-  if (UNLIKELY (ret < 0))
+  যদি (UNLIKELY (ret < 0))
     {
       /* Enabling +cpu when there are realtime processes fail with EINVAL.  */
-      if ((controllers_to_enable & CGROUP_CPU) && (crun_error_get_errno (err) == EINVAL))
+      যদি ((controllers_to_enable & CGROUP_CPU) && (crun_error_get_errno (err) == EINVAL))
         {
           crun_error_release (err);
           controllers_to_enable &= ~CGROUP_CPU;
           ret = write_controller_file ("", controllers_to_enable, err);
         }
-      if (UNLIKELY (ret < 0))
-        return ret;
+      যদি (UNLIKELY (ret < 0))
+        ফেরত ret;
     }
 
-  for (it = strchr (tmp_path + 1, '/'); it;)
+  জন্য (it = strchr (tmp_path + 1, '/'); it;)
     {
-      cleanup_free char *cgroup_path = NULL;
-      char *next_slash = strchr (it + 1, '/');
+      cleanup_free অক্ষর *cgroup_path = ফাঁকা;
+      অক্ষর *পরবর্তী_slash = strchr (it + 1, '/');
 
       *it = '\0';
 
-      ret = append_paths (&cgroup_path, err, CGROUP_ROOT, tmp_path, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&cgroup_path, err, CGROUP_মূল, tmp_path, ফাঁকা);
+      যদি (UNLIKELY (ret < 0))
+        ফেরত ret;
 
       ret = mkdir (cgroup_path, 0755);
-      if (UNLIKELY (ret < 0 && errno != EEXIST))
-        return crun_make_error (err, errno, "create `%s`", cgroup_path);
+      যদি (UNLIKELY (ret < 0 && errno != EEXIST))
+        ফেরত crun_make_error (err, errno, "create `%s`", cgroup_path);
 
-      if (next_slash)
+      যদি (পরবর্তী_slash)
         {
           ret = write_controller_file (tmp_path, controllers_to_enable, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          যদি (UNLIKELY (ret < 0))
+            ফেরত ret;
         }
 
       *it = '/';
-      it = next_slash;
+      it = পরবর্তী_slash;
     }
-  return 0;
+  ফেরত 0;
 }
 
-int
-libcrun_move_process_to_cgroup (pid_t pid, pid_t init_pid, const char *path, bool create_if_missing, libcrun_error_t *err)
+পূর্ণসংখ্যা
+libcrun_move_process_to_cgroup (pid_t pid, pid_t init_pid, ধ্রুবক অক্ষর *path, bool create_if_missing, libcrun_error_t *err)
 {
-  int cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  পূর্ণসংখ্যা cgroup_mode = libcrun_get_cgroup_mode (err);
+  যদি (UNLIKELY (cgroup_mode < 0))
+    ফেরত cgroup_mode;
 
-  if (path == NULL || *path == '\0')
-    return 0;
+  যদি (path == ফাঁকা || *path == '\0')
+    ফেরত 0;
 
-  return enter_cgroup (cgroup_mode, pid, init_pid, path, create_if_missing, err);
+  ফেরত enter_cgroup (cgroup_mode, pid, init_pid, path, create_if_missing, err);
 }
 
 /* Move the current process to the cgroups listed in CONTENT, as read from
    /proc/self/cgroup earlier.  Used to undo libcrun_move_process_to_cgroup.  */
-int
-libcrun_move_self_to_cgroups (const char *content, libcrun_error_t *err)
+পূর্ণসংখ্যা
+libcrun_move_self_to_cgroups (ধ্রুবক অক্ষর *content, libcrun_error_t *err)
 {
-  cleanup_free char *buf = xstrdup (content);
-  char *saveptr = NULL;
-  char *controller;
-  char *path;
-  int cgroup_mode;
-  bool has_data;
-  int ret;
+  cleanup_free অক্ষর *buf = xstrdup (content);
+  অক্ষর *saveptr = ফাঁকা;
+  অক্ষর *controller;
+  অক্ষর *path;
+  পূর্ণসংখ্যা cgroup_mode;
+  bool has_তথ্য;
+  পূর্ণসংখ্যা ret;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  যদি (UNLIKELY (cgroup_mode < 0))
+    ফেরত cgroup_mode;
 
-  for (has_data = read_proc_cgroup (buf, &saveptr, NULL, &controller, &path);
-       has_data;
-       has_data = read_proc_cgroup (NULL, &saveptr, NULL, &controller, &path))
+  জন্য (has_তথ্য = read_proc_cgroup (buf, &saveptr, ফাঁকা, &controller, &path);
+       has_তথ্য;
+       has_তথ্য = read_proc_cgroup (ফাঁকা, &saveptr, ফাঁকা, &controller, &path))
     {
-      const char *subsystem = NULL;
+      ধ্রুবক অক্ষর *subsystem = ফাঁকা;
 
-      if (cgroup_mode == CGROUP_MODE_UNIFIED)
+      যদি (cgroup_mode == CGROUP_MODE_UNIFIED)
         {
           /* Ignore named v1 hierarchies, if any.  */
-          if (controller[0] != '\0')
-            continue;
+          যদি (controller[0] != '\0')
+            চালু;
         }
-      else
+      অন্যথা
         {
-          cleanup_free char *subsystem_path = NULL;
+          cleanup_free অক্ষর *subsystem_path = ফাঁকা;
 
           /* Use the same names as enter_cgroup_v1 does.  */
-          if (has_prefix (controller, "name="))
+          যদি (has_prefix (controller, "name="))
             controller += 5;
           subsystem = controller[0] == '\0' ? "unified" : controller;
-          if (strcmp (subsystem, "net_prio,net_cls") == 0)
+          যদি (strcmp (subsystem, "net_prio,net_cls") == 0)
             subsystem = "net_cls,net_prio";
-          if (strcmp (subsystem, "cpuacct,cpu") == 0)
+          যদি (strcmp (subsystem, "cpuacct,cpu") == 0)
             subsystem = "cpu,cpuacct";
 
-          ret = append_paths (&subsystem_path, err, CGROUP_ROOT, subsystem, NULL);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = append_paths (&subsystem_path, err, CGROUP_মূল, subsystem, ফাঁকা);
+          যদি (UNLIKELY (ret < 0))
+            ফেরত ret;
           ret = crun_path_exists (subsystem_path, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
-          if (ret == 0)
-            continue;
+          যদি (UNLIKELY (ret < 0))
+            ফেরত ret;
+          যদি (ret == 0)
+            চালু;
         }
 
       ret = move_process_to_cgroup (0, subsystem, path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      যদি (UNLIKELY (ret < 0))
+        ফেরত ret;
     }
 
-  return 0;
+  ফেরত 0;
 }
 
-int
-libcrun_get_cgroup_dirfd (struct libcrun_cgroup_status *status, const char *sub_cgroup, libcrun_error_t *err)
+পূর্ণসংখ্যা
+libcrun_get_cgroup_dirfd (কাঠামো libcrun_cgroup_status *status, ধ্রুবক অক্ষর *sub_cgroup, libcrun_error_t *err)
 {
-  cleanup_free char *path_to_cgroup = NULL;
-  int cgroup_mode;
-  int cgroupdirfd;
-  int ret;
+  cleanup_free অক্ষর *path_to_cgroup = ফাঁকা;
+  পূর্ণসংখ্যা cgroup_mode;
+  পূর্ণসংখ্যা cgroupdirfd;
+  পূর্ণসংখ্যা ret;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (cgroup_mode < 0)
-    return cgroup_mode;
+  যদি (cgroup_mode < 0)
+    ফেরত cgroup_mode;
 
-  if (cgroup_mode != CGROUP_MODE_UNIFIED)
-    return crun_make_error (err, 0, "cgroup dirfd supported only on cgroup v2");
+  যদি (cgroup_mode != CGROUP_MODE_UNIFIED)
+    ফেরত crun_make_error (err, 0, "cgroup dirfd supported only on cgroup v2");
 
-  if (status == NULL)
-    return crun_make_error (err, 0, "internal error");
+  যদি (status == ফাঁকা)
+    ফেরত crun_make_error (err, 0, "internal error");
 
-  if (is_empty_string (status->path))
-    return crun_make_error (err, 0, "no cgroup path specified");
+  যদি (is_empty_string (status->path))
+    ফেরত crun_make_error (err, 0, "no cgroup path specified");
 
-  ret = append_paths (&path_to_cgroup, err, CGROUP_ROOT, status->path, sub_cgroup, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&path_to_cgroup, err, CGROUP_মূল, status->path, sub_cgroup, ফাঁকা);
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
   cgroupdirfd = open (path_to_cgroup, O_CLOEXEC | O_NOFOLLOW | O_DIRECTORY | O_PATH);
-  if (UNLIKELY (cgroupdirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", path_to_cgroup);
+  যদি (UNLIKELY (cgroupdirfd < 0))
+    ফেরত crun_make_error (err, errno, "open `%s`", path_to_cgroup);
 
-  return cgroupdirfd;
+  ফেরত cgroupdirfd;
 }
 
-int
-libcrun_migrate_all_pids_to_cgroup (pid_t init_pid, char *from, char *to, libcrun_error_t *err)
+পূর্ণসংখ্যা
+libcrun_migrate_all_pids_to_cgroup (pid_t init_pid, অক্ষর *from, অক্ষর *to, libcrun_error_t *err)
 {
-  cleanup_free pid_t *pids = NULL;
-  cleanup_close int child_dfd = -1;
-  int cgroup_mode;
+  cleanup_free pid_t *pids = ফাঁকা;
+  cleanup_close পূর্ণসংখ্যা child_dfd = -1;
+  পূর্ণসংখ্যা cgroup_mode;
   size_t from_len;
   size_t i;
-  int ret;
+  পূর্ণসংখ্যা ret;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (cgroup_mode < 0)
-    return cgroup_mode;
+  যদি (cgroup_mode < 0)
+    ফেরত cgroup_mode;
 
   /* Freeze the source cgroup for a consistent view of its processes while they
      are migrated, but make sure it is always thawed again on error, otherwise
      it would be left frozen.  */
   ret = libcrun_cgroup_pause_unpause_path (from, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
   ret = libcrun_cgroup_read_pids_from_path (from, true, &pids, err);
-  if (UNLIKELY (ret < 0))
-    goto thaw;
+  যদি (UNLIKELY (ret < 0))
+    যাও thaw;
 
   from_len = strlen (from);
 
-  for (i = 0; pids && pids[i]; i++)
+  জন্য (i = 0; pids && pids[i]; i++)
     {
-      cleanup_free char *pid_path = NULL;
-      cleanup_free char *dest_cgroup = NULL;
+      cleanup_free অক্ষর *pid_path = ফাঁকা;
+      cleanup_free অক্ষর *dest_cgroup = ফাঁকা;
 
       ret = libcrun_get_cgroup_process (pids[i], &pid_path, false, err);
-      if (UNLIKELY (ret < 0))
-        goto thaw;
+      যদি (UNLIKELY (ret < 0))
+        যাও thaw;
 
       /* Make sure the pid is in the cgroup we are migrating from.  */
-      if (! has_prefix (pid_path, from))
+      যদি (! has_prefix (pid_path, from))
         {
           ret = crun_make_error (err, 0, "error migrating pid %d.  It is not in the cgroup `%s`", pids[i], from);
-          goto thaw;
+          যাও thaw;
         }
 
       /* Build the destination cgroup path, keeping the same hierarchy.  */
       xasprintf (&dest_cgroup, "%s%s", to, pid_path + from_len);
 
       ret = enter_cgroup (cgroup_mode, pids[i], init_pid, dest_cgroup, false, err);
-      if (UNLIKELY (ret < 0))
-        goto thaw;
+      যদি (UNLIKELY (ret < 0))
+        যাও thaw;
     }
 
   ret = 0;
 
 thaw:
-  if (UNLIKELY (ret < 0))
+  যদি (UNLIKELY (ret < 0))
     {
-      libcrun_error_t thaw_err = NULL;
+      libcrun_error_t thaw_err = ফাঁকা;
 
       /* Best-effort thaw: keep the original error but never leave the cgroup frozen.  */
-      if (libcrun_cgroup_pause_unpause_path (from, false, &thaw_err) < 0)
+      যদি (libcrun_cgroup_pause_unpause_path (from, false, &thaw_err) < 0)
         crun_error_release (&thaw_err);
-      return ret;
+      ফেরত ret;
     }
 
   ret = libcrun_cgroup_pause_unpause_path (from, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  যদি (UNLIKELY (ret < 0))
+    ফেরত ret;
 
-  return destroy_cgroup_path (from, cgroup_mode, err);
+  ফেরত destroy_cgroup_path (from, cgroup_mode, err);
 }
 
-int
-get_cgroup_dirfd_path (int dirfd, char **path, libcrun_error_t *err)
+পূর্ণসংখ্যা
+get_cgroup_dirfd_path (পূর্ণসংখ্যা dirfd, অক্ষর **path, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
+  cleanup_free অক্ষর *cgroup_path = ফাঁকা;
   proc_fd_path_t fd_path;
   ssize_t len;
 
   get_proc_self_fd_path (fd_path, dirfd);
 
   len = safe_readlinkat (AT_FDCWD, fd_path, &cgroup_path, 0, err);
-  if (UNLIKELY (len < 0))
-    return len;
+  যদি (UNLIKELY (len < 0))
+    ফেরত len;
 
-  if (has_prefix (cgroup_path, CGROUP_ROOT))
+  যদি (has_prefix (cgroup_path, CGROUP_মূল))
     {
-      *path = xstrdup (cgroup_path + strlen (CGROUP_ROOT));
-      return 0;
+      *path = xstrdup (cgroup_path + strlen (CGROUP_মূল));
+      ফেরত 0;
     }
-  return crun_make_error (err, 0, "invalid cgroup path `%s`", cgroup_path);
+  ফেরত crun_make_error (err, 0, "invalid cgroup path `%s`", cgroup_path);
 }
 
 /* Parse a cpu.max value: "QUOTA [PERIOD]", where QUOTA is either a
    number or "max" (returned as -1).  */
-int
-parse_cpu_max (const char *value, int64_t *quota, uint64_t *period, bool *has_period, libcrun_error_t *err)
+পূর্ণসংখ্যা
+parse_cpu_max (ধ্রুবক অক্ষর *মান, int64_t *quota, uint64_t *period, bool *has_period, libcrun_error_t *err)
 {
-  const char *it = value;
-  char *endptr = NULL;
+  ধ্রুবক অক্ষর *it = মান;
+  অক্ষর *endptr = ফাঁকা;
 
-  while (*it == ' ')
+  যখন (*it == ' ')
     it++;
 
   errno = 0;
-  if (has_prefix (it, "max"))
+  যদি (has_prefix (it, "max"))
     {
       *quota = -1;
-      endptr = (char *) it + 3;
+      endptr = (অক্ষর *) it + 3;
     }
-  else
+  অন্যথা
     {
       *quota = strtoll (it, &endptr, 10);
-      if (UNLIKELY (errno != 0 || endptr == it || *quota <= 0))
-        return crun_make_error (err, 0, "invalid value for `cpu.max`: `%s`", value);
+      যদি (UNLIKELY (errno != 0 || endptr == it || *quota <= 0))
+        ফেরত crun_make_error (err, 0, "invalid value for `cpu.max`: `%s`", মান);
     }
 
   it = endptr;
-  while (*it == ' ')
+  যখন (*it == ' ')
     it++;
 
   *has_period = false;
-  if (*it && *it != '\n')
+  যদি (*it && *it != '\n')
     {
       errno = 0;
       *period = strtoull (it, &endptr, 10);
-      if (UNLIKELY (errno != 0 || endptr == it || (*endptr && *endptr != '\n')))
-        return crun_make_error (err, 0, "invalid value for `cpu.max`: `%s`", value);
+      যদি (UNLIKELY (errno != 0 || endptr == it || (*endptr && *endptr != '\n')))
+        ফেরত crun_make_error (err, 0, "invalid value for `cpu.max`: `%s`", মান);
       *has_period = true;
     }
 
-  return 0;
+  ফেরত 0;
 }
