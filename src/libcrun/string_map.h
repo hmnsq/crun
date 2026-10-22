@@ -16,33 +16,33 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STRING_MAP_H
-#define STRING_MAP_H
+#اگر_تعریف_نشده STRING_MAP_H
+#تعریف_کن STRING_MAP_H
 
-#ifndef _GNU_SOURCE
-#  define _GNU_SOURCE
-#endif
+#اگر_تعریف_نشده GNU_منبع
+#  define GNU_منبع
+#پایان_اگر
 
-#include <config.h>
+#ضمن <config.h>
 
-#ifdef HAVE_HSEARCH_R
+#اگر_تعریف_شده HAVE_HSEARCH_R
 #  include <search.h>
-#endif
+#پایان_اگر
 
-#include <ocispec/runtime_spec_schema_config_schema.h>
-#include "error.h"
+#ضمن <ocispec/runtime_spec_schema_config_schema.h>
+#ضمن "error.h"
 
-struct string_map_s;
-typedef struct string_map_s string_map;
+بنية string_map_s;
+تعريفنوع بنية string_map_s string_map;
 
-const char *find_string_map_value (string_map *map, const char *name);
+ثابت حرف *پیدا_کن_string_map_مقدار (string_map *map, ثابت حرف *name);
 
 string_map *make_string_map_from_json (json_map_string_string *jmap);
 
-void free_string_map (string_map *map);
+فراغ free_string_map (string_map *map);
 
-int string_map_get_at (string_map *map, size_t index, const char **name, const char **value);
+صحيح string_map_get_at (string_map *map, size_t شاخص, ثابت حرف **name, ثابت حرف **مقدار);
 
-size_t string_map_size (string_map *map);
+size_t string_map_اندازه (string_map *map);
 
-#endif
+#پایان_اگر

@@ -16,118 +16,118 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#تعریف_کن GNU_منبع
 
-#include <config.h>
-#include "ebpf.h"
-#include "utils.h"
-#include <unistd.h>
-#include <sys/syscall.h>
-#include <sys/resource.h>
+#ضمن <config.h>
+#ضمن "ebpf.h"
+#ضمن "utils.h"
+#ضمن <unistd.h>
+#ضمن <sys/syscall.h>
+#ضمن <sys/resource.h>
 
-#ifdef HAVE_EBPF
+#اگر_تعریف_شده HAVE_EBPF
 #  include <linux/bpf.h>
 
 #  ifndef HAVE_BPF
-static int
-syscall_bpf (int cmd, union bpf_attr *attr, unsigned int size)
+ساكن صحيح
+syscall_bpf (صحيح cmd, اتحاد bpf_attr *attr, بیعلامت صحيح اندازه)
 {
-  return (int) syscall (__NR_bpf, cmd, attr, size);
+  أرجع (صحيح) syscall (__NR_bpf, cmd, attr, اندازه);
 }
 #    define bpf syscall_bpf
 #  endif
 
-#endif
+#پایان_اگر
 
-static inline uint64_t
-ptr_to_u64 (const void *ptr)
+ساكن مضمن uint64_t
+ptr_مقصد_u64 (ثابت فراغ *ptr)
 {
-  return (uint64_t) (unsigned long) ptr;
+  أرجع (uint64_t) (بیعلامت دراز) ptr;
 }
 
-enum
+تعداد
 {
   HAS_WILDCARD = 1
 };
 
-struct bpf_program
+بنية bpf_برنامه
 {
   size_t allocated;
-  size_t used;
-  unsigned int private;
-  char program[];
+  size_t استفاده_شده;
+  بیعلامت صحيح خاص;
+  حرف برنامه[];
 };
 
-#ifdef HAVE_EBPF
+#اگر_تعریف_شده HAVE_EBPF
 
 #  define BPF_ALU32_IMM(OP, DST, IMM) \
-    ((struct bpf_insn) { .code = BPF_ALU | BPF_OP (OP) | BPF_K, .dst_reg = DST, .src_reg = 0, .off = 0, .imm = IMM })
+    ((بنية bpf_insn) { .کد = BPF_ALU | BPF_OP (OP) | BPF_K, .dst_reg = DST, .src_reg = 0, .off = 0, .imm = IMM })
 
-#  define BPF_LDX_MEM(SIZE, DST, SRC, OFF) \
-    ((struct bpf_insn) {                   \
-        .code = BPF_LDX | BPF_SIZE (SIZE) | BPF_MEM, .dst_reg = DST, .src_reg = SRC, .off = OFF, .imm = 0 })
+#  define BPF_LDX_MEM(اندازه_2, DST, SRC, OFF) \
+    ((بنية bpf_insn) {                   \
+        .کد = BPF_LDX | BPF_اندازه (اندازه_2) | BPF_MEM, .dst_reg = DST, .src_reg = SRC, .off = OFF, .imm = 0 })
 
 #  define BPF_MOV64_REG(DST, SRC) \
-    ((struct bpf_insn) { .code = BPF_ALU64 | BPF_MOV | BPF_X, .dst_reg = DST, .src_reg = SRC, .off = 0, .imm = 0 })
+    ((بنية bpf_insn) { .کد = BPF_ALU64 | BPF_MOV | BPF_X, .dst_reg = DST, .src_reg = SRC, .off = 0, .imm = 0 })
 
 #  define BPF_JMP_A(OFF) \
-    ((struct bpf_insn) { .code = BPF_JMP | BPF_JA, .dst_reg = 0, .src_reg = 0, .off = OFF, .imm = 0 })
+    ((بنية bpf_insn) { .کد = BPF_JMP | BPF_JA, .dst_reg = 0, .src_reg = 0, .off = OFF, .imm = 0 })
 
 #  define BPF_JMP_IMM(OP, DST, IMM, OFF) \
-    ((struct bpf_insn) { .code = BPF_JMP | BPF_OP (OP) | BPF_K, .dst_reg = DST, .src_reg = 0, .off = OFF, .imm = IMM })
+    ((بنية bpf_insn) { .کد = BPF_JMP | BPF_OP (OP) | BPF_K, .dst_reg = DST, .src_reg = 0, .off = OFF, .imm = IMM })
 
 #  define BPF_JMP_REG(OP, DST, SRC, OFF) \
-    ((struct bpf_insn) { .code = BPF_JMP | BPF_OP (OP) | BPF_X, .dst_reg = DST, .src_reg = SRC, .off = OFF, .imm = 0 })
+    ((بنية bpf_insn) { .کد = BPF_JMP | BPF_OP (OP) | BPF_X, .dst_reg = DST, .src_reg = SRC, .off = OFF, .imm = 0 })
 
 #  define BPF_MOV64_IMM(DST, IMM) \
-    ((struct bpf_insn) { .code = BPF_ALU64 | BPF_MOV | BPF_K, .dst_reg = DST, .src_reg = 0, .off = 0, .imm = IMM })
+    ((بنية bpf_insn) { .کد = BPF_ALU64 | BPF_MOV | BPF_K, .dst_reg = DST, .src_reg = 0, .off = 0, .imm = IMM })
 
 #  define BPF_MOV32_REG(DST, SRC) \
-    ((struct bpf_insn) { .code = BPF_ALU | BPF_MOV | BPF_X, .dst_reg = DST, .src_reg = SRC, .off = 0, .imm = 0 })
+    ((بنية bpf_insn) { .کد = BPF_ALU | BPF_MOV | BPF_X, .dst_reg = DST, .src_reg = SRC, .off = 0, .imm = 0 })
 
 #  define BPF_EXIT_INSN() \
-    ((struct bpf_insn) { .code = BPF_JMP | BPF_EXIT, .dst_reg = 0, .src_reg = 0, .off = 0, .imm = 0 })
-#endif
+    ((بنية bpf_insn) { .کد = BPF_JMP | BPF_EXIT, .dst_reg = 0, .src_reg = 0, .off = 0, .imm = 0 })
+#پایان_اگر
 
-#ifdef HAVE_EBPF
-static size_t
-bpf_program_instructions (struct bpf_program *program)
+#اگر_تعریف_شده HAVE_EBPF
+ساكن size_t
+bpf_برنامه_instructions (بنية bpf_برنامه *برنامه)
 {
-  return program->used / (sizeof (struct bpf_insn));
+  أرجع برنامه->استفاده_شده / (حجم (بنية bpf_insn));
 }
-#endif
+#پایان_اگر
 
-struct bpf_program *
-bpf_program_new (size_t size)
+بنية bpf_برنامه *
+bpf_برنامه_new (size_t اندازه)
 {
-  struct bpf_program *p = xmalloc (size + sizeof (struct bpf_program));
+  بنية bpf_برنامه *p = xmalloc (اندازه + حجم (بنية bpf_برنامه));
 
-  p->used = 0;
-  p->private = 0;
-  p->allocated = size;
+  p->استفاده_شده = 0;
+  p->خاص = 0;
+  p->allocated = اندازه;
 
-  return p;
+  أرجع p;
 }
 
-struct bpf_program *
-bpf_program_append (struct bpf_program *p, void *data, size_t size)
+بنية bpf_برنامه *
+bpf_برنامه_append (بنية bpf_برنامه *p, فراغ *داده, size_t اندازه)
 {
-  if (p->allocated <= p->used + size)
+  إذا (p->allocated <= p->استفاده_شده + اندازه)
     {
-      p->allocated += size * 2;
-      p = xrealloc (p, p->allocated + sizeof (struct bpf_program));
+      p->allocated += اندازه * 2;
+      p = xrealloc (p, p->allocated + حجم (بنية bpf_برنامه));
     }
-  memcpy (p->program + p->used, data, size);
-  p->used += size;
-  return p;
+  کپی_حافظه (p->برنامه + p->استفاده_شده, داده, اندازه);
+  p->استفاده_شده += اندازه;
+  أرجع p;
 }
 
-struct bpf_program *
-bpf_program_init_dev (struct bpf_program *program, libcrun_error_t *err arg_unused)
+بنية bpf_برنامه *
+bpf_برنامه_init_dev (بنية bpf_برنامه *برنامه, libcrun_error_t *err arg_استفادهنشده)
 {
-#ifdef HAVE_EBPF
+#اگر_تعریف_شده HAVE_EBPF
   /* taken from systemd.  */
-  struct bpf_insn pre_insn[] = {
+  بنية bpf_insn pre_insn[] = {
     /* type -> R2.  */
     BPF_LDX_MEM (BPF_W, BPF_REG_2, BPF_REG_1, 0),
     BPF_ALU32_IMM (BPF_AND, BPF_REG_2, 0xFFFF),
@@ -142,50 +142,50 @@ bpf_program_init_dev (struct bpf_program *program, libcrun_error_t *err arg_unus
     /* minor -> R5.  */
     BPF_LDX_MEM (BPF_W, BPF_REG_5, BPF_REG_1, 8),
   };
-  program = bpf_program_append (program, pre_insn, sizeof (pre_insn));
-#endif
-  return program;
+  برنامه = bpf_برنامه_append (برنامه, pre_insn, حجم (pre_insn));
+#پایان_اگر
+  أرجع برنامه;
 }
 
-struct bpf_program *
-bpf_program_append_dev (struct bpf_program *program, const char *access, char type, int major, int minor, bool accept,
-                        libcrun_error_t *err arg_unused)
+بنية bpf_برنامه *
+bpf_برنامه_append_dev (بنية bpf_برنامه *برنامه, ثابت حرف *access, حرف type, صحيح major, صحيح minor, bool accept,
+                        libcrun_error_t *err arg_استفادهنشده)
 {
-#ifdef HAVE_EBPF
-  int i;
-  int bpf_access = 0;
-  int bpf_type = type == 'b' ? BPF_DEVCG_DEV_BLOCK : BPF_DEVCG_DEV_CHAR;
+#اگر_تعریف_شده HAVE_EBPF
+  صحيح i;
+  صحيح bpf_access = 0;
+  صحيح bpf_type = type == 'b' ? BPF_DEVCG_DEV_بلوک : BPF_DEVCG_DEV_CHAR;
   bool has_type = type != 'a';
   bool has_major = major >= 0;
   bool has_minor = minor >= 0;
   bool has_access = false;
-  int number_instructions = 0;
-  struct bpf_insn accept_block[] = {
+  صحيح عدد_instructions = 0;
+  بنية bpf_insn accept_بلوک[] = {
     BPF_MOV64_IMM (BPF_REG_0, accept ? 1 : 0),
     BPF_EXIT_INSN (),
   };
 
-  if (access == NULL)
+  إذا (access == عدم)
     access = "";
 
-  if (program->private & HAS_WILDCARD)
-    return program;
+  إذا (برنامه->خاص & HAS_WILDCARD)
+    أرجع برنامه;
 
-  for (i = 0; access[i]; i++)
+  لكل (i = 0; access[i]; i++)
     {
-      switch (access[i])
+      بدل (access[i])
         {
-        case 'r':
+        حالة 'r':
           bpf_access |= BPF_DEVCG_ACC_READ;
-          break;
+          اكسر;
 
-        case 'w':
+        حالة 'w':
           bpf_access |= BPF_DEVCG_ACC_WRITE;
-          break;
+          اكسر;
 
-        case 'm':
+        حالة 'm':
           bpf_access |= BPF_DEVCG_ACC_MKNOD;
-          break;
+          اكسر;
         }
     }
 
@@ -208,432 +208,432 @@ bpf_program_append_dev (struct bpf_program *program, const char *access, char ty
   has_access = bpf_access != (BPF_DEVCG_ACC_READ | BPF_DEVCG_ACC_WRITE | BPF_DEVCG_ACC_MKNOD);
 
   /* Number of instructions to skip the ACCEPT BLOCK.  */
-  number_instructions = (has_type ? 1 : 0) + (has_access ? 3 : 0) + (has_major ? 1 : 0) + (has_minor ? 1 : 0) + 1;
+  عدد_instructions = (has_type ? 1 : 0) + (has_access ? 3 : 0) + (has_major ? 1 : 0) + (has_minor ? 1 : 0) + 1;
 
-  if (has_type)
+  إذا (has_type)
     {
-      struct bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_2, bpf_type, number_instructions) };
-      number_instructions--;
-      program = bpf_program_append (program, i, sizeof (i));
+      بنية bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_2, bpf_type, عدد_instructions) };
+      عدد_instructions--;
+      برنامه = bpf_برنامه_append (برنامه, i, حجم (i));
     }
-  if (has_access)
+  إذا (has_access)
     {
-      struct bpf_insn i[] = {
+      بنية bpf_insn i[] = {
         BPF_MOV32_REG (BPF_REG_1, BPF_REG_3),
         BPF_ALU32_IMM (BPF_AND, BPF_REG_1, bpf_access),
-        accept ? BPF_JMP_REG (BPF_JNE, BPF_REG_1, BPF_REG_3, number_instructions - 2)
-               : BPF_JMP_IMM (BPF_JEQ, BPF_REG_1, 0, number_instructions - 2),
+        accept ? BPF_JMP_REG (BPF_JNE, BPF_REG_1, BPF_REG_3, عدد_instructions - 2)
+               : BPF_JMP_IMM (BPF_JEQ, BPF_REG_1, 0, عدد_instructions - 2),
       };
-      number_instructions -= 3;
-      program = bpf_program_append (program, i, sizeof (i));
+      عدد_instructions -= 3;
+      برنامه = bpf_برنامه_append (برنامه, i, حجم (i));
     }
-  if (has_major)
+  إذا (has_major)
     {
-      struct bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_4, major, number_instructions) };
-      number_instructions--;
-      program = bpf_program_append (program, i, sizeof (i));
+      بنية bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_4, major, عدد_instructions) };
+      عدد_instructions--;
+      برنامه = bpf_برنامه_append (برنامه, i, حجم (i));
     }
-  if (has_minor)
+  إذا (has_minor)
     {
-      struct bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_5, minor, number_instructions) };
-      number_instructions--;
-      program = bpf_program_append (program, i, sizeof (i));
+      بنية bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_5, minor, عدد_instructions) };
+      عدد_instructions--;
+      برنامه = bpf_برنامه_append (برنامه, i, حجم (i));
     }
 
-  if (has_type == 0 && has_access == 0 && has_major == 0 && has_minor == 0)
-    program->private |= HAS_WILDCARD;
+  إذا (has_type == 0 && has_access == 0 && has_major == 0 && has_minor == 0)
+    برنامه->خاص |= HAS_WILDCARD;
 
-  program = bpf_program_append (program, accept_block, sizeof (accept_block));
-#endif
-  (void) access;
-  (void) type;
-  (void) major;
-  (void) minor;
-  (void) accept;
+  برنامه = bpf_برنامه_append (برنامه, accept_بلوک, حجم (accept_بلوک));
+#پایان_اگر
+  (فراغ) access;
+  (فراغ) type;
+  (فراغ) major;
+  (فراغ) minor;
+  (فراغ) accept;
 
-  return program;
+  أرجع برنامه;
 }
 
-struct bpf_program *
-bpf_program_complete_dev (struct bpf_program *program, libcrun_error_t *err arg_unused)
+بنية bpf_برنامه *
+bpf_برنامه_complete_dev (بنية bpf_برنامه *برنامه, libcrun_error_t *err arg_استفادهنشده)
 {
-#ifdef HAVE_EBPF
-  struct bpf_insn i[] = {
+#اگر_تعریف_شده HAVE_EBPF
+  بنية bpf_insn i[] = {
     BPF_MOV64_IMM (BPF_REG_0, 0),
     BPF_EXIT_INSN (),
   };
 
-  if (program->private & HAS_WILDCARD)
-    return program;
+  إذا (برنامه->خاص & HAS_WILDCARD)
+    أرجع برنامه;
 
-  program = bpf_program_append (program, &i, sizeof (i));
-#endif
-  return program;
+  برنامه = bpf_برنامه_append (برنامه, &i, حجم (i));
+#پایان_اگر
+  أرجع برنامه;
 }
 
-static int
-read_all_progs (int dirfd, uint32_t **progs_out, size_t *n_progs_out, libcrun_error_t *err)
+ساكن صحيح
+read_all_progs (صحيح dirfd, uint32_t **progs_بیرون, size_t *n_progs_بیرون, libcrun_error_t *err)
 {
-#ifdef HAVE_EBPF
-  cleanup_free uint32_t *progs = NULL;
-  union bpf_attr attr;
-  int ret;
-  size_t cur_size;
+#اگر_تعریف_شده HAVE_EBPF
+  cleanup_free uint32_t *progs = عدم;
+  اتحاد bpf_attr attr;
+  صحيح ret;
+  size_t cur_اندازه;
 
   /* The kernel 5.7 has a hard limit of 64, let's be safe if the limit
      will be increased in future and attempt up to 4096.  */
-  for (cur_size = 64; cur_size <= 4096; cur_size *= 2)
+  لكل (cur_اندازه = 64; cur_اندازه <= 4096; cur_اندازه *= 2)
     {
-      progs = xrealloc (progs, sizeof (uint32_t) * cur_size);
+      progs = xrealloc (progs, حجم (uint32_t) * cur_اندازه);
 
-      memset (&attr, 0, sizeof (attr));
-      attr.query.target_fd = dirfd;
+      memset (&attr, 0, حجم (attr));
+      attr.query.هدف_fd = dirfd;
       attr.query.attach_type = BPF_CGROUP_DEVICE;
-      attr.query.prog_cnt = cur_size;
-      attr.query.prog_ids = ptr_to_u64 (progs);
+      attr.query.prog_cnt = cur_اندازه;
+      attr.query.prog_ids = ptr_مقصد_u64 (progs);
 
-      ret = bpf (BPF_PROG_QUERY, &attr, sizeof (attr));
+      ret = bpf (BPF_PROG_QUERY, &attr, حجم (attr));
     }
-  while (ret < 0 && errno == ENOSPC)
+  طالما (ret < 0 && errno == ENOSPC)
     ;
 
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "bpf query");
+  إذا (UNLIKELY (ret < 0))
+    أرجع crun_make_error (err, errno, "bpf query");
 
-  *progs_out = progs;
-  progs = NULL;
-  *n_progs_out = attr.query.prog_cnt;
-  return 0;
-#else
-  (void) dirfd;
+  *progs_بیرون = progs;
+  progs = عدم;
+  *n_progs_بیرون = attr.query.prog_cnt;
+  أرجع 0;
+#وإلا
+  (فراغ) dirfd;
 
-  *progs_out = NULL;
-  *n_progs_out = 0;
+  *progs_بیرون = عدم;
+  *n_progs_بیرون = 0;
 
-  return crun_make_error (err, 0, "eBPF not supported");
-#endif
+  أرجع crun_make_error (err, 0, "eBPF not supported");
+#پایان_اگر
 }
 
-static int
-remove_all_progs (int dirfd, uint32_t *progs, size_t n_progs, libcrun_error_t *err)
+ساكن صحيح
+remove_all_progs (صحيح dirfd, uint32_t *progs, size_t n_progs, libcrun_error_t *err)
 {
-#ifdef HAVE_EBPF
-  union bpf_attr attr;
+#اگر_تعریف_شده HAVE_EBPF
+  اتحاد bpf_attr attr;
   size_t i;
 
-  for (i = 0; i < n_progs; i++)
+  لكل (i = 0; i < n_progs; i++)
     {
-      cleanup_close int fd = -1;
-      int ret;
+      cleanup_close صحيح fd = -1;
+      صحيح ret;
 
-      memset (&attr, 0, sizeof (attr));
+      memset (&attr, 0, حجم (attr));
       attr.prog_id = progs[i];
-      fd = bpf (BPF_PROG_GET_FD_BY_ID, &attr, sizeof (attr));
-      if (UNLIKELY (fd < 0))
+      fd = bpf (BPF_PROG_GET_FD_BY_ID, &attr, حجم (attr));
+      إذا (UNLIKELY (fd < 0))
         {
           /* Already removed.  Nothing to do.  */
-          if (errno == ENOENT)
-            continue;
+          إذا (errno == ENOENT)
+            استمر;
 
-          return crun_make_error (err, errno, "cannot open existing eBPF program");
+          أرجع crun_make_error (err, errno, "cannot open existing eBPF program");
         }
 
-      memset (&attr, 0, sizeof (attr));
+      memset (&attr, 0, حجم (attr));
       attr.attach_type = BPF_CGROUP_DEVICE;
-      attr.target_fd = dirfd;
+      attr.هدف_fd = dirfd;
       attr.attach_bpf_fd = fd;
 
-      ret = bpf (BPF_PROG_DETACH, &attr, sizeof (attr));
-      if (UNLIKELY (ret < 0))
+      ret = bpf (BPF_PROG_DETACH, &attr, حجم (attr));
+      إذا (UNLIKELY (ret < 0))
         {
           /* Already removed.  Nothing to do.  */
-          if (errno == ENOENT)
-            continue;
+          إذا (errno == ENOENT)
+            استمر;
 
-          return crun_make_error (err, errno, "cannot detach eBPF program");
+          أرجع crun_make_error (err, errno, "cannot detach eBPF program");
         }
     }
-  return 0;
-#else
-  (void) dirfd;
-  (void) progs;
-  (void) n_progs;
-  return crun_make_error (err, 0, "eBPF not supported");
-#endif
+  أرجع 0;
+#وإلا
+  (فراغ) dirfd;
+  (فراغ) progs;
+  (فراغ) n_progs;
+  أرجع crun_make_error (err, 0, "eBPF not supported");
+#پایان_اگر
 }
 
-static int
-ebpf_attach_program (int fd, int dirfd, libcrun_error_t *err)
+ساكن صحيح
+ebpf_attach_برنامه (صحيح fd, صحيح dirfd, libcrun_error_t *err)
 {
-#ifndef HAVE_EBPF
-  (void) fd;
-  (void) dirfd;
-  (void) read_all_progs;
-  (void) remove_all_progs;
+#اگر_تعریف_نشده HAVE_EBPF
+  (فراغ) fd;
+  (فراغ) dirfd;
+  (فراغ) read_all_progs;
+  (فراغ) remove_all_progs;
 
-  return crun_make_error (err, 0, "eBPF not supported");
-#else
+  أرجع crun_make_error (err, 0, "eBPF not supported");
+#وإلا
 #  ifdef BPF_F_REPLACE
   bool skip_replace = false;
 #  endif
-  const int MAX_ATTEMPTS = 20;
-  int attempt;
+  ثابت صحيح MAX_ATTEMPTS = 20;
+  صحيح attempt;
 
-  for (attempt = 0;; attempt++)
+  لكل (attempt = 0;; attempt++)
     {
-      cleanup_free uint32_t *progs = NULL;
-      cleanup_close int replacefd = -1;
-      union bpf_attr attr;
+      cleanup_free uint32_t *progs = عدم;
+      cleanup_close صحيح replacefd = -1;
+      اتحاد bpf_attr attr;
       size_t n_progs = 0;
-      int ret;
+      صحيح ret;
 
       ret = read_all_progs (dirfd, &progs, &n_progs, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
 
 #  ifdef BPF_F_REPLACE
       /* There is just one program installed, let's attempt an atomic replace if supported.  */
-      if (! skip_replace && n_progs == 1)
+      إذا (! skip_replace && n_progs == 1)
         {
-          memset (&attr, 0, sizeof (attr));
+          memset (&attr, 0, حجم (attr));
           attr.prog_id = progs[0];
-          replacefd = bpf (BPF_PROG_GET_FD_BY_ID, &attr, sizeof (attr));
-          if (UNLIKELY (replacefd < 0))
+          replacefd = bpf (BPF_PROG_GET_FD_BY_ID, &attr, حجم (attr));
+          إذا (UNLIKELY (replacefd < 0))
             {
-              if (errno == ENOENT && attempt < MAX_ATTEMPTS)
+              إذا (errno == ENOENT && attempt < MAX_ATTEMPTS)
                 {
                   /* Another update might have raced and updated, try again.  */
-                  continue;
+                  استمر;
                 }
-              return crun_make_error (err, errno, "cannot open existing eBPF program");
+              أرجع crun_make_error (err, errno, "cannot open existing eBPF program");
             }
         }
 #  endif
 
-      memset (&attr, 0, sizeof (attr));
+      memset (&attr, 0, حجم (attr));
       attr.attach_type = BPF_CGROUP_DEVICE;
-      attr.target_fd = dirfd;
+      attr.هدف_fd = dirfd;
       attr.attach_bpf_fd = fd;
       attr.attach_flags = BPF_F_ALLOW_MULTI;
 #  ifdef BPF_F_REPLACE
-      if (replacefd >= 0)
+      إذا (replacefd >= 0)
         {
           attr.attach_flags = BPF_F_ALLOW_MULTI | BPF_F_REPLACE;
           attr.replace_bpf_fd = replacefd;
         }
 #  endif
 
-      ret = bpf (BPF_PROG_ATTACH, &attr, sizeof (attr));
-      if (UNLIKELY (ret < 0))
+      ret = bpf (BPF_PROG_ATTACH, &attr, حجم (attr));
+      إذا (UNLIKELY (ret < 0))
         {
-          if (errno == ENOENT && replacefd >= 0 && attempt < MAX_ATTEMPTS)
+          إذا (errno == ENOENT && replacefd >= 0 && attempt < MAX_ATTEMPTS)
             {
               /* Another update might have already updated the cgroup, try again.  */
-              continue;
+              استمر;
             }
 #  ifdef BPF_F_REPLACE
-          if (errno == EINVAL && replacefd >= 0)
+          إذا (errno == EINVAL && replacefd >= 0)
             {
               skip_replace = true;
-              continue;
+              استمر;
             }
 #  endif
-          return crun_make_error (err, errno, "bpf attach");
+          أرجع crun_make_error (err, errno, "bpf attach");
         }
 
       /* Now that the new program is installed, remove all the programs that were previously installed.  */
-      if (replacefd < 0 && n_progs)
-        return remove_all_progs (dirfd, progs, n_progs, err);
+      إذا (replacefd < 0 && n_progs)
+        أرجع remove_all_progs (dirfd, progs, n_progs, err);
 
-      return 0;
+      أرجع 0;
     }
-#endif
+#پایان_اگر
 }
 
-static void
+ساكن فراغ
 bump_memlock ()
 {
-  struct rlimit limit;
-  int ret;
+  بنية rlimit حد;
+  صحيح ret;
 
-  limit.rlim_cur = RLIM_INFINITY;
-  limit.rlim_max = RLIM_INFINITY;
+  حد.rlim_cur = RLIM_INFINITY;
+  حد.rlim_max = RLIM_INFINITY;
 
-  ret = setrlimit (RLIMIT_MEMLOCK, &limit);
-  if (ret == 0)
-    return;
+  ret = setrlimit (RLIMIT_MEMLOCK, &حد);
+  إذا (ret == 0)
+    أرجع;
 
   /* If the above failed, try to set the current limit
      to the max configured.  */
-  ret = getrlimit (RLIMIT_MEMLOCK, &limit);
-  if (ret < 0)
-    return;
+  ret = getrlimit (RLIMIT_MEMLOCK, &حد);
+  إذا (ret < 0)
+    أرجع;
 
-  limit.rlim_cur = limit.rlim_max;
+  حد.rlim_cur = حد.rlim_max;
   /* Best effort, ignore errors.  */
-  (void) setrlimit (RLIMIT_MEMLOCK, &limit);
+  (فراغ) setrlimit (RLIMIT_MEMLOCK, &حد);
 }
 
-int
-libcrun_ebpf_load (struct bpf_program *program, int dirfd, const char *pin, libcrun_error_t *err)
+صحيح
+libcrun_ebpf_بارگیری (بنية bpf_برنامه *برنامه, صحيح dirfd, ثابت حرف *pin, libcrun_error_t *err)
 {
-#ifndef HAVE_EBPF
-  (void) dirfd;
-  (void) program;
-  (void) pin;
-  (void) ebpf_attach_program;
+#اگر_تعریف_نشده HAVE_EBPF
+  (فراغ) dirfd;
+  (فراغ) برنامه;
+  (فراغ) pin;
+  (فراغ) ebpf_attach_برنامه;
 
-  return crun_make_error (err, 0, "eBPF not supported");
-#else
-  cleanup_close int fd = -1;
-  union bpf_attr attr;
-  int ret;
+  أرجع crun_make_error (err, 0, "eBPF not supported");
+#وإلا
+  cleanup_close صحيح fd = -1;
+  اتحاد bpf_attr attr;
+  صحيح ret;
 
-  memset (&attr, 0, sizeof (attr));
+  memset (&attr, 0, حجم (attr));
   attr.prog_type = BPF_PROG_TYPE_CGROUP_DEVICE;
-  attr.insns = ptr_to_u64 (program->program);
-  attr.insn_cnt = bpf_program_instructions (program);
-  attr.license = ptr_to_u64 ("GPL");
+  attr.insns = ptr_مقصد_u64 (برنامه->برنامه);
+  attr.insn_cnt = bpf_برنامه_instructions (برنامه);
+  attr.license = ptr_مقصد_u64 ("GPL");
 
   /* First try without log.  */
-  fd = bpf (BPF_PROG_LOAD, &attr, sizeof (attr));
-  if (fd < 0)
+  fd = bpf (BPF_PROG_بارگیری, &attr, حجم (attr));
+  إذا (fd < 0)
     {
       /* Prior to Linux 5.11, eBPF programs were accounted to the memlock
          prlimit.  Attempt to bump the limit, if possible.  */
       bump_memlock ();
-      fd = bpf (BPF_PROG_LOAD, &attr, sizeof (attr));
+      fd = bpf (BPF_PROG_بارگیری, &attr, حجم (attr));
     }
-  if (fd < 0)
+  إذا (fd < 0)
     {
-      const size_t max_log_size = 1 << 20;
-      cleanup_free char *log = NULL;
-      size_t log_size = 8192;
+      ثابت size_t max_log_اندازه = 1 << 20;
+      cleanup_free حرف *لگاریتم = عدم;
+      size_t log_اندازه = 8192;
 
     retry:
-      log = xrealloc (log, log_size);
-      log[0] = '\0';
+      لگاریتم = xrealloc (لگاریتم, log_اندازه);
+      لگاریتم[0] = '\0';
       attr.log_level = 1;
-      attr.log_buf = ptr_to_u64 (log);
-      attr.log_size = log_size;
+      attr.log_buf = ptr_مقصد_u64 (لگاریتم);
+      attr.log_اندازه = log_اندازه;
 
-      fd = bpf (BPF_PROG_LOAD, &attr, sizeof (attr));
-      if (fd < 0)
+      fd = bpf (BPF_PROG_بارگیری, &attr, حجم (attr));
+      إذا (fd < 0)
         {
-          if (errno == ENOSPC && log_size < max_log_size)
+          إذا (errno == ENOSPC && log_اندازه < max_log_اندازه)
             {
               /* The provided buffer was not big enough.  */
-              log_size *= 2;
-              goto retry;
+              log_اندازه *= 2;
+              اذهب retry;
             }
-          return crun_make_error (err, errno, "bpf create `%s`", log);
+          أرجع crun_make_error (err, errno, "bpf create `%s`", لگاریتم);
         }
     }
 
-  if (dirfd >= 0)
+  إذا (dirfd >= 0)
     {
-      ret = ebpf_attach_program (fd, dirfd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = ebpf_attach_برنامه (fd, dirfd, err);
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
 
   /* Optionally pin the program to the specified path.  */
-  if (pin)
+  إذا (pin)
     {
       unlink (pin);
 
-      memset (&attr, 0, sizeof (attr));
-      attr.pathname = ptr_to_u64 (pin);
+      memset (&attr, 0, حجم (attr));
+      attr.pathname = ptr_مقصد_u64 (pin);
       attr.bpf_fd = fd;
-      ret = bpf (BPF_OBJ_PIN, &attr, sizeof (attr));
-      if (ret < 0)
-        return crun_make_error (err, errno, "bpf pin to `%s`", pin);
+      ret = bpf (BPF_OBJ_PIN, &attr, حجم (attr));
+      إذا (ret < 0)
+        أرجع crun_make_error (err, errno, "bpf pin to `%s`", pin);
     }
 
-  return 0;
-#endif
+  أرجع 0;
+#پایان_اگر
 }
 
-int
-libcrun_ebpf_read_program (struct bpf_program **program_ret, const char *path, libcrun_error_t *err)
+صحيح
+libcrun_ebpf_read_برنامه (بنية bpf_برنامه **برنامه_ret, ثابت حرف *مسیر, libcrun_error_t *err)
 {
-#ifndef HAVE_EBPF
-  (void) program_ret;
-  (void) path;
+#اگر_تعریف_نشده HAVE_EBPF
+  (فراغ) برنامه_ret;
+  (فراغ) مسیر;
 
-  return crun_make_error (err, 0, "eBPF not supported");
-#else
-  cleanup_free struct bpf_program *program = NULL;
-  cleanup_free char *buffer = NULL;
-  cleanup_close int prog_fd = -1;
-  size_t buffer_size = 0;
-  struct bpf_prog_info info;
-  union bpf_attr attr;
-  int ret;
+  أرجع crun_make_error (err, 0, "eBPF not supported");
+#وإلا
+  cleanup_free بنية bpf_برنامه *برنامه = عدم;
+  cleanup_free حرف *میانگیر = عدم;
+  cleanup_close صحيح prog_fd = -1;
+  size_t میانگیر_اندازه = 0;
+  بنية bpf_prog_info info;
+  اتحاد bpf_attr attr;
+  صحيح ret;
 
-  memset (&attr, 0, sizeof (attr));
-  attr.pathname = ptr_to_u64 (path);
+  memset (&attr, 0, حجم (attr));
+  attr.pathname = ptr_مقصد_u64 (مسیر);
 
-  prog_fd = bpf (BPF_OBJ_GET, &attr, sizeof (attr));
-  if (UNLIKELY (prog_fd < 0))
-    return crun_make_error (err, errno, "bpf get `%s`", path);
+  prog_fd = bpf (BPF_OBJ_GET, &attr, حجم (attr));
+  إذا (UNLIKELY (prog_fd < 0))
+    أرجع crun_make_error (err, errno, "bpf get `%s`", مسیر);
 
-  memset (&info, 0, sizeof (info));
+  memset (&info, 0, حجم (info));
 
-  memset (&attr, 0, sizeof (attr));
+  memset (&attr, 0, حجم (attr));
   attr.info.bpf_fd = prog_fd;
-  attr.info.info = ptr_to_u64 (&info);
-  attr.info.info_len = sizeof (info);
+  attr.info.info = ptr_مقصد_u64 (&info);
+  attr.info.info_len = حجم (info);
 
-  ret = bpf (BPF_OBJ_GET_INFO_BY_FD, &attr, sizeof (attr));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "bpf get info `%s`", path);
+  ret = bpf (BPF_OBJ_GET_INFO_BY_FD, &attr, حجم (attr));
+  إذا (UNLIKELY (ret < 0))
+    أرجع crun_make_error (err, errno, "bpf get info `%s`", مسیر);
 
-  buffer_size = info.xlated_prog_len;
-  buffer = xmalloc (buffer_size);
+  میانگیر_اندازه = info.xlated_prog_len;
+  میانگیر = xmalloc (میانگیر_اندازه);
 
-  memset (&info, 0, sizeof (info));
-  info.xlated_prog_insns = ptr_to_u64 (buffer);
-  info.xlated_prog_len = buffer_size;
+  memset (&info, 0, حجم (info));
+  info.xlated_prog_insns = ptr_مقصد_u64 (میانگیر);
+  info.xlated_prog_len = میانگیر_اندازه;
 
-  ret = bpf (BPF_OBJ_GET_INFO_BY_FD, &attr, sizeof (attr));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "bpf get info `%s`", path);
+  ret = bpf (BPF_OBJ_GET_INFO_BY_FD, &attr, حجم (attr));
+  إذا (UNLIKELY (ret < 0))
+    أرجع crun_make_error (err, errno, "bpf get info `%s`", مسیر);
 
-  program = bpf_program_new (buffer_size);
-  program = bpf_program_append (program, buffer, buffer_size);
+  برنامه = bpf_برنامه_new (میانگیر_اندازه);
+  برنامه = bpf_برنامه_append (برنامه, میانگیر, میانگیر_اندازه);
 
-  *program_ret = program;
-  program = NULL;
+  *برنامه_ret = برنامه;
+  برنامه = عدم;
 
-  return 0;
-#endif
+  أرجع 0;
+#پایان_اگر
 }
 
-int
-libcrun_ebpf_query_cgroup_progs (const char *cgroup_path, uint32_t **progs_out, size_t *n_progs_out, libcrun_error_t *err)
+صحيح
+libcrun_ebpf_query_cgroup_progs (ثابت حرف *cgroup_مسیر, uint32_t **progs_بیرون, size_t *n_progs_بیرون, libcrun_error_t *err)
 {
-#ifndef HAVE_EBPF
-  (void) cgroup_path;
-  *progs_out = NULL;
-  *n_progs_out = 0;
-  return crun_make_error (err, 0, "eBPF not supported");
-#else
-  cleanup_close int cgroup_fd = -1;
+#اگر_تعریف_نشده HAVE_EBPF
+  (فراغ) cgroup_مسیر;
+  *progs_بیرون = عدم;
+  *n_progs_بیرون = 0;
+  أرجع crun_make_error (err, 0, "eBPF not supported");
+#وإلا
+  cleanup_close صحيح cgroup_fd = -1;
 
-  cgroup_fd = open (cgroup_path, O_PATH | O_CLOEXEC);
-  if (UNLIKELY (cgroup_fd < 0))
-    return crun_make_error (err, errno, "open cgroup path `%s`", cgroup_path);
+  cgroup_fd = open (cgroup_مسیر, O_مسیر | O_CLOEXEC);
+  إذا (UNLIKELY (cgroup_fd < 0))
+    أرجع crun_make_error (err, errno, "open cgroup path `%s`", cgroup_مسیر);
 
-  return read_all_progs (cgroup_fd, progs_out, n_progs_out, err);
-#endif
+  أرجع read_all_progs (cgroup_fd, progs_بیرون, n_progs_بیرون, err);
+#پایان_اگر
 }
 
 bool
-libcrun_ebpf_cmp_programs (struct bpf_program *program1, struct bpf_program *program2)
+libcrun_ebpf_cmp_programs (بنية bpf_برنامه *program1, بنية bpf_برنامه *program2)
 {
-  if (program1->used != program2->used)
-    return false;
+  إذا (program1->استفاده_شده != program2->استفاده_شده)
+    أرجع false;
 
-  return memcmp (program1->program, program2->program, program1->used) == 0;
+  أرجع memcmp (program1->برنامه, program2->برنامه, program1->استفاده_شده) == 0;
 }

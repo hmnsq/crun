@@ -15,11 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef START_H
-#define START_H
+#اگر_تعریف_نشده شروع_H
+#تعریف_کن شروع_H
 
-#include "crun.h"
+#ضمن "crun.h"
 
-int crun_command_start (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+صحيح crun_command_شروع (بنية crun_global_arguments *global_آرگومانها, صحيح argc, حرف **argv, libcrun_error_t *error);
 
-#endif
+#پایان_اگر

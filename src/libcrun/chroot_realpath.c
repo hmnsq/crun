@@ -23,29 +23,29 @@
  * 2020/02/02: Giuseppe Scrivano (don't lose terminal '/' if an absolute symlink is found)
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+#اگر_تعریف_شده HAVE_CONFIG_H
+#ضمن <config.h>
+#پایان_اگر
 
-#include <sys/types.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
-#include <strings.h>
-#include <limits.h>				/* for PATH_MAX */
-#include <sys/param.h>			/* for MAXPATHLEN */
-#include <errno.h>
-#ifndef __set_errno
-#define __set_errno(val) ((errno) = (val))
-#endif
+#ضمن <sys/types.h>
+#ضمن <unistd.h>
+#ضمن <stdio.h>
+#ضمن <string.h>
+#ضمن <strings.h>
+#ضمن <limits.h>				/* for PATH_MAX */
+#ضمن <sys/param.h>			/* for MAXPATHLEN */
+#ضمن <errno.h>
+#اگر_تعریف_نشده __set_errno
+#تعریف_کن __set_errno(val) ((errno) = (val))
+#پایان_اگر
 
-#include <sys/stat.h>			/* for S_IFLNK */
+#ضمن <sys/stat.h>			/* for S_IFLNK */
 
-#ifndef PATH_MAX
-#define PATH_MAX _POSIX_PATH_MAX
-#endif
+#اگر_تعریف_نشده PATH_MAX
+#تعریف_کن PATH_MAX _POSIX_PATH_MAX
+#پایان_اگر
 
-#define MAX_READLINKS 32
+#تعریف_کن MAX_READLINKS 32
 
 /* Resolve PATH as if CHROOT was the root directory, storing the result in
    RESOLVED_PATH (which must be at least PATH_MAX bytes long).
@@ -57,146 +57,146 @@
 
    On failure NULL is returned and errno is set to either ENAMETOOLONG or
    ELOOP, or to any error readlink(2) can report except ENOENT and EINVAL. */
-char *chroot_realpath(const char *chroot, const char *path, char resolved_path[])
+حرف *chroot_realpath(ثابت حرف *chroot, ثابت حرف *مسیر, حرف resolved_مسیر[])
 {
-	char copy_path[PATH_MAX];
-	char link_path[PATH_MAX];
-	char got_path[PATH_MAX];
-	char *got_path_root = got_path;
-	char *new_path = got_path;
-	char *max_path;
-	int readlinks = 0;
-	int n;
-	int chroot_len;
-	int last_component;
+	حرف copy_مسیر[PATH_MAX];
+	حرف link_مسیر[PATH_MAX];
+	حرف got_مسیر[PATH_MAX];
+	حرف *got_مسیر_ریشه = got_مسیر;
+	حرف *new_مسیر = got_مسیر;
+	حرف *max_مسیر;
+	صحيح readlinks = 0;
+	صحيح n;
+	صحيح chroot_len;
+	صحيح آخرین_component;
 
 	/* Trivial case. */
-	if (chroot == NULL || *chroot == '\0' ||
+	إذا (chroot == عدم || *chroot == '\0' ||
 	    (*chroot == '/' && chroot[1] == '\0')) {
-		if (strlen(path) >= PATH_MAX) {
+		إذا (طول_رشته(مسیر) >= PATH_MAX) {
 			__set_errno(ENAMETOOLONG);
-			return NULL;
+			أرجع عدم;
 		}
-		strcpy(resolved_path, path);
-		return resolved_path;
+		strcpy(resolved_مسیر, مسیر);
+		أرجع resolved_مسیر;
 	}
 
-	chroot_len = strlen(chroot);
+	chroot_len = طول_رشته(chroot);
 
-	if (chroot_len + strlen(path) >= PATH_MAX - 3) {
+	إذا (chroot_len + طول_رشته(مسیر) >= PATH_MAX - 3) {
 		__set_errno(ENAMETOOLONG);
-		return NULL;
+		أرجع عدم;
 	}
 
 	/* Make a copy of the source path since we may need to modify it. */
-	strcpy(copy_path, path);
-	path = copy_path;
-	max_path = copy_path + PATH_MAX - chroot_len - 3;
+	strcpy(copy_مسیر, مسیر);
+	مسیر = copy_مسیر;
+	max_مسیر = copy_مسیر + PATH_MAX - chroot_len - 3;
 
 	/* Start with the chroot path.  It is copied verbatim so that the
 	   result is always prefixed by CHROOT and callers can strip it. */
-	strcpy(new_path, chroot);
-	new_path += chroot_len;
-	got_path_root = new_path;
-	*new_path++ = '/';
+	strcpy(new_مسیر, chroot);
+	new_مسیر += chroot_len;
+	got_مسیر_ریشه = new_مسیر;
+	*new_مسیر++ = '/';
 
 	/* Expand each slash-separated pathname component. */
-	while (*path != '\0') {
+	طالما (*مسیر != '\0') {
 		/* Ignore stray "/". */
-		if (*path == '/') {
-			path++;
-			continue;
+		إذا (*مسیر == '/') {
+			مسیر++;
+			استمر;
 		}
-		if (*path == '.') {
+		إذا (*مسیر == '.') {
 			/* Ignore ".". */
-			if (path[1] == '\0' || path[1] == '/') {
-				path++;
-				continue;
+			إذا (مسیر[1] == '\0' || مسیر[1] == '/') {
+				مسیر++;
+				استمر;
 			}
-			if (path[1] == '.') {
-				if (path[2] == '\0' || path[2] == '/') {
-					path += 2;
+			إذا (مسیر[1] == '.') {
+				إذا (مسیر[2] == '\0' || مسیر[2] == '/') {
+					مسیر += 2;
 					/* Ignore ".." at root. */
-					if (new_path == got_path_root + 1)
-						continue;
+					إذا (new_مسیر == got_مسیر_ریشه + 1)
+						استمر;
 					/* Handle ".." by backing up. */
-					while ((--new_path)[-1] != '/');
-					continue;
+					طالما ((--new_مسیر)[-1] != '/');
+					استمر;
 				}
 			}
 		}
 		/* Safely copy the next pathname component. */
-		while (*path != '\0' && *path != '/') {
-			if (path > max_path || new_path >= got_path + PATH_MAX - 1) {
+		طالما (*مسیر != '\0' && *مسیر != '/') {
+			إذا (مسیر > max_مسیر || new_مسیر >= got_مسیر + PATH_MAX - 1) {
 				__set_errno(ENAMETOOLONG);
-				return NULL;
+				أرجع عدم;
 			}
-			*new_path++ = *path++;
+			*new_مسیر++ = *مسیر++;
 		}
 
-		last_component = (*path == '\0');
+		آخرین_component = (*مسیر == '\0');
 
-#ifdef S_IFLNK
+#اگر_تعریف_شده S_IFLNK
 		/* Protect against infinite loops. */
-		if (readlinks++ > MAX_READLINKS) {
+		إذا (readlinks++ > MAX_READLINKS) {
 			__set_errno(ELOOP);
-			return NULL;
+			أرجع عدم;
 		}
 		/* See if latest pathname component is a symlink. */
-		*new_path = '\0';
-		n = readlink(got_path, link_path, PATH_MAX - 1);
-		if (n < 0) {
+		*new_مسیر = '\0';
+		n = readlink(got_مسیر, link_مسیر, PATH_MAX - 1);
+		إذا (n < 0) {
 			/* If a component doesn't exist, then return what we could translate. */
-			if (errno == ENOENT) {
-				int ret = snprintf (resolved_path, PATH_MAX, "%s%s%s", got_path, path[0] == '/' || path[0] == '\0' ? "" : "/", path);
-				if (ret >= PATH_MAX) {
+			إذا (errno == ENOENT) {
+				صحيح ret = snprintf (resolved_مسیر, PATH_MAX, "%s%s%s", got_مسیر, مسیر[0] == '/' || مسیر[0] == '\0' ? "" : "/", مسیر);
+				إذا (ret >= PATH_MAX) {
 					__set_errno(ENAMETOOLONG);
-					return NULL;
+					أرجع عدم;
 				}
-				return resolved_path;
+				أرجع resolved_مسیر;
 			}
 			/* EINVAL means the file exists but isn't a symlink. */
-			if (errno != EINVAL)
-				return NULL;
-		} else {
+			إذا (errno != EINVAL)
+				أرجع عدم;
+		} وإلا {
 			/* Note: readlink doesn't add the null byte. */
-			link_path[n] = '\0';
-			if (*link_path == '/') {
+			link_مسیر[n] = '\0';
+			إذا (*link_مسیر == '/') {
 				/* Start over for an absolute symlink. */
-				new_path = got_path_root;
-				*new_path++ = '/';
+				new_مسیر = got_مسیر_ریشه;
+				*new_مسیر++ = '/';
 			}
-			else {
+			وإلا {
 				/* Otherwise back up over this component, keeping the
 				   separator, so that the expanded symlink is not
 				   concatenated to the parent directory name. */
-				while (*(--new_path) != '/');
-				new_path++;
+				طالما (*(--new_مسیر) != '/');
+				new_مسیر++;
 			}
 			/* Safe sex check. */
-			if (strlen(path) + n >= PATH_MAX - 2) {
+			إذا (طول_رشته(مسیر) + n >= PATH_MAX - 2) {
 				__set_errno(ENAMETOOLONG);
-				return NULL;
+				أرجع عدم;
 			}
 			/* Insert symlink contents into path. */
-			strcat(link_path, path);
-			strcpy(copy_path, link_path);
-			path = copy_path;
+			strcat(link_مسیر, مسیر);
+			strcpy(copy_مسیر, link_مسیر);
+			مسیر = copy_مسیر;
 		}
-#endif							/* S_IFLNK */
-		if (!last_component) {
-			if (new_path >= got_path + PATH_MAX - 1) {
+#پایان_اگر							/* S_IFLNK */
+		إذا (!آخرین_component) {
+			إذا (new_مسیر >= got_مسیر + PATH_MAX - 1) {
 				__set_errno(ENAMETOOLONG);
-				return NULL;
+				أرجع عدم;
 			}
-			*new_path++ = '/';
+			*new_مسیر++ = '/';
 		}
 	}
 	/* Delete trailing slash but don't whomp a lone slash. */
-	if (new_path != got_path + 1 && new_path[-1] == '/')
-		new_path--;
+	إذا (new_مسیر != got_مسیر + 1 && new_مسیر[-1] == '/')
+		new_مسیر--;
 	/* Make sure it's null terminated. */
-	*new_path = '\0';
-	strcpy(resolved_path, got_path);
-	return resolved_path;
+	*new_مسیر = '\0';
+	strcpy(resolved_مسیر, got_مسیر);
+	أرجع resolved_مسیر;
 }

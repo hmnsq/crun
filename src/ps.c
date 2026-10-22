@@ -16,19 +16,19 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#ضمن <config.h>
+#ضمن <stdio.h>
+#ضمن <stdlib.h>
+#ضمن <argp.h>
+#ضمن <string.h>
+#ضمن <unistd.h>
+#ضمن <errno.h>
 
-#include "crun.h"
+#ضمن "crun.h"
 
-static char doc[] = "OCI runtime";
+ساكن حرف doc[] = "OCI runtime";
 
-enum
+تعداد
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -37,91 +37,91 @@ enum
   OPTION_PRESERVE_FDS
 };
 
-struct ps_options_s
+بنية ps_options_s
 {
-  int format;
+  صحيح format;
 };
 
-enum
+تعداد
 {
-  PS_TABLE = 100,
+  PS_جدول = 100,
   PS_JSON,
 };
 
-static struct ps_options_s ps_options;
+ساكن بنية ps_options_s ps_options;
 
-static struct argp_option options[] = { { "format", 'f', "FORMAT", 0, "select the output format", 0 },
+ساكن بنية argp_option options[] = { { "format", 'f', "FORMAT", 0, "select the output format", 0 },
                                         {
                                             0,
                                         } };
 
-static char args_doc[] = "ps";
+ساكن حرف آرگومانها_doc[] = "ps";
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state arg_unused)
+ساكن error_t
+parse_opt (صحيح کلید, حرف *arg, بنية argp_state *state arg_استفادهنشده)
 {
-  switch (key)
+  بدل (کلید)
     {
-    case 'f':
-      if (strcmp (arg, "table") == 0)
-        ps_options.format = PS_TABLE;
-      else if (strcmp (arg, "json") == 0)
+    حالة 'f':
+      إذا (strcmp (arg, "table") == 0)
+        ps_options.format = PS_جدول;
+      وإلا إذا (strcmp (arg, "json") == 0)
         ps_options.format = PS_JSON;
-      else
+      وإلا
         libcrun_fail_with_error (0, "invalid format `%s`", arg);
-      break;
+      اكسر;
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    افتراضي:
+      أرجع ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  أرجع 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+ساكن بنية argp پیاپی_argp = { options, parse_opt, آرگومانها_doc, doc, عدم, عدم, عدم };
 
-int
-crun_command_ps (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+صحيح
+crun_command_ps (بنية crun_global_arguments *global_آرگومانها, صحيح argc, حرف **argv, libcrun_error_t *err)
 {
-  int first_arg;
-  int ret;
-  cleanup_free pid_t *pids = NULL;
-  cleanup_context libcrun_context_t *crun_context = NULL;
+  صحيح اولی_arg;
+  صحيح ret;
+  cleanup_free pid_t *pids = عدم;
+  cleanup_context libcrun_context_t *crun_context = عدم;
   size_t i;
 
-  ps_options.format = PS_TABLE;
+  ps_options.format = PS_جدول;
 
-  argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &ps_options);
-  crun_assert_n_args (argc - first_arg, 1, 1);
+  argp_parse (&پیاپی_argp, argc, argv, ARGP_درون_ترتیب, &اولی_arg, &ps_options);
+  crun_assert_n_آرگومانها (argc - اولی_arg, 1, 1);
 
-  crun_context = new_libcrun_context (global_args);
+  crun_context = new_libcrun_context (global_آرگومانها);
 
-  ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = init_libcrun_context (crun_context, argv[اولی_arg], global_آرگومانها, err);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  ret = libcrun_container_read_pids (crun_context, argv[first_arg], true, &pids, err);
-  if (UNLIKELY (ret < 0))
+  ret = libcrun_container_read_pids (crun_context, argv[اولی_arg], true, &pids, err);
+  إذا (UNLIKELY (ret < 0))
     {
       libcrun_error_report_and_release (err);
-      return ret;
+      أرجع ret;
     }
 
-  switch (ps_options.format)
+  بدل (ps_options.format)
     {
-    case PS_JSON:
-      printf ("[\n");
-      for (i = 0; pids && pids[i]; i++)
-        printf ("  %d%s\n", pids[i], pids[i + 1] ? "," : "");
-      printf ("]\n");
-      break;
+    حالة PS_JSON:
+      چاپ_کن ("[\n");
+      لكل (i = 0; pids && pids[i]; i++)
+        چاپ_کن ("  %d%s\n", pids[i], pids[i + 1] ? "," : "");
+      چاپ_کن ("]\n");
+      اكسر;
 
-    case PS_TABLE:
-      printf ("PID\n");
-      for (i = 0; pids && pids[i]; i++)
-        printf ("%d\n", pids[i]);
-      break;
+    حالة PS_جدول:
+      چاپ_کن ("PID\n");
+      لكل (i = 0; pids && pids[i]; i++)
+        چاپ_کن ("%d\n", pids[i]);
+      اكسر;
     }
 
-  return 0;
+  أرجع 0;
 }

@@ -16,181 +16,181 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#تعریف_کن GNU_منبع
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <regex.h>
+#ضمن <config.h>
+#ضمن <stdio.h>
+#ضمن <stdlib.h>
+#ضمن <argp.h>
+#ضمن <string.h>
+#ضمن <unistd.h>
+#ضمن <errno.h>
+#ضمن <regex.h>
 
-#include "crun.h"
+#ضمن "crun.h"
 
-enum
+تعداد
 {
-  OPTION_IMAGE_PATH = 1000,
-  OPTION_WORK_PATH,
+  OPTION_IMAGE_مسیر = 1000,
+  OPTION_WORK_مسیر,
   OPTION_LEAVE_RUNNING,
   OPTION_TCP_ESTABLISHED,
-  OPTION_SHELL_JOB,
+  OPTION_SHELL_کار,
   OPTION_EXT_UNIX_SK,
   OPTION_FILE_LOCKS,
-  OPTION_NETWORK_LOCK_METHOD,
-  OPTION_PARENT_PATH,
+  OPTION_شبکه_قفل_روش,
+  OPTION_والد_مسیر,
   OPTION_PRE_DUMP,
-  OPTION_MANAGE_CGROUPS_MODE,
+  OPTION_MANAGE_CGROUPS_نما,
 };
 
-static char doc[] = "OCI runtime";
+ساكن حرف doc[] = "OCI runtime";
 
-static struct libcrun_checkpoint_restore_options_s cr_options;
+ساكن بنية libcrun_checkpoint_restore_options_s cr_options;
 
-static struct argp_option options[]
-    = { { "image-path", OPTION_IMAGE_PATH, "DIR", 0, "path for saving criu image files", 0 },
-        { "work-path", OPTION_WORK_PATH, "DIR", 0, "path for saving work files and logs", 0 },
+ساكن بنية argp_option options[]
+    = { { "image-path", OPTION_IMAGE_مسیر, "DIR", 0, "path for saving criu image files", 0 },
+        { "work-path", OPTION_WORK_مسیر, "DIR", 0, "path for saving work files and logs", 0 },
         { "leave-running", OPTION_LEAVE_RUNNING, 0, 0, "leave the process running after checkpointing", 0 },
         { "tcp-established", OPTION_TCP_ESTABLISHED, 0, 0, "allow open tcp connections", 0 },
         { "ext-unix-sk", OPTION_EXT_UNIX_SK, 0, 0, "allow external unix sockets", 0 },
-        { "shell-job", OPTION_SHELL_JOB, 0, 0, "allow shell jobs", 0 },
+        { "shell-job", OPTION_SHELL_کار, 0, 0, "allow shell jobs", 0 },
         { "file-locks", OPTION_FILE_LOCKS, 0, 0, "allow file locks", 0 },
-        { "network-lock", OPTION_NETWORK_LOCK_METHOD, "METHOD", 0, "set network lock method", 0 },
-#ifdef CRIU_PRE_DUMP_SUPPORT
-        { "parent-path", OPTION_PARENT_PATH, "DIR", 0, "path for previous criu image files in pre-dump", 0 },
+        { "network-lock", OPTION_شبکه_قفل_روش, "METHOD", 0, "set network lock method", 0 },
+#اگر_تعریف_شده CRIU_PRE_DUMP_SUPPORT
+        { "parent-path", OPTION_والد_مسیر, "DIR", 0, "path for previous criu image files in pre-dump", 0 },
         { "pre-dump", OPTION_PRE_DUMP, 0, 0, "dump container's memory information only, leave the container running after this", 0 },
-#endif
-        { "manage-cgroups-mode", OPTION_MANAGE_CGROUPS_MODE, "MODE", 0, "cgroups mode: 'soft' (default), 'ignore', 'full' and 'strict'", 0 },
+#پایان_اگر
+        { "manage-cgroups-mode", OPTION_MANAGE_CGROUPS_نما, "MODE", 0, "cgroups mode: 'soft' (default), 'ignore', 'full' and 'strict'", 0 },
         {
             0,
         } };
 
-static char args_doc[] = "checkpoint CONTAINER";
+ساكن حرف آرگومانها_doc[] = "checkpoint CONTAINER";
 
 /* Map the CLI names onto the public LIBCRUN_CR_* enums; libcrun translates
    these to CRIU's own values internally so CRIU headers never reach here.  */
-int
-crun_parse_network_lock_method (char *param)
+صحيح
+crun_parse_شبکه_قفل_روش (حرف *param)
 {
-  if (strcmp (param, "iptables") == 0)
-    return LIBCRUN_CR_NETWORK_LOCK_IPTABLES;
-  else if (strcmp (param, "nftables") == 0)
-    return LIBCRUN_CR_NETWORK_LOCK_NFTABLES;
-  else if (strcmp (param, "skip") == 0)
-    return LIBCRUN_CR_NETWORK_LOCK_SKIP;
-  else
+  إذا (strcmp (param, "iptables") == 0)
+    أرجع LIBCRUN_CR_شبکه_قفل_IPTABLES;
+  وإلا إذا (strcmp (param, "nftables") == 0)
+    أرجع LIBCRUN_CR_شبکه_قفل_NFTABLES;
+  وإلا إذا (strcmp (param, "skip") == 0)
+    أرجع LIBCRUN_CR_شبکه_قفل_SKIP;
+  وإلا
     libcrun_fail_with_error (0, "unknown network lock method specified");
 }
 
-int
-crun_parse_manage_cgroups_mode (char *param)
+صحيح
+crun_parse_manage_cgroups_نما (حرف *param)
 {
-  if (strcmp (param, "soft") == 0)
-    return LIBCRUN_CR_CG_MODE_SOFT;
-  else if (strcmp (param, "ignore") == 0)
-    return LIBCRUN_CR_CG_MODE_IGNORE;
-  else if (strcmp (param, "full") == 0)
-    return LIBCRUN_CR_CG_MODE_FULL;
-  else if (strcmp (param, "strict") == 0)
-    return LIBCRUN_CR_CG_MODE_STRICT;
-  else
+  إذا (strcmp (param, "soft") == 0)
+    أرجع LIBCRUN_CR_CG_نما_SOFT;
+  وإلا إذا (strcmp (param, "ignore") == 0)
+    أرجع LIBCRUN_CR_CG_نما_IGNORE;
+  وإلا إذا (strcmp (param, "full") == 0)
+    أرجع LIBCRUN_CR_CG_نما_پر;
+  وإلا إذا (strcmp (param, "strict") == 0)
+    أرجع LIBCRUN_CR_CG_نما_STRICT;
+  وإلا
     libcrun_fail_with_error (0, "unknown cgroup mode specified");
 }
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+ساكن error_t
+parse_opt (صحيح کلید, حرف *arg, بنية argp_state *state)
 {
-  switch (key)
+  بدل (کلید)
     {
-    case ARGP_KEY_NO_ARGS:
+    حالة ARGP_کلید_NO_آرگومانها:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    case OPTION_IMAGE_PATH:
-      cr_options.image_path = argp_mandatory_argument (arg, state);
-      break;
+    حالة OPTION_IMAGE_مسیر:
+      cr_options.image_مسیر = argp_mandatory_آرگومان (arg, state);
+      اكسر;
 
-    case OPTION_WORK_PATH:
-      cr_options.work_path = argp_mandatory_argument (arg, state);
-      break;
+    حالة OPTION_WORK_مسیر:
+      cr_options.work_مسیر = argp_mandatory_آرگومان (arg, state);
+      اكسر;
 
-    case OPTION_PARENT_PATH:
-      cr_options.parent_path = argp_mandatory_argument (arg, state);
-      break;
+    حالة OPTION_والد_مسیر:
+      cr_options.والد_مسیر = argp_mandatory_آرگومان (arg, state);
+      اكسر;
 
-    case OPTION_PRE_DUMP:
+    حالة OPTION_PRE_DUMP:
       cr_options.pre_dump = true;
-      break;
+      اكسر;
 
-    case OPTION_LEAVE_RUNNING:
+    حالة OPTION_LEAVE_RUNNING:
       cr_options.leave_running = true;
-      break;
+      اكسر;
 
-    case OPTION_TCP_ESTABLISHED:
+    حالة OPTION_TCP_ESTABLISHED:
       cr_options.tcp_established = true;
-      break;
+      اكسر;
 
-    case OPTION_EXT_UNIX_SK:
+    حالة OPTION_EXT_UNIX_SK:
       cr_options.ext_unix_sk = true;
-      break;
+      اكسر;
 
-    case OPTION_SHELL_JOB:
-      cr_options.shell_job = true;
-      break;
+    حالة OPTION_SHELL_کار:
+      cr_options.shell_کار = true;
+      اكسر;
 
-    case OPTION_FILE_LOCKS:
+    حالة OPTION_FILE_LOCKS:
       cr_options.file_locks = true;
-      break;
+      اكسر;
 
-    case OPTION_MANAGE_CGROUPS_MODE:
-      cr_options.manage_cgroups_mode = crun_parse_manage_cgroups_mode (argp_mandatory_argument (arg, state));
-      break;
+    حالة OPTION_MANAGE_CGROUPS_نما:
+      cr_options.manage_cgroups_نما = crun_parse_manage_cgroups_نما (argp_mandatory_آرگومان (arg, state));
+      اكسر;
 
-    case OPTION_NETWORK_LOCK_METHOD:
-      cr_options.network_lock_method = crun_parse_network_lock_method (argp_mandatory_argument (arg, state));
-      break;
+    حالة OPTION_شبکه_قفل_روش:
+      cr_options.شبکه_قفل_روش = crun_parse_شبکه_قفل_روش (argp_mandatory_آرگومان (arg, state));
+      اكسر;
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    افتراضي:
+      أرجع ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  أرجع 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+ساكن بنية argp پیاپی_argp = { options, parse_opt, آرگومانها_doc, doc, عدم, عدم, عدم };
 
-int
-crun_command_checkpoint (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+صحيح
+crun_command_checkpoint (بنية crun_global_arguments *global_آرگومانها, صحيح argc, حرف **argv, libcrun_error_t *err)
 {
-  cleanup_free char *cr_path = NULL;
-  int first_arg;
-  int ret;
-  cleanup_context libcrun_context_t *crun_context = NULL;
+  cleanup_free حرف *cr_مسیر = عدم;
+  صحيح اولی_arg;
+  صحيح ret;
+  cleanup_context libcrun_context_t *crun_context = عدم;
 
-  cr_options.struct_size = sizeof (cr_options);
+  cr_options.struct_اندازه = حجم (cr_options);
 
-  argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &cr_options);
-  crun_assert_n_args (argc - first_arg, 1, 2);
+  argp_parse (&پیاپی_argp, argc, argv, ARGP_درون_ترتیب, &اولی_arg, &cr_options);
+  crun_assert_n_آرگومانها (argc - اولی_arg, 1, 2);
 
-  crun_context = new_libcrun_context (global_args);
+  crun_context = new_libcrun_context (global_آرگومانها);
 
-  ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = init_libcrun_context (crun_context, argv[اولی_arg], global_آرگومانها, err);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  if (cr_options.image_path == NULL)
+  إذا (cr_options.image_مسیر == عدم)
     {
-      cleanup_free char *path = NULL;
+      cleanup_free حرف *مسیر = عدم;
 
-      path = getcwd (NULL, 0);
-      if (UNLIKELY (path == NULL))
+      مسیر = getcwd (عدم, 0);
+      إذا (UNLIKELY (مسیر == عدم))
         libcrun_fail_with_error (errno, "getcwd failed");
 
-      ret = asprintf (&cr_path, "%s/checkpoint", path);
-      if (UNLIKELY (ret < 0))
+      ret = asprintf (&cr_مسیر, "%s/checkpoint", مسیر);
+      إذا (UNLIKELY (ret < 0))
         OOM ();
-      cr_options.image_path = cr_path;
+      cr_options.image_مسیر = cr_مسیر;
     }
 
-  return libcrun_container_checkpoint (crun_context, argv[first_arg], &cr_options, err);
+  أرجع libcrun_container_checkpoint (crun_context, argv[اولی_arg], &cr_options, err);
 }
