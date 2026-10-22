@@ -30,30 +30,30 @@
 #include <sys/sysmacros.h>
 
 #ifdef HAVE_LINUX_IOPRIO_H
-static int
-syscall_ioprio_set (int which, int who, int ioprio)
+static 정수
+syscall_ioprio_set (정수 which, 정수 who, 정수 ioprio)
 {
 #  ifdef __NR_ioprio_set
-  return syscall (__NR_ioprio_set, which, who, ioprio);
-#  else
+  반환 syscall (__NR_ioprio_set, which, who, ioprio);
+#  아니면
   (void) which;
   (void) who;
   (void) ioprio;
   errno = ENOSYS;
-  return -1;
+  반환 -1;
 #  endif
 }
 #endif
 
-int
+정수
 libcrun_set_io_priority (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err)
 {
 #ifdef HAVE_LINUX_IOPRIO_H
-  int ret, i, class_value, value;
+  정수 ret, i, class_value, value;
   struct
   {
     const char *name;
-    int value;
+    정수 value;
   } classes[] = {
     { "IOPRIO_CLASS_RT", IOPRIO_CLASS_RT },
     { "IOPRIO_CLASS_BE", IOPRIO_CLASS_BE },
@@ -61,34 +61,34 @@ libcrun_set_io_priority (pid_t pid, runtime_spec_schema_config_schema_process *p
     { NULL, 0 },
   };
 
-  if (process == NULL || process->io_priority == NULL)
-    return 0;
+  만약 (process == NULL || process->io_priority == NULL)
+    반환 0;
 
   class_value = -1;
-  for (i = 0; classes[i].name; i++)
-    if (strcmp (process->io_priority->_class, classes[i].name) == 0)
+  위해 (i = 0; classes[i].name; i++)
+    만약 (strcmp (process->io_priority->_class, classes[i].name) == 0)
       {
         class_value = i;
         break;
       }
-  if (UNLIKELY (class_value < 0))
-    return crun_make_error (err, 0, "invalid io priority `%s`", process->io_priority->_class);
+  만약 (UNLIKELY (class_value < 0))
+    반환 crun_make_error (err, 0, "invalid io priority `%s`", process->io_priority->_class);
 
   value = IOPRIO_PRIO_VALUE (classes[class_value].value, process->io_priority->priority);
 
   ret = syscall_ioprio_set (IOPRIO_WHO_PROCESS, pid, value);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "failed to set io priority");
+  만약 (UNLIKELY (ret < 0))
+    반환 crun_make_error (err, errno, "failed to set io priority");
 
-  return 0;
-#else
+  반환 0;
+#아니면
   // If io_priority is not set then return without doing
   // anything.
-  if (process == NULL || process->io_priority == NULL)
-    return 0;
+  만약 (process == NULL || process->io_priority == NULL)
+    반환 0;
 
   (void) pid;
   (void) process;
-  return crun_make_error (err, 0, "io priority not supported");
+  반환 crun_make_error (err, 0, "io priority not supported");
 #endif
 }

@@ -32,7 +32,7 @@
 #  define LIKELY(x) __builtin_expect ((x), 1)
 #  define UNLIKELY(x) __builtin_expect ((x), 0)
 #  define arg_unused __attribute__ ((unused))
-#else
+#아니면
 #  define LIKELY(x) (x)
 #  define UNLIKELY(x) (x)
 #  define arg_unused
@@ -43,7 +43,7 @@
     {                                    \
       fprintf (stderr, "out of memory"); \
       _exit (EXIT_FAILURE);              \
-  } while (0)
+  } 동안 (0)
 
 #define crun_make_error libcrun_make_error
 
@@ -51,39 +51,39 @@ __attribute__ ((malloc)) static inline void *
 xmalloc (size_t size)
 {
   void *res = malloc (size);
-  if (UNLIKELY (res == NULL))
+  만약 (UNLIKELY (res == NULL))
     OOM ();
-  return res;
+  반환 res;
 }
 
 __attribute__ ((malloc)) static inline void *
 xmalloc0 (size_t size)
 {
   void *res = calloc (1, size);
-  if (UNLIKELY (res == NULL))
+  만약 (UNLIKELY (res == NULL))
     OOM ();
-  return res;
+  반환 res;
 }
 
 __attribute__ ((malloc)) static inline void *
 xrealloc (void *ptr, size_t size)
 {
   void *res = realloc (ptr, size);
-  if (UNLIKELY (res == NULL))
+  만약 (UNLIKELY (res == NULL))
     OOM ();
-  return res;
+  반환 res;
 }
 
 static inline char *
 xstrdup (const char *str)
 {
   char *ret;
-  if (str == NULL)
-    return NULL;
+  만약 (str == NULL)
+    반환 NULL;
   ret = strdup (str);
-  if (UNLIKELY (ret == NULL))
+  만약 (UNLIKELY (ret == NULL))
     OOM ();
-  return ret;
+  반환 ret;
 }
 
 static inline void
@@ -97,15 +97,15 @@ static inline void
 cleanup_filep (FILE **f)
 {
   FILE *file = *f;
-  if (file)
+  만약 (file)
     (void) fclose (file);
 }
 
 static inline void
 cleanup_closep (void *p)
 {
-  int *pp = (int *) p;
-  if (*pp >= 0)
+  정수 *pp = (정수 *) p;
+  만약 (*pp >= 0)
     close (*pp);
 }
 
@@ -118,7 +118,7 @@ cleanup_closep (void *p)
 static inline void
 cleanup_libcrun_contextp (libcrun_context_t **p)
 {
-  if (*p)
+  만약 (*p)
     libcrun_context_free (*p);
 }
 
@@ -127,7 +127,7 @@ cleanup_libcrun_contextp (libcrun_context_t **p)
 static inline void
 cleanup_libcrun_containerp (libcrun_container_t **p)
 {
-  if (*p)
+  만약 (*p)
     libcrun_container_free (*p);
 }
 

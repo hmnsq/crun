@@ -20,6 +20,6 @@
 
 #include "crun.h"
 
-int crun_command_state (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+정수 crun_command_state (struct crun_global_arguments *global_args, 정수 argc, char **argv, libcrun_error_t *error);
 
 #endif

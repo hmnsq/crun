@@ -43,8 +43,8 @@
 #  include <wasmtime.h>
 #endif
 
-#if HAVE_DLOPEN && HAVE_WASMTIME
-static int
+#만약 HAVE_DLOPEN && HAVE_WASMTIME
+static 정수
 libwasmtime_exec (void *cookie, libcrun_container_t *container arg_unused,
                   const char *pathname, char *const argv[])
 {
@@ -69,7 +69,7 @@ libwasmtime_exec (void *cookie, libcrun_container_t *container arg_unused,
       wasmtime_module_t **ret);
   void (*wasi_config_inherit_argv) (wasi_config_t *config);
   void (*wasi_config_inherit_env) (wasi_config_t *config);
-  void (*wasi_config_set_argv) (wasi_config_t *config, int argc, const char *argv[]);
+  void (*wasi_config_set_argv) (wasi_config_t *config, 정수 argc, const char *argv[]);
   void (*wasi_config_inherit_stdin) (wasi_config_t *config);
   void (*wasi_config_inherit_stdout) (wasi_config_t *config);
   void (*wasi_config_inherit_stderr) (wasi_config_t *config);
@@ -127,7 +127,7 @@ libwasmtime_exec (void *cookie, libcrun_container_t *container arg_unused,
   wasmtime_error_message = dlsym (cookie, "wasmtime_error_message");
   wasi_config_preopen_dir = dlsym (cookie, "wasi_config_preopen_dir");
 
-  if (wasm_engine_new == NULL || wasm_engine_delete == NULL || wasm_byte_vec_delete == NULL
+  만약 (wasm_engine_new == NULL || wasm_engine_delete == NULL || wasm_byte_vec_delete == NULL
       || wasm_byte_vec_new_uninitialized == NULL || wasi_config_new == NULL || wasmtime_store_new == NULL
       || wasmtime_store_context == NULL || wasmtime_linker_new == NULL || wasmtime_linker_define_wasi == NULL
       || wasmtime_module_new == NULL || wasi_config_inherit_argv == NULL || wasi_config_inherit_stdout == NULL
@@ -149,37 +149,37 @@ libwasmtime_exec (void *cookie, libcrun_container_t *container arg_unused,
   // Link with wasi functions defined
   wasmtime_linker_t *linker = wasmtime_linker_new (engine);
   wasmtime_error_t *err = wasmtime_linker_define_wasi (linker);
-  if (err != NULL)
+  만약 (err != NULL)
     {
       wasmtime_error_message (err, &error_message);
       wasmtime_error_delete (err);
-      error (EXIT_FAILURE, 0, "failed to link wasi: %.*s", (int) error_message.size, error_message.data);
+      error (EXIT_FAILURE, 0, "failed to link wasi: %.*s", (정수) error_message.size, error_message.data);
     }
 
   wasm_byte_vec_t wasm;
   // Load and parse container entrypoint
   FILE *file = fopen (pathname, "rbe");
-  if (! file)
+  만약 (! file)
     error (EXIT_FAILURE, 0, "error loading entrypoint");
   fseek (file, 0L, SEEK_END);
   size_t file_size = ftell (file);
   wasm_byte_vec_new_uninitialized (&wasm, file_size);
   fseek (file, 0L, SEEK_SET);
-  if (fread (wasm.data, file_size, 1, file) != 1)
+  만약 (fread (wasm.data, file_size, 1, file) != 1)
     error (EXIT_FAILURE, 0, "error load");
   fclose (file);
 
   // If entrypoint contains a webassembly text format
   // compile it on the fly and convert to equivalent
   // binary format.
-  if (has_suffix (pathname, "wat") > 0)
+  만약 (has_suffix (pathname, "wat") > 0)
     {
       wasmtime_error_t *err = wasmtime_wat2wasm ((char *) &wasm_bytes, file_size, &wasm);
-      if (err != NULL)
+      만약 (err != NULL)
         {
           wasmtime_error_message (err, &error_message);
           wasmtime_error_delete (err);
-          error (EXIT_FAILURE, 0, "failed while compiling wat to wasm binary : %.*s", (int) error_message.size, error_message.data);
+          error (EXIT_FAILURE, 0, "failed while compiling wat to wasm binary : %.*s", (정수) error_message.size, error_message.data);
         }
       wasm = wasm_bytes;
     }
@@ -187,11 +187,11 @@ libwasmtime_exec (void *cookie, libcrun_container_t *container arg_unused,
   // Compile wasm modules
   wasmtime_module_t *module = NULL;
   err = wasmtime_module_new (engine, (uint8_t *) wasm.data, wasm.size, &module);
-  if (! module)
+  만약 (! module)
     {
       wasmtime_error_message (err, &error_message);
       wasmtime_error_delete (err);
-      error (EXIT_FAILURE, 0, "failed to compile module: %.*s", (int) error_message.size, error_message.data);
+      error (EXIT_FAILURE, 0, "failed to compile module: %.*s", (정수) error_message.size, error_message.data);
     }
   wasm_byte_vec_delete (&wasm);
 
@@ -200,7 +200,7 @@ libwasmtime_exec (void *cookie, libcrun_container_t *container arg_unused,
   assert (wasi_config);
 
   // Calculate argc for `wasi_config_set_argv`
-  for (arg = argv; *arg != NULL; ++arg)
+  위해 (arg = argv; *arg != NULL; ++arg)
     args_size++;
 
   wasi_config_set_argv (wasi_config, args_size, (const char **) argv);
@@ -211,38 +211,38 @@ libwasmtime_exec (void *cookie, libcrun_container_t *container arg_unused,
   wasi_config_preopen_dir (wasi_config, ".", ".");
   wasm_trap_t *trap = NULL;
   err = wasmtime_context_set_wasi (context, wasi_config);
-  if (err != NULL)
+  만약 (err != NULL)
     {
       wasmtime_error_message (err, &error_message);
       wasmtime_error_delete (err);
-      error (EXIT_FAILURE, 0, "failed to instantiate WASI: %.*s", (int) error_message.size, error_message.data);
+      error (EXIT_FAILURE, 0, "failed to instantiate WASI: %.*s", (정수) error_message.size, error_message.data);
     }
 
   // Init module
   err = wasmtime_linker_module (linker, context, "", 0, module);
-  if (err != NULL)
+  만약 (err != NULL)
     {
       wasmtime_error_message (err, &error_message);
       wasmtime_error_delete (err);
-      error (EXIT_FAILURE, 0, "failed to instantiate module: %.*s", (int) error_message.size, error_message.data);
+      error (EXIT_FAILURE, 0, "failed to instantiate module: %.*s", (정수) error_message.size, error_message.data);
     }
 
   // Actually run our .wasm
   wasmtime_func_t func;
   err = wasmtime_linker_get_default (linker, context, "", 0, &func);
-  if (err != NULL)
+  만약 (err != NULL)
     {
       wasmtime_error_message (err, &error_message);
       wasmtime_error_delete (err);
-      error (EXIT_FAILURE, 0, "failed to locate default export for module %.*s", (int) error_message.size, error_message.data);
+      error (EXIT_FAILURE, 0, "failed to locate default export for module %.*s", (정수) error_message.size, error_message.data);
     }
 
   err = wasmtime_func_call (context, &func, NULL, 0, NULL, 0, &trap);
-  if (err != NULL || trap != NULL)
+  만약 (err != NULL || trap != NULL)
     {
       wasmtime_error_message (err, &error_message);
       wasmtime_error_delete (err);
-      error (EXIT_FAILURE, 0, "error calling default export: %.*s", (int) error_message.size, error_message.data);
+      error (EXIT_FAILURE, 0, "error calling default export: %.*s", (정수) error_message.size, error_message.data);
     }
 
   // Clean everything
@@ -253,37 +253,37 @@ libwasmtime_exec (void *cookie, libcrun_container_t *container arg_unused,
   exit (EXIT_SUCCESS);
 }
 
-static int
+static 정수
 libwasmtime_load (void **cookie, libcrun_error_t *err)
 {
   void *handle;
 
   handle = dlopen ("libwasmtime.so", RTLD_NOW);
-  if (handle == NULL)
-    return crun_make_error (err, 0, "could not load `libwasmtime.so`: %s", dlerror ());
+  만약 (handle == NULL)
+    반환 crun_make_error (err, 0, "could not load `libwasmtime.so`: %s", dlerror ());
   *cookie = handle;
 
-  return 0;
+  반환 0;
 }
 
-static int
+static 정수
 libwasmtime_unload (void *cookie, libcrun_error_t *err)
 {
-  int r;
+  정수 r;
 
-  if (cookie)
+  만약 (cookie)
     {
       r = dlclose (cookie);
-      if (UNLIKELY (r < 0))
-        return crun_make_error (err, 0, "could not unload handle: %s", dlerror ());
+      만약 (UNLIKELY (r < 0))
+        반환 crun_make_error (err, 0, "could not unload handle: %s", dlerror ());
     }
-  return 0;
+  반환 0;
 }
 
-static int
+static 정수
 libwasmtime_can_handle_container (libcrun_container_t *container, libcrun_error_t *err)
 {
-  return wasm_can_handle_container (container, err);
+  반환 wasm_can_handle_container (container, err);
 }
 
 struct custom_handler_s handler_wasmtime = {

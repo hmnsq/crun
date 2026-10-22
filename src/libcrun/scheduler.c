@@ -64,17 +64,17 @@ struct sched_attr_s
   uint64_t sched_period;
 };
 
-static int
-syscall_sched_setattr (pid_t pid, struct sched_attr_s *attr, unsigned int flags)
+static 정수
+syscall_sched_setattr (pid_t pid, struct sched_attr_s *attr, unsigned 정수 flags)
 {
 #ifdef __NR_sched_setattr
-  return syscall (__NR_sched_setattr, pid, attr, flags);
-#else
+  반환 syscall (__NR_sched_setattr, pid, attr, flags);
+#아니면
   (void) pid;
   (void) attr;
   (void) flags;
   errno = ENOSYS;
-  return -1;
+  반환 -1;
 #endif
 }
 
@@ -85,11 +85,11 @@ syscall_sched_setattr (pid_t pid, struct sched_attr_s *attr, unsigned int flags)
    CPUs outside of it.  */
 #define MAX_CPU_MASK_BITS (64 * 1024)
 
-int
+정수
 libcrun_reset_cpu_affinity_mask (pid_t pid, libcrun_error_t *err)
 {
   cpu_set_t mask[MAX_CPU_MASK_BITS / (CHAR_BIT * sizeof (cpu_set_t))];
-  int ret;
+  정수 ret;
 
   /* Reset the inherited cpu affinity. Old kernels do that automatically, but
      new kernels remember the affinity that was set before the cgroup move.
@@ -98,33 +98,33 @@ libcrun_reset_cpu_affinity_mask (pid_t pid, libcrun_error_t *err)
      See: https://issues.redhat.com/browse/OCPBUGS-15102   */
   memset (mask, 0xFF, sizeof (mask));
   ret = sched_setaffinity (pid, sizeof (mask), mask);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "sched_setaffinity");
-  return 0;
+  만약 (UNLIKELY (ret < 0))
+    반환 crun_make_error (err, errno, "sched_setaffinity");
+  반환 0;
 }
 
-static int
+static 정수
 diagnose_scheduler_failure (libcrun_error_t *err, runtime_spec_schema_config_schema_process *process,
                             struct sched_attr_s *attr)
 {
-  if (attr->sched_policy == SCHED_DEADLINE && errno == EINVAL)
+  만약 (attr->sched_policy == SCHED_DEADLINE && errno == EINVAL)
     {
-      if (! process->scheduler->runtime_present)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` requires `runtime`");
-      if (! process->scheduler->deadline_present)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` requires `deadline`");
+      만약 (! process->scheduler->runtime_present)
+        반환 crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` requires `runtime`");
+      만약 (! process->scheduler->deadline_present)
+        반환 crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` requires `deadline`");
 
-      if (attr->sched_runtime == 0)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` runtime must be greater than 0");
-      if (attr->sched_deadline == 0)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` deadline must be greater than 0");
+      만약 (attr->sched_runtime == 0)
+        반환 crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` runtime must be greater than 0");
+      만약 (attr->sched_deadline == 0)
+        반환 crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` deadline must be greater than 0");
       /* Per sched(7), ff sched_period is specified as 0, then it is made the same as sched_deadline. */
 
-      if (attr->sched_runtime > attr->sched_deadline)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` runtime (%" PRIu64 ") must be <= deadline (%" PRIu64 ")",
+      만약 (attr->sched_runtime > attr->sched_deadline)
+        반환 crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` runtime (%" PRIu64 ") must be <= deadline (%" PRIu64 ")",
                                 attr->sched_runtime, attr->sched_deadline);
-      if (attr->sched_period != 0 && attr->sched_deadline > attr->sched_period)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` deadline (%" PRIu64 ") must be <= period (%" PRIu64 ")",
+      만약 (attr->sched_period != 0 && attr->sched_deadline > attr->sched_period)
+        반환 crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` deadline (%" PRIu64 ") must be <= period (%" PRIu64 ")",
                                 attr->sched_deadline, attr->sched_period);
 
       /* sched(7) says "under the current implementation, all of the parameter values
@@ -132,33 +132,33 @@ diagnose_scheduler_failure (libcrun_error_t *err, runtime_spec_schema_config_sch
       const uint64_t min = 1024;
       const uint64_t max = (1ULL << 63) - 1;
 
-      if (attr->sched_runtime < min || attr->sched_runtime > max)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` runtime (%" PRIu64 ") must be between %" PRIu64 " and %" PRIu64,
+      만약 (attr->sched_runtime < min || attr->sched_runtime > max)
+        반환 crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` runtime (%" PRIu64 ") must be between %" PRIu64 " and %" PRIu64,
                                 attr->sched_runtime, min, max);
-      if (attr->sched_deadline < min || attr->sched_deadline > max)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` deadline (%" PRIu64 ") must be between %" PRIu64 " and %" PRIu64,
+      만약 (attr->sched_deadline < min || attr->sched_deadline > max)
+        반환 crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` deadline (%" PRIu64 ") must be between %" PRIu64 " and %" PRIu64,
                                 attr->sched_deadline, min, max);
-      if (attr->sched_period != 0 && (attr->sched_period < min || attr->sched_period > max))
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` period (%" PRIu64 ") must be between %" PRIu64 " and %" PRIu64,
+      만약 (attr->sched_period != 0 && (attr->sched_period < min || attr->sched_period > max))
+        반환 crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` period (%" PRIu64 ") must be between %" PRIu64 " and %" PRIu64,
                                 attr->sched_period, min, max);
 
-      return crun_make_error (err, errno, "sched_setattr: invalid `SCHED_DEADLINE` parameters (runtime=%" PRIu64 ", deadline=%" PRIu64 ", period=%" PRIu64 ")",
+      반환 crun_make_error (err, errno, "sched_setattr: invalid `SCHED_DEADLINE` parameters (runtime=%" PRIu64 ", deadline=%" PRIu64 ", period=%" PRIu64 ")",
                               attr->sched_runtime, attr->sched_deadline, attr->sched_period);
     }
 
-  return crun_make_error (err, errno, "sched_setattr");
+  반환 crun_make_error (err, errno, "sched_setattr");
 }
 
-int
+정수
 libcrun_set_scheduler (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err)
 {
   struct sched_attr_s attr;
-  int i, ret, policy;
+  정수 i, ret, policy;
   size_t s;
   struct
   {
     const char *name;
-    int value;
+    정수 value;
   } policies[] = {
     { "SCHED_OTHER", SCHED_OTHER },
     { "SCHED_BATCH", SCHED_BATCH },
@@ -169,109 +169,109 @@ libcrun_set_scheduler (pid_t pid, runtime_spec_schema_config_schema_process *pro
     { NULL, 0 },
   };
 
-  if (process == NULL || process->scheduler == NULL)
-    return 0;
+  만약 (process == NULL || process->scheduler == NULL)
+    반환 0;
 
   memset (&attr, 0, sizeof (attr));
   attr.size = sizeof (attr);
 
-  if (is_empty_string (process->scheduler->policy))
-    return crun_make_error (err, 0, "scheduler policy not defined");
+  만약 (is_empty_string (process->scheduler->policy))
+    반환 crun_make_error (err, 0, "scheduler policy not defined");
 
   policy = -1;
-  for (i = 0; policies[i].name; i++)
-    if (strcmp (process->scheduler->policy, policies[i].name) == 0)
+  위해 (i = 0; policies[i].name; i++)
+    만약 (strcmp (process->scheduler->policy, policies[i].name) == 0)
       {
         policy = i;
         break;
       }
-  if (UNLIKELY (policy < 0))
-    return crun_make_error (err, 0, "invalid scheduler `%s`", process->scheduler->policy);
+  만약 (UNLIKELY (policy < 0))
+    반환 crun_make_error (err, 0, "invalid scheduler `%s`", process->scheduler->policy);
 
   attr.sched_policy = policies[policy].value;
 
-  if (process->scheduler->nice_present)
+  만약 (process->scheduler->nice_present)
     attr.sched_nice = process->scheduler->nice;
 
-  if (process->scheduler->priority_present)
+  만약 (process->scheduler->priority_present)
     attr.sched_priority = process->scheduler->priority;
 
-  if (process->scheduler->runtime_present)
+  만약 (process->scheduler->runtime_present)
     attr.sched_runtime = process->scheduler->runtime;
 
-  if (process->scheduler->deadline_present)
+  만약 (process->scheduler->deadline_present)
     attr.sched_deadline = process->scheduler->deadline;
 
-  if (process->scheduler->period_present)
+  만약 (process->scheduler->period_present)
     attr.sched_period = process->scheduler->period;
 
-  for (s = 0; s < process->scheduler->flags_len; s++)
+  위해 (s = 0; s < process->scheduler->flags_len; s++)
     {
       char *key = process->scheduler->flags[s];
 
-      if (key == NULL)
-        return crun_make_error (err, EINVAL, "scheduler flag is not specified");
+      만약 (key == NULL)
+        반환 crun_make_error (err, EINVAL, "scheduler flag is not specified");
 
-      if (strcmp (key, "SCHED_FLAG_RESET_ON_FORK") == 0)
+      만약 (strcmp (key, "SCHED_FLAG_RESET_ON_FORK") == 0)
         attr.sched_flags |= SCHED_FLAG_RESET_ON_FORK;
-      else if (strcmp (key, "SCHED_FLAG_RECLAIM") == 0)
+      아니면 만약 (strcmp (key, "SCHED_FLAG_RECLAIM") == 0)
         attr.sched_flags |= SCHED_FLAG_RECLAIM;
-      else if (strcmp (key, "SCHED_FLAG_DL_OVERRUN") == 0)
+      아니면 만약 (strcmp (key, "SCHED_FLAG_DL_OVERRUN") == 0)
         attr.sched_flags |= SCHED_FLAG_DL_OVERRUN;
-      else if (strcmp (key, "SCHED_FLAG_KEEP_POLICY") == 0)
+      아니면 만약 (strcmp (key, "SCHED_FLAG_KEEP_POLICY") == 0)
         attr.sched_flags |= SCHED_FLAG_KEEP_POLICY;
-      else if (strcmp (key, "SCHED_FLAG_KEEP_PARAMS") == 0)
+      아니면 만약 (strcmp (key, "SCHED_FLAG_KEEP_PARAMS") == 0)
         attr.sched_flags |= SCHED_FLAG_KEEP_PARAMS;
-      else if (strcmp (key, "SCHED_FLAG_UTIL_CLAMP_MIN") == 0)
+      아니면 만약 (strcmp (key, "SCHED_FLAG_UTIL_CLAMP_MIN") == 0)
         attr.sched_flags |= SCHED_FLAG_UTIL_CLAMP_MIN;
-      else if (strcmp (key, "SCHED_FLAG_UTIL_CLAMP_MAX") == 0)
+      아니면 만약 (strcmp (key, "SCHED_FLAG_UTIL_CLAMP_MAX") == 0)
         attr.sched_flags |= SCHED_FLAG_UTIL_CLAMP_MAX;
-      else
-        return crun_make_error (err, 0, "invalid scheduler option `%s`", key);
+      아니면
+        반환 crun_make_error (err, 0, "invalid scheduler option `%s`", key);
     }
 
   ret = syscall_sched_setattr (pid, &attr, 0);
-  if (UNLIKELY (ret < 0))
-    return diagnose_scheduler_failure (err, process, &attr);
+  만약 (UNLIKELY (ret < 0))
+    반환 diagnose_scheduler_failure (err, process, &attr);
 
-  return 0;
+  반환 0;
 }
 
-int
+정수
 libcrun_set_cpu_affinity_from_string (pid_t pid, const char *str, libcrun_error_t *err)
 {
   cleanup_free char *bitmask = NULL;
-  int ret, saved_errno;
+  정수 ret, saved_errno;
   size_t bitmask_size;
   cpu_set_t *cpuset;
   size_t alloc_size;
   size_t i;
 
-  if (is_empty_string (str))
-    return 0;
+  만약 (is_empty_string (str))
+    반환 0;
 
   ret = cpuset_string_to_bitmask (str, &bitmask, &bitmask_size, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  만약 (UNLIKELY (ret < 0))
+    반환 ret;
 
   alloc_size = CPU_ALLOC_SIZE (bitmask_size * CHAR_BIT);
 
   cpuset = CPU_ALLOC (bitmask_size * CHAR_BIT);
-  if (UNLIKELY (cpuset == NULL))
+  만약 (UNLIKELY (cpuset == NULL))
     OOM ();
 
   CPU_ZERO_S (alloc_size, cpuset);
 
-  for (i = 0; i < bitmask_size * CHAR_BIT; i++)
+  위해 (i = 0; i < bitmask_size * CHAR_BIT; i++)
     {
-      if (bitmask[i / CHAR_BIT] & (1 << (i % CHAR_BIT)))
+      만약 (bitmask[i / CHAR_BIT] & (1 << (i % CHAR_BIT)))
         CPU_SET_S (i, alloc_size, cpuset);
     }
 
   ret = sched_setaffinity (pid, alloc_size, cpuset);
   saved_errno = errno;
   CPU_FREE (cpuset);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, saved_errno, "sched_setaffinity");
-  return 0;
+  만약 (UNLIKELY (ret < 0))
+    반환 crun_make_error (err, saved_errno, "sched_setaffinity");
+  반환 0;
 }

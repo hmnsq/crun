@@ -55,7 +55,7 @@ struct libcrun_cgroup_args
   runtime_spec_schema_config_linux_resources *resources;
   string_map *annotations;
   const char *cgroup_path;
-  int manager;
+  정수 manager;
   pid_t pid;
   uid_t root_uid;
   gid_t root_gid;
@@ -70,14 +70,14 @@ struct libcrun_cgroup_args
 };
 
 /* cgroup life-cycle management.  */
-int libcrun_cgroup_preenter (struct libcrun_cgroup_args *args, int *dirfd, libcrun_error_t *err);
+정수 libcrun_cgroup_preenter (struct libcrun_cgroup_args *args, 정수 *dirfd, libcrun_error_t *err);
 void libcrun_cgroup_preenter_cleanup (struct libcrun_cgroup_args *args);
-int libcrun_cgroup_enter (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status **out, libcrun_error_t *err);
-int libcrun_cgroup_enter_finalize (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status *cgroup_status, libcrun_error_t *err);
-int libcrun_cgroup_destroy (struct libcrun_cgroup_status *cgroup_status, libcrun_error_t *err);
+정수 libcrun_cgroup_enter (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status **out, libcrun_error_t *err);
+정수 libcrun_cgroup_enter_finalize (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status *cgroup_status, libcrun_error_t *err);
+정수 libcrun_cgroup_destroy (struct libcrun_cgroup_status *cgroup_status, libcrun_error_t *err);
 
 /* Handle the cgroup status.  */
-int libcrun_cgroup_get_status (struct libcrun_cgroup_status *cgroup_status, libcrun_container_status_t *status,
+정수 libcrun_cgroup_get_status (struct libcrun_cgroup_status *cgroup_status, libcrun_container_status_t *status,
                                libcrun_error_t *err);
 void libcrun_cgroup_status_free (struct libcrun_cgroup_status *cgroup_status);
 
@@ -87,7 +87,7 @@ static inline void
 cgroup_status_freep (struct libcrun_cgroup_status **p)
 {
   struct libcrun_cgroup_status *s = *p;
-  if (s)
+  만약 (s)
     libcrun_cgroup_status_free (s);
 }
 #define cleanup_cgroup_status __attribute__ ((cleanup (cgroup_status_freep)))
@@ -95,24 +95,24 @@ cgroup_status_freep (struct libcrun_cgroup_status **p)
 
 /* Operations on the cgroup.  */
 
-int libcrun_cgroup_killall (struct libcrun_cgroup_status *cgroup_status, int signal, libcrun_error_t *err);
+정수 libcrun_cgroup_killall (struct libcrun_cgroup_status *cgroup_status, 정수 signal, libcrun_error_t *err);
 
-int libcrun_cgroup_has_oom (struct libcrun_cgroup_status *status, libcrun_error_t *err);
+정수 libcrun_cgroup_has_oom (struct libcrun_cgroup_status *status, libcrun_error_t *err);
 
-int libcrun_cgroup_read_pids (struct libcrun_cgroup_status *status, bool recurse, pid_t **pids, libcrun_error_t *err);
+정수 libcrun_cgroup_read_pids (struct libcrun_cgroup_status *status, bool recurse, pid_t **pids, libcrun_error_t *err);
 
-int libcrun_update_cgroup_resources (struct libcrun_cgroup_status *status,
+정수 libcrun_update_cgroup_resources (struct libcrun_cgroup_status *status,
                                      const char *state_root,
                                      runtime_spec_schema_config_linux_resources *resources,
                                      libcrun_error_t *err);
 
-int libcrun_cgroup_is_container_paused (struct libcrun_cgroup_status *status, bool *paused, libcrun_error_t *err);
+정수 libcrun_cgroup_is_container_paused (struct libcrun_cgroup_status *status, bool *paused, libcrun_error_t *err);
 
 /* Move PID to the cgroup PATH, which is the container cgroup described by STATUS
    or its sub-cgroup.  */
-int libcrun_cgroup_join_process (struct libcrun_cgroup_status *status, const char *path, pid_t pid, pid_t init_pid,
+정수 libcrun_cgroup_join_process (struct libcrun_cgroup_status *status, const char *path, pid_t pid, pid_t init_pid,
                                  libcrun_error_t *err);
 
-int libcrun_cgroup_pause_unpause (struct libcrun_cgroup_status *status, const bool pause, libcrun_error_t *err);
+정수 libcrun_cgroup_pause_unpause (struct libcrun_cgroup_status *status, const bool pause, libcrun_error_t *err);
 
 #endif

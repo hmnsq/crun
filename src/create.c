@@ -57,7 +57,7 @@ static char args_doc[] = "create [OPTION]... CONTAINER";
 static const char *config_file = "config.json";
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (정수 key, char *arg, struct argp_state *state)
 {
   switch (key)
     {
@@ -96,27 +96,27 @@ parse_opt (int key, char *arg, struct argp_state *state)
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
     default:
-      return ARGP_ERR_UNKNOWN;
+      반환 ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  반환 0;
 }
 
 static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-static unsigned int
+static unsigned 정수
 get_options ()
 {
-  return 0;
+  반환 0;
 }
 
-int
-crun_command_create (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+정수
+crun_command_create (struct crun_global_arguments *global_args, 정수 argc, char **argv, libcrun_error_t *err)
 {
-  int ret;
+  정수 ret;
 
   crun_context = new_libcrun_context (global_args);
   ret = crun_run_create_internal (global_args, argc, argv, libcrun_container_create, get_options, crun_context, &run_argp, &config_file, &bundle, err);
   libcrun_context_free (crun_context);
-  return ret;
+  반환 ret;
 }

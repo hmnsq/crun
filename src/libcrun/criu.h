@@ -24,30 +24,30 @@
 #include "error.h"
 #include "utils.h"
 
-#if HAVE_CRIU && HAVE_DLOPEN
+#만약 HAVE_CRIU && HAVE_DLOPEN
 
-int libcrun_container_checkpoint_linux_criu (libcrun_container_status_t *status, libcrun_container_t *container,
+정수 libcrun_container_checkpoint_linux_criu (libcrun_container_status_t *status, libcrun_container_t *container,
                                              libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err);
 
-int libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcrun_container_t *container,
+정수 libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcrun_container_t *container,
                                           libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err);
 
-#else
+#아니면
 
-static inline int
+static inline 정수
 libcrun_container_checkpoint_linux_criu (arg_unused libcrun_container_status_t *status,
                                          arg_unused libcrun_container_t *container,
                                          arg_unused libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
 {
-  return crun_make_error (err, 0, "compiled without CRIU support. Checkpointing not available");
+  반환 crun_make_error (err, 0, "compiled without CRIU support. Checkpointing not available");
 }
 
-static inline int
+static inline 정수
 libcrun_container_restore_linux_criu (arg_unused libcrun_container_status_t *status,
                                       arg_unused libcrun_container_t *container,
                                       arg_unused libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
 {
-  return crun_make_error (err, 0, "compiled without CRIU support. Restore not available");
+  반환 crun_make_error (err, 0, "compiled without CRIU support. Restore not available");
 }
 
 #endif

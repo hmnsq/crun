@@ -220,46 +220,46 @@ static const char *spec_cgroupns = "\
 				\"type\": \"cgroup\"\n\
 			},\n";
 
-int
+정수
 libcrun_container_spec (bool root, FILE *out, libcrun_error_t *err)
 {
-  int ret;
-  int cgroup_mode;
+  정수 ret;
+  정수 cgroup_mode;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  만약 (UNLIKELY (cgroup_mode < 0))
+    반환 cgroup_mode;
 
   ret = fprintf (out, spec_file,
                  root ? spec_pts_tty_group : "\n",
                  root ? "" : spec_user,
                  cgroup_mode == CGROUP_MODE_UNIFIED ? spec_cgroupns : "");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fprintf failed");
+  만약 (UNLIKELY (ret < 0))
+    반환 crun_make_error (err, errno, "fprintf failed");
 
-  return ret;
+  반환 ret;
 }
 
-int
+정수
 libcrun_container_spec_json (bool root, char **out, libcrun_error_t *err)
 {
   char *buffer = NULL;
   size_t len = 0;
   FILE *f;
-  int ret;
+  정수 ret;
 
   f = open_memstream (&buffer, &len);
-  if (f == NULL)
-    return crun_make_error (err, errno, "open_memstream");
+  만약 (f == NULL)
+    반환 crun_make_error (err, errno, "open_memstream");
 
   ret = libcrun_container_spec (root, f, err);
   fclose (f);
-  if (UNLIKELY (ret < 0))
+  만약 (UNLIKELY (ret < 0))
     {
       free (buffer);
-      return ret;
+      반환 ret;
     }
 
   *out = buffer;
-  return 0;
+  반환 0;
 }

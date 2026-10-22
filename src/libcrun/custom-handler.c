@@ -33,48 +33,48 @@
 #  include <dlfcn.h>
 #endif
 
-#if HAVE_DLOPEN && HAVE_LIBKRUN
+#만약 HAVE_DLOPEN && HAVE_LIBKRUN
 extern struct custom_handler_s handler_libkrun;
 #endif
-#if HAVE_DLOPEN && HAVE_WASMTIME
+#만약 HAVE_DLOPEN && HAVE_WASMTIME
 extern struct custom_handler_s handler_wasmtime;
 #endif
-#if HAVE_DLOPEN && HAVE_WASMEDGE
+#만약 HAVE_DLOPEN && HAVE_WASMEDGE
 extern struct custom_handler_s handler_wasmedge;
 #endif
-#if HAVE_DLOPEN && HAVE_WASMER
+#만약 HAVE_DLOPEN && HAVE_WASMER
 extern struct custom_handler_s handler_wasmer;
 #endif
-#if HAVE_DLOPEN && HAVE_WAMR
+#만약 HAVE_DLOPEN && HAVE_WAMR
 extern struct custom_handler_s handler_wamr;
 #endif
-#if HAVE_DLOPEN && HAVE_MONO
+#만약 HAVE_DLOPEN && HAVE_MONO
 extern struct custom_handler_s handler_mono;
 #endif
-#if HAVE_DLOPEN && HAVE_SPIN
+#만약 HAVE_DLOPEN && HAVE_SPIN
 extern struct custom_handler_s handler_spin;
 #endif
 
 static struct custom_handler_s *static_handlers[] = {
-#if HAVE_DLOPEN && HAVE_LIBKRUN
+#만약 HAVE_DLOPEN && HAVE_LIBKRUN
   &handler_libkrun,
 #endif
-#if HAVE_DLOPEN && HAVE_WASMEDGE
+#만약 HAVE_DLOPEN && HAVE_WASMEDGE
   &handler_wasmedge,
 #endif
-#if HAVE_DLOPEN && HAVE_WASMER
+#만약 HAVE_DLOPEN && HAVE_WASMER
   &handler_wasmer,
 #endif
-#if HAVE_DLOPEN && HAVE_WASMTIME
+#만약 HAVE_DLOPEN && HAVE_WASMTIME
   &handler_wasmtime,
 #endif
-#if HAVE_DLOPEN && HAVE_WAMR
+#만약 HAVE_DLOPEN && HAVE_WAMR
   &handler_wamr,
 #endif
-#if HAVE_DLOPEN && HAVE_MONO
+#만약 HAVE_DLOPEN && HAVE_MONO
   &handler_mono,
 #endif
-#if HAVE_DLOPEN && HAVE_SPIN
+#만약 HAVE_DLOPEN && HAVE_SPIN
   &handler_spin,
 #endif
   NULL,
@@ -96,16 +96,16 @@ libcrun_handler_manager_create (libcrun_error_t *err arg_unused)
   size_t i, handlers_len;
 
   /* Count the static handlers.  */
-  for (handlers_len = 0; static_handlers[handlers_len]; handlers_len++)
+  위해 (handlers_len = 0; static_handlers[handlers_len]; handlers_len++)
     ;
 
-  if (handlers_len)
+  만약 (handlers_len)
     {
       handlers = xmalloc (sizeof (struct custom_handler_s *) * handlers_len);
       handles = xmalloc0 (sizeof (void *) * handlers_len);
     }
 
-  for (i = 0; i < handlers_len; i++)
+  위해 (i = 0; i < handlers_len; i++)
     handlers[i] = static_handlers[i];
 
   m = xmalloc0 (sizeof (struct custom_handler_manager_s));
@@ -113,7 +113,7 @@ libcrun_handler_manager_create (libcrun_error_t *err arg_unused)
   m->handles = handles;
   m->handlers_len = handlers_len;
 
-  return m;
+  반환 m;
 }
 
 void
@@ -121,13 +121,13 @@ handler_manager_free (struct custom_handler_manager_s *manager)
 {
   size_t i;
 
-  if (manager == NULL)
-    return;
+  만약 (manager == NULL)
+    반환;
 
-  for (i = 0; i < manager->handlers_len; i++)
+  위해 (i = 0; i < manager->handlers_len; i++)
     {
 #ifdef HAVE_DLOPEN
-      if (manager->handles[i])
+      만약 (manager->handles[i])
         dlclose (manager->handles[i]);
 #endif
     }
@@ -137,19 +137,19 @@ handler_manager_free (struct custom_handler_manager_s *manager)
 }
 
 #ifdef HAVE_DLOPEN
-static int
+static 정수
 handler_manager_add_so (struct custom_handler_manager_s *manager, void *handle, libcrun_error_t *err)
 {
   struct custom_handler_s *h = NULL;
   run_oci_get_handler_cb cb;
 
   cb = (run_oci_get_handler_cb) dlsym (handle, "run_oci_handler_get_handler");
-  if (UNLIKELY (cb == NULL))
-    return crun_make_error (err, 0, "cannot find symbol `run_oci_handler_get_handler`");
+  만약 (UNLIKELY (cb == NULL))
+    반환 crun_make_error (err, 0, "cannot find symbol `run_oci_handler_get_handler`");
 
   h = cb ();
-  if (UNLIKELY (h == NULL))
-    return crun_make_error (err, 0, "the callback `run_oci_handler_get_handler` didn't return a handler");
+  만약 (UNLIKELY (h == NULL))
+    반환 crun_make_error (err, 0, "the callback `run_oci_handler_get_handler` didn't return a handler");
 
   manager->handlers = xrealloc (manager->handlers, sizeof (struct custom_handler_s *) * (manager->handlers_len + 1));
   manager->handles = xrealloc (manager->handles, sizeof (void *) * (manager->handlers_len + 1));
@@ -157,11 +157,11 @@ handler_manager_add_so (struct custom_handler_manager_s *manager, void *handle, 
   manager->handlers[manager->handlers_len] = h;
   manager->handles[manager->handlers_len] = handle;
   manager->handlers_len++;
-  return 0;
+  반환 0;
 }
 #endif
 
-int
+정수
 libcrun_handler_manager_load_directory (struct custom_handler_manager_s *manager, const char *path, libcrun_error_t *err)
 {
 #ifdef HAVE_DLOPEN
@@ -169,40 +169,40 @@ libcrun_handler_manager_load_directory (struct custom_handler_manager_s *manager
   struct dirent *next;
 
   dir = opendir (path);
-  if (UNLIKELY (dir == NULL))
-    return crun_make_error (err, errno, "cannot opendir `%s`", path);
+  만약 (UNLIKELY (dir == NULL))
+    반환 crun_make_error (err, errno, "cannot opendir `%s`", path);
 
-  for (next = readdir (dir); next; next = readdir (dir))
+  위해 (next = readdir (dir); next; next = readdir (dir))
     {
       cleanup_free char *fpath = NULL;
       const char *name;
       void *handle;
-      int ret;
+      정수 ret;
 
       name = next->d_name;
-      if (name[0] == '.')
+      만약 (name[0] == '.')
         continue;
 
       ret = append_paths (&fpath, err, path, name, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      만약 (UNLIKELY (ret < 0))
+        반환 ret;
 
       handle = dlopen (fpath, RTLD_NOW);
-      if (UNLIKELY (handle == NULL))
-        return crun_make_error (err, 0, "cannot load `%s`: `%s`", fpath, dlerror ());
+      만약 (UNLIKELY (handle == NULL))
+        반환 crun_make_error (err, 0, "cannot load `%s`: `%s`", fpath, dlerror ());
 
       ret = handler_manager_add_so (manager, handle, err);
-      if (UNLIKELY (ret < 0))
+      만약 (UNLIKELY (ret < 0))
         {
           dlclose (handle);
-          return ret;
+          반환 ret;
         }
     }
-  return 0;
-#else
+  반환 0;
+#아니면
   (void) manager;
   (void) path;
-  return crun_make_error (err, ENOTSUP, "dlopen not available");
+  반환 crun_make_error (err, ENOTSUP, "dlopen not available");
 #endif
 }
 
@@ -211,14 +211,14 @@ handler_by_name (struct custom_handler_manager_s *manager, const char *name)
 {
   size_t i;
 
-  for (i = 0; i < manager->handlers_len; i++)
+  위해 (i = 0; i < manager->handlers_len; i++)
     {
-      if (strcmp (manager->handlers[i]->name, name) == 0)
-        return manager->handlers[i];
-      if (manager->handlers[i]->alias && strcmp (manager->handlers[i]->alias, name) == 0)
-        return manager->handlers[i];
+      만약 (strcmp (manager->handlers[i]->name, name) == 0)
+        반환 manager->handlers[i];
+      만약 (manager->handlers[i]->alias && strcmp (manager->handlers[i]->alias, name) == 0)
+        반환 manager->handlers[i];
     }
-  return NULL;
+  반환 NULL;
 }
 
 void
@@ -226,8 +226,8 @@ libcrun_handler_manager_print_feature_tags (struct custom_handler_manager_s *man
 {
   size_t i;
 
-  for (i = 0; i < manager->handlers_len; i++)
-    if (manager->handlers[i]->feature_string)
+  위해 (i = 0; i < manager->handlers_len; i++)
+    만약 (manager->handlers[i]->feature_string)
       fprintf (out, "+%s ", manager->handlers[i]->feature_string);
 }
 
@@ -238,25 +238,25 @@ libcrun_context_get_handler_feature_tags (libcrun_context_t *ctx, libcrun_error_
   char **out;
   size_t i, n = 0;
 
-  if (ctx == NULL || ctx->handler_manager == NULL)
-    return NULL;
+  만약 (ctx == NULL || ctx->handler_manager == NULL)
+    반환 NULL;
 
   manager = ctx->handler_manager;
 
-  for (i = 0; i < manager->handlers_len; i++)
-    if (manager->handlers[i]->feature_string)
+  위해 (i = 0; i < manager->handlers_len; i++)
+    만약 (manager->handlers[i]->feature_string)
       n++;
 
-  if (n == 0)
-    return NULL;
+  만약 (n == 0)
+    반환 NULL;
 
   out = xmalloc0 ((n + 1) * sizeof (char *));
   n = 0;
-  for (i = 0; i < manager->handlers_len; i++)
-    if (manager->handlers[i]->feature_string)
+  위해 (i = 0; i < manager->handlers_len; i++)
+    만약 (manager->handlers[i]->feature_string)
       out[n++] = xstrdup (manager->handlers[i]->feature_string);
 
-  return out;
+  반환 out;
 }
 
 static inline struct custom_handler_instance_s *
@@ -267,10 +267,10 @@ make_custom_handler_instance_s (struct custom_handler_s *vtable)
   ret->vtable = vtable;
   ret->cookie = NULL;
 
-  return ret;
+  반환 ret;
 }
 
-static int
+static 정수
 find_handler_for_container (struct custom_handler_manager_s *manager,
                             libcrun_container_t *container,
                             struct custom_handler_instance_s **out,
@@ -280,31 +280,31 @@ find_handler_for_container (struct custom_handler_manager_s *manager,
 
   memset (out, 0, sizeof (*out));
 
-  for (i = 0; i < manager->handlers_len; i++)
+  위해 (i = 0; i < manager->handlers_len; i++)
     {
-      int ret;
+      정수 ret;
 
-      if (manager->handlers[i]->can_handle_container == NULL)
+      만약 (manager->handlers[i]->can_handle_container == NULL)
         continue;
 
       ret = manager->handlers[i]->can_handle_container (container, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      만약 (UNLIKELY (ret < 0))
+        반환 ret;
 
-      if (ret)
+      만약 (ret)
         {
           *out = make_custom_handler_instance_s (manager->handlers[i]);
-          if ((*out)->vtable->load)
-            return (*out)->vtable->load (&((*out)->cookie), err);
+          만약 ((*out)->vtable->load)
+            반환 (*out)->vtable->load (&((*out)->cookie), err);
 
-          return 0;
+          반환 0;
         }
     }
 
-  return 0;
+  반환 0;
 }
 
-int
+정수
 libcrun_configure_handler (struct custom_handler_manager_s *manager,
                            libcrun_context_t *context,
                            libcrun_container_t *container,
@@ -313,7 +313,7 @@ libcrun_configure_handler (struct custom_handler_manager_s *manager,
 {
   const char *explicit_handler;
   const char *annotation;
-  int ret;
+  정수 ret;
 
   *out = NULL;
 
@@ -322,45 +322,45 @@ libcrun_configure_handler (struct custom_handler_manager_s *manager,
   // See: https://github.com/containers/crun/issues/798
   // before invoking handler check if this is not a kubernetes sandbox
   annotation = find_annotation (container, "io.kubernetes.cri.container-type");
-  if (annotation && (strcmp (annotation, "sandbox") == 0))
-    return 0;
+  만약 (annotation && (strcmp (annotation, "sandbox") == 0))
+    반환 0;
 
   annotation = find_annotation (container, "run.oci.handler");
 
   /* Fail with EACCESS if global handler is already configured and there was an attempt to override it via spec.  */
-  if (context->handler != NULL && annotation != NULL)
-    return crun_make_error (err, EACCES, "invalid attempt to override already configured global handler: `%s`", context->handler);
+  만약 (context->handler != NULL && annotation != NULL)
+    반환 crun_make_error (err, EACCES, "invalid attempt to override already configured global handler: `%s`", context->handler);
 
   explicit_handler = context->handler ? context->handler : annotation;
 
   /* If an explicit handler was requested, use it.  */
-  if (explicit_handler)
+  만약 (explicit_handler)
     {
       struct custom_handler_s *h;
 
-      if (manager == NULL)
-        return crun_make_error (err, 0, "handler requested but no manager configured: `%s`", explicit_handler);
+      만약 (manager == NULL)
+        반환 crun_make_error (err, 0, "handler requested but no manager configured: `%s`", explicit_handler);
 
       h = handler_by_name (manager, explicit_handler);
-      if (h)
+      만약 (h)
         {
           *out = make_custom_handler_instance_s (h);
-          if ((*out)->vtable->load)
+          만약 ((*out)->vtable->load)
             ret = (*out)->vtable->load (&((*out)->cookie), err);
-          else
+          아니면
             ret = 0;
           goto out;
         }
     }
 
-  if (manager == NULL)
-    return 0;
+  만약 (manager == NULL)
+    반환 0;
 
   ret = find_handler_for_container (manager, container, out, err);
 
 out:
-  if (ret == 0 && *out != NULL && container->context != NULL && ! (*out)->vtable->supports_open_tree_namespace)
+  만약 (ret == 0 && *out != NULL && container->context != NULL && ! (*out)->vtable->supports_open_tree_namespace)
     container->context->no_open_tree_namespace = true;
 
-  return ret;
+  반환 ret;
 }

@@ -35,43 +35,43 @@
 #define MON_GROUPS "mon_groups"
 #define RDTGROUP_SUPER_MAGIC 0x7655821
 
-static int
+static 정수
 is_rdt_mounted (libcrun_error_t *err)
 {
   struct statfs sfs;
-  int ret;
+  정수 ret;
 
   ret = statfs (INTEL_RDT_MOUNT_POINT, &sfs);
-  if (ret < 0)
-    return crun_make_error (err, errno, "statfs `%s`", INTEL_RDT_MOUNT_POINT);
+  만약 (ret < 0)
+    반환 crun_make_error (err, errno, "statfs `%s`", INTEL_RDT_MOUNT_POINT);
 
-  return sfs.f_type == RDTGROUP_SUPER_MAGIC;
+  반환 sfs.f_type == RDTGROUP_SUPER_MAGIC;
 }
 
-int
+정수
 get_rdt_value (char **out, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata)
 {
   cleanup_free char *schemata_joined = NULL;
   size_t schemata_size = 0;
 
-  while (schemata && schemata[schemata_size])
+  동안 (schemata && schemata[schemata_size])
     schemata_size++;
 
-  if (schemata_size > 0)
+  만약 (schemata_size > 0)
     schemata_joined = str_join_array (0, schemata_size, schemata, "\n");
 
-  return xasprintf (out, "%s%s%s%s%s\n", l3_cache_schema ?: "",
+  반환 xasprintf (out, "%s%s%s%s%s\n", l3_cache_schema ?: "",
                     (l3_cache_schema && mem_bw_schema) ? "\n" : "", mem_bw_schema ?: "",
                     ((l3_cache_schema || mem_bw_schema) && schemata_joined) ? "\n" : "", schemata_joined ?: "");
 }
 
 struct key_value
 {
-  int key;
-  int value;
+  정수 key;
+  정수 value;
 };
 
-static int
+static 정수
 kv_cmp (const void *p1, const void *p2)
 {
   const struct key_value *kv1 = p1;
@@ -79,42 +79,42 @@ kv_cmp (const void *p1, const void *p2)
 
   /* Not a subtraction: the keys are parsed out of the configuration, so two
      of them far enough apart make the difference overflow.  */
-  if (kv1->key < kv2->key)
-    return -1;
-  if (kv1->key > kv2->key)
-    return 1;
-  return 0;
+  만약 (kv1->key < kv2->key)
+    반환 -1;
+  만약 (kv1->key > kv2->key)
+    반환 1;
+  반환 0;
 }
 
-static int
+static 정수
 count_parts (const char *str)
 {
   const char *it;
-  int ret = 0;
+  정수 ret = 0;
 
-  for (it = str; *it; it++)
+  위해 (it = str; *it; it++)
     {
-      if (*it == ';' || *(it + 1) == '\0')
+      만약 (*it == ';' || *(it + 1) == '\0')
         ret++;
     }
-  return ret;
+  반환 ret;
 }
 
-static int
+static 정수
 read_kv (const char *value, struct key_value *out)
 {
   char *endptr;
 
   out->key = strtoll (value, &endptr, 10);
-  if (*endptr != '=')
-    return 1;
+  만약 (*endptr != '=')
+    반환 1;
 
   endptr++;
   out->value = strtoll (endptr, NULL, 16);
-  return 0;
+  반환 0;
 }
 
-int
+정수
 compare_rdt_configurations (const char *a, const char *b)
 {
   cleanup_free struct key_value *kv = NULL;
@@ -123,7 +123,7 @@ compare_rdt_configurations (const char *a, const char *b)
   cleanup_free char *b_copy = NULL;
   const char *it;
   char *end;
-  int ret;
+  정수 ret;
 
   it = strchr (a, ':');
   a = it ? it + 1 : a;
@@ -134,107 +134,107 @@ compare_rdt_configurations (const char *a, const char *b)
   n_parts_a = count_parts (a);
   n_parts_b = count_parts (b);
 
-  if (n_parts_a != n_parts_b)
-    return 1;
+  만약 (n_parts_a != n_parts_b)
+    반환 1;
 
   kv = xmalloc (sizeof (struct key_value) * (n_parts_a + 1));
 
   end = a_copy = xstrdup (a);
   i = 0;
-  while ((it = strsep (&end, ";")))
+  동안 ((it = strsep (&end, ";")))
     {
-      if (it[0] == '\0')
+      만약 (it[0] == '\0')
         break;
       ret = read_kv (it, &(kv[i]));
-      if (ret)
-        return 1;
+      만약 (ret)
+        반환 1;
       i++;
     }
 
   qsort (kv, i, sizeof (struct key_value), kv_cmp);
 
   end = b_copy = xstrdup (b);
-  while ((it = strsep (&end, ";")))
+  동안 ((it = strsep (&end, ";")))
     {
       struct key_value key;
       struct key_value *res;
 
-      if (it[0] == '\0')
+      만약 (it[0] == '\0')
         break;
 
       ret = read_kv (it, &key);
-      if (ret)
-        return 1;
+      만약 (ret)
+        반환 1;
 
       res = bsearch (&key, kv, n_parts_a, sizeof (struct key_value), kv_cmp);
-      if (res == NULL || res->value != key.value)
-        return 1;
+      만약 (res == NULL || res->value != key.value)
+        반환 1;
     }
 
-  return 0;
+  반환 0;
 }
 
 static bool
 is_default_clos (const char *name)
 {
-  return strcmp (name, "/") == 0;
+  반환 strcmp (name, "/") == 0;
 }
 
-static int
+static 정수
 get_resctrl_path (char **path, const char *file, const char *name, libcrun_error_t *err)
 {
-  return append_paths (path, err, INTEL_RDT_MOUNT_POINT, name, file, NULL);
+  반환 append_paths (path, err, INTEL_RDT_MOUNT_POINT, name, file, NULL);
 }
 
-static int
+static 정수
 validate_rdt_configuration (const char *name, const char *l3_cache_schema, const char *mem_bw_schema, libcrun_error_t *err)
 {
   cleanup_free char *existing_content = NULL;
   cleanup_free char *path = NULL;
   char *it, *end;
-  int ret;
+  정수 ret;
 
   ret = get_resctrl_path (&path, SCHEMATA_FILE, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  만약 (UNLIKELY (ret < 0))
+    반환 ret;
 
   ret = read_all_file (path, &existing_content, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  만약 (UNLIKELY (ret < 0))
+    반환 ret;
 
   end = existing_content;
-  while ((it = strsep (&end, "\n")))
+  동안 ((it = strsep (&end, "\n")))
     {
       ret = 0;
 
-      if (mem_bw_schema && has_prefix (it, "MB:"))
+      만약 (mem_bw_schema && has_prefix (it, "MB:"))
         ret = compare_rdt_configurations (it, mem_bw_schema);
 
-      if (l3_cache_schema && has_prefix (it, "L3:"))
+      만약 (l3_cache_schema && has_prefix (it, "L3:"))
         ret = compare_rdt_configurations (it, l3_cache_schema);
 
-      if (ret)
-        return crun_make_error (err, 0, "the resctl group `%s` has a different configuration", name);
+      만약 (ret)
+        반환 crun_make_error (err, 0, "the resctl group `%s` has a different configuration", name);
     }
 
-  return 0;
+  반환 0;
 }
 
-static int
-write_intelrdt_string (int fd, const char *file, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err)
+static 정수
+write_intelrdt_string (정수 fd, const char *file, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err)
 {
   cleanup_free char *formatted = NULL;
-  int len, ret;
+  정수 len, ret;
 
   len = get_rdt_value (&formatted, l3_cache_schema, mem_bw_schema, schemata);
-  if (len < 0)
-    return crun_make_error (err, errno, "internal error get_rdt_value");
+  만약 (len < 0)
+    반환 crun_make_error (err, errno, "internal error get_rdt_value");
 
   ret = write (fd, formatted, len);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "write `%s`", file);
+  만약 (UNLIKELY (ret < 0))
+    반환 crun_make_error (err, errno, "write `%s`", file);
 
-  return 0;
+  반환 0;
 }
 
 /* filter any line in the l3_cache_schema that starts with MB:.  */
@@ -246,202 +246,202 @@ intelrdt_clean_l3_cache_schema (const char *l3_cache_schema)
 
   ret = xmalloc (len + 1);
 
-  for (i = 0, j = 0; i < len; i++)
+  위해 (i = 0, j = 0; i < len; i++)
     {
-      if (l3_cache_schema[i] == 'M' && l3_cache_schema[i + 1] == 'B' && l3_cache_schema[i + 2] == ':')
+      만약 (l3_cache_schema[i] == 'M' && l3_cache_schema[i + 1] == 'B' && l3_cache_schema[i + 2] == ':')
         {
           i += 3;
-          while (l3_cache_schema[i] != '\n' && l3_cache_schema[i] != '\0')
+          동안 (l3_cache_schema[i] != '\n' && l3_cache_schema[i] != '\0')
             i++;
           continue;
         }
       ret[j++] = l3_cache_schema[i];
     }
   ret[j] = '\0';
-  return ret;
+  반환 ret;
 }
 
-int
+정수
 resctl_create (const char *name, bool explicit_clos_id, bool *created, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err)
 {
   cleanup_free char *cleaned_l3_cache_schema = NULL;
   cleanup_free char *path = NULL;
-  int exist;
-  int ret;
+  정수 exist;
+  정수 ret;
 
   *created = false;
 
   ret = is_rdt_mounted (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
-  if (ret == 0)
-    return crun_make_error (err, 0, "the resctl file system is not mounted");
+  만약 (UNLIKELY (ret < 0))
+    반환 ret;
+  만약 (ret == 0)
+    반환 crun_make_error (err, 0, "the resctl file system is not mounted");
 
   ret = get_resctrl_path (&path, NULL, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  만약 (UNLIKELY (ret < 0))
+    반환 ret;
 
   exist = crun_path_exists (path, err);
-  if (UNLIKELY (exist < 0))
-    return exist;
+  만약 (UNLIKELY (exist < 0))
+    반환 exist;
 
-  if (l3_cache_schema && strstr (l3_cache_schema, "MB:"))
+  만약 (l3_cache_schema && strstr (l3_cache_schema, "MB:"))
     l3_cache_schema = cleaned_l3_cache_schema = intelrdt_clean_l3_cache_schema (l3_cache_schema);
 
   /* If the closID was specified and both l3cache and bwSchema are unset, and schemata is empty,
      the group must exist.  */
-  if (explicit_clos_id && is_empty_string (l3_cache_schema) && is_empty_string (mem_bw_schema) && (schemata == NULL))
+  만약 (explicit_clos_id && is_empty_string (l3_cache_schema) && is_empty_string (mem_bw_schema) && (schemata == NULL))
     {
-      if (exist || is_default_clos (name))
-        return 0;
+      만약 (exist || is_default_clos (name))
+        반환 0;
 
-      return crun_make_error (err, 0, "the resctl group `%s` does not exist", name);
+      반환 crun_make_error (err, 0, "the resctl group `%s` does not exist", name);
     }
 
   /* If the closID exists then it must match the specified configuration.  */
-  if (exist && (l3_cache_schema != NULL || mem_bw_schema != NULL))
-    return validate_rdt_configuration (name, l3_cache_schema, mem_bw_schema, err);
+  만약 (exist && (l3_cache_schema != NULL || mem_bw_schema != NULL))
+    반환 validate_rdt_configuration (name, l3_cache_schema, mem_bw_schema, err);
 
-  if (is_default_clos (name))
-    return 0;
+  만약 (is_default_clos (name))
+    반환 0;
 
   /* At this point, assume it was created.  */
   ret = crun_ensure_directory (path, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  만약 (UNLIKELY (ret < 0))
+    반환 ret;
   *created = true;
 
-  return 0;
+  반환 0;
 }
 
-int
+정수
 resctl_move_task_to (const char *name, const char *monitoring_name, pid_t pid, libcrun_error_t *err)
 {
   cleanup_free char *monitoring_path = NULL;
   cleanup_free char *path = NULL;
   char pid_str[32];
-  int len;
-  int ret;
+  정수 len;
+  정수 ret;
 
   ret = get_resctrl_path (&path, TASKS_FILE, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  만약 (UNLIKELY (ret < 0))
+    반환 ret;
 
   len = snprintf (pid_str, sizeof (pid_str), "%d", pid);
-  if (UNLIKELY (len >= (int) sizeof (pid_str)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  만약 (UNLIKELY (len >= (정수) sizeof (pid_str)))
+    반환 crun_make_error (err, 0, "internal error: static buffer too small");
 
   ret = write_file (path, pid_str, len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  만약 (UNLIKELY (ret < 0))
+    반환 ret;
 
-  if (monitoring_name)
+  만약 (monitoring_name)
     {
       ret = append_paths (&monitoring_path, err, INTEL_RDT_MOUNT_POINT, name, MON_GROUPS, monitoring_name, TASKS_FILE, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      만약 (UNLIKELY (ret < 0))
+        반환 ret;
 
       ret = write_file (monitoring_path, pid_str, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      만약 (UNLIKELY (ret < 0))
+        반환 ret;
     }
 
-  return 0;
+  반환 0;
 }
 
-int
+정수
 resctl_update (const char *name, const char *l3_cache_schema, const char *mem_bw_schema,
                char *const *schemata, libcrun_error_t *err)
 {
   const char *actual_l3_cache_schema = l3_cache_schema;
   cleanup_free char *cleaned_l3_cache_schema = NULL;
   cleanup_free char *path = NULL;
-  cleanup_close int fd = -1;
-  int ret;
+  cleanup_close 정수 fd = -1;
+  정수 ret;
 
   /* Nothing to do.  */
-  if (l3_cache_schema == NULL && mem_bw_schema == NULL && schemata == NULL)
-    return 0;
+  만약 (l3_cache_schema == NULL && mem_bw_schema == NULL && schemata == NULL)
+    반환 0;
 
   ret = get_resctrl_path (&path, SCHEMATA_FILE, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  만약 (UNLIKELY (ret < 0))
+    반환 ret;
 
-  if (l3_cache_schema && strstr (l3_cache_schema, "MB:"))
+  만약 (l3_cache_schema && strstr (l3_cache_schema, "MB:"))
     {
       cleaned_l3_cache_schema = intelrdt_clean_l3_cache_schema (l3_cache_schema);
       actual_l3_cache_schema = cleaned_l3_cache_schema;
     }
 
   fd = open (path, O_WRONLY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s` for writing", path);
+  만약 (UNLIKELY (fd < 0))
+    반환 crun_make_error (err, errno, "open `%s` for writing", path);
 
-  return write_intelrdt_string (fd, path, actual_l3_cache_schema, mem_bw_schema, schemata, err);
+  반환 write_intelrdt_string (fd, path, actual_l3_cache_schema, mem_bw_schema, schemata, err);
 }
 
-static int
+static 정수
 resctl_get_monitoring_path (const char *resctrl_group_name, const char *container_id, char **monitoring_path, libcrun_error_t *err)
 {
-  int ret;
+  정수 ret;
 
   ret = append_paths (monitoring_path, err, INTEL_RDT_MOUNT_POINT, resctrl_group_name, MON_GROUPS, container_id, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  만약 (UNLIKELY (ret < 0))
+    반환 ret;
 
-  return 0;
+  반환 0;
 }
 
-int
+정수
 resctl_destroy_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err)
 {
   cleanup_free char *monitoring_path = NULL;
-  int ret;
+  정수 ret;
 
   ret = resctl_get_monitoring_path (resctrl_group_name, container_id, &monitoring_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  만약 (UNLIKELY (ret < 0))
+    반환 ret;
 
   ret = rmdir (monitoring_path);
-  if (UNLIKELY (ret < 0 && errno != ENOENT))
-    return crun_make_error (err, errno, "rmdir `%s`", monitoring_path);
+  만약 (UNLIKELY (ret < 0 && errno != ENOENT))
+    반환 crun_make_error (err, errno, "rmdir `%s`", monitoring_path);
 
-  return 0;
+  반환 0;
 }
 
-int
+정수
 resctl_destroy (const char *name, libcrun_error_t *err)
 {
   cleanup_free char *path = NULL;
-  int ret;
+  정수 ret;
 
-  if (is_default_clos (name))
-    return 0;
+  만약 (is_default_clos (name))
+    반환 0;
 
   ret = get_resctrl_path (&path, NULL, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  만약 (UNLIKELY (ret < 0))
+    반환 ret;
 
   ret = rmdir (path);
-  if (UNLIKELY (ret < 0 && errno != ENOENT))
-    return crun_make_error (err, errno, "rmdir `%s`", path);
+  만약 (UNLIKELY (ret < 0 && errno != ENOENT))
+    반환 crun_make_error (err, errno, "rmdir `%s`", path);
 
-  return 0;
+  반환 0;
 }
 
-int
+정수
 resctl_create_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err)
 {
   cleanup_free char *monitoring_path = NULL;
-  int ret;
+  정수 ret;
 
   ret = resctl_get_monitoring_path (resctrl_group_name, container_id, &monitoring_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  만약 (UNLIKELY (ret < 0))
+    반환 ret;
 
   ret = crun_ensure_directory (monitoring_path, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  만약 (UNLIKELY (ret < 0))
+    반환 ret;
 
-  return 0;
+  반환 0;
 }

@@ -23,6 +23,6 @@
 #include <ocispec/runtime_spec_schema_config_schema.h>
 #include "error.h"
 
-int move_network_device (const char *ifname, const char *newifname, int netns_fd, libcrun_error_t *err);
+정수 move_network_device (const char *ifname, const char *newifname, 정수 netns_fd, libcrun_error_t *err);
 
 #endif
