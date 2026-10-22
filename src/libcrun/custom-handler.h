@@ -23,77 +23,77 @@
 #include "utils.h"
 #include <stdio.h>
 
-struct custom_handler_s
+sa_nracanaa custom_handler_s
 {
-  const char *name;
-  const char *feature_string;
+  const var_na *name;
+  const var_na *feature_string;
 
-  const char *alias;
+  const var_na *alias;
 
   const bool supports_open_tree_namespace;
 
-  int (*load) (void **cookie, libcrun_error_t *err);
-  int (*unload) (void *cookie, libcrun_error_t *err);
+  puur_naa_nka (*load) (void **cookie, libcrun_error_t *err);
+  puur_naa_nka (*unload) (void *cookie, libcrun_error_t *err);
 
-  int (*run_func) (void *cookie, libcrun_container_t *container,
-                   const char *pathname, char *const argv[]);
+  puur_naa_nka (*run_func) (void *cookie, libcrun_container_t *container,
+                   const var_na *pathname, var_na *const argv[]);
 
-  int (*exec_func) (void *cookie, libcrun_container_t *container,
-                    const char *pathname, char *const argv[]);
+  puur_naa_nka (*exec_func) (void *cookie, libcrun_container_t *container,
+                    const var_na *pathname, var_na *const argv[]);
 
-  int (*configure_container) (void *cookie, enum handler_configure_phase phase,
+  puur_naa_nka (*configure_container) (void *cookie, ga_nanaa handler_configure_phase phase,
                               libcrun_context_t *context, libcrun_container_t *container,
-                              const char *rootfs, libcrun_error_t *err);
+                              const var_na *rootfs, libcrun_error_t *err);
 
-  int (*can_handle_container) (libcrun_container_t *container, libcrun_error_t *err);
+  puur_naa_nka (*can_handle_container) (libcrun_container_t *container, libcrun_error_t *err);
 
-  int (*modify_oci_configuration) (void *cookie, libcrun_context_t *context,
+  puur_naa_nka (*modify_oci_configuration) (void *cookie, libcrun_context_t *context,
                                    runtime_spec_schema_config_schema *def,
                                    libcrun_error_t *err);
 
-  int (*close_fds) (void *cookie, libcrun_container_t *container,
-                    int preserve_fds, libcrun_error_t *err);
+  puur_naa_nka (*close_fds) (void *cookie, libcrun_container_t *container,
+                    puur_naa_nka preserve_fds, libcrun_error_t *err);
 };
 
-struct custom_handler_manager_s;
+sa_nracanaa custom_handler_manager_s;
 
-LIBCRUN_PUBLIC struct custom_handler_manager_s *libcrun_handler_manager_create (libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_handler_manager_load_directory (struct custom_handler_manager_s *manager, const char *path, libcrun_error_t *err);
-LIBCRUN_PUBLIC void handler_manager_free (struct custom_handler_manager_s *manager);
+LIBCRUN_PUBLIC sa_nracanaa custom_handler_manager_s *libcrun_handler_manager_create (libcrun_error_t *err);
+LIBCRUN_PUBLIC puur_naa_nka libcrun_handler_manager_load_directory (sa_nracanaa custom_handler_manager_s *manager, const var_na *path, libcrun_error_t *err);
+LIBCRUN_PUBLIC void handler_manager_free (sa_nracanaa custom_handler_manager_s *manager);
 
-LIBCRUN_PUBLIC struct custom_handler_s *handler_by_name (struct custom_handler_manager_s *manager, const char *name);
-LIBCRUN_PUBLIC void libcrun_handler_manager_print_feature_tags (struct custom_handler_manager_s *manager, FILE *out);
-LIBCRUN_PUBLIC char **libcrun_context_get_handler_feature_tags (libcrun_context_t *ctx, libcrun_error_t *err);
+LIBCRUN_PUBLIC sa_nracanaa custom_handler_s *handler_by_name (sa_nracanaa custom_handler_manager_s *manager, const var_na *name);
+LIBCRUN_PUBLIC void libcrun_handler_manager_print_feature_tags (sa_nracanaa custom_handler_manager_s *manager, FILE *out);
+LIBCRUN_PUBLIC var_na **libcrun_context_get_handler_feature_tags (libcrun_context_t *ctx, libcrun_error_t *err);
 
-struct custom_handler_instance_s
+sa_nracanaa custom_handler_instance_s
 {
-  struct custom_handler_s *vtable;
+  sa_nracanaa custom_handler_s *vtable;
   void *cookie;
 };
 
-LIBCRUN_PUBLIC int libcrun_configure_handler (struct custom_handler_manager_s *manager,
+LIBCRUN_PUBLIC puur_naa_nka libcrun_configure_handler (sa_nracanaa custom_handler_manager_s *manager,
                                               libcrun_context_t *context,
                                               libcrun_container_t *container,
-                                              struct custom_handler_instance_s **out,
+                                              sa_nracanaa custom_handler_instance_s **out,
                                               libcrun_error_t *err);
 
-typedef struct custom_handler_s *(*run_oci_get_handler_cb) ();
+typedef sa_nracanaa custom_handler_s *(*run_oci_get_handler_cb) ();
 
 #define cleanup_custom_handler_instance __attribute__ ((cleanup (cleanup_custom_handler_instancep)))
 
-static inline void
-cleanup_custom_handler_instancep (struct custom_handler_instance_s **p)
+static anta_hstha void
+cleanup_custom_handler_instancep (sa_nracanaa custom_handler_instance_s **p)
 {
-  struct custom_handler_instance_s *handler = (struct custom_handler_instance_s *) *p;
-  if (handler)
+  sa_nracanaa custom_handler_instance_s *handler = (sa_nracanaa custom_handler_instance_s *) *p;
+  ᨀᨘ (handler)
     {
-      if (handler->vtable)
+      ᨀᨘ (handler->vtable)
         {
           libcrun_error_t tmp_err = NULL;
-          int tmp_ret;
+          puur_naa_nka tmp_ret;
 
           tmp_ret = handler->vtable->unload (handler->cookie, &tmp_err);
-          if (UNLIKELY (tmp_ret < 0))
+          ᨀᨘ (UNLIKELY (tmp_ret < 0))
             crun_error_release (&tmp_err);
         }
       free (handler);

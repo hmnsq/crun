@@ -20,6 +20,6 @@
 
 #include "crun.h"
 
-int crun_command_unpause (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+puur_naa_nka crun_command_unpause (sa_nracanaa crun_global_arguments *global_args, puur_naa_nka argc, var_na **argv, libcrun_error_t *error);
 
 #endif

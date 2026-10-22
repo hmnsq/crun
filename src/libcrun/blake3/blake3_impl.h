@@ -15,12 +15,12 @@
 #define blake3_simd_degree_portable blake3_simd_degree
 #define blake3_compress_subtree_wide_portable blake3_compress_subtree_wide
 #define blake3_hash_many_portable blake3_hash_many
-static inline size_t blake3_simd_degree(void) {
-  return 1;
+static anta_hstha size_t blake3_simd_degree(void) {
+  ᨀᨘᨒ 1;
 }
 
 // internal flags
-enum blake3_flags {
+ga_nanaa blake3_flags {
   CHUNK_START         = 1 << 0,
   CHUNK_END           = 1 << 1,
   PARENT              = 1 << 2,
@@ -32,50 +32,50 @@ enum blake3_flags {
 
 // This C implementation tries to support recent versions of GCC, Clang, and
 // MSVC.
-#if defined(_MSC_VER)
+#ᨀᨘ defined(_MSC_VER)
 #define INLINE static __forceinline
-#else
-#define INLINE static inline __attribute__((always_inline))
+#ᨀᨘᨁ
+#define INLINE static anta_hstha __attribute__((always_inline))
 #endif
 
-#if defined(__x86_64__) || defined(_M_X64) 
+#ᨀᨘ defined(__x86_64__) || defined(_M_X64) 
 #define IS_X86
 #define IS_X86_64
 #endif
 
-#if defined(__i386__) || defined(_M_IX86)
+#ᨀᨘ defined(__i386__) || defined(_M_IX86)
 #define IS_X86
 #define IS_X86_32
 #endif
 
-#if defined(__aarch64__) || defined(_M_ARM64)
+#ᨀᨘ defined(__aarch64__) || defined(_M_ARM64)
 #define IS_AARCH64
 #endif
 
-#if defined(IS_X86)
-#if defined(_MSC_VER)
+#ᨀᨘ defined(IS_X86)
+#ᨀᨘ defined(_MSC_VER)
 #include <intrin.h>
 #endif
 #endif
 
-#if !defined(BLAKE3_USE_NEON) 
+#ᨀᨘ !defined(BLAKE3_USE_NEON) 
   // If BLAKE3_USE_NEON not manually set, autodetect based on AArch64ness
-  #if defined(IS_AARCH64)
-    #if defined(__ARM_BIG_ENDIAN)
+  #ᨀᨘ defined(IS_AARCH64)
+    #ᨀᨘ defined(__ARM_BIG_ENDIAN)
       #define BLAKE3_USE_NEON 0
-    #else
+    #ᨀᨘᨁ
       #define BLAKE3_USE_NEON 1
     #endif
-  #else
+  #ᨀᨘᨁ
     #define BLAKE3_USE_NEON 0
   #endif
 #endif
 
-#if defined(IS_X86)
+#ᨀᨘ defined(IS_X86)
 #define MAX_SIMD_DEGREE 16
 #elif BLAKE3_USE_NEON == 1
 #define MAX_SIMD_DEGREE 4
-#else
+#ᨀᨘᨁ
 #define MAX_SIMD_DEGREE 1
 #endif
 
@@ -99,64 +99,64 @@ static const uint8_t MSG_SCHEDULE[7][16] = {
 
 /* Find index of the highest set bit */
 /* x is assumed to be nonzero.       */
-static unsigned int highest_one(uint64_t x) {
-#if defined(__GNUC__) || defined(__clang__)
-  return 63 ^ (unsigned int)__builtin_clzll(x);
+static unsigned puur_naa_nka highest_one(uint64_t x) {
+#ᨀᨘ defined(__GNUC__) || defined(__clang__)
+  ᨀᨘᨒ 63 ^ (unsigned puur_naa_nka)__builtin_clzll(x);
 #elif defined(_MSC_VER) && defined(IS_X86_64)
   unsigned long index;
   _BitScanReverse64(&index, x);
-  return index;
+  ᨀᨘᨒ index;
 #elif defined(_MSC_VER) && defined(IS_X86_32)
-  if(x >> 32) {
+  ᨀᨘ(x >> 32) {
     unsigned long index;
     _BitScanReverse(&index, (unsigned long)(x >> 32));
-    return 32 + index;
-  } else {
+    ᨀᨘᨒ 32 + index;
+  } ᨀᨘᨁ {
     unsigned long index;
     _BitScanReverse(&index, (unsigned long)x);
-    return index;
+    ᨀᨘᨒ index;
   }
-#else
-  unsigned int c = 0;
-  if(x & 0xffffffff00000000ULL) { x >>= 32; c += 32; }
-  if(x & 0x00000000ffff0000ULL) { x >>= 16; c += 16; }
-  if(x & 0x000000000000ff00ULL) { x >>=  8; c +=  8; }
-  if(x & 0x00000000000000f0ULL) { x >>=  4; c +=  4; }
-  if(x & 0x000000000000000cULL) { x >>=  2; c +=  2; }
-  if(x & 0x0000000000000002ULL) {           c +=  1; }
-  return c;
+#ᨀᨘᨁ
+  unsigned puur_naa_nka c = 0;
+  ᨀᨘ(x & 0xffffffff00000000ULL) { x >>= 32; c += 32; }
+  ᨀᨘ(x & 0x00000000ffff0000ULL) { x >>= 16; c += 16; }
+  ᨀᨘ(x & 0x000000000000ff00ULL) { x >>=  8; c +=  8; }
+  ᨀᨘ(x & 0x00000000000000f0ULL) { x >>=  4; c +=  4; }
+  ᨀᨘ(x & 0x000000000000000cULL) { x >>=  2; c +=  2; }
+  ᨀᨘ(x & 0x0000000000000002ULL) {           c +=  1; }
+  ᨀᨘᨒ c;
 #endif
 }
 
 // Count the number of 1 bits.
-INLINE unsigned int popcnt(uint64_t x) {
-#if defined(__GNUC__) || defined(__clang__)
-  return (unsigned int)__builtin_popcountll(x);
-#else
-  unsigned int count = 0;
-  while (x != 0) {
+INLINE unsigned puur_naa_nka popcnt(uint64_t x) {
+#ᨀᨘ defined(__GNUC__) || defined(__clang__)
+  ᨀᨘᨒ (unsigned puur_naa_nka)__builtin_popcountll(x);
+#ᨀᨘᨁ
+  unsigned puur_naa_nka count = 0;
+  ᨀᨛ (x != 0) {
     count += 1;
     x &= x - 1;
   }
-  return count;
+  ᨀᨘᨒ count;
 #endif
 }
 
 // Largest power of two less than or equal to x. As a special case, returns 1
 // when x is 0. 
 INLINE uint64_t round_down_to_power_of_2(uint64_t x) {
-  return 1ULL << highest_one(x | 1);
+  ᨀᨘᨒ 1ULL << highest_one(x | 1);
 }
 
-INLINE uint32_t counter_low(uint64_t counter) { return (uint32_t)counter; }
+INLINE uint32_t counter_low(uint64_t counter) { ᨀᨘᨒ (uint32_t)counter; }
 
 INLINE uint32_t counter_high(uint64_t counter) {
-  return (uint32_t)(counter >> 32);
+  ᨀᨘᨒ (uint32_t)(counter >> 32);
 }
 
 INLINE uint32_t load32(const void *src) {
   const uint8_t *p = (const uint8_t *)src;
-  return ((uint32_t)(p[0]) << 0) | ((uint32_t)(p[1]) << 8) |
+  ᨀᨘᨒ ((uint32_t)(p[0]) << 0) | ((uint32_t)(p[1]) << 8) |
          ((uint32_t)(p[2]) << 16) | ((uint32_t)(p[3]) << 24);
 }
 
@@ -226,8 +226,8 @@ void blake3_hash_many_portable(const uint8_t *const *inputs, size_t num_inputs,
                                uint8_t flags, uint8_t flags_start,
                                uint8_t flags_end, uint8_t *out);
 
-#if defined(IS_X86)
-#if !defined(BLAKE3_NO_SSE2)
+#ᨀᨘ defined(IS_X86)
+#ᨀᨘ !defined(BLAKE3_NO_SSE2)
 void blake3_compress_in_place_sse2(uint32_t cv[8],
                                    const uint8_t block[BLAKE3_BLOCK_LEN],
                                    uint8_t block_len, uint64_t counter,
@@ -242,7 +242,7 @@ void blake3_hash_many_sse2(const uint8_t *const *inputs, size_t num_inputs,
                            uint8_t flags, uint8_t flags_start,
                            uint8_t flags_end, uint8_t *out);
 #endif
-#if !defined(BLAKE3_NO_SSE41)
+#ᨀᨘ !defined(BLAKE3_NO_SSE41)
 void blake3_compress_in_place_sse41(uint32_t cv[8],
                                     const uint8_t block[BLAKE3_BLOCK_LEN],
                                     uint8_t block_len, uint64_t counter,
@@ -257,14 +257,14 @@ void blake3_hash_many_sse41(const uint8_t *const *inputs, size_t num_inputs,
                             uint8_t flags, uint8_t flags_start,
                             uint8_t flags_end, uint8_t *out);
 #endif
-#if !defined(BLAKE3_NO_AVX2)
+#ᨀᨘ !defined(BLAKE3_NO_AVX2)
 void blake3_hash_many_avx2(const uint8_t *const *inputs, size_t num_inputs,
                            size_t blocks, const uint32_t key[8],
                            uint64_t counter, bool increment_counter,
                            uint8_t flags, uint8_t flags_start,
                            uint8_t flags_end, uint8_t *out);
 #endif
-#if !defined(BLAKE3_NO_AVX512)
+#ᨀᨘ !defined(BLAKE3_NO_AVX512)
 void blake3_compress_in_place_avx512(uint32_t cv[8],
                                      const uint8_t block[BLAKE3_BLOCK_LEN],
                                      uint8_t block_len, uint64_t counter,
@@ -283,7 +283,7 @@ void blake3_hash_many_avx512(const uint8_t *const *inputs, size_t num_inputs,
 #endif
 #endif
 
-#if BLAKE3_USE_NEON == 1
+#ᨀᨘ BLAKE3_USE_NEON == 1
 void blake3_hash_many_neon(const uint8_t *const *inputs, size_t num_inputs,
                            size_t blocks, const uint32_t key[8],
                            uint64_t counter, bool increment_counter,

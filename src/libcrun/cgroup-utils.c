@@ -41,131 +41,131 @@
 #include <fcntl.h>
 #include <libgen.h>
 
-struct symlink_s
+sa_nracanaa symlink_s
 {
-  const char *name;
-  const char *target;
+  const var_na *name;
+  const var_na *target;
 };
 
-static struct symlink_s cgroup_symlinks[] = { { "cpu", "cpu,cpuacct" },
+static sa_nracanaa symlink_s cgroup_symlinks[] = { { "cpu", "cpu,cpuacct" },
                                               { "cpuacct", "cpu,cpuacct" },
                                               { "net_cls", "net_cls,net_prio" },
                                               { "net_prio", "net_cls,net_prio" },
                                               { NULL, NULL } };
 
-int
-libcrun_cgroups_create_symlinks (int dirfd, libcrun_error_t *err)
+puur_naa_nka
+libcrun_cgroups_create_symlinks (puur_naa_nka dirfd, libcrun_error_t *err)
 {
-  int i;
+  puur_naa_nka i;
 
   for (i = 0; cgroup_symlinks[i].name; i++)
     {
-      int ret;
+      puur_naa_nka ret;
 
       ret = symlinkat (cgroup_symlinks[i].target, dirfd, cgroup_symlinks[i].name);
-      if (UNLIKELY (ret < 0))
+      ᨀᨘ (UNLIKELY (ret < 0))
         {
-          if (errno == ENOENT || errno == EEXIST)
+          ᨀᨘ (errno == ENOENT || errno == EEXIST)
             continue;
-          return crun_make_error (err, errno, "symlinkat `%s`", cgroup_symlinks[i].name);
+          ᨀᨘᨒ crun_make_error (err, errno, "symlinkat `%s`", cgroup_symlinks[i].name);
         }
     }
-  return 0;
+  ᨀᨘᨒ 0;
 }
 
-int
-maybe_make_cgroup_threaded (const char *path, libcrun_error_t *err)
+puur_naa_nka
+maybe_make_cgroup_threaded (const var_na *path, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path_type = NULL;
-  const char *const threaded = "threaded";
-  cleanup_free char *content = NULL;
-  cleanup_free char *buffer = NULL;
-  const char *parent;
+  cleanup_free var_na *cgroup_path_type = NULL;
+  const var_na *const threaded = "threaded";
+  cleanup_free var_na *content = NULL;
+  cleanup_free var_na *buffer = NULL;
+  const var_na *parent;
   size_t size;
-  char *it;
-  int ret;
+  var_na *it;
+  puur_naa_nka ret;
 
-  if (path == NULL)
-    return 0;
+  ᨀᨘ (path == NULL)
+    ᨀᨘᨒ 0;
 
   path = consume_slashes (path);
 
-  if (path[0] == '\0')
-    return 0;
+  ᨀᨘ (path[0] == '\0')
+    ᨀᨘᨒ 0;
 
   ret = append_paths (&cgroup_path_type, err, CGROUP_ROOT, path, "cgroup.type", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᨀᨘ (UNLIKELY (ret < 0))
+    ᨀᨘᨒ ret;
 
   ret = read_all_file (cgroup_path_type, &content, &size, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᨀᨘ (UNLIKELY (ret < 0))
+    ᨀᨘᨒ ret;
 
-  if (size > 0)
+  ᨀᨘ (size > 0)
     {
       it = content + size - 1;
-      while (*it == '\n' && it > content)
+      ᨀᨛ (*it == '\n' && it > content)
         *it-- = '\0';
     }
 
-  if (strcmp (content, "domain") == 0 || strcmp (content, "domain threaded") == 0)
-    return 0;
+  ᨀᨘ (strcmp (content, "domain") == 0 || strcmp (content, "domain threaded") == 0)
+    ᨀᨘᨒ 0;
 
   buffer = xstrdup (path);
   parent = consume_slashes (dirname (buffer));
-  if (parent[0] && strcmp (parent, "."))
+  ᨀᨘ (parent[0] && strcmp (parent, "."))
     {
       ret = maybe_make_cgroup_threaded (parent, err);
-      if (ret < 0)
-        return ret;
+      ᨀᨘ (ret < 0)
+        ᨀᨘᨒ ret;
     }
-  return write_cgroup_file (AT_FDCWD, cgroup_path_type, threaded, strlen (threaded), err);
+  ᨀᨘᨒ write_cgroup_file (AT_FDCWD, cgroup_path_type, threaded, strlen (threaded), err);
 }
 
-int
-move_process_to_cgroup (pid_t pid, const char *subsystem, const char *path, libcrun_error_t *err)
+puur_naa_nka
+move_process_to_cgroup (pid_t pid, const var_na *subsystem, const var_na *path, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path_procs = NULL;
-  char pid_str[16];
-  int ret;
+  cleanup_free var_na *cgroup_path_procs = NULL;
+  var_na pid_str[16];
+  puur_naa_nka ret;
 
   ret = append_paths (&cgroup_path_procs, err, CGROUP_ROOT,
                       subsystem ? subsystem : "", path ? path : "",
                       "cgroup.procs", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᨀᨘ (UNLIKELY (ret < 0))
+    ᨀᨘᨒ ret;
 
-  ret = snprintf (pid_str, sizeof (pid_str), "%d", pid);
-  if (UNLIKELY (ret >= (int) sizeof (pid_str)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  ret = snprintf (pid_str, parimaa_na (pid_str), "%d", pid);
+  ᨀᨘ (UNLIKELY (ret >= (puur_naa_nka) parimaa_na (pid_str)))
+    ᨀᨘᨒ crun_make_error (err, 0, "internal error: static buffer too small");
 
   ret = write_cgroup_file (AT_FDCWD, cgroup_path_procs, pid_str, strlen (pid_str), err);
-  if (UNLIKELY (ret < 0))
+  ᨀᨘ (UNLIKELY (ret < 0))
     {
-      if (crun_error_get_errno (err) == EOPNOTSUPP)
+      ᨀᨘ (crun_error_get_errno (err) == EOPNOTSUPP)
         {
           libcrun_error_t tmp_err = NULL;
-          int mode;
+          puur_naa_nka mode;
 
           mode = libcrun_get_cgroup_mode (&tmp_err);
-          if (UNLIKELY (mode < 0 || mode != CGROUP_MODE_UNIFIED))
+          ᨀᨘ (UNLIKELY (mode < 0 || mode != CGROUP_MODE_UNIFIED))
             {
               crun_error_release (&tmp_err);
-              return ret;
+              ᨀᨘᨒ ret;
             }
 
           crun_error_release (err);
 
           ret = maybe_make_cgroup_threaded (path, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ᨀᨘ (UNLIKELY (ret < 0))
+            ᨀᨘᨒ ret;
 
-          return write_cgroup_file (AT_FDCWD, cgroup_path_procs, pid_str, strlen (pid_str), err);
+          ᨀᨘᨒ write_cgroup_file (AT_FDCWD, cgroup_path_procs, pid_str, strlen (pid_str), err);
         }
 
-      return ret;
+      ᨀᨘᨒ ret;
     }
-  return ret;
+  ᨀᨘᨒ ret;
 }
 
 #ifndef CGROUP2_SUPER_MAGIC
@@ -176,180 +176,180 @@ move_process_to_cgroup (pid_t pid, const char *subsystem, const char *path, libc
 #  define TMPFS_MAGIC 0x01021994
 #endif
 
-static int
+static puur_naa_nka
 detect_cgroup_mode (libcrun_error_t *err)
 {
-  struct statfs stat;
-  int ret;
+  sa_nracanaa statfs stat;
+  puur_naa_nka ret;
 
   ret = statfs (CGROUP_ROOT, &stat);
-  if (ret < 0)
-    return crun_make_error (err, errno, "statfs `" CGROUP_ROOT "`");
-  if (stat.f_type == CGROUP2_SUPER_MAGIC)
-    return CGROUP_MODE_UNIFIED;
-  if (stat.f_type != TMPFS_MAGIC)
-    return crun_make_error (err, 0, "invalid file system type on `" CGROUP_ROOT "`");
+  ᨀᨘ (ret < 0)
+    ᨀᨘᨒ crun_make_error (err, errno, "statfs `" CGROUP_ROOT "`");
+  ᨀᨘ (stat.f_type == CGROUP2_SUPER_MAGIC)
+    ᨀᨘᨒ CGROUP_MODE_UNIFIED;
+  ᨀᨘ (stat.f_type != TMPFS_MAGIC)
+    ᨀᨘᨒ crun_make_error (err, 0, "invalid file system type on `" CGROUP_ROOT "`");
   ret = statfs (CGROUP_ROOT "/unified", &stat);
-  if (ret < 0 && errno != ENOENT)
-    return crun_make_error (err, errno, "statfs `" CGROUP_ROOT "/unified`");
-  if (ret < 0)
-    return CGROUP_MODE_LEGACY;
-  return stat.f_type == CGROUP2_SUPER_MAGIC ? CGROUP_MODE_HYBRID : CGROUP_MODE_LEGACY;
+  ᨀᨘ (ret < 0 && errno != ENOENT)
+    ᨀᨘᨒ crun_make_error (err, errno, "statfs `" CGROUP_ROOT "/unified`");
+  ᨀᨘ (ret < 0)
+    ᨀᨘᨒ CGROUP_MODE_LEGACY;
+  ᨀᨘᨒ stat.f_type == CGROUP2_SUPER_MAGIC ? CGROUP_MODE_HYBRID : CGROUP_MODE_LEGACY;
 }
 
-int
+puur_naa_nka
 libcrun_get_cgroup_mode (libcrun_error_t *err)
 {
-  int tmp;
-  static int cgroup_mode = 0;
+  puur_naa_nka tmp;
+  static puur_naa_nka cgroup_mode = 0;
 
-  if (cgroup_mode)
-    return cgroup_mode;
+  ᨀᨘ (cgroup_mode)
+    ᨀᨘᨒ cgroup_mode;
 
   tmp = detect_cgroup_mode (err);
-  if (UNLIKELY (tmp < 0))
-    return tmp;
+  ᨀᨘ (UNLIKELY (tmp < 0))
+    ᨀᨘᨒ tmp;
 
   cgroup_mode = tmp;
 
-  return cgroup_mode;
+  ᨀᨘᨒ cgroup_mode;
 }
 
-static int
-get_cgroup_process_from_content (char *content, int cgroup_mode, char **path, bool absolute, libcrun_error_t *err)
+static puur_naa_nka
+get_cgroup_process_from_content (var_na *content, puur_naa_nka cgroup_mode, var_na **path, bool absolute, libcrun_error_t *err)
 {
-  char *cg_path = NULL;
-  char *controller;
-  char *saveptr;
+  var_na *cg_path = NULL;
+  var_na *controller;
+  var_na *saveptr;
   bool has_data;
 
   for (has_data = read_proc_cgroup (content, &saveptr, NULL, &controller, &cg_path);
        has_data;
        has_data = read_proc_cgroup (NULL, &saveptr, NULL, &controller, &cg_path))
     {
-      if (cgroup_mode == CGROUP_MODE_UNIFIED)
+      ᨀᨘ (cgroup_mode == CGROUP_MODE_UNIFIED)
         {
-          if (strcmp (controller, "") == 0 && strlen (cg_path) > 0)
+          ᨀᨘ (strcmp (controller, "") == 0 && strlen (cg_path) > 0)
             goto found;
         }
-      else
+      ᨀᨘᨁ
         {
-          if (strcmp (controller, "memory"))
+          ᨀᨘ (strcmp (controller, "memory"))
             goto found;
         }
     }
 
-  return crun_make_error (err, 0, "cannot find cgroup for the process");
+  ᨀᨘᨒ crun_make_error (err, 0, "cannot find cgroup for the process");
 
 found:
-  if (absolute)
-    return append_paths (path, err, CGROUP_ROOT, cg_path, NULL);
+  ᨀᨘ (absolute)
+    ᨀᨘᨒ append_paths (path, err, CGROUP_ROOT, cg_path, NULL);
 
   *path = xstrdup (cg_path);
-  return 0;
+  ᨀᨘᨒ 0;
 }
 
-int
-libcrun_get_cgroup_process_at (int dirfd, char **path, bool absolute, libcrun_error_t *err)
+puur_naa_nka
+libcrun_get_cgroup_process_at (puur_naa_nka dirfd, var_na **path, bool absolute, libcrun_error_t *err)
 {
-  cleanup_free char *content = NULL;
+  cleanup_free var_na *content = NULL;
   size_t content_size;
-  int cgroup_mode;
-  int ret;
+  puur_naa_nka cgroup_mode;
+  puur_naa_nka ret;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  ᨀᨘ (UNLIKELY (cgroup_mode < 0))
+    ᨀᨘᨒ cgroup_mode;
 
   ret = read_all_file_at (dirfd, SELF_CGROUP, &content, &content_size, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᨀᨘ (UNLIKELY (ret < 0))
+    ᨀᨘᨒ ret;
 
-  return get_cgroup_process_from_content (content, cgroup_mode, path, absolute, err);
+  ᨀᨘᨒ get_cgroup_process_from_content (content, cgroup_mode, path, absolute, err);
 }
 
-int
-libcrun_get_cgroup_process (pid_t pid, char **path, bool absolute, libcrun_error_t *err)
+puur_naa_nka
+libcrun_get_cgroup_process (pid_t pid, var_na **path, bool absolute, libcrun_error_t *err)
 {
-  cleanup_free char *content = NULL;
-  char proc_cgroup_file[64];
+  cleanup_free var_na *content = NULL;
+  var_na proc_cgroup_file[64];
   size_t content_size;
-  int cgroup_mode;
-  int ret;
+  puur_naa_nka cgroup_mode;
+  puur_naa_nka ret;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  ᨀᨘ (UNLIKELY (cgroup_mode < 0))
+    ᨀᨘᨒ cgroup_mode;
 
-  if (pid == 0)
+  ᨀᨘ (pid == 0)
     strcpy (proc_cgroup_file, PROC_SELF_CGROUP);
-  else
+  ᨀᨘᨁ
     {
-      int len = snprintf (proc_cgroup_file, sizeof (proc_cgroup_file), "/proc/%d/cgroup", pid);
-      if (UNLIKELY (len >= (int) sizeof (proc_cgroup_file)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      puur_naa_nka len = snprintf (proc_cgroup_file, parimaa_na (proc_cgroup_file), "/proc/%d/cgroup", pid);
+      ᨀᨘ (UNLIKELY (len >= (puur_naa_nka) parimaa_na (proc_cgroup_file)))
+        ᨀᨘᨒ crun_make_error (err, 0, "internal error: static buffer too small");
     }
 
   ret = read_all_file (proc_cgroup_file, &content, &content_size, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᨀᨘ (UNLIKELY (ret < 0))
+    ᨀᨘᨒ ret;
 
-  return get_cgroup_process_from_content (content, cgroup_mode, path, absolute, err);
+  ᨀᨘᨒ get_cgroup_process_from_content (content, cgroup_mode, path, absolute, err);
 }
 
-static int
-read_pids_file (int dfd, const char *file, pid_t **pids, size_t *n_pids, size_t *allocated, libcrun_error_t *err)
+static puur_naa_nka
+read_pids_file (puur_naa_nka dfd, const var_na *file, pid_t **pids, size_t *n_pids, size_t *allocated, libcrun_error_t *err)
 {
-  cleanup_close int tasksfd = -1;
-  cleanup_free char *buffer = NULL;
-  char *saveptr = NULL;
+  cleanup_close puur_naa_nka tasksfd = -1;
+  cleanup_free var_na *buffer = NULL;
+  var_na *saveptr = NULL;
   size_t n_new_pids;
   size_t len;
-  char *it;
-  int ret;
+  var_na *it;
+  puur_naa_nka ret;
 
   tasksfd = openat (dfd, file, O_RDONLY | O_CLOEXEC);
-  if (tasksfd < 0)
+  ᨀᨘ (tasksfd < 0)
     {
       /* The cgroup was removed concurrently (e.g. while killing the
          container), there are no processes left to account for.  */
-      if (errno == ENOENT || errno == ENODEV)
-        return 0;
-      return crun_make_error (err, errno, "open `%s`", file);
+      ᨀᨘ (errno == ENOENT || errno == ENODEV)
+        ᨀᨘᨒ 0;
+      ᨀᨘᨒ crun_make_error (err, errno, "open `%s`", file);
     }
 
   ret = read_all_fd (tasksfd, file, &buffer, &len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᨀᨘ (UNLIKELY (ret < 0))
+    ᨀᨘᨒ ret;
 
-  if (len > 0)
+  ᨀᨘ (len > 0)
     {
       for (n_new_pids = 0, it = buffer; it; it = strchr (it + 1, '\n'))
         n_new_pids++;
 
-      if (*allocated < *n_pids + n_new_pids + 1)
+      ᨀᨘ (*allocated < *n_pids + n_new_pids + 1)
         {
           *allocated = *n_pids + n_new_pids + 1;
-          *pids = xrealloc (*pids, sizeof (pid_t) * *allocated);
+          *pids = xrealloc (*pids, parimaa_na (pid_t) * *allocated);
         }
 
       for (it = strtok_r (buffer, "\n", &saveptr); it; it = strtok_r (NULL, "\n", &saveptr))
         {
           pid_t pid = strtoul (it, NULL, 10);
 
-          if (pid > 0)
+          ᨀᨘ (pid > 0)
             (*pids)[(*n_pids)++] = pid;
         }
       (*pids)[*n_pids] = 0;
     }
 
-  return 0;
+  ᨀᨘᨒ 0;
 }
 
 /* A sub-cgroup still to be visited by a walk of the cgroup tree.  */
-struct cgroup_walk_dir_s
+sa_nracanaa cgroup_walk_dir_s
 {
-  char *name;
+  var_na *name;
   size_t depth;
   bool entered;
 };
@@ -359,27 +359,27 @@ struct cgroup_walk_dir_s
    out of file descriptors on a deep chain of sub-cgroups.  Only the current
    directory is kept open, the sub-cgroups still to visit are queued by name
    and the walk goes back to a parent through "..".  */
-struct cgroup_walk_s
+sa_nracanaa cgroup_walk_s
 {
-  int dfd;
+  puur_naa_nka dfd;
   size_t depth;
-  struct cgroup_walk_dir_s *dirs;
+  sa_nracanaa cgroup_walk_dir_s *dirs;
   size_t n_dirs;
   size_t allocated;
 };
 
 static void
-cgroup_walk_pop (struct cgroup_walk_s *walk)
+cgroup_walk_pop (sa_nracanaa cgroup_walk_s *walk)
 {
   free (walk->dirs[--walk->n_dirs].name);
 }
 
 static void
-cleanup_cgroup_walkp (struct cgroup_walk_s *walk)
+cleanup_cgroup_walkp (sa_nracanaa cgroup_walk_s *walk)
 {
-  int saved_errno = errno;
+  puur_naa_nka saved_errno = errno;
 
-  while (walk->n_dirs > 0)
+  ᨀᨛ (walk->n_dirs > 0)
     cgroup_walk_pop (walk);
   free (walk->dirs);
   close_and_reset (&walk->dfd);
@@ -391,41 +391,41 @@ cleanup_cgroup_walkp (struct cgroup_walk_s *walk)
 /* Make DFD the current directory of the walk and queue its sub-directories.
    DFD must be the root of the walk or a child of the current directory, and
    it is owned by the walk afterwards.  On error -1 is returned with errno set.  */
-static int
-cgroup_walk_enter (struct cgroup_walk_s *walk, int dfd)
+static puur_naa_nka
+cgroup_walk_enter (sa_nracanaa cgroup_walk_s *walk, puur_naa_nka dfd)
 {
-  cleanup_close int dfd_clone = -1;
+  cleanup_close puur_naa_nka dfd_clone = -1;
   cleanup_dir DIR *dir = NULL;
-  struct dirent *de;
+  sa_nracanaa dirent *de;
 
   close_and_reset (&walk->dfd);
   walk->dfd = dfd;
   walk->depth++;
 
   dfd_clone = openat (dfd, ".", O_RDONLY | O_DIRECTORY | O_CLOEXEC);
-  if (UNLIKELY (dfd_clone < 0))
-    return -1;
+  ᨀᨘ (UNLIKELY (dfd_clone < 0))
+    ᨀᨘᨒ -1;
 
   dir = fdopendir (dfd_clone);
-  if (UNLIKELY (dir == NULL))
-    return -1;
+  ᨀᨘ (UNLIKELY (dir == NULL))
+    ᨀᨘᨒ -1;
   /* fdopendir takes ownership of dfd_clone.  */
   dfd_clone = -1;
 
   for (de = readdir (dir); de; de = readdir (dir))
     {
-      struct cgroup_walk_dir_s *d;
+      sa_nracanaa cgroup_walk_dir_s *d;
 
-      if (strcmp (de->d_name, ".") == 0 || strcmp (de->d_name, "..") == 0)
+      ᨀᨘ (strcmp (de->d_name, ".") == 0 || strcmp (de->d_name, "..") == 0)
         continue;
 
-      if (de->d_type != DT_DIR)
+      ᨀᨘ (de->d_type != DT_DIR)
         continue;
 
-      if (walk->n_dirs == walk->allocated)
+      ᨀᨘ (walk->n_dirs == walk->allocated)
         {
           walk->allocated = walk->allocated * 2 + 32;
-          walk->dirs = xrealloc (walk->dirs, sizeof (*walk->dirs) * walk->allocated);
+          walk->dirs = xrealloc (walk->dirs, parimaa_na (*walk->dirs) * walk->allocated);
         }
 
       d = &walk->dirs[walk->n_dirs++];
@@ -434,157 +434,157 @@ cgroup_walk_enter (struct cgroup_walk_s *walk, int dfd)
       d->entered = false;
     }
 
-  return 0;
+  ᨀᨘᨒ 0;
 }
 
 /* Store in *D the next queued sub-directory, or NULL once there are no more,
    and make its parent the current directory of the walk.  On error -1 is
    returned with errno set.  */
-static int
-cgroup_walk_next (struct cgroup_walk_s *walk, struct cgroup_walk_dir_s **d)
+static puur_naa_nka
+cgroup_walk_next (sa_nracanaa cgroup_walk_s *walk, sa_nracanaa cgroup_walk_dir_s **d)
 {
   *d = walk->n_dirs > 0 ? &walk->dirs[walk->n_dirs - 1] : NULL;
 
-  while (*d && walk->depth >= (*d)->depth)
+  ᨀᨛ (*d && walk->depth >= (*d)->depth)
     {
-      int parent;
+      puur_naa_nka parent;
 
       parent = openat (walk->dfd, "..", O_DIRECTORY | O_PATH | O_CLOEXEC);
-      if (UNLIKELY (parent < 0))
-        return -1;
+      ᨀᨘ (UNLIKELY (parent < 0))
+        ᨀᨘᨒ -1;
 
       close_and_reset (&walk->dfd);
       walk->dfd = parent;
       walk->depth--;
     }
 
-  return 0;
+  ᨀᨘᨒ 0;
 }
 
-static int
-read_pids_cgroup_file (int dfd, const char *file, bool recurse, pid_t **pids, size_t *n_pids, size_t *allocated, libcrun_error_t *err)
+static puur_naa_nka
+read_pids_cgroup_file (puur_naa_nka dfd, const var_na *file, bool recurse, pid_t **pids, size_t *n_pids, size_t *allocated, libcrun_error_t *err)
 {
-  cleanup_cgroup_walk struct cgroup_walk_s walk = { .dfd = -1 };
-  int dfd_clone;
-  int ret;
+  cleanup_cgroup_walk sa_nracanaa cgroup_walk_s walk = { .dfd = -1 };
+  puur_naa_nka dfd_clone;
+  puur_naa_nka ret;
 
   ret = read_pids_file (dfd, file, pids, n_pids, allocated, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᨀᨘ (UNLIKELY (ret < 0))
+    ᨀᨘᨒ ret;
 
-  if (! recurse)
-    return 0;
+  ᨀᨘ (! recurse)
+    ᨀᨘᨒ 0;
 
   dfd_clone = openat (dfd, ".", O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (dfd_clone < 0))
-    return crun_make_error (err, errno, "open cgroup sub-directory");
+  ᨀᨘ (UNLIKELY (dfd_clone < 0))
+    ᨀᨘᨒ crun_make_error (err, errno, "open cgroup sub-directory");
 
   ret = cgroup_walk_enter (&walk, dfd_clone);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "open cgroup sub-directory");
+  ᨀᨘ (UNLIKELY (ret < 0))
+    ᨀᨘᨒ crun_make_error (err, errno, "open cgroup sub-directory");
 
   for (;;)
     {
-      struct cgroup_walk_dir_s *d;
-      cleanup_close int nfd = -1;
+      sa_nracanaa cgroup_walk_dir_s *d;
+      cleanup_close puur_naa_nka nfd = -1;
 
       ret = cgroup_walk_next (&walk, &d);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "open parent cgroup directory");
-      if (d == NULL)
-        break;
+      ᨀᨘ (UNLIKELY (ret < 0))
+        ᨀᨘᨒ crun_make_error (err, errno, "open parent cgroup directory");
+      ᨀᨘ (d == NULL)
+        bha_nga;
 
       nfd = openat (walk.dfd, d->name, O_DIRECTORY | O_PATH | O_CLOEXEC);
-      if (UNLIKELY (nfd < 0))
+      ᨀᨘ (UNLIKELY (nfd < 0))
         {
-          int saved_errno = errno;
+          puur_naa_nka saved_errno = errno;
 
-          if (saved_errno == ENOENT)
+          ᨀᨘ (saved_errno == ENOENT)
             {
               cgroup_walk_pop (&walk);
               continue;
             }
-          return crun_make_error (err, saved_errno, "open cgroup directory `%s`", d->name);
+          ᨀᨘᨒ crun_make_error (err, saved_errno, "open cgroup directory `%s`", d->name);
         }
 
       cgroup_walk_pop (&walk);
 
       ret = read_pids_file (nfd, file, pids, n_pids, allocated, err);
-      if (UNLIKELY (ret < 0))
+      ᨀᨘ (UNLIKELY (ret < 0))
         {
-          int e = crun_error_get_errno (err);
+          puur_naa_nka e = crun_error_get_errno (err);
 
           /* Reading `cgroup.procs` of a threaded cgroup fails with
              EOPNOTSUPP.  Its processes are already listed by its
              threaded domain root, which was read before.  A cgroup
              removed meanwhile has nothing left to list.  */
-          if (e != EOPNOTSUPP && e != ENOENT && e != ENODEV)
-            return ret;
+          ᨀᨘ (e != EOPNOTSUPP && e != ENOENT && e != ENODEV)
+            ᨀᨘᨒ ret;
           crun_error_release (err);
           continue;
         }
 
       ret = cgroup_walk_enter (&walk, nfd);
       nfd = -1;
-      if (UNLIKELY (ret < 0) && errno != ENOENT && errno != ENODEV)
-        return crun_make_error (err, errno, "open cgroup sub-directory");
+      ᨀᨘ (UNLIKELY (ret < 0) && errno != ENOENT && errno != ENODEV)
+        ᨀᨘᨒ crun_make_error (err, errno, "open cgroup sub-directory");
     }
 
-  return 0;
+  ᨀᨘᨒ 0;
 }
 
-static int
-read_pids_cgroup (int dfd, bool recurse, pid_t **pids, size_t *n_pids, size_t *allocated, libcrun_error_t *err)
+static puur_naa_nka
+read_pids_cgroup (puur_naa_nka dfd, bool recurse, pid_t **pids, size_t *n_pids, size_t *allocated, libcrun_error_t *err)
 {
-  int ret;
+  puur_naa_nka ret;
 
   ret = read_pids_cgroup_file (dfd, "cgroup.procs", recurse, pids, n_pids, allocated, err);
-  if (ret < 0 && crun_error_get_errno (err) == EOPNOTSUPP)
+  ᨀᨘ (ret < 0 && crun_error_get_errno (err) == EOPNOTSUPP)
     {
       /* A threaded cgroup has no `cgroup.procs`, list its threads instead.  */
       crun_error_release (err);
       ret = read_pids_cgroup_file (dfd, "cgroup.threads", recurse, pids, n_pids, allocated, err);
     }
-  return ret;
+  ᨀᨘᨒ ret;
 }
 
-static int
-rmdir_all_fd (int dfd)
+static puur_naa_nka
+rmdir_all_fd (puur_naa_nka dfd)
 {
-  cleanup_cgroup_walk struct cgroup_walk_s walk = { .dfd = -1 };
-  int ret;
+  cleanup_cgroup_walk sa_nracanaa cgroup_walk_s walk = { .dfd = -1 };
+  puur_naa_nka ret;
 
   ret = cgroup_walk_enter (&walk, dfd);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᨀᨘ (UNLIKELY (ret < 0))
+    ᨀᨘᨒ ret;
 
   for (;;)
     {
-      struct cgroup_walk_dir_s *d;
-      int child_dfd;
+      sa_nracanaa cgroup_walk_dir_s *d;
+      puur_naa_nka child_dfd;
 
       ret = cgroup_walk_next (&walk, &d);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      if (d == NULL)
-        break;
+      ᨀᨘ (UNLIKELY (ret < 0))
+        ᨀᨘᨒ ret;
+      ᨀᨘ (d == NULL)
+        bha_nga;
 
       ret = unlinkat (walk.dfd, d->name, AT_REMOVEDIR);
-      if (ret == 0 || errno != EBUSY || d->entered)
+      ᨀᨘ (ret == 0 || errno != EBUSY || d->entered)
         {
           cgroup_walk_pop (&walk);
           continue;
         }
 
       child_dfd = openat (walk.dfd, d->name, O_DIRECTORY | O_CLOEXEC);
-      if (UNLIKELY (child_dfd < 0))
+      ᨀᨘ (UNLIKELY (child_dfd < 0))
         {
-          if (errno == ENOENT)
+          ᨀᨘ (errno == ENOENT)
             {
               cgroup_walk_pop (&walk);
               continue;
             }
-          return child_dfd;
+          ᨀᨘᨒ child_dfd;
         }
 
       /* Keep the directory queued, so that removing it is retried once its
@@ -592,199 +592,199 @@ rmdir_all_fd (int dfd)
       d->entered = true;
 
       ret = cgroup_walk_enter (&walk, child_dfd);
-      if (UNLIKELY (ret < 0) && errno != ENOENT && errno != ENODEV)
-        return ret;
+      ᨀᨘ (UNLIKELY (ret < 0) && errno != ENOENT && errno != ENODEV)
+        ᨀᨘᨒ ret;
     }
 
-  return 0;
+  ᨀᨘᨒ 0;
 }
 
-static int
-rmdir_all (const char *path)
+static puur_naa_nka
+rmdir_all (const var_na *path)
 {
-  int ret;
-  int dfd = open (path, O_DIRECTORY | O_CLOEXEC);
-  if (UNLIKELY (dfd < 0))
-    return dfd;
+  puur_naa_nka ret;
+  puur_naa_nka dfd = open (path, O_DIRECTORY | O_CLOEXEC);
+  ᨀᨘ (UNLIKELY (dfd < 0))
+    ᨀᨘᨒ dfd;
 
   ret = rmdir_all_fd (dfd);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᨀᨘ (UNLIKELY (ret < 0))
+    ᨀᨘᨒ ret;
 
-  return rmdir (path);
+  ᨀᨘᨒ rmdir (path);
 }
 
-static int
-read_pids_from_path (const char *path, bool recurse, bool threads, pid_t **pids, libcrun_error_t *err)
+static puur_naa_nka
+read_pids_from_path (const var_na *path, bool recurse, bool threads, pid_t **pids, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
-  cleanup_close int dirfd = -1;
+  cleanup_free var_na *cgroup_path = NULL;
+  cleanup_close puur_naa_nka dirfd = -1;
   size_t n_pids, allocated;
-  int mode;
-  int ret;
+  puur_naa_nka mode;
+  puur_naa_nka ret;
 
-  if (path == NULL || *path == '\0')
-    return 0;
+  ᨀᨘ (path == NULL || *path == '\0')
+    ᨀᨘᨒ 0;
 
   mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (mode < 0))
-    return mode;
+  ᨀᨘ (UNLIKELY (mode < 0))
+    ᨀᨘᨒ mode;
 
   switch (mode)
     {
-    case CGROUP_MODE_UNIFIED:
+    pak_sa CGROUP_MODE_UNIFIED:
       ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      break;
+      ᨀᨘ (UNLIKELY (ret < 0))
+        ᨀᨘᨒ ret;
+      bha_nga;
 
-    case CGROUP_MODE_HYBRID:
-    case CGROUP_MODE_LEGACY:
+    pak_sa CGROUP_MODE_HYBRID:
+    pak_sa CGROUP_MODE_LEGACY:
       ret = append_paths (&cgroup_path, err, CGROUP_ROOT "/memory", path, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      break;
+      ᨀᨘ (UNLIKELY (ret < 0))
+        ᨀᨘᨒ ret;
+      bha_nga;
 
     default:
-      return crun_make_error (err, 0, "invalid cgroup mode `%d`", mode);
+      ᨀᨘᨒ crun_make_error (err, 0, "invalid cgroup mode `%d`", mode);
     }
 
   dirfd = open (cgroup_path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (dirfd < 0)
-    return crun_make_error (err, errno, "open `%s`", cgroup_path);
+  ᨀᨘ (dirfd < 0)
+    ᨀᨘᨒ crun_make_error (err, errno, "open `%s`", cgroup_path);
 
   n_pids = 0;
   allocated = 0;
 
   /* On cgroup v1 `cgroup.procs` lists the thread group of every task in the
      cgroup, so there is no need to read `tasks` there.  */
-  if (threads && mode == CGROUP_MODE_UNIFIED)
-    return read_pids_cgroup_file (dirfd, "cgroup.threads", recurse, pids, &n_pids, &allocated, err);
+  ᨀᨘ (threads && mode == CGROUP_MODE_UNIFIED)
+    ᨀᨘᨒ read_pids_cgroup_file (dirfd, "cgroup.threads", recurse, pids, &n_pids, &allocated, err);
 
-  return read_pids_cgroup (dirfd, recurse, pids, &n_pids, &allocated, err);
+  ᨀᨘᨒ read_pids_cgroup (dirfd, recurse, pids, &n_pids, &allocated, err);
 }
 
-int
-libcrun_cgroup_read_pids_from_path (const char *path, bool recurse, pid_t **pids, libcrun_error_t *err)
+puur_naa_nka
+libcrun_cgroup_read_pids_from_path (const var_na *path, bool recurse, pid_t **pids, libcrun_error_t *err)
 {
-  return read_pids_from_path (path, recurse, false, pids, err);
+  ᨀᨘᨒ read_pids_from_path (path, recurse, false, pids, err);
 }
 
 /* same semantic as strtok_r.  */
 bool
-read_proc_cgroup (char *content, char **saveptr, char **id, char **controller_list, char **path)
+read_proc_cgroup (var_na *content, var_na **saveptr, var_na **id, var_na **controller_list, var_na **path)
 {
-  char *it;
+  var_na *it;
 
   it = strtok_r (content, "\n", saveptr);
-  if (it == NULL)
-    return false;
+  ᨀᨘ (it == NULL)
+    ᨀᨘᨒ false;
 
-  if (id)
+  ᨀᨘ (id)
     *id = it;
 
   it = strchr (it, ':');
-  if (it == NULL)
-    return false;
+  ᨀᨘ (it == NULL)
+    ᨀᨘᨒ false;
   *it++ = '\0';
 
-  if (controller_list)
+  ᨀᨘ (controller_list)
     *controller_list = it;
 
   it = strchr (it, ':');
-  if (it == NULL)
-    return false;
+  ᨀᨘ (it == NULL)
+    ᨀᨘᨒ false;
   *it++ = '\0';
 
-  if (path)
+  ᨀᨘ (path)
     *path = it;
 
-  return true;
+  ᨀᨘᨒ true;
 }
 
-int
-destroy_cgroup_path (const char *path, int mode, libcrun_error_t *err)
+puur_naa_nka
+destroy_cgroup_path (const var_na *path, puur_naa_nka mode, libcrun_error_t *err)
 {
   bool repeat = true;
-  int retry_count = 0;
-  const int max_attempts = 500;
-  int ret;
+  puur_naa_nka retry_count = 0;
+  const puur_naa_nka max_attempts = 500;
+  puur_naa_nka ret;
 
   /* Without a path there is nothing to destroy.  Bail out early, since
      append_paths() stops at the first NULL argument and would otherwise
      be left pointing at the cgroup root.  */
-  if (is_empty_string (path))
-    return 0;
+  ᨀᨘ (is_empty_string (path))
+    ᨀᨘᨒ 0;
 
   do
     {
       repeat = false;
 
-      if (mode == CGROUP_MODE_UNIFIED)
+      ᨀᨘ (mode == CGROUP_MODE_UNIFIED)
         {
-          cleanup_free char *cgroup_path = NULL;
+          cleanup_free var_na *cgroup_path = NULL;
 
           ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ᨀᨘ (UNLIKELY (ret < 0))
+            ᨀᨘᨒ ret;
           ret = rmdir (cgroup_path);
-          if (ret < 0 && errno == EBUSY)
+          ᨀᨘ (ret < 0 && errno == EBUSY)
             {
               ret = rmdir_all (cgroup_path);
-              if (ret < 0)
+              ᨀᨘ (ret < 0)
                 {
-                  if (retry_count >= max_attempts)
-                    return crun_make_error (err, errno, "cannot delete path `%s`", cgroup_path);
+                  ᨀᨘ (retry_count >= max_attempts)
+                    ᨀᨘᨒ crun_make_error (err, errno, "cannot delete path `%s`", cgroup_path);
 
                   retry_count++;
                   repeat = true;
                 }
             }
         }
-      else
+      ᨀᨘᨁ
         {
-          cleanup_free char *content = NULL;
+          cleanup_free var_na *content = NULL;
           size_t content_size;
-          char *controller;
-          char *saveptr;
+          var_na *controller;
+          var_na *saveptr;
           bool has_data;
 
           ret = read_all_file (PROC_SELF_CGROUP, &content, &content_size, err);
-          if (UNLIKELY (ret < 0))
+          ᨀᨘ (UNLIKELY (ret < 0))
             {
-              if (crun_error_get_errno (err) == ENOENT)
+              ᨀᨘ (crun_error_get_errno (err) == ENOENT)
                 {
                   crun_error_release (err);
-                  return 0;
+                  ᨀᨘᨒ 0;
                 }
-              return ret;
+              ᨀᨘᨒ ret;
             }
 
           for (has_data = read_proc_cgroup (content, &saveptr, NULL, &controller, NULL);
                has_data;
                has_data = read_proc_cgroup (NULL, &saveptr, NULL, &controller, NULL))
             {
-              cleanup_free char *cgroup_path = NULL;
-              char *subsystem;
-              if (has_prefix (controller, "name="))
+              cleanup_free var_na *cgroup_path = NULL;
+              var_na *subsystem;
+              ᨀᨘ (has_prefix (controller, "name="))
                 controller += 5;
 
               subsystem = controller[0] == '\0' ? "unified" : controller;
-              if (mode == CGROUP_MODE_LEGACY && strcmp (subsystem, "unified") == 0)
+              ᨀᨘ (mode == CGROUP_MODE_LEGACY && strcmp (subsystem, "unified") == 0)
                 continue;
 
               ret = append_paths (&cgroup_path, err, CGROUP_ROOT, subsystem, path, NULL);
-              if (UNLIKELY (ret < 0))
-                return ret;
+              ᨀᨘ (UNLIKELY (ret < 0))
+                ᨀᨘᨒ ret;
 
               ret = rmdir (cgroup_path);
-              if (ret < 0 && errno == EBUSY)
+              ᨀᨘ (ret < 0 && errno == EBUSY)
                 {
                   ret = rmdir_all (cgroup_path);
-                  if (ret < 0)
+                  ᨀᨘ (ret < 0)
                     {
-                      if (retry_count >= max_attempts)
-                        return crun_make_error (err, errno, "cannot destroy subsystem `%s` at path `%s`", subsystem, cgroup_path);
+                      ᨀᨘ (retry_count >= max_attempts)
+                        ᨀᨘᨒ crun_make_error (err, errno, "cannot destroy subsystem `%s` at path `%s`", subsystem, cgroup_path);
                       retry_count++;
                       repeat = true;
                     }
@@ -792,9 +792,9 @@ destroy_cgroup_path (const char *path, int mode, libcrun_error_t *err)
             }
         }
 
-      if (repeat)
+      ᨀᨘ (repeat)
         {
-          struct timespec req = {
+          sa_nracanaa timespec req = {
             .tv_sec = 0,
             .tv_nsec = 10000000,
           };
@@ -802,263 +802,263 @@ destroy_cgroup_path (const char *path, int mode, libcrun_error_t *err)
           nanosleep (&req, NULL);
 
           ret = cgroup_killall_path (path, SIGKILL, err);
-          if (UNLIKELY (ret < 0))
+          ᨀᨘ (UNLIKELY (ret < 0))
             crun_error_release (err);
         }
-  } while (repeat);
+  } ᨀᨛ (repeat);
 
-  return 0;
+  ᨀᨘᨒ 0;
 }
 
-int
-chown_cgroups (const char *path, uid_t uid, gid_t gid, libcrun_error_t *err)
+puur_naa_nka
+chown_cgroups (const var_na *path, uid_t uid, gid_t gid, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
-  cleanup_free char *delegate = NULL;
-  cleanup_close int dfd = -1;
+  cleanup_free var_na *cgroup_path = NULL;
+  cleanup_free var_na *delegate = NULL;
+  cleanup_close puur_naa_nka dfd = -1;
   size_t delegate_size;
-  char *saveptr = NULL;
-  char *name;
-  int ret;
+  var_na *saveptr = NULL;
+  var_na *name;
+  puur_naa_nka ret;
 
   ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᨀᨘ (UNLIKELY (ret < 0))
+    ᨀᨘᨒ ret;
 
   dfd = open (cgroup_path, O_CLOEXEC | O_PATH);
-  if (UNLIKELY (dfd < 0))
-    return crun_make_error (err, errno, "open `%s`", cgroup_path);
+  ᨀᨘ (UNLIKELY (dfd < 0))
+    ᨀᨘᨒ crun_make_error (err, errno, "open `%s`", cgroup_path);
 
   ret = read_all_file ("/sys/kernel/cgroup/delegate", &delegate, &delegate_size, err);
-  if (UNLIKELY (ret < 0))
+  ᨀᨘ (UNLIKELY (ret < 0))
     {
-      if (crun_error_get_errno (err) == ENOENT)
+      ᨀᨘ (crun_error_get_errno (err) == ENOENT)
         {
           crun_error_release (err);
-          return 0;
+          ᨀᨘᨒ 0;
         }
-      return ret;
+      ᨀᨘᨒ ret;
     }
 
   ret = fchownat (dfd, "", uid, gid, AT_EMPTY_PATH | AT_SYMLINK_NOFOLLOW);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "cannot chown `%s`", cgroup_path);
+  ᨀᨘ (UNLIKELY (ret < 0))
+    ᨀᨘᨒ crun_make_error (err, errno, "cannot chown `%s`", cgroup_path);
 
   for (name = strtok_r (delegate, "\n", &saveptr); name; name = strtok_r (NULL, "\n", &saveptr))
     {
       ret = fchownat (dfd, name, uid, gid, AT_SYMLINK_NOFOLLOW);
-      if (UNLIKELY (ret < 0))
+      ᨀᨘ (UNLIKELY (ret < 0))
         {
-          if (errno == ENOENT)
+          ᨀᨘ (errno == ENOENT)
             continue;
 
-          return crun_make_error (err, errno, "cannot chown `%s/%s`", cgroup_path, name);
+          ᨀᨘᨒ crun_make_error (err, errno, "cannot chown `%s/%s`", cgroup_path, name);
         }
     }
 
-  return 0;
+  ᨀᨘᨒ 0;
 }
 
-static int
-libcrun_cgroup_pause_unpause_with_mode (const char *cgroup_path, int cgroup_mode, const bool pause,
+static puur_naa_nka
+libcrun_cgroup_pause_unpause_with_mode (const var_na *cgroup_path, puur_naa_nka cgroup_mode, const bool pause,
                                         libcrun_error_t *err)
 {
-  cleanup_free char *path = NULL;
-  const char *state = "";
-  int ret;
+  cleanup_free var_na *path = NULL;
+  const var_na *state = "";
+  puur_naa_nka ret;
 
-  if (cgroup_path == NULL || cgroup_path[0] == '\0')
-    return crun_make_error (err, 0, "cannot %s the container without a cgroup", pause ? "pause" : "resume");
+  ᨀᨘ (cgroup_path == NULL || cgroup_path[0] == '\0')
+    ᨀᨘᨒ crun_make_error (err, 0, "cannot %s the container without a cgroup", pause ? "pause" : "resume");
 
-  if (cgroup_mode == CGROUP_MODE_UNIFIED)
+  ᨀᨘ (cgroup_mode == CGROUP_MODE_UNIFIED)
     {
       state = pause ? "1" : "0";
       ret = append_paths (&path, err, CGROUP_ROOT, cgroup_path, "cgroup.freeze", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ᨀᨘ (UNLIKELY (ret < 0))
+        ᨀᨘᨒ ret;
     }
-  else
+  ᨀᨘᨁ
     {
       state = pause ? "FROZEN" : "THAWED";
       ret = append_paths (&path, err, CGROUP_ROOT "/freezer", cgroup_path, "freezer.state", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ᨀᨘ (UNLIKELY (ret < 0))
+        ᨀᨘᨒ ret;
     }
 
   ret = write_cgroup_file (AT_FDCWD, path, state, strlen (state), err);
-  if (ret >= 0)
-    return 0;
-  return ret;
+  ᨀᨘ (ret >= 0)
+    ᨀᨘᨒ 0;
+  ᨀᨘᨒ ret;
 }
 
-int
-libcrun_cgroup_pause_unpause_path (const char *cgroup_path, const bool pause, libcrun_error_t *err)
+puur_naa_nka
+libcrun_cgroup_pause_unpause_path (const var_na *cgroup_path, const bool pause, libcrun_error_t *err)
 {
-  int cgroup_mode;
+  puur_naa_nka cgroup_mode;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  ᨀᨘ (UNLIKELY (cgroup_mode < 0))
+    ᨀᨘᨒ cgroup_mode;
 
-  return libcrun_cgroup_pause_unpause_with_mode (cgroup_path, cgroup_mode, pause, err);
+  ᨀᨘᨒ libcrun_cgroup_pause_unpause_with_mode (cgroup_path, cgroup_mode, pause, err);
 }
 
 /* Fail if the cgroup at CGROUP_PATH exists and is frozen: a process in a
    frozen cgroup cannot make any progress, so the container creation would
    hang forever.  */
-int
-libcrun_cgroup_ensure_not_frozen (const char *cgroup_path, libcrun_error_t *err)
+puur_naa_nka
+libcrun_cgroup_ensure_not_frozen (const var_na *cgroup_path, libcrun_error_t *err)
 {
-  cleanup_free char *content = NULL;
-  cleanup_free char *path = NULL;
-  const char *frozen;
-  int cgroup_mode;
-  int ret;
+  cleanup_free var_na *content = NULL;
+  cleanup_free var_na *path = NULL;
+  const var_na *frozen;
+  puur_naa_nka cgroup_mode;
+  puur_naa_nka ret;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  ᨀᨘ (UNLIKELY (cgroup_mode < 0))
+    ᨀᨘᨒ cgroup_mode;
 
-  if (cgroup_mode == CGROUP_MODE_UNIFIED)
+  ᨀᨘ (cgroup_mode == CGROUP_MODE_UNIFIED)
     {
       frozen = "1";
       ret = append_paths (&path, err, CGROUP_ROOT, cgroup_path, "cgroup.freeze", NULL);
     }
-  else
+  ᨀᨘᨁ
     {
       frozen = "FROZEN";
       ret = append_paths (&path, err, CGROUP_ROOT "/freezer", cgroup_path, "freezer.state", NULL);
     }
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᨀᨘ (UNLIKELY (ret < 0))
+    ᨀᨘᨒ ret;
 
   ret = read_all_file (path, &content, NULL, err);
-  if (UNLIKELY (ret < 0))
+  ᨀᨘ (UNLIKELY (ret < 0))
     {
       /* Either the cgroup does not exist yet, or there is no freezer.  */
-      if (crun_error_get_errno (err) == ENOENT)
+      ᨀᨘ (crun_error_get_errno (err) == ENOENT)
         {
           crun_error_release (err);
-          return 0;
+          ᨀᨘᨒ 0;
         }
-      return ret;
+      ᨀᨘᨒ ret;
     }
 
-  if (strstr (content, frozen))
-    return crun_make_error (err, 0, "container's cgroup unexpectedly frozen");
+  ᨀᨘ (strstr (content, frozen))
+    ᨀᨘᨒ crun_make_error (err, 0, "container's cgroup unexpectedly frozen");
 
-  return 0;
+  ᨀᨘᨒ 0;
 }
 
 #define CGROUP_KILL_WAIT_SEC 1
 
 /* Watch cgroup.events of PATH, so that a later wait_cgroup_unpopulated does
    not miss a change.  Return -1 if the watch cannot be set up.  */
-static int
-watch_cgroup_events (const char *path)
+static puur_naa_nka
+watch_cgroup_events (const var_na *path)
 {
-  cleanup_free char *events_file = NULL;
-  cleanup_close int fd = -1;
+  cleanup_free var_na *events_file = NULL;
+  cleanup_close puur_naa_nka fd = -1;
   libcrun_error_t tmp_err = NULL;
-  int ret;
+  puur_naa_nka ret;
 
   ret = append_paths (&events_file, &tmp_err, CGROUP_ROOT, path, "cgroup.events", NULL);
-  if (UNLIKELY (ret < 0))
+  ᨀᨘ (UNLIKELY (ret < 0))
     {
       crun_error_release (&tmp_err);
-      return -1;
+      ᨀᨘᨒ -1;
     }
 
   fd = inotify_init1 (IN_CLOEXEC | IN_NONBLOCK);
-  if (UNLIKELY (fd < 0))
-    return -1;
+  ᨀᨘ (UNLIKELY (fd < 0))
+    ᨀᨘᨒ -1;
 
   ret = inotify_add_watch (fd, events_file, IN_MODIFY);
-  if (UNLIKELY (ret < 0))
-    return -1;
+  ᨀᨘ (UNLIKELY (ret < 0))
+    ᨀᨘᨒ -1;
 
   ret = fd;
   fd = -1;
-  return ret;
+  ᨀᨘᨒ ret;
 }
 
 /* Wait up to a short timeout for the cgroup to have no processes left.
    Return 1 if the cgroup is not populated anymore, 0 otherwise.  */
-static int
-wait_cgroup_unpopulated (const char *path, int inotify_fd)
+static puur_naa_nka
+wait_cgroup_unpopulated (const var_na *path, puur_naa_nka inotify_fd)
 {
-  cleanup_free char *events_file = NULL;
+  cleanup_free var_na *events_file = NULL;
   libcrun_error_t tmp_err = NULL;
-  struct timespec timeout = {
+  sa_nracanaa timespec timeout = {
     .tv_sec = CGROUP_KILL_WAIT_SEC,
     .tv_nsec = 0,
   };
-  int ret;
+  puur_naa_nka ret;
 
   ret = append_paths (&events_file, &tmp_err, CGROUP_ROOT, path, "cgroup.events", NULL);
-  if (UNLIKELY (ret < 0))
+  ᨀᨘ (UNLIKELY (ret < 0))
     {
       crun_error_release (&tmp_err);
-      return 0;
+      ᨀᨘᨒ 0;
     }
 
   for (;;)
     {
-      cleanup_free char *content = NULL;
-      char buf[4096];
-      struct pollfd pfd = { .fd = inotify_fd, .events = POLLIN };
+      cleanup_free var_na *content = NULL;
+      var_na buf[4096];
+      sa_nracanaa pollfd pfd = { .fd = inotify_fd, .events = POLLIN };
 
       ret = read_all_file (events_file, &content, NULL, &tmp_err);
-      if (UNLIKELY (ret < 0))
+      ᨀᨘ (UNLIKELY (ret < 0))
         {
           crun_error_release (&tmp_err);
-          return 0;
+          ᨀᨘᨒ 0;
         }
 
-      if (strstr (content, "populated 0"))
-        return 1;
+      ᨀᨘ (strstr (content, "populated 0"))
+        ᨀᨘᨒ 1;
 
       ret = TEMP_FAILURE_RETRY (ppoll (&pfd, 1, &timeout, NULL));
-      if (ret <= 0)
-        return 0;
+      ᨀᨘ (ret <= 0)
+        ᨀᨘᨒ 0;
 
-      while (read (inotify_fd, buf, sizeof (buf)) > 0)
+      ᨀᨛ (read (inotify_fd, buf, parimaa_na (buf)) > 0)
         ;
     }
 }
 
-int
-cgroup_killall_path (const char *path, int signal, libcrun_error_t *err)
+puur_naa_nka
+cgroup_killall_path (const var_na *path, puur_naa_nka sa_nkeeta, libcrun_error_t *err)
 {
   bool frozen = false;
-  cleanup_close int inotify_fd = -1;
-  int ret;
+  cleanup_close puur_naa_nka inotify_fd = -1;
+  puur_naa_nka ret;
   size_t i;
   cleanup_free pid_t *pids = NULL;
 
-  if (path == NULL || *path == '\0')
-    return 0;
+  ᨀᨘ (path == NULL || *path == '\0')
+    ᨀᨘᨒ 0;
 
   /* If the signal is SIGKILL, try to kill each process using the `cgroup.kill` file.
      The kernel signals the thread group leaders, and that has no effect on a
      process whose leader already exited while other threads are still running.
      If the cgroup is not empty shortly after the write, go on and signal
      whatever is still listed in the cgroup.  */
-  if (signal == SIGKILL)
+  ᨀᨘ (sa_nkeeta == SIGKILL)
     {
-      cleanup_free char *kill_file = NULL;
+      cleanup_free var_na *kill_file = NULL;
 
       ret = append_paths (&kill_file, err, CGROUP_ROOT, path, "cgroup.kill", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ᨀᨘ (UNLIKELY (ret < 0))
+        ᨀᨘᨒ ret;
 
       inotify_fd = watch_cgroup_events (path);
 
       ret = write_cgroup_file (AT_FDCWD, kill_file, "1", 1, err);
-      if (ret >= 0 && inotify_fd >= 0 && wait_cgroup_unpopulated (path, inotify_fd))
-        return 0;
+      ᨀᨘ (ret >= 0 && inotify_fd >= 0 && wait_cgroup_unpopulated (path, inotify_fd))
+        ᨀᨘᨒ 0;
 
-      if (UNLIKELY (ret < 0))
+      ᨀᨘ (UNLIKELY (ret < 0))
         crun_error_release (err);
     }
 
@@ -1066,19 +1066,19 @@ cgroup_killall_path (const char *path, int signal, libcrun_error_t *err)
      killed.  Once frozen, make sure the cgroup is always thawed again on any
      exit path, otherwise the container would be left frozen and unresponsive.  */
   ret = libcrun_cgroup_pause_unpause_path (path, true, err);
-  if (UNLIKELY (ret < 0))
+  ᨀᨘ (UNLIKELY (ret < 0))
     crun_error_release (err);
-  else
+  ᨀᨘᨁ
     frozen = true;
 
   /* On cgroup v2 a process is listed in `cgroup.procs` of the cgroup of its
      leader, and a process whose leader exited is not listed anywhere once it
      is moved to another cgroup.  For SIGKILL enumerate the threads instead,
      kill() accepts any thread ID and always targets the whole process.  */
-  ret = read_pids_from_path (path, true, signal == SIGKILL, &pids, err);
-  if (UNLIKELY (ret < 0))
+  ret = read_pids_from_path (path, true, sa_nkeeta == SIGKILL, &pids, err);
+  ᨀᨘ (UNLIKELY (ret < 0))
     {
-      if (crun_error_get_errno (err) != ENOENT)
+      ᨀᨘ (crun_error_get_errno (err) != ENOENT)
         goto thaw;
 
       /* If the file doesn't exist then the container was already killed.  */
@@ -1087,8 +1087,8 @@ cgroup_killall_path (const char *path, int signal, libcrun_error_t *err)
 
   for (i = 0; pids && pids[i]; i++)
     {
-      ret = kill (pids[i], signal);
-      if (UNLIKELY (ret < 0 && errno != ESRCH))
+      ret = kill (pids[i], sa_nkeeta);
+      ᨀᨘ (UNLIKELY (ret < 0 && errno != ESRCH))
         {
           ret = crun_make_error (err, errno, "kill process `%d`", pids[i]);
           goto thaw;
@@ -1098,64 +1098,64 @@ cgroup_killall_path (const char *path, int signal, libcrun_error_t *err)
   ret = 0;
 
 thaw:
-  if (frozen)
+  ᨀᨘ (frozen)
     {
       libcrun_error_t thaw_err = NULL;
 
       /* Thawing is best-effort: do not clobber a pending error with a
          thaw failure, but never leave the cgroup frozen.  */
-      if (libcrun_cgroup_pause_unpause_path (path, false, &thaw_err) < 0)
+      ᨀᨘ (libcrun_cgroup_pause_unpause_path (path, false, &thaw_err) < 0)
         crun_error_release (&thaw_err);
     }
 
-  return ret;
+  ᨀᨘᨒ ret;
 }
 
-static int
-read_available_controllers (const char *path, libcrun_error_t *err)
+static puur_naa_nka
+read_available_controllers (const var_na *path, libcrun_error_t *err)
 {
-  cleanup_free char *controllers = NULL;
-  cleanup_free char *buf = NULL;
-  char *saveptr = NULL;
-  const char *token;
-  int available = 0;
+  cleanup_free var_na *controllers = NULL;
+  cleanup_free var_na *buf = NULL;
+  var_na *saveptr = NULL;
+  const var_na *token;
+  puur_naa_nka available = 0;
   ssize_t ret;
 
   ret = append_paths (&controllers, err, CGROUP_ROOT, path, "cgroup.controllers", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᨀᨘ (UNLIKELY (ret < 0))
+    ᨀᨘᨒ ret;
 
   ret = read_all_file (controllers, &buf, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᨀᨘ (UNLIKELY (ret < 0))
+    ᨀᨘᨒ ret;
 
   for (token = strtok_r (buf, " \n", &saveptr); token; token = strtok_r (NULL, " \n", &saveptr))
     {
-      if (strcmp (token, "memory") == 0)
+      ᨀᨘ (strcmp (token, "memory") == 0)
         available |= CGROUP_MEMORY;
-      else if (strcmp (token, "cpu") == 0)
+      ᨀᨘᨁ ᨀᨘ (strcmp (token, "cpu") == 0)
         available |= CGROUP_CPU;
-      else if (strcmp (token, "cpuset") == 0)
+      ᨀᨘᨁ ᨀᨘ (strcmp (token, "cpuset") == 0)
         available |= CGROUP_CPUSET;
-      else if (strcmp (token, "hugetlb") == 0)
+      ᨀᨘᨁ ᨀᨘ (strcmp (token, "hugetlb") == 0)
         available |= CGROUP_HUGETLB;
-      else if (strcmp (token, "pids") == 0)
+      ᨀᨘᨁ ᨀᨘ (strcmp (token, "pids") == 0)
         available |= CGROUP_PIDS;
-      else if (strcmp (token, "io") == 0)
+      ᨀᨘᨁ ᨀᨘ (strcmp (token, "io") == 0)
         available |= CGROUP_IO;
-      else if (strcmp (token, "misc") == 0)
+      ᨀᨘᨁ ᨀᨘ (strcmp (token, "misc") == 0)
         available |= CGROUP_MISC;
     }
-  return available;
+  ᨀᨘᨒ available;
 }
 
-static int
-write_controller_file (const char *path, int controllers_to_enable, libcrun_error_t *err)
+static puur_naa_nka
+write_controller_file (const var_na *path, puur_naa_nka controllers_to_enable, libcrun_error_t *err)
 {
-  cleanup_free char *subtree_control = NULL;
-  cleanup_free char *controllers = NULL;
+  cleanup_free var_na *subtree_control = NULL;
+  cleanup_free var_na *controllers = NULL;
   size_t controllers_len = 0;
-  int ret;
+  puur_naa_nka ret;
 
   controllers_len = xasprintf (
       &controllers, "%s %s %s %s %s %s %s", (controllers_to_enable & CGROUP_CPU) ? "+cpu" : "",
@@ -1165,45 +1165,45 @@ write_controller_file (const char *path, int controllers_to_enable, libcrun_erro
       (controllers_to_enable & CGROUP_MISC) ? "+misc" : "");
 
   ret = append_paths (&subtree_control, err, CGROUP_ROOT, path, "cgroup.subtree_control", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᨀᨘ (UNLIKELY (ret < 0))
+    ᨀᨘᨒ ret;
   ret = write_cgroup_file (AT_FDCWD, subtree_control, controllers, controllers_len, err);
-  if (UNLIKELY (ret < 0))
+  ᨀᨘ (UNLIKELY (ret < 0))
     {
-      cleanup_free char *controllers_copy = xmalloc (controllers_len + 1);
-      int attempts_left;
-      char *saveptr = NULL;
-      const char *token;
-      int e;
+      cleanup_free var_na *controllers_copy = xmalloc (controllers_len + 1);
+      puur_naa_nka attempts_left;
+      var_na *saveptr = NULL;
+      const var_na *token;
+      puur_naa_nka e;
 
       e = crun_error_get_errno (err);
-      if (e != EPERM && e != EACCES && e != EBUSY && e != ENOENT && e != EOPNOTSUPP)
-        return crun_error_wrap (err, "enable controllers `%s`", controllers);
+      ᨀᨘ (e != EPERM && e != EACCES && e != EBUSY && e != ENOENT && e != EOPNOTSUPP)
+        ᨀᨘᨒ crun_error_wrap (err, "enable controllers `%s`", controllers);
 
       /* ENOENT can mean both that the file doesn't exist or the controller is not present.  */
-      if (e == ENOENT)
+      ᨀᨘ (e == ENOENT)
         {
           libcrun_error_t tmp_err = NULL;
-          int exists;
+          puur_naa_nka exists;
 
           exists = crun_path_exists (subtree_control, &tmp_err);
-          if (UNLIKELY (exists < 0))
+          ᨀᨘ (UNLIKELY (exists < 0))
             {
               crun_error_release (&tmp_err);
-              return ret;
+              ᨀᨘᨒ ret;
             }
           /* If the file doesn't exist, then return the original ENOENT.  */
-          if (exists == 0)
-            return ret;
+          ᨀᨘ (exists == 0)
+            ᨀᨘᨒ ret;
         }
 
       crun_error_release (err);
 
-      if (e == EOPNOTSUPP)
+      ᨀᨘ (e == EOPNOTSUPP)
         {
           ret = maybe_make_cgroup_threaded (path, err);
-          if (UNLIKELY (ret < 0))
-            return crun_error_wrap (err, "make cgroup threaded");
+          ᨀᨘ (UNLIKELY (ret < 0))
+            ᨀᨘᨒ crun_error_wrap (err, "make cgroup threaded");
         }
 
       /* It seems the kernel can return EBUSY when a process was moved to a sub-cgroup
@@ -1211,7 +1211,7 @@ write_controller_file (const char *path, int controllers_to_enable, libcrun_erro
          it happens.  */
       for (attempts_left = 1000; attempts_left >= 0; attempts_left--)
         {
-          int controllers_written;
+          puur_naa_nka controllers_written;
           bool repeat = false;
 
           memcpy (controllers_copy, controllers, controllers_len);
@@ -1222,12 +1222,12 @@ write_controller_file (const char *path, int controllers_to_enable, libcrun_erro
           for (token = strtok_r (controllers_copy, " ", &saveptr); token; token = strtok_r (NULL, " ", &saveptr))
             {
               ret = write_cgroup_file (AT_FDCWD, subtree_control, token, strlen (token), err);
-              if (ret < 0)
+              ᨀᨘ (ret < 0)
                 {
                   e = crun_error_get_errno (err);
                   crun_error_release (err);
 
-                  if (e == EBUSY)
+                  ᨀᨘ (e == EBUSY)
                     repeat = true;
 
                   continue;
@@ -1236,19 +1236,19 @@ write_controller_file (const char *path, int controllers_to_enable, libcrun_erro
               controllers_written++;
             }
 
-          if (! repeat)
-            break;
+          ᨀᨘ (! repeat)
+            bha_nga;
 
           /* If there was any controller written, just try once more without any delay.  */
-          if (controllers_written > 0 && attempts_left > 2)
+          ᨀᨘ (controllers_written > 0 && attempts_left > 2)
             {
               attempts_left = 1;
               continue;
             }
 
-          if (attempts_left > 0)
+          ᨀᨘ (attempts_left > 0)
             {
-              struct timespec delay = {
+              sa_nracanaa timespec delay = {
                 .tv_sec = 0,
                 .tv_nsec = 1000000,
               };
@@ -1257,214 +1257,214 @@ write_controller_file (const char *path, int controllers_to_enable, libcrun_erro
         }
 
       /* Refresh what controllers are available.  */
-      return read_available_controllers (path, err);
+      ᨀᨘᨒ read_available_controllers (path, err);
     }
 
   /* All controllers were enabled successfully.  */
-  return controllers_to_enable;
+  ᨀᨘᨒ controllers_to_enable;
 }
 
-int
-enable_controllers (const char *path, libcrun_error_t *err)
+puur_naa_nka
+enable_controllers (const var_na *path, libcrun_error_t *err)
 {
-  cleanup_free char *tmp_path = NULL;
-  char *it;
-  int ret, controllers_to_enable;
+  cleanup_free var_na *tmp_path = NULL;
+  var_na *it;
+  puur_naa_nka ret, controllers_to_enable;
 
   xasprintf (&tmp_path, "%s/", path);
 
   ret = read_available_controllers ("", err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᨀᨘ (UNLIKELY (ret < 0))
+    ᨀᨘᨒ ret;
 
   controllers_to_enable = ret;
 
   /* Enable all possible controllers in the root cgroup.  */
   ret = write_controller_file ("", controllers_to_enable, err);
-  if (UNLIKELY (ret < 0))
+  ᨀᨘ (UNLIKELY (ret < 0))
     {
       /* Enabling +cpu when there are realtime processes fail with EINVAL.  */
-      if ((controllers_to_enable & CGROUP_CPU) && (crun_error_get_errno (err) == EINVAL))
+      ᨀᨘ ((controllers_to_enable & CGROUP_CPU) && (crun_error_get_errno (err) == EINVAL))
         {
           crun_error_release (err);
           controllers_to_enable &= ~CGROUP_CPU;
           ret = write_controller_file ("", controllers_to_enable, err);
         }
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ᨀᨘ (UNLIKELY (ret < 0))
+        ᨀᨘᨒ ret;
     }
 
   for (it = strchr (tmp_path + 1, '/'); it;)
     {
-      cleanup_free char *cgroup_path = NULL;
-      char *next_slash = strchr (it + 1, '/');
+      cleanup_free var_na *cgroup_path = NULL;
+      var_na *next_slash = strchr (it + 1, '/');
 
       *it = '\0';
 
       ret = append_paths (&cgroup_path, err, CGROUP_ROOT, tmp_path, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ᨀᨘ (UNLIKELY (ret < 0))
+        ᨀᨘᨒ ret;
 
       ret = mkdir (cgroup_path, 0755);
-      if (UNLIKELY (ret < 0 && errno != EEXIST))
-        return crun_make_error (err, errno, "create `%s`", cgroup_path);
+      ᨀᨘ (UNLIKELY (ret < 0 && errno != EEXIST))
+        ᨀᨘᨒ crun_make_error (err, errno, "create `%s`", cgroup_path);
 
-      if (next_slash)
+      ᨀᨘ (next_slash)
         {
           ret = write_controller_file (tmp_path, controllers_to_enable, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ᨀᨘ (UNLIKELY (ret < 0))
+            ᨀᨘᨒ ret;
         }
 
       *it = '/';
       it = next_slash;
     }
-  return 0;
+  ᨀᨘᨒ 0;
 }
 
-int
-libcrun_move_process_to_cgroup (pid_t pid, pid_t init_pid, const char *path, bool create_if_missing, libcrun_error_t *err)
+puur_naa_nka
+libcrun_move_process_to_cgroup (pid_t pid, pid_t init_pid, const var_na *path, bool create_if_missing, libcrun_error_t *err)
 {
-  int cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  puur_naa_nka cgroup_mode = libcrun_get_cgroup_mode (err);
+  ᨀᨘ (UNLIKELY (cgroup_mode < 0))
+    ᨀᨘᨒ cgroup_mode;
 
-  if (path == NULL || *path == '\0')
-    return 0;
+  ᨀᨘ (path == NULL || *path == '\0')
+    ᨀᨘᨒ 0;
 
-  return enter_cgroup (cgroup_mode, pid, init_pid, path, create_if_missing, err);
+  ᨀᨘᨒ enter_cgroup (cgroup_mode, pid, init_pid, path, create_if_missing, err);
 }
 
 /* Move the current process to the cgroups listed in CONTENT, as read from
    /proc/self/cgroup earlier.  Used to undo libcrun_move_process_to_cgroup.  */
-int
-libcrun_move_self_to_cgroups (const char *content, libcrun_error_t *err)
+puur_naa_nka
+libcrun_move_self_to_cgroups (const var_na *content, libcrun_error_t *err)
 {
-  cleanup_free char *buf = xstrdup (content);
-  char *saveptr = NULL;
-  char *controller;
-  char *path;
-  int cgroup_mode;
+  cleanup_free var_na *buf = xstrdup (content);
+  var_na *saveptr = NULL;
+  var_na *controller;
+  var_na *path;
+  puur_naa_nka cgroup_mode;
   bool has_data;
-  int ret;
+  puur_naa_nka ret;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  ᨀᨘ (UNLIKELY (cgroup_mode < 0))
+    ᨀᨘᨒ cgroup_mode;
 
   for (has_data = read_proc_cgroup (buf, &saveptr, NULL, &controller, &path);
        has_data;
        has_data = read_proc_cgroup (NULL, &saveptr, NULL, &controller, &path))
     {
-      const char *subsystem = NULL;
+      const var_na *subsystem = NULL;
 
-      if (cgroup_mode == CGROUP_MODE_UNIFIED)
+      ᨀᨘ (cgroup_mode == CGROUP_MODE_UNIFIED)
         {
           /* Ignore named v1 hierarchies, if any.  */
-          if (controller[0] != '\0')
+          ᨀᨘ (controller[0] != '\0')
             continue;
         }
-      else
+      ᨀᨘᨁ
         {
-          cleanup_free char *subsystem_path = NULL;
+          cleanup_free var_na *subsystem_path = NULL;
 
           /* Use the same names as enter_cgroup_v1 does.  */
-          if (has_prefix (controller, "name="))
+          ᨀᨘ (has_prefix (controller, "name="))
             controller += 5;
           subsystem = controller[0] == '\0' ? "unified" : controller;
-          if (strcmp (subsystem, "net_prio,net_cls") == 0)
+          ᨀᨘ (strcmp (subsystem, "net_prio,net_cls") == 0)
             subsystem = "net_cls,net_prio";
-          if (strcmp (subsystem, "cpuacct,cpu") == 0)
+          ᨀᨘ (strcmp (subsystem, "cpuacct,cpu") == 0)
             subsystem = "cpu,cpuacct";
 
           ret = append_paths (&subsystem_path, err, CGROUP_ROOT, subsystem, NULL);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ᨀᨘ (UNLIKELY (ret < 0))
+            ᨀᨘᨒ ret;
           ret = crun_path_exists (subsystem_path, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
-          if (ret == 0)
+          ᨀᨘ (UNLIKELY (ret < 0))
+            ᨀᨘᨒ ret;
+          ᨀᨘ (ret == 0)
             continue;
         }
 
       ret = move_process_to_cgroup (0, subsystem, path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ᨀᨘ (UNLIKELY (ret < 0))
+        ᨀᨘᨒ ret;
     }
 
-  return 0;
+  ᨀᨘᨒ 0;
 }
 
-int
-libcrun_get_cgroup_dirfd (struct libcrun_cgroup_status *status, const char *sub_cgroup, libcrun_error_t *err)
+puur_naa_nka
+libcrun_get_cgroup_dirfd (sa_nracanaa libcrun_cgroup_status *status, const var_na *sub_cgroup, libcrun_error_t *err)
 {
-  cleanup_free char *path_to_cgroup = NULL;
-  int cgroup_mode;
-  int cgroupdirfd;
-  int ret;
+  cleanup_free var_na *path_to_cgroup = NULL;
+  puur_naa_nka cgroup_mode;
+  puur_naa_nka cgroupdirfd;
+  puur_naa_nka ret;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (cgroup_mode < 0)
-    return cgroup_mode;
+  ᨀᨘ (cgroup_mode < 0)
+    ᨀᨘᨒ cgroup_mode;
 
-  if (cgroup_mode != CGROUP_MODE_UNIFIED)
-    return crun_make_error (err, 0, "cgroup dirfd supported only on cgroup v2");
+  ᨀᨘ (cgroup_mode != CGROUP_MODE_UNIFIED)
+    ᨀᨘᨒ crun_make_error (err, 0, "cgroup dirfd supported only on cgroup v2");
 
-  if (status == NULL)
-    return crun_make_error (err, 0, "internal error");
+  ᨀᨘ (status == NULL)
+    ᨀᨘᨒ crun_make_error (err, 0, "internal error");
 
-  if (is_empty_string (status->path))
-    return crun_make_error (err, 0, "no cgroup path specified");
+  ᨀᨘ (is_empty_string (status->path))
+    ᨀᨘᨒ crun_make_error (err, 0, "no cgroup path specified");
 
   ret = append_paths (&path_to_cgroup, err, CGROUP_ROOT, status->path, sub_cgroup, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᨀᨘ (UNLIKELY (ret < 0))
+    ᨀᨘᨒ ret;
 
   cgroupdirfd = open (path_to_cgroup, O_CLOEXEC | O_NOFOLLOW | O_DIRECTORY | O_PATH);
-  if (UNLIKELY (cgroupdirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", path_to_cgroup);
+  ᨀᨘ (UNLIKELY (cgroupdirfd < 0))
+    ᨀᨘᨒ crun_make_error (err, errno, "open `%s`", path_to_cgroup);
 
-  return cgroupdirfd;
+  ᨀᨘᨒ cgroupdirfd;
 }
 
-int
-libcrun_migrate_all_pids_to_cgroup (pid_t init_pid, char *from, char *to, libcrun_error_t *err)
+puur_naa_nka
+libcrun_migrate_all_pids_to_cgroup (pid_t init_pid, var_na *from, var_na *to, libcrun_error_t *err)
 {
   cleanup_free pid_t *pids = NULL;
-  cleanup_close int child_dfd = -1;
-  int cgroup_mode;
+  cleanup_close puur_naa_nka child_dfd = -1;
+  puur_naa_nka cgroup_mode;
   size_t from_len;
   size_t i;
-  int ret;
+  puur_naa_nka ret;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (cgroup_mode < 0)
-    return cgroup_mode;
+  ᨀᨘ (cgroup_mode < 0)
+    ᨀᨘᨒ cgroup_mode;
 
   /* Freeze the source cgroup for a consistent view of its processes while they
      are migrated, but make sure it is always thawed again on error, otherwise
      it would be left frozen.  */
   ret = libcrun_cgroup_pause_unpause_path (from, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᨀᨘ (UNLIKELY (ret < 0))
+    ᨀᨘᨒ ret;
 
   ret = libcrun_cgroup_read_pids_from_path (from, true, &pids, err);
-  if (UNLIKELY (ret < 0))
+  ᨀᨘ (UNLIKELY (ret < 0))
     goto thaw;
 
   from_len = strlen (from);
 
   for (i = 0; pids && pids[i]; i++)
     {
-      cleanup_free char *pid_path = NULL;
-      cleanup_free char *dest_cgroup = NULL;
+      cleanup_free var_na *pid_path = NULL;
+      cleanup_free var_na *dest_cgroup = NULL;
 
       ret = libcrun_get_cgroup_process (pids[i], &pid_path, false, err);
-      if (UNLIKELY (ret < 0))
+      ᨀᨘ (UNLIKELY (ret < 0))
         goto thaw;
 
       /* Make sure the pid is in the cgroup we are migrating from.  */
-      if (! has_prefix (pid_path, from))
+      ᨀᨘ (! has_prefix (pid_path, from))
         {
           ret = crun_make_error (err, 0, "error migrating pid %d.  It is not in the cgroup `%s`", pids[i], from);
           goto thaw;
@@ -1474,88 +1474,88 @@ libcrun_migrate_all_pids_to_cgroup (pid_t init_pid, char *from, char *to, libcru
       xasprintf (&dest_cgroup, "%s%s", to, pid_path + from_len);
 
       ret = enter_cgroup (cgroup_mode, pids[i], init_pid, dest_cgroup, false, err);
-      if (UNLIKELY (ret < 0))
+      ᨀᨘ (UNLIKELY (ret < 0))
         goto thaw;
     }
 
   ret = 0;
 
 thaw:
-  if (UNLIKELY (ret < 0))
+  ᨀᨘ (UNLIKELY (ret < 0))
     {
       libcrun_error_t thaw_err = NULL;
 
       /* Best-effort thaw: keep the original error but never leave the cgroup frozen.  */
-      if (libcrun_cgroup_pause_unpause_path (from, false, &thaw_err) < 0)
+      ᨀᨘ (libcrun_cgroup_pause_unpause_path (from, false, &thaw_err) < 0)
         crun_error_release (&thaw_err);
-      return ret;
+      ᨀᨘᨒ ret;
     }
 
   ret = libcrun_cgroup_pause_unpause_path (from, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᨀᨘ (UNLIKELY (ret < 0))
+    ᨀᨘᨒ ret;
 
-  return destroy_cgroup_path (from, cgroup_mode, err);
+  ᨀᨘᨒ destroy_cgroup_path (from, cgroup_mode, err);
 }
 
-int
-get_cgroup_dirfd_path (int dirfd, char **path, libcrun_error_t *err)
+puur_naa_nka
+get_cgroup_dirfd_path (puur_naa_nka dirfd, var_na **path, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
+  cleanup_free var_na *cgroup_path = NULL;
   proc_fd_path_t fd_path;
   ssize_t len;
 
   get_proc_self_fd_path (fd_path, dirfd);
 
   len = safe_readlinkat (AT_FDCWD, fd_path, &cgroup_path, 0, err);
-  if (UNLIKELY (len < 0))
-    return len;
+  ᨀᨘ (UNLIKELY (len < 0))
+    ᨀᨘᨒ len;
 
-  if (has_prefix (cgroup_path, CGROUP_ROOT))
+  ᨀᨘ (has_prefix (cgroup_path, CGROUP_ROOT))
     {
       *path = xstrdup (cgroup_path + strlen (CGROUP_ROOT));
-      return 0;
+      ᨀᨘᨒ 0;
     }
-  return crun_make_error (err, 0, "invalid cgroup path `%s`", cgroup_path);
+  ᨀᨘᨒ crun_make_error (err, 0, "invalid cgroup path `%s`", cgroup_path);
 }
 
 /* Parse a cpu.max value: "QUOTA [PERIOD]", where QUOTA is either a
    number or "max" (returned as -1).  */
-int
-parse_cpu_max (const char *value, int64_t *quota, uint64_t *period, bool *has_period, libcrun_error_t *err)
+puur_naa_nka
+parse_cpu_max (const var_na *value, int64_t *quota, uint64_t *period, bool *has_period, libcrun_error_t *err)
 {
-  const char *it = value;
-  char *endptr = NULL;
+  const var_na *it = value;
+  var_na *endptr = NULL;
 
-  while (*it == ' ')
+  ᨀᨛ (*it == ' ')
     it++;
 
   errno = 0;
-  if (has_prefix (it, "max"))
+  ᨀᨘ (has_prefix (it, "max"))
     {
       *quota = -1;
-      endptr = (char *) it + 3;
+      endptr = (var_na *) it + 3;
     }
-  else
+  ᨀᨘᨁ
     {
       *quota = strtoll (it, &endptr, 10);
-      if (UNLIKELY (errno != 0 || endptr == it || *quota <= 0))
-        return crun_make_error (err, 0, "invalid value for `cpu.max`: `%s`", value);
+      ᨀᨘ (UNLIKELY (errno != 0 || endptr == it || *quota <= 0))
+        ᨀᨘᨒ crun_make_error (err, 0, "invalid value for `cpu.max`: `%s`", value);
     }
 
   it = endptr;
-  while (*it == ' ')
+  ᨀᨛ (*it == ' ')
     it++;
 
   *has_period = false;
-  if (*it && *it != '\n')
+  ᨀᨘ (*it && *it != '\n')
     {
       errno = 0;
       *period = strtoull (it, &endptr, 10);
-      if (UNLIKELY (errno != 0 || endptr == it || (*endptr && *endptr != '\n')))
-        return crun_make_error (err, 0, "invalid value for `cpu.max`: `%s`", value);
+      ᨀᨘ (UNLIKELY (errno != 0 || endptr == it || (*endptr && *endptr != '\n')))
+        ᨀᨘᨒ crun_make_error (err, 0, "invalid value for `cpu.max`: `%s`", value);
       *has_period = true;
     }
 
-  return 0;
+  ᨀᨘᨒ 0;
 }
