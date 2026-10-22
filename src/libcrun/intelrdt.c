@@ -18,16 +18,16 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "linux.h"
-#include "utils.h"
-#include "intelrdt.h"
-#include <string.h>
-#include <sched.h>
-#include <fcntl.h>
-#include <sys/vfs.h>
-#include <unistd.h>
-#include <errno.h>
+#ضمن <config.h>
+#ضمن "linux.h"
+#ضمن "utils.h"
+#ضمن "intelrdt.h"
+#ضمن <string.h>
+#ضمن <sched.h>
+#ضمن <fcntl.h>
+#ضمن <sys/vfs.h>
+#ضمن <unistd.h>
+#ضمن <errno.h>
 
 #define INTEL_RDT_MOUNT_POINT "/sys/fs/resctrl"
 #define SCHEMATA_FILE "schemata"
@@ -35,95 +35,95 @@
 #define MON_GROUPS "mon_groups"
 #define RDTGROUP_SUPER_MAGIC 0x7655821
 
-static int
+ساكن صحيح
 is_rdt_mounted (libcrun_error_t *err)
 {
-  struct statfs sfs;
-  int ret;
+  بنية statfs sfs;
+  صحيح ret;
 
   ret = statfs (INTEL_RDT_MOUNT_POINT, &sfs);
-  if (ret < 0)
-    return crun_make_error (err, errno, "statfs `%s`", INTEL_RDT_MOUNT_POINT);
+  إذا (ret < 0)
+    إرجاع crun_make_error (err, errno, "statfs `%s`", INTEL_RDT_MOUNT_POINT);
 
-  return sfs.f_type == RDTGROUP_SUPER_MAGIC;
+  إرجاع sfs.f_type == RDTGROUP_SUPER_MAGIC;
 }
 
-int
-get_rdt_value (char **out, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata)
+صحيح
+get_rdt_قيمة (حرف **out, ثابت حرف *l3_cache_schema, ثابت حرف *mem_bw_schema, حرف *ثابت *schemata)
 {
-  cleanup_free char *schemata_joined = NULL;
+  cleanup_free حرف *schemata_joined = عدم;
   size_t schemata_size = 0;
 
-  while (schemata && schemata[schemata_size])
+  بينما (schemata && schemata[schemata_size])
     schemata_size++;
 
-  if (schemata_size > 0)
+  إذا (schemata_size > 0)
     schemata_joined = str_join_array (0, schemata_size, schemata, "\n");
 
-  return xasprintf (out, "%s%s%s%s%s\n", l3_cache_schema ?: "",
+  إرجاع xasprintf (out, "%s%s%s%s%s\n", l3_cache_schema ?: "",
                     (l3_cache_schema && mem_bw_schema) ? "\n" : "", mem_bw_schema ?: "",
                     ((l3_cache_schema || mem_bw_schema) && schemata_joined) ? "\n" : "", schemata_joined ?: "");
 }
 
-struct key_value
+بنية مفتاح_قيمة
 {
-  int key;
-  int value;
+  صحيح مفتاح;
+  صحيح قيمة;
 };
 
-static int
-kv_cmp (const void *p1, const void *p2)
+ساكن صحيح
+kv_cmp (ثابت فراغ *p1, ثابت فراغ *p2)
 {
-  const struct key_value *kv1 = p1;
-  const struct key_value *kv2 = p2;
+  ثابت بنية مفتاح_قيمة *kv1 = p1;
+  ثابت بنية مفتاح_قيمة *kv2 = p2;
 
   /* Not a subtraction: the keys are parsed out of the configuration, so two
      of them far enough apart make the difference overflow.  */
-  if (kv1->key < kv2->key)
-    return -1;
-  if (kv1->key > kv2->key)
-    return 1;
-  return 0;
+  إذا (kv1->مفتاح < kv2->مفتاح)
+    إرجاع -1;
+  إذا (kv1->مفتاح > kv2->مفتاح)
+    إرجاع 1;
+  إرجاع 0;
 }
 
-static int
-count_parts (const char *str)
+ساكن صحيح
+تعداد_parts (ثابت حرف *str)
 {
-  const char *it;
-  int ret = 0;
+  ثابت حرف *it;
+  صحيح ret = 0;
 
-  for (it = str; *it; it++)
+  لكل (it = str; *it; it++)
     {
-      if (*it == ';' || *(it + 1) == '\0')
+      إذا (*it == ';' || *(it + 1) == '\0')
         ret++;
     }
-  return ret;
+  إرجاع ret;
 }
 
-static int
-read_kv (const char *value, struct key_value *out)
+ساكن صحيح
+read_kv (ثابت حرف *قيمة, بنية مفتاح_قيمة *out)
 {
-  char *endptr;
+  حرف *endptr;
 
-  out->key = strtoll (value, &endptr, 10);
-  if (*endptr != '=')
-    return 1;
+  out->مفتاح = strtoll (قيمة, &endptr, 10);
+  إذا (*endptr != '=')
+    إرجاع 1;
 
   endptr++;
-  out->value = strtoll (endptr, NULL, 16);
-  return 0;
+  out->قيمة = strtoll (endptr, عدم, 16);
+  إرجاع 0;
 }
 
-int
-compare_rdt_configurations (const char *a, const char *b)
+صحيح
+compare_rdt_configurations (ثابت حرف *a, ثابت حرف *b)
 {
-  cleanup_free struct key_value *kv = NULL;
+  cleanup_free بنية مفتاح_قيمة *kv = عدم;
   size_t i, n_parts_a = 0, n_parts_b = 0;
-  cleanup_free char *a_copy = NULL;
-  cleanup_free char *b_copy = NULL;
-  const char *it;
-  char *end;
-  int ret;
+  cleanup_free حرف *a_copy = عدم;
+  cleanup_free حرف *b_copy = عدم;
+  ثابت حرف *it;
+  حرف *end;
+  صحيح ret;
 
   it = strchr (a, ':');
   a = it ? it + 1 : a;
@@ -131,317 +131,317 @@ compare_rdt_configurations (const char *a, const char *b)
   it = strchr (b, ':');
   b = it ? it + 1 : b;
 
-  n_parts_a = count_parts (a);
-  n_parts_b = count_parts (b);
+  n_parts_a = تعداد_parts (a);
+  n_parts_b = تعداد_parts (b);
 
-  if (n_parts_a != n_parts_b)
-    return 1;
+  إذا (n_parts_a != n_parts_b)
+    إرجاع 1;
 
-  kv = xmalloc (sizeof (struct key_value) * (n_parts_a + 1));
+  kv = xmalloc (حجم (بنية مفتاح_قيمة) * (n_parts_a + 1));
 
   end = a_copy = xstrdup (a);
   i = 0;
-  while ((it = strsep (&end, ";")))
+  بينما ((it = strsep (&end, ";")))
     {
-      if (it[0] == '\0')
-        break;
+      إذا (it[0] == '\0')
+        اكسر;
       ret = read_kv (it, &(kv[i]));
-      if (ret)
-        return 1;
+      إذا (ret)
+        إرجاع 1;
       i++;
     }
 
-  qsort (kv, i, sizeof (struct key_value), kv_cmp);
+  qsort (kv, i, حجم (بنية مفتاح_قيمة), kv_cmp);
 
   end = b_copy = xstrdup (b);
-  while ((it = strsep (&end, ";")))
+  بينما ((it = strsep (&end, ";")))
     {
-      struct key_value key;
-      struct key_value *res;
+      بنية مفتاح_قيمة مفتاح;
+      بنية مفتاح_قيمة *res;
 
-      if (it[0] == '\0')
-        break;
+      إذا (it[0] == '\0')
+        اكسر;
 
-      ret = read_kv (it, &key);
-      if (ret)
-        return 1;
+      ret = read_kv (it, &مفتاح);
+      إذا (ret)
+        إرجاع 1;
 
-      res = bsearch (&key, kv, n_parts_a, sizeof (struct key_value), kv_cmp);
-      if (res == NULL || res->value != key.value)
-        return 1;
+      res = bsearch (&مفتاح, kv, n_parts_a, حجم (بنية مفتاح_قيمة), kv_cmp);
+      إذا (res == عدم || res->قيمة != مفتاح.قيمة)
+        إرجاع 1;
     }
 
-  return 0;
+  إرجاع 0;
 }
 
-static bool
-is_default_clos (const char *name)
+ساكن bool
+is_default_clos (ثابت حرف *name)
 {
-  return strcmp (name, "/") == 0;
+  إرجاع strcmp (name, "/") == 0;
 }
 
-static int
-get_resctrl_path (char **path, const char *file, const char *name, libcrun_error_t *err)
+ساكن صحيح
+get_resctrl_path (حرف **path, ثابت حرف *file, ثابت حرف *name, libcrun_error_t *err)
 {
-  return append_paths (path, err, INTEL_RDT_MOUNT_POINT, name, file, NULL);
+  إرجاع append_paths (path, err, INTEL_RDT_MOUNT_POINT, name, file, عدم);
 }
 
-static int
-validate_rdt_configuration (const char *name, const char *l3_cache_schema, const char *mem_bw_schema, libcrun_error_t *err)
+ساكن صحيح
+validate_rdt_configuration (ثابت حرف *name, ثابت حرف *l3_cache_schema, ثابت حرف *mem_bw_schema, libcrun_error_t *err)
 {
-  cleanup_free char *existing_content = NULL;
-  cleanup_free char *path = NULL;
-  char *it, *end;
-  int ret;
+  cleanup_free حرف *existing_content = عدم;
+  cleanup_free حرف *path = عدم;
+  حرف *it, *end;
+  صحيح ret;
 
   ret = get_resctrl_path (&path, SCHEMATA_FILE, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  إذا (UNLIKELY (ret < 0))
+    إرجاع ret;
 
-  ret = read_all_file (path, &existing_content, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file (path, &existing_content, عدم, err);
+  إذا (UNLIKELY (ret < 0))
+    إرجاع ret;
 
   end = existing_content;
-  while ((it = strsep (&end, "\n")))
+  بينما ((it = strsep (&end, "\n")))
     {
       ret = 0;
 
-      if (mem_bw_schema && has_prefix (it, "MB:"))
+      إذا (mem_bw_schema && has_prefix (it, "MB:"))
         ret = compare_rdt_configurations (it, mem_bw_schema);
 
-      if (l3_cache_schema && has_prefix (it, "L3:"))
+      إذا (l3_cache_schema && has_prefix (it, "L3:"))
         ret = compare_rdt_configurations (it, l3_cache_schema);
 
-      if (ret)
-        return crun_make_error (err, 0, "the resctl group `%s` has a different configuration", name);
+      إذا (ret)
+        إرجاع crun_make_error (err, 0, "the resctl group `%s` has a different configuration", name);
     }
 
-  return 0;
+  إرجاع 0;
 }
 
-static int
-write_intelrdt_string (int fd, const char *file, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err)
+ساكن صحيح
+write_intelrdt_string (صحيح fd, ثابت حرف *file, ثابت حرف *l3_cache_schema, ثابت حرف *mem_bw_schema, حرف *ثابت *schemata, libcrun_error_t *err)
 {
-  cleanup_free char *formatted = NULL;
-  int len, ret;
+  cleanup_free حرف *formatted = عدم;
+  صحيح len, ret;
 
-  len = get_rdt_value (&formatted, l3_cache_schema, mem_bw_schema, schemata);
-  if (len < 0)
-    return crun_make_error (err, errno, "internal error get_rdt_value");
+  len = get_rdt_قيمة (&formatted, l3_cache_schema, mem_bw_schema, schemata);
+  إذا (len < 0)
+    إرجاع crun_make_error (err, errno, "internal error get_rdt_value");
 
-  ret = write (fd, formatted, len);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "write `%s`", file);
+  ret = اكتب (fd, formatted, len);
+  إذا (UNLIKELY (ret < 0))
+    إرجاع crun_make_error (err, errno, "write `%s`", file);
 
-  return 0;
+  إرجاع 0;
 }
 
 /* filter any line in the l3_cache_schema that starts with MB:.  */
-char *
-intelrdt_clean_l3_cache_schema (const char *l3_cache_schema)
+حرف *
+intelrdt_clean_l3_cache_schema (ثابت حرف *l3_cache_schema)
 {
   size_t i, j, len = strlen (l3_cache_schema);
-  char *ret;
+  حرف *ret;
 
   ret = xmalloc (len + 1);
 
-  for (i = 0, j = 0; i < len; i++)
+  لكل (i = 0, j = 0; i < len; i++)
     {
-      if (l3_cache_schema[i] == 'M' && l3_cache_schema[i + 1] == 'B' && l3_cache_schema[i + 2] == ':')
+      إذا (l3_cache_schema[i] == 'M' && l3_cache_schema[i + 1] == 'B' && l3_cache_schema[i + 2] == ':')
         {
           i += 3;
-          while (l3_cache_schema[i] != '\n' && l3_cache_schema[i] != '\0')
+          بينما (l3_cache_schema[i] != '\n' && l3_cache_schema[i] != '\0')
             i++;
-          continue;
+          استمر;
         }
       ret[j++] = l3_cache_schema[i];
     }
   ret[j] = '\0';
-  return ret;
+  إرجاع ret;
 }
 
-int
-resctl_create (const char *name, bool explicit_clos_id, bool *created, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err)
+صحيح
+resctl_create (ثابت حرف *name, bool explicit_clos_id, bool *created, ثابت حرف *l3_cache_schema, ثابت حرف *mem_bw_schema, حرف *ثابت *schemata, libcrun_error_t *err)
 {
-  cleanup_free char *cleaned_l3_cache_schema = NULL;
-  cleanup_free char *path = NULL;
-  int exist;
-  int ret;
+  cleanup_free حرف *cleaned_l3_cache_schema = عدم;
+  cleanup_free حرف *path = عدم;
+  صحيح exist;
+  صحيح ret;
 
   *created = false;
 
   ret = is_rdt_mounted (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
-  if (ret == 0)
-    return crun_make_error (err, 0, "the resctl file system is not mounted");
+  إذا (UNLIKELY (ret < 0))
+    إرجاع ret;
+  إذا (ret == 0)
+    إرجاع crun_make_error (err, 0, "the resctl file system is not mounted");
 
-  ret = get_resctrl_path (&path, NULL, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_resctrl_path (&path, عدم, name, err);
+  إذا (UNLIKELY (ret < 0))
+    إرجاع ret;
 
   exist = crun_path_exists (path, err);
-  if (UNLIKELY (exist < 0))
-    return exist;
+  إذا (UNLIKELY (exist < 0))
+    إرجاع exist;
 
-  if (l3_cache_schema && strstr (l3_cache_schema, "MB:"))
+  إذا (l3_cache_schema && strstr (l3_cache_schema, "MB:"))
     l3_cache_schema = cleaned_l3_cache_schema = intelrdt_clean_l3_cache_schema (l3_cache_schema);
 
   /* If the closID was specified and both l3cache and bwSchema are unset, and schemata is empty,
      the group must exist.  */
-  if (explicit_clos_id && is_empty_string (l3_cache_schema) && is_empty_string (mem_bw_schema) && (schemata == NULL))
+  إذا (explicit_clos_id && is_empty_string (l3_cache_schema) && is_empty_string (mem_bw_schema) && (schemata == عدم))
     {
-      if (exist || is_default_clos (name))
-        return 0;
+      إذا (exist || is_default_clos (name))
+        إرجاع 0;
 
-      return crun_make_error (err, 0, "the resctl group `%s` does not exist", name);
+      إرجاع crun_make_error (err, 0, "the resctl group `%s` does not exist", name);
     }
 
   /* If the closID exists then it must match the specified configuration.  */
-  if (exist && (l3_cache_schema != NULL || mem_bw_schema != NULL))
-    return validate_rdt_configuration (name, l3_cache_schema, mem_bw_schema, err);
+  إذا (exist && (l3_cache_schema != عدم || mem_bw_schema != عدم))
+    إرجاع validate_rdt_configuration (name, l3_cache_schema, mem_bw_schema, err);
 
-  if (is_default_clos (name))
-    return 0;
+  إذا (is_default_clos (name))
+    إرجاع 0;
 
   /* At this point, assume it was created.  */
   ret = crun_ensure_directory (path, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  إذا (UNLIKELY (ret < 0))
+    إرجاع ret;
   *created = true;
 
-  return 0;
+  إرجاع 0;
 }
 
-int
-resctl_move_task_to (const char *name, const char *monitoring_name, pid_t pid, libcrun_error_t *err)
+صحيح
+resctl_move_task_to (ثابت حرف *name, ثابت حرف *monitoring_name, pid_t pid, libcrun_error_t *err)
 {
-  cleanup_free char *monitoring_path = NULL;
-  cleanup_free char *path = NULL;
-  char pid_str[32];
-  int len;
-  int ret;
+  cleanup_free حرف *monitoring_path = عدم;
+  cleanup_free حرف *path = عدم;
+  حرف pid_str[32];
+  صحيح len;
+  صحيح ret;
 
   ret = get_resctrl_path (&path, TASKS_FILE, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  إذا (UNLIKELY (ret < 0))
+    إرجاع ret;
 
-  len = snprintf (pid_str, sizeof (pid_str), "%d", pid);
-  if (UNLIKELY (len >= (int) sizeof (pid_str)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  len = snprintf (pid_str, حجم (pid_str), "%d", pid);
+  إذا (UNLIKELY (len >= (صحيح) حجم (pid_str)))
+    إرجاع crun_make_error (err, 0, "internal error: static buffer too small");
 
   ret = write_file (path, pid_str, len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  إذا (UNLIKELY (ret < 0))
+    إرجاع ret;
 
-  if (monitoring_name)
+  إذا (monitoring_name)
     {
-      ret = append_paths (&monitoring_path, err, INTEL_RDT_MOUNT_POINT, name, MON_GROUPS, monitoring_name, TASKS_FILE, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&monitoring_path, err, INTEL_RDT_MOUNT_POINT, name, MON_GROUPS, monitoring_name, TASKS_FILE, عدم);
+      إذا (UNLIKELY (ret < 0))
+        إرجاع ret;
 
       ret = write_file (monitoring_path, pid_str, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        إرجاع ret;
     }
 
-  return 0;
+  إرجاع 0;
 }
 
-int
-resctl_update (const char *name, const char *l3_cache_schema, const char *mem_bw_schema,
-               char *const *schemata, libcrun_error_t *err)
+صحيح
+resctl_update (ثابت حرف *name, ثابت حرف *l3_cache_schema, ثابت حرف *mem_bw_schema,
+               حرف *ثابت *schemata, libcrun_error_t *err)
 {
-  const char *actual_l3_cache_schema = l3_cache_schema;
-  cleanup_free char *cleaned_l3_cache_schema = NULL;
-  cleanup_free char *path = NULL;
-  cleanup_close int fd = -1;
-  int ret;
+  ثابت حرف *actual_l3_cache_schema = l3_cache_schema;
+  cleanup_free حرف *cleaned_l3_cache_schema = عدم;
+  cleanup_free حرف *path = عدم;
+  cleanup_close صحيح fd = -1;
+  صحيح ret;
 
   /* Nothing to do.  */
-  if (l3_cache_schema == NULL && mem_bw_schema == NULL && schemata == NULL)
-    return 0;
+  إذا (l3_cache_schema == عدم && mem_bw_schema == عدم && schemata == عدم)
+    إرجاع 0;
 
   ret = get_resctrl_path (&path, SCHEMATA_FILE, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  إذا (UNLIKELY (ret < 0))
+    إرجاع ret;
 
-  if (l3_cache_schema && strstr (l3_cache_schema, "MB:"))
+  إذا (l3_cache_schema && strstr (l3_cache_schema, "MB:"))
     {
       cleaned_l3_cache_schema = intelrdt_clean_l3_cache_schema (l3_cache_schema);
       actual_l3_cache_schema = cleaned_l3_cache_schema;
     }
 
   fd = open (path, O_WRONLY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s` for writing", path);
+  إذا (UNLIKELY (fd < 0))
+    إرجاع crun_make_error (err, errno, "open `%s` for writing", path);
 
-  return write_intelrdt_string (fd, path, actual_l3_cache_schema, mem_bw_schema, schemata, err);
+  إرجاع write_intelrdt_string (fd, path, actual_l3_cache_schema, mem_bw_schema, schemata, err);
 }
 
-static int
-resctl_get_monitoring_path (const char *resctrl_group_name, const char *container_id, char **monitoring_path, libcrun_error_t *err)
+ساكن صحيح
+resctl_get_monitoring_path (ثابت حرف *resctrl_group_name, ثابت حرف *container_id, حرف **monitoring_path, libcrun_error_t *err)
 {
-  int ret;
+  صحيح ret;
 
-  ret = append_paths (monitoring_path, err, INTEL_RDT_MOUNT_POINT, resctrl_group_name, MON_GROUPS, container_id, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (monitoring_path, err, INTEL_RDT_MOUNT_POINT, resctrl_group_name, MON_GROUPS, container_id, عدم);
+  إذا (UNLIKELY (ret < 0))
+    إرجاع ret;
 
-  return 0;
+  إرجاع 0;
 }
 
-int
-resctl_destroy_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err)
+صحيح
+resctl_destroy_monitoring_group (ثابت حرف *resctrl_group_name, ثابت حرف *container_id, libcrun_error_t *err)
 {
-  cleanup_free char *monitoring_path = NULL;
-  int ret;
+  cleanup_free حرف *monitoring_path = عدم;
+  صحيح ret;
 
   ret = resctl_get_monitoring_path (resctrl_group_name, container_id, &monitoring_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  إذا (UNLIKELY (ret < 0))
+    إرجاع ret;
 
   ret = rmdir (monitoring_path);
-  if (UNLIKELY (ret < 0 && errno != ENOENT))
-    return crun_make_error (err, errno, "rmdir `%s`", monitoring_path);
+  إذا (UNLIKELY (ret < 0 && errno != ENOENT))
+    إرجاع crun_make_error (err, errno, "rmdir `%s`", monitoring_path);
 
-  return 0;
+  إرجاع 0;
 }
 
-int
-resctl_destroy (const char *name, libcrun_error_t *err)
+صحيح
+resctl_destroy (ثابت حرف *name, libcrun_error_t *err)
 {
-  cleanup_free char *path = NULL;
-  int ret;
+  cleanup_free حرف *path = عدم;
+  صحيح ret;
 
-  if (is_default_clos (name))
-    return 0;
+  إذا (is_default_clos (name))
+    إرجاع 0;
 
-  ret = get_resctrl_path (&path, NULL, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_resctrl_path (&path, عدم, name, err);
+  إذا (UNLIKELY (ret < 0))
+    إرجاع ret;
 
   ret = rmdir (path);
-  if (UNLIKELY (ret < 0 && errno != ENOENT))
-    return crun_make_error (err, errno, "rmdir `%s`", path);
+  إذا (UNLIKELY (ret < 0 && errno != ENOENT))
+    إرجاع crun_make_error (err, errno, "rmdir `%s`", path);
 
-  return 0;
+  إرجاع 0;
 }
 
-int
-resctl_create_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err)
+صحيح
+resctl_create_monitoring_group (ثابت حرف *resctrl_group_name, ثابت حرف *container_id, libcrun_error_t *err)
 {
-  cleanup_free char *monitoring_path = NULL;
-  int ret;
+  cleanup_free حرف *monitoring_path = عدم;
+  صحيح ret;
 
   ret = resctl_get_monitoring_path (resctrl_group_name, container_id, &monitoring_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  إذا (UNLIKELY (ret < 0))
+    إرجاع ret;
 
   ret = crun_ensure_directory (monitoring_path, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  إذا (UNLIKELY (ret < 0))
+    إرجاع ret;
 
-  return 0;
+  إرجاع 0;
 }

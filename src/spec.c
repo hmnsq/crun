@@ -16,79 +16,79 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#ضمن <config.h>
+#ضمن <stdio.h>
+#ضمن <stdlib.h>
+#ضمن <argp.h>
+#ضمن <string.h>
+#ضمن <unistd.h>
+#ضمن <errno.h>
 
-#include "crun.h"
+#ضمن "crun.h"
 
-static char doc[] = "OCI runtime";
+ساكن حرف doc[] = "OCI runtime";
 
-struct spec_options_s
+بنية spec_options_s
 {
   bool rootless;
 };
 
-enum
+تعداد
 {
   OPTION_ROOTLESS = 1000
 };
 
-static const char *bundle;
-static const char *fname;
+ساكن ثابت حرف *bundle;
+ساكن ثابت حرف *fname;
 
-static struct spec_options_s spec_options;
+ساكن بنية spec_options_s spec_options;
 
-static struct argp_option options[] = { { "bundle", 'b', "DIR", 0, "path to the root of the bundle dir (default \".\")", 0 },
+ساكن بنية argp_option options[] = { { "bundle", 'b', "DIR", 0, "path to the root of the bundle dir (default \".\")", 0 },
                                         { "file", 'f', "PATH", 0, "destination file", 0 },
                                         { "rootless", OPTION_ROOTLESS, 0, 0, "spec for the rootless case", 0 },
                                         {
                                             0,
                                         } };
 
-static char args_doc[] = "spec";
+ساكن حرف args_doc[] = "spec";
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+ساكن error_t
+parse_opt (صحيح مفتاح, حرف *arg, بنية argp_state *state)
 {
-  switch (key)
+  بدل (مفتاح)
     {
-    case 'b':
+    حالة 'b':
       bundle = argp_mandatory_argument (arg, state);
-      break;
+      اكسر;
 
-    case 'f':
+    حالة 'f':
       fname = argp_mandatory_argument (arg, state);
-      break;
+      اكسر;
 
-    case OPTION_ROOTLESS:
+    حالة OPTION_ROOTLESS:
       spec_options.rootless = true;
-      break;
+      اكسر;
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    افتراضي:
+      إرجاع ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  إرجاع 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+ساكن بنية argp run_argp = { options, parse_opt, args_doc, doc, عدم, عدم, عدم };
 
-int
-crun_command_spec (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+صحيح
+crun_command_spec (بنية crun_global_arguments *global_args, صحيح argc, حرف **argv, libcrun_error_t *err)
 {
-  int first_arg;
-  cleanup_context libcrun_context_t *crun_context = NULL;
-  cleanup_file FILE *f = NULL;
-  cleanup_free char *bundle_cleanup = NULL;
-  cleanup_free char *spec = NULL;
-  const char *where;
-  int ret;
-  int close_ret;
+  صحيح first_arg;
+  cleanup_context libcrun_context_t *crun_context = عدم;
+  cleanup_file FILE *f = عدم;
+  cleanup_free حرف *bundle_cleanup = عدم;
+  cleanup_free حرف *spec = عدم;
+  ثابت حرف *where;
+  صحيح ret;
+  صحيح close_ret;
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &spec_options);
   crun_assert_n_args (argc - first_arg, 0, 0);
@@ -96,51 +96,51 @@ crun_command_spec (struct crun_global_arguments *global_args, int argc, char **a
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  إذا (UNLIKELY (ret < 0))
+    إرجاع ret;
 
   /* Change dir only if -b or --bundle is defined and make sure the bundle is an absolute path.  */
-  if (bundle != NULL)
+  إذا (bundle != عدم)
     {
-      if (bundle[0] != '/')
+      إذا (bundle[0] != '/')
         {
-          bundle_cleanup = realpath (bundle, NULL);
-          if (bundle_cleanup == NULL)
+          bundle_cleanup = realpath (bundle, عدم);
+          إذا (bundle_cleanup == عدم)
             libcrun_fail_with_error (errno, "realpath `%s` failed", bundle);
           bundle = bundle_cleanup;
         }
 
-      if (chdir (bundle) < 0)
+      إذا (chdir (bundle) < 0)
         libcrun_fail_with_error (errno, "chdir `%s` failed", bundle);
     }
 
   where = fname ? fname : "config.json";
 
-  if (fname == NULL)
+  إذا (fname == عدم)
     {
       ret = access (where, F_OK);
-      if (ret == 0)
-        return libcrun_make_error (err, 0, "`%s` already exists", where);
+      إذا (ret == 0)
+        إرجاع libcrun_make_error (err, 0, "`%s` already exists", where);
     }
 
   f = fopen (where, "w+e");
-  if (f == NULL)
-    return libcrun_make_error (err, errno, "cannot open `%s`", where);
+  إذا (f == عدم)
+    إرجاع libcrun_make_error (err, errno, "cannot open `%s`", where);
 
   ret = libcrun_container_spec_json (! spec_options.rootless, &spec, err);
-  if (UNLIKELY (ret < 0))
-    goto out;
+  إذا (UNLIKELY (ret < 0))
+    اذهب out;
 
-  if (fputs (spec, f) == EOF)
+  إذا (fputs (spec, f) == EOF)
     ret = libcrun_make_error (err, errno, "cannot write to `%s`", where);
-  else
+  وإلا
     ret = 0;
 
 out:
   close_ret = fclose (f);
-  f = NULL;
-  if (close_ret < 0 && ret >= 0)
-    return libcrun_make_error (err, errno, "cannot close `%s`", where);
+  f = عدم;
+  إذا (close_ret < 0 && ret >= 0)
+    إرجاع libcrun_make_error (err, errno, "cannot close `%s`", where);
 
-  return ret;
+  إرجاع ret;
 }
