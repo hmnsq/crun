@@ -38,16 +38,16 @@ struct libcrun_seccomp_gen_ctx_s
 {
   libcrun_container_t *container;
   seccomp_checksum_t checksum;
-  unsigned int options;
+  unsigned 整数 options;
   bool create;
   bool from_cache;
 
   /* Not owned here, it is the caller responsibility to close it.  */
-  int fd;
+  整数 fd;
 };
 
 static inline void
-libcrun_seccomp_gen_ctx_init (struct libcrun_seccomp_gen_ctx_s *ctx, libcrun_container_t *container, bool create, unsigned int seccomp_gen_options)
+libcrun_seccomp_gen_ctx_init (struct libcrun_seccomp_gen_ctx_s *ctx, libcrun_container_t *container, bool create, unsigned 整数 seccomp_gen_options)
 {
   memset (ctx, 0, sizeof (*ctx));
   ctx->create = create;
@@ -55,10 +55,10 @@ libcrun_seccomp_gen_ctx_init (struct libcrun_seccomp_gen_ctx_s *ctx, libcrun_con
   ctx->options = seccomp_gen_options;
 }
 
-int libcrun_generate_seccomp (struct libcrun_seccomp_gen_ctx_s *gen_ctx, libcrun_error_t *err);
-int libcrun_copy_seccomp (struct libcrun_seccomp_gen_ctx_s *gen_ctx, const char *b64_bpf, libcrun_error_t *err);
-int libcrun_apply_seccomp (int infd, int listener_receiver_fd, const char *receiver_fd_payload,
+整数 libcrun_generate_seccomp (struct libcrun_seccomp_gen_ctx_s *gen_ctx, libcrun_error_t *err);
+整数 libcrun_copy_seccomp (struct libcrun_seccomp_gen_ctx_s *gen_ctx, const char *b64_bpf, libcrun_error_t *err);
+整数 libcrun_apply_seccomp (整数 infd, 整数 listener_receiver_fd, const char *receiver_fd_payload,
                            size_t receiver_fd_payload_len, char **flags, size_t flags_len, libcrun_error_t *err);
-int libcrun_open_seccomp_bpf (struct libcrun_seccomp_gen_ctx_s *ctx, int *fd, libcrun_error_t *err);
+整数 libcrun_open_seccomp_bpf (struct libcrun_seccomp_gen_ctx_s *ctx, 整数 *fd, libcrun_error_t *err);
 
 #endif

@@ -32,9 +32,9 @@ enum
 struct propagation_flags_s
 {
   char *name;
-  int clear;
-  int flags;
-  int extra_flags;
+  整数 clear;
+  整数 flags;
+  整数 extra_flags;
 };
 
 const struct propagation_flags_s *libcrun_str2mount_flags (const char *name);

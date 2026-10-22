@@ -30,8 +30,8 @@
 
 #endif
 
-#if HAVE_DLOPEN && HAVE_SPIN
-static int
+#如果 HAVE_DLOPEN && HAVE_SPIN
+static 整数
 spin_exec (void *cookie arg_unused, libcrun_container_t *container arg_unused,
            const char *pathname arg_unused, char *const argv[] arg_unused)
 {
@@ -40,8 +40,8 @@ spin_exec (void *cookie arg_unused, libcrun_container_t *container arg_unused,
   char *newargv[] = { "/bin/spin", "up", "--listen", "0.0.0.0:80", NULL };
 
   // spin up needs a /tmp folder
-  int dir_result = mkdir ("/tmp", 0777);
-  if (dir_result != 0 && errno != EEXIST)
+  整数 dir_result = mkdir ("/tmp", 0777);
+  如果 (dir_result != 0 && errno != EEXIST)
     {
       error (EXIT_FAILURE, errno, "failed to execute mkdir `/tmp`");
     }
@@ -51,25 +51,25 @@ spin_exec (void *cookie arg_unused, libcrun_container_t *container arg_unused,
   exit (EXIT_FAILURE);
 }
 
-static int
+static 整数
 spin_load (void **cookie arg_unused, libcrun_error_t *err)
 {
   struct stat st = { 0 };
-  if (stat ("/usr/local/bin/spin", &st) == -1)
+  如果 (stat ("/usr/local/bin/spin", &st) == -1)
     {
-      return crun_make_error (err, 0, "Could not find statically linked spin cli at `/usr/local/bin/spin` on host file system");
+      返回 crun_make_error (err, 0, "Could not find statically linked spin cli at `/usr/local/bin/spin` on host file system");
     }
-  return 0;
+  返回 0;
 }
 
-static int
+static 整数
 spin_configure_container (void *cookie arg_unused, enum handler_configure_phase phase,
                           libcrun_context_t *context arg_unused, libcrun_container_t *container,
                           const char *rootfs arg_unused, libcrun_error_t *err)
 {
-  int ret;
-  if (phase != HANDLER_CONFIGURE_MOUNTS)
-    return 0;
+  整数 ret;
+  如果 (phase != HANDLER_CONFIGURE_MOUNTS)
+    返回 0;
 
   char *options[] = {
     "ro",
@@ -80,31 +80,31 @@ spin_configure_container (void *cookie arg_unused, enum handler_configure_phase 
   };
 
   ret = libcrun_container_do_bind_mount (container, "/usr/local/bin/spin", "/bin/spin", options, 5, err);
-  if (ret != 0)
-    return ret;
+  如果 (ret != 0)
+    返回 ret;
 
   /* release any error if set since we are going to be returning from here */
   crun_error_release (err);
 
-  return 0;
+  返回 0;
 }
 
-static int
+static 整数
 spin_unload (void *cookie arg_unused, libcrun_error_t *err arg_unused)
 {
-  return 0;
+  返回 0;
 }
 
-static int
+static 整数
 spin_can_handle_container (libcrun_container_t *container, libcrun_error_t *err arg_unused)
 {
   const char *entrypoint_executable;
 
-  if (container->container_def->process == NULL || container->container_def->process->args == NULL)
-    return 0;
+  如果 (container->container_def->process == NULL || container->container_def->process->args == NULL)
+    返回 0;
 
   entrypoint_executable = container->container_def->process->args[0];
-  return strcmp (entrypoint_executable, "/") ? 0 : 1;
+  返回 strcmp (entrypoint_executable, "/") ? 0 : 1;
 }
 
 struct custom_handler_s handler_spin = {

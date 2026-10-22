@@ -34,7 +34,7 @@ struct exec_options_s
   bool tty;
   bool detach;
   bool no_new_privs;
-  int preserve_fds;
+  整数 preserve_fds;
   const char *process;
   const char *console_socket;
   const char *pid_file;
@@ -107,7 +107,7 @@ append_cap (const char *arg)
 }
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (整数 key, char *arg, struct argp_state *state)
 {
   switch (key)
     {
@@ -171,10 +171,10 @@ parse_opt (int key, char *arg, struct argp_state *state)
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
     default:
-      return ARGP_ERR_UNKNOWN;
+      返回 ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  返回 0;
 }
 
 static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
@@ -192,10 +192,10 @@ struct strbuf
 static void
 sb_ensure (struct strbuf *sb, size_t extra)
 {
-  if (sb->len + extra + 1 > sb->cap)
+  如果 (sb->len + extra + 1 > sb->cap)
     {
       size_t ncap = sb->cap ? sb->cap : 256;
-      while (ncap < sb->len + extra + 1)
+      当 (ncap < sb->len + extra + 1)
         ncap *= 2;
       sb->buf = xrealloc (sb->buf, ncap);
       sb->cap = ncap;
@@ -225,7 +225,7 @@ static void
 sb_put_json_string (struct strbuf *sb, const char *s)
 {
   sb_putc (sb, '"');
-  for (; *s; s++)
+  为 (; *s; s++)
     {
       unsigned char c = (unsigned char) *s;
       switch (c)
@@ -252,13 +252,13 @@ sb_put_json_string (struct strbuf *sb, const char *s)
           sb_puts (sb, "\\t");
           break;
         default:
-          if (c < 0x20)
+          如果 (c < 0x20)
             {
               char tmp[8];
               snprintf (tmp, sizeof (tmp), "\\u%04x", c);
               sb_puts (sb, tmp);
             }
-          else
+          否则
             sb_putc (sb, c);
         }
     }
@@ -270,9 +270,9 @@ sb_put_json_string_array (struct strbuf *sb, char **arr, size_t len)
 {
   size_t i;
   sb_putc (sb, '[');
-  for (i = 0; i < len; i++)
+  为 (i = 0; i < len; i++)
     {
-      if (i)
+      如果 (i)
         sb_putc (sb, ',');
       sb_put_json_string (sb, arr[i]);
     }
@@ -289,33 +289,33 @@ read_file_to_string (const char *path, libcrun_error_t *err)
   char chunk[4096];
   size_t n;
 
-  if (strcmp (path, "-") == 0)
+  如果 (strcmp (path, "-") == 0)
     path = "/dev/stdin";
 
   f = fopen (path, "re");
-  if (f == NULL)
+  如果 (f == NULL)
     {
       libcrun_make_error (err, errno, "cannot open `%s`", path);
-      return NULL;
+      返回 NULL;
     }
 
-  while ((n = fread (chunk, 1, sizeof (chunk), f)) > 0)
+  当 ((n = fread (chunk, 1, sizeof (chunk), f)) > 0)
     {
       sb_ensure (&sb, n);
       memcpy (sb.buf + sb.len, chunk, n);
       sb.len += n;
       sb.buf[sb.len] = '\0';
     }
-  if (ferror (f))
+  如果 (ferror (f))
     {
       free (sb.buf);
       libcrun_make_error (err, errno, "cannot read `%s`", path);
-      return NULL;
+      返回 NULL;
     }
 
-  if (sb.buf == NULL)
+  如果 (sb.buf == NULL)
     sb.buf = xstrdup ("");
-  return sb.buf;
+  返回 sb.buf;
 }
 
 /* Build the OCI Process JSON from the CLI options.  */
@@ -337,28 +337,28 @@ build_process_json (struct crun_global_arguments *global_args arg_unused, char *
   sb_puts (&sb, ",\"terminal\":");
   sb_puts (&sb, exec_options.tty ? "true" : "false");
 
-  if (exec_options.env_size > 0)
+  如果 (exec_options.env_size > 0)
     {
       sb_puts (&sb, ",\"env\":");
       sb_put_json_string_array (&sb, exec_options.env, exec_options.env_size);
     }
 
-  if (exec_options.user)
+  如果 (exec_options.user)
     {
       char *endptr = NULL;
       char *gidstr;
-      int uid, gid = 0;
+      整数 uid, gid = 0;
       char tmp[32];
 
       uid = parse_id_or_fail (exec_options.user, &endptr, "UID");
-      if (*endptr == ':')
+      如果 (*endptr == ':')
         {
           gidstr = endptr + 1;
           gid = parse_id_or_fail (gidstr, &endptr, "GID");
-          if (*endptr != '\0')
+          如果 (*endptr != '\0')
             libcrun_fail_with_error (0, "invalid USERSPEC specified");
         }
-      else if (*endptr != '\0')
+      否则 如果 (*endptr != '\0')
         libcrun_fail_with_error (0, "invalid USERSPEC specified");
 
       sb_puts (&sb, ",\"user\":{\"uid\":");
@@ -370,19 +370,19 @@ build_process_json (struct crun_global_arguments *global_args arg_unused, char *
       sb_putc (&sb, '}');
     }
 
-  if (exec_options.process_label != NULL)
+  如果 (exec_options.process_label != NULL)
     {
       sb_puts (&sb, ",\"selinuxLabel\":");
       sb_put_json_string (&sb, exec_options.process_label);
     }
 
-  if (exec_options.apparmor != NULL)
+  如果 (exec_options.apparmor != NULL)
     {
       sb_puts (&sb, ",\"apparmorProfile\":");
       sb_put_json_string (&sb, exec_options.apparmor);
     }
 
-  if (exec_options.cap_size > 0)
+  如果 (exec_options.cap_size > 0)
     {
       sb_puts (&sb, ",\"capabilities\":{");
       sb_puts (&sb, "\"effective\":");
@@ -397,18 +397,18 @@ build_process_json (struct crun_global_arguments *global_args arg_unused, char *
     }
 
   /* noNewPrivileges remains at the config default unless explicitly requested.  */
-  if (exec_options.no_new_privs)
+  如果 (exec_options.no_new_privs)
     sb_puts (&sb, ",\"noNewPrivileges\":true");
 
   sb_putc (&sb, '}');
 
-  return sb.buf;
+  返回 sb.buf;
 }
 
-int
-crun_command_exec (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+整数
+crun_command_exec (struct crun_global_arguments *global_args, 整数 argc, char **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret = 0;
+  整数 first_arg = 0, ret = 0;
   cleanup_context libcrun_context_t *crun_context = NULL;
   cleanup_free char *process_json = NULL;
   struct libcrun_exec_options_s exec_opts;
@@ -423,23 +423,23 @@ crun_command_exec (struct crun_global_arguments *global_args, int argc, char **a
 
   libcrun_context_set_preserve_fds (crun_context, exec_options.preserve_fds);
 
-  if (getenv ("LISTEN_FDS"))
+  如果 (getenv ("LISTEN_FDS"))
     {
-      int listen_fds = strtoll (getenv ("LISTEN_FDS"), NULL, 10);
+      整数 listen_fds = strtoll (getenv ("LISTEN_FDS"), NULL, 10);
       libcrun_context_set_listen_fds (crun_context, listen_fds);
       libcrun_context_set_preserve_fds (crun_context, exec_options.preserve_fds + listen_fds);
     }
 
   /* The process file may be passed as /dev/fd/N, so read it before
      closing the file descriptors.  */
-  if (exec_options.process)
+  如果 (exec_options.process)
     {
       process_json = read_file_to_string (exec_options.process, err);
-      if (process_json == NULL)
-        return -1;
+      如果 (process_json == NULL)
+        返回 -1;
       exec_opts.merge_env = false;
     }
-  else
+  否则
     {
       cleanup_free char **args = NULL;
       size_t args_len = argc - first_arg - 1;
@@ -447,7 +447,7 @@ crun_command_exec (struct crun_global_arguments *global_args, int argc, char **a
 
       /* argv[first_arg] is the container id, the command follows it.  */
       args = xmalloc0 ((args_len + 1) * sizeof (*args));
-      for (i = 0; i < args_len; i++)
+      为 (i = 0; i < args_len; i++)
         args[i] = argv[first_arg + i + 1];
       args[i] = NULL;
 
@@ -458,12 +458,12 @@ crun_command_exec (struct crun_global_arguments *global_args, int argc, char **a
   /* Close the file descriptors inherited from the caller, so they do
      not leak into the container.  */
   ret = libcrun_close_inherited_fds (crun_context, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  如果 (UNLIKELY (ret < 0))
+    返回 ret;
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  如果 (UNLIKELY (ret < 0))
+    返回 ret;
 
   libcrun_context_set_detach (crun_context, exec_options.detach);
   libcrun_context_set_console_socket (crun_context, exec_options.console_socket);
@@ -472,5 +472,5 @@ crun_command_exec (struct crun_global_arguments *global_args, int argc, char **a
   exec_opts.process_json = process_json;
   exec_opts.cgroup = exec_options.cgroup;
 
-  return libcrun_container_exec_with_options_json (crun_context, argv[first_arg], &exec_opts, err);
+  返回 libcrun_container_exec_with_options_json (crun_context, argv[first_arg], &exec_opts, err);
 }

@@ -28,7 +28,7 @@
 #ifdef HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H
 #  include <linux/mount.h>
 #endif
-#if defined HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H || defined HAVE_FSCONFIG_CMD_CREATE_SYS_MOUNT_H
+#如果 defined HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H || defined HAVE_FSCONFIG_CMD_CREATE_SYS_MOUNT_H
 #  define HAVE_NEW_MOUNT_API
 #endif
 
@@ -154,67 +154,67 @@ struct _clone3_args
 };
 
 /* Mount API syscall wrappers */
-static inline int
-syscall_fsopen (const char *fs_name, unsigned int flags)
+static inline 整数
+syscall_fsopen (const char *fs_name, unsigned 整数 flags)
 {
-#if defined __NR_fsopen
-  return (int) syscall (__NR_fsopen, fs_name, flags);
-#else
+#如果 defined __NR_fsopen
+  返回 (整数) syscall (__NR_fsopen, fs_name, flags);
+#否则
   (void) fs_name;
   (void) flags;
   errno = ENOSYS;
-  return -1;
+  返回 -1;
 #endif
 }
 
-static inline int
-syscall_fsmount (int fsfd, unsigned int flags, unsigned int attr_flags)
+static inline 整数
+syscall_fsmount (整数 fsfd, unsigned 整数 flags, unsigned 整数 attr_flags)
 {
-#if defined __NR_fsmount
-  return (int) syscall (__NR_fsmount, fsfd, flags, attr_flags);
-#else
+#如果 defined __NR_fsmount
+  返回 (整数) syscall (__NR_fsmount, fsfd, flags, attr_flags);
+#否则
   (void) fsfd;
   (void) flags;
   (void) attr_flags;
   errno = ENOSYS;
-  return -1;
+  返回 -1;
 #endif
 }
 
-static inline int
-syscall_fsconfig (int fsfd, unsigned int cmd, const char *key, const void *val, int aux)
+static inline 整数
+syscall_fsconfig (整数 fsfd, unsigned 整数 cmd, const char *key, const void *val, 整数 aux)
 {
-#if defined __NR_fsconfig
-  return (int) syscall (__NR_fsconfig, fsfd, cmd, key, val, aux);
-#else
+#如果 defined __NR_fsconfig
+  返回 (整数) syscall (__NR_fsconfig, fsfd, cmd, key, val, aux);
+#否则
   (void) fsfd;
   (void) cmd;
   (void) key;
   (void) val;
   (void) aux;
   errno = ENOSYS;
-  return -1;
+  返回 -1;
 #endif
 }
 
 /* File descriptor management syscalls */
-static inline int
-syscall_close_range (unsigned int fd, unsigned int max_fd, unsigned int flags)
+static inline 整数
+syscall_close_range (unsigned 整数 fd, unsigned 整数 max_fd, unsigned 整数 flags)
 {
 #ifdef __NR_close_range
-  return (int) syscall (__NR_close_range, fd, max_fd, flags);
-#else
+  返回 (整数) syscall (__NR_close_range, fd, max_fd, flags);
+#否则
   (void) fd;
   (void) max_fd;
   (void) flags;
   errno = ENOSYS;
-  return -1;
+  返回 -1;
 #endif
 }
 
 /* Secure file operation syscalls */
-static inline int
-syscall_openat2 (int dirfd, const char *path, uint64_t flags, uint64_t mode, uint64_t resolve)
+static inline 整数
+syscall_openat2 (整数 dirfd, const char *path, uint64_t flags, uint64_t mode, uint64_t resolve)
 {
 #ifdef __NR_openat2
   struct openat2_open_how how = {
@@ -222,87 +222,87 @@ syscall_openat2 (int dirfd, const char *path, uint64_t flags, uint64_t mode, uin
     .mode = mode,
     .resolve = resolve,
   };
-  return (int) syscall (__NR_openat2, dirfd, path, &how, sizeof (how), 0);
-#else
+  返回 (整数) syscall (__NR_openat2, dirfd, path, &how, sizeof (how), 0);
+#否则
   (void) dirfd;
   (void) path;
   (void) flags;
   (void) mode;
   (void) resolve;
   errno = ENOSYS;
-  return -1;
+  返回 -1;
 #endif
 }
 
 /* Process management syscalls */
-static inline int
+static inline 整数
 syscall_clone3 (struct _clone3_args *args)
 {
 #ifdef __NR_clone3
-  return (int) syscall (__NR_clone3, args, sizeof (*args));
-#else
+  返回 (整数) syscall (__NR_clone3, args, sizeof (*args));
+#否则
   (void) args;
   errno = ENOSYS;
-  return -1;
+  返回 -1;
 #endif
 }
 
-static inline int
+static inline 整数
 syscall_getcwd (char *path, size_t len)
 {
 #ifdef __NR_getcwd
-  return (int) syscall (__NR_getcwd, path, len);
-#else
+  返回 (整数) syscall (__NR_getcwd, path, len);
+#否则
   (void) path;
   (void) len;
   errno = ENOSYS;
-  return -1;
+  返回 -1;
 #endif
 }
 
 /* Mount management syscalls */
-static inline int
-syscall_move_mount (int from_dfd, const char *from_pathname, int to_dfd, const char *to_pathname, unsigned int flags)
+static inline 整数
+syscall_move_mount (整数 from_dfd, const char *from_pathname, 整数 to_dfd, const char *to_pathname, unsigned 整数 flags)
 {
-#if defined __NR_move_mount
-  return (int) syscall (__NR_move_mount, from_dfd, from_pathname, to_dfd, to_pathname, flags);
-#else
+#如果 defined __NR_move_mount
+  返回 (整数) syscall (__NR_move_mount, from_dfd, from_pathname, to_dfd, to_pathname, flags);
+#否则
   (void) from_dfd;
   (void) from_pathname;
   (void) to_dfd;
   (void) to_pathname;
   (void) flags;
   errno = ENOSYS;
-  return -1;
+  返回 -1;
 #endif
 }
 
-static inline int
-syscall_open_tree (int dfd, const char *pathname, unsigned int flags)
+static inline 整数
+syscall_open_tree (整数 dfd, const char *pathname, unsigned 整数 flags)
 {
-#if defined __NR_open_tree
-  return (int) syscall (__NR_open_tree, dfd, pathname, flags);
-#else
+#如果 defined __NR_open_tree
+  返回 (整数) syscall (__NR_open_tree, dfd, pathname, flags);
+#否则
   (void) dfd;
   (void) pathname;
   (void) flags;
   errno = ENOSYS;
-  return -1;
+  返回 -1;
 #endif
 }
 
-static inline int
-syscall_mount_setattr (int dfd, const char *path, unsigned int flags, struct mount_attr_s *attr)
+static inline 整数
+syscall_mount_setattr (整数 dfd, const char *path, unsigned 整数 flags, struct mount_attr_s *attr)
 {
 #ifdef __NR_mount_setattr
-  return (int) syscall (__NR_mount_setattr, dfd, path, flags, attr, sizeof (*attr));
-#else
+  返回 (整数) syscall (__NR_mount_setattr, dfd, path, flags, attr, sizeof (*attr));
+#否则
   (void) dfd;
   (void) path;
   (void) flags;
   (void) attr;
   errno = ENOSYS;
-  return -1;
+  返回 -1;
 #endif
 }
 

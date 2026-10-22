@@ -65,27 +65,27 @@ char *chroot_realpath(const char *chroot, const char *path, char resolved_path[]
 	char *got_path_root = got_path;
 	char *new_path = got_path;
 	char *max_path;
-	int readlinks = 0;
-	int n;
-	int chroot_len;
-	int last_component;
+	整数 readlinks = 0;
+	整数 n;
+	整数 chroot_len;
+	整数 last_component;
 
 	/* Trivial case. */
-	if (chroot == NULL || *chroot == '\0' ||
+	如果 (chroot == NULL || *chroot == '\0' ||
 	    (*chroot == '/' && chroot[1] == '\0')) {
-		if (strlen(path) >= PATH_MAX) {
+		如果 (strlen(path) >= PATH_MAX) {
 			__set_errno(ENAMETOOLONG);
-			return NULL;
+			返回 NULL;
 		}
 		strcpy(resolved_path, path);
-		return resolved_path;
+		返回 resolved_path;
 	}
 
 	chroot_len = strlen(chroot);
 
-	if (chroot_len + strlen(path) >= PATH_MAX - 3) {
+	如果 (chroot_len + strlen(path) >= PATH_MAX - 3) {
 		__set_errno(ENAMETOOLONG);
-		return NULL;
+		返回 NULL;
 	}
 
 	/* Make a copy of the source path since we may need to modify it. */
@@ -101,35 +101,35 @@ char *chroot_realpath(const char *chroot, const char *path, char resolved_path[]
 	*new_path++ = '/';
 
 	/* Expand each slash-separated pathname component. */
-	while (*path != '\0') {
+	当 (*path != '\0') {
 		/* Ignore stray "/". */
-		if (*path == '/') {
+		如果 (*path == '/') {
 			path++;
 			continue;
 		}
-		if (*path == '.') {
+		如果 (*path == '.') {
 			/* Ignore ".". */
-			if (path[1] == '\0' || path[1] == '/') {
+			如果 (path[1] == '\0' || path[1] == '/') {
 				path++;
 				continue;
 			}
-			if (path[1] == '.') {
-				if (path[2] == '\0' || path[2] == '/') {
+			如果 (path[1] == '.') {
+				如果 (path[2] == '\0' || path[2] == '/') {
 					path += 2;
 					/* Ignore ".." at root. */
-					if (new_path == got_path_root + 1)
+					如果 (new_path == got_path_root + 1)
 						continue;
 					/* Handle ".." by backing up. */
-					while ((--new_path)[-1] != '/');
+					当 ((--new_path)[-1] != '/');
 					continue;
 				}
 			}
 		}
 		/* Safely copy the next pathname component. */
-		while (*path != '\0' && *path != '/') {
-			if (path > max_path || new_path >= got_path + PATH_MAX - 1) {
+		当 (*path != '\0' && *path != '/') {
+			如果 (path > max_path || new_path >= got_path + PATH_MAX - 1) {
 				__set_errno(ENAMETOOLONG);
-				return NULL;
+				返回 NULL;
 			}
 			*new_path++ = *path++;
 		}
@@ -138,45 +138,45 @@ char *chroot_realpath(const char *chroot, const char *path, char resolved_path[]
 
 #ifdef S_IFLNK
 		/* Protect against infinite loops. */
-		if (readlinks++ > MAX_READLINKS) {
+		如果 (readlinks++ > MAX_READLINKS) {
 			__set_errno(ELOOP);
-			return NULL;
+			返回 NULL;
 		}
 		/* See if latest pathname component is a symlink. */
 		*new_path = '\0';
 		n = readlink(got_path, link_path, PATH_MAX - 1);
-		if (n < 0) {
+		如果 (n < 0) {
 			/* If a component doesn't exist, then return what we could translate. */
-			if (errno == ENOENT) {
-				int ret = snprintf (resolved_path, PATH_MAX, "%s%s%s", got_path, path[0] == '/' || path[0] == '\0' ? "" : "/", path);
-				if (ret >= PATH_MAX) {
+			如果 (errno == ENOENT) {
+				整数 ret = snprintf (resolved_path, PATH_MAX, "%s%s%s", got_path, path[0] == '/' || path[0] == '\0' ? "" : "/", path);
+				如果 (ret >= PATH_MAX) {
 					__set_errno(ENAMETOOLONG);
-					return NULL;
+					返回 NULL;
 				}
-				return resolved_path;
+				返回 resolved_path;
 			}
 			/* EINVAL means the file exists but isn't a symlink. */
-			if (errno != EINVAL)
-				return NULL;
-		} else {
+			如果 (errno != EINVAL)
+				返回 NULL;
+		} 否则 {
 			/* Note: readlink doesn't add the null byte. */
 			link_path[n] = '\0';
-			if (*link_path == '/') {
+			如果 (*link_path == '/') {
 				/* Start over for an absolute symlink. */
 				new_path = got_path_root;
 				*new_path++ = '/';
 			}
-			else {
+			否则 {
 				/* Otherwise back up over this component, keeping the
 				   separator, so that the expanded symlink is not
 				   concatenated to the parent directory name. */
-				while (*(--new_path) != '/');
+				当 (*(--new_path) != '/');
 				new_path++;
 			}
 			/* Safe sex check. */
-			if (strlen(path) + n >= PATH_MAX - 2) {
+			如果 (strlen(path) + n >= PATH_MAX - 2) {
 				__set_errno(ENAMETOOLONG);
-				return NULL;
+				返回 NULL;
 			}
 			/* Insert symlink contents into path. */
 			strcat(link_path, path);
@@ -184,19 +184,19 @@ char *chroot_realpath(const char *chroot, const char *path, char resolved_path[]
 			path = copy_path;
 		}
 #endif							/* S_IFLNK */
-		if (!last_component) {
-			if (new_path >= got_path + PATH_MAX - 1) {
+		如果 (!last_component) {
+			如果 (new_path >= got_path + PATH_MAX - 1) {
 				__set_errno(ENAMETOOLONG);
-				return NULL;
+				返回 NULL;
 			}
 			*new_path++ = '/';
 		}
 	}
 	/* Delete trailing slash but don't whomp a lone slash. */
-	if (new_path != got_path + 1 && new_path[-1] == '/')
+	如果 (new_path != got_path + 1 && new_path[-1] == '/')
 		new_path--;
 	/* Make sure it's null terminated. */
 	*new_path = '\0';
 	strcpy(resolved_path, got_path);
-	return resolved_path;
+	返回 resolved_path;
 }

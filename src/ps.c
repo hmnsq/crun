@@ -39,7 +39,7 @@ enum
 
 struct ps_options_s
 {
-  int format;
+  整数 format;
 };
 
 enum
@@ -58,33 +58,33 @@ static struct argp_option options[] = { { "format", 'f', "FORMAT", 0, "select th
 static char args_doc[] = "ps";
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state arg_unused)
+parse_opt (整数 key, char *arg, struct argp_state *state arg_unused)
 {
   switch (key)
     {
     case 'f':
-      if (strcmp (arg, "table") == 0)
+      如果 (strcmp (arg, "table") == 0)
         ps_options.format = PS_TABLE;
-      else if (strcmp (arg, "json") == 0)
+      否则 如果 (strcmp (arg, "json") == 0)
         ps_options.format = PS_JSON;
-      else
+      否则
         libcrun_fail_with_error (0, "invalid format `%s`", arg);
       break;
 
     default:
-      return ARGP_ERR_UNKNOWN;
+      返回 ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  返回 0;
 }
 
 static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-int
-crun_command_ps (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+整数
+crun_command_ps (struct crun_global_arguments *global_args, 整数 argc, char **argv, libcrun_error_t *err)
 {
-  int first_arg;
-  int ret;
+  整数 first_arg;
+  整数 ret;
   cleanup_free pid_t *pids = NULL;
   cleanup_context libcrun_context_t *crun_context = NULL;
   size_t i;
@@ -97,31 +97,31 @@ crun_command_ps (struct crun_global_arguments *global_args, int argc, char **arg
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  如果 (UNLIKELY (ret < 0))
+    返回 ret;
 
   ret = libcrun_container_read_pids (crun_context, argv[first_arg], true, &pids, err);
-  if (UNLIKELY (ret < 0))
+  如果 (UNLIKELY (ret < 0))
     {
       libcrun_error_report_and_release (err);
-      return ret;
+      返回 ret;
     }
 
   switch (ps_options.format)
     {
     case PS_JSON:
       printf ("[\n");
-      for (i = 0; pids && pids[i]; i++)
+      为 (i = 0; pids && pids[i]; i++)
         printf ("  %d%s\n", pids[i], pids[i + 1] ? "," : "");
       printf ("]\n");
       break;
 
     case PS_TABLE:
       printf ("PID\n");
-      for (i = 0; pids && pids[i]; i++)
+      为 (i = 0; pids && pids[i]; i++)
         printf ("%d\n", pids[i]);
       break;
     }
 
-  return 0;
+  返回 0;
 }

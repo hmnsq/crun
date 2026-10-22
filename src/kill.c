@@ -57,7 +57,7 @@ static struct argp_option options[]
 static char args_doc[] = "kill CONTAINER [SIGNAL]";
 
 static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+parse_opt (整数 key, char *arg arg_unused, struct argp_state *state arg_unused)
 {
   switch (key)
     {
@@ -73,18 +73,18 @@ parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
     default:
-      return ARGP_ERR_UNKNOWN;
+      返回 ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  返回 0;
 }
 
 static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-int
-crun_command_kill (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+整数
+crun_command_kill (struct crun_global_arguments *global_args, 整数 argc, char **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
+  整数 first_arg = 0, ret;
   const char *signal;
   cleanup_context libcrun_context_t *crun_context = NULL;
 
@@ -94,14 +94,14 @@ crun_command_kill (struct crun_global_arguments *global_args, int argc, char **a
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  如果 (UNLIKELY (ret < 0))
+    返回 ret;
 
   signal = "SIGTERM";
-  if (argc - first_arg > 1)
+  如果 (argc - first_arg > 1)
     signal = argv[first_arg + 1];
 
-  if (kill_options.regex)
+  如果 (kill_options.regex)
     {
       regex_t re;
       libcrun_container_list_t *list;
@@ -109,29 +109,29 @@ crun_command_kill (struct crun_global_arguments *global_args, int argc, char **a
       const char *name;
 
       ret = regcomp (&re, argv[first_arg], REG_EXTENDED | REG_NOSUB);
-      if (UNLIKELY (ret < 0))
+      如果 (UNLIKELY (ret < 0))
         libcrun_fail_with_error (0, "invalid regular expression %s", argv[first_arg]);
 
       ret = libcrun_container_list (crun_context, &list, err);
-      if (UNLIKELY (ret < 0))
+      如果 (UNLIKELY (ret < 0))
         libcrun_fail_with_error (0, "cannot read containers list");
 
-      for (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
-        if (regexec (&re, name, 0, NULL, 0) == 0)
+      为 (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
+        如果 (regexec (&re, name, 0, NULL, 0) == 0)
           {
             ret = libcrun_container_kill (crun_context, name, signal, err);
-            if (UNLIKELY (ret < 0))
+            如果 (UNLIKELY (ret < 0))
               libcrun_error_report_and_release (err);
           }
 
       libcrun_container_iter_free (it);
       libcrun_container_list_free (list);
       regfree (&re);
-      return 0;
+      返回 0;
     }
 
-  if (kill_options.all)
-    return libcrun_container_killall (crun_context, argv[first_arg], signal, err);
+  如果 (kill_options.all)
+    返回 libcrun_container_killall (crun_context, argv[first_arg], signal, err);
 
-  return libcrun_container_kill (crun_context, argv[first_arg], signal, err);
+  返回 libcrun_container_kill (crun_context, argv[first_arg], signal, err);
 }

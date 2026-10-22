@@ -39,11 +39,11 @@ enum
   LOG_FORMAT_JSON,
 };
 
-static int log_format;
-static int output_verbosity = LIBCRUN_VERBOSITY_ERROR;
+static 整数 log_format;
+static 整数 output_verbosity = LIBCRUN_VERBOSITY_ERROR;
 
-int
-libcrun_make_error (libcrun_error_t *err, int status, const char *msg, ...)
+整数
+libcrun_make_error (libcrun_error_t *err, 整数 status, const char *msg, ...)
 {
   va_list args_list;
   libcrun_error_t ptr;
@@ -52,37 +52,37 @@ libcrun_make_error (libcrun_error_t *err, int status, const char *msg, ...)
   *err = xmalloc (sizeof (struct libcrun_error_s));
   ptr = *err;
   ptr->status = status;
-  if (vasprintf (&(ptr->msg), msg, args_list) < 0)
+  如果 (vasprintf (&(ptr->msg), msg, args_list) < 0)
     OOM ();
   va_end (args_list);
 
-  return -status - 1;
+  返回 -status - 1;
 }
 
-int
+整数
 crun_error_wrap (libcrun_error_t *err, const char *fmt, ...)
 {
   cleanup_free char *msg = NULL;
   cleanup_free char *tmp = NULL;
   va_list args_list;
   char *swap;
-  int ret;
+  整数 ret;
 
-  if (err == NULL || *err == NULL)
+  如果 (err == NULL || *err == NULL)
     {
       // Internal error
-      return 0;
+      返回 0;
     }
 
   ret = -(*err)->status - 1;
 
   va_start (args_list, fmt);
 
-  if (vasprintf (&msg, fmt, args_list) < 0)
+  如果 (vasprintf (&msg, fmt, args_list) < 0)
     {
       va_end (args_list);
       msg = NULL;
-      return ret;
+      返回 ret;
     }
   va_end (args_list);
 
@@ -91,70 +91,70 @@ crun_error_wrap (libcrun_error_t *err, const char *fmt, ...)
   tmp = (*err)->msg;
   (*err)->msg = swap;
 
-  return ret;
+  返回 ret;
 }
 
-int
+整数
 crun_error_release (libcrun_error_t *err)
 {
-  const int saved_errno = errno;
+  const 整数 saved_errno = errno;
   libcrun_error_t ptr;
 
-  if (err == NULL)
-    return 0;
+  如果 (err == NULL)
+    返回 0;
 
   ptr = *err;
-  if (ptr == NULL)
-    return 0;
+  如果 (ptr == NULL)
+    返回 0;
 
   free (ptr->msg);
   free (ptr);
   *err = NULL;
 
   errno = saved_errno;
-  return 0;
+  返回 0;
 }
 
-int
+整数
 libcrun_error_release (libcrun_error_t *err)
 {
-  return crun_error_release (err);
+  返回 crun_error_release (err);
 }
 
-int
+整数
 libcrun_error_get_status (libcrun_error_t err)
 {
-  if (err == NULL)
-    return 0;
-  return err->status;
+  如果 (err == NULL)
+    返回 0;
+  返回 err->status;
 }
 
 const char *
 libcrun_error_get_message (libcrun_error_t err)
 {
-  if (err == NULL)
-    return NULL;
-  return err->msg;
+  如果 (err == NULL)
+    返回 NULL;
+  返回 err->msg;
 }
 
 void
 crun_error_write_warning_and_release (FILE *out, libcrun_error_t **err)
 {
-  const int saved_errno = errno;
+  const 整数 saved_errno = errno;
   libcrun_error_t ref;
 
-  if (out == NULL)
+  如果 (out == NULL)
     out = stderr;
-  if (err == NULL || *err == NULL || **err == NULL)
+  如果 (err == NULL || *err == NULL || **err == NULL)
     {
       // Internal error
-      return;
+      返回;
     }
 
   ref = **err;
-  if (ref->status)
+  如果 (ref->status)
     fprintf (out, "%s: %s\n", ref->msg, strerror (ref->status));
-  else
+  否则
     fprintf (out, "%s\n", ref->msg);
 
   free (ref->msg);
@@ -167,7 +167,7 @@ crun_error_write_warning_and_release (FILE *out, libcrun_error_t **err)
 void
 libcrun_error_write_warning_and_release (FILE *out, libcrun_error_t **err)
 {
-  return crun_error_write_warning_and_release (out, err);
+  返回 crun_error_write_warning_and_release (out, err);
 }
 
 void
@@ -175,20 +175,20 @@ libcrun_error_report_and_release (libcrun_error_t *err)
 {
   libcrun_error_t ref;
 
-  if (err == NULL || *err == NULL)
-    return;
+  如果 (err == NULL || *err == NULL)
+    返回;
 
   ref = *err;
   libcrun_error (ref->status, "%s", ref->msg);
   crun_error_release (err);
 }
 
-int
+整数
 crun_error_get_errno (libcrun_error_t *err)
 {
-  if (err == NULL || *err == NULL)
-    return 0;
-  return (*err)->status;
+  如果 (err == NULL || *err == NULL)
+    返回 0;
+  返回 (*err)->status;
 }
 
 typedef char timestamp_t[64];
@@ -205,7 +205,7 @@ get_timestamp (timestamp_t *timestamp, const char *suffix)
   gettimeofday (&tv, NULL);
   gmtime_r (&tv.tv_sec, &now);
   written = strftime (buffer, buffer_size, "%Y-%m-%dT%H:%M:%S", &now);
-  snprintf (buffer + written, buffer_size - written, ".%06lldZ%.8s", (long long int) tv.tv_usec, suffix);
+  snprintf (buffer + written, buffer_size - written, ".%06lldZ%.8s", (long long 整数) tv.tv_usec, suffix);
 }
 
 /* Neither openlog(3) nor the journald handler copy the identifier they are
@@ -219,14 +219,14 @@ set_log_id (const char *id, char **old_id)
 {
   *old_id = log_id;
   log_id = id ? xstrdup (id) : NULL;
-  return log_id;
+  返回 log_id;
 }
 
 static void *
 init_syslog (const char *id)
 {
   openlog (id, 0, LOG_USER);
-  return NULL;
+  返回 NULL;
 }
 
 enum
@@ -236,55 +236,55 @@ enum
   LOG_TYPE_JOURNALD = 3
 };
 
-static int
+static 整数
 get_log_type (const char *log, const char **data)
 {
   const char *sep = strchr (log, ':');
-  if (sep == NULL)
+  如果 (sep == NULL)
     {
       *data = log;
-      return LOG_TYPE_FILE;
+      返回 LOG_TYPE_FILE;
     }
   *data = sep + 1;
 
-  if (has_prefix (log, "syslog:"))
-    return LOG_TYPE_SYSLOG;
-  if (has_prefix (log, "journald:"))
-    return LOG_TYPE_JOURNALD;
-  if (has_prefix (log, "file:"))
-    return LOG_TYPE_FILE;
+  如果 (has_prefix (log, "syslog:"))
+    返回 LOG_TYPE_SYSLOG;
+  如果 (has_prefix (log, "journald:"))
+    返回 LOG_TYPE_JOURNALD;
+  如果 (has_prefix (log, "file:"))
+    返回 LOG_TYPE_FILE;
 
-  return -1;
+  返回 -1;
 }
 
-int
+整数
 libcrun_init_logging (crun_output_handler *new_output_handler, void **new_output_handler_arg, const char *id,
                       const char *log, libcrun_error_t *err)
 {
   /* Released only after the new handler is installed.  */
   cleanup_free char *old_log_id = NULL;
 
-  if (log == NULL)
+  如果 (log == NULL)
     {
       *new_output_handler = log_write_to_stderr;
       *new_output_handler_arg = NULL;
     }
-  else
+  否则
     {
       const char *arg = NULL;
-      int log_type = get_log_type (log, &arg);
+      整数 log_type = get_log_type (log, &arg);
 
-      if (log_type < 0)
-        return crun_make_error (err, errno, "unknown log type `%s`", log);
+      如果 (log_type < 0)
+        返回 crun_make_error (err, errno, "unknown log type `%s`", log);
 
       switch (log_type)
         {
         case LOG_TYPE_FILE:
           *new_output_handler = log_write_to_stream;
           *new_output_handler_arg = fopen (arg, "a+e");
-          if (*new_output_handler_arg == NULL)
-            return crun_make_error (err, errno, "open log file `%s`", log);
-          if (output_verbosity >= LIBCRUN_VERBOSITY_WARNING)
+          如果 (*new_output_handler_arg == NULL)
+            返回 crun_make_error (err, errno, "open log file `%s`", log);
+          如果 (output_verbosity >= LIBCRUN_VERBOSITY_WARNING)
             setlinebuf (*new_output_handler_arg);
           break;
 
@@ -300,21 +300,21 @@ libcrun_init_logging (crun_output_handler *new_output_handler, void **new_output
         }
     }
   crun_set_output_handler (*new_output_handler, *new_output_handler_arg);
-  return 0;
+  返回 0;
 }
 
 void
-log_write_to_stream (int errno_, const char *msg, int verbosity, void *arg)
+log_write_to_stream (整数 errno_, const char *msg, 整数 verbosity, void *arg)
 {
   timestamp_t timestamp = {
     0,
   };
   FILE *stream = arg;
-  int tty = isatty (fileno (stream));
+  整数 tty = isatty (fileno (stream));
   const char *color_begin = "";
   const char *color_end = "";
 
-  if (tty)
+  如果 (tty)
     {
       switch (verbosity)
         {
@@ -332,26 +332,26 @@ log_write_to_stream (int errno_, const char *msg, int verbosity, void *arg)
           break;
         }
 
-      if (log_format == LOG_FORMAT_TEXT)
+      如果 (log_format == LOG_FORMAT_TEXT)
         get_timestamp (&timestamp, ": ");
     }
 
-  if (errno_)
+  如果 (errno_)
     fprintf (stream, "%s%s%s: %s%s\n", color_begin, timestamp, msg, strerror (errno_), color_end);
-  else
+  否则
     fprintf (stream, "%s%s%s%s\n", color_begin, timestamp, msg, color_end);
 }
 
 void
-log_write_to_stderr (int errno_, const char *msg, int verbosity, void *arg arg_unused)
+log_write_to_stderr (整数 errno_, const char *msg, 整数 verbosity, void *arg arg_unused)
 {
   log_write_to_stream (errno_, msg, verbosity, stderr);
 }
 
 void
-log_write_to_syslog (int errno_, const char *msg, int verbosity, void *arg arg_unused)
+log_write_to_syslog (整数 errno_, const char *msg, 整数 verbosity, void *arg arg_unused)
 {
-  int priority = LOG_ERR;
+  整数 priority = LOG_ERR;
   switch (verbosity)
     {
     case LIBCRUN_VERBOSITY_DEBUG:
@@ -364,20 +364,20 @@ log_write_to_syslog (int errno_, const char *msg, int verbosity, void *arg arg_u
       priority = LOG_ERR;
       break;
     }
-  if (errno_ == 0)
+  如果 (errno_ == 0)
     syslog (priority, "%s", msg);
-  else
+  否则
     syslog (priority, "%s: %s", msg, strerror (errno_));
 }
 
 void
-log_write_to_journald (int errno_, const char *msg, int verbosity, void *arg arg_unused)
+log_write_to_journald (整数 errno_, const char *msg, 整数 verbosity, void *arg arg_unused)
 {
   (void) errno_;
   (void) msg;
   (void) verbosity;
 #ifdef HAVE_SYSTEMD
-  int priority = LOG_ERR;
+  整数 priority = LOG_ERR;
   switch (verbosity)
     {
     case LIBCRUN_VERBOSITY_DEBUG:
@@ -390,9 +390,9 @@ log_write_to_journald (int errno_, const char *msg, int verbosity, void *arg arg
       priority = LOG_ERR;
       break;
     }
-  if (errno_ == 0)
+  如果 (errno_ == 0)
     sd_journal_send ("PRIORITY=%d", priority, "MESSAGE=%s", msg, "ID=%s", arg, NULL);
-  else
+  否则
     sd_journal_send ("PRIORITY=%d", priority, "MESSAGE=%s: %s", msg, strerror (errno_), "ID=%s",
                      arg, NULL);
 #endif
@@ -402,15 +402,15 @@ static crun_output_handler output_handler = log_write_to_stderr;
 static void *output_handler_arg = NULL;
 
 void
-libcrun_set_verbosity (int verbosity)
+libcrun_set_verbosity (整数 verbosity)
 {
   output_verbosity = verbosity;
 }
 
-int
+整数
 libcrun_get_verbosity ()
 {
-  return output_verbosity;
+  返回 output_verbosity;
 }
 
 void
@@ -421,7 +421,7 @@ crun_set_output_handler (crun_output_handler handler, void *arg)
 }
 
 static char *
-make_json_error (const char *msg, int errno_, int verbosity)
+make_json_error (const char *msg, 整数 errno_, 整数 verbosity)
 {
   const char *level;
   switch (verbosity)
@@ -444,17 +444,17 @@ make_json_error (const char *msg, int errno_, int verbosity)
     0,
   };
 
-  if (! json_gen_init (&gen, NULL))
-    return NULL;
+  如果 (! json_gen_init (&gen, NULL))
+    返回 NULL;
 
   get_timestamp (&timestamp, "");
 
   json_gen_map_open (gen);
 
   json_gen_string (gen, "msg", strlen ("msg"));
-  if (errno_ == 0)
+  如果 (errno_ == 0)
     json_gen_string (gen, msg, strlen (msg));
-  else
+  否则
     {
       cleanup_free char *tmp = NULL;
 
@@ -471,29 +471,29 @@ make_json_error (const char *msg, int errno_, int verbosity)
   json_gen_map_close (gen);
 
   json_gen_get_buf (gen, &buf, &buf_len);
-  if (buf)
+  如果 (buf)
     ret = strdup (buf);
 
   json_gen_free (gen);
 
-  return ret;
+  返回 ret;
 }
 
 static void
-write_log (int errno_, int verbosity, const char *msg, va_list args_list)
+write_log (整数 errno_, 整数 verbosity, const char *msg, va_list args_list)
 {
-  int ret;
+  整数 ret;
   cleanup_free char *output = NULL;
   cleanup_free char *json = NULL;
 
-  if (verbosity > output_verbosity)
-    return;
+  如果 (verbosity > output_verbosity)
+    返回;
 
   ret = vasprintf (&output, msg, args_list);
-  if (UNLIKELY (ret < 0))
+  如果 (UNLIKELY (ret < 0))
     OOM ();
 
-  if (verbosity == LIBCRUN_VERBOSITY_ERROR && output_handler != log_write_to_stderr)
+  如果 (verbosity == LIBCRUN_VERBOSITY_ERROR && output_handler != log_write_to_stderr)
     log_write_to_stderr (errno_, output, LIBCRUN_VERBOSITY_ERROR, NULL);
 
   switch (log_format)
@@ -504,9 +504,9 @@ write_log (int errno_, int verbosity, const char *msg, va_list args_list)
 
     case LOG_FORMAT_JSON:
       json = make_json_error (output, errno_, verbosity);
-      if (json)
+      如果 (json)
         output_handler (0, json, verbosity, output_handler_arg);
-      else
+      否则
         output_handler (errno_, output, verbosity, output_handler_arg);
       break;
     }
@@ -531,7 +531,7 @@ libcrun_warning (const char *msg, ...)
 }
 
 void
-libcrun_error (int errno_, const char *msg, ...)
+libcrun_error (整数 errno_, const char *msg, ...)
 {
   va_list args_list;
   va_start (args_list, msg);
@@ -541,7 +541,7 @@ libcrun_error (int errno_, const char *msg, ...)
 }
 
 void __attribute__ ((noreturn))
-libcrun_fail_with_error (int errno_, const char *msg, ...)
+libcrun_fail_with_error (整数 errno_, const char *msg, ...)
 {
   va_list args_list;
   va_start (args_list, msg);
@@ -550,28 +550,28 @@ libcrun_fail_with_error (int errno_, const char *msg, ...)
   exit (EXIT_FAILURE);
 }
 
-int
+整数
 libcrun_set_log_format (const char *format, libcrun_error_t *err)
 {
-  if (strcmp (format, "text") == 0)
+  如果 (strcmp (format, "text") == 0)
     log_format = LOG_FORMAT_TEXT;
-  else if (strcmp (format, "json") == 0)
+  否则 如果 (strcmp (format, "json") == 0)
     log_format = LOG_FORMAT_JSON;
-  else
-    return crun_make_error (err, 0, "unknown log format type `%s`", format);
+  否则
+    返回 crun_make_error (err, 0, "unknown log format type `%s`", format);
 
-  return 0;
+  返回 0;
 }
 
-int
-json_gen_error_to_crun_error (int status, libcrun_error_t *err)
+整数
+json_gen_error_to_crun_error (整数 status, libcrun_error_t *err)
 {
   switch (status)
     {
     case json_gen_status_ok:
-      return 0;
+      返回 0;
 
     default:
-      return crun_make_error (err, 0, "generate JSON document: error %d", status);
+      返回 crun_make_error (err, 0, "generate JSON document: error %d", status);
     }
 }

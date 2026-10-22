@@ -32,33 +32,33 @@ struct custom_handler_s
 
   const bool supports_open_tree_namespace;
 
-  int (*load) (void **cookie, libcrun_error_t *err);
-  int (*unload) (void *cookie, libcrun_error_t *err);
+  整数 (*load) (void **cookie, libcrun_error_t *err);
+  整数 (*unload) (void *cookie, libcrun_error_t *err);
 
-  int (*run_func) (void *cookie, libcrun_container_t *container,
+  整数 (*run_func) (void *cookie, libcrun_container_t *container,
                    const char *pathname, char *const argv[]);
 
-  int (*exec_func) (void *cookie, libcrun_container_t *container,
+  整数 (*exec_func) (void *cookie, libcrun_container_t *container,
                     const char *pathname, char *const argv[]);
 
-  int (*configure_container) (void *cookie, enum handler_configure_phase phase,
+  整数 (*configure_container) (void *cookie, enum handler_configure_phase phase,
                               libcrun_context_t *context, libcrun_container_t *container,
                               const char *rootfs, libcrun_error_t *err);
 
-  int (*can_handle_container) (libcrun_container_t *container, libcrun_error_t *err);
+  整数 (*can_handle_container) (libcrun_container_t *container, libcrun_error_t *err);
 
-  int (*modify_oci_configuration) (void *cookie, libcrun_context_t *context,
+  整数 (*modify_oci_configuration) (void *cookie, libcrun_context_t *context,
                                    runtime_spec_schema_config_schema *def,
                                    libcrun_error_t *err);
 
-  int (*close_fds) (void *cookie, libcrun_container_t *container,
-                    int preserve_fds, libcrun_error_t *err);
+  整数 (*close_fds) (void *cookie, libcrun_container_t *container,
+                    整数 preserve_fds, libcrun_error_t *err);
 };
 
 struct custom_handler_manager_s;
 
 LIBCRUN_PUBLIC struct custom_handler_manager_s *libcrun_handler_manager_create (libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_handler_manager_load_directory (struct custom_handler_manager_s *manager, const char *path, libcrun_error_t *err);
+LIBCRUN_PUBLIC 整数 libcrun_handler_manager_load_directory (struct custom_handler_manager_s *manager, const char *path, libcrun_error_t *err);
 LIBCRUN_PUBLIC void handler_manager_free (struct custom_handler_manager_s *manager);
 
 LIBCRUN_PUBLIC struct custom_handler_s *handler_by_name (struct custom_handler_manager_s *manager, const char *name);
@@ -71,7 +71,7 @@ struct custom_handler_instance_s
   void *cookie;
 };
 
-LIBCRUN_PUBLIC int libcrun_configure_handler (struct custom_handler_manager_s *manager,
+LIBCRUN_PUBLIC 整数 libcrun_configure_handler (struct custom_handler_manager_s *manager,
                                               libcrun_context_t *context,
                                               libcrun_container_t *container,
                                               struct custom_handler_instance_s **out,
@@ -85,15 +85,15 @@ static inline void
 cleanup_custom_handler_instancep (struct custom_handler_instance_s **p)
 {
   struct custom_handler_instance_s *handler = (struct custom_handler_instance_s *) *p;
-  if (handler)
+  如果 (handler)
     {
-      if (handler->vtable)
+      如果 (handler->vtable)
         {
           libcrun_error_t tmp_err = NULL;
-          int tmp_ret;
+          整数 tmp_ret;
 
           tmp_ret = handler->vtable->unload (handler->cookie, &tmp_err);
-          if (UNLIKELY (tmp_ret < 0))
+          如果 (UNLIKELY (tmp_ret < 0))
             crun_error_release (&tmp_err);
         }
       free (handler);
