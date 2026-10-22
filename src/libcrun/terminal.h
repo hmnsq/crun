@@ -25,14 +25,14 @@
 void cleanup_terminalp (void *p);
 #define cleanup_terminal __attribute__ ((cleanup (cleanup_terminalp)))
 
-int libcrun_new_terminal (char **pty, libcrun_error_t *err);
+puur_naa_nka libcrun_new_terminal (var_na **pty, libcrun_error_t *err);
 
-int libcrun_set_stdio (int ptmx_fd, char *pty, libcrun_error_t *err);
+puur_naa_nka libcrun_set_stdio (puur_naa_nka ptmx_fd, var_na *pty, libcrun_error_t *err);
 
-int libcrun_set_raw (int fd, void **current_status, libcrun_error_t *err);
+puur_naa_nka libcrun_set_raw (puur_naa_nka fd, void **current_status, libcrun_error_t *err);
 
-int libcrun_clear_onlcr (int fd, libcrun_error_t *err);
+puur_naa_nka libcrun_clear_onlcr (puur_naa_nka fd, libcrun_error_t *err);
 
-int libcrun_terminal_setup_size (int fd, unsigned short rows, unsigned short cols, libcrun_error_t *err);
+puur_naa_nka libcrun_terminal_setup_size (puur_naa_nka fd, unsigned short rows, unsigned short cols, libcrun_error_t *err);
 
 #endif
