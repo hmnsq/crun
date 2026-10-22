@@ -16,39 +16,39 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CRIU_H
-#define CRIU_H
+#నిర్వచితం_కాకపోతే CRIU_H
+#నిర్వచించు CRIU_H
 
-#include <config.h>
-#include "container.h"
-#include "error.h"
-#include "utils.h"
+#అన్తర్భావ <config.h>
+#అన్తర్భావ "container.h"
+#అన్తర్భావ "error.h"
+#అన్తర్భావ "utils.h"
 
-#if HAVE_CRIU && HAVE_DLOPEN
+#ఒకవేళ HAVE_CRIU && HAVE_DLOPEN
 
-int libcrun_container_checkpoint_linux_criu (libcrun_container_status_t *status, libcrun_container_t *container,
+పూర్ణాంకం libcrun_container_checkpoint_linux_criu (libcrun_container_స్థితి_t *స్థితి_2, libcrun_container_t *container,
                                              libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err);
 
-int libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcrun_container_t *container,
+పూర్ణాంకం libcrun_container_restore_linux_criu (libcrun_container_స్థితి_t *స్థితి_2, libcrun_container_t *container,
                                           libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err);
 
-#else
+#లేకపోతే
 
-static inline int
-libcrun_container_checkpoint_linux_criu (arg_unused libcrun_container_status_t *status,
-                                         arg_unused libcrun_container_t *container,
-                                         arg_unused libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
+స్థిర అంతఃవరుస పూర్ణాంకం
+libcrun_container_checkpoint_linux_criu (arg_వాడని libcrun_container_స్థితి_t *స్థితి_2,
+                                         arg_వాడని libcrun_container_t *container,
+                                         arg_వాడని libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
 {
-  return crun_make_error (err, 0, "compiled without CRIU support. Checkpointing not available");
+  తిరిగి crun_make_error (err, 0, "compiled without CRIU support. Checkpointing not available");
 }
 
-static inline int
-libcrun_container_restore_linux_criu (arg_unused libcrun_container_status_t *status,
-                                      arg_unused libcrun_container_t *container,
-                                      arg_unused libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
+స్థిర అంతఃవరుస పూర్ణాంకం
+libcrun_container_restore_linux_criu (arg_వాడని libcrun_container_స్థితి_t *స్థితి_2,
+                                      arg_వాడని libcrun_container_t *container,
+                                      arg_వాడని libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
 {
-  return crun_make_error (err, 0, "compiled without CRIU support. Restore not available");
+  తిరిగి crun_make_error (err, 0, "compiled without CRIU support. Restore not available");
 }
 
-#endif
-#endif
+#అయితే_ముగింపు
+#అయితే_ముగింపు

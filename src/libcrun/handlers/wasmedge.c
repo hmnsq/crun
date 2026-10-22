@@ -15,203 +15,203 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE
+#నిర్వచించు GNU_ఆధారం
 
-#include <config.h>
-#include "../custom-handler.h"
-#include "../container.h"
-#include "../utils.h"
-#include "../linux.h"
-#include "handler-utils.h"
-#include <unistd.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <sched.h>
+#అన్తర్భావ <config.h>
+#అన్తర్భావ "../custom-handler.h"
+#అన్తర్భావ "../container.h"
+#అన్తర్భావ "../utils.h"
+#అన్తర్భావ "../linux.h"
+#అన్తర్భావ "handler-utils.h"
+#అన్తర్భావ <unistd.h>
+#అన్తర్భావ <sys/stat.h>
+#అన్తర్భావ <errno.h>
+#అన్తర్భావ <sys/types.h>
+#అన్తర్భావ <fcntl.h>
+#అన్తర్భావ <sched.h>
 
-#ifdef HAVE_DLOPEN
+#నిర్వచితమైతే HAVE_DLOPEN
 #  include <dlfcn.h>
-#endif
+#అయితే_ముగింపు
 
-#ifdef HAVE_WASMEDGE
+#నిర్వచితమైతే HAVE_WASMEDGE
 #  include <wasmedge/wasmedge.h>
-#endif
+#అయితే_ముగింపు
 
-#if HAVE_DLOPEN && HAVE_WASMEDGE
-static int
-libwasmedge_load (void **cookie, libcrun_error_t *err)
+#ఒకవేళ HAVE_DLOPEN && HAVE_WASMEDGE
+స్థిర పూర్ణాంకం
+libwasmedge_ఎక్కించు (శూన్య **cookie, libcrun_error_t *err)
 {
-  void *handle;
+  శూన్య *handle;
 
   handle = dlopen ("libwasmedge.so.0", RTLD_NOW);
-  if (handle == NULL)
-    return crun_make_error (err, 0, "could not load `libwasmedge.so.0`: `%s`", dlerror ());
+  ఒకవేళ (handle == ఖాళీ)
+    తిరిగి crun_make_error (err, 0, "could not load `libwasmedge.so.0`: `%s`", dlerror ());
   *cookie = handle;
 
-  return 0;
+  తిరిగి 0;
 }
 
-static int
-libwasmedge_unload (void *cookie, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+libwasmedge_unload (శూన్య *cookie, libcrun_error_t *err)
 {
-  int r;
+  పూర్ణాంకం r;
 
-  if (cookie)
+  ఒకవేళ (cookie)
     {
       r = dlclose (cookie);
-      if (UNLIKELY (r < 0))
-        return crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
+      ఒకవేళ (UNLIKELY (r < 0))
+        తిరిగి crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
     }
-  return 0;
+  తిరిగి 0;
 }
 
-static int
-libwasmedge_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *container, const char *pathname, char *const argv[])
+స్థిర పూర్ణాంకం
+libwasmedge_exec (శూన్య *cookie, __attribute__ ((వాడని)) libcrun_container_t *container, స్థిరరాశి అక్షరం *pathname, అక్షరం *స్థిరరాశి argv[])
 {
-  WasmEdge_ConfigureContext *(*WasmEdge_ConfigureCreate) (void);
-  void (*WasmEdge_ConfigureDelete) (WasmEdge_ConfigureContext *Cxt);
-  void (*WasmEdge_ConfigureAddProposal) (WasmEdge_ConfigureContext *Cxt, const enum WasmEdge_Proposal Prop);
-  void (*WasmEdge_ConfigureAddHostRegistration) (WasmEdge_ConfigureContext *Cxt, enum WasmEdge_HostRegistration Host);
-  WasmEdge_VMContext *(*WasmEdge_VMCreate) (const WasmEdge_ConfigureContext *ConfCxt, WasmEdge_StoreContext *StoreCxt);
-  void (*WasmEdge_VMDelete) (WasmEdge_VMContext *Cxt);
-  WasmEdge_Result (*WasmEdge_VMRegisterModuleFromFile) (WasmEdge_VMContext *Cxt, WasmEdge_String ModuleName, const char *Path);
-  WasmEdge_Result (*WasmEdge_VMRunWasmFromFile) (WasmEdge_VMContext *Cxt, const char *Path, const WasmEdge_String FuncName, const WasmEdge_Value *Params, const uint32_t ParamLen, WasmEdge_Value *Returns, const uint32_t ReturnLen);
-  void (*WasmEdge_PluginLoadFromPath) (const char *Path);
-  void (*WasmEdge_PluginInitWASINN) (const char *const *NNPreloads, const uint32_t PreloadsLen);
-  bool (*WasmEdge_ResultOK) (const WasmEdge_Result Res);
-  WasmEdge_String (*WasmEdge_StringCreateByCString) (const char *Str);
+  Wasm_అంచు_Configure_Context *(*Wasm_అంచు_Configure_Create) (శూన్య);
+  శూన్య (*Wasm_అంచు_Configure_Delete) (Wasm_అంచు_Configure_Context *Cxt);
+  శూన్య (*Wasm_అంచు_Configure_కూడు_Proposal) (Wasm_అంచు_Configure_Context *Cxt, స్థిరరాశి గణన Wasm_అంచు_Proposal Prop);
+  శూన్య (*Wasm_అంచు_Configure_కూడు_Host_Registration) (Wasm_అంచు_Configure_Context *Cxt, గణన Wasm_అంచు_Host_Registration Host);
+  Wasm_అంచు_VMContext *(*Wasm_అంచు_VMCreate) (స్థిరరాశి Wasm_అంచు_Configure_Context *ConfCxt, Wasm_అంచు_Store_Context *StoreCxt);
+  శూన్య (*Wasm_అంచు_VMDelete) (Wasm_అంచు_VMContext *Cxt);
+  Wasm_అంచు_ఫలితం (*Wasm_అంచు_VMRegister_Module_From_File) (Wasm_అంచు_VMContext *Cxt, Wasm_అంచు_String ModuleName, స్థిరరాశి అక్షరం *మార్గం_2);
+  Wasm_అంచు_ఫలితం (*Wasm_అంచు_VMRun_Wasm_From_File) (Wasm_అంచు_VMContext *Cxt, స్థిరరాశి అక్షరం *మార్గం_2, స్థిరరాశి Wasm_అంచు_String FuncName, స్థిరరాశి Wasm_అంచు_విలువ *Params, స్థిరరాశి uint32_t ParamLen, Wasm_అంచు_విలువ *Returns, స్థిరరాశి uint32_t ReturnLen);
+  శూన్య (*Wasm_అంచు_Plugin_ఎక్కించు_From_మార్గం) (స్థిరరాశి అక్షరం *మార్గం_2);
+  శూన్య (*Wasm_అంచు_Plugin_Init_WASINN) (స్థిరరాశి అక్షరం *స్థిరరాశి *NNPreloads, స్థిరరాశి uint32_t PreloadsLen);
+  bool (*Wasm_అంచు_ఫలితం_OK) (స్థిరరాశి Wasm_అంచు_ఫలితం Res);
+  Wasm_అంచు_String (*Wasm_అంచు_String_Create_By_CString) (స్థిరరాశి అక్షరం *Str);
   uint32_t argn = 0;
   uint32_t envn = 0;
-  const char *dirs[2] = { "/:/", ".:." };
-  WasmEdge_ConfigureContext *configure;
-  WasmEdge_VMContext *vm;
-  WasmEdge_Result result;
+  స్థిరరాశి అక్షరం *dirs[2] = { "/:/", ".:." };
+  Wasm_అంచు_Configure_Context *configure;
+  Wasm_అంచు_VMContext *vm;
+  Wasm_అంచు_ఫలితం ఫలితం;
 
-  WasmEdge_ModuleInstanceContext *wasi_module;
-  WasmEdge_ModuleInstanceContext *(*WasmEdge_VMGetImportModuleContext) (WasmEdge_VMContext *Cxt, const enum WasmEdge_HostRegistration Reg);
-  void (*WasmEdge_ModuleInstanceInitWASI) (WasmEdge_ModuleInstanceContext *Cxt, const char *const *Args, const uint32_t ArgLen, const char *const *Envs, const uint32_t EnvLen, const char *const *Dirs, const uint32_t DirLen, const char *const *Preopens, const uint32_t PreopenLen);
-  WasmEdge_ModuleInstanceInitWASI = dlsym (cookie, "WasmEdge_ModuleInstanceInitWASI");
+  Wasm_అంచు_Module_Instance_Context *wasi_module;
+  Wasm_అంచు_Module_Instance_Context *(*Wasm_అంచు_VMGet_Import_Module_Context) (Wasm_అంచు_VMContext *Cxt, స్థిరరాశి గణన Wasm_అంచు_Host_Registration Reg);
+  శూన్య (*Wasm_అంచు_Module_Instance_Init_WASI) (Wasm_అంచు_Module_Instance_Context *Cxt, స్థిరరాశి అక్షరం *స్థిరరాశి *వాదనలు_2, స్థిరరాశి uint32_t ArgLen, స్థిరరాశి అక్షరం *స్థిరరాశి *Envs, స్థిరరాశి uint32_t EnvLen, స్థిరరాశి అక్షరం *స్థిరరాశి *Dirs, స్థిరరాశి uint32_t DirLen, స్థిరరాశి అక్షరం *స్థిరరాశి *Preopens, స్థిరరాశి uint32_t PreopenLen);
+  Wasm_అంచు_Module_Instance_Init_WASI = dlsym (cookie, "WasmEdge_ModuleInstanceInitWASI");
 
-  WasmEdge_ConfigureCreate = dlsym (cookie, "WasmEdge_ConfigureCreate");
-  WasmEdge_ConfigureDelete = dlsym (cookie, "WasmEdge_ConfigureDelete");
-  WasmEdge_ConfigureAddProposal = dlsym (cookie, "WasmEdge_ConfigureAddProposal");
-  WasmEdge_ConfigureAddHostRegistration = dlsym (cookie, "WasmEdge_ConfigureAddHostRegistration");
-  WasmEdge_VMCreate = dlsym (cookie, "WasmEdge_VMCreate");
-  WasmEdge_VMDelete = dlsym (cookie, "WasmEdge_VMDelete");
-  WasmEdge_VMRegisterModuleFromFile = dlsym (cookie, "WasmEdge_VMRegisterModuleFromFile");
-  WasmEdge_VMGetImportModuleContext = dlsym (cookie, "WasmEdge_VMGetImportModuleContext");
-  WasmEdge_VMRunWasmFromFile = dlsym (cookie, "WasmEdge_VMRunWasmFromFile");
-  WasmEdge_PluginLoadFromPath = dlsym (cookie, "WasmEdge_PluginLoadFromPath");
-  WasmEdge_PluginInitWASINN = dlsym (cookie, "WasmEdge_PluginInitWASINN");
-  WasmEdge_ResultOK = dlsym (cookie, "WasmEdge_ResultOK");
-  WasmEdge_StringCreateByCString = dlsym (cookie, "WasmEdge_StringCreateByCString");
+  Wasm_అంచు_Configure_Create = dlsym (cookie, "WasmEdge_ConfigureCreate");
+  Wasm_అంచు_Configure_Delete = dlsym (cookie, "WasmEdge_ConfigureDelete");
+  Wasm_అంచు_Configure_కూడు_Proposal = dlsym (cookie, "WasmEdge_ConfigureAddProposal");
+  Wasm_అంచు_Configure_కూడు_Host_Registration = dlsym (cookie, "WasmEdge_ConfigureAddHostRegistration");
+  Wasm_అంచు_VMCreate = dlsym (cookie, "WasmEdge_VMCreate");
+  Wasm_అంచు_VMDelete = dlsym (cookie, "WasmEdge_VMDelete");
+  Wasm_అంచు_VMRegister_Module_From_File = dlsym (cookie, "WasmEdge_VMRegisterModuleFromFile");
+  Wasm_అంచు_VMGet_Import_Module_Context = dlsym (cookie, "WasmEdge_VMGetImportModuleContext");
+  Wasm_అంచు_VMRun_Wasm_From_File = dlsym (cookie, "WasmEdge_VMRunWasmFromFile");
+  Wasm_అంచు_Plugin_ఎక్కించు_From_మార్గం = dlsym (cookie, "WasmEdge_PluginLoadFromPath");
+  Wasm_అంచు_Plugin_Init_WASINN = dlsym (cookie, "WasmEdge_PluginInitWASINN");
+  Wasm_అంచు_ఫలితం_OK = dlsym (cookie, "WasmEdge_ResultOK");
+  Wasm_అంచు_String_Create_By_CString = dlsym (cookie, "WasmEdge_StringCreateByCString");
 
-  if (WasmEdge_ConfigureCreate == NULL || WasmEdge_ConfigureDelete == NULL || WasmEdge_ConfigureAddProposal == NULL
-      || WasmEdge_ConfigureAddHostRegistration == NULL || WasmEdge_VMCreate == NULL || WasmEdge_VMDelete == NULL
-      || WasmEdge_VMRegisterModuleFromFile == NULL || WasmEdge_VMGetImportModuleContext == NULL
-      || WasmEdge_ModuleInstanceInitWASI == NULL || WasmEdge_VMRunWasmFromFile == NULL
-      || WasmEdge_ResultOK == NULL || WasmEdge_StringCreateByCString == NULL)
+  ఒకవేళ (Wasm_అంచు_Configure_Create == ఖాళీ || Wasm_అంచు_Configure_Delete == ఖాళీ || Wasm_అంచు_Configure_కూడు_Proposal == ఖాళీ
+      || Wasm_అంచు_Configure_కూడు_Host_Registration == ఖాళీ || Wasm_అంచు_VMCreate == ఖాళీ || Wasm_అంచు_VMDelete == ఖాళీ
+      || Wasm_అంచు_VMRegister_Module_From_File == ఖాళీ || Wasm_అంచు_VMGet_Import_Module_Context == ఖాళీ
+      || Wasm_అంచు_Module_Instance_Init_WASI == ఖాళీ || Wasm_అంచు_VMRun_Wasm_From_File == ఖాళీ
+      || Wasm_అంచు_ఫలితం_OK == ఖాళీ || Wasm_అంచు_String_Create_By_CString == ఖాళీ)
     error (EXIT_FAILURE, 0, "could not find symbol in `libwasmedge.so.0`");
 
-  configure = WasmEdge_ConfigureCreate ();
-  if (UNLIKELY (configure == NULL))
+  configure = Wasm_అంచు_Configure_Create ();
+  ఒకవేళ (UNLIKELY (configure == ఖాళీ))
     error (EXIT_FAILURE, 0, "could not create wasmedge configure");
 
-  WasmEdge_ConfigureAddProposal (configure, WasmEdge_Proposal_BulkMemoryOperations);
-  WasmEdge_ConfigureAddProposal (configure, WasmEdge_Proposal_ReferenceTypes);
-  WasmEdge_ConfigureAddProposal (configure, WasmEdge_Proposal_SIMD);
-  WasmEdge_ConfigureAddHostRegistration (configure, WasmEdge_HostRegistration_Wasi);
+  Wasm_అంచు_Configure_కూడు_Proposal (configure, Wasm_అంచు_Proposal_Bulk_జ్ఞాపకం_Operations);
+  Wasm_అంచు_Configure_కూడు_Proposal (configure, Wasm_అంచు_Proposal_Reference_Types);
+  Wasm_అంచు_Configure_కూడు_Proposal (configure, Wasm_అంచు_Proposal_SIMD);
+  Wasm_అంచు_Configure_కూడు_Host_Registration (configure, Wasm_అంచు_Host_Registration_Wasi);
   // Check if the necessary environment variables are set
-  const char *plugin_path_env = getenv ("WASMEDGE_PLUGIN_PATH");
-  if (plugin_path_env != NULL)
-    WasmEdge_PluginLoadFromPath (plugin_path_env);
+  స్థిరరాశి అక్షరం *plugin_మార్గం_env = getenv ("WASMEDGE_PLUGIN_PATH");
+  ఒకవేళ (plugin_మార్గం_env != ఖాళీ)
+    Wasm_అంచు_Plugin_ఎక్కించు_From_మార్గం (plugin_మార్గం_env);
 
-  const char *nnpreload_env = getenv ("WASMEDGE_WASINN_PRELOAD");
-  if (nnpreload_env != NULL)
-    WasmEdge_PluginInitWASINN (&nnpreload_env, 1);
+  స్థిరరాశి అక్షరం *nnpreload_env = getenv ("WASMEDGE_WASINN_PRELOAD");
+  ఒకవేళ (nnpreload_env != ఖాళీ)
+    Wasm_అంచు_Plugin_Init_WASINN (&nnpreload_env, 1);
 
-  vm = WasmEdge_VMCreate (configure, NULL);
-  if (UNLIKELY (vm == NULL))
+  vm = Wasm_అంచు_VMCreate (configure, ఖాళీ);
+  ఒకవేళ (UNLIKELY (vm == ఖాళీ))
     {
-      WasmEdge_ConfigureDelete (configure);
+      Wasm_అంచు_Configure_Delete (configure);
       error (EXIT_FAILURE, 0, "could not create wasmedge vm");
     }
 
-  wasi_module = WasmEdge_VMGetImportModuleContext (vm, WasmEdge_HostRegistration_Wasi);
-  if (UNLIKELY (wasi_module == NULL))
+  wasi_module = Wasm_అంచు_VMGet_Import_Module_Context (vm, Wasm_అంచు_Host_Registration_Wasi);
+  ఒకవేళ (UNLIKELY (wasi_module == ఖాళీ))
     {
-      WasmEdge_VMDelete (vm);
-      WasmEdge_ConfigureDelete (configure);
+      Wasm_అంచు_VMDelete (vm);
+      Wasm_అంచు_Configure_Delete (configure);
       error (EXIT_FAILURE, 0, "could not get wasmedge wasi module context");
     }
 
-  for (char *const *arg = argv; *arg != NULL; ++arg, ++argn)
+  కొరకు (అక్షరం *స్థిరరాశి *arg = argv; *arg != ఖాళీ; ++arg, ++argn)
     ;
-  extern char **environ;
-  for (char *const *env = environ; *env != NULL; ++env, ++envn)
+  బాహ్య అక్షరం **environ;
+  కొరకు (అక్షరం *స్థిరరాశి *env = environ; *env != ఖాళీ; ++env, ++envn)
     ;
 
-  WasmEdge_ModuleInstanceInitWASI (wasi_module, (const char *const *) &argv[0], argn, (const char *const *) &environ[0], envn, dirs, 1, NULL, 0);
+  Wasm_అంచు_Module_Instance_Init_WASI (wasi_module, (స్థిరరాశి అక్షరం *స్థిరరాశి *) &argv[0], argn, (స్థిరరాశి అక్షరం *స్థిరరాశి *) &environ[0], envn, dirs, 1, ఖాళీ, 0);
 
-  result = WasmEdge_VMRunWasmFromFile (vm, pathname, WasmEdge_StringCreateByCString ("_start"), NULL, 0, NULL, 0);
+  ఫలితం = Wasm_అంచు_VMRun_Wasm_From_File (vm, pathname, Wasm_అంచు_String_Create_By_CString ("_start"), ఖాళీ, 0, ఖాళీ, 0);
 
-  if (UNLIKELY (! WasmEdge_ResultOK (result)))
+  ఒకవేళ (UNLIKELY (! Wasm_అంచు_ఫలితం_OK (ఫలితం)))
     {
-      WasmEdge_VMDelete (vm);
-      WasmEdge_ConfigureDelete (configure);
+      Wasm_అంచు_VMDelete (vm);
+      Wasm_అంచు_Configure_Delete (configure);
       error (EXIT_FAILURE, 0, "could not get wasmedge result from VM");
     }
 
-  WasmEdge_VMDelete (vm);
-  WasmEdge_ConfigureDelete (configure);
-  exit (EXIT_SUCCESS);
+  Wasm_అంచు_VMDelete (vm);
+  Wasm_అంచు_Configure_Delete (configure);
+  నిష్క్రమించు (EXIT_SUCCESS);
 }
 
-static int
+స్థిర పూర్ణాంకం
 wasmedge_can_handle_container (libcrun_container_t *container, libcrun_error_t *err)
 {
-  return wasm_can_handle_container (container, err);
+  తిరిగి wasm_can_handle_container (container, err);
 }
 
 // This works only when the plugin is present in /usr/lib/wasmedge
-static int
-libwasmedge_configure_container (void *cookie arg_unused, enum handler_configure_phase phase,
-                                 libcrun_context_t *context arg_unused, libcrun_container_t *container,
-                                 const char *rootfs arg_unused, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+libwasmedge_configure_container (శూన్య *cookie arg_వాడని, గణన handler_configure_phase phase,
+                                 libcrun_context_t *context arg_వాడని, libcrun_container_t *container,
+                                 స్థిరరాశి అక్షరం *rootfs arg_వాడని, libcrun_error_t *err)
 {
-  int ret;
+  పూర్ణాంకం ret;
   runtime_spec_schema_config_schema *def = container->container_def;
 
-  char **container_env = def->process->env;
-  bool has_plugin_path = false, has_preload = false;
+  అక్షరం **container_env = def->process->env;
+  bool has_plugin_మార్గం = false, has_preload = false;
 
-  for (char **env = container_env; env && *env; env++)
+  కొరకు (అక్షరం **env = container_env; env && *env; env++)
     {
-      if (strncmp (*env, "WASMEDGE_PLUGIN_PATH=", 21) == 0)
-        has_plugin_path = true;
-      else if (strncmp (*env, "WASMEDGE_WASINN_PRELOAD=", 24) == 0)
+      ఒకవేళ (అక్షరశ్రేణి_పోలిక (*env, "WASMEDGE_PLUGIN_PATH=", 21) == 0)
+        has_plugin_మార్గం = true;
+      లేకపోతే ఒకవేళ (అక్షరశ్రేణి_పోలిక (*env, "WASMEDGE_WASINN_PRELOAD=", 24) == 0)
         has_preload = true;
     }
 
-  if (! has_plugin_path && ! has_preload)
-    return 0;
+  ఒకవేళ (! has_plugin_మార్గం && ! has_preload)
+    తిరిగి 0;
 
-  if (phase != HANDLER_CONFIGURE_AFTER_MOUNTS)
-    return 0;
+  ఒకవేళ (phase != HANDLER_CONFIGURE_AFTER_MOUNTS)
+    తిరిగి 0;
 
   // Check if /usr/lib/wasmedge is already present in spec
-  if (def->linux && def->mounts)
+  ఒకవేళ (def->linux && def->mounts)
     {
-      for (size_t i = 0; i < def->mounts_len; i++)
+      కొరకు (size_t i = 0; i < def->mounts_len; i++)
         {
-          if (strcmp (def->mounts[i]->destination, "/usr/lib/wasmedge") == 0)
-            return 0;
+          ఒకవేళ (strcmp (def->mounts[i]->destination, "/usr/lib/wasmedge") == 0)
+            తిరిగి 0;
         }
     }
 
   // Mount the plugin folder to /usr/lib/wasmedge with specific options
-  char *options[] = {
+  అక్షరం *options[] = {
     "ro",
     "rprivate",
     "nosuid",
@@ -220,26 +220,26 @@ libwasmedge_configure_container (void *cookie arg_unused, enum handler_configure
   };
 
   ret = libcrun_container_do_bind_mount (container, "/usr/lib/wasmedge ", "/usr/lib/wasmedge", options, 5, err);
-  if (ret < 0)
+  ఒకవేళ (ret < 0)
     {
-      if (crun_error_get_errno (err) != ENOENT)
-        return ret;
+      ఒకవేళ (crun_error_get_errno (err) != ENOENT)
+        తిరిగి ret;
       crun_error_release (err);
     }
 
-  return 0;
+  తిరిగి 0;
 }
 
-struct custom_handler_s handler_wasmedge = {
+నిర్మాణం custom_handler_s handler_wasmedge = {
   .name = "wasmedge",
   .alias = "wasm",
   .feature_string = "WASM:wasmedge",
-  .supports_open_tree_namespace = false,
-  .load = libwasmedge_load,
+  .supports_open_వృక్షం_namespace = false,
+  .ఎక్కించు = libwasmedge_ఎక్కించు,
   .unload = libwasmedge_unload,
-  .run_func = libwasmedge_exec,
+  .నిరంతరం_func = libwasmedge_exec,
   .can_handle_container = wasmedge_can_handle_container,
   .configure_container = libwasmedge_configure_container,
 };
 
-#endif
+#అయితే_ముగింపు

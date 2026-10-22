@@ -16,562 +16,562 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
-#include <config.h>
-#include <stdarg.h>
-#include <unistd.h>
-#include <string.h>
-#include <time.h>
-#include <sys/time.h>
-#include <stdio.h>
-#include "utils.h"
+#నిర్వచించు GNU_ఆధారం
+#అన్తర్భావ <config.h>
+#అన్తర్భావ <stdarg.h>
+#అన్తర్భావ <unistd.h>
+#అన్తర్భావ <string.h>
+#అన్తర్భావ <time.h>
+#అన్తర్భావ <sys/time.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ "utils.h"
 
-#include <json-c/json.h>
-#include <ocispec/json_common.h>
+#అన్తర్భావ <json-c/json.h>
+#అన్తర్భావ <ocispec/json_common.h>
 
-#ifdef HAVE_SYSTEMD
+#నిర్వచితమైతే HAVE_SYSTEMD
 #  include <systemd/sd-journal.h>
-#endif
+#అయితే_ముగింపు
 
-enum
+గణన
 {
-  LOG_FORMAT_TEXT = 0,
+  LOG_FORMAT_పాఠ్యం = 0,
   LOG_FORMAT_JSON,
 };
 
-static int log_format;
-static int output_verbosity = LIBCRUN_VERBOSITY_ERROR;
+స్థిర పూర్ణాంకం log_format;
+స్థిర పూర్ణాంకం output_verbosity = LIBCRUN_VERBOSITY_ERROR;
 
-int
-libcrun_make_error (libcrun_error_t *err, int status, const char *msg, ...)
+పూర్ణాంకం
+libcrun_make_error (libcrun_error_t *err, పూర్ణాంకం స్థితి_2, స్థిరరాశి అక్షరం *సందేశం, ...)
 {
-  va_list args_list;
+  va_list వాదనలు_list;
   libcrun_error_t ptr;
 
-  va_start (args_list, msg);
-  *err = xmalloc (sizeof (struct libcrun_error_s));
+  va_ప్రారంభం (వాదనలు_list, సందేశం);
+  *err = xmalloc (పరిమాణం (నిర్మాణం libcrun_error_s));
   ptr = *err;
-  ptr->status = status;
-  if (vasprintf (&(ptr->msg), msg, args_list) < 0)
+  ptr->స్థితి_2 = స్థితి_2;
+  ఒకవేళ (vasprintf (&(ptr->సందేశం), సందేశం, వాదనలు_list) < 0)
     OOM ();
-  va_end (args_list);
+  va_చివర (వాదనలు_list);
 
-  return -status - 1;
+  తిరిగి -స్థితి_2 - 1;
 }
 
-int
-crun_error_wrap (libcrun_error_t *err, const char *fmt, ...)
+పూర్ణాంకం
+crun_error_wrap (libcrun_error_t *err, స్థిరరాశి అక్షరం *fmt, ...)
 {
-  cleanup_free char *msg = NULL;
-  cleanup_free char *tmp = NULL;
-  va_list args_list;
-  char *swap;
-  int ret;
+  cleanup_free అక్షరం *సందేశం = ఖాళీ;
+  cleanup_free అక్షరం *tmp = ఖాళీ;
+  va_list వాదనలు_list;
+  అక్షరం *మార్పిడి;
+  పూర్ణాంకం ret;
 
-  if (err == NULL || *err == NULL)
+  ఒకవేళ (err == ఖాళీ || *err == ఖాళీ)
     {
       // Internal error
-      return 0;
+      తిరిగి 0;
     }
 
-  ret = -(*err)->status - 1;
+  ret = -(*err)->స్థితి_2 - 1;
 
-  va_start (args_list, fmt);
+  va_ప్రారంభం (వాదనలు_list, fmt);
 
-  if (vasprintf (&msg, fmt, args_list) < 0)
+  ఒకవేళ (vasprintf (&సందేశం, fmt, వాదనలు_list) < 0)
     {
-      va_end (args_list);
-      msg = NULL;
-      return ret;
+      va_చివర (వాదనలు_list);
+      సందేశం = ఖాళీ;
+      తిరిగి ret;
     }
-  va_end (args_list);
+  va_చివర (వాదనలు_list);
 
-  xasprintf (&tmp, "%s: %s", msg, (*err)->msg);
-  swap = tmp;
-  tmp = (*err)->msg;
-  (*err)->msg = swap;
+  xasprintf (&tmp, "%s: %s", సందేశం, (*err)->సందేశం);
+  మార్పిడి = tmp;
+  tmp = (*err)->సందేశం;
+  (*err)->సందేశం = మార్పిడి;
 
-  return ret;
+  తిరిగి ret;
 }
 
-int
+పూర్ణాంకం
 crun_error_release (libcrun_error_t *err)
 {
-  const int saved_errno = errno;
+  స్థిరరాశి పూర్ణాంకం saved_errno = errno;
   libcrun_error_t ptr;
 
-  if (err == NULL)
-    return 0;
+  ఒకవేళ (err == ఖాళీ)
+    తిరిగి 0;
 
   ptr = *err;
-  if (ptr == NULL)
-    return 0;
+  ఒకవేళ (ptr == ఖాళీ)
+    తిరిగి 0;
 
-  free (ptr->msg);
-  free (ptr);
-  *err = NULL;
+  విడుదల (ptr->సందేశం);
+  విడుదల (ptr);
+  *err = ఖాళీ;
 
   errno = saved_errno;
-  return 0;
+  తిరిగి 0;
 }
 
-int
+పూర్ణాంకం
 libcrun_error_release (libcrun_error_t *err)
 {
-  return crun_error_release (err);
+  తిరిగి crun_error_release (err);
 }
 
-int
-libcrun_error_get_status (libcrun_error_t err)
+పూర్ణాంకం
+libcrun_error_get_స్థితి (libcrun_error_t err)
 {
-  if (err == NULL)
-    return 0;
-  return err->status;
+  ఒకవేళ (err == ఖాళీ)
+    తిరిగి 0;
+  తిరిగి err->స్థితి_2;
 }
 
-const char *
-libcrun_error_get_message (libcrun_error_t err)
+స్థిరరాశి అక్షరం *
+libcrun_error_get_సందేశం (libcrun_error_t err)
 {
-  if (err == NULL)
-    return NULL;
-  return err->msg;
+  ఒకవేళ (err == ఖాళీ)
+    తిరిగి ఖాళీ;
+  తిరిగి err->సందేశం;
 }
 
-void
-crun_error_write_warning_and_release (FILE *out, libcrun_error_t **err)
+శూన్య
+crun_error_write_warning_and_release (FILE *బహిర్గతం, libcrun_error_t **err)
 {
-  const int saved_errno = errno;
+  స్థిరరాశి పూర్ణాంకం saved_errno = errno;
   libcrun_error_t ref;
 
-  if (out == NULL)
-    out = stderr;
-  if (err == NULL || *err == NULL || **err == NULL)
+  ఒకవేళ (బహిర్గతం == ఖాళీ)
+    బహిర్గతం = stderr;
+  ఒకవేళ (err == ఖాళీ || *err == ఖాళీ || **err == ఖాళీ)
     {
       // Internal error
-      return;
+      తిరిగి;
     }
 
   ref = **err;
-  if (ref->status)
-    fprintf (out, "%s: %s\n", ref->msg, strerror (ref->status));
-  else
-    fprintf (out, "%s\n", ref->msg);
+  ఒకవేళ (ref->స్థితి_2)
+    fprintf (బహిర్గతం, "%s: %s\n", ref->సందేశం, strerror (ref->స్థితి_2));
+  లేకపోతే
+    fprintf (బహిర్గతం, "%s\n", ref->సందేశం);
 
-  free (ref->msg);
-  free (ref);
-  **err = NULL;
+  విడుదల (ref->సందేశం);
+  విడుదల (ref);
+  **err = ఖాళీ;
 
   errno = saved_errno;
 }
 
-void
-libcrun_error_write_warning_and_release (FILE *out, libcrun_error_t **err)
+శూన్య
+libcrun_error_write_warning_and_release (FILE *బహిర్గతం, libcrun_error_t **err)
 {
-  return crun_error_write_warning_and_release (out, err);
+  తిరిగి crun_error_write_warning_and_release (బహిర్గతం, err);
 }
 
-void
+శూన్య
 libcrun_error_report_and_release (libcrun_error_t *err)
 {
   libcrun_error_t ref;
 
-  if (err == NULL || *err == NULL)
-    return;
+  ఒకవేళ (err == ఖాళీ || *err == ఖాళీ)
+    తిరిగి;
 
   ref = *err;
-  libcrun_error (ref->status, "%s", ref->msg);
+  libcrun_error (ref->స్థితి_2, "%s", ref->సందేశం);
   crun_error_release (err);
 }
 
-int
+పూర్ణాంకం
 crun_error_get_errno (libcrun_error_t *err)
 {
-  if (err == NULL || *err == NULL)
-    return 0;
-  return (*err)->status;
+  ఒకవేళ (err == ఖాళీ || *err == ఖాళీ)
+    తిరిగి 0;
+  తిరిగి (*err)->స్థితి_2;
 }
 
-typedef char timestamp_t[64];
+రకనిర్వచనం అక్షరం timestamp_t[64];
 
-static void
-get_timestamp (timestamp_t *timestamp, const char *suffix)
+స్థిర శూన్య
+get_timestamp (timestamp_t *timestamp, స్థిరరాశి అక్షరం *suffix)
 {
-  const size_t buffer_size = sizeof (timestamp_t);
-  char *buffer = (char *) timestamp;
-  struct timeval tv;
+  స్థిరరాశి size_t బఫరు_కొలత = పరిమాణం (timestamp_t);
+  అక్షరం *బఫరు = (అక్షరం *) timestamp;
+  నిర్మాణం timeval tv;
   size_t written;
-  struct tm now;
+  నిర్మాణం tm now;
 
-  gettimeofday (&tv, NULL);
+  gettimeofday (&tv, ఖాళీ);
   gmtime_r (&tv.tv_sec, &now);
-  written = strftime (buffer, buffer_size, "%Y-%m-%dT%H:%M:%S", &now);
-  snprintf (buffer + written, buffer_size - written, ".%06lldZ%.8s", (long long int) tv.tv_usec, suffix);
+  written = strftime (బఫరు, బఫరు_కొలత, "%Y-%m-%dT%H:%M:%S", &now);
+  snprintf (బఫరు + written, బఫరు_కొలత - written, ".%06lldZ%.8s", (దీర్ఘ దీర్ఘ పూర్ణాంకం) tv.tv_usec, suffix);
 }
 
 /* Neither openlog(3) nor the journald handler copy the identifier they are
    given, and the global output handler outlives the caller's strings (e.g.
    the context is freed while errors are still reported through it), so keep
    an owned copy alive for as long as the handler can use it.  */
-static char *log_id;
+స్థిర అక్షరం *log_id;
 
-static const char *
-set_log_id (const char *id, char **old_id)
+స్థిర స్థిరరాశి అక్షరం *
+సమితి_log_id (స్థిరరాశి అక్షరం *id, అక్షరం **old_id)
 {
   *old_id = log_id;
-  log_id = id ? xstrdup (id) : NULL;
-  return log_id;
+  log_id = id ? xstrdup (id) : ఖాళీ;
+  తిరిగి log_id;
 }
 
-static void *
-init_syslog (const char *id)
+స్థిర శూన్య *
+init_syslog (స్థిరరాశి అక్షరం *id)
 {
   openlog (id, 0, LOG_USER);
-  return NULL;
+  తిరిగి ఖాళీ;
 }
 
-enum
+గణన
 {
   LOG_TYPE_FILE = 1,
   LOG_TYPE_SYSLOG = 2,
   LOG_TYPE_JOURNALD = 3
 };
 
-static int
-get_log_type (const char *log, const char **data)
+స్థిర పూర్ణాంకం
+get_log_type (స్థిరరాశి అక్షరం *సంవర్గమానం, స్థిరరాశి అక్షరం **దత్తాంశం)
 {
-  const char *sep = strchr (log, ':');
-  if (sep == NULL)
+  స్థిరరాశి అక్షరం *sep = strchr (సంవర్గమానం, ':');
+  ఒకవేళ (sep == ఖాళీ)
     {
-      *data = log;
-      return LOG_TYPE_FILE;
+      *దత్తాంశం = సంవర్గమానం;
+      తిరిగి LOG_TYPE_FILE;
     }
-  *data = sep + 1;
+  *దత్తాంశం = sep + 1;
 
-  if (has_prefix (log, "syslog:"))
-    return LOG_TYPE_SYSLOG;
-  if (has_prefix (log, "journald:"))
-    return LOG_TYPE_JOURNALD;
-  if (has_prefix (log, "file:"))
-    return LOG_TYPE_FILE;
+  ఒకవేళ (has_ఉపసర్గ (సంవర్గమానం, "syslog:"))
+    తిరిగి LOG_TYPE_SYSLOG;
+  ఒకవేళ (has_ఉపసర్గ (సంవర్గమానం, "journald:"))
+    తిరిగి LOG_TYPE_JOURNALD;
+  ఒకవేళ (has_ఉపసర్గ (సంవర్గమానం, "file:"))
+    తిరిగి LOG_TYPE_FILE;
 
-  return -1;
+  తిరిగి -1;
 }
 
-int
-libcrun_init_logging (crun_output_handler *new_output_handler, void **new_output_handler_arg, const char *id,
-                      const char *log, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_init_logging (crun_output_handler *new_output_handler, శూన్య **new_output_handler_arg, స్థిరరాశి అక్షరం *id,
+                      స్థిరరాశి అక్షరం *సంవర్గమానం, libcrun_error_t *err)
 {
   /* Released only after the new handler is installed.  */
-  cleanup_free char *old_log_id = NULL;
+  cleanup_free అక్షరం *old_log_id = ఖాళీ;
 
-  if (log == NULL)
+  ఒకవేళ (సంవర్గమానం == ఖాళీ)
     {
-      *new_output_handler = log_write_to_stderr;
-      *new_output_handler_arg = NULL;
+      *new_output_handler = log_write_గమ్యం_stderr;
+      *new_output_handler_arg = ఖాళీ;
     }
-  else
+  లేకపోతే
     {
-      const char *arg = NULL;
-      int log_type = get_log_type (log, &arg);
+      స్థిరరాశి అక్షరం *arg = ఖాళీ;
+      పూర్ణాంకం log_type = get_log_type (సంవర్గమానం, &arg);
 
-      if (log_type < 0)
-        return crun_make_error (err, errno, "unknown log type `%s`", log);
+      ఒకవేళ (log_type < 0)
+        తిరిగి crun_make_error (err, errno, "unknown log type `%s`", సంవర్గమానం);
 
-      switch (log_type)
+      ఎంపిక (log_type)
         {
-        case LOG_TYPE_FILE:
-          *new_output_handler = log_write_to_stream;
+        స్థితి LOG_TYPE_FILE:
+          *new_output_handler = log_write_గమ్యం_ప్రవాహం;
           *new_output_handler_arg = fopen (arg, "a+e");
-          if (*new_output_handler_arg == NULL)
-            return crun_make_error (err, errno, "open log file `%s`", log);
-          if (output_verbosity >= LIBCRUN_VERBOSITY_WARNING)
+          ఒకవేళ (*new_output_handler_arg == ఖాళీ)
+            తిరిగి crun_make_error (err, errno, "open log file `%s`", సంవర్గమానం);
+          ఒకవేళ (output_verbosity >= LIBCRUN_VERBOSITY_WARNING)
             setlinebuf (*new_output_handler_arg);
-          break;
+          ఆపు;
 
-        case LOG_TYPE_SYSLOG:
-          *new_output_handler_arg = init_syslog (set_log_id (arg[0] ? arg : id, &old_log_id));
-          *new_output_handler = log_write_to_syslog;
-          break;
+        స్థితి LOG_TYPE_SYSLOG:
+          *new_output_handler_arg = init_syslog (సమితి_log_id (arg[0] ? arg : id, &old_log_id));
+          *new_output_handler = log_write_గమ్యం_syslog;
+          ఆపు;
 
-        case LOG_TYPE_JOURNALD:
-          *new_output_handler = log_write_to_journald;
-          *new_output_handler_arg = (void *) set_log_id (id, &old_log_id);
-          break;
+        స్థితి LOG_TYPE_JOURNALD:
+          *new_output_handler = log_write_గమ్యం_journald;
+          *new_output_handler_arg = (శూన్య *) సమితి_log_id (id, &old_log_id);
+          ఆపు;
         }
     }
-  crun_set_output_handler (*new_output_handler, *new_output_handler_arg);
-  return 0;
+  crun_సమితి_output_handler (*new_output_handler, *new_output_handler_arg);
+  తిరిగి 0;
 }
 
-void
-log_write_to_stream (int errno_, const char *msg, int verbosity, void *arg)
+శూన్య
+log_write_గమ్యం_ప్రవాహం (పూర్ణాంకం errno_, స్థిరరాశి అక్షరం *సందేశం, పూర్ణాంకం verbosity, శూన్య *arg)
 {
   timestamp_t timestamp = {
     0,
   };
-  FILE *stream = arg;
-  int tty = isatty (fileno (stream));
-  const char *color_begin = "";
-  const char *color_end = "";
+  FILE *ప్రవాహం = arg;
+  పూర్ణాంకం tty = isatty (fileno (ప్రవాహం));
+  స్థిరరాశి అక్షరం *color_begin = "";
+  స్థిరరాశి అక్షరం *color_చివర = "";
 
-  if (tty)
+  ఒకవేళ (tty)
     {
-      switch (verbosity)
+      ఎంపిక (verbosity)
         {
-        case LIBCRUN_VERBOSITY_DEBUG:
+        స్థితి LIBCRUN_VERBOSITY_DEBUG:
           color_begin = "\x1b[1;34m";
-          color_end = "\x1b[0m";
-          break;
-        case LIBCRUN_VERBOSITY_WARNING:
+          color_చివర = "\x1b[0m";
+          ఆపు;
+        స్థితి LIBCRUN_VERBOSITY_WARNING:
           color_begin = "\x1b[1;33m";
-          color_end = "\x1b[0m";
-          break;
-        case LIBCRUN_VERBOSITY_ERROR:
+          color_చివర = "\x1b[0m";
+          ఆపు;
+        స్థితి LIBCRUN_VERBOSITY_ERROR:
           color_begin = "\x1b[1;31m";
-          color_end = "\x1b[0m";
-          break;
+          color_చివర = "\x1b[0m";
+          ఆపు;
         }
 
-      if (log_format == LOG_FORMAT_TEXT)
+      ఒకవేళ (log_format == LOG_FORMAT_పాఠ్యం)
         get_timestamp (&timestamp, ": ");
     }
 
-  if (errno_)
-    fprintf (stream, "%s%s%s: %s%s\n", color_begin, timestamp, msg, strerror (errno_), color_end);
-  else
-    fprintf (stream, "%s%s%s%s\n", color_begin, timestamp, msg, color_end);
+  ఒకవేళ (errno_)
+    fprintf (ప్రవాహం, "%s%s%s: %s%s\n", color_begin, timestamp, సందేశం, strerror (errno_), color_చివర);
+  లేకపోతే
+    fprintf (ప్రవాహం, "%s%s%s%s\n", color_begin, timestamp, సందేశం, color_చివర);
 }
 
-void
-log_write_to_stderr (int errno_, const char *msg, int verbosity, void *arg arg_unused)
+శూన్య
+log_write_గమ్యం_stderr (పూర్ణాంకం errno_, స్థిరరాశి అక్షరం *సందేశం, పూర్ణాంకం verbosity, శూన్య *arg arg_వాడని)
 {
-  log_write_to_stream (errno_, msg, verbosity, stderr);
+  log_write_గమ్యం_ప్రవాహం (errno_, సందేశం, verbosity, stderr);
 }
 
-void
-log_write_to_syslog (int errno_, const char *msg, int verbosity, void *arg arg_unused)
+శూన్య
+log_write_గమ్యం_syslog (పూర్ణాంకం errno_, స్థిరరాశి అక్షరం *సందేశం, పూర్ణాంకం verbosity, శూన్య *arg arg_వాడని)
 {
-  int priority = LOG_ERR;
-  switch (verbosity)
+  పూర్ణాంకం ప్రాధాన్యత = LOG_ERR;
+  ఎంపిక (verbosity)
     {
-    case LIBCRUN_VERBOSITY_DEBUG:
-      priority = LOG_DEBUG;
-      break;
-    case LIBCRUN_VERBOSITY_WARNING:
-      priority = LOG_WARNING;
-      break;
-    case LIBCRUN_VERBOSITY_ERROR:
-      priority = LOG_ERR;
-      break;
+    స్థితి LIBCRUN_VERBOSITY_DEBUG:
+      ప్రాధాన్యత = LOG_DEBUG;
+      ఆపు;
+    స్థితి LIBCRUN_VERBOSITY_WARNING:
+      ప్రాధాన్యత = LOG_WARNING;
+      ఆపు;
+    స్థితి LIBCRUN_VERBOSITY_ERROR:
+      ప్రాధాన్యత = LOG_ERR;
+      ఆపు;
     }
-  if (errno_ == 0)
-    syslog (priority, "%s", msg);
-  else
-    syslog (priority, "%s: %s", msg, strerror (errno_));
+  ఒకవేళ (errno_ == 0)
+    syslog (ప్రాధాన్యత, "%s", సందేశం);
+  లేకపోతే
+    syslog (ప్రాధాన్యత, "%s: %s", సందేశం, strerror (errno_));
 }
 
-void
-log_write_to_journald (int errno_, const char *msg, int verbosity, void *arg arg_unused)
+శూన్య
+log_write_గమ్యం_journald (పూర్ణాంకం errno_, స్థిరరాశి అక్షరం *సందేశం, పూర్ణాంకం verbosity, శూన్య *arg arg_వాడని)
 {
-  (void) errno_;
-  (void) msg;
-  (void) verbosity;
-#ifdef HAVE_SYSTEMD
-  int priority = LOG_ERR;
-  switch (verbosity)
+  (శూన్య) errno_;
+  (శూన్య) సందేశం;
+  (శూన్య) verbosity;
+#నిర్వచితమైతే HAVE_SYSTEMD
+  పూర్ణాంకం ప్రాధాన్యత = LOG_ERR;
+  ఎంపిక (verbosity)
     {
-    case LIBCRUN_VERBOSITY_DEBUG:
-      priority = LOG_DEBUG;
-      break;
-    case LIBCRUN_VERBOSITY_WARNING:
-      priority = LOG_WARNING;
-      break;
-    case LIBCRUN_VERBOSITY_ERROR:
-      priority = LOG_ERR;
-      break;
+    స్థితి LIBCRUN_VERBOSITY_DEBUG:
+      ప్రాధాన్యత = LOG_DEBUG;
+      ఆపు;
+    స్థితి LIBCRUN_VERBOSITY_WARNING:
+      ప్రాధాన్యత = LOG_WARNING;
+      ఆపు;
+    స్థితి LIBCRUN_VERBOSITY_ERROR:
+      ప్రాధాన్యత = LOG_ERR;
+      ఆపు;
     }
-  if (errno_ == 0)
-    sd_journal_send ("PRIORITY=%d", priority, "MESSAGE=%s", msg, "ID=%s", arg, NULL);
-  else
-    sd_journal_send ("PRIORITY=%d", priority, "MESSAGE=%s: %s", msg, strerror (errno_), "ID=%s",
-                     arg, NULL);
-#endif
+  ఒకవేళ (errno_ == 0)
+    sd_journal_send ("PRIORITY=%d", ప్రాధాన్యత, "MESSAGE=%s", సందేశం, "ID=%s", arg, ఖాళీ);
+  లేకపోతే
+    sd_journal_send ("PRIORITY=%d", ప్రాధాన్యత, "MESSAGE=%s: %s", సందేశం, strerror (errno_), "ID=%s",
+                     arg, ఖాళీ);
+#అయితే_ముగింపు
 }
 
-static crun_output_handler output_handler = log_write_to_stderr;
-static void *output_handler_arg = NULL;
+స్థిర crun_output_handler output_handler = log_write_గమ్యం_stderr;
+స్థిర శూన్య *output_handler_arg = ఖాళీ;
 
-void
-libcrun_set_verbosity (int verbosity)
+శూన్య
+libcrun_సమితి_verbosity (పూర్ణాంకం verbosity)
 {
   output_verbosity = verbosity;
 }
 
-int
+పూర్ణాంకం
 libcrun_get_verbosity ()
 {
-  return output_verbosity;
+  తిరిగి output_verbosity;
 }
 
-void
-crun_set_output_handler (crun_output_handler handler, void *arg)
+శూన్య
+crun_సమితి_output_handler (crun_output_handler handler, శూన్య *arg)
 {
   output_handler = handler;
   output_handler_arg = arg;
 }
 
-static char *
-make_json_error (const char *msg, int errno_, int verbosity)
+స్థిర అక్షరం *
+make_json_error (స్థిరరాశి అక్షరం *సందేశం, పూర్ణాంకం errno_, పూర్ణాంకం verbosity)
 {
-  const char *level;
-  switch (verbosity)
+  స్థిరరాశి అక్షరం *level;
+  ఎంపిక (verbosity)
     {
-    case LIBCRUN_VERBOSITY_DEBUG:
+    స్థితి LIBCRUN_VERBOSITY_DEBUG:
       level = "debug";
-      break;
-    case LIBCRUN_VERBOSITY_WARNING:
+      ఆపు;
+    స్థితి LIBCRUN_VERBOSITY_WARNING:
       level = "warning";
-      break;
-    case LIBCRUN_VERBOSITY_ERROR:
+      ఆపు;
+    స్థితి LIBCRUN_VERBOSITY_ERROR:
       level = "error";
-      break;
+      ఆపు;
     }
-  const char *buf = NULL;
-  json_gen_ctx *gen = NULL;
-  char *ret = NULL;
+  స్థిరరాశి అక్షరం *buf = ఖాళీ;
+  json_gen_ctx *gen = ఖాళీ;
+  అక్షరం *ret = ఖాళీ;
   size_t buf_len;
   timestamp_t timestamp = {
     0,
   };
 
-  if (! json_gen_init (&gen, NULL))
-    return NULL;
+  ఒకవేళ (! json_gen_init (&gen, ఖాళీ))
+    తిరిగి ఖాళీ;
 
   get_timestamp (&timestamp, "");
 
   json_gen_map_open (gen);
 
-  json_gen_string (gen, "msg", strlen ("msg"));
-  if (errno_ == 0)
-    json_gen_string (gen, msg, strlen (msg));
-  else
+  json_gen_string (gen, "msg", అక్షరశ్రేణి_పొడవు ("msg"));
+  ఒకవేళ (errno_ == 0)
+    json_gen_string (gen, సందేశం, అక్షరశ్రేణి_పొడవు (సందేశం));
+  లేకపోతే
     {
-      cleanup_free char *tmp = NULL;
+      cleanup_free అక్షరం *tmp = ఖాళీ;
 
-      xasprintf (&tmp, "%s: %s", msg, strerror (errno_));
-      json_gen_string (gen, tmp, strlen (tmp));
+      xasprintf (&tmp, "%s: %s", సందేశం, strerror (errno_));
+      json_gen_string (gen, tmp, అక్షరశ్రేణి_పొడవు (tmp));
     }
 
-  json_gen_string (gen, "level", strlen ("level"));
-  json_gen_string (gen, level, strlen (level));
+  json_gen_string (gen, "level", అక్షరశ్రేణి_పొడవు ("level"));
+  json_gen_string (gen, level, అక్షరశ్రేణి_పొడవు (level));
 
-  json_gen_string (gen, "time", strlen ("time"));
-  json_gen_string (gen, timestamp, strlen (timestamp));
+  json_gen_string (gen, "time", అక్షరశ్రేణి_పొడవు ("time"));
+  json_gen_string (gen, timestamp, అక్షరశ్రేణి_పొడవు (timestamp));
 
   json_gen_map_close (gen);
 
   json_gen_get_buf (gen, &buf, &buf_len);
-  if (buf)
+  ఒకవేళ (buf)
     ret = strdup (buf);
 
   json_gen_free (gen);
 
-  return ret;
+  తిరిగి ret;
 }
 
-static void
-write_log (int errno_, int verbosity, const char *msg, va_list args_list)
+స్థిర శూన్య
+write_log (పూర్ణాంకం errno_, పూర్ణాంకం verbosity, స్థిరరాశి అక్షరం *సందేశం, va_list వాదనలు_list)
 {
-  int ret;
-  cleanup_free char *output = NULL;
-  cleanup_free char *json = NULL;
+  పూర్ణాంకం ret;
+  cleanup_free అక్షరం *output = ఖాళీ;
+  cleanup_free అక్షరం *json = ఖాళీ;
 
-  if (verbosity > output_verbosity)
-    return;
+  ఒకవేళ (verbosity > output_verbosity)
+    తిరిగి;
 
-  ret = vasprintf (&output, msg, args_list);
-  if (UNLIKELY (ret < 0))
+  ret = vasprintf (&output, సందేశం, వాదనలు_list);
+  ఒకవేళ (UNLIKELY (ret < 0))
     OOM ();
 
-  if (verbosity == LIBCRUN_VERBOSITY_ERROR && output_handler != log_write_to_stderr)
-    log_write_to_stderr (errno_, output, LIBCRUN_VERBOSITY_ERROR, NULL);
+  ఒకవేళ (verbosity == LIBCRUN_VERBOSITY_ERROR && output_handler != log_write_గమ్యం_stderr)
+    log_write_గమ్యం_stderr (errno_, output, LIBCRUN_VERBOSITY_ERROR, ఖాళీ);
 
-  switch (log_format)
+  ఎంపిక (log_format)
     {
-    case LOG_FORMAT_TEXT:
+    స్థితి LOG_FORMAT_పాఠ్యం:
       output_handler (errno_, output, verbosity, output_handler_arg);
-      break;
+      ఆపు;
 
-    case LOG_FORMAT_JSON:
+    స్థితి LOG_FORMAT_JSON:
       json = make_json_error (output, errno_, verbosity);
-      if (json)
+      ఒకవేళ (json)
         output_handler (0, json, verbosity, output_handler_arg);
-      else
+      లేకపోతే
         output_handler (errno_, output, verbosity, output_handler_arg);
-      break;
+      ఆపు;
     }
 }
 
-void
-libcrun_debug (const char *msg, ...)
+శూన్య
+libcrun_debug (స్థిరరాశి అక్షరం *సందేశం, ...)
 {
-  va_list args_list;
-  va_start (args_list, msg);
-  write_log (0, LIBCRUN_VERBOSITY_DEBUG, msg, args_list);
-  va_end (args_list);
+  va_list వాదనలు_list;
+  va_ప్రారంభం (వాదనలు_list, సందేశం);
+  write_log (0, LIBCRUN_VERBOSITY_DEBUG, సందేశం, వాదనలు_list);
+  va_చివర (వాదనలు_list);
 }
 
-void
-libcrun_warning (const char *msg, ...)
+శూన్య
+libcrun_warning (స్థిరరాశి అక్షరం *సందేశం, ...)
 {
-  va_list args_list;
-  va_start (args_list, msg);
-  write_log (0, LIBCRUN_VERBOSITY_WARNING, msg, args_list);
-  va_end (args_list);
+  va_list వాదనలు_list;
+  va_ప్రారంభం (వాదనలు_list, సందేశం);
+  write_log (0, LIBCRUN_VERBOSITY_WARNING, సందేశం, వాదనలు_list);
+  va_చివర (వాదనలు_list);
 }
 
-void
-libcrun_error (int errno_, const char *msg, ...)
+శూన్య
+libcrun_error (పూర్ణాంకం errno_, స్థిరరాశి అక్షరం *సందేశం, ...)
 {
-  va_list args_list;
-  va_start (args_list, msg);
+  va_list వాదనలు_list;
+  va_ప్రారంభం (వాదనలు_list, సందేశం);
 
-  write_log (errno_, LIBCRUN_VERBOSITY_ERROR, msg, args_list);
-  va_end (args_list);
+  write_log (errno_, LIBCRUN_VERBOSITY_ERROR, సందేశం, వాదనలు_list);
+  va_చివర (వాదనలు_list);
 }
 
-void __attribute__ ((noreturn))
-libcrun_fail_with_error (int errno_, const char *msg, ...)
+శూన్య __attribute__ ((noreturn))
+libcrun_fail_with_error (పూర్ణాంకం errno_, స్థిరరాశి అక్షరం *సందేశం, ...)
 {
-  va_list args_list;
-  va_start (args_list, msg);
-  write_log (errno_, LIBCRUN_VERBOSITY_ERROR, msg, args_list);
-  va_end (args_list);
-  exit (EXIT_FAILURE);
+  va_list వాదనలు_list;
+  va_ప్రారంభం (వాదనలు_list, సందేశం);
+  write_log (errno_, LIBCRUN_VERBOSITY_ERROR, సందేశం, వాదనలు_list);
+  va_చివర (వాదనలు_list);
+  నిష్క్రమించు (EXIT_FAILURE);
 }
 
-int
-libcrun_set_log_format (const char *format, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_సమితి_log_format (స్థిరరాశి అక్షరం *format, libcrun_error_t *err)
 {
-  if (strcmp (format, "text") == 0)
-    log_format = LOG_FORMAT_TEXT;
-  else if (strcmp (format, "json") == 0)
+  ఒకవేళ (strcmp (format, "text") == 0)
+    log_format = LOG_FORMAT_పాఠ్యం;
+  లేకపోతే ఒకవేళ (strcmp (format, "json") == 0)
     log_format = LOG_FORMAT_JSON;
-  else
-    return crun_make_error (err, 0, "unknown log format type `%s`", format);
+  లేకపోతే
+    తిరిగి crun_make_error (err, 0, "unknown log format type `%s`", format);
 
-  return 0;
+  తిరిగి 0;
 }
 
-int
-json_gen_error_to_crun_error (int status, libcrun_error_t *err)
+పూర్ణాంకం
+json_gen_error_గమ్యం_crun_error (పూర్ణాంకం స్థితి_2, libcrun_error_t *err)
 {
-  switch (status)
+  ఎంపిక (స్థితి_2)
     {
-    case json_gen_status_ok:
-      return 0;
+    స్థితి json_gen_స్థితి_ok:
+      తిరిగి 0;
 
-    default:
-      return crun_make_error (err, 0, "generate JSON document: error %d", status);
+    అప్రమేయ:
+      తిరిగి crun_make_error (err, 0, "generate JSON document: error %d", స్థితి_2);
     }
 }

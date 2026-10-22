@@ -16,329 +16,329 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#అన్తర్భావ <config.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ <argp.h>
+#అన్తర్భావ <string.h>
+#అన్తర్భావ <unistd.h>
+#అన్తర్భావ <errno.h>
 
-#include "crun.h"
+#అన్తర్భావ "crun.h"
 
-static char doc[] = "OCI runtime";
+స్థిర అక్షరం doc[] = "OCI runtime";
 
-static char *resources = NULL;
+స్థిర అక్షరం *resources = ఖాళీ;
 
-enum
+గణన
 {
-  FIRST_VALUE = 1000,
+  మొదటి_విలువ = 1000,
 
-  BLKIO_WEIGHT = FIRST_VALUE,
+  BLKIO_బరువు = మొదటి_విలువ,
 
   CPU_PERIOD,
   CPU_QUOTA,
   CPU_SHARE,
   CPU_RT_PERIOD,
   CPU_RT_RUNTIME,
-  CPU_BURST,
+  CPU_వ్యవధి,
   CPU_IDLE,
   CPUSET_CPUS,
   CPUSET_MEMS,
 
-  KERNEL_MEMORY,
-  KERNEL_MEMORY_TCP,
-  MEMORY,
-  MEMORY_RESERVATION,
-  MEMORY_SWAP,
+  KERNEL_జ్ఞాపకం,
+  KERNEL_జ్ఞాపకం_TCP,
+  జ్ఞాపకం_2,
+  జ్ఞాపకం_RESERVATION,
+  జ్ఞాపకం_మార్పిడి,
 
-  PIDS_LIMIT,
+  PIDS_హద్దు,
 
   /* not in the resources block.  */
   L3_CACHE_SCHEMA,
   MEM_BW_SCHEMA,
 
-  LAST_VALUE,
+  చివరి_విలువ,
 };
 
-struct description_s
+నిర్మాణం description_s
 {
-  int id;
-  const char *section;
-  const char *name;
-  int numeric;
+  పూర్ణాంకం id;
+  స్థిరరాశి అక్షరం *section;
+  స్థిరరాశి అక్షరం *name;
+  పూర్ణాంకం numeric;
 };
 
-static struct description_s descriptors[] = { { BLKIO_WEIGHT, "blockIO", "weight", 1 },
+స్థిర నిర్మాణం description_s descriptors[] = { { BLKIO_బరువు, "blockIO", "weight", 1 },
 
                                               { CPU_PERIOD, "cpu", "period", 1 },
                                               { CPU_QUOTA, "cpu", "quota", 1 },
                                               { CPU_SHARE, "cpu", "shares", 1 },
                                               { CPU_RT_PERIOD, "cpu", "realtimePeriod", 1 },
                                               { CPU_RT_RUNTIME, "cpu", "realtimeRuntime", 1 },
-                                              { CPU_BURST, "cpu", "burst", 1 },
+                                              { CPU_వ్యవధి, "cpu", "burst", 1 },
                                               { CPU_IDLE, "cpu", "idle", 1 },
                                               { CPUSET_CPUS, "cpu", "cpus", 0 },
                                               { CPUSET_MEMS, "cpu", "mems", 0 },
 
-                                              { KERNEL_MEMORY, "memory", "kernel", 1 },
-                                              { KERNEL_MEMORY_TCP, "memory", "kernelTCP", 1 },
-                                              { MEMORY, "memory", "limit", 1 },
-                                              { MEMORY_RESERVATION, "memory", "reservation", 1 },
-                                              { MEMORY_SWAP, "memory", "swap", 1 },
+                                              { KERNEL_జ్ఞాపకం, "memory", "kernel", 1 },
+                                              { KERNEL_జ్ఞాపకం_TCP, "memory", "kernelTCP", 1 },
+                                              { జ్ఞాపకం_2, "memory", "limit", 1 },
+                                              { జ్ఞాపకం_RESERVATION, "memory", "reservation", 1 },
+                                              { జ్ఞాపకం_మార్పిడి, "memory", "swap", 1 },
 
-                                              { PIDS_LIMIT, "pids", "limit", 1 },
+                                              { PIDS_హద్దు, "pids", "limit", 1 },
                                               { 0 } };
 
-static struct libcrun_update_value_s *values;
-size_t values_len = 0;
+స్థిర నిర్మాణం libcrun_update_విలువ_s *విలువలు;
+size_t విలువలు_len = 0;
 
-static void
-set_value (int id, const char *value)
+స్థిర శూన్య
+సమితి_విలువ (పూర్ణాంకం id, స్థిరరాశి అక్షరం *విలువ)
 {
-  values = xrealloc (values, (values_len + 1) * sizeof (struct libcrun_update_value_s));
-  values[values_len].section = descriptors[id - FIRST_VALUE].section;
-  values[values_len].name = descriptors[id - FIRST_VALUE].name;
-  values[values_len].numeric = descriptors[id - FIRST_VALUE].numeric;
-  values[values_len].value = value;
-  values_len++;
+  విలువలు = xrealloc (విలువలు, (విలువలు_len + 1) * పరిమాణం (నిర్మాణం libcrun_update_విలువ_s));
+  విలువలు[విలువలు_len].section = descriptors[id - మొదటి_విలువ].section;
+  విలువలు[విలువలు_len].name = descriptors[id - మొదటి_విలువ].name;
+  విలువలు[విలువలు_len].numeric = descriptors[id - మొదటి_విలువ].numeric;
+  విలువలు[విలువలు_len].విలువ = విలువ;
+  విలువలు_len++;
 }
 
 /* Parse a memory size, which may have a unit suffix (e.g. 512k or 1.5G),
    like runc does.  Return the size in bytes as a string.  */
-static char *
-parse_memory_size (const char *opt, const char *value)
+స్థిర అక్షరం *
+parse_జ్ఞాపకం_కొలత (స్థిరరాశి అక్షరం *opt, స్థిరరాశి అక్షరం *విలువ)
 {
-  const char *suffix;
-  char buf[32];
-  char *end;
-  double size, mul = 1;
+  స్థిరరాశి అక్షరం *suffix;
+  అక్షరం buf[32];
+  అక్షరం *చివర;
+  ద్విగుణ కొలత, mul = 1;
 
-  if (strcmp (value, "-1") == 0)
-    return xstrdup (value);
+  ఒకవేళ (strcmp (విలువ, "-1") == 0)
+    తిరిగి xstrdup (విలువ);
 
   errno = 0;
-  size = strtod (value, &end);
-  if ((value[0] != '.' && (value[0] < '0' || value[0] > '9')) || end == value || errno != 0 || size < 0)
-    goto invalid;
+  కొలత = strtod (విలువ, &చివర);
+  ఒకవేళ ((విలువ[0] != '.' && (విలువ[0] < '0' || విలువ[0] > '9')) || చివర == విలువ || errno != 0 || కొలత < 0)
+    వెళ్ళు invalid;
 
-  suffix = end;
-  if (*suffix == ' ')
+  suffix = చివర;
+  ఒకవేళ (*suffix == ' ')
     suffix++;
-  if (*suffix)
+  ఒకవేళ (*suffix)
     {
-      switch (*suffix | 0x20)
+      ఎంపిక (*suffix | 0x20)
         {
-        case 'b':
-          if (suffix[1] != '\0')
-            goto invalid;
-          break;
-        case 'k':
+        స్థితి 'b':
+          ఒకవేళ (suffix[1] != '\0')
+            వెళ్ళు invalid;
+          ఆపు;
+        స్థితి 'k':
           mul = 1ULL << 10;
-          break;
-        case 'm':
+          ఆపు;
+        స్థితి 'm':
           mul = 1ULL << 20;
-          break;
-        case 'g':
+          ఆపు;
+        స్థితి 'g':
           mul = 1ULL << 30;
-          break;
-        case 't':
+          ఆపు;
+        స్థితి 't':
           mul = 1ULL << 40;
-          break;
-        case 'p':
+          ఆపు;
+        స్థితి 'p':
           mul = 1ULL << 50;
-          break;
-        default:
-          goto invalid;
+          ఆపు;
+        అప్రమేయ:
+          వెళ్ళు invalid;
         }
-      if (mul > 1 && suffix[1] != '\0' && strcasecmp (suffix + 1, "b") != 0 && strcasecmp (suffix + 1, "ib") != 0)
-        goto invalid;
+      ఒకవేళ (mul > 1 && suffix[1] != '\0' && strcasecmp (suffix + 1, "b") != 0 && strcasecmp (suffix + 1, "ib") != 0)
+        వెళ్ళు invalid;
     }
 
-  size *= mul;
-  if (size >= 9223372036854775808.0)
-    goto invalid;
+  కొలత *= mul;
+  ఒకవేళ (కొలత >= 9223372036854775808.0)
+    వెళ్ళు invalid;
 
-  snprintf (buf, sizeof (buf), "%lld", (long long) size);
-  return xstrdup (buf);
+  snprintf (buf, పరిమాణం (buf), "%lld", (దీర్ఘ దీర్ఘ) కొలత);
+  తిరిగి xstrdup (buf);
 
 invalid:
-  libcrun_fail_with_error (0, "invalid value for --%s: `%s`", opt, value);
+  libcrun_fail_with_error (0, "invalid value for --%s: `%s`", opt, విలువ);
 }
 
 /* Check that VALUE is an integer.  */
-static const char *
-check_integer (const char *opt, const char *value)
+స్థిర స్థిరరాశి అక్షరం *
+check_integer (స్థిరరాశి అక్షరం *opt, స్థిరరాశి అక్షరం *విలువ)
 {
-  char *end;
+  అక్షరం *చివర;
 
   errno = 0;
-  (void) strtoll (value, &end, 10);
-  if (end == value || *end != '\0' || errno != 0)
-    libcrun_fail_with_error (0, "invalid value for --%s: `%s`", opt, value);
-  return value;
+  (శూన్య) strtoll (విలువ, &చివర, 10);
+  ఒకవేళ (చివర == విలువ || *చివర != '\0' || errno != 0)
+    libcrun_fail_with_error (0, "invalid value for --%s: `%s`", opt, విలువ);
+  తిరిగి విలువ;
 }
 
-static char *l3_cache_schema;
-static char *mem_bw_schema;
+స్థిర అక్షరం *l3_cache_schema;
+స్థిర అక్షరం *mem_bw_schema;
 
-static struct argp_option options[]
+స్థిర నిర్మాణం argp_option options[]
     = { { "resources", 'r', "FILE", 0, "path to the file containing the resources to update", 0 },
-        { "blkio-weight", BLKIO_WEIGHT, "VALUE", 0, "Specifies per cgroup weight", 0 },
+        { "blkio-weight", BLKIO_బరువు, "VALUE", 0, "Specifies per cgroup weight", 0 },
         { "cpu-period", CPU_PERIOD, "VALUE", 0, "CPU CFS period to be used for hardcapping", 0 },
         { "cpu-quota", CPU_QUOTA, "VALUE", 0, "CPU CFS hardcap limit", 0 },
         { "cpu-share", CPU_SHARE, "VALUE", 0, "CPU shares", 0 },
         { "cpu-rt-period", CPU_RT_PERIOD, "VALUE", 0, "CPU realtime period to be used for hardcapping", 0 },
         { "cpu-rt-runtime", CPU_RT_RUNTIME, "VALUE", 0, "CPU realtime hardcap limit", 0 },
-        { "cpu-burst", CPU_BURST, "VALUE", 0, "CPU CFS burst limit", 0 },
+        { "cpu-burst", CPU_వ్యవధి, "VALUE", 0, "CPU CFS burst limit", 0 },
         { "cpu-idle", CPU_IDLE, "VALUE", 0, "set cgroup SCHED_IDLE or not, 0: default behavior, 1: SCHED_IDLE", 0 },
         { "cpuset-cpus", CPUSET_CPUS, "VALUE", 0, "CPU(s) to use", 0 },
         { "cpuset-mems", CPUSET_MEMS, "VALUE", 0, "Memory node(s) to use", 0 },
-        { "kernel-memory", KERNEL_MEMORY, "VALUE", 0, "Kernel memory limit", 0 },
-        { "kernel-memory-tcp", KERNEL_MEMORY_TCP, "VALUE", 0, "Kernel memory limit for tcp buffer", 0 },
-        { "memory", MEMORY, "VALUE", 0, "Memory limit", 0 },
-        { "memory-reservation", MEMORY_RESERVATION, "VALUE", 0, "Memory reservation or soft_limit", 0 },
-        { "memory-swap", MEMORY_SWAP, "VALUE", 0, "Total memory usage", 0 },
-        { "pids-limit", PIDS_LIMIT, "VALUE", 0, "Maximum number of pids allowed in the container", 0 },
+        { "kernel-memory", KERNEL_జ్ఞాపకం, "VALUE", 0, "Kernel memory limit", 0 },
+        { "kernel-memory-tcp", KERNEL_జ్ఞాపకం_TCP, "VALUE", 0, "Kernel memory limit for tcp buffer", 0 },
+        { "memory", జ్ఞాపకం_2, "VALUE", 0, "Memory limit", 0 },
+        { "memory-reservation", జ్ఞాపకం_RESERVATION, "VALUE", 0, "Memory reservation or soft_limit", 0 },
+        { "memory-swap", జ్ఞాపకం_మార్పిడి, "VALUE", 0, "Total memory usage", 0 },
+        { "pids-limit", PIDS_హద్దు, "VALUE", 0, "Maximum number of pids allowed in the container", 0 },
         { "l3-cache-schema", L3_CACHE_SCHEMA, "VALUE", 0, "The string of Intel RDT/CAT L3 cache schema", 0 },
         { "mem-bw-schema", MEM_BW_SCHEMA, "VALUE", 0, "The string of Intel RDT/MBA memory bandwidth schema", 0 },
         {
             0,
         } };
 
-static char args_doc[] = "update [OPTION]... CONTAINER";
+స్థిర అక్షరం వాదనలు_doc[] = "update [OPTION]... CONTAINER";
 
-static const char *
-option_name (int key)
+స్థిర స్థిరరాశి అక్షరం *
+option_name (పూర్ణాంకం కీలకం)
 {
   size_t i;
 
-  for (i = 0; options[i].name; i++)
-    if (options[i].key == key)
-      return options[i].name;
-  return "";
+  కొరకు (i = 0; options[i].name; i++)
+    ఒకవేళ (options[i].కీలకం == కీలకం)
+      తిరిగి options[i].name;
+  తిరిగి "";
 }
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+స్థిర error_t
+parse_opt (పూర్ణాంకం కీలకం, అక్షరం *arg, నిర్మాణం argp_state *state)
 {
-  switch (key)
+  ఎంపిక (కీలకం)
     {
-    case 'r':
-      resources = argp_mandatory_argument (arg, state);
-      break;
+    స్థితి 'r':
+      resources = argp_mandatory_వాదం (arg, state);
+      ఆపు;
 
-    case ARGP_KEY_NO_ARGS:
+    స్థితి ARGP_కీలకం_NO_వాదనలు:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    case CPUSET_CPUS:
-    case CPUSET_MEMS:
-      set_value (key, argp_mandatory_argument (arg, state));
-      break;
+    స్థితి CPUSET_CPUS:
+    స్థితి CPUSET_MEMS:
+      సమితి_విలువ (కీలకం, argp_mandatory_వాదం (arg, state));
+      ఆపు;
 
-    case BLKIO_WEIGHT:
-    case CPU_PERIOD:
-    case CPU_QUOTA:
-    case CPU_SHARE:
-    case CPU_RT_PERIOD:
-    case CPU_RT_RUNTIME:
-    case CPU_BURST:
-    case CPU_IDLE:
-    case PIDS_LIMIT:
-      set_value (key, check_integer (option_name (key), argp_mandatory_argument (arg, state)));
-      break;
+    స్థితి BLKIO_బరువు:
+    స్థితి CPU_PERIOD:
+    స్థితి CPU_QUOTA:
+    స్థితి CPU_SHARE:
+    స్థితి CPU_RT_PERIOD:
+    స్థితి CPU_RT_RUNTIME:
+    స్థితి CPU_వ్యవధి:
+    స్థితి CPU_IDLE:
+    స్థితి PIDS_హద్దు:
+      సమితి_విలువ (కీలకం, check_integer (option_name (కీలకం), argp_mandatory_వాదం (arg, state)));
+      ఆపు;
 
-    case KERNEL_MEMORY:
-    case KERNEL_MEMORY_TCP:
-    case MEMORY:
-    case MEMORY_RESERVATION:
-    case MEMORY_SWAP:
-      set_value (key, parse_memory_size (option_name (key), argp_mandatory_argument (arg, state)));
-      break;
+    స్థితి KERNEL_జ్ఞాపకం:
+    స్థితి KERNEL_జ్ఞాపకం_TCP:
+    స్థితి జ్ఞాపకం_2:
+    స్థితి జ్ఞాపకం_RESERVATION:
+    స్థితి జ్ఞాపకం_మార్పిడి:
+      సమితి_విలువ (కీలకం, parse_జ్ఞాపకం_కొలత (option_name (కీలకం), argp_mandatory_వాదం (arg, state)));
+      ఆపు;
 
-    case L3_CACHE_SCHEMA:
-      l3_cache_schema = argp_mandatory_argument (arg, state);
-      break;
+    స్థితి L3_CACHE_SCHEMA:
+      l3_cache_schema = argp_mandatory_వాదం (arg, state);
+      ఆపు;
 
-    case MEM_BW_SCHEMA:
-      mem_bw_schema = argp_mandatory_argument (arg, state);
-      break;
+    స్థితి MEM_BW_SCHEMA:
+      mem_bw_schema = argp_mandatory_వాదం (arg, state);
+      ఆపు;
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    అప్రమేయ:
+      తిరిగి ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  తిరిగి 0;
 }
 
 /* If the memory limit is removed and no swap limit is given, remove the
    swap limit as well (which cannot be larger than the memory one), like
    runc does.  */
-static void
-set_swap_for_unlimited_memory (void)
+స్థిర శూన్య
+సమితి_మార్పిడి_for_unlimited_జ్ఞాపకం (శూన్య)
 {
-  bool unlimited_memory = false;
+  bool unlimited_జ్ఞాపకం = false;
   size_t i;
 
-  for (i = 0; i < values_len; i++)
+  కొరకు (i = 0; i < విలువలు_len; i++)
     {
-      if (strcmp (values[i].section, "memory") != 0)
-        continue;
-      if (strcmp (values[i].name, "swap") == 0)
-        return;
-      if (strcmp (values[i].name, "limit") == 0)
-        unlimited_memory = strcmp (values[i].value, "-1") == 0;
+      ఒకవేళ (strcmp (విలువలు[i].section, "memory") != 0)
+        కొనసాగు;
+      ఒకవేళ (strcmp (విలువలు[i].name, "swap") == 0)
+        తిరిగి;
+      ఒకవేళ (strcmp (విలువలు[i].name, "limit") == 0)
+        unlimited_జ్ఞాపకం = strcmp (విలువలు[i].విలువ, "-1") == 0;
     }
 
-  if (unlimited_memory)
-    set_value (MEMORY_SWAP, "-1");
+  ఒకవేళ (unlimited_జ్ఞాపకం)
+    సమితి_విలువ (జ్ఞాపకం_మార్పిడి, "-1");
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+స్థిర నిర్మాణం argp నిరంతరం_argp = { options, parse_opt, వాదనలు_doc, doc, ఖాళీ, ఖాళీ, ఖాళీ };
 
-int
-crun_command_update (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+పూర్ణాంకం
+crun_command_update (నిర్మాణం crun_global_arguments *global_వాదనలు, పూర్ణాంకం argc, అక్షరం **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
-  cleanup_context libcrun_context_t *crun_context = NULL;
+  పూర్ణాంకం మొదటి_arg = 0, ret;
+  cleanup_context libcrun_context_t *crun_context = ఖాళీ;
 
   /* Allow options after the container ID, like runc does.  */
-  argp_parse (&run_argp, argc, argv, 0, &first_arg, NULL);
-  crun_assert_n_args (argc - first_arg, 1, 1);
+  argp_parse (&నిరంతరం_argp, argc, argv, 0, &మొదటి_arg, ఖాళీ);
+  crun_assert_n_వాదనలు (argc - మొదటి_arg, 1, 1);
 
-  set_swap_for_unlimited_memory ();
+  సమితి_మార్పిడి_for_unlimited_జ్ఞాపకం ();
 
-  crun_context = new_libcrun_context (global_args);
+  crun_context = new_libcrun_context (global_వాదనలు);
 
-  ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = init_libcrun_context (crun_context, argv[మొదటి_arg], global_వాదనలు, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  if (resources == NULL)
+  ఒకవేళ (resources == ఖాళీ)
     {
-      ret = libcrun_container_update_from_values (crun_context, argv[first_arg], values, values_len, err);
-      free (values);
-      if (ret < 0)
-        return ret;
+      ret = libcrun_container_update_from_విలువలు (crun_context, argv[మొదటి_arg], విలువలు, విలువలు_len, err);
+      విడుదల (విలువలు);
+      ఒకవేళ (ret < 0)
+        తిరిగి ret;
     }
-  else
+  లేకపోతే
     {
-      ret = libcrun_container_update_from_file (crun_context, argv[first_arg], resources, err);
-      if (ret < 0)
-        return ret;
+      ret = libcrun_container_update_from_file (crun_context, argv[మొదటి_arg], resources, err);
+      ఒకవేళ (ret < 0)
+        తిరిగి ret;
     }
 
-  if (l3_cache_schema || mem_bw_schema)
+  ఒకవేళ (l3_cache_schema || mem_bw_schema)
     {
-      struct libcrun_intel_rdt_update update = {
+      నిర్మాణం libcrun_intel_rdt_update update = {
         .l3_cache_schema = l3_cache_schema,
         .mem_bw_schema = mem_bw_schema,
       };
 
-      ret = libcrun_container_update_intel_rdt (crun_context, argv[first_arg], &update, err);
-      if (ret < 0)
-        return ret;
+      ret = libcrun_container_update_intel_rdt (crun_context, argv[మొదటి_arg], &update, err);
+      ఒకవేళ (ret < 0)
+        తిరిగి ret;
     }
 
-  return 0;
+  తిరిగి 0;
 }

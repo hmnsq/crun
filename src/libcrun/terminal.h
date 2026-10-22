@@ -15,24 +15,24 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef TERMINAL_H
-#define TERMINAL_H
-#include <config.h>
+#నిర్వచితం_కాకపోతే TERMINAL_H
+#నిర్వచించు TERMINAL_H
+#అన్తర్భావ <config.h>
 
-#include "container.h"
-#include <termios.h>
+#అన్తర్భావ "container.h"
+#అన్తర్భావ <termios.h>
 
-void cleanup_terminalp (void *p);
-#define cleanup_terminal __attribute__ ((cleanup (cleanup_terminalp)))
+శూన్య cleanup_terminalp (శూన్య *p);
+#నిర్వచించు cleanup_terminal __attribute__ ((cleanup (cleanup_terminalp)))
 
-int libcrun_new_terminal (char **pty, libcrun_error_t *err);
+పూర్ణాంకం libcrun_new_terminal (అక్షరం **pty, libcrun_error_t *err);
 
-int libcrun_set_stdio (int ptmx_fd, char *pty, libcrun_error_t *err);
+పూర్ణాంకం libcrun_సమితి_stdio (పూర్ణాంకం ptmx_fd, అక్షరం *pty, libcrun_error_t *err);
 
-int libcrun_set_raw (int fd, void **current_status, libcrun_error_t *err);
+పూర్ణాంకం libcrun_సమితి_raw (పూర్ణాంకం fd, శూన్య **current_స్థితి, libcrun_error_t *err);
 
-int libcrun_clear_onlcr (int fd, libcrun_error_t *err);
+పూర్ణాంకం libcrun_clear_onlcr (పూర్ణాంకం fd, libcrun_error_t *err);
 
-int libcrun_terminal_setup_size (int fd, unsigned short rows, unsigned short cols, libcrun_error_t *err);
+పూర్ణాంకం libcrun_terminal_అమరిక_కొలత (పూర్ణాంకం fd, గుర్తులేని పొట్టి అడ్డువరుసలు, గుర్తులేని పొట్టి నిలువుల_సంఖ్య, libcrun_error_t *err);
 
-#endif
+#అయితే_ముగింపు

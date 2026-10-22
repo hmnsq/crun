@@ -16,114 +16,114 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#నిర్వచించు GNU_ఆధారం
 
-#include <config.h>
-#include "linux.h"
-#include "utils.h"
-#include "intelrdt.h"
-#include <string.h>
-#include <sched.h>
-#include <fcntl.h>
-#include <sys/vfs.h>
-#include <unistd.h>
-#include <errno.h>
+#అన్తర్భావ <config.h>
+#అన్తర్భావ "linux.h"
+#అన్తర్భావ "utils.h"
+#అన్తర్భావ "intelrdt.h"
+#అన్తర్భావ <string.h>
+#అన్తర్భావ <sched.h>
+#అన్తర్భావ <fcntl.h>
+#అన్తర్భావ <sys/vfs.h>
+#అన్తర్భావ <unistd.h>
+#అన్తర్భావ <errno.h>
 
-#define INTEL_RDT_MOUNT_POINT "/sys/fs/resctrl"
-#define SCHEMATA_FILE "schemata"
-#define TASKS_FILE "tasks"
-#define MON_GROUPS "mon_groups"
-#define RDTGROUP_SUPER_MAGIC 0x7655821
+#నిర్వచించు INTEL_RDT_MOUNT_బిందువు "/sys/fs/resctrl"
+#నిర్వచించు SCHEMATA_FILE "schemata"
+#నిర్వచించు TASKS_FILE "tasks"
+#నిర్వచించు MON_GROUPS "mon_groups"
+#నిర్వచించు RDTGROUP_SUPER_MAGIC 0x7655821
 
-static int
+స్థిర పూర్ణాంకం
 is_rdt_mounted (libcrun_error_t *err)
 {
-  struct statfs sfs;
-  int ret;
+  నిర్మాణం statfs sfs;
+  పూర్ణాంకం ret;
 
-  ret = statfs (INTEL_RDT_MOUNT_POINT, &sfs);
-  if (ret < 0)
-    return crun_make_error (err, errno, "statfs `%s`", INTEL_RDT_MOUNT_POINT);
+  ret = statfs (INTEL_RDT_MOUNT_బిందువు, &sfs);
+  ఒకవేళ (ret < 0)
+    తిరిగి crun_make_error (err, errno, "statfs `%s`", INTEL_RDT_MOUNT_బిందువు);
 
-  return sfs.f_type == RDTGROUP_SUPER_MAGIC;
+  తిరిగి sfs.f_type == RDTGROUP_SUPER_MAGIC;
 }
 
-int
-get_rdt_value (char **out, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata)
+పూర్ణాంకం
+get_rdt_విలువ (అక్షరం **బహిర్గతం, స్థిరరాశి అక్షరం *l3_cache_schema, స్థిరరాశి అక్షరం *mem_bw_schema, అక్షరం *స్థిరరాశి *schemata)
 {
-  cleanup_free char *schemata_joined = NULL;
-  size_t schemata_size = 0;
+  cleanup_free అక్షరం *schemata_joined = ఖాళీ;
+  size_t schemata_కొలత = 0;
 
-  while (schemata && schemata[schemata_size])
-    schemata_size++;
+  అయితే (schemata && schemata[schemata_కొలత])
+    schemata_కొలత++;
 
-  if (schemata_size > 0)
-    schemata_joined = str_join_array (0, schemata_size, schemata, "\n");
+  ఒకవేళ (schemata_కొలత > 0)
+    schemata_joined = str_join_array (0, schemata_కొలత, schemata, "\n");
 
-  return xasprintf (out, "%s%s%s%s%s\n", l3_cache_schema ?: "",
+  తిరిగి xasprintf (బహిర్గతం, "%s%s%s%s%s\n", l3_cache_schema ?: "",
                     (l3_cache_schema && mem_bw_schema) ? "\n" : "", mem_bw_schema ?: "",
                     ((l3_cache_schema || mem_bw_schema) && schemata_joined) ? "\n" : "", schemata_joined ?: "");
 }
 
-struct key_value
+నిర్మాణం కీలకం_విలువ
 {
-  int key;
-  int value;
+  పూర్ణాంకం కీలకం;
+  పూర్ణాంకం విలువ;
 };
 
-static int
-kv_cmp (const void *p1, const void *p2)
+స్థిర పూర్ణాంకం
+kv_cmp (స్థిరరాశి శూన్య *p1, స్థిరరాశి శూన్య *p2)
 {
-  const struct key_value *kv1 = p1;
-  const struct key_value *kv2 = p2;
+  స్థిరరాశి నిర్మాణం కీలకం_విలువ *kv1 = p1;
+  స్థిరరాశి నిర్మాణం కీలకం_విలువ *kv2 = p2;
 
   /* Not a subtraction: the keys are parsed out of the configuration, so two
      of them far enough apart make the difference overflow.  */
-  if (kv1->key < kv2->key)
-    return -1;
-  if (kv1->key > kv2->key)
-    return 1;
-  return 0;
+  ఒకవేళ (kv1->కీలకం < kv2->కీలకం)
+    తిరిగి -1;
+  ఒకవేళ (kv1->కీలకం > kv2->కీలకం)
+    తిరిగి 1;
+  తిరిగి 0;
 }
 
-static int
-count_parts (const char *str)
+స్థిర పూర్ణాంకం
+లెక్క_parts (స్థిరరాశి అక్షరం *str)
 {
-  const char *it;
-  int ret = 0;
+  స్థిరరాశి అక్షరం *it;
+  పూర్ణాంకం ret = 0;
 
-  for (it = str; *it; it++)
+  కొరకు (it = str; *it; it++)
     {
-      if (*it == ';' || *(it + 1) == '\0')
+      ఒకవేళ (*it == ';' || *(it + 1) == '\0')
         ret++;
     }
-  return ret;
+  తిరిగి ret;
 }
 
-static int
-read_kv (const char *value, struct key_value *out)
+స్థిర పూర్ణాంకం
+read_kv (స్థిరరాశి అక్షరం *విలువ, నిర్మాణం కీలకం_విలువ *బహిర్గతం)
 {
-  char *endptr;
+  అక్షరం *endptr;
 
-  out->key = strtoll (value, &endptr, 10);
-  if (*endptr != '=')
-    return 1;
+  బహిర్గతం->కీలకం = strtoll (విలువ, &endptr, 10);
+  ఒకవేళ (*endptr != '=')
+    తిరిగి 1;
 
   endptr++;
-  out->value = strtoll (endptr, NULL, 16);
-  return 0;
+  బహిర్గతం->విలువ = strtoll (endptr, ఖాళీ, 16);
+  తిరిగి 0;
 }
 
-int
-compare_rdt_configurations (const char *a, const char *b)
+పూర్ణాంకం
+compare_rdt_configurations (స్థిరరాశి అక్షరం *a, స్థిరరాశి అక్షరం *b)
 {
-  cleanup_free struct key_value *kv = NULL;
+  cleanup_free నిర్మాణం కీలకం_విలువ *kv = ఖాళీ;
   size_t i, n_parts_a = 0, n_parts_b = 0;
-  cleanup_free char *a_copy = NULL;
-  cleanup_free char *b_copy = NULL;
-  const char *it;
-  char *end;
-  int ret;
+  cleanup_free అక్షరం *a_copy = ఖాళీ;
+  cleanup_free అక్షరం *b_copy = ఖాళీ;
+  స్థిరరాశి అక్షరం *it;
+  అక్షరం *చివర;
+  పూర్ణాంకం ret;
 
   it = strchr (a, ':');
   a = it ? it + 1 : a;
@@ -131,317 +131,317 @@ compare_rdt_configurations (const char *a, const char *b)
   it = strchr (b, ':');
   b = it ? it + 1 : b;
 
-  n_parts_a = count_parts (a);
-  n_parts_b = count_parts (b);
+  n_parts_a = లెక్క_parts (a);
+  n_parts_b = లెక్క_parts (b);
 
-  if (n_parts_a != n_parts_b)
-    return 1;
+  ఒకవేళ (n_parts_a != n_parts_b)
+    తిరిగి 1;
 
-  kv = xmalloc (sizeof (struct key_value) * (n_parts_a + 1));
+  kv = xmalloc (పరిమాణం (నిర్మాణం కీలకం_విలువ) * (n_parts_a + 1));
 
-  end = a_copy = xstrdup (a);
+  చివర = a_copy = xstrdup (a);
   i = 0;
-  while ((it = strsep (&end, ";")))
+  అయితే ((it = strsep (&చివర, ";")))
     {
-      if (it[0] == '\0')
-        break;
+      ఒకవేళ (it[0] == '\0')
+        ఆపు;
       ret = read_kv (it, &(kv[i]));
-      if (ret)
-        return 1;
+      ఒకవేళ (ret)
+        తిరిగి 1;
       i++;
     }
 
-  qsort (kv, i, sizeof (struct key_value), kv_cmp);
+  qsort (kv, i, పరిమాణం (నిర్మాణం కీలకం_విలువ), kv_cmp);
 
-  end = b_copy = xstrdup (b);
-  while ((it = strsep (&end, ";")))
+  చివర = b_copy = xstrdup (b);
+  అయితే ((it = strsep (&చివర, ";")))
     {
-      struct key_value key;
-      struct key_value *res;
+      నిర్మాణం కీలకం_విలువ కీలకం;
+      నిర్మాణం కీలకం_విలువ *res;
 
-      if (it[0] == '\0')
-        break;
+      ఒకవేళ (it[0] == '\0')
+        ఆపు;
 
-      ret = read_kv (it, &key);
-      if (ret)
-        return 1;
+      ret = read_kv (it, &కీలకం);
+      ఒకవేళ (ret)
+        తిరిగి 1;
 
-      res = bsearch (&key, kv, n_parts_a, sizeof (struct key_value), kv_cmp);
-      if (res == NULL || res->value != key.value)
-        return 1;
+      res = bsearch (&కీలకం, kv, n_parts_a, పరిమాణం (నిర్మాణం కీలకం_విలువ), kv_cmp);
+      ఒకవేళ (res == ఖాళీ || res->విలువ != కీలకం.విలువ)
+        తిరిగి 1;
     }
 
-  return 0;
+  తిరిగి 0;
 }
 
-static bool
-is_default_clos (const char *name)
+స్థిర bool
+is_default_clos (స్థిరరాశి అక్షరం *name)
 {
-  return strcmp (name, "/") == 0;
+  తిరిగి strcmp (name, "/") == 0;
 }
 
-static int
-get_resctrl_path (char **path, const char *file, const char *name, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+get_resctrl_మార్గం (అక్షరం **మార్గం, స్థిరరాశి అక్షరం *file, స్థిరరాశి అక్షరం *name, libcrun_error_t *err)
 {
-  return append_paths (path, err, INTEL_RDT_MOUNT_POINT, name, file, NULL);
+  తిరిగి append_paths (మార్గం, err, INTEL_RDT_MOUNT_బిందువు, name, file, ఖాళీ);
 }
 
-static int
-validate_rdt_configuration (const char *name, const char *l3_cache_schema, const char *mem_bw_schema, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+validate_rdt_configuration (స్థిరరాశి అక్షరం *name, స్థిరరాశి అక్షరం *l3_cache_schema, స్థిరరాశి అక్షరం *mem_bw_schema, libcrun_error_t *err)
 {
-  cleanup_free char *existing_content = NULL;
-  cleanup_free char *path = NULL;
-  char *it, *end;
-  int ret;
+  cleanup_free అక్షరం *existing_content = ఖాళీ;
+  cleanup_free అక్షరం *మార్గం = ఖాళీ;
+  అక్షరం *it, *చివర;
+  పూర్ణాంకం ret;
 
-  ret = get_resctrl_path (&path, SCHEMATA_FILE, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_resctrl_మార్గం (&మార్గం, SCHEMATA_FILE, name, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  ret = read_all_file (path, &existing_content, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file (మార్గం, &existing_content, ఖాళీ, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  end = existing_content;
-  while ((it = strsep (&end, "\n")))
+  చివర = existing_content;
+  అయితే ((it = strsep (&చివర, "\n")))
     {
       ret = 0;
 
-      if (mem_bw_schema && has_prefix (it, "MB:"))
+      ఒకవేళ (mem_bw_schema && has_ఉపసర్గ (it, "MB:"))
         ret = compare_rdt_configurations (it, mem_bw_schema);
 
-      if (l3_cache_schema && has_prefix (it, "L3:"))
+      ఒకవేళ (l3_cache_schema && has_ఉపసర్గ (it, "L3:"))
         ret = compare_rdt_configurations (it, l3_cache_schema);
 
-      if (ret)
-        return crun_make_error (err, 0, "the resctl group `%s` has a different configuration", name);
+      ఒకవేళ (ret)
+        తిరిగి crun_make_error (err, 0, "the resctl group `%s` has a different configuration", name);
     }
 
-  return 0;
+  తిరిగి 0;
 }
 
-static int
-write_intelrdt_string (int fd, const char *file, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+write_intelrdt_string (పూర్ణాంకం fd, స్థిరరాశి అక్షరం *file, స్థిరరాశి అక్షరం *l3_cache_schema, స్థిరరాశి అక్షరం *mem_bw_schema, అక్షరం *స్థిరరాశి *schemata, libcrun_error_t *err)
 {
-  cleanup_free char *formatted = NULL;
-  int len, ret;
+  cleanup_free అక్షరం *formatted = ఖాళీ;
+  పూర్ణాంకం len, ret;
 
-  len = get_rdt_value (&formatted, l3_cache_schema, mem_bw_schema, schemata);
-  if (len < 0)
-    return crun_make_error (err, errno, "internal error get_rdt_value");
+  len = get_rdt_విలువ (&formatted, l3_cache_schema, mem_bw_schema, schemata);
+  ఒకవేళ (len < 0)
+    తిరిగి crun_make_error (err, errno, "internal error get_rdt_value");
 
-  ret = write (fd, formatted, len);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "write `%s`", file);
+  ret = లిఖ (fd, formatted, len);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి crun_make_error (err, errno, "write `%s`", file);
 
-  return 0;
+  తిరిగి 0;
 }
 
 /* filter any line in the l3_cache_schema that starts with MB:.  */
-char *
-intelrdt_clean_l3_cache_schema (const char *l3_cache_schema)
+అక్షరం *
+intelrdt_clean_l3_cache_schema (స్థిరరాశి అక్షరం *l3_cache_schema)
 {
-  size_t i, j, len = strlen (l3_cache_schema);
-  char *ret;
+  size_t i, j, len = అక్షరశ్రేణి_పొడవు (l3_cache_schema);
+  అక్షరం *ret;
 
   ret = xmalloc (len + 1);
 
-  for (i = 0, j = 0; i < len; i++)
+  కొరకు (i = 0, j = 0; i < len; i++)
     {
-      if (l3_cache_schema[i] == 'M' && l3_cache_schema[i + 1] == 'B' && l3_cache_schema[i + 2] == ':')
+      ఒకవేళ (l3_cache_schema[i] == 'M' && l3_cache_schema[i + 1] == 'B' && l3_cache_schema[i + 2] == ':')
         {
           i += 3;
-          while (l3_cache_schema[i] != '\n' && l3_cache_schema[i] != '\0')
+          అయితే (l3_cache_schema[i] != '\n' && l3_cache_schema[i] != '\0')
             i++;
-          continue;
+          కొనసాగు;
         }
       ret[j++] = l3_cache_schema[i];
     }
   ret[j] = '\0';
-  return ret;
+  తిరిగి ret;
 }
 
-int
-resctl_create (const char *name, bool explicit_clos_id, bool *created, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err)
+పూర్ణాంకం
+resctl_create (స్థిరరాశి అక్షరం *name, bool explicit_clos_id, bool *created, స్థిరరాశి అక్షరం *l3_cache_schema, స్థిరరాశి అక్షరం *mem_bw_schema, అక్షరం *స్థిరరాశి *schemata, libcrun_error_t *err)
 {
-  cleanup_free char *cleaned_l3_cache_schema = NULL;
-  cleanup_free char *path = NULL;
-  int exist;
-  int ret;
+  cleanup_free అక్షరం *cleaned_l3_cache_schema = ఖాళీ;
+  cleanup_free అక్షరం *మార్గం = ఖాళీ;
+  పూర్ణాంకం exist;
+  పూర్ణాంకం ret;
 
   *created = false;
 
   ret = is_rdt_mounted (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
-  if (ret == 0)
-    return crun_make_error (err, 0, "the resctl file system is not mounted");
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
+  ఒకవేళ (ret == 0)
+    తిరిగి crun_make_error (err, 0, "the resctl file system is not mounted");
 
-  ret = get_resctrl_path (&path, NULL, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_resctrl_మార్గం (&మార్గం, ఖాళీ, name, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  exist = crun_path_exists (path, err);
-  if (UNLIKELY (exist < 0))
-    return exist;
+  exist = crun_మార్గం_exists (మార్గం, err);
+  ఒకవేళ (UNLIKELY (exist < 0))
+    తిరిగి exist;
 
-  if (l3_cache_schema && strstr (l3_cache_schema, "MB:"))
+  ఒకవేళ (l3_cache_schema && అక్షరశ్రేణి_శోధన (l3_cache_schema, "MB:"))
     l3_cache_schema = cleaned_l3_cache_schema = intelrdt_clean_l3_cache_schema (l3_cache_schema);
 
   /* If the closID was specified and both l3cache and bwSchema are unset, and schemata is empty,
      the group must exist.  */
-  if (explicit_clos_id && is_empty_string (l3_cache_schema) && is_empty_string (mem_bw_schema) && (schemata == NULL))
+  ఒకవేళ (explicit_clos_id && is_ఖాళీలు_string (l3_cache_schema) && is_ఖాళీలు_string (mem_bw_schema) && (schemata == ఖాళీ))
     {
-      if (exist || is_default_clos (name))
-        return 0;
+      ఒకవేళ (exist || is_default_clos (name))
+        తిరిగి 0;
 
-      return crun_make_error (err, 0, "the resctl group `%s` does not exist", name);
+      తిరిగి crun_make_error (err, 0, "the resctl group `%s` does not exist", name);
     }
 
   /* If the closID exists then it must match the specified configuration.  */
-  if (exist && (l3_cache_schema != NULL || mem_bw_schema != NULL))
-    return validate_rdt_configuration (name, l3_cache_schema, mem_bw_schema, err);
+  ఒకవేళ (exist && (l3_cache_schema != ఖాళీ || mem_bw_schema != ఖాళీ))
+    తిరిగి validate_rdt_configuration (name, l3_cache_schema, mem_bw_schema, err);
 
-  if (is_default_clos (name))
-    return 0;
+  ఒకవేళ (is_default_clos (name))
+    తిరిగి 0;
 
   /* At this point, assume it was created.  */
-  ret = crun_ensure_directory (path, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = crun_ensure_directory (మార్గం, 0755, true, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
   *created = true;
 
-  return 0;
+  తిరిగి 0;
 }
 
-int
-resctl_move_task_to (const char *name, const char *monitoring_name, pid_t pid, libcrun_error_t *err)
+పూర్ణాంకం
+resctl_move_task_గమ్యం (స్థిరరాశి అక్షరం *name, స్థిరరాశి అక్షరం *monitoring_name, pid_t pid, libcrun_error_t *err)
 {
-  cleanup_free char *monitoring_path = NULL;
-  cleanup_free char *path = NULL;
-  char pid_str[32];
-  int len;
-  int ret;
+  cleanup_free అక్షరం *monitoring_మార్గం = ఖాళీ;
+  cleanup_free అక్షరం *మార్గం = ఖాళీ;
+  అక్షరం pid_str[32];
+  పూర్ణాంకం len;
+  పూర్ణాంకం ret;
 
-  ret = get_resctrl_path (&path, TASKS_FILE, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_resctrl_మార్గం (&మార్గం, TASKS_FILE, name, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  len = snprintf (pid_str, sizeof (pid_str), "%d", pid);
-  if (UNLIKELY (len >= (int) sizeof (pid_str)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  len = snprintf (pid_str, పరిమాణం (pid_str), "%d", pid);
+  ఒకవేళ (UNLIKELY (len >= (పూర్ణాంకం) పరిమాణం (pid_str)))
+    తిరిగి crun_make_error (err, 0, "internal error: static buffer too small");
 
-  ret = write_file (path, pid_str, len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = write_file (మార్గం, pid_str, len, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  if (monitoring_name)
+  ఒకవేళ (monitoring_name)
     {
-      ret = append_paths (&monitoring_path, err, INTEL_RDT_MOUNT_POINT, name, MON_GROUPS, monitoring_name, TASKS_FILE, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&monitoring_మార్గం, err, INTEL_RDT_MOUNT_బిందువు, name, MON_GROUPS, monitoring_name, TASKS_FILE, ఖాళీ);
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి ret;
 
-      ret = write_file (monitoring_path, pid_str, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = write_file (monitoring_మార్గం, pid_str, len, err);
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి ret;
     }
 
-  return 0;
+  తిరిగి 0;
 }
 
-int
-resctl_update (const char *name, const char *l3_cache_schema, const char *mem_bw_schema,
-               char *const *schemata, libcrun_error_t *err)
+పూర్ణాంకం
+resctl_update (స్థిరరాశి అక్షరం *name, స్థిరరాశి అక్షరం *l3_cache_schema, స్థిరరాశి అక్షరం *mem_bw_schema,
+               అక్షరం *స్థిరరాశి *schemata, libcrun_error_t *err)
 {
-  const char *actual_l3_cache_schema = l3_cache_schema;
-  cleanup_free char *cleaned_l3_cache_schema = NULL;
-  cleanup_free char *path = NULL;
-  cleanup_close int fd = -1;
-  int ret;
+  స్థిరరాశి అక్షరం *actual_l3_cache_schema = l3_cache_schema;
+  cleanup_free అక్షరం *cleaned_l3_cache_schema = ఖాళీ;
+  cleanup_free అక్షరం *మార్గం = ఖాళీ;
+  cleanup_close పూర్ణాంకం fd = -1;
+  పూర్ణాంకం ret;
 
   /* Nothing to do.  */
-  if (l3_cache_schema == NULL && mem_bw_schema == NULL && schemata == NULL)
-    return 0;
+  ఒకవేళ (l3_cache_schema == ఖాళీ && mem_bw_schema == ఖాళీ && schemata == ఖాళీ)
+    తిరిగి 0;
 
-  ret = get_resctrl_path (&path, SCHEMATA_FILE, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_resctrl_మార్గం (&మార్గం, SCHEMATA_FILE, name, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  if (l3_cache_schema && strstr (l3_cache_schema, "MB:"))
+  ఒకవేళ (l3_cache_schema && అక్షరశ్రేణి_శోధన (l3_cache_schema, "MB:"))
     {
       cleaned_l3_cache_schema = intelrdt_clean_l3_cache_schema (l3_cache_schema);
       actual_l3_cache_schema = cleaned_l3_cache_schema;
     }
 
-  fd = open (path, O_WRONLY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s` for writing", path);
+  fd = open (మార్గం, O_WRONLY | O_CLOEXEC);
+  ఒకవేళ (UNLIKELY (fd < 0))
+    తిరిగి crun_make_error (err, errno, "open `%s` for writing", మార్గం);
 
-  return write_intelrdt_string (fd, path, actual_l3_cache_schema, mem_bw_schema, schemata, err);
+  తిరిగి write_intelrdt_string (fd, మార్గం, actual_l3_cache_schema, mem_bw_schema, schemata, err);
 }
 
-static int
-resctl_get_monitoring_path (const char *resctrl_group_name, const char *container_id, char **monitoring_path, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+resctl_get_monitoring_మార్గం (స్థిరరాశి అక్షరం *resctrl_సమూహం_name, స్థిరరాశి అక్షరం *container_id, అక్షరం **monitoring_మార్గం, libcrun_error_t *err)
 {
-  int ret;
+  పూర్ణాంకం ret;
 
-  ret = append_paths (monitoring_path, err, INTEL_RDT_MOUNT_POINT, resctrl_group_name, MON_GROUPS, container_id, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (monitoring_మార్గం, err, INTEL_RDT_MOUNT_బిందువు, resctrl_సమూహం_name, MON_GROUPS, container_id, ఖాళీ);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  return 0;
+  తిరిగి 0;
 }
 
-int
-resctl_destroy_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err)
+పూర్ణాంకం
+resctl_destroy_monitoring_సమూహం (స్థిరరాశి అక్షరం *resctrl_సమూహం_name, స్థిరరాశి అక్షరం *container_id, libcrun_error_t *err)
 {
-  cleanup_free char *monitoring_path = NULL;
-  int ret;
+  cleanup_free అక్షరం *monitoring_మార్గం = ఖాళీ;
+  పూర్ణాంకం ret;
 
-  ret = resctl_get_monitoring_path (resctrl_group_name, container_id, &monitoring_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = resctl_get_monitoring_మార్గం (resctrl_సమూహం_name, container_id, &monitoring_మార్గం, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  ret = rmdir (monitoring_path);
-  if (UNLIKELY (ret < 0 && errno != ENOENT))
-    return crun_make_error (err, errno, "rmdir `%s`", monitoring_path);
+  ret = rmdir (monitoring_మార్గం);
+  ఒకవేళ (UNLIKELY (ret < 0 && errno != ENOENT))
+    తిరిగి crun_make_error (err, errno, "rmdir `%s`", monitoring_మార్గం);
 
-  return 0;
+  తిరిగి 0;
 }
 
-int
-resctl_destroy (const char *name, libcrun_error_t *err)
+పూర్ణాంకం
+resctl_destroy (స్థిరరాశి అక్షరం *name, libcrun_error_t *err)
 {
-  cleanup_free char *path = NULL;
-  int ret;
+  cleanup_free అక్షరం *మార్గం = ఖాళీ;
+  పూర్ణాంకం ret;
 
-  if (is_default_clos (name))
-    return 0;
+  ఒకవేళ (is_default_clos (name))
+    తిరిగి 0;
 
-  ret = get_resctrl_path (&path, NULL, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_resctrl_మార్గం (&మార్గం, ఖాళీ, name, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  ret = rmdir (path);
-  if (UNLIKELY (ret < 0 && errno != ENOENT))
-    return crun_make_error (err, errno, "rmdir `%s`", path);
+  ret = rmdir (మార్గం);
+  ఒకవేళ (UNLIKELY (ret < 0 && errno != ENOENT))
+    తిరిగి crun_make_error (err, errno, "rmdir `%s`", మార్గం);
 
-  return 0;
+  తిరిగి 0;
 }
 
-int
-resctl_create_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err)
+పూర్ణాంకం
+resctl_create_monitoring_సమూహం (స్థిరరాశి అక్షరం *resctrl_సమూహం_name, స్థిరరాశి అక్షరం *container_id, libcrun_error_t *err)
 {
-  cleanup_free char *monitoring_path = NULL;
-  int ret;
+  cleanup_free అక్షరం *monitoring_మార్గం = ఖాళీ;
+  పూర్ణాంకం ret;
 
-  ret = resctl_get_monitoring_path (resctrl_group_name, container_id, &monitoring_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = resctl_get_monitoring_మార్గం (resctrl_సమూహం_name, container_id, &monitoring_మార్గం, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  ret = crun_ensure_directory (monitoring_path, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = crun_ensure_directory (monitoring_మార్గం, 0755, true, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  return 0;
+  తిరిగి 0;
 }

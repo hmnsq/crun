@@ -16,170 +16,170 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _XOPEN_SOURCE
+#నిర్వచించు XOPEN_ఆధారం
 
-#define _GNU_SOURCE
+#నిర్వచించు GNU_ఆధారం
 
-#include <config.h>
-#include "linux.h"
-#include "utils.h"
+#అన్తర్భావ <config.h>
+#అన్తర్భావ "linux.h"
+#అన్తర్భావ "utils.h"
 
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <termios.h>
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ <unistd.h>
+#అన్తర్భావ <fcntl.h>
+#అన్తర్భావ <sys/ioctl.h>
+#అన్తర్భావ <termios.h>
 
-#ifndef TIOCGPTPEER
+#నిర్వచితం_కాకపోతే TIOCGPTPEER
 #  define TIOCGPTPEER _IO ('T', 0x41)
-#endif
+#అయితే_ముగింపు
 
-struct terminal_status_s
+నిర్మాణం terminal_స్థితి_s
 {
-  int fd;
-  struct termios termios;
+  పూర్ణాంకం fd;
+  నిర్మాణం termios termios;
 };
 
-int
-libcrun_new_terminal (char **pty, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_new_terminal (అక్షరం **pty, libcrun_error_t *err)
 {
-  char buf[64];
-  int ret;
-  cleanup_close int fd = open ("/dev/ptmx", O_RDWR | O_NOCTTY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `/dev/ptmx`");
+  అక్షరం buf[64];
+  పూర్ణాంకం ret;
+  cleanup_close పూర్ణాంకం fd = open ("/dev/ptmx", O_RDWR | O_NOCTTY | O_CLOEXEC);
+  ఒకవేళ (UNLIKELY (fd < 0))
+    తిరిగి crun_make_error (err, errno, "open `/dev/ptmx`");
 
-  ret = ptsname_r (fd, buf, sizeof (buf));
-  if (UNLIKELY (ret != 0))
-    return crun_make_error (err, errno, "ptsname");
+  ret = ptsname_r (fd, buf, పరిమాణం (buf));
+  ఒకవేళ (UNLIKELY (ret != 0))
+    తిరిగి crun_make_error (err, errno, "ptsname");
 
   ret = unlockpt (fd);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "unlockpt");
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి crun_make_error (err, errno, "unlockpt");
 
   *pty = xstrdup (buf);
 
   ret = fd;
   fd = -1;
 
-  return ret;
+  తిరిగి ret;
 }
 
-int
-libcrun_set_raw (int fd, void **current_status, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_సమితి_raw (పూర్ణాంకం fd, శూన్య **current_స్థితి, libcrun_error_t *err)
 {
-  int ret;
-  struct termios termios;
+  పూర్ణాంకం ret;
+  నిర్మాణం termios termios;
 
   ret = tcgetattr (fd, &termios);
-  if (UNLIKELY (ret < 0))
+  ఒకవేళ (UNLIKELY (ret < 0))
     {
       /* Nothing to do if FD is not a terminal.  */
-      if (errno == ENOTTY)
-        return 0;
-      return crun_make_error (err, errno, "tcgetattr");
+      ఒకవేళ (errno == ENOTTY)
+        తిరిగి 0;
+      తిరిగి crun_make_error (err, errno, "tcgetattr");
     }
 
-  if (current_status)
+  ఒకవేళ (current_స్థితి)
     {
-      struct terminal_status_s *s = xmalloc (sizeof (*s));
+      నిర్మాణం terminal_స్థితి_s *s = xmalloc (పరిమాణం (*s));
       s->fd = fd;
-      memcpy (&(s->termios), &termios, sizeof (termios));
-      *current_status = s;
+      జ్ఞాపకం_నకలు (&(s->termios), &termios, పరిమాణం (termios));
+      *current_స్థితి = s;
     }
 
   cfmakeraw (&termios);
   termios.c_iflag = 0;
 
   ret = tcsetattr (fd, TCSANOW, &termios);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "tcsetattr");
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి crun_make_error (err, errno, "tcsetattr");
 
-  return 0;
+  తిరిగి 0;
 }
 
 /* Do not translate "\n" to "\r\n" on output, so that what the container
    writes to the terminal reaches our stdout unchanged.  */
-int
-libcrun_clear_onlcr (int fd, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_clear_onlcr (పూర్ణాంకం fd, libcrun_error_t *err)
 {
-  int ret;
-  struct termios termios;
+  పూర్ణాంకం ret;
+  నిర్మాణం termios termios;
 
   ret = tcgetattr (fd, &termios);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "tcgetattr");
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి crun_make_error (err, errno, "tcgetattr");
 
   termios.c_oflag &= ~ONLCR;
 
   ret = tcsetattr (fd, TCSANOW, &termios);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "tcsetattr");
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి crun_make_error (err, errno, "tcsetattr");
 
-  return 0;
+  తిరిగి 0;
 }
 
-int
-libcrun_set_stdio (int ptmx_fd, char *pty, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_సమితి_stdio (పూర్ణాంకం ptmx_fd, అక్షరం *pty, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
-  int ret, i;
+  cleanup_close పూర్ణాంకం fd = -1;
+  పూర్ణాంకం ret, i;
 
   /* Open the slave directly from the master.  The path is resolved in the
      container mount namespace, and could point anywhere.  */
   fd = ioctl (ptmx_fd, TIOCGPTPEER, O_RDWR | O_CLOEXEC);
-  if (fd < 0 && (errno == EINVAL || errno == ENOTTY))
+  ఒకవేళ (fd < 0 && (errno == EINVAL || errno == ENOTTY))
     {
       /* TIOCGPTPEER requires Linux 4.13.  */
       fd = open (pty, O_RDWR | O_CLOEXEC);
     }
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s`", pty);
+  ఒకవేళ (UNLIKELY (fd < 0))
+    తిరిగి crun_make_error (err, errno, "open `%s`", pty);
 
-  for (i = 0; i < 3; i++)
+  కొరకు (i = 0; i < 3; i++)
     {
       ret = dup3 (fd, i, 0);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "dup terminal");
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి crun_make_error (err, errno, "dup terminal");
     }
 
   ret = ioctl (0, TIOCSCTTY, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "ioctl TIOCSCTTY");
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి crun_make_error (err, errno, "ioctl TIOCSCTTY");
 
-  return 0;
+  తిరిగి 0;
 }
 
-void
-cleanup_terminalp (void *p)
+శూన్య
+cleanup_terminalp (శూన్య *p)
 {
-  struct terminal_status_s **s = (struct terminal_status_s **) p;
-  if (*s)
+  నిర్మాణం terminal_స్థితి_s **s = (నిర్మాణం terminal_స్థితి_s **) p;
+  ఒకవేళ (*s)
     {
       tcsetattr ((*s)->fd, TCSANOW, &(*s)->termios);
-      free (*s);
+      విడుదల (*s);
     }
 }
 
-int
-libcrun_terminal_setup_size (int fd, unsigned short rows, unsigned short cols, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_terminal_అమరిక_కొలత (పూర్ణాంకం fd, గుర్తులేని పొట్టి అడ్డువరుసలు, గుర్తులేని పొట్టి నిలువుల_సంఖ్య, libcrun_error_t *err)
 {
-  struct winsize ws = { .ws_row = rows, .ws_col = cols };
-  int ret;
+  నిర్మాణం winsize ws = { .ws_row = అడ్డువరుసలు, .ws_col = నిలువుల_సంఖ్య };
+  పూర్ణాంకం ret;
 
-  if (ws.ws_row == 0 || ws.ws_col == 0)
+  ఒకవేళ (ws.ws_row == 0 || ws.ws_col == 0)
     {
       ret = ioctl (0, TIOCGWINSZ, &ws);
-      if (UNLIKELY (ret < 0))
+      ఒకవేళ (UNLIKELY (ret < 0))
         {
-          if (errno == ENOTTY)
-            return 0;
-          return crun_make_error (err, errno, "ioctl TIOCGWINSZ");
+          ఒకవేళ (errno == ENOTTY)
+            తిరిగి 0;
+          తిరిగి crun_make_error (err, errno, "ioctl TIOCGWINSZ");
         }
     }
 
   ret = ioctl (fd, TIOCSWINSZ, &ws);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "ioctl TIOCSWINSZ");
-  return 0;
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి crun_make_error (err, errno, "ioctl TIOCSWINSZ");
+  తిరిగి 0;
 }

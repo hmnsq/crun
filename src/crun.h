@@ -15,33 +15,33 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CRUN_CLI_H
-#define CRUN_CLI_H
+#నిర్వచితం_కాకపోతే CRUN_CLI_H
+#నిర్వచించు CRUN_CLI_H
 
-#include <stdbool.h>
-#include <libcrun/libcrun.h>
-#include "crun_utils.h"
+#అన్తర్భావ <stdbool.h>
+#అన్తర్భావ <libcrun/libcrun.h>
+#అన్తర్భావ "crun_utils.h"
 
-struct crun_global_arguments
+నిర్మాణం crun_global_arguments
 {
-  char *root;
-  char *log;
-  char *log_format;
-  const char *handler;
+  అక్షరం *మూలం;
+  అక్షరం *సంవర్గమానం;
+  అక్షరం *log_format;
+  స్థిరరాశి అక్షరం *handler;
 
-  int argc;
-  int verbosity;
-  char **argv;
+  పూర్ణాంకం argc;
+  పూర్ణాంకం verbosity;
+  అక్షరం **argv;
 
   bool command;
   bool option_systemd_cgroup;
   bool option_force_no_cgroup;
 };
 
-char *argp_mandatory_argument (char *arg, struct argp_state *state);
-int parse_id_or_fail (const char *str, char **endptr, const char *kind);
-int init_libcrun_context (libcrun_context_t *con, const char *id, struct crun_global_arguments *glob,
+అక్షరం *argp_mandatory_వాదం (అక్షరం *arg, నిర్మాణం argp_state *state);
+పూర్ణాంకం parse_id_or_fail (స్థిరరాశి అక్షరం *str, అక్షరం **endptr, స్థిరరాశి అక్షరం *రకం);
+పూర్ణాంకం init_libcrun_context (libcrun_context_t *con, స్థిరరాశి అక్షరం *id, నిర్మాణం crun_global_arguments *glob,
                           libcrun_error_t *err);
-libcrun_context_t *new_libcrun_context (struct crun_global_arguments *glob);
-void crun_assert_n_args (int n, int min, int max);
-#endif
+libcrun_context_t *new_libcrun_context (నిర్మాణం crun_global_arguments *glob);
+శూన్య crun_assert_n_వాదనలు (పూర్ణాంకం n, పూర్ణాంకం min, పూర్ణాంకం max);
+#అయితే_ముగింపు

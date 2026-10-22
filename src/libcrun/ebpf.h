@@ -15,34 +15,34 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef EBPF_H
-#define EBPF_H
+#నిర్వచితం_కాకపోతే EBPF_H
+#నిర్వచించు EBPF_H
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include "error.h"
-#include <errno.h>
-#include <argp.h>
-#include <ocispec/runtime_spec_schema_config_schema.h>
-#include "container.h"
+#అన్తర్భావ <config.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ "error.h"
+#అన్తర్భావ <errno.h>
+#అన్తర్భావ <argp.h>
+#అన్తర్భావ <ocispec/runtime_spec_schema_config_schema.h>
+#అన్తర్భావ "container.h"
 
-#define SYS_FS_BPF "/sys/fs/bpf"
-#define CRUN_BPF_DIR SYS_FS_BPF "/crun"
+#నిర్వచించు SYS_FS_BPF "/sys/fs/bpf"
+#నిర్వచించు CRUN_BPF_DIR SYS_FS_BPF "/crun"
 
-struct bpf_program;
+నిర్మాణం bpf_కార్యక్రమం;
 
-struct bpf_program *bpf_program_new (size_t size);
-struct bpf_program *bpf_program_append (struct bpf_program *p, void *data, size_t size);
+నిర్మాణం bpf_కార్యక్రమం *bpf_కార్యక్రమం_new (size_t కొలత);
+నిర్మాణం bpf_కార్యక్రమం *bpf_కార్యక్రమం_append (నిర్మాణం bpf_కార్యక్రమం *p, శూన్య *దత్తాంశం, size_t కొలత);
 
-struct bpf_program *bpf_program_init_dev (struct bpf_program *program, libcrun_error_t *err);
-struct bpf_program *bpf_program_append_dev (struct bpf_program *program, const char *access, char type, int major,
-                                            int minor, bool accept, libcrun_error_t *err);
-struct bpf_program *bpf_program_complete_dev (struct bpf_program *program, libcrun_error_t *err);
+నిర్మాణం bpf_కార్యక్రమం *bpf_కార్యక్రమం_init_dev (నిర్మాణం bpf_కార్యక్రమం *కార్యక్రమం, libcrun_error_t *err);
+నిర్మాణం bpf_కార్యక్రమం *bpf_కార్యక్రమం_append_dev (నిర్మాణం bpf_కార్యక్రమం *కార్యక్రమం, స్థిరరాశి అక్షరం *access, అక్షరం type, పూర్ణాంకం major,
+                                            పూర్ణాంకం minor, bool accept, libcrun_error_t *err);
+నిర్మాణం bpf_కార్యక్రమం *bpf_కార్యక్రమం_complete_dev (నిర్మాణం bpf_కార్యక్రమం *కార్యక్రమం, libcrun_error_t *err);
 
-int libcrun_ebpf_load (struct bpf_program *program, int dirfd, const char *pin, libcrun_error_t *err);
-int libcrun_ebpf_read_program (struct bpf_program **program, const char *path, libcrun_error_t *err);
-int libcrun_ebpf_query_cgroup_progs (const char *cgroup_path, uint32_t **progs_out, size_t *n_progs_out, libcrun_error_t *err);
-bool libcrun_ebpf_cmp_programs (struct bpf_program *program1, struct bpf_program *program2);
+పూర్ణాంకం libcrun_ebpf_ఎక్కించు (నిర్మాణం bpf_కార్యక్రమం *కార్యక్రమం, పూర్ణాంకం dirfd, స్థిరరాశి అక్షరం *pin, libcrun_error_t *err);
+పూర్ణాంకం libcrun_ebpf_read_కార్యక్రమం (నిర్మాణం bpf_కార్యక్రమం **కార్యక్రమం, స్థిరరాశి అక్షరం *మార్గం, libcrun_error_t *err);
+పూర్ణాంకం libcrun_ebpf_query_cgroup_progs (స్థిరరాశి అక్షరం *cgroup_మార్గం, uint32_t **progs_బహిర్గతం, size_t *n_progs_బహిర్గతం, libcrun_error_t *err);
+bool libcrun_ebpf_cmp_programs (నిర్మాణం bpf_కార్యక్రమం *program1, నిర్మాణం bpf_కార్యక్రమం *program2);
 
-#endif
+#అయితే_ముగింపు

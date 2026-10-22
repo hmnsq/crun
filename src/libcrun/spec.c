@@ -15,32 +15,32 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE
+#నిర్వచించు GNU_ఆధారం
 
-#include <config.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <errno.h>
-#include "spec.h"
-#include "utils.h"
-#include "cgroup.h"
-#include "cgroup-utils.h"
+#అన్తర్భావ <config.h>
+#అన్తర్భావ <stdbool.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <errno.h>
+#అన్తర్భావ "spec.h"
+#అన్తర్భావ "utils.h"
+#అన్తర్భావ "cgroup.h"
+#అన్తర్భావ "cgroup-utils.h"
 
-static const char spec_file[] = "\
+స్థిర స్థిరరాశి అక్షరం spec_file[] = "\
 {\n\
-	\"ociVersion\": \"1.0.0\",\n\
+	\"oci_సంస్కరణ\": \"1.0.0\",\n\
 	\"process\": {\n\
 		\"terminal\": true,\n\
 		\"user\": {\n\
 			\"uid\": 0,\n\
 			\"gid\": 0\n\
 		},\n\
-		\"args\": [\n\
+		\"వాదనలు\": [\n\
 			\"sh\"\n\
 		],\n\
 		\"env\": [\n\
-			\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\",\n\
-			\"TERM=xterm\"\n\
+			\"మార్గం_3=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\",\n\
+			\"పదం=xterm\"\n\
 		],\n\
 		\"cwd\": \"/\",\n\
 		\"capabilities\": {\n\
@@ -76,8 +76,8 @@ static const char spec_file[] = "\
 		],\n\
 		\"noNewPrivileges\": true\n\
 	},\n\
-	\"root\": {\n\
-		\"path\": \"rootfs\",\n\
+	\"మూలం\": {\n\
+		\"మార్గం\": \"rootfs\",\n\
 		\"readonly\": true\n\
 	},\n\
 	\"hostname\": \"crun\",\n\
@@ -85,48 +85,48 @@ static const char spec_file[] = "\
 		{\n\
 			\"destination\": \"/proc\",\n\
 			\"type\": \"proc\",\n\
-			\"source\": \"proc\"\n\
+			\"ఆధారం\": \"proc\"\n\
 		},\n\
 		{\n\
 			\"destination\": \"/dev\",\n\
 			\"type\": \"tmpfs\",\n\
-			\"source\": \"tmpfs\",\n\
+			\"ఆధారం\": \"tmpfs\",\n\
 			\"options\": [\n\
 				\"nosuid\",\n\
 				\"strictatime\",\n\
-				\"mode=755\",\n\
-				\"size=65536k\"\n\
+				\"బహుళకం=755\",\n\
+				\"కొలత=65536k\"\n\
 			]\n\
 		},\n\
 		{\n\
 			\"destination\": \"/dev/pts\",\n\
 			\"type\": \"devpts\",\n\
-			\"source\": \"devpts\",\n\
+			\"ఆధారం\": \"devpts\",\n\
 			\"options\": [\n\
 				\"nosuid\",\n\
 				\"noexec\",\n\
 				\"newinstance\",\n\
 				\"ptmxmode=0666\",\n\
-				\"mode=0620\"\
+				\"బహుళకం=0620\"\
 %s\
 			]\n\
 		},\n\
 		{\n\
 			\"destination\": \"/dev/shm\",\n\
 			\"type\": \"tmpfs\",\n\
-			\"source\": \"shm\",\n\
+			\"ఆధారం\": \"shm\",\n\
 			\"options\": [\n\
 				\"nosuid\",\n\
 				\"noexec\",\n\
 				\"nodev\",\n\
-				\"mode=1777\",\n\
-				\"size=65536k\"\n\
+				\"బహుళకం=1777\",\n\
+				\"కొలత=65536k\"\n\
 			]\n\
 		},\n\
 		{\n\
 			\"destination\": \"/dev/mqueue\",\n\
 			\"type\": \"mqueue\",\n\
-			\"source\": \"mqueue\",\n\
+			\"ఆధారం\": \"mqueue\",\n\
 			\"options\": [\n\
 				\"nosuid\",\n\
 				\"noexec\",\n\
@@ -136,7 +136,7 @@ static const char spec_file[] = "\
 		{\n\
 			\"destination\": \"/sys\",\n\
 			\"type\": \"sysfs\",\n\
-			\"source\": \"sysfs\",\n\
+			\"ఆధారం\": \"sysfs\",\n\
 			\"options\": [\n\
 				\"nosuid\",\n\
 				\"noexec\",\n\
@@ -147,7 +147,7 @@ static const char spec_file[] = "\
 		{\n\
 			\"destination\": \"/sys/fs/cgroup\",\n\
 			\"type\": \"cgroup\",\n\
-			\"source\": \"cgroup\",\n\
+			\"ఆధారం\": \"cgroup\",\n\
 			\"options\": [\n\
 				\"nosuid\",\n\
 				\"noexec\",\n\
@@ -171,7 +171,7 @@ static const char spec_file[] = "\
 				\"type\": \"pid\"\n\
 			},\n\
 			{\n\
-				\"type\": \"network\"\n\
+				\"type\": \"జాలం\"\n\
 			},\n\
 			{\n\
 				\"type\": \"ipc\"\n\
@@ -189,7 +189,7 @@ static const char spec_file[] = "\
 			\"/proc/acpi\",\n\
 			\"/proc/asound\",\n\
 			\"/proc/kcore\",\n\
-			\"/proc/keys\",\n\
+			\"/proc/కీలకాలు\",\n\
 			\"/proc/latency_stats\",\n\
 			\"/proc/timer_list\",\n\
 			\"/proc/timer_stats\",\n\
@@ -207,59 +207,59 @@ static const char spec_file[] = "\
 	}\n\
 }\n";
 
-static const char *spec_pts_tty_group = ",\n\
+స్థిర స్థిరరాశి అక్షరం *spec_pts_tty_సమూహం = ",\n\
 				\"gid=5\"\n";
 
-static const char *spec_user = "\
+స్థిర స్థిరరాశి అక్షరం *spec_user = "\
 			{\n\
 				\"type\": \"user\"\n\
 			},\n";
 
-static const char *spec_cgroupns = "\
+స్థిర స్థిరరాశి అక్షరం *spec_cgroupns = "\
 			{\n\
 				\"type\": \"cgroup\"\n\
 			},\n";
 
-int
-libcrun_container_spec (bool root, FILE *out, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_container_spec (bool మూలం, FILE *బహిర్గతం, libcrun_error_t *err)
 {
-  int ret;
-  int cgroup_mode;
+  పూర్ణాంకం ret;
+  పూర్ణాంకం cgroup_బహుళకం;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_బహుళకం = libcrun_get_cgroup_బహుళకం (err);
+  ఒకవేళ (UNLIKELY (cgroup_బహుళకం < 0))
+    తిరిగి cgroup_బహుళకం;
 
-  ret = fprintf (out, spec_file,
-                 root ? spec_pts_tty_group : "\n",
-                 root ? "" : spec_user,
-                 cgroup_mode == CGROUP_MODE_UNIFIED ? spec_cgroupns : "");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fprintf failed");
+  ret = fprintf (బహిర్గతం, spec_file,
+                 మూలం ? spec_pts_tty_సమూహం : "\n",
+                 మూలం ? "" : spec_user,
+                 cgroup_బహుళకం == CGROUP_బహుళకం_UNIFIED ? spec_cgroupns : "");
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి crun_make_error (err, errno, "fprintf failed");
 
-  return ret;
+  తిరిగి ret;
 }
 
-int
-libcrun_container_spec_json (bool root, char **out, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_container_spec_json (bool మూలం, అక్షరం **బహిర్గతం, libcrun_error_t *err)
 {
-  char *buffer = NULL;
+  అక్షరం *బఫరు = ఖాళీ;
   size_t len = 0;
   FILE *f;
-  int ret;
+  పూర్ణాంకం ret;
 
-  f = open_memstream (&buffer, &len);
-  if (f == NULL)
-    return crun_make_error (err, errno, "open_memstream");
+  f = open_memstream (&బఫరు, &len);
+  ఒకవేళ (f == ఖాళీ)
+    తిరిగి crun_make_error (err, errno, "open_memstream");
 
-  ret = libcrun_container_spec (root, f, err);
+  ret = libcrun_container_spec (మూలం, f, err);
   fclose (f);
-  if (UNLIKELY (ret < 0))
+  ఒకవేళ (UNLIKELY (ret < 0))
     {
-      free (buffer);
-      return ret;
+      విడుదల (బఫరు);
+      తిరిగి ret;
     }
 
-  *out = buffer;
-  return 0;
+  *బహిర్గతం = బఫరు;
+  తిరిగి 0;
 }

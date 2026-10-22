@@ -16,294 +16,294 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CRUN_SYSCALLS_H
-#define CRUN_SYSCALLS_H
+#నిర్వచితం_కాకపోతే CRUN_SYSCALLS_H
+#నిర్వచించు CRUN_SYSCALLS_H
 
-#include <config.h>
-#include <sys/syscall.h>
-#include <unistd.h>
-#include <errno.h>
-#include <stdint.h>
+#అన్తర్భావ <config.h>
+#అన్తర్భావ <sys/syscall.h>
+#అన్తర్భావ <unistd.h>
+#అన్తర్భావ <errno.h>
+#అన్తర్భావ <stdint.h>
 
-#ifdef HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H
+#నిర్వచితమైతే HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H
 #  include <linux/mount.h>
-#endif
-#if defined HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H || defined HAVE_FSCONFIG_CMD_CREATE_SYS_MOUNT_H
+#అయితే_ముగింపు
+#ఒకవేళ defined HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H || defined HAVE_FSCONFIG_CMD_CREATE_SYS_MOUNT_H
 #  define HAVE_NEW_MOUNT_API
-#endif
+#అయితే_ముగింపు
 
 /* Constants for new mount API */
-#ifndef FSOPEN_CLOEXEC
+#నిర్వచితం_కాకపోతే FSOPEN_CLOEXEC
 #  define FSOPEN_CLOEXEC 0x00000001
-#endif
+#అయితే_ముగింపు
 
-#ifndef FSMOUNT_CLOEXEC
+#నిర్వచితం_కాకపోతే FSMOUNT_CLOEXEC
 #  define FSMOUNT_CLOEXEC 0x00000001
-#endif
+#అయితే_ముగింపు
 
-#ifndef FSCONFIG_CMD_CREATE
+#నిర్వచితం_కాకపోతే FSCONFIG_CMD_CREATE
 #  define FSCONFIG_CMD_CREATE 6
-#endif
+#అయితే_ముగింపు
 
-#ifndef FSCONFIG_SET_STRING
+#నిర్వచితం_కాకపోతే FSCONFIG_SET_STRING
 #  define FSCONFIG_SET_STRING 1
-#endif
+#అయితే_ముగింపు
 
 /* Additional mount API constants */
-#ifndef MOUNT_ATTR_RDONLY
+#నిర్వచితం_కాకపోతే MOUNT_ATTR_RDONLY
 #  define MOUNT_ATTR_RDONLY 0x00000001 /* Mount read-only */
-#endif
+#అయితే_ముగింపు
 
-#ifndef MOUNT_ATTR_NOSUID
+#నిర్వచితం_కాకపోతే MOUNT_ATTR_NOSUID
 #  define MOUNT_ATTR_NOSUID 0x00000002
-#endif
+#అయితే_ముగింపు
 
-#ifndef MOUNT_ATTR_NODEV
+#నిర్వచితం_కాకపోతే MOUNT_ATTR_NODEV
 #  define MOUNT_ATTR_NODEV 0x00000004
-#endif
+#అయితే_ముగింపు
 
-#ifndef MOUNT_ATTR_NOEXEC
+#నిర్వచితం_కాకపోతే MOUNT_ATTR_NOEXEC
 #  define MOUNT_ATTR_NOEXEC 0x00000008
-#endif
+#అయితే_ముగింపు
 
-#ifndef MOUNT_ATTR__ATIME
+#నిర్వచితం_కాకపోతే MOUNT_ATTR__ATIME
 #  define MOUNT_ATTR__ATIME 0x00000070
-#endif
+#అయితే_ముగింపు
 
-#ifndef MOUNT_ATTR_RELATIME
+#నిర్వచితం_కాకపోతే MOUNT_ATTR_RELATIME
 #  define MOUNT_ATTR_RELATIME 0x00000000
-#endif
+#అయితే_ముగింపు
 
-#ifndef MOUNT_ATTR_NOATIME
+#నిర్వచితం_కాకపోతే MOUNT_ATTR_NOATIME
 #  define MOUNT_ATTR_NOATIME 0x00000010
-#endif
+#అయితే_ముగింపు
 
-#ifndef MOUNT_ATTR_STRICTATIME
+#నిర్వచితం_కాకపోతే MOUNT_ATTR_STRICTATIME
 #  define MOUNT_ATTR_STRICTATIME 0x00000020
-#endif
+#అయితే_ముగింపు
 
-#ifndef MOUNT_ATTR_NODIRATIME
+#నిర్వచితం_కాకపోతే MOUNT_ATTR_NODIRATIME
 #  define MOUNT_ATTR_NODIRATIME 0x00000080
-#endif
+#అయితే_ముగింపు
 
-#ifndef MOUNT_ATTR_IDMAP
+#నిర్వచితం_కాకపోతే MOUNT_ATTR_IDMAP
 #  define MOUNT_ATTR_IDMAP 0x00100000 /* Idmap mount to @userns_fd in struct mount_attr. */
-#endif
+#అయితే_ముగింపు
 
-#ifndef MOUNT_ATTR_NOSYMFOLLOW
+#నిర్వచితం_కాకపోతే MOUNT_ATTR_NOSYMFOLLOW
 #  define MOUNT_ATTR_NOSYMFOLLOW 0x00200000
-#endif
+#అయితే_ముగింపు
 
-#ifndef MS_NOSYMFOLLOW
+#నిర్వచితం_కాకపోతే MS_NOSYMFOLLOW
 #  define MS_NOSYMFOLLOW 256
-#endif
+#అయితే_ముగింపు
 
 /* close_range flags */
-#ifndef CLOSE_RANGE_CLOEXEC
+#నిర్వచితం_కాకపోతే CLOSE_RANGE_CLOEXEC
 #  define CLOSE_RANGE_CLOEXEC (1U << 2)
-#endif
+#అయితే_ముగింపు
 
 /* openat2 resolve flags */
-#ifndef RESOLVE_NO_MAGICLINKS
+#నిర్వచితం_కాకపోతే RESOLVE_NO_MAGICLINKS
 #  define RESOLVE_NO_MAGICLINKS 0x02
-#endif
-#ifndef RESOLVE_NO_SYMLINKS
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే RESOLVE_NO_SYMLINKS
 #  define RESOLVE_NO_SYMLINKS 0x04
-#endif
-#ifndef RESOLVE_IN_ROOT
-#  define RESOLVE_IN_ROOT 0x10
-#endif
+#అయితే_ముగింపు
+#నిర్వచితం_కాకపోతే RESOLVE_లోపల_మూలం
+#  define RESOLVE_లోపల_మూలం 0x10
+#అయితే_ముగింపు
 
 /* Structures for syscalls */
-struct openat2_open_how
+నిర్మాణం openat2_open_how
 {
   uint64_t flags;
-  uint64_t mode;
+  uint64_t బహుళకం;
   uint64_t resolve;
 };
 
-struct mount_attr_s
+నిర్మాణం mount_attr_s
 {
   uint64_t attr_set;
   uint64_t attr_clr;
-  uint64_t propagation;
+  uint64_t ప్రసరణ;
   uint64_t userns_fd;
 };
 
-#ifndef __aligned_u64
+#నిర్వచితం_కాకపోతే __aligned_u64
 #  define __aligned_u64 uint64_t __attribute__ ((aligned (8)))
-#endif
+#అయితే_ముగింపు
 
-#ifndef CLONE_INTO_CGROUP
+#నిర్వచితం_కాకపోతే CLONE_INTO_CGROUP
 #  define CLONE_INTO_CGROUP 0x200000000ULL
-#endif
+#అయితే_ముగింపు
 
-struct _clone3_args
+నిర్మాణం clone3_వాదనలు
 {
   __aligned_u64 flags;
   __aligned_u64 pidfd;
-  __aligned_u64 child_tid;
-  __aligned_u64 parent_tid;
+  __aligned_u64 బిడ్డ_tid;
+  __aligned_u64 మాతృ_tid;
   __aligned_u64 exit_signal;
-  __aligned_u64 stack;
-  __aligned_u64 stack_size;
+  __aligned_u64 దొంతర;
+  __aligned_u64 దొంతర_కొలత;
   __aligned_u64 tls;
-  __aligned_u64 set_tid;
-  __aligned_u64 set_tid_size;
+  __aligned_u64 సమితి_tid;
+  __aligned_u64 సమితి_tid_కొలత;
   __aligned_u64 cgroup;
 };
 
 /* Mount API syscall wrappers */
-static inline int
-syscall_fsopen (const char *fs_name, unsigned int flags)
+స్థిర అంతఃవరుస పూర్ణాంకం
+syscall_fsopen (స్థిరరాశి అక్షరం *fs_name, గుర్తులేని పూర్ణాంకం flags)
 {
-#if defined __NR_fsopen
-  return (int) syscall (__NR_fsopen, fs_name, flags);
-#else
-  (void) fs_name;
-  (void) flags;
+#ఒకవేళ defined __NR_fsopen
+  తిరిగి (పూర్ణాంకం) syscall (__NR_fsopen, fs_name, flags);
+#లేకపోతే
+  (శూన్య) fs_name;
+  (శూన్య) flags;
   errno = ENOSYS;
-  return -1;
-#endif
+  తిరిగి -1;
+#అయితే_ముగింపు
 }
 
-static inline int
-syscall_fsmount (int fsfd, unsigned int flags, unsigned int attr_flags)
+స్థిర అంతఃవరుస పూర్ణాంకం
+syscall_fsmount (పూర్ణాంకం fsfd, గుర్తులేని పూర్ణాంకం flags, గుర్తులేని పూర్ణాంకం attr_flags)
 {
-#if defined __NR_fsmount
-  return (int) syscall (__NR_fsmount, fsfd, flags, attr_flags);
-#else
-  (void) fsfd;
-  (void) flags;
-  (void) attr_flags;
+#ఒకవేళ defined __NR_fsmount
+  తిరిగి (పూర్ణాంకం) syscall (__NR_fsmount, fsfd, flags, attr_flags);
+#లేకపోతే
+  (శూన్య) fsfd;
+  (శూన్య) flags;
+  (శూన్య) attr_flags;
   errno = ENOSYS;
-  return -1;
-#endif
+  తిరిగి -1;
+#అయితే_ముగింపు
 }
 
-static inline int
-syscall_fsconfig (int fsfd, unsigned int cmd, const char *key, const void *val, int aux)
+స్థిర అంతఃవరుస పూర్ణాంకం
+syscall_fsconfig (పూర్ణాంకం fsfd, గుర్తులేని పూర్ణాంకం cmd, స్థిరరాశి అక్షరం *కీలకం, స్థిరరాశి శూన్య *val, పూర్ణాంకం aux)
 {
-#if defined __NR_fsconfig
-  return (int) syscall (__NR_fsconfig, fsfd, cmd, key, val, aux);
-#else
-  (void) fsfd;
-  (void) cmd;
-  (void) key;
-  (void) val;
-  (void) aux;
+#ఒకవేళ defined __NR_fsconfig
+  తిరిగి (పూర్ణాంకం) syscall (__NR_fsconfig, fsfd, cmd, కీలకం, val, aux);
+#లేకపోతే
+  (శూన్య) fsfd;
+  (శూన్య) cmd;
+  (శూన్య) కీలకం;
+  (శూన్య) val;
+  (శూన్య) aux;
   errno = ENOSYS;
-  return -1;
-#endif
+  తిరిగి -1;
+#అయితే_ముగింపు
 }
 
 /* File descriptor management syscalls */
-static inline int
-syscall_close_range (unsigned int fd, unsigned int max_fd, unsigned int flags)
+స్థిర అంతఃవరుస పూర్ణాంకం
+syscall_close_range (గుర్తులేని పూర్ణాంకం fd, గుర్తులేని పూర్ణాంకం max_fd, గుర్తులేని పూర్ణాంకం flags)
 {
-#ifdef __NR_close_range
-  return (int) syscall (__NR_close_range, fd, max_fd, flags);
-#else
-  (void) fd;
-  (void) max_fd;
-  (void) flags;
+#నిర్వచితమైతే __NR_close_range
+  తిరిగి (పూర్ణాంకం) syscall (__NR_close_range, fd, max_fd, flags);
+#లేకపోతే
+  (శూన్య) fd;
+  (శూన్య) max_fd;
+  (శూన్య) flags;
   errno = ENOSYS;
-  return -1;
-#endif
+  తిరిగి -1;
+#అయితే_ముగింపు
 }
 
 /* Secure file operation syscalls */
-static inline int
-syscall_openat2 (int dirfd, const char *path, uint64_t flags, uint64_t mode, uint64_t resolve)
+స్థిర అంతఃవరుస పూర్ణాంకం
+syscall_openat2 (పూర్ణాంకం dirfd, స్థిరరాశి అక్షరం *మార్గం, uint64_t flags, uint64_t బహుళకం, uint64_t resolve)
 {
-#ifdef __NR_openat2
-  struct openat2_open_how how = {
+#నిర్వచితమైతే __NR_openat2
+  నిర్మాణం openat2_open_how how = {
     .flags = flags,
-    .mode = mode,
+    .బహుళకం = బహుళకం,
     .resolve = resolve,
   };
-  return (int) syscall (__NR_openat2, dirfd, path, &how, sizeof (how), 0);
-#else
-  (void) dirfd;
-  (void) path;
-  (void) flags;
-  (void) mode;
-  (void) resolve;
+  తిరిగి (పూర్ణాంకం) syscall (__NR_openat2, dirfd, మార్గం, &how, పరిమాణం (how), 0);
+#లేకపోతే
+  (శూన్య) dirfd;
+  (శూన్య) మార్గం;
+  (శూన్య) flags;
+  (శూన్య) బహుళకం;
+  (శూన్య) resolve;
   errno = ENOSYS;
-  return -1;
-#endif
+  తిరిగి -1;
+#అయితే_ముగింపు
 }
 
 /* Process management syscalls */
-static inline int
-syscall_clone3 (struct _clone3_args *args)
+స్థిర అంతఃవరుస పూర్ణాంకం
+syscall_clone3 (నిర్మాణం clone3_వాదనలు *వాదనలు)
 {
-#ifdef __NR_clone3
-  return (int) syscall (__NR_clone3, args, sizeof (*args));
-#else
-  (void) args;
+#నిర్వచితమైతే __NR_clone3
+  తిరిగి (పూర్ణాంకం) syscall (__NR_clone3, వాదనలు, పరిమాణం (*వాదనలు));
+#లేకపోతే
+  (శూన్య) వాదనలు;
   errno = ENOSYS;
-  return -1;
-#endif
+  తిరిగి -1;
+#అయితే_ముగింపు
 }
 
-static inline int
-syscall_getcwd (char *path, size_t len)
+స్థిర అంతఃవరుస పూర్ణాంకం
+syscall_getcwd (అక్షరం *మార్గం, size_t len)
 {
-#ifdef __NR_getcwd
-  return (int) syscall (__NR_getcwd, path, len);
-#else
-  (void) path;
-  (void) len;
+#నిర్వచితమైతే __NR_getcwd
+  తిరిగి (పూర్ణాంకం) syscall (__NR_getcwd, మార్గం, len);
+#లేకపోతే
+  (శూన్య) మార్గం;
+  (శూన్య) len;
   errno = ENOSYS;
-  return -1;
-#endif
+  తిరిగి -1;
+#అయితే_ముగింపు
 }
 
 /* Mount management syscalls */
-static inline int
-syscall_move_mount (int from_dfd, const char *from_pathname, int to_dfd, const char *to_pathname, unsigned int flags)
+స్థిర అంతఃవరుస పూర్ణాంకం
+syscall_move_mount (పూర్ణాంకం from_dfd, స్థిరరాశి అక్షరం *from_pathname, పూర్ణాంకం గమ్యం_dfd, స్థిరరాశి అక్షరం *గమ్యం_pathname, గుర్తులేని పూర్ణాంకం flags)
 {
-#if defined __NR_move_mount
-  return (int) syscall (__NR_move_mount, from_dfd, from_pathname, to_dfd, to_pathname, flags);
-#else
-  (void) from_dfd;
-  (void) from_pathname;
-  (void) to_dfd;
-  (void) to_pathname;
-  (void) flags;
+#ఒకవేళ defined __NR_move_mount
+  తిరిగి (పూర్ణాంకం) syscall (__NR_move_mount, from_dfd, from_pathname, గమ్యం_dfd, గమ్యం_pathname, flags);
+#లేకపోతే
+  (శూన్య) from_dfd;
+  (శూన్య) from_pathname;
+  (శూన్య) గమ్యం_dfd;
+  (శూన్య) గమ్యం_pathname;
+  (శూన్య) flags;
   errno = ENOSYS;
-  return -1;
-#endif
+  తిరిగి -1;
+#అయితే_ముగింపు
 }
 
-static inline int
-syscall_open_tree (int dfd, const char *pathname, unsigned int flags)
+స్థిర అంతఃవరుస పూర్ణాంకం
+syscall_open_వృక్షం (పూర్ణాంకం dfd, స్థిరరాశి అక్షరం *pathname, గుర్తులేని పూర్ణాంకం flags)
 {
-#if defined __NR_open_tree
-  return (int) syscall (__NR_open_tree, dfd, pathname, flags);
-#else
-  (void) dfd;
-  (void) pathname;
-  (void) flags;
+#ఒకవేళ defined __NR_open_tree
+  తిరిగి (పూర్ణాంకం) syscall (__NR_open_tree, dfd, pathname, flags);
+#లేకపోతే
+  (శూన్య) dfd;
+  (శూన్య) pathname;
+  (శూన్య) flags;
   errno = ENOSYS;
-  return -1;
-#endif
+  తిరిగి -1;
+#అయితే_ముగింపు
 }
 
-static inline int
-syscall_mount_setattr (int dfd, const char *path, unsigned int flags, struct mount_attr_s *attr)
+స్థిర అంతఃవరుస పూర్ణాంకం
+syscall_mount_setattr (పూర్ణాంకం dfd, స్థిరరాశి అక్షరం *మార్గం, గుర్తులేని పూర్ణాంకం flags, నిర్మాణం mount_attr_s *attr)
 {
-#ifdef __NR_mount_setattr
-  return (int) syscall (__NR_mount_setattr, dfd, path, flags, attr, sizeof (*attr));
-#else
-  (void) dfd;
-  (void) path;
-  (void) flags;
-  (void) attr;
+#నిర్వచితమైతే __NR_mount_setattr
+  తిరిగి (పూర్ణాంకం) syscall (__NR_mount_setattr, dfd, మార్గం, flags, attr, పరిమాణం (*attr));
+#లేకపోతే
+  (శూన్య) dfd;
+  (శూన్య) మార్గం;
+  (శూన్య) flags;
+  (శూన్య) attr;
   errno = ENOSYS;
-  return -1;
-#endif
+  తిరిగి -1;
+#అయితే_ముగింపు
 }
 
-#endif
+#అయితే_ముగింపు

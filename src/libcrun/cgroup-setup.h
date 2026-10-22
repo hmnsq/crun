@@ -15,13 +15,13 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CGROUP_SETUP_H
-#define CGROUP_SETUP_H
+#నిర్వచితం_కాకపోతే CGROUP_అమరిక_H
+#నిర్వచించు CGROUP_అమరిక_H
 
-#include "container.h"
-#include "utils.h"
+#అన్తర్భావ "container.h"
+#అన్తర్భావ "utils.h"
 
-int enter_cgroup (int cgroup_mode, pid_t pid, pid_t init_pid, const char *path,
+పూర్ణాంకం enter_cgroup (పూర్ణాంకం cgroup_బహుళకం, pid_t pid, pid_t init_pid, స్థిరరాశి అక్షరం *మార్గం,
                   bool create_if_missing, libcrun_error_t *err);
 
-#endif
+#అయితే_ముగింపు

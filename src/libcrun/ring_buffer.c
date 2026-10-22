@@ -15,223 +15,223 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE
-#include <config.h>
-#include <sys/uio.h>
+#నిర్వచించు GNU_ఆధారం
+#అన్తర్భావ <config.h>
+#అన్తర్భావ <sys/uio.h>
 
-#include "ring_buffer.h"
-#include "utils.h"
+#అన్తర్భావ "ring_buffer.h"
+#అన్తర్భావ "utils.h"
 
-struct ring_buffer
+నిర్మాణం ring_బఫరు
 {
-  char *buffer;
-  size_t size;
-  size_t head;
-  size_t tail;
+  అక్షరం *బఫరు;
+  size_t కొలత;
+  size_t తల;
+  size_t తోక;
 };
 
 /*
  * It returns up to two regions in `iov` that can be read from.
  */
-static int
-ring_buffer_get_read_iov (struct ring_buffer *rb, struct iovec *iov)
+స్థిర పూర్ణాంకం
+ring_బఫరు_get_read_iov (నిర్మాణం ring_బఫరు *rb, నిర్మాణం iovec *iov)
 {
-  int iov_count = 0;
+  పూర్ణాంకం iov_లెక్క = 0;
 
   /* Buffer is empty.  */
-  if (rb->head == rb->tail)
-    return 0;
+  ఒకవేళ (rb->తల == rb->తోక)
+    తిరిగి 0;
 
   /* Head before tail.  There is only one region to read from, up to tail.  */
-  if (rb->tail > rb->head)
+  ఒకవేళ (rb->తోక > rb->తల)
     {
-      iov[iov_count].iov_base = rb->buffer + rb->head;
-      iov[iov_count].iov_len = rb->tail - rb->head;
-      iov_count++;
+      iov[iov_లెక్క].iov_base = rb->బఫరు + rb->తల;
+      iov[iov_లెక్క].iov_len = rb->తోక - rb->తల;
+      iov_లెక్క++;
     }
   /* Head after tail.  There are two regions to read from, up to the
    * end of the buffer and from the beginning of the buffer to tail.  */
-  else
+  లేకపోతే
     {
-      iov[iov_count].iov_base = rb->buffer + rb->head;
-      iov[iov_count].iov_len = rb->size - rb->head;
-      iov_count++;
+      iov[iov_లెక్క].iov_base = rb->బఫరు + rb->తల;
+      iov[iov_లెక్క].iov_len = rb->కొలత - rb->తల;
+      iov_లెక్క++;
 
-      if (rb->tail > 0)
+      ఒకవేళ (rb->తోక > 0)
         {
-          iov[iov_count].iov_base = rb->buffer;
-          iov[iov_count].iov_len = rb->tail;
-          iov_count++;
+          iov[iov_లెక్క].iov_base = rb->బఫరు;
+          iov[iov_లెక్క].iov_len = rb->తోక;
+          iov_లెక్క++;
         }
     }
-  return iov_count;
+  తిరిగి iov_లెక్క;
 }
 
 /*
  * It returns up to two regions in `iov` that can be written to without overwriting
  * existing data.
  */
-static int
-ring_buffer_get_write_iov (struct ring_buffer *rb, struct iovec *iov)
+స్థిర పూర్ణాంకం
+ring_బఫరు_get_write_iov (నిర్మాణం ring_బఫరు *rb, నిర్మాణం iovec *iov)
 {
-  int iov_count = 0;
+  పూర్ణాంకం iov_లెక్క = 0;
 
   /* Buffer is full.  */
-  if ((rb->tail + 1) % rb->size == rb->head)
-    return 0;
+  ఒకవేళ ((rb->తోక + 1) % rb->కొలత == rb->తల)
+    తిరిగి 0;
 
   /* Tail before head.  There is only one region to write to, up to head.  */
-  if (rb->head > rb->tail + 1)
+  ఒకవేళ (rb->తల > rb->తోక + 1)
     {
-      iov[iov_count].iov_base = rb->buffer + rb->tail;
-      iov[iov_count].iov_len = rb->head - rb->tail - 1;
-      iov_count++;
+      iov[iov_లెక్క].iov_base = rb->బఫరు + rb->తోక;
+      iov[iov_లెక్క].iov_len = rb->తల - rb->తోక - 1;
+      iov_లెక్క++;
     }
   /* Tail after or equal to head.  There are two regions to write to, up to the
    * end of the buffer and from the beginning of the buffer to head.  */
-  else
+  లేకపోతే
     {
-      iov[iov_count].iov_base = rb->buffer + rb->tail;
-      iov[iov_count].iov_len = rb->head == 0 ? rb->size - rb->tail - 1 : rb->size - rb->tail;
-      iov_count++;
+      iov[iov_లెక్క].iov_base = rb->బఫరు + rb->తోక;
+      iov[iov_లెక్క].iov_len = rb->తల == 0 ? rb->కొలత - rb->తోక - 1 : rb->కొలత - rb->తోక;
+      iov_లెక్క++;
 
-      if (rb->head > 1)
+      ఒకవేళ (rb->తల > 1)
         {
-          iov[iov_count].iov_base = rb->buffer;
-          iov[iov_count].iov_len = rb->head - 1;
-          iov_count++;
+          iov[iov_లెక్క].iov_base = rb->బఫరు;
+          iov[iov_లెక్క].iov_len = rb->తల - 1;
+          iov_లెక్క++;
         }
     }
-  return iov_count;
+  తిరిగి iov_లెక్క;
 }
 
 /* manually advance the head after a successful read.  */
-static void
-ring_buffer_advance_nocheck_head (struct ring_buffer *rb, size_t amount)
+స్థిర శూన్య
+ring_బఫరు_advance_nocheck_తల (నిర్మాణం ring_బఫరు *rb, size_t amount)
 {
-  rb->head = (rb->head + amount) % rb->size;
+  rb->తల = (rb->తల + amount) % rb->కొలత;
 }
 
 /* manually advance the tail after a successful write.  */
-static void
-ring_buffer_advance_nocheck_tail (struct ring_buffer *rb, size_t amount)
+స్థిర శూన్య
+ring_బఫరు_advance_nocheck_తోక (నిర్మాణం ring_బఫరు *rb, size_t amount)
 {
-  rb->tail = (rb->tail + amount) % rb->size;
+  rb->తోక = (rb->తోక + amount) % rb->కొలత;
 }
 
 size_t
-ring_buffer_get_data_available (struct ring_buffer *rb)
+ring_బఫరు_get_దత్తాంశం_అందుబాటు (నిర్మాణం ring_బఫరు *rb)
 {
-  if (rb->head <= rb->tail)
-    return rb->tail - rb->head;
+  ఒకవేళ (rb->తల <= rb->తోక)
+    తిరిగి rb->తోక - rb->తల;
 
-  return rb->size - rb->head + rb->tail;
+  తిరిగి rb->కొలత - rb->తల + rb->తోక;
 }
 
 size_t
-ring_buffer_get_size (struct ring_buffer *rb)
+ring_బఫరు_get_కొలత (నిర్మాణం ring_బఫరు *rb)
 {
-  return rb->size - 1;
+  తిరిగి rb->కొలత - 1;
 }
 
 size_t
-ring_buffer_get_space_available (struct ring_buffer *rb)
+ring_బఫరు_get_space_అందుబాటు (నిర్మాణం ring_బఫరు *rb)
 {
-  return rb->size - ring_buffer_get_data_available (rb) - 1;
+  తిరిగి rb->కొలత - ring_బఫరు_get_దత్తాంశం_అందుబాటు (rb) - 1;
 }
 
-int
-ring_buffer_read (struct ring_buffer *rb, int fd, bool *is_eagain, libcrun_error_t *err)
+పూర్ణాంకం
+ring_బఫరు_read (నిర్మాణం ring_బఫరు *rb, పూర్ణాంకం fd, bool *is_eagain, libcrun_error_t *err)
 {
-  struct iovec iov[2];
-  int iov_count = 0;
+  నిర్మాణం iovec iov[2];
+  పూర్ణాంకం iov_లెక్క = 0;
   ssize_t ret;
 
   *is_eagain = false;
 
-  iov_count = ring_buffer_get_write_iov (rb, iov);
-  if (iov_count == 0)
+  iov_లెక్క = ring_బఫరు_get_write_iov (rb, iov);
+  ఒకవేళ (iov_లెక్క == 0)
     {
       *is_eagain = true;
-      return 0;
+      తిరిగి 0;
     }
 
-  ret = readv (fd, iov, iov_count);
-  if (UNLIKELY (ret < 0))
+  ret = readv (fd, iov, iov_లెక్క);
+  ఒకవేళ (UNLIKELY (ret < 0))
     {
       /* A terminal that was hung up fails with EIO.  As with EAGAIN, there
          is nothing to read until the state of the fd changes.  */
-      if (errno == EIO || errno == EAGAIN || errno == EWOULDBLOCK)
+      ఒకవేళ (errno == EIO || errno == EAGAIN || errno == EWOULDBLOCK)
         {
           *is_eagain = true;
-          return 0;
+          తిరిగి 0;
         }
-      return crun_make_error (err, errno, "readv");
+      తిరిగి crun_make_error (err, errno, "readv");
     }
   /* The same holds at EOF.  */
-  if (ret == 0)
+  ఒకవేళ (ret == 0)
     *is_eagain = true;
-  ring_buffer_advance_nocheck_tail (rb, ret);
-  return ret;
+  ring_బఫరు_advance_nocheck_తోక (rb, ret);
+  తిరిగి ret;
 }
 
-int
-ring_buffer_write (struct ring_buffer *rb, int fd, bool *is_eagain, libcrun_error_t *err)
+పూర్ణాంకం
+ring_బఫరు_write (నిర్మాణం ring_బఫరు *rb, పూర్ణాంకం fd, bool *is_eagain, libcrun_error_t *err)
 {
   ssize_t ret;
-  struct iovec iov[2];
-  int iov_count = 0;
+  నిర్మాణం iovec iov[2];
+  పూర్ణాంకం iov_లెక్క = 0;
 
   *is_eagain = false;
 
-  iov_count = ring_buffer_get_read_iov (rb, iov);
-  if (iov_count == 0)
+  iov_లెక్క = ring_బఫరు_get_read_iov (rb, iov);
+  ఒకవేళ (iov_లెక్క == 0)
     {
       *is_eagain = true;
-      return 0;
+      తిరిగి 0;
     }
 
-  ret = writev (fd, iov, iov_count);
-  if (UNLIKELY (ret < 0))
+  ret = writev (fd, iov, iov_లెక్క);
+  ఒకవేళ (UNLIKELY (ret < 0))
     {
       /* A terminal that was hung up fails with EIO.  As with EAGAIN, there
          is nothing to write until the state of the fd changes.  */
-      if (errno == EIO || errno == EAGAIN || errno == EWOULDBLOCK)
+      ఒకవేళ (errno == EIO || errno == EAGAIN || errno == EWOULDBLOCK)
         {
           *is_eagain = true;
-          return 0;
+          తిరిగి 0;
         }
-      return crun_make_error (err, errno, "writev");
+      తిరిగి crun_make_error (err, errno, "writev");
     }
-  ring_buffer_advance_nocheck_head (rb, ret);
+  ring_బఫరు_advance_nocheck_తల (rb, ret);
   /* If the buffer is empty, reset the head and tail.  */
-  if (rb->head == rb->tail)
+  ఒకవేళ (rb->తల == rb->తోక)
     {
-      rb->head = 0;
-      rb->tail = 0;
+      rb->తల = 0;
+      rb->తోక = 0;
     }
-  return ret;
+  తిరిగి ret;
 }
 
-struct ring_buffer *
-ring_buffer_make (size_t size)
+నిర్మాణం ring_బఫరు *
+ring_బఫరు_make (size_t కొలత)
 {
-  struct ring_buffer *rb = xmalloc (sizeof (struct ring_buffer));
+  నిర్మాణం ring_బఫరు *rb = xmalloc (పరిమాణం (నిర్మాణం ring_బఫరు));
 
   /* The extra byte is used to distinguish between full and empty buffer.  */
-  rb->size = size + 1;
-  rb->buffer = xmalloc (rb->size);
-  rb->head = 0;
-  rb->tail = 0;
+  rb->కొలత = కొలత + 1;
+  rb->బఫరు = xmalloc (rb->కొలత);
+  rb->తల = 0;
+  rb->తోక = 0;
 
-  return rb;
+  తిరిగి rb;
 }
 
-void
-ring_buffer_free (struct ring_buffer *rb)
+శూన్య
+ring_బఫరు_free (నిర్మాణం ring_బఫరు *rb)
 {
-  if (rb == NULL)
-    return;
-  free (rb->buffer);
-  free (rb);
+  ఒకవేళ (rb == ఖాళీ)
+    తిరిగి;
+  విడుదల (rb->బఫరు);
+  విడుదల (rb);
 }

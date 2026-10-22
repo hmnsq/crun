@@ -15,17 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef RUN_CREATE_H
-#define RUN_CREATE_H
+#నిర్వచితం_కాకపోతే నిరంతరం_CREATE_H
+#నిర్వచించు నిరంతరం_CREATE_H
 
-#include "crun.h"
+#అన్తర్భావ "crun.h"
 
-typedef int (*container_run_create_func_t) (libcrun_context_t *, libcrun_container_t *, unsigned int, libcrun_error_t *);
-typedef unsigned int (*get_options_func_t) ();
+రకనిర్వచనం పూర్ణాంకం (*container_నిరంతరం_create_func_t) (libcrun_context_t *, libcrun_container_t *, గుర్తులేని పూర్ణాంకం, libcrun_error_t *);
+రకనిర్వచనం గుర్తులేని పూర్ణాంకం (*get_options_func_t) ();
 
-int crun_run_create_internal (struct crun_global_arguments *global_args, int argc, char **argv,
-                              container_run_create_func_t container_run_create_func, get_options_func_t get_options_func,
-                              libcrun_context_t *crun_context, struct argp *run_argp, const char **config_file,
-                              const char **bundle, libcrun_error_t *err);
+పూర్ణాంకం crun_నిరంతరం_create_అంతర్గత (నిర్మాణం crun_global_arguments *global_వాదనలు, పూర్ణాంకం argc, అక్షరం **argv,
+                              container_నిరంతరం_create_func_t container_నిరంతరం_create_func, get_options_func_t get_options_func,
+                              libcrun_context_t *crun_context, నిర్మాణం argp *నిరంతరం_argp, స్థిరరాశి అక్షరం **config_file,
+                              స్థిరరాశి అక్షరం **bundle, libcrun_error_t *err);
 
-#endif
+#అయితే_ముగింపు

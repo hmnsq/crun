@@ -16,20 +16,20 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef INTEL_RDT_H
-#define INTEL_RDT_H
+#నిర్వచితం_కాకపోతే INTEL_RDT_H
+#నిర్వచించు INTEL_RDT_H
 
-#include <config.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include "error.h"
+#అన్తర్భావ <config.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <stdbool.h>
+#అన్తర్భావ "error.h"
 
-int resctl_create (const char *name, bool explicit_clos_id, bool *created, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err);
-int resctl_move_task_to (const char *name, const char *monitoring_name, pid_t pid, libcrun_error_t *err);
-int resctl_update (const char *name, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err);
-int resctl_destroy (const char *name, libcrun_error_t *err);
+పూర్ణాంకం resctl_create (స్థిరరాశి అక్షరం *name, bool explicit_clos_id, bool *created, స్థిరరాశి అక్షరం *l3_cache_schema, స్థిరరాశి అక్షరం *mem_bw_schema, అక్షరం *స్థిరరాశి *schemata, libcrun_error_t *err);
+పూర్ణాంకం resctl_move_task_గమ్యం (స్థిరరాశి అక్షరం *name, స్థిరరాశి అక్షరం *monitoring_name, pid_t pid, libcrun_error_t *err);
+పూర్ణాంకం resctl_update (స్థిరరాశి అక్షరం *name, స్థిరరాశి అక్షరం *l3_cache_schema, స్థిరరాశి అక్షరం *mem_bw_schema, అక్షరం *స్థిరరాశి *schemata, libcrun_error_t *err);
+పూర్ణాంకం resctl_destroy (స్థిరరాశి అక్షరం *name, libcrun_error_t *err);
 
-int resctl_destroy_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err);
-int resctl_create_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err);
+పూర్ణాంకం resctl_destroy_monitoring_సమూహం (స్థిరరాశి అక్షరం *resctrl_సమూహం_name, స్థిరరాశి అక్షరం *container_id, libcrun_error_t *err);
+పూర్ణాంకం resctl_create_monitoring_సమూహం (స్థిరరాశి అక్షరం *resctrl_సమూహం_name, స్థిరరాశి అక్షరం *container_id, libcrun_error_t *err);
 
-#endif
+#అయితే_ముగింపు

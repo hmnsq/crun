@@ -15,18 +15,18 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CGROUP_INTERNAL_H
-#define CGROUP_INTERNAL_H
+#నిర్వచితం_కాకపోతే CGROUP_అంతర్గత_H
+#నిర్వచించు CGROUP_అంతర్గత_H
 
-#include "container.h"
-#include "utils.h"
+#అన్తర్భావ "container.h"
+#అన్తర్భావ "utils.h"
 
-#include <stdint.h>
-#include <math.h>
+#అన్తర్భావ <stdint.h>
+#అన్తర్భావ <math.h>
 
-enum
+గణన
 {
-  CGROUP_MEMORY = 1 << 0,
+  CGROUP_జ్ఞాపకం = 1 << 0,
   CGROUP_CPU = 1 << 1,
   CGROUP_HUGETLB = 1 << 2,
   CGROUP_CPUSET = 1 << 3,
@@ -35,88 +35,88 @@ enum
   CGROUP_MISC = 1 << 6,
 };
 
-struct libcrun_cgroup_status
+నిర్మాణం libcrun_cgroup_స్థితి
 {
-  char *path;
-  char *scope;
+  అక్షరం *మార్గం;
+  అక్షరం *scope;
 
-  int manager;
+  పూర్ణాంకం manager;
 
-  bool bpf_dev_set;
+  bool bpf_dev_సమితి;
 };
 
 /* Forward declaration for function pointers below.  */
-struct libcrun_cgroup_args;
+నిర్మాణం libcrun_cgroup_వాదనలు;
 
-struct libcrun_cgroup_manager
+నిర్మాణం libcrun_cgroup_manager
 {
   /* Create a new cgroup and fill PATH in OUT.  */
-  int (*create_cgroup) (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status *out, libcrun_error_t *err);
-  int (*precreate_cgroup) (struct libcrun_cgroup_args *args, int *dirfd, libcrun_error_t *err);
+  పూర్ణాంకం (*create_cgroup) (నిర్మాణం libcrun_cgroup_వాదనలు *వాదనలు, నిర్మాణం libcrun_cgroup_స్థితి *బహిర్గతం, libcrun_error_t *err);
+  పూర్ణాంకం (*precreate_cgroup) (నిర్మాణం libcrun_cgroup_వాదనలు *వాదనలు, పూర్ణాంకం *dirfd, libcrun_error_t *err);
   /* Destroy the cgroup and kill any process if needed.  */
-  int (*destroy_cgroup) (struct libcrun_cgroup_status *cgroup_status, libcrun_error_t *err);
+  పూర్ణాంకం (*destroy_cgroup) (నిర్మాణం libcrun_cgroup_స్థితి *cgroup_స్థితి, libcrun_error_t *err);
   /* Additional resources configuration specific to this manager.  */
-  int (*update_resources) (struct libcrun_cgroup_status *cgroup_status, const char *state_root, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err);
+  పూర్ణాంకం (*update_resources) (నిర్మాణం libcrun_cgroup_స్థితి *cgroup_స్థితి, స్థిరరాశి అక్షరం *state_మూలం, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err);
   /* Move PID to the cgroup PATH (the container cgroup or its sub-cgroup) by
      other means than writing to cgroup.procs.  Optional.  */
-  int (*attach_process) (struct libcrun_cgroup_status *cgroup_status, const char *path, pid_t pid, libcrun_error_t *err);
+  పూర్ణాంకం (*attach_process) (నిర్మాణం libcrun_cgroup_స్థితి *cgroup_స్థితి, స్థిరరాశి అక్షరం *మార్గం, pid_t pid, libcrun_error_t *err);
 };
 
-int move_process_to_cgroup (pid_t pid, const char *subsystem, const char *path, libcrun_error_t *err);
-int enter_cgroup_v1_subsystem (pid_t pid, const char *subsystem, const char *path, bool create_if_missing,
+పూర్ణాంకం move_process_గమ్యం_cgroup (pid_t pid, స్థిరరాశి అక్షరం *subsystem, స్థిరరాశి అక్షరం *మార్గం, libcrun_error_t *err);
+పూర్ణాంకం enter_cgroup_v1_subsystem (pid_t pid, స్థిరరాశి అక్షరం *subsystem, స్థిరరాశి అక్షరం *మార్గం, bool create_if_missing,
                                libcrun_error_t *err);
-int enable_controllers (const char *path, libcrun_error_t *err);
-int chown_cgroups (const char *path, uid_t uid, gid_t gid, libcrun_error_t *err);
-int cgroup_killall_path (const char *path, int signal, libcrun_error_t *err);
+పూర్ణాంకం enable_controllers (స్థిరరాశి అక్షరం *మార్గం, libcrun_error_t *err);
+పూర్ణాంకం chown_cgroups (స్థిరరాశి అక్షరం *మార్గం, uid_t uid, gid_t gid, libcrun_error_t *err);
+పూర్ణాంకం cgroup_killall_మార్గం (స్థిరరాశి అక్షరం *మార్గం, పూర్ణాంకం సంకేతం, libcrun_error_t *err);
 
-int libcrun_cgroup_read_pids_from_path (const char *path, bool recurse, pid_t **pids, libcrun_error_t *err);
+పూర్ణాంకం libcrun_cgroup_read_pids_from_మార్గం (స్థిరరాశి అక్షరం *మార్గం, bool recurse, pid_t **pids, libcrun_error_t *err);
 
-bool read_proc_cgroup (char *content, char **saveptr, char **id, char **controller_list, char **path);
+bool read_proc_cgroup (అక్షరం *content, అక్షరం **saveptr, అక్షరం **id, అక్షరం **controller_list, అక్షరం **మార్గం);
 
-static inline int
+స్థిర అంతఃవరుస పూర్ణాంకం
 is_rootless (libcrun_error_t *err)
 {
-  if (geteuid ())
-    return 1;
+  ఒకవేళ (geteuid ())
+    తిరిగి 1;
 
-  return check_running_in_user_namespace (err);
+  తిరిగి check_running_లోపల_user_namespace (err);
 }
 
-static inline int
-write_cgroup_file (int dirfd, const char *name, const void *data, size_t len, libcrun_error_t *err)
+స్థిర అంతఃవరుస పూర్ణాంకం
+write_cgroup_file (పూర్ణాంకం dirfd, స్థిరరాశి అక్షరం *name, స్థిరరాశి శూన్య *దత్తాంశం, size_t len, libcrun_error_t *err)
 {
-  return write_file_at_with_flags (dirfd, O_WRONLY | O_CLOEXEC, 0, name, data, len, err);
+  తిరిగి write_file_at_with_flags (dirfd, O_WRONLY | O_CLOEXEC, 0, name, దత్తాంశం, len, err);
 }
 
-int libcrun_cgroup_pause_unpause_path (const char *cgroup_path, const bool pause, libcrun_error_t *err);
+పూర్ణాంకం libcrun_cgroup_pause_unpause_మార్గం (స్థిరరాశి అక్షరం *cgroup_మార్గం, స్థిరరాశి bool pause, libcrun_error_t *err);
 
-static inline uint64_t
-convert_shares_to_weight (uint64_t shares)
+స్థిర అంతఃవరుస uint64_t
+convert_shares_గమ్యం_బరువు (uint64_t shares)
 {
-  double l, exponent;
+  ద్విగుణ l, exponent;
 
   /* The value of 0 means "unset".  */
-  if (shares == 0)
-    return 0;
-  if (shares <= 2)
-    return 1;
-  if (shares >= 262144)
-    return 10000;
+  ఒకవేళ (shares == 0)
+    తిరిగి 0;
+  ఒకవేళ (shares <= 2)
+    తిరిగి 1;
+  ఒకవేళ (shares >= 262144)
+    తిరిగి 10000;
 
-  l = log2 ((double) shares);
+  l = log2 ((ద్విగుణ) shares);
 
   /* Quadratic function which fits min, max, and default.  */
   exponent = (l * l + 125 * l) / 612.0 - 7.0 / 34.0;
 
-  return (uint64_t) ceil (pow (10, exponent));
+  తిరిగి (uint64_t) ceil (ఘాతం (10, exponent));
 }
 
-int initialize_cpuset_subsystem (const char *path, libcrun_error_t *err);
-int initialize_cpuset_subsystem_resources (const char *path, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err);
+పూర్ణాంకం initialize_cpuset_subsystem (స్థిరరాశి అక్షరం *మార్గం, libcrun_error_t *err);
+పూర్ణాంకం initialize_cpuset_subsystem_resources (స్థిరరాశి అక్షరం *మార్గం, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err);
 
-int write_cpuset_resources (int dirfd_cpuset, int cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err);
+పూర్ణాంకం write_cpuset_resources (పూర్ణాంకం dirfd_cpuset, పూర్ణాంకం cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err);
 
-int write_cpu_idle (int cpu_dirfd, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err);
-int write_cpu_burst (int cpu_dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err);
+పూర్ణాంకం write_cpu_idle (పూర్ణాంకం cpu_dirfd, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err);
+పూర్ణాంకం write_cpu_వ్యవధి (పూర్ణాంకం cpu_dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err);
 
-#endif
+#అయితే_ముగింపు

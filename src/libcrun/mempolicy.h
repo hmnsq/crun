@@ -15,13 +15,13 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef MEMPOLICY_H
-#define MEMPOLICY_H
-#include <config.h>
-#include "error.h"
-#include "container.h"
-#include "status.h"
+#నిర్వచితం_కాకపోతే MEMPOLICY_H
+#నిర్వచించు MEMPOLICY_H
+#అన్తర్భావ <config.h>
+#అన్తర్భావ "error.h"
+#అన్తర్భావ "container.h"
+#అన్తర్భావ "status.h"
 
-int libcrun_set_mempolicy (runtime_spec_schema_config_schema *def, libcrun_error_t *err);
+పూర్ణాంకం libcrun_సమితి_mempolicy (runtime_spec_schema_config_schema *def, libcrun_error_t *err);
 
-#endif
+#అయితే_ముగింపు

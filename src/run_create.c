@@ -16,45 +16,45 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#అన్తర్భావ <config.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ <argp.h>
+#అన్తర్భావ <string.h>
+#అన్తర్భావ <unistd.h>
+#అన్తర్భావ <errno.h>
 
-#include "crun.h"
-#include "run_create.h"
+#అన్తర్భావ "crun.h"
+#అన్తర్భావ "run_create.h"
 
-int
-crun_run_create_internal (struct crun_global_arguments *global_args, int argc, char **argv,
-                          container_run_create_func_t container_run_create_func, get_options_func_t get_options_func,
-                          libcrun_context_t *crun_context, struct argp *run_argp, const char **config_file_ptr,
-                          const char **bundle_ptr, libcrun_error_t *err)
+పూర్ణాంకం
+crun_నిరంతరం_create_అంతర్గత (నిర్మాణం crun_global_arguments *global_వాదనలు, పూర్ణాంకం argc, అక్షరం **argv,
+                          container_నిరంతరం_create_func_t container_నిరంతరం_create_func, get_options_func_t get_options_func,
+                          libcrun_context_t *crun_context, నిర్మాణం argp *నిరంతరం_argp, స్థిరరాశి అక్షరం **config_file_ptr,
+                          స్థిరరాశి అక్షరం **bundle_ptr, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
-  cleanup_container libcrun_container_t *container = NULL;
-  cleanup_free char *bundle_cleanup = NULL;
-  cleanup_free char *config_file_cleanup = NULL;
-  cleanup_free char *pid_file_cleanup = NULL;
-  const char *pid_file;
+  పూర్ణాంకం మొదటి_arg = 0, ret;
+  cleanup_container libcrun_container_t *container = ఖాళీ;
+  cleanup_free అక్షరం *bundle_cleanup = ఖాళీ;
+  cleanup_free అక్షరం *config_file_cleanup = ఖాళీ;
+  cleanup_free అక్షరం *pid_file_cleanup = ఖాళీ;
+  స్థిరరాశి అక్షరం *pid_file;
 
-  argp_parse (run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, crun_context);
+  argp_parse (నిరంతరం_argp, argc, argv, ARGP_లోపల_క్రమం, &మొదటి_arg, crun_context);
   /* Get options after parsing the arguments.  */
-  unsigned int options = get_options_func ();
-  const char *config_file = *config_file_ptr;
-  const char *bundle = *bundle_ptr;
+  గుర్తులేని పూర్ణాంకం options = get_options_func ();
+  స్థిరరాశి అక్షరం *config_file = *config_file_ptr;
+  స్థిరరాశి అక్షరం *bundle = *bundle_ptr;
 
-  crun_assert_n_args (argc - first_arg, 1, 1);
+  crun_assert_n_వాదనలు (argc - మొదటి_arg, 1, 1);
 
   /* Make sure the config is an absolute path before changing the directory.  */
-  if ((strcmp ("config.json", config_file) != 0))
+  ఒకవేళ ((strcmp ("config.json", config_file) != 0))
     {
-      if (config_file[0] != '/')
+      ఒకవేళ (config_file[0] != '/')
         {
-          config_file_cleanup = realpath (config_file, NULL);
-          if (config_file_cleanup == NULL)
+          config_file_cleanup = realpath (config_file, ఖాళీ);
+          ఒకవేళ (config_file_cleanup == ఖాళీ)
             libcrun_fail_with_error (errno, "realpath `%s` failed", config_file);
           config_file = config_file_cleanup;
         }
@@ -62,63 +62,63 @@ crun_run_create_internal (struct crun_global_arguments *global_args, int argc, c
 
   /* Make sure the pid file is an absolute path before changing the directory.  */
   pid_file = libcrun_context_get_pid_file (crun_context);
-  if (pid_file && pid_file[0] != '/')
+  ఒకవేళ (pid_file && pid_file[0] != '/')
     {
-      cleanup_free char *cwd = getcwd (NULL, 0);
-      if (UNLIKELY (cwd == NULL))
+      cleanup_free అక్షరం *cwd = getcwd (ఖాళీ, 0);
+      ఒకవేళ (UNLIKELY (cwd == ఖాళీ))
         libcrun_fail_with_error (errno, "getcwd failed");
-      size_t len = strlen (cwd) + strlen (pid_file) + 2;
+      size_t len = అక్షరశ్రేణి_పొడవు (cwd) + అక్షరశ్రేణి_పొడవు (pid_file) + 2;
 
       pid_file_cleanup = xmalloc0 (len);
       snprintf (pid_file_cleanup, len, "%s/%s", cwd, pid_file);
-      libcrun_context_set_pid_file (crun_context, pid_file_cleanup);
+      libcrun_context_సమితి_pid_file (crun_context, pid_file_cleanup);
     }
 
   /* Make sure the bundle is an absolute path.  */
-  if (bundle == NULL)
+  ఒకవేళ (bundle == ఖాళీ)
     {
-      bundle = bundle_cleanup = getcwd (NULL, 0);
-      if (UNLIKELY (bundle == NULL))
+      bundle = bundle_cleanup = getcwd (ఖాళీ, 0);
+      ఒకవేళ (UNLIKELY (bundle == ఖాళీ))
         libcrun_fail_with_error (errno, "getcwd failed");
     }
-  else
+  లేకపోతే
     {
-      if (bundle[0] != '/')
+      ఒకవేళ (bundle[0] != '/')
         {
-          bundle_cleanup = realpath (bundle, NULL);
-          if (bundle_cleanup == NULL)
+          bundle_cleanup = realpath (bundle, ఖాళీ);
+          ఒకవేళ (bundle_cleanup == ఖాళీ)
             libcrun_fail_with_error (errno, "realpath `%s` failed", bundle);
           bundle = bundle_cleanup;
         }
 
-      if (chdir (bundle) < 0)
+      ఒకవేళ (chdir (bundle) < 0)
         libcrun_fail_with_error (errno, "chdir `%s` failed", bundle);
     }
 
-  if (getenv ("LISTEN_FDS"))
+  ఒకవేళ (getenv ("LISTEN_FDS"))
     {
-      int listen_fds = parse_id_or_fail (getenv ("LISTEN_FDS"), NULL, "LISTEN_FDS");
-      libcrun_context_set_listen_fds (crun_context, listen_fds);
-      libcrun_context_set_preserve_fds (crun_context, libcrun_context_get_preserve_fds (crun_context) + listen_fds);
+      పూర్ణాంకం listen_fds = parse_id_or_fail (getenv ("LISTEN_FDS"), ఖాళీ, "LISTEN_FDS");
+      libcrun_context_సమితి_listen_fds (crun_context, listen_fds);
+      libcrun_context_సమితి_preserve_fds (crun_context, libcrun_context_get_preserve_fds (crun_context) + listen_fds);
     }
 
   /* The config file may be passed as /dev/fd/N, so read it before
      closing the file descriptors.  */
-  container = libcrun_container_load_from_file (config_file, err);
-  if (container == NULL)
-    return -1;
+  container = libcrun_container_ఎక్కించు_from_file (config_file, err);
+  ఒకవేళ (container == ఖాళీ)
+    తిరిగి -1;
 
   /* Close the file descriptors inherited from the caller, so they do
      not leak into the container.  */
   ret = libcrun_close_inherited_fds (crun_context, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = init_libcrun_context (crun_context, argv[మొదటి_arg], global_వాదనలు, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
   libcrun_debug ("Using bundle: %s", bundle);
-  libcrun_context_set_bundle (crun_context, bundle);
-  return container_run_create_func (crun_context, container, options, err);
+  libcrun_context_సమితి_bundle (crun_context, bundle);
+  తిరిగి container_నిరంతరం_create_func (crun_context, container, options, err);
 }

@@ -16,26 +16,26 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#నిర్వచించు GNU_ఆధారం
 
-#include <config.h>
-#include "../container.h"
-#include "../utils.h"
-#include "handler-utils.h"
+#అన్తర్భావ <config.h>
+#అన్తర్భావ "../container.h"
+#అన్తర్భావ "../utils.h"
+#అన్తర్భావ "handler-utils.h"
 
-int
-wasm_can_handle_container (libcrun_container_t *container, libcrun_error_t *err arg_unused)
+పూర్ణాంకం
+wasm_can_handle_container (libcrun_container_t *container, libcrun_error_t *err arg_వాడని)
 {
-  const char *annotation;
-  const char *entrypoint_executable;
+  స్థిరరాశి అక్షరం *annotation;
+  స్థిరరాశి అక్షరం *entrypoint_executable;
 
-  if (container->container_def->process == NULL || container->container_def->process->args == NULL)
-    return 0;
+  ఒకవేళ (container->container_def->process == ఖాళీ || container->container_def->process->వాదనలు == ఖాళీ)
+    తిరిగి 0;
 
-  entrypoint_executable = container->container_def->process->args[0];
+  entrypoint_executable = container->container_def->process->వాదనలు[0];
 
-  annotation = find_annotation (container, "run.oci.handler");
-  if (annotation)
+  annotation = కనుగొను_annotation (container, "run.oci.handler");
+  ఒకవేళ (annotation)
     {
 
       /* wasm-smart: annotation is a smart switch which only toggles wasm if it's necessary,
@@ -43,15 +43,15 @@ wasm_can_handle_container (libcrun_container_t *container, libcrun_error_t *err 
          kubernetes cluster but workload also contains side-cars which could execute non-wasm workload.
          Example: Kubernetes clusters with service-mesh such as istio, linkerd etc
       */
-      if (strcmp (annotation, "wasm-smart") == 0)
+      ఒకవేళ (strcmp (annotation, "wasm-smart") == 0)
         {
-          return ((has_suffix (entrypoint_executable, ".wat") > 0) || (has_suffix (entrypoint_executable, ".wasm") > 0)) ? 1 : 0;
+          తిరిగి ((has_suffix (entrypoint_executable, ".wat") > 0) || (has_suffix (entrypoint_executable, ".wasm") > 0)) ? 1 : 0;
         }
-      return strcmp (annotation, "wasm") == 0 ? 1 : 0;
+      తిరిగి strcmp (annotation, "wasm") == 0 ? 1 : 0;
     }
 
-  annotation = find_annotation (container, "module.wasm.image/variant");
-  if (annotation)
+  annotation = కనుగొను_annotation (container, "module.wasm.image/variant");
+  ఒకవేళ (annotation)
     {
 
       /* compat-smart: annotation is a smart switch which only toggles wasm if it's necessary,
@@ -59,13 +59,13 @@ wasm_can_handle_container (libcrun_container_t *container, libcrun_error_t *err 
          kubernetes cluster but workload also contains side-cars which could execute non-wasm workload.
          Example: Kubernetes clusters with service-mesh such as istio, linkerd etc
       */
-      if (strcmp (annotation, "compat-smart") == 0)
+      ఒకవేళ (strcmp (annotation, "compat-smart") == 0)
         {
-          return ((has_suffix (entrypoint_executable, ".wat") > 0) || (has_suffix (entrypoint_executable, ".wasm") > 0)) ? 1 : 0;
+          తిరిగి ((has_suffix (entrypoint_executable, ".wat") > 0) || (has_suffix (entrypoint_executable, ".wasm") > 0)) ? 1 : 0;
         }
 
-      return strcmp (annotation, "compat") == 0 ? 1 : 0;
+      తిరిగి strcmp (annotation, "compat") == 0 ? 1 : 0;
     }
 
-  return 0;
+  తిరిగి 0;
 }

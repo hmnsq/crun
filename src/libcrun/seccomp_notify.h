@@ -15,27 +15,27 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SECCOMP_NOTIFY_H
-#define SECCOMP_NOTIFY_H
+#నిర్వచితం_కాకపోతే SECCOMP_NOTIFY_H
+#నిర్వచించు SECCOMP_NOTIFY_H
 
-#include <config.h>
-#include "error.h"
+#అన్తర్భావ <config.h>
+#అన్తర్భావ "error.h"
 
-#if ! (HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES)
+#ఒకవేళ ! (HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES)
 #  define SECCOMP_NOTIFY_SKIP_TYPEDEF
-#endif
-#include "seccomp_notify_plugin.h"
+#అయితే_ముగింపు
+#అన్తర్భావ "seccomp_notify_plugin.h"
 
-struct seccomp_notify_context_s;
+నిర్మాణం seccomp_notify_context_s;
 
-LIBCRUN_PUBLIC int libcrun_load_seccomp_notify_plugins (struct seccomp_notify_context_s **out, const char *plugins,
-                                                        struct libcrun_load_seccomp_notify_conf_s *conf,
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_ఎక్కించు_seccomp_notify_plugins (నిర్మాణం seccomp_notify_context_s **బహిర్గతం, స్థిరరాశి అక్షరం *plugins,
+                                                        నిర్మాణం libcrun_ఎక్కించు_seccomp_notify_conf_s *conf,
                                                         libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, int seccomp_fd,
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_seccomp_notify_plugins (నిర్మాణం seccomp_notify_context_s *ctx, పూర్ణాంకం seccomp_fd,
                                                    libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_free_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, libcrun_error_t *err);
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_free_seccomp_notify_plugins (నిర్మాణం seccomp_notify_context_s *ctx, libcrun_error_t *err);
 
-#define cleanup_seccomp_notify_context __attribute__ ((cleanup (cleanup_seccomp_notify_pluginsp)))
-void cleanup_seccomp_notify_pluginsp (void *p);
+#నిర్వచించు cleanup_seccomp_notify_context __attribute__ ((cleanup (cleanup_seccomp_notify_pluginsp)))
+శూన్య cleanup_seccomp_notify_pluginsp (శూన్య *p);
 
-#endif
+#అయితే_ముగింపు

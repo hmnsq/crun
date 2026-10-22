@@ -15,249 +15,249 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE
+#నిర్వచించు GNU_ఆధారం
 
-#include <config.h>
-#include "status.h"
-#include "utils.h"
-#include "json_gen_utils.h"
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <json-c/json.h>
-#include <ocispec/json_common.h>
-#include <sys/mount.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <dirent.h>
-#include <signal.h>
-#include <limits.h>
+#అన్తర్భావ <config.h>
+#అన్తర్భావ "status.h"
+#అన్తర్భావ "utils.h"
+#అన్తర్భావ "json_gen_utils.h"
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ <unistd.h>
+#అన్తర్భావ <fcntl.h>
+#అన్తర్భావ <json-c/json.h>
+#అన్తర్భావ <ocispec/json_common.h>
+#అన్తర్భావ <sys/mount.h>
+#అన్తర్భావ <sys/stat.h>
+#అన్తర్భావ <sys/types.h>
+#అన్తర్భావ <dirent.h>
+#అన్తర్భావ <signal.h>
+#అన్తర్భావ <limits.h>
 
-#define STEAL_POINTER(x, y) \
-  do                        \
+#నిర్వచించు STEAL_సూచిక(x, y) \
+  చేయి                        \
     {                       \
       *x = y;               \
-      y = NULL;             \
-  } while (0)
+      y = ఖాళీ;             \
+  } అయితే (0)
 
-struct pid_stat
+నిర్మాణం pid_stat
 {
-  char state;
-  long num_threads;
-  unsigned long long starttime;
+  అక్షరం state;
+  దీర్ఘ అంకె_దారాలు;
+  గుర్తులేని దీర్ఘ దీర్ఘ starttime;
 };
 
-static inline bool
-is_valid_id_char (char c)
+స్థిర అంతఃవరుస bool
+is_valid_id_char (అక్షరం c)
 {
-  if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'))
-    return true;
-  return c == '_' || c == '+' || c == '.' || c == '-';
+  ఒకవేళ ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'))
+    తిరిగి true;
+  తిరిగి c == '_' || c == '+' || c == '.' || c == '-';
 }
 
-static int
-validate_id (const char *id, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+validate_id (స్థిరరాశి అక్షరం *id, libcrun_error_t *err)
 {
-  if (id == NULL)
-    return 0;
+  ఒకవేళ (id == ఖాళీ)
+    తిరిగి 0;
 
-  if (id[0] == '\0')
-    return crun_make_error (err, 0, "empty container ID");
+  ఒకవేళ (id[0] == '\0')
+    తిరిగి crun_make_error (err, 0, "empty container ID");
 
-  if (id[0] == '.')
-    return crun_make_error (err, 0, "invalid container ID `%s`", id);
+  ఒకవేళ (id[0] == '.')
+    తిరిగి crun_make_error (err, 0, "invalid container ID `%s`", id);
 
-  for (size_t i = 0; id[i]; i++)
+  కొరకు (size_t i = 0; id[i]; i++)
     {
-      if (! is_valid_id_char (id[i]))
-        return crun_make_error (err, 0, "invalid character `%c` in the container ID `%s`", id[i], id);
+      ఒకవేళ (! is_valid_id_char (id[i]))
+        తిరిగి crun_make_error (err, 0, "invalid character `%c` in the container ID `%s`", id[i], id);
     }
 
-  return 0;
+  తిరిగి 0;
 }
 
-int
-get_run_directory (char **out, const char *state_root, libcrun_error_t *err)
+పూర్ణాంకం
+get_నిరంతరం_directory (అక్షరం **బహిర్గతం, స్థిరరాశి అక్షరం *state_మూలం, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_free char *root = NULL;
+  పూర్ణాంకం ret;
+  cleanup_free అక్షరం *మూలం = ఖాళీ;
 
-  if (state_root)
-    root = xstrdup (state_root);
-  if (root == NULL)
+  ఒకవేళ (state_మూలం)
+    మూలం = xstrdup (state_మూలం);
+  ఒకవేళ (మూలం == ఖాళీ)
     {
-      const char *runtime_dir = getenv ("XDG_RUNTIME_DIR");
-      if (runtime_dir && runtime_dir[0] != '\0')
+      స్థిరరాశి అక్షరం *runtime_dir = getenv ("XDG_RUNTIME_DIR");
+      ఒకవేళ (runtime_dir && runtime_dir[0] != '\0')
         {
-          ret = append_paths (&root, err, runtime_dir, "crun", NULL);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = append_paths (&మూలం, err, runtime_dir, "crun", ఖాళీ);
+          ఒకవేళ (UNLIKELY (ret < 0))
+            తిరిగి ret;
         }
     }
-  if (root == NULL)
-    root = xstrdup ("/run/crun");
+  ఒకవేళ (మూలం == ఖాళీ)
+    మూలం = xstrdup ("/run/crun");
 
-  ret = crun_ensure_directory (root, 0700, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = crun_ensure_directory (మూలం, 0700, false, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  STEAL_POINTER (out, root);
+  STEAL_సూచిక (బహిర్గతం, మూలం);
 
-  return 0;
+  తిరిగి 0;
 }
 
-int
-get_shared_empty_directory_path (char **out, const char *state_root, libcrun_error_t *err)
+పూర్ణాంకం
+get_shared_ఖాళీలు_directory_మార్గం (అక్షరం **బహిర్గతం, స్థిరరాశి అక్షరం *state_మూలం, libcrun_error_t *err)
 {
-  cleanup_free char *run_dir = NULL;
-  int ret;
+  cleanup_free అక్షరం *నిరంతరం_dir = ఖాళీ;
+  పూర్ణాంకం ret;
 
-  ret = get_run_directory (&run_dir, state_root, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_నిరంతరం_directory (&నిరంతరం_dir, state_మూలం, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  ret = append_paths (out, err, run_dir, ".empty-directory", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (బహిర్గతం, err, నిరంతరం_dir, ".empty-directory", ఖాళీ);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
   /* Ensure the empty directory exists */
-  ret = crun_ensure_directory (*out, 0555, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = crun_ensure_directory (*బహిర్గతం, 0555, false, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  return 0;
+  తిరిగి 0;
 }
 
-int
-libcrun_get_state_directory (char **out, const char *state_root, const char *id, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_get_state_directory (అక్షరం **బహిర్గతం, స్థిరరాశి అక్షరం *state_మూలం, స్థిరరాశి అక్షరం *id, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_free char *path = NULL;
-  cleanup_free char *root = NULL;
+  పూర్ణాంకం ret;
+  cleanup_free అక్షరం *మార్గం = ఖాళీ;
+  cleanup_free అక్షరం *మూలం = ఖాళీ;
 
   ret = validate_id (id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  ret = get_run_directory (&root, state_root, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_నిరంతరం_directory (&మూలం, state_మూలం, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  ret = append_paths (&path, err, root, id, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&మార్గం, err, మూలం, id, ఖాళీ);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  STEAL_POINTER (out, path);
+  STEAL_సూచిక (బహిర్గతం, మార్గం);
 
-  return 0;
+  తిరిగి 0;
 }
 
-static int
-get_state_directory_status_file (char **out, const char *state_root, const char *id, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+get_state_directory_స్థితి_file (అక్షరం **బహిర్గతం, స్థిరరాశి అక్షరం *state_మూలం, స్థిరరాశి అక్షరం *id, libcrun_error_t *err)
 {
-  cleanup_free char *dir = NULL;
-  int ret;
+  cleanup_free అక్షరం *dir = ఖాళీ;
+  పూర్ణాంకం ret;
 
-  ret = libcrun_get_state_directory (&dir, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_get_state_directory (&dir, state_మూలం, id, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  return append_paths (out, err, dir, "status", NULL);
+  తిరిగి append_paths (బహిర్గతం, err, dir, "status", ఖాళీ);
 }
 
-static int
-read_pid_stat (pid_t pid, struct pid_stat *st, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+read_pid_stat (pid_t pid, నిర్మాణం pid_stat *st, libcrun_error_t *err)
 {
-  cleanup_free char *buffer = NULL;
-  cleanup_close int fd = -1;
-  char pid_stat_file[64];
-  char *it, *s;
-  int i, ret;
+  cleanup_free అక్షరం *బఫరు = ఖాళీ;
+  cleanup_close పూర్ణాంకం fd = -1;
+  అక్షరం pid_stat_file[64];
+  అక్షరం *it, *s;
+  పూర్ణాంకం i, ret;
 
-  ret = snprintf (pid_stat_file, sizeof (pid_stat_file), "/proc/%d/stat", pid);
-  if (UNLIKELY (ret >= (int) sizeof (pid_stat_file)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  ret = snprintf (pid_stat_file, పరిమాణం (pid_stat_file), "/proc/%d/stat", pid);
+  ఒకవేళ (UNLIKELY (ret >= (పూర్ణాంకం) పరిమాణం (pid_stat_file)))
+    తిరిగి crun_make_error (err, 0, "internal error: static buffer too small");
 
   fd = open (pid_stat_file, O_RDONLY | O_CLOEXEC);
-  if (fd < 0)
+  ఒకవేళ (fd < 0)
     {
       /* The process already exited.  */
-      if (errno == ENOENT || errno == ESRCH)
+      ఒకవేళ (errno == ENOENT || errno == ESRCH)
         {
-          memset (st, 0, sizeof (*st));
-          return 0;
+          memset (st, 0, పరిమాణం (*st));
+          తిరిగి 0;
         }
-      return crun_make_error (err, errno, "open state file `%s`", pid_stat_file);
+      తిరిగి crun_make_error (err, errno, "open state file `%s`", pid_stat_file);
     }
 
-  ret = read_all_fd (fd, pid_stat_file, &buffer, NULL, err);
-  if (ret < 0)
+  ret = read_all_fd (fd, pid_stat_file, &బఫరు, ఖాళీ, err);
+  ఒకవేళ (ret < 0)
     {
       st->starttime = 0;
-      st->num_threads = 0;
+      st->అంకె_దారాలు = 0;
       st->state = 'X';
       /* The process already exited.  */
       libcrun_error_release (err);
-      return 0;
+      తిరిగి 0;
     }
 
-  s = NULL;
+  s = ఖాళీ;
 
   /* Skip the first two arguments.  */
-  for (it = buffer; it; it = strchr (it + 1, ')'))
+  కొరకు (it = బఫరు; it; it = strchr (it + 1, ')'))
     s = it + 1;
 
-  if (s)
-    while (*s == ' ')
+  ఒకవేళ (s)
+    అయితే (*s == ' ')
       s++;
 
-  if (s == NULL || *s == '\0')
-    return crun_make_error (err, 0, "could not read process state");
+  ఒకవేళ (s == ఖాళీ || *s == '\0')
+    తిరిగి crun_make_error (err, 0, "could not read process state");
 
   st->state = *s;
 
   /* Seek to the starttime argument.  */
-  for (it = s + 1, i = 0; i < 19; i++)
+  కొరకు (it = s + 1, i = 0; i < 19; i++)
     {
       it = strchr (it, ' ');
-      if (it == NULL)
-        return crun_make_error (err, 0, "could not read process start time");
+      ఒకవేళ (it == ఖాళీ)
+        తిరిగి crun_make_error (err, 0, "could not read process start time");
       it++;
 
       /* num_threads is the second argument before starttime.  */
-      if (i == 16)
-        st->num_threads = strtol (it, NULL, 10);
+      ఒకవేళ (i == 16)
+        st->అంకె_దారాలు = strtol (it, ఖాళీ, 10);
     }
 
   errno = 0;
-  st->starttime = strtoull (it, NULL, 10);
-  if (errno != 0)
-    return crun_make_error (err, errno, "parse process start time");
+  st->starttime = strtoull (it, ఖాళీ, 10);
+  ఒకవేళ (errno != 0)
+    తిరిగి crun_make_error (err, errno, "parse process start time");
 
-  return 0;
+  తిరిగి 0;
 }
 
-int
-libcrun_write_container_status (const char *state_root, const char *id, libcrun_container_status_t *status,
+పూర్ణాంకం
+libcrun_write_container_స్థితి (స్థిరరాశి అక్షరం *state_మూలం, స్థిరరాశి అక్షరం *id, libcrun_container_స్థితి_t *స్థితి_2,
                                 libcrun_error_t *err)
 {
-  int r, ret;
-  cleanup_free char *file_tmp = NULL;
-  cleanup_free char *file = NULL;
+  పూర్ణాంకం r, ret;
+  cleanup_free అక్షరం *file_tmp = ఖాళీ;
+  cleanup_free అక్షరం *file = ఖాళీ;
   size_t len;
-  cleanup_close int fd_write = -1;
-  const char *buf = NULL;
-  struct pid_stat st;
-  const char *tmp;
-  cleanup_json_gen json_gen_ctx *gen = NULL;
+  cleanup_close పూర్ణాంకం fd_write = -1;
+  స్థిరరాశి అక్షరం *buf = ఖాళీ;
+  నిర్మాణం pid_stat st;
+  స్థిరరాశి అక్షరం *tmp;
+  cleanup_json_gen json_gen_ctx *gen = ఖాళీ;
 
-  ret = get_state_directory_status_file (&file, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_state_directory_స్థితి_file (&file, state_మూలం, id, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  ret = read_pid_stat (status->pid, &st, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_pid_stat (స్థితి_2->pid, &st, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
   /* read_pid_stat returns a start time of 0 when the process already exited,
      e.g. a restored container that terminated before the status is written.
@@ -265,509 +265,509 @@ libcrun_write_container_status (const char *state_root, const char *id, libcrun_
      available" and would accept any process that later reuses the same pid.
      Store a value that no process can have instead, so that the container is
      reported as stopped.  */
-  status->process_start_time = st.starttime ? st.starttime : ULLONG_MAX;
+  స్థితి_2->process_ప్రారంభం_సమయం = st.starttime ? st.starttime : ULLONG_MAX;
 
   xasprintf (&file_tmp, "%s.tmp", file);
   fd_write = open (file_tmp, O_CREAT | O_WRONLY | O_CLOEXEC, 0700);
-  if (UNLIKELY (fd_write < 0))
-    return crun_make_error (err, errno, "cannot open status file");
+  ఒకవేళ (UNLIKELY (fd_write < 0))
+    తిరిగి crun_make_error (err, errno, "cannot open status file");
 
-  if (! json_gen_init (&gen, NULL))
-    return crun_make_error (err, 0, "json_gen_init failed");
+  ఒకవేళ (! json_gen_init (&gen, ఖాళీ))
+    తిరిగి crun_make_error (err, 0, "json_gen_init failed");
 
   json_gen_config (gen, json_gen_beautify, 1);
 
   GEN_OR_FAIL (json_gen_map_open (gen));
 
-  GEN_KEY (gen, "pid");
-  GEN_OR_FAIL (map_int (gen, status->pid));
+  GEN_కీలకం (gen, "pid");
+  GEN_OR_FAIL (map_int (gen, స్థితి_2->pid));
 
-  GEN_KEY (gen, "process-start-time");
-  GEN_OR_FAIL (map_uint (gen, status->process_start_time));
+  GEN_కీలకం (gen, "process-start-time");
+  GEN_OR_FAIL (map_uint (gen, స్థితి_2->process_ప్రారంభం_సమయం));
 
-  GEN_KEY (gen, "cgroup-path");
-  tmp = status->cgroup_path ? status->cgroup_path : "";
+  GEN_కీలకం (gen, "cgroup-path");
+  tmp = స్థితి_2->cgroup_మార్గం ? స్థితి_2->cgroup_మార్గం : "";
   GEN_STR (gen, tmp);
 
-  GEN_KEY (gen, "scope");
-  tmp = status->scope ? status->scope : "";
+  GEN_కీలకం (gen, "scope");
+  tmp = స్థితి_2->scope ? స్థితి_2->scope : "";
   GEN_STR (gen, tmp);
 
-  GEN_KEY (gen, "rootfs");
-  GEN_STR (gen, status->rootfs);
+  GEN_కీలకం (gen, "rootfs");
+  GEN_STR (gen, స్థితి_2->rootfs);
 
-  GEN_KEY (gen, "systemd-cgroup");
-  GEN_OR_FAIL (json_gen_bool (gen, status->systemd_cgroup));
+  GEN_కీలకం (gen, "systemd-cgroup");
+  GEN_OR_FAIL (json_gen_bool (gen, స్థితి_2->systemd_cgroup));
 
-  GEN_KEY (gen, "bundle");
-  GEN_STR (gen, status->bundle);
+  GEN_కీలకం (gen, "bundle");
+  GEN_STR (gen, స్థితి_2->bundle);
 
-  GEN_KEY (gen, "created");
-  GEN_STR (gen, status->created);
+  GEN_కీలకం (gen, "created");
+  GEN_STR (gen, స్థితి_2->created);
 
-  if (status->owner)
+  ఒకవేళ (స్థితి_2->owner)
     {
-      GEN_KEY (gen, "owner");
-      GEN_STR (gen, status->owner);
+      GEN_కీలకం (gen, "owner");
+      GEN_STR (gen, స్థితి_2->owner);
     }
 
-  GEN_KEY (gen, "detached");
-  GEN_OR_FAIL (json_gen_bool (gen, status->detached));
+  GEN_కీలకం (gen, "detached");
+  GEN_OR_FAIL (json_gen_bool (gen, స్థితి_2->detached));
 
-  GEN_KEY (gen, "no-new-keyring");
-  GEN_OR_FAIL (json_gen_bool (gen, status->no_new_keyring));
+  GEN_కీలకం (gen, "no-new-keyring");
+  GEN_OR_FAIL (json_gen_bool (gen, స్థితి_2->no_new_keyring));
 
-  if (status->external_descriptors)
+  ఒకవేళ (స్థితి_2->external_descriptors)
     {
-      GEN_KEY (gen, "external_descriptors");
-      GEN_STR (gen, status->external_descriptors);
+      GEN_కీలకం (gen, "external_descriptors");
+      GEN_STR (gen, స్థితి_2->external_descriptors);
     }
 
   GEN_OR_FAIL (json_gen_map_close (gen));
 
   GEN_OR_FAIL (json_gen_get_buf (gen, &buf, &len));
 
-  ret = safe_write (fd_write, "status file", buf, len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = సురక్షిత_write (fd_write, "status file", buf, len, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
   close_and_reset (&fd_write);
 
-  if (UNLIKELY (rename (file_tmp, file) < 0))
-    return crun_make_error (err, errno, "cannot rename status file");
+  ఒకవేళ (UNLIKELY (rename (file_tmp, file) < 0))
+    తిరిగి crun_make_error (err, errno, "cannot rename status file");
 
-  return 0;
+  తిరిగి 0;
 
 gen_error:
-  return json_gen_error_to_crun_error (r, err);
+  తిరిగి json_gen_error_గమ్యం_crun_error (r, err);
 }
 
-int
-libcrun_read_container_status (libcrun_container_status_t *status, const char *state_root, const char *id,
+పూర్ణాంకం
+libcrun_read_container_స్థితి (libcrun_container_స్థితి_t *స్థితి_2, స్థిరరాశి అక్షరం *state_మూలం, స్థిరరాశి అక్షరం *id,
                                libcrun_error_t *err)
 {
-  cleanup_free char *buffer = NULL;
-  int ret;
-  cleanup_free char *file = NULL;
-  json_object *doc = NULL;
+  cleanup_free అక్షరం *బఫరు = ఖాళీ;
+  పూర్ణాంకం ret;
+  cleanup_free అక్షరం *file = ఖాళీ;
+  json_object *doc = ఖాళీ;
   json_object *tmp;
-  const char *val;
+  స్థిరరాశి అక్షరం *val;
 
-  ret = get_state_directory_status_file (&file, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_state_directory_స్థితి_file (&file, state_మూలం, id, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  ret = read_all_file (file, &buffer, NULL, err);
-  if (UNLIKELY (ret < 0))
+  ret = read_all_file (file, &బఫరు, ఖాళీ, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
     {
 
-      if (crun_error_get_errno (err) == ENOENT)
+      ఒకవేళ (crun_error_get_errno (err) == ENOENT)
         {
-          cleanup_free char *statedir = NULL;
+          cleanup_free అక్షరం *statedir = ఖాళీ;
           libcrun_error_t tmp_err;
-          int tmp_ret;
+          పూర్ణాంకం tmp_ret;
 
-          tmp_ret = libcrun_get_state_directory (&statedir, state_root, id, &tmp_err);
-          if (UNLIKELY (tmp_ret < 0))
+          tmp_ret = libcrun_get_state_directory (&statedir, state_మూలం, id, &tmp_err);
+          ఒకవేళ (UNLIKELY (tmp_ret < 0))
             crun_error_release (&tmp_err);
-          else
+          లేకపోతే
             {
-              tmp_ret = crun_path_exists (statedir, &tmp_err);
-              if (UNLIKELY (tmp_ret < 0))
+              tmp_ret = crun_మార్గం_exists (statedir, &tmp_err);
+              ఒకవేళ (UNLIKELY (tmp_ret < 0))
                 crun_error_release (&tmp_err);
-              else if (tmp_ret == 0)
-                return crun_error_wrap (err, "container `%s` does not exist", id);
+              లేకపోతే ఒకవేళ (tmp_ret == 0)
+                తిరిగి crun_error_wrap (err, "container `%s` does not exist", id);
             }
         }
-      return ret;
+      తిరిగి ret;
     }
 
-  ret = parse_json_file (&doc, buffer, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = parse_json_file (&doc, బఫరు, ఖాళీ, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
   {
     tmp = json_object_object_get (doc, "pid");
-    if (UNLIKELY (tmp == NULL))
+    ఒకవేళ (UNLIKELY (tmp == ఖాళీ))
       {
         ret = crun_make_error (err, 0, "`pid` missing in `%s`", file);
-        goto exit;
+        వెళ్ళు నిష్క్రమించు;
       }
-    if (UNLIKELY (! json_object_is_type (tmp, json_type_int)))
+    ఒకవేళ (UNLIKELY (! json_object_is_type (tmp, json_type_int)))
       {
         ret = crun_make_error (err, 0, "`pid` is not a numeric value in `%s`", file);
-        goto exit;
+        వెళ్ళు నిష్క్రమించు;
       }
-    status->pid = (pid_t) json_object_get_int64 (tmp);
+    స్థితి_2->pid = (pid_t) json_object_get_int64 (tmp);
   }
   {
     tmp = json_object_object_get (doc, "process-start-time");
-    if (UNLIKELY (tmp == NULL))
-      status->process_start_time = 0; /* backwards compatibility */
-    else if (UNLIKELY (! json_object_is_type (tmp, json_type_int)))
+    ఒకవేళ (UNLIKELY (tmp == ఖాళీ))
+      స్థితి_2->process_ప్రారంభం_సమయం = 0; /* backwards compatibility */
+    లేకపోతే ఒకవేళ (UNLIKELY (! json_object_is_type (tmp, json_type_int)))
       {
         ret = crun_make_error (err, 0, "`process-start-time` is not a numeric value in `%s`", file);
-        goto exit;
+        వెళ్ళు నిష్క్రమించు;
       }
-    else
-      status->process_start_time = json_object_get_uint64 (tmp);
+    లేకపోతే
+      స్థితి_2->process_ప్రారంభం_సమయం = json_object_get_uint64 (tmp);
   }
   {
     tmp = json_object_object_get (doc, "cgroup-path");
-    if (UNLIKELY (tmp == NULL))
+    ఒకవేళ (UNLIKELY (tmp == ఖాళీ))
       {
         ret = crun_make_error (err, 0, "`cgroup-path` missing in `%s`", file);
-        goto exit;
+        వెళ్ళు నిష్క్రమించు;
       }
     val = json_object_get_string (tmp);
-    if (UNLIKELY (val == NULL))
+    ఒకవేళ (UNLIKELY (val == ఖాళీ))
       {
         ret = crun_make_error (err, 0, "`cgroup-path` is not a string in `%s`", file);
-        goto exit;
+        వెళ్ళు నిష్క్రమించు;
       }
-    status->cgroup_path = xstrdup (val);
+    స్థితి_2->cgroup_మార్గం = xstrdup (val);
   }
   {
     tmp = json_object_object_get (doc, "scope");
-    val = tmp ? json_object_get_string (tmp) : NULL;
-    status->scope = val ? xstrdup (val) : NULL;
+    val = tmp ? json_object_get_string (tmp) : ఖాళీ;
+    స్థితి_2->scope = val ? xstrdup (val) : ఖాళీ;
   }
   {
     tmp = json_object_object_get (doc, "rootfs");
-    if (UNLIKELY (tmp == NULL))
+    ఒకవేళ (UNLIKELY (tmp == ఖాళీ))
       {
         ret = crun_make_error (err, 0, "`rootfs` missing in `%s`", file);
-        goto exit;
+        వెళ్ళు నిష్క్రమించు;
       }
     val = json_object_get_string (tmp);
-    if (UNLIKELY (val == NULL))
+    ఒకవేళ (UNLIKELY (val == ఖాళీ))
       {
         ret = crun_make_error (err, 0, "`rootfs` is not a string in `%s`", file);
-        goto exit;
+        వెళ్ళు నిష్క్రమించు;
       }
-    status->rootfs = xstrdup (val);
+    స్థితి_2->rootfs = xstrdup (val);
   }
   {
     tmp = json_object_object_get (doc, "systemd-cgroup");
-    status->systemd_cgroup = tmp != NULL && json_object_get_boolean (tmp);
+    స్థితి_2->systemd_cgroup = tmp != ఖాళీ && json_object_get_boolean (tmp);
   }
   {
     tmp = json_object_object_get (doc, "bundle");
-    if (UNLIKELY (tmp == NULL))
+    ఒకవేళ (UNLIKELY (tmp == ఖాళీ))
       {
         ret = crun_make_error (err, 0, "`bundle` missing in `%s`", file);
-        goto exit;
+        వెళ్ళు నిష్క్రమించు;
       }
     val = json_object_get_string (tmp);
-    if (UNLIKELY (val == NULL))
+    ఒకవేళ (UNLIKELY (val == ఖాళీ))
       {
         ret = crun_make_error (err, 0, "`bundle` is not a string in `%s`", file);
-        goto exit;
+        వెళ్ళు నిష్క్రమించు;
       }
-    status->bundle = xstrdup (val);
+    స్థితి_2->bundle = xstrdup (val);
   }
   {
     tmp = json_object_object_get (doc, "created");
-    if (UNLIKELY (tmp == NULL))
+    ఒకవేళ (UNLIKELY (tmp == ఖాళీ))
       {
         ret = crun_make_error (err, 0, "`created` missing in `%s`", file);
-        goto exit;
+        వెళ్ళు నిష్క్రమించు;
       }
     val = json_object_get_string (tmp);
-    if (UNLIKELY (val == NULL))
+    ఒకవేళ (UNLIKELY (val == ఖాళీ))
       {
         ret = crun_make_error (err, 0, "`created` is not a string in `%s`", file);
-        goto exit;
+        వెళ్ళు నిష్క్రమించు;
       }
-    status->created = xstrdup (val);
+    స్థితి_2->created = xstrdup (val);
   }
   {
     tmp = json_object_object_get (doc, "owner");
-    val = tmp ? json_object_get_string (tmp) : NULL;
-    status->owner = val ? xstrdup (val) : NULL;
+    val = tmp ? json_object_get_string (tmp) : ఖాళీ;
+    స్థితి_2->owner = val ? xstrdup (val) : ఖాళీ;
   }
   {
     tmp = json_object_object_get (doc, "detached");
-    status->detached = tmp != NULL && json_object_get_boolean (tmp);
+    స్థితి_2->detached = tmp != ఖాళీ && json_object_get_boolean (tmp);
   }
   {
     tmp = json_object_object_get (doc, "no-new-keyring");
-    status->no_new_keyring = tmp != NULL && json_object_get_boolean (tmp);
+    స్థితి_2->no_new_keyring = tmp != ఖాళీ && json_object_get_boolean (tmp);
   }
   {
     tmp = json_object_object_get (doc, "external_descriptors");
-    val = tmp ? json_object_get_string (tmp) : NULL;
-    status->external_descriptors = val ? xstrdup (val) : NULL;
+    val = tmp ? json_object_get_string (tmp) : ఖాళీ;
+    స్థితి_2->external_descriptors = val ? xstrdup (val) : ఖాళీ;
   }
   ret = 0;
 
-exit:
+నిష్క్రమించు:
   json_object_put (doc);
-  return ret;
+  తిరిగి ret;
 }
 
-int
-libcrun_status_check_directories (const char *state_root, const char *id, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_స్థితి_check_directories (స్థిరరాశి అక్షరం *state_మూలం, స్థిరరాశి అక్షరం *id, libcrun_error_t *err)
 {
-  cleanup_free char *dir = NULL;
-  int ret;
+  cleanup_free అక్షరం *dir = ఖాళీ;
+  పూర్ణాంకం ret;
 
-  ret = libcrun_get_state_directory (&dir, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_get_state_directory (&dir, state_మూలం, id, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  ret = crun_path_exists (dir, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = crun_మార్గం_exists (dir, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  if (ret)
-    return crun_make_error (err, 0, "container `%s` already exists", id);
+  ఒకవేళ (ret)
+    తిరిగి crun_make_error (err, 0, "container `%s` already exists", id);
 
-  if (UNLIKELY (mkdir (dir, 0700) < 0))
-    return crun_make_error (err, 0, "cannot create state directory for `%s`", id);
+  ఒకవేళ (UNLIKELY (mkdir (dir, 0700) < 0))
+    తిరిగి crun_make_error (err, 0, "cannot create state directory for `%s`", id);
 
-  return 0;
+  తిరిగి 0;
 }
 
 /* Upper bound on the directories visited while removing a tree, so that an
    attacker constantly creating new ones cannot keep the walk going forever.  */
-#define RMDIRFD_MAX_MOVES (1U << 20)
+#నిర్వచించు RMDIRFD_MAX_కదలికలు (1U << 20)
 
-static int
-rmdirfd_move_to (DIR **d, const char *name, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+rmdirfd_move_గమ్యం (DIR **d, స్థిరరాశి అక్షరం *name, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
+  cleanup_close పూర్ణాంకం fd = -1;
   DIR *new_d;
 
   fd = openat (dirfd (*d), name, O_DIRECTORY | O_RDONLY | O_NOFOLLOW | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "cannot open directory `%s`", name);
+  ఒకవేళ (UNLIKELY (fd < 0))
+    తిరిగి crun_make_error (err, errno, "cannot open directory `%s`", name);
 
   new_d = fdopendir (fd);
-  if (UNLIKELY (new_d == NULL))
-    return crun_make_error (err, errno, "cannot open directory `%s`", name);
+  ఒకవేళ (UNLIKELY (new_d == ఖాళీ))
+    తిరిగి crun_make_error (err, errno, "cannot open directory `%s`", name);
 
   fd = -1;
 
   closedir (*d);
   *d = new_d;
-  return 0;
+  తిరిగి 0;
 }
 
-static int
-rmdirfd (const char *namedir, int fd, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+rmdirfd (స్థిరరాశి అక్షరం *namedir, పూర్ణాంకం fd, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_dir DIR *d = NULL;
-  struct dirent *de;
-  struct stat root_st;
-  bool is_root = true;
-  unsigned int budget = RMDIRFD_MAX_MOVES;
-  __attribute__ ((unused)) cleanup_close int fd_cleanup = fd;
+  పూర్ణాంకం ret;
+  cleanup_dir DIR *d = ఖాళీ;
+  నిర్మాణం dirent *de;
+  నిర్మాణం stat మూలం_st;
+  bool is_మూలం = true;
+  గుర్తులేని పూర్ణాంకం budget = RMDIRFD_MAX_కదలికలు;
+  __attribute__ ((వాడని)) cleanup_close పూర్ణాంకం fd_cleanup = fd;
 
-  ret = fstat (fd, &root_st);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "stat `%s`", namedir);
+  ret = fstat (fd, &మూలం_st);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి crun_make_error (err, errno, "stat `%s`", namedir);
 
   d = fdopendir (fd);
-  if (d == NULL)
-    return crun_make_error (err, errno, "cannot open directory `%s`", namedir);
+  ఒకవేళ (d == ఖాళీ)
+    తిరిగి crun_make_error (err, errno, "cannot open directory `%s`", namedir);
 
   /* Now D owns FD. */
   fd_cleanup = -1;
 
-  for (;;)
+  కొరకు (;;)
     {
       errno = 0;
       de = readdir (d);
-      if (de == NULL)
+      ఒకవేళ (de == ఖాళీ)
         {
-          struct stat st;
+          నిర్మాణం stat st;
 
-          if (UNLIKELY (errno != 0))
-            return crun_make_error (err, errno, "cannot read directory");
+          ఒకవేళ (UNLIKELY (errno != 0))
+            తిరిగి crun_make_error (err, errno, "cannot read directory");
 
-          if (is_root)
-            break;
+          ఒకవేళ (is_మూలం)
+            ఆపు;
 
-          if (UNLIKELY (--budget == 0))
-            return crun_make_error (err, ELOOP, "the directory tree keeps changing while removing `%s`", namedir);
+          ఒకవేళ (UNLIKELY (--budget == 0))
+            తిరిగి crun_make_error (err, ELOOP, "the directory tree keeps changing while removing `%s`", namedir);
 
-          ret = rmdirfd_move_to (&d, "..", err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = rmdirfd_move_గమ్యం (&d, "..", err);
+          ఒకవేళ (UNLIKELY (ret < 0))
+            తిరిగి ret;
 
           ret = fstat (dirfd (d), &st);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "stat `..`");
+          ఒకవేళ (UNLIKELY (ret < 0))
+            తిరిగి crun_make_error (err, errno, "stat `..`");
 
-          is_root = st.st_dev == root_st.st_dev && st.st_ino == root_st.st_ino;
-          continue;
+          is_మూలం = st.st_dev == మూలం_st.st_dev && st.st_ino == మూలం_st.st_ino;
+          కొనసాగు;
         }
 
-      if ((strcmp (de->d_name, ".") == 0) || (strcmp (de->d_name, "..") == 0))
-        continue;
+      ఒకవేళ ((strcmp (de->d_name, ".") == 0) || (strcmp (de->d_name, "..") == 0))
+        కొనసాగు;
 
       /* Ignore errors here and keep deleting, the final unlinkat (AT_REMOVEDIR) will fail anyway.  */
       ret = unlinkat (dirfd (d), de->d_name, 0);
-      if (ret < 0)
+      ఒకవేళ (ret < 0)
         {
         retry_unlink:
           ret = unlinkat (dirfd (d), de->d_name, AT_REMOVEDIR);
-          if (ret < 0 && errno == EBUSY)
+          ఒకవేళ (ret < 0 && errno == EBUSY)
             {
-              cleanup_close int tfd = openat (dirfd (d), de->d_name, O_CLOEXEC | O_PATH | O_NOFOLLOW);
-              if (tfd >= 0)
+              cleanup_close పూర్ణాంకం tfd = openat (dirfd (d), de->d_name, O_CLOEXEC | O_మార్గం | O_NOFOLLOW);
+              ఒకవేళ (tfd >= 0)
                 {
-                  proc_fd_path_t procpath;
+                  proc_fd_మార్గం_t procpath;
 
-                  get_proc_self_fd_path (procpath, tfd);
-                  if (umount2 (procpath, MNT_DETACH) == 0)
-                    goto retry_unlink;
+                  get_proc_self_fd_మార్గం (procpath, tfd);
+                  ఒకవేళ (umount2 (procpath, MNT_DETACH) == 0)
+                    వెళ్ళు retry_unlink;
                 }
-              if (! is_root)
-                return crun_make_error (err, EBUSY, "cannot rm directory `%s`", de->d_name);
+              ఒకవేళ (! is_మూలం)
+                తిరిగి crun_make_error (err, EBUSY, "cannot rm directory `%s`", de->d_name);
             }
-          else if (ret < 0 && errno == ENOTEMPTY)
+          లేకపోతే ఒకవేళ (ret < 0 && errno == ENOTEMPTY)
             {
-              if (UNLIKELY (--budget == 0))
-                return crun_make_error (err, ELOOP, "the directory tree keeps changing while removing `%s`", namedir);
+              ఒకవేళ (UNLIKELY (--budget == 0))
+                తిరిగి crun_make_error (err, ELOOP, "the directory tree keeps changing while removing `%s`", namedir);
 
-              ret = rmdirfd_move_to (&d, de->d_name, err);
-              if (UNLIKELY (ret < 0))
-                return ret;
+              ret = rmdirfd_move_గమ్యం (&d, de->d_name, err);
+              ఒకవేళ (UNLIKELY (ret < 0))
+                తిరిగి ret;
 
-              is_root = false;
+              is_మూలం = false;
             }
-          else if (ret < 0 && errno != ENOENT && ! is_root)
+          లేకపోతే ఒకవేళ (ret < 0 && errno != ENOENT && ! is_మూలం)
             {
-              return crun_make_error (err, errno, "cannot rm `%s`", de->d_name);
+              తిరిగి crun_make_error (err, errno, "cannot rm `%s`", de->d_name);
             }
         }
     }
 
-  return 0;
+  తిరిగి 0;
 }
 
-int
-libcrun_container_delete_status (const char *state_root, const char *id, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_container_delete_స్థితి (స్థిరరాశి అక్షరం *state_మూలం, స్థిరరాశి అక్షరం *id, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_close int rundir_dfd = -1;
-  cleanup_close int dfd = -1;
-  cleanup_free char *dir = NULL;
+  పూర్ణాంకం ret;
+  cleanup_close పూర్ణాంకం rundir_dfd = -1;
+  cleanup_close పూర్ణాంకం dfd = -1;
+  cleanup_free అక్షరం *dir = ఖాళీ;
 
   ret = validate_id (id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  ret = get_run_directory (&dir, state_root, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_నిరంతరం_directory (&dir, state_మూలం, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  rundir_dfd = TEMP_FAILURE_RETRY (open (dir, O_DIRECTORY | O_PATH | O_CLOEXEC));
-  if (UNLIKELY (rundir_dfd < 0))
-    return crun_make_error (err, errno, "cannot open run directory `%s`", dir);
+  rundir_dfd = తాత్కాలిక_FAILURE_RETRY (open (dir, O_DIRECTORY | O_మార్గం | O_CLOEXEC));
+  ఒకవేళ (UNLIKELY (rundir_dfd < 0))
+    తిరిగి crun_make_error (err, errno, "cannot open run directory `%s`", dir);
 
   dfd = openat (rundir_dfd, id, O_DIRECTORY | O_RDONLY | O_CLOEXEC);
-  if (UNLIKELY (dfd < 0))
-    return crun_make_error (err, errno, "cannot open directory `%s/%s`", dir, id);
+  ఒకవేళ (UNLIKELY (dfd < 0))
+    తిరిగి crun_make_error (err, errno, "cannot open directory `%s/%s`", dir, id);
 
   ret = rmdirfd (dir, dfd, err);
 
   /* rmdirfd owns DFD.  */
   dfd = -1;
 
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
   ret = unlinkat (rundir_dfd, id, AT_REMOVEDIR);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "cannot rm state directory `%s/%s`", dir, id);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి crun_make_error (err, errno, "cannot rm state directory `%s/%s`", dir, id);
 
-  return 0;
+  తిరిగి 0;
 }
 
-void
-libcrun_free_container_status (libcrun_container_status_t *status)
+శూన్య
+libcrun_free_container_స్థితి (libcrun_container_స్థితి_t *స్థితి_2)
 {
-  if (status == NULL)
-    return;
-  free (status->cgroup_path);
-  free (status->bundle);
-  free (status->rootfs);
-  free (status->external_descriptors);
-  free (status->created);
-  free (status->scope);
-  free (status->owner);
+  ఒకవేళ (స్థితి_2 == ఖాళీ)
+    తిరిగి;
+  విడుదల (స్థితి_2->cgroup_మార్గం);
+  విడుదల (స్థితి_2->bundle);
+  విడుదల (స్థితి_2->rootfs);
+  విడుదల (స్థితి_2->external_descriptors);
+  విడుదల (స్థితి_2->created);
+  విడుదల (స్థితి_2->scope);
+  విడుదల (స్థితి_2->owner);
 }
 
-int
-libcrun_get_containers_list (libcrun_container_list_t **out, const char *state_root, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_get_containers_list (libcrun_container_list_t **బహిర్గతం, స్థిరరాశి అక్షరం *state_మూలం, libcrun_error_t *err)
 {
-  struct dirent *next;
-  cleanup_container_list libcrun_container_list_t *tmp = NULL;
-  cleanup_free char *root = NULL;
-  cleanup_dir DIR *dir = NULL;
-  int ret;
+  నిర్మాణం dirent *తదుపరి;
+  cleanup_container_list libcrun_container_list_t *tmp = ఖాళీ;
+  cleanup_free అక్షరం *మూలం = ఖాళీ;
+  cleanup_dir DIR *dir = ఖాళీ;
+  పూర్ణాంకం ret;
 
-  *out = NULL;
+  *బహిర్గతం = ఖాళీ;
 
-  ret = get_run_directory (&root, state_root, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_నిరంతరం_directory (&మూలం, state_మూలం, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  dir = opendir (root);
-  if (UNLIKELY (dir == NULL))
-    return crun_make_error (err, errno, "cannot opendir `%s`", root);
+  dir = opendir (మూలం);
+  ఒకవేళ (UNLIKELY (dir == ఖాళీ))
+    తిరిగి crun_make_error (err, errno, "cannot opendir `%s`", మూలం);
 
-  for (next = readdir (dir); next; next = readdir (dir))
+  కొరకు (తదుపరి = readdir (dir); తదుపరి; తదుపరి = readdir (dir))
     {
-      int exists;
-      cleanup_free char *status_file = NULL;
+      పూర్ణాంకం exists;
+      cleanup_free అక్షరం *స్థితి_file = ఖాళీ;
 
-      libcrun_container_list_t *next_container;
+      libcrun_container_list_t *తదుపరి_container;
 
-      if (next->d_name[0] == '.')
-        continue;
+      ఒకవేళ (తదుపరి->d_name[0] == '.')
+        కొనసాగు;
 
-      ret = append_paths (&status_file, err, root, next->d_name, "status", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&స్థితి_file, err, మూలం, తదుపరి->d_name, "status", ఖాళీ);
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి ret;
 
-      exists = crun_path_exists (status_file, err);
-      if (exists < 0)
+      exists = crun_మార్గం_exists (స్థితి_file, err);
+      ఒకవేళ (exists < 0)
         {
-          return exists;
+          తిరిగి exists;
         }
 
-      if (! exists)
+      ఒకవేళ (! exists)
         {
-          libcrun_error (errno, "error opening file `%s`", status_file);
-          continue;
+          libcrun_error (errno, "error opening file `%s`", స్థితి_file);
+          కొనసాగు;
         }
 
-      next_container = xmalloc (sizeof (libcrun_container_list_t));
-      next_container->name = xstrdup (next->d_name);
-      next_container->next = tmp;
-      tmp = next_container;
+      తదుపరి_container = xmalloc (పరిమాణం (libcrun_container_list_t));
+      తదుపరి_container->name = xstrdup (తదుపరి->d_name);
+      తదుపరి_container->తదుపరి = tmp;
+      tmp = తదుపరి_container;
     }
 
-  STEAL_POINTER (out, tmp);
+  STEAL_సూచిక (బహిర్గతం, tmp);
 
-  return 0;
+  తిరిగి 0;
 }
 
-void
+శూన్య
 libcrun_free_containers_list (libcrun_container_list_t *list)
 {
-  libcrun_container_list_t *next;
-  while (list)
+  libcrun_container_list_t *తదుపరి;
+  అయితే (list)
     {
-      next = list->next;
-      free (list->name);
-      free (list);
-      list = next;
+      తదుపరి = list->తదుపరి;
+      విడుదల (list->name);
+      విడుదల (list);
+      list = తదుపరి;
     }
 }
 
@@ -777,326 +777,326 @@ libcrun_free_containers_list (libcrun_container_list_t *list)
     0: pid not valid
     1: pid valid and container in the running/created/paused state
 */
-int
-libcrun_check_pid_valid (libcrun_container_status_t *status, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_check_pid_valid (libcrun_container_స్థితి_t *స్థితి_2, libcrun_error_t *err)
 {
-  struct pid_stat st;
-  int ret;
+  నిర్మాణం pid_stat st;
+  పూర్ణాంకం ret;
 
   /* For backwards compatibility, check start time only if available. */
-  if (! status->process_start_time)
-    return 1;
+  ఒకవేళ (! స్థితి_2->process_ప్రారంభం_సమయం)
+    తిరిగి 1;
 
-  ret = read_pid_stat (status->pid, &st, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_pid_stat (స్థితి_2->pid, &st, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  if (status->process_start_time != st.starttime || st.state == 'X')
-    return 0; /* stopped */
+  ఒకవేళ (స్థితి_2->process_ప్రారంభం_సమయం != st.starttime || st.state == 'X')
+    తిరిగి 0; /* stopped */
 
   /* /proc/PID/stat describes only the thread group leader.  If it exited on
      its own, it stays a zombie while other threads of the process are still
      running.  */
-  if (st.state == 'Z' && st.num_threads <= 1)
-    return 0; /* stopped */
+  ఒకవేళ (st.state == 'Z' && st.అంకె_దారాలు <= 1)
+    తిరిగి 0; /* stopped */
 
-  return 1; /* running, created, or paused */
+  తిరిగి 1; /* running, created, or paused */
 }
 
-int
-libcrun_is_container_running (libcrun_container_status_t *status, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_is_container_running (libcrun_container_స్థితి_t *స్థితి_2, libcrun_error_t *err)
 {
-  int ret;
+  పూర్ణాంకం ret;
 
-  ret = kill (status->pid, 0);
-  if (UNLIKELY (ret < 0) && errno != ESRCH)
-    return crun_make_error (err, errno, "kill");
+  ret = kill (స్థితి_2->pid, 0);
+  ఒకవేళ (UNLIKELY (ret < 0) && errno != ESRCH)
+    తిరిగి crun_make_error (err, errno, "kill");
 
-  if (ret == 0)
-    return libcrun_check_pid_valid (status, err);
+  ఒకవేళ (ret == 0)
+    తిరిగి libcrun_check_pid_valid (స్థితి_2, err);
 
-  return 0; /* stopped */
+  తిరిగి 0; /* stopped */
 }
 
-static int
-get_exec_fifo_path (char **out, const char *state_root, const char *id, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+get_exec_fifo_మార్గం (అక్షరం **బహిర్గతం, స్థిరరాశి అక్షరం *state_మూలం, స్థిరరాశి అక్షరం *id, libcrun_error_t *err)
 {
-  cleanup_free char *state_dir = NULL;
-  int ret;
+  cleanup_free అక్షరం *state_dir = ఖాళీ;
+  పూర్ణాంకం ret;
 
-  ret = libcrun_get_state_directory (&state_dir, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_get_state_directory (&state_dir, state_మూలం, id, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  return append_paths (out, err, state_dir, "exec.fifo", NULL);
+  తిరిగి append_paths (బహిర్గతం, err, state_dir, "exec.fifo", ఖాళీ);
 }
 
-int
-libcrun_status_create_exec_fifo (const char *state_root, const char *id, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_స్థితి_create_exec_fifo (స్థిరరాశి అక్షరం *state_మూలం, స్థిరరాశి అక్షరం *id, libcrun_error_t *err)
 {
-  cleanup_free char *fifo_path = NULL;
-  int ret, fd = -1;
+  cleanup_free అక్షరం *fifo_మార్గం = ఖాళీ;
+  పూర్ణాంకం ret, fd = -1;
 
-  ret = get_exec_fifo_path (&fifo_path, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_exec_fifo_మార్గం (&fifo_మార్గం, state_మూలం, id, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  libcrun_debug ("Creating exec fifo: %s", fifo_path);
-  ret = mkfifo (fifo_path, 0600);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "mkfifo");
+  libcrun_debug ("Creating exec fifo: %s", fifo_మార్గం);
+  ret = mkfifo (fifo_మార్గం, 0600);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి crun_make_error (err, errno, "mkfifo");
 
-  fd = open (fifo_path, O_NONBLOCK | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "cannot open pipe `%s`", fifo_path);
+  fd = open (fifo_మార్గం, O_NONBLOCK | O_CLOEXEC);
+  ఒకవేళ (UNLIKELY (fd < 0))
+    తిరిగి crun_make_error (err, errno, "cannot open pipe `%s`", fifo_మార్గం);
 
-  return fd;
+  తిరిగి fd;
 }
 
-int
-libcrun_status_write_exec_fifo (const char *state_root, const char *id, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_స్థితి_write_exec_fifo (స్థిరరాశి అక్షరం *state_మూలం, స్థిరరాశి అక్షరం *id, libcrun_error_t *err)
 {
-  cleanup_free char *fifo_path = NULL;
-  char buffer[1] = {
+  cleanup_free అక్షరం *fifo_మార్గం = ఖాళీ;
+  అక్షరం బఫరు[1] = {
     0,
   };
-  cleanup_close int fd = -1;
-  int ret;
+  cleanup_close పూర్ణాంకం fd = -1;
+  పూర్ణాంకం ret;
 
-  ret = get_exec_fifo_path (&fifo_path, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_exec_fifo_మార్గం (&fifo_మార్గం, state_మూలం, id, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  fd = open (fifo_path, O_WRONLY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "cannot open `%s`", fifo_path);
+  fd = open (fifo_మార్గం, O_WRONLY | O_CLOEXEC);
+  ఒకవేళ (UNLIKELY (fd < 0))
+    తిరిగి crun_make_error (err, errno, "cannot open `%s`", fifo_మార్గం);
 
-  ret = unlink (fifo_path);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "unlink `%s`", fifo_path);
+  ret = unlink (fifo_మార్గం);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి crun_make_error (err, errno, "unlink `%s`", fifo_మార్గం);
 
-  ret = TEMP_FAILURE_RETRY (write (fd, buffer, 1));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "write to exec.fifo");
+  ret = తాత్కాలిక_FAILURE_RETRY (లిఖ (fd, బఫరు, 1));
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి crun_make_error (err, errno, "write to exec.fifo");
 
-  return 0;
+  తిరిగి 0;
 }
 
-int
-libcrun_status_has_read_exec_fifo (const char *state_root, const char *id, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_స్థితి_has_read_exec_fifo (స్థిరరాశి అక్షరం *state_మూలం, స్థిరరాశి అక్షరం *id, libcrun_error_t *err)
 {
-  cleanup_free char *fifo_path = NULL;
-  int ret;
+  cleanup_free అక్షరం *fifo_మార్గం = ఖాళీ;
+  పూర్ణాంకం ret;
 
-  ret = get_exec_fifo_path (&fifo_path, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_exec_fifo_మార్గం (&fifo_మార్గం, state_మూలం, id, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  return crun_path_exists (fifo_path, err);
+  తిరిగి crun_మార్గం_exists (fifo_మార్గం, err);
 }
 
-struct libcrun_status_s
+నిర్మాణం libcrun_స్థితి_s
 {
-  libcrun_container_status_t status;
-  char *id;
-  char *state_root;
+  libcrun_container_స్థితి_t స్థితి_2;
+  అక్షరం *id;
+  అక్షరం *state_మూలం;
 
   /* The live state requires probing the container (and its cgroup), so it is
      resolved on demand and cached here.  */
   bool state_resolved;
   libcrun_container_state_t state;
-  int running;
+  పూర్ణాంకం running;
 };
 
-int
-libcrun_container_status_load (libcrun_context_t *context, const char *id, libcrun_status_t **out, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_container_స్థితి_ఎక్కించు (libcrun_context_t *context, స్థిరరాశి అక్షరం *id, libcrun_స్థితి_t **బహిర్గతం, libcrun_error_t *err)
 {
-  libcrun_status_t *st;
-  int ret;
+  libcrun_స్థితి_t *st;
+  పూర్ణాంకం ret;
 
-  st = xmalloc0 (sizeof (*st));
+  st = xmalloc0 (పరిమాణం (*st));
 
-  ret = libcrun_read_container_status (&st->status, context->state_root, id, err);
-  if (UNLIKELY (ret < 0))
+  ret = libcrun_read_container_స్థితి (&st->స్థితి_2, context->state_మూలం, id, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
     {
-      free (st);
-      return ret;
+      విడుదల (st);
+      తిరిగి ret;
     }
 
   st->id = xstrdup (id);
-  st->state_root = xstrdup (context->state_root);
+  st->state_మూలం = xstrdup (context->state_మూలం);
 
-  *out = st;
-  return 0;
+  *బహిర్గతం = st;
+  తిరిగి 0;
 }
 
-void
-libcrun_container_status_free (libcrun_status_t *st)
+శూన్య
+libcrun_container_స్థితి_free (libcrun_స్థితి_t *st)
 {
-  if (st == NULL)
-    return;
-  libcrun_free_container_status (&st->status);
-  free (st->state_root);
-  free (st->id);
-  free (st);
+  ఒకవేళ (st == ఖాళీ)
+    తిరిగి;
+  libcrun_free_container_స్థితి (&st->స్థితి_2);
+  విడుదల (st->state_మూలం);
+  విడుదల (st->id);
+  విడుదల (st);
 }
 
-int
-libcrun_status_get_state (libcrun_status_t *st, libcrun_container_state_t *state, int *running, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_స్థితి_get_state (libcrun_స్థితి_t *st, libcrun_container_state_t *state, పూర్ణాంకం *running, libcrun_error_t *err)
 {
-  if (! st->state_resolved)
+  ఒకవేళ (! st->state_resolved)
     {
-      const char *state_string = NULL;
-      int ret;
+      స్థిరరాశి అక్షరం *state_string = ఖాళీ;
+      పూర్ణాంకం ret;
 
-      ret = libcrun_get_container_state_string (st->id, &st->status, st->state_root, &state_string, &st->running, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_get_container_state_string (st->id, &st->స్థితి_2, st->state_మూలం, &state_string, &st->running, err);
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి ret;
 
-      if (state_string == NULL)
-        st->state = LIBCRUN_CONTAINER_STATUS_STOPPED;
-      else if (strcmp (state_string, "creating") == 0)
-        st->state = LIBCRUN_CONTAINER_STATUS_CREATING;
-      else if (strcmp (state_string, "created") == 0)
-        st->state = LIBCRUN_CONTAINER_STATUS_CREATED;
-      else if (strcmp (state_string, "running") == 0)
-        st->state = LIBCRUN_CONTAINER_STATUS_RUNNING;
-      else if (strcmp (state_string, "paused") == 0)
-        st->state = LIBCRUN_CONTAINER_STATUS_PAUSED;
-      else
-        st->state = LIBCRUN_CONTAINER_STATUS_STOPPED;
+      ఒకవేళ (state_string == ఖాళీ)
+        st->state = LIBCRUN_CONTAINER_స్థితి_STOPPED;
+      లేకపోతే ఒకవేళ (strcmp (state_string, "creating") == 0)
+        st->state = LIBCRUN_CONTAINER_స్థితి_CREATING;
+      లేకపోతే ఒకవేళ (strcmp (state_string, "created") == 0)
+        st->state = LIBCRUN_CONTAINER_స్థితి_CREATED;
+      లేకపోతే ఒకవేళ (strcmp (state_string, "running") == 0)
+        st->state = LIBCRUN_CONTAINER_స్థితి_RUNNING;
+      లేకపోతే ఒకవేళ (strcmp (state_string, "paused") == 0)
+        st->state = LIBCRUN_CONTAINER_స్థితి_PAUSED;
+      లేకపోతే
+        st->state = LIBCRUN_CONTAINER_స్థితి_STOPPED;
 
       st->state_resolved = true;
     }
 
-  if (state)
+  ఒకవేళ (state)
     *state = st->state;
-  if (running)
+  ఒకవేళ (running)
     *running = st->running;
-  return 0;
+  తిరిగి 0;
 }
 
-const char *
-libcrun_container_state_to_string (libcrun_container_state_t state)
+స్థిరరాశి అక్షరం *
+libcrun_container_state_గమ్యం_string (libcrun_container_state_t state)
 {
-  switch (state)
+  ఎంపిక (state)
     {
-    case LIBCRUN_CONTAINER_STATUS_CREATING:
-      return "creating";
-    case LIBCRUN_CONTAINER_STATUS_CREATED:
-      return "created";
-    case LIBCRUN_CONTAINER_STATUS_RUNNING:
-      return "running";
-    case LIBCRUN_CONTAINER_STATUS_PAUSED:
-      return "paused";
-    case LIBCRUN_CONTAINER_STATUS_STOPPED:
-      return "stopped";
+    స్థితి LIBCRUN_CONTAINER_స్థితి_CREATING:
+      తిరిగి "creating";
+    స్థితి LIBCRUN_CONTAINER_స్థితి_CREATED:
+      తిరిగి "created";
+    స్థితి LIBCRUN_CONTAINER_స్థితి_RUNNING:
+      తిరిగి "running";
+    స్థితి LIBCRUN_CONTAINER_స్థితి_PAUSED:
+      తిరిగి "paused";
+    స్థితి LIBCRUN_CONTAINER_స్థితి_STOPPED:
+      తిరిగి "stopped";
     }
-  return "unknown";
+  తిరిగి "unknown";
 }
 
 pid_t
-libcrun_status_get_pid (libcrun_status_t *st)
+libcrun_స్థితి_get_pid (libcrun_స్థితి_t *st)
 {
-  return st->status.pid;
+  తిరిగి st->స్థితి_2.pid;
 }
 
-const char *
-libcrun_status_get_bundle (libcrun_status_t *st)
+స్థిరరాశి అక్షరం *
+libcrun_స్థితి_get_bundle (libcrun_స్థితి_t *st)
 {
-  return st->status.bundle;
+  తిరిగి st->స్థితి_2.bundle;
 }
 
-const char *
-libcrun_status_get_rootfs (libcrun_status_t *st)
+స్థిరరాశి అక్షరం *
+libcrun_స్థితి_get_rootfs (libcrun_స్థితి_t *st)
 {
-  return st->status.rootfs;
+  తిరిగి st->స్థితి_2.rootfs;
 }
 
-const char *
-libcrun_status_get_created (libcrun_status_t *st)
+స్థిరరాశి అక్షరం *
+libcrun_స్థితి_get_created (libcrun_స్థితి_t *st)
 {
-  return st->status.created;
+  తిరిగి st->స్థితి_2.created;
 }
 
-const char *
-libcrun_status_get_owner (libcrun_status_t *st)
+స్థిరరాశి అక్షరం *
+libcrun_స్థితి_get_owner (libcrun_స్థితి_t *st)
 {
-  return st->status.owner;
+  తిరిగి st->స్థితి_2.owner;
 }
 
-const char *
-libcrun_status_get_scope (libcrun_status_t *st)
+స్థిరరాశి అక్షరం *
+libcrun_స్థితి_get_scope (libcrun_స్థితి_t *st)
 {
-  return st->status.scope;
+  తిరిగి st->స్థితి_2.scope;
 }
 
-const char *
-libcrun_status_get_external_descriptors (libcrun_status_t *st)
+స్థిరరాశి అక్షరం *
+libcrun_స్థితి_get_external_descriptors (libcrun_స్థితి_t *st)
 {
-  return st->status.external_descriptors;
+  తిరిగి st->స్థితి_2.external_descriptors;
 }
 
-int
-libcrun_container_get_state_string (libcrun_context_t *context, const char *id, const char **out, int *running,
+పూర్ణాంకం
+libcrun_container_get_state_string (libcrun_context_t *context, స్థిరరాశి అక్షరం *id, స్థిరరాశి అక్షరం **బహిర్గతం, పూర్ణాంకం *running,
                                     libcrun_error_t *err)
 {
-  cleanup_container_status libcrun_container_status_t status = {};
-  int local_running;
-  int ret;
+  cleanup_container_స్థితి libcrun_container_స్థితి_t స్థితి_2 = {};
+  పూర్ణాంకం local_running;
+  పూర్ణాంకం ret;
 
-  ret = libcrun_read_container_status (&status, context->state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_read_container_స్థితి (&స్థితి_2, context->state_మూలం, id, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  ret = libcrun_get_container_state_string (id, &status, context->state_root, out, &local_running, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_get_container_state_string (id, &స్థితి_2, context->state_మూలం, బహిర్గతం, &local_running, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  if (running)
+  ఒకవేళ (running)
     *running = local_running;
-  return 0;
+  తిరిగి 0;
 }
 
-int
-libcrun_get_state_dir (char **out, const char *state_root, const char *id, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_get_state_dir (అక్షరం **బహిర్గతం, స్థిరరాశి అక్షరం *state_మూలం, స్థిరరాశి అక్షరం *id, libcrun_error_t *err)
 {
-  return libcrun_get_state_directory (out, state_root, id, err);
+  తిరిగి libcrun_get_state_directory (బహిర్గతం, state_మూలం, id, err);
 }
 
-int
-libcrun_container_list (libcrun_context_t *context, libcrun_container_list_t **out, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_container_list (libcrun_context_t *context, libcrun_container_list_t **బహిర్గతం, libcrun_error_t *err)
 {
-  return libcrun_get_containers_list (out, context->state_root, err);
+  తిరిగి libcrun_get_containers_list (బహిర్గతం, context->state_మూలం, err);
 }
 
 libcrun_container_iter_t *
 libcrun_container_list_iter (libcrun_container_list_t *l)
 {
-  libcrun_container_iter_t *it = xmalloc0 (sizeof (*it));
+  libcrun_container_iter_t *it = xmalloc0 (పరిమాణం (*it));
   it->cur = l;
-  return it;
+  తిరిగి it;
 }
 
 bool
-libcrun_container_iter_next (libcrun_container_iter_t *it, const char **id)
+libcrun_container_iter_తదుపరి (libcrun_container_iter_t *it, స్థిరరాశి అక్షరం **id)
 {
-  if (it == NULL || it->cur == NULL)
-    return false;
+  ఒకవేళ (it == ఖాళీ || it->cur == ఖాళీ)
+    తిరిగి false;
 
-  if (id)
+  ఒకవేళ (id)
     *id = it->cur->name;
-  it->cur = it->cur->next;
-  return true;
+  it->cur = it->cur->తదుపరి;
+  తిరిగి true;
 }
 
-void
+శూన్య
 libcrun_container_iter_free (libcrun_container_iter_t *it)
 {
-  free (it);
+  విడుదల (it);
 }
 
-void
+శూన్య
 libcrun_container_list_free (libcrun_container_list_t *l)
 {
   libcrun_free_containers_list (l);

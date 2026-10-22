@@ -15,55 +15,55 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#అన్తర్భావ <config.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ <argp.h>
+#అన్తర్భావ <string.h>
+#అన్తర్భావ <unistd.h>
+#అన్తర్భావ <errno.h>
 
-#include "crun.h"
+#అన్తర్భావ "crun.h"
 
-static char doc[] = "OCI runtime";
+స్థిర అక్షరం doc[] = "OCI runtime";
 
-static struct argp_option options[] = { { 0 } };
+స్థిర నిర్మాణం argp_option options[] = { { 0 } };
 
-static char args_doc[] = "features";
+స్థిర అక్షరం వాదనలు_doc[] = "features";
 
-static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+స్థిర error_t
+parse_opt (పూర్ణాంకం కీలకం, అక్షరం *arg arg_వాడని, నిర్మాణం argp_state *state arg_వాడని)
 {
-  if (key != ARGP_KEY_NO_ARGS)
+  ఒకవేళ (కీలకం != ARGP_కీలకం_NO_వాదనలు)
     {
-      return ARGP_ERR_UNKNOWN;
+      తిరిగి ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  తిరిగి 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+స్థిర నిర్మాణం argp నిరంతరం_argp = { options, parse_opt, వాదనలు_doc, doc, ఖాళీ, ఖాళీ, ఖాళీ };
 
-int
-crun_command_features (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+పూర్ణాంకం
+crun_command_features (నిర్మాణం crun_global_arguments *global_వాదనలు, పూర్ణాంకం argc, అక్షరం **argv, libcrun_error_t *err)
 {
-  cleanup_free char *json = NULL;
-  int first_arg = 0, ret = 0;
-  cleanup_context libcrun_context_t *crun_context = NULL;
+  cleanup_free అక్షరం *json = ఖాళీ;
+  పూర్ణాంకం మొదటి_arg = 0, ret = 0;
+  cleanup_context libcrun_context_t *crun_context = ఖాళీ;
 
-  argp_parse (&run_argp, argc, argv, 0, 0, &options);
+  argp_parse (&నిరంతరం_argp, argc, argv, 0, 0, &options);
 
-  crun_context = new_libcrun_context (global_args);
+  crun_context = new_libcrun_context (global_వాదనలు);
 
-  ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = init_libcrun_context (crun_context, argv[మొదటి_arg], global_వాదనలు, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
   ret = libcrun_container_get_features_json (crun_context, &json, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  printf ("%s", json);
+  రాయి ("%s", json);
 
-  return 0;
+  తిరిగి 0;
 }

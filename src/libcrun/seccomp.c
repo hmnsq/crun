@@ -16,105 +16,105 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#నిర్వచించు GNU_ఆధారం
 
-#include <config.h>
-#include "seccomp.h"
-#include "linux.h"
-#include "utils.h"
-#include <string.h>
-#include <sched.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/mount.h>
-#include <sys/syscall.h>
-#include <sys/prctl.h>
-#include <sys/time.h>
-#include <sys/resource.h>
-#include <sys/sysmacros.h>
-#include <sys/types.h>
-#include <sys/utsname.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
+#అన్తర్భావ <config.h>
+#అన్తర్భావ "seccomp.h"
+#అన్తర్భావ "linux.h"
+#అన్తర్భావ "utils.h"
+#అన్తర్భావ <string.h>
+#అన్తర్భావ <sched.h>
+#అన్తర్భావ <fcntl.h>
+#అన్తర్భావ <unistd.h>
+#అన్తర్భావ <sys/mount.h>
+#అన్తర్భావ <sys/syscall.h>
+#అన్తర్భావ <sys/prctl.h>
+#అన్తర్భావ <sys/time.h>
+#అన్తర్భావ <sys/resource.h>
+#అన్తర్భావ <sys/sysmacros.h>
+#అన్తర్భావ <sys/types.h>
+#అన్తర్భావ <sys/utsname.h>
+#అన్తర్భావ <sys/stat.h>
+#అన్తర్భావ <sys/mman.h>
 
-#ifdef HAVE_BLAKE3
+#నిర్వచితమైతే HAVE_BLAKE3
 #  include <blake3.h>
-#else
+#లేకపోతే
 #  include "blake3/blake3.h"
-#endif
+#అయితే_ముగింపు
 
-#if HAVE_STDATOMIC_H
+#ఒకవేళ HAVE_STDATOMIC_H
 #  include <stdatomic.h>
 #  ifndef HAVE_ATOMIC_INT
-#    define atomic_int volatile int
+#    define atomic_int అస్థిర పూర్ణాంకం
 #  endif
-#endif
+#అయితే_ముగింపు
 
-#ifdef HAVE_SECCOMP
+#నిర్వచితమైతే HAVE_SECCOMP
 #  include <seccomp.h>
-#endif
-#include <linux/seccomp.h>
-#include <linux/filter.h>
-#include <sys/prctl.h>
-#include <sys/syscall.h>
+#అయితే_ముగింపు
+#అన్తర్భావ <linux/seccomp.h>
+#అన్తర్భావ <linux/filter.h>
+#అన్తర్భావ <sys/prctl.h>
+#అన్తర్భావ <sys/syscall.h>
 
-#ifndef __NR_seccomp
+#నిర్వచితం_కాకపోతే __NR_seccomp
 #  define __NR_seccomp 0xffff // seccomp syscall number unknown for this architecture
-#endif
+#అయితే_ముగింపు
 
-#ifndef SECCOMP_SET_MODE_STRICT
+#నిర్వచితం_కాకపోతే SECCOMP_SET_MODE_STRICT
 #  define SECCOMP_SET_MODE_STRICT 0
-#endif
+#అయితే_ముగింపు
 
-#ifndef SECCOMP_SET_MODE_FILTER
+#నిర్వచితం_కాకపోతే SECCOMP_SET_MODE_FILTER
 #  define SECCOMP_SET_MODE_FILTER 1
-#endif
+#అయితే_ముగింపు
 
-#ifndef SECCOMP_FILTER_FLAG_TSYNC
+#నిర్వచితం_కాకపోతే SECCOMP_FILTER_FLAG_TSYNC
 #  define SECCOMP_FILTER_FLAG_TSYNC (1UL << 0)
-#endif
+#అయితే_ముగింపు
 
-#ifndef SECCOMP_FILTER_FLAG_LOG
+#నిర్వచితం_కాకపోతే SECCOMP_FILTER_FLAG_LOG
 #  define SECCOMP_FILTER_FLAG_LOG (1UL << 1)
-#endif
+#అయితే_ముగింపు
 
-#ifndef SECCOMP_FILTER_FLAG_SPEC_ALLOW
+#నిర్వచితం_కాకపోతే SECCOMP_FILTER_FLAG_SPEC_ALLOW
 #  define SECCOMP_FILTER_FLAG_SPEC_ALLOW (1UL << 2)
-#endif
+#అయితే_ముగింపు
 
-#ifndef SECCOMP_FILTER_FLAG_WAIT_KILLABLE_RECV
+#నిర్వచితం_కాకపోతే SECCOMP_FILTER_FLAG_WAIT_KILLABLE_RECV
 #  define SECCOMP_FILTER_FLAG_WAIT_KILLABLE_RECV (1UL << 5)
-#endif
+#అయితే_ముగింపు
 
-#define SECCOMP_CACHE_DIR ".cache/seccomp"
+#నిర్వచించు SECCOMP_CACHE_DIR ".cache/seccomp"
 
 /* On Linux 5.19.15 x86_64, tmpfs reports 20 bytes + 20 bytes for each entry, so allow
    at least 32 entries.  */
-#define MIN_CACHE_DIR_INODE_SIZE (20 + 32 * 20)
+#నిర్వచించు MIN_CACHE_DIR_INODE_కొలత (20 + 32 * 20)
 
 /* Heuristic to avoid the cache directory grows indefinitely.  The inode size for
    the directory is proportional to the number of entries it contains and it is
    cheaper to compute than iterating the cache directory.  */
-static inline off_t
-get_cache_dir_inode_max_size (off_t size_rundir)
+స్థిర అంతఃవరుస off_t
+get_cache_dir_inode_max_కొలత (off_t కొలత_rundir)
 {
-  return size_rundir * 3 + MIN_CACHE_DIR_INODE_SIZE;
+  తిరిగి కొలత_rundir * 3 + MIN_CACHE_DIR_INODE_కొలత;
 }
 
-static int
-syscall_seccomp (unsigned int operation, unsigned int flags, void *args)
+స్థిర పూర్ణాంకం
+syscall_seccomp (గుర్తులేని పూర్ణాంకం operation, గుర్తులేని పూర్ణాంకం flags, శూన్య *వాదనలు)
 {
-  return (int) syscall (__NR_seccomp, operation, flags, args);
+  తిరిగి (పూర్ణాంకం) syscall (__NR_seccomp, operation, flags, వాదనలు);
 }
 
-#ifdef HAVE_SECCOMP
-static int
-get_seccomp_operator (const char *name, enum scmp_compare *op, libcrun_error_t *err)
+#నిర్వచితమైతే HAVE_SECCOMP
+స్థిర పూర్ణాంకం
+get_seccomp_operator (స్థిరరాశి అక్షరం *name, గణన scmp_compare *op, libcrun_error_t *err)
 {
-  static const struct
+  స్థిర స్థిరరాశి నిర్మాణం
   {
-    const char *name;
-    enum scmp_compare op;
+    స్థిరరాశి అక్షరం *name;
+    గణన scmp_compare op;
   } operators[] = {
     { "NE", SCMP_CMP_NE },
     { "LT", SCMP_CMP_LT },
@@ -124,31 +124,31 @@ get_seccomp_operator (const char *name, enum scmp_compare *op, libcrun_error_t *
     { "GT", SCMP_CMP_GT },
     { "MASKED_EQ", SCMP_CMP_MASKED_EQ },
   };
-  const char *p = name;
+  స్థిరరాశి అక్షరం *p = name;
   size_t i;
 
-  if (! has_prefix (p, "SCMP_CMP_"))
-    goto fail;
+  ఒకవేళ (! has_ఉపసర్గ (p, "SCMP_CMP_"))
+    వెళ్ళు fail;
 
-  p += sizeof ("SCMP_CMP_") - 1;
+  p += పరిమాణం ("SCMP_CMP_") - 1;
 
-  for (i = 0; i < sizeof (operators) / sizeof (operators[0]); i++)
-    if (strcmp (p, operators[i].name) == 0)
+  కొరకు (i = 0; i < పరిమాణం (operators) / పరిమాణం (operators[0]); i++)
+    ఒకవేళ (strcmp (p, operators[i].name) == 0)
       {
         *op = operators[i].op;
-        return 0;
+        తిరిగి 0;
       }
 
 fail:
-  return crun_make_error (err, 0, "seccomp get operator `%s`", name);
+  తిరిగి crun_make_error (err, 0, "seccomp get operator `%s`", name);
 }
 
-static int
-get_seccomp_action (const char *name, int errno_ret, uint32_t *action, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+get_seccomp_action (స్థిరరాశి అక్షరం *name, పూర్ణాంకం errno_ret, uint32_t *action, libcrun_error_t *err)
 {
-  static const struct
+  స్థిర స్థిరరాశి నిర్మాణం
   {
-    const char *name;
+    స్థిరరాశి అక్షరం *name;
     uint32_t action;
   } actions[] = {
     { "ALLOW", SCMP_ACT_ALLOW },
@@ -167,191 +167,191 @@ get_seccomp_action (const char *name, int errno_ret, uint32_t *action, libcrun_e
     { "NOTIFY", SCMP_ACT_NOTIFY },
 #  endif
   };
-  const char *p = name;
+  స్థిరరాశి అక్షరం *p = name;
   size_t i;
 
-  if (! has_prefix (p, "SCMP_ACT_"))
-    goto fail;
+  ఒకవేళ (! has_ఉపసర్గ (p, "SCMP_ACT_"))
+    వెళ్ళు fail;
 
-  p += sizeof ("SCMP_ACT_") - 1;
+  p += పరిమాణం ("SCMP_ACT_") - 1;
 
   /* These two embed errno_ret, so they cannot be looked up in the table.  */
-  if (strcmp (p, "ERRNO") == 0)
+  ఒకవేళ (strcmp (p, "ERRNO") == 0)
     {
       *action = SCMP_ACT_ERRNO (errno_ret);
-      return 0;
+      తిరిగి 0;
     }
-  if (strcmp (p, "TRACE") == 0)
+  ఒకవేళ (strcmp (p, "TRACE") == 0)
     {
       *action = SCMP_ACT_TRACE (errno_ret);
-      return 0;
+      తిరిగి 0;
     }
 
-  for (i = 0; i < sizeof (actions) / sizeof (actions[0]); i++)
-    if (strcmp (p, actions[i].name) == 0)
+  కొరకు (i = 0; i < పరిమాణం (actions) / పరిమాణం (actions[0]); i++)
+    ఒకవేళ (strcmp (p, actions[i].name) == 0)
       {
         *action = actions[i].action;
-        return 0;
+        తిరిగి 0;
       }
 
 fail:
-  return crun_make_error (err, 0, "seccomp get action `%s`", name);
+  తిరిగి crun_make_error (err, 0, "seccomp get action `%s`", name);
 }
 
 /* seccomp_export_bpf issues a single write and succeeds even when it is
    short, so retrieve the whole program first and write it with safe_write,
    which fails on ENOSPC or EFBIG instead of leaving a truncated filter.  */
-static int
-export_bpf (scmp_filter_ctx ctx, int fd, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+export_bpf (scmp_filter_ctx ctx, పూర్ణాంకం fd, libcrun_error_t *err)
 {
-  cleanup_free char *bpf = NULL;
+  cleanup_free అక్షరం *bpf = ఖాళీ;
   size_t len = 0;
-  int ret;
+  పూర్ణాంకం ret;
 
 #  ifdef HAVE_SECCOMP_EXPORT_BPF_MEM
-  ret = seccomp_export_bpf_mem (ctx, NULL, &len);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, -ret, "seccomp_export_bpf_mem");
+  ret = seccomp_export_bpf_mem (ctx, ఖాళీ, &len);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి crun_make_error (err, -ret, "seccomp_export_bpf_mem");
 
   bpf = xmalloc (len);
 
   ret = seccomp_export_bpf_mem (ctx, bpf, &len);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, -ret, "seccomp_export_bpf_mem");
-#  else
-  cleanup_close int pipe_r = -1;
-  cleanup_close int pipe_w = -1;
-  int p[2];
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి crun_make_error (err, -ret, "seccomp_export_bpf_mem");
+#  లేకపోతే
+  cleanup_close పూర్ణాంకం pipe_r = -1;
+  cleanup_close పూర్ణాంకం pipe_w = -1;
+  పూర్ణాంకం p[2];
 
   /* A pipe is not affected by the free space or by RLIMIT_FSIZE, the write
      is short only when it fills the pipe.  */
   ret = pipe2 (p, O_CLOEXEC | O_NONBLOCK);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "pipe");
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి crun_make_error (err, errno, "pipe");
   pipe_r = p[0];
   pipe_w = p[1];
 
   ret = seccomp_export_bpf (ctx, pipe_w);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, -ret, "seccomp_export_bpf");
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి crun_make_error (err, -ret, "seccomp_export_bpf");
 
   close_and_reset (&pipe_w);
 
   ret = read_all_fd (pipe_r, "seccomp pipe", &bpf, &len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
   ret = fcntl (pipe_r, F_GETPIPE_SZ);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fcntl (F_GETPIPE_SZ)");
-  if (UNLIKELY (len >= (size_t) ret))
-    return crun_make_error (err, 0, "the seccomp filter does not fit in a pipe");
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి crun_make_error (err, errno, "fcntl (F_GETPIPE_SZ)");
+  ఒకవేళ (UNLIKELY (len >= (size_t) ret))
+    తిరిగి crun_make_error (err, 0, "the seccomp filter does not fit in a pipe");
 #  endif
 
-  return safe_write (fd, "seccomp.bpf", bpf, len, err);
+  తిరిగి సురక్షిత_write (fd, "seccomp.bpf", bpf, len, err);
 }
-#endif /* HAVE_SECCOMP */
+#అయితే_ముగింపు /* HAVE_SECCOMP */
 
-static void
-make_lowercase (char *str)
+స్థిర శూన్య
+make_lowercase (అక్షరం *str)
 {
-  while (*str)
+  అయితే (*str)
     {
       *str = tolower (*str);
       str++;
     }
 }
 
-static void
-cleanup_seccompp (void *p)
+స్థిర శూన్య
+cleanup_seccompp (శూన్య *p)
 {
-#ifdef HAVE_SECCOMP
-  scmp_filter_ctx *ctx = (void **) p;
-  if (*ctx)
+#నిర్వచితమైతే HAVE_SECCOMP
+  scmp_filter_ctx *ctx = (శూన్య **) p;
+  ఒకవేళ (*ctx)
     seccomp_release (*ctx);
-#endif
+#అయితే_ముగింపు
 }
-#define cleanup_seccomp __attribute__ ((cleanup (cleanup_seccompp)))
+#నిర్వచించు cleanup_seccomp __attribute__ ((cleanup (cleanup_seccompp)))
 
-int
-libcrun_apply_seccomp (int infd, int listener_receiver_fd, const char *receiver_fd_payload,
-                       size_t receiver_fd_payload_len, char **seccomp_flags, size_t seccomp_flags_len,
+పూర్ణాంకం
+libcrun_apply_seccomp (పూర్ణాంకం infd, పూర్ణాంకం listener_receiver_fd, స్థిరరాశి అక్షరం *receiver_fd_payload,
+                       size_t receiver_fd_payload_len, అక్షరం **seccomp_flags, size_t seccomp_flags_len,
                        libcrun_error_t *err)
 {
-#ifdef HAVE_SECCOMP
-  cleanup_mmap struct libcrun_mmap_s *mmap_region = NULL;
-  cleanup_close int listener_fd = -1;
-  cleanup_pid int helper_proc = -1;
-  struct sock_fprog seccomp_filter;
-  cleanup_free char *bpf = NULL;
-  unsigned int flags = 0;
+#నిర్వచితమైతే HAVE_SECCOMP
+  cleanup_mmap నిర్మాణం libcrun_mmap_s *mmap_region = ఖాళీ;
+  cleanup_close పూర్ణాంకం listener_fd = -1;
+  cleanup_pid పూర్ణాంకం helper_proc = -1;
+  నిర్మాణం sock_fprog seccomp_filter;
+  cleanup_free అక్షరం *bpf = ఖాళీ;
+  గుర్తులేని పూర్ణాంకం flags = 0;
   size_t len;
-  int ret;
+  పూర్ణాంకం ret;
 
-  if (infd < 0)
-    return 0;
+  ఒకవేళ (infd < 0)
+    తిరిగి 0;
 
-  if (UNLIKELY (lseek (infd, 0, SEEK_SET) == (off_t) -1))
-    return crun_make_error (err, errno, "lseek");
+  ఒకవేళ (UNLIKELY (lseek (infd, 0, SEEK_SET) == (off_t) -1))
+    తిరిగి crun_make_error (err, errno, "lseek");
 
   /* if no seccomp flag was specified use a sane default.  */
-  if (seccomp_flags == NULL)
+  ఒకవేళ (seccomp_flags == ఖాళీ)
     flags = SECCOMP_FILTER_FLAG_SPEC_ALLOW;
-  else
+  లేకపోతే
     {
       size_t i = 0;
-      for (i = 0; i < seccomp_flags_len; i++)
+      కొరకు (i = 0; i < seccomp_flags_len; i++)
         {
-          if (seccomp_flags[i] == NULL)
-            return crun_make_error (err, EINVAL, "seccomp flag is not specified");
+          ఒకవేళ (seccomp_flags[i] == ఖాళీ)
+            తిరిగి crun_make_error (err, EINVAL, "seccomp flag is not specified");
 
-          if (strcmp (seccomp_flags[i], "SECCOMP_FILTER_FLAG_TSYNC") == 0)
+          ఒకవేళ (strcmp (seccomp_flags[i], "SECCOMP_FILTER_FLAG_TSYNC") == 0)
             flags |= SECCOMP_FILTER_FLAG_TSYNC;
-          else if (strcmp (seccomp_flags[i], "SECCOMP_FILTER_FLAG_SPEC_ALLOW") == 0)
+          లేకపోతే ఒకవేళ (strcmp (seccomp_flags[i], "SECCOMP_FILTER_FLAG_SPEC_ALLOW") == 0)
             flags |= SECCOMP_FILTER_FLAG_SPEC_ALLOW;
-          else if (strcmp (seccomp_flags[i], "SECCOMP_FILTER_FLAG_LOG") == 0)
+          లేకపోతే ఒకవేళ (strcmp (seccomp_flags[i], "SECCOMP_FILTER_FLAG_LOG") == 0)
             flags |= SECCOMP_FILTER_FLAG_LOG;
-          else if (strcmp (seccomp_flags[i], "SECCOMP_FILTER_FLAG_WAIT_KILLABLE_RECV") == 0)
+          లేకపోతే ఒకవేళ (strcmp (seccomp_flags[i], "SECCOMP_FILTER_FLAG_WAIT_KILLABLE_RECV") == 0)
             flags |= SECCOMP_FILTER_FLAG_WAIT_KILLABLE_RECV;
-          else
-            return crun_make_error (err, 0, "unknown seccomp option `%s`", seccomp_flags[i]);
+          లేకపోతే
+            తిరిగి crun_make_error (err, 0, "unknown seccomp option `%s`", seccomp_flags[i]);
         }
     }
 
   ret = read_all_fd (infd, "seccomp.bpf", &bpf, &len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
   seccomp_filter.len = len / 8;
-  seccomp_filter.filter = (struct sock_filter *) bpf;
+  seccomp_filter.filter = (నిర్మాణం sock_filter *) bpf;
 
-  if (listener_receiver_fd >= 0)
+  ఒకవేళ (listener_receiver_fd >= 0)
     {
-      cleanup_close int memfd = -1;
+      cleanup_close పూర్ణాంకం memfd = -1;
       atomic_int *fd_received;
 
 #  ifdef SECCOMP_FILTER_FLAG_NEW_LISTENER
       flags |= SECCOMP_FILTER_FLAG_NEW_LISTENER;
-#  else
-      return crun_make_error (err, 0, "the `SECCOMP_FILTER_FLAG_NEW_LISTENER` flag is not supported");
+#  లేకపోతే
+      తిరిగి crun_make_error (err, 0, "the `SECCOMP_FILTER_FLAG_NEW_LISTENER` flag is not supported");
 #  endif
 
 #  ifdef HAVE_MEMFD_CREATE
       memfd = memfd_create ("seccomp-helper-memfd", O_RDWR | MFD_CLOEXEC);
-      if (UNLIKELY (memfd < 0))
-        return crun_make_error (err, errno, "memfd_create");
-#  else
-      return crun_make_error (err, ENOSYS, "memfd_create non supported");
+      ఒకవేళ (UNLIKELY (memfd < 0))
+        తిరిగి crun_make_error (err, errno, "memfd_create");
+#  లేకపోతే
+      తిరిగి crun_make_error (err, ENOSYS, "memfd_create non supported");
 #  endif
 
-      ret = ftruncate (memfd, sizeof (atomic_int));
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "ftruncate seccomp memfd");
+      ret = ftruncate (memfd, పరిమాణం (atomic_int));
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి crun_make_error (err, errno, "ftruncate seccomp memfd");
 
-      ret = libcrun_mmap (&mmap_region, NULL, sizeof (atomic_int),
+      ret = libcrun_mmap (&mmap_region, ఖాళీ, పరిమాణం (atomic_int),
                           PROT_WRITE | PROT_READ, MAP_SHARED, memfd, 0, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి ret;
 
       /* memfd is not needed anymore.  */
       close_and_reset (&memfd);
@@ -360,85 +360,85 @@ libcrun_apply_seccomp (int infd, int listener_receiver_fd, const char *receiver_
       *fd_received = -1;
 
       /* The helper process shares the fd table with the current process.  */
-      helper_proc = syscall_clone (CLONE_FILES | SIGCHLD, NULL);
-      if (UNLIKELY (helper_proc < 0))
-        return crun_make_error (err, errno, "clone seccomp listener helper process");
+      helper_proc = syscall_clone (CLONE_FILES | SIGCHLD, ఖాళీ);
+      ఒకవేళ (UNLIKELY (helper_proc < 0))
+        తిరిగి crun_make_error (err, errno, "clone seccomp listener helper process");
 
       /* helper process.  Wait that the seccomp listener fd is created then send it to the
          receiver fd.  We use the helper process since the seccomp profile could block the
          sendmsg syscall.   Its exit status is an errno value.  */
-      if (helper_proc == 0)
+      ఒకవేళ (helper_proc == 0)
         {
-          int fd, timeout = 0;
+          పూర్ణాంకం fd, timeout = 0;
 
-          prctl (PR_SET_PDEATHSIG, SIGKILL);
-          for (;;)
+          prctl (PR_సమితి_PDEATHSIG, SIGKILL);
+          కొరకు (;;)
             {
               fd = *fd_received;
-              if (fd == -1)
+              ఒకవేళ (fd == -1)
                 {
                   usleep (1000);
 
                   /* Do not wait longer than 5 seconds.  */
-                  if (timeout++ > 5000)
-                    _safe_exit (EINVAL);
-                  continue;
+                  ఒకవేళ (timeout++ > 5000)
+                    సురక్షిత_exit (EINVAL);
+                  కొనసాగు;
                 }
-#  if ! HAVE_STDATOMIC_H
+#  ఒకవేళ ! HAVE_STDATOMIC_H
               /* If stdatomic is not available, force a membarrier and read again.  */
               __sync_synchronize ();
               fd = *fd_received;
 #  endif
-              break;
+              ఆపు;
             }
-          ret = send_fd_to_socket_with_payload (listener_receiver_fd, fd,
+          ret = send_fd_గమ్యం_socket_with_payload (listener_receiver_fd, fd,
                                                 receiver_fd_payload,
                                                 receiver_fd_payload_len,
                                                 err);
-          if (UNLIKELY (ret < 0))
-            _safe_exit (crun_error_get_errno (err));
-          _safe_exit (0);
+          ఒకవేళ (UNLIKELY (ret < 0))
+            సురక్షిత_exit (crun_error_get_errno (err));
+          సురక్షిత_exit (0);
         }
     }
 
   ret = syscall_seccomp (SECCOMP_SET_MODE_FILTER, flags, &seccomp_filter);
-  if (UNLIKELY (ret < 0))
+  ఒకవేళ (UNLIKELY (ret < 0))
     {
       /* If any of the flags is not supported, try again without specifying them:  */
-      if (errno == EINVAL && listener_receiver_fd < 0)
+      ఒకవేళ (errno == EINVAL && listener_receiver_fd < 0)
         ret = syscall_seccomp (SECCOMP_SET_MODE_FILTER, 0, &seccomp_filter);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "seccomp (SECCOMP_SET_MODE_FILTER)");
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి crun_make_error (err, errno, "seccomp (SECCOMP_SET_MODE_FILTER)");
     }
 
-  if (listener_receiver_fd >= 0)
+  ఒకవేళ (listener_receiver_fd >= 0)
     {
-      atomic_int *fd_to_send = mmap_region->addr;
-      int status = 0;
+      atomic_int *fd_గమ్యం_send = mmap_region->addr;
+      పూర్ణాంకం స్థితి_2 = 0;
 
       /* Write atomically the listener fd to the shared memory.  No syscalls are used between
          the seccomp listener creation and the write.  */
-      *fd_to_send = listener_fd = ret;
+      *fd_గమ్యం_send = listener_fd = ret;
 
-      ret = waitpid_ignore_stopped (helper_proc, &status, 0);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "waitpid seccomp listener helper process");
+      ret = waitpid_ignore_stopped (helper_proc, &స్థితి_2, 0);
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి crun_make_error (err, errno, "waitpid seccomp listener helper process");
 
-      ret = get_process_exit_status (status);
-      if (ret != 0)
-        return crun_make_error (err, 0, "send listener fd `%d` to receiver", listener_fd);
+      ret = get_process_exit_స్థితి (స్థితి_2);
+      ఒకవేళ (ret != 0)
+        తిరిగి crun_make_error (err, 0, "send listener fd `%d` to receiver", listener_fd);
     }
 
-  return 0;
-#else
-  return 0;
-#endif
+  తిరిగి 0;
+#లేకపోతే
+  తిరిగి 0;
+#అయితే_ముగింపు
 }
 
-static bool
-seccomp_action_supports_errno (const char *action)
+స్థిర bool
+seccomp_action_supports_errno (స్థిరరాశి అక్షరం *action)
 {
-  return strcmp (action, "SCMP_ACT_ERRNO") == 0
+  తిరిగి strcmp (action, "SCMP_ACT_ERRNO") == 0
          || strcmp (action, "SCMP_ACT_TRACE") == 0;
 }
 
@@ -448,14 +448,14 @@ seccomp_action_supports_errno (const char *action)
    < 0 in case of errors
    == 0 the checksum is supported and the value is in OUT.
  */
-static int
-calculate_seccomp_checksum (runtime_spec_schema_config_linux_seccomp *seccomp, unsigned int seccomp_gen_options, seccomp_checksum_t out, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+calculate_seccomp_checksum (runtime_spec_schema_config_linux_seccomp *seccomp, గుర్తులేని పూర్ణాంకం seccomp_gen_options, seccomp_checksum_t బహిర్గతం, libcrun_error_t *err)
 {
   blake3_hasher hasher;
-  unsigned char hash[32];
-  struct utsname utsbuf;
+  గుర్తులేని అక్షరం hash[32];
+  నిర్మాణం utsname utsbuf;
   size_t i;
-  int ret;
+  పూర్ణాంకం ret;
 
   blake3_hasher_init (&hasher);
 
@@ -464,484 +464,484 @@ calculate_seccomp_checksum (runtime_spec_schema_config_linux_seccomp *seccomp, u
      carry their element count, and optional scalars carry a presence byte.
      Everything that influences the generated filter MUST be included here,
      otherwise a stale filter could be served from the cache.  */
-#define PROCESS_STRING(X)                                           \
-  do                                                                \
+#నిర్వచించు PROCESS_STRING(X)                                           \
+  చేయి                                                                \
     {                                                               \
-      const char *str_ = (X);                                       \
-      unsigned char present_ = str_ ? 1 : 0;                        \
-      size_t len_ = str_ ? strlen (str_) : 0;                       \
-      blake3_hasher_update (&hasher, &present_, sizeof (present_)); \
-      blake3_hasher_update (&hasher, &len_, sizeof (len_));         \
-      if (str_)                                                     \
+      స్థిరరాశి అక్షరం *str_ = (X);                                       \
+      గుర్తులేని అక్షరం present_ = str_ ? 1 : 0;                        \
+      size_t len_ = str_ ? అక్షరశ్రేణి_పొడవు (str_) : 0;                       \
+      blake3_hasher_update (&hasher, &present_, పరిమాణం (present_)); \
+      blake3_hasher_update (&hasher, &len_, పరిమాణం (len_));         \
+      ఒకవేళ (str_)                                                     \
         blake3_hasher_update (&hasher, str_, len_);                 \
-  } while (0)
-#define PROCESS_DATA(X)                                   \
-  do                                                      \
+  } అయితే (0)
+#నిర్వచించు PROCESS_దత్తాంశం(X)                                   \
+  చేయి                                                      \
     {                                                     \
-      blake3_hasher_update (&hasher, &(X), sizeof ((X))); \
-  } while (0)
-#define PROCESS_OPTIONAL_DATA(PRESENT, X)                           \
-  do                                                                \
+      blake3_hasher_update (&hasher, &(X), పరిమాణం ((X))); \
+  } అయితే (0)
+#నిర్వచించు PROCESS_OPTIONAL_దత్తాంశం(PRESENT, X)                           \
+  చేయి                                                                \
     {                                                               \
-      unsigned char present_ = (PRESENT) ? 1 : 0;                   \
-      blake3_hasher_update (&hasher, &present_, sizeof (present_)); \
-      if (PRESENT)                                                  \
-        blake3_hasher_update (&hasher, &(X), sizeof ((X)));         \
-  } while (0)
-#define PROCESS_COUNT(X)                                        \
-  do                                                            \
+      గుర్తులేని అక్షరం present_ = (PRESENT) ? 1 : 0;                   \
+      blake3_hasher_update (&hasher, &present_, పరిమాణం (present_)); \
+      ఒకవేళ (PRESENT)                                                  \
+        blake3_hasher_update (&hasher, &(X), పరిమాణం ((X)));         \
+  } అయితే (0)
+#నిర్వచించు PROCESS_లెక్క(X)                                        \
+  చేయి                                                            \
     {                                                           \
-      size_t count_ = (X);                                      \
-      blake3_hasher_update (&hasher, &count_, sizeof (count_)); \
-  } while (0)
+      size_t లెక్క_2 = (X);                                      \
+      blake3_hasher_update (&hasher, &లెక్క_2, పరిమాణం (లెక్క_2)); \
+  } అయితే (0)
 
-  PROCESS_STRING (PACKAGE_VERSION);
+  PROCESS_STRING (PACKAGE_సంస్కరణ);
 
-#ifdef HAVE_SECCOMP
+#నిర్వచితమైతే HAVE_SECCOMP
   {
-    const struct scmp_version *version = seccomp_version ();
+    స్థిరరాశి నిర్మాణం scmp_సంస్కరణ *సంస్కరణ = seccomp_సంస్కరణ ();
 
-    PROCESS_DATA (version->major);
-    PROCESS_DATA (version->minor);
-    PROCESS_DATA (version->micro);
+    PROCESS_దత్తాంశం (సంస్కరణ->major);
+    PROCESS_దత్తాంశం (సంస్కరణ->minor);
+    PROCESS_దత్తాంశం (సంస్కరణ->micro);
   }
-#endif
+#అయితే_ముగింపు
 
-  memset (&utsbuf, 0, sizeof (utsbuf));
+  memset (&utsbuf, 0, పరిమాణం (utsbuf));
   ret = uname (&utsbuf);
-  if (UNLIKELY (ret != 0))
-    return crun_make_error (err, errno, "uname");
+  ఒకవేళ (UNLIKELY (ret != 0))
+    తిరిగి crun_make_error (err, errno, "uname");
 
   PROCESS_STRING (utsbuf.release);
-  PROCESS_STRING (utsbuf.version);
+  PROCESS_STRING (utsbuf.సంస్కరణ);
   PROCESS_STRING (utsbuf.machine);
 
-  PROCESS_DATA (seccomp_gen_options);
+  PROCESS_దత్తాంశం (seccomp_gen_options);
 
   /* default_errno_ret is only honoured when present (absent defaults to EPERM).  */
-  PROCESS_OPTIONAL_DATA (seccomp->default_errno_ret_present, seccomp->default_errno_ret);
+  PROCESS_OPTIONAL_దత్తాంశం (seccomp->default_errno_ret_present, seccomp->default_errno_ret);
   PROCESS_STRING (seccomp->default_action);
 
-  PROCESS_COUNT (seccomp->flags_len);
-  for (i = 0; i < seccomp->flags_len; i++)
+  PROCESS_లెక్క (seccomp->flags_len);
+  కొరకు (i = 0; i < seccomp->flags_len; i++)
     PROCESS_STRING (seccomp->flags[i]);
 
-  PROCESS_COUNT (seccomp->architectures_len);
-  for (i = 0; i < seccomp->architectures_len; i++)
+  PROCESS_లెక్క (seccomp->architectures_len);
+  కొరకు (i = 0; i < seccomp->architectures_len; i++)
     PROCESS_STRING (seccomp->architectures[i]);
 
-  PROCESS_COUNT (seccomp->syscalls_len);
-  for (i = 0; i < seccomp->syscalls_len; i++)
+  PROCESS_లెక్క (seccomp->syscalls_len);
+  కొరకు (i = 0; i < seccomp->syscalls_len; i++)
     {
       size_t j;
 
       PROCESS_STRING (seccomp->syscalls[i]->action);
 
       /* errno_ret is only honoured when present (absent defaults to EPERM).  */
-      PROCESS_OPTIONAL_DATA (seccomp->syscalls[i]->errno_ret_present, seccomp->syscalls[i]->errno_ret);
+      PROCESS_OPTIONAL_దత్తాంశం (seccomp->syscalls[i]->errno_ret_present, seccomp->syscalls[i]->errno_ret);
 
-      PROCESS_COUNT (seccomp->syscalls[i]->names_len);
-      for (j = 0; j < seccomp->syscalls[i]->names_len; j++)
-        PROCESS_STRING (seccomp->syscalls[i]->names[j]);
+      PROCESS_లెక్క (seccomp->syscalls[i]->పేర్లు_len);
+      కొరకు (j = 0; j < seccomp->syscalls[i]->పేర్లు_len; j++)
+        PROCESS_STRING (seccomp->syscalls[i]->పేర్లు[j]);
 
-      PROCESS_COUNT (seccomp->syscalls[i]->args_len);
-      for (j = 0; j < seccomp->syscalls[i]->args_len; j++)
+      PROCESS_లెక్క (seccomp->syscalls[i]->వాదనలు_len);
+      కొరకు (j = 0; j < seccomp->syscalls[i]->వాదనలు_len; j++)
         {
           /* index, value and value_two are used unconditionally by the
              generator (absent fields are 0), so hash them in fixed positions.  */
-          PROCESS_DATA (seccomp->syscalls[i]->args[j]->index);
-          PROCESS_DATA (seccomp->syscalls[i]->args[j]->value);
-          PROCESS_DATA (seccomp->syscalls[i]->args[j]->value_two);
-          PROCESS_STRING (seccomp->syscalls[i]->args[j]->op);
+          PROCESS_దత్తాంశం (seccomp->syscalls[i]->వాదనలు[j]->సూచీ);
+          PROCESS_దత్తాంశం (seccomp->syscalls[i]->వాదనలు[j]->విలువ);
+          PROCESS_దత్తాంశం (seccomp->syscalls[i]->వాదనలు[j]->విలువ_two);
+          PROCESS_STRING (seccomp->syscalls[i]->వాదనలు[j]->op);
         }
     }
 
-  blake3_hasher_finalize (&hasher, hash, sizeof (hash));
+  blake3_hasher_finalize (&hasher, hash, పరిమాణం (hash));
 
-  for (i = 0; i < 32; i++)
+  కొరకు (i = 0; i < 32; i++)
     {
-      size_t remaining = sizeof (seccomp_checksum_t) - i * 2;
-      ret = snprintf (&out[i * 2], remaining, "%02x", hash[i]);
-      if (UNLIKELY (ret != 2))
-        return crun_make_error (err, 0, "internal error: static buffer has wrong size");
+      size_t మిగిలిన = పరిమాణం (seccomp_checksum_t) - i * 2;
+      ret = snprintf (&బహిర్గతం[i * 2], మిగిలిన, "%02x", hash[i]);
+      ఒకవేళ (UNLIKELY (ret != 2))
+        తిరిగి crun_make_error (err, 0, "internal error: static buffer has wrong size");
     }
-  out[64] = 0;
+  బహిర్గతం[64] = 0;
 
-#undef PROCESS_STRING
-#undef PROCESS_DATA
-#undef PROCESS_OPTIONAL_DATA
-#undef PROCESS_COUNT
-  return 1;
+#నిర్వచనం_రద్దు PROCESS_STRING
+#నిర్వచనం_రద్దు PROCESS_దత్తాంశం
+#నిర్వచనం_రద్దు PROCESS_OPTIONAL_దత్తాంశం
+#నిర్వచనం_రద్దు PROCESS_లెక్క
+  తిరిగి 1;
 }
 
-static int
-open_rundir_dirfd (const char *state_root, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+open_rundir_dirfd (స్థిరరాశి అక్షరం *state_మూలం, libcrun_error_t *err)
 {
-  cleanup_free char *dir = NULL;
-  int dirfd;
-  int ret;
+  cleanup_free అక్షరం *dir = ఖాళీ;
+  పూర్ణాంకం dirfd;
+  పూర్ణాంకం ret;
 
-  ret = libcrun_get_state_directory (&dir, state_root, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_get_state_directory (&dir, state_మూలం, ఖాళీ, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  dirfd = TEMP_FAILURE_RETRY (open (dir, O_PATH | O_DIRECTORY | O_CLOEXEC));
-  if (UNLIKELY (dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", dir);
+  dirfd = తాత్కాలిక_FAILURE_RETRY (open (dir, O_మార్గం | O_DIRECTORY | O_CLOEXEC));
+  ఒకవేళ (UNLIKELY (dirfd < 0))
+    తిరిగి crun_make_error (err, errno, "open `%s`", dir);
 
-  return dirfd;
+  తిరిగి dirfd;
 }
 
-struct cache_entry
+నిర్మాణం cache_నమోదు
 {
   seccomp_checksum_t checksum;
-  struct timespec atime;
+  నిర్మాణం timespec atime;
 };
 
-static int
-compare_entries_by_atime (const void *a, const void *b)
+స్థిర పూర్ణాంకం
+compare_entries_by_atime (స్థిరరాశి శూన్య *a, స్థిరరాశి శూన్య *b)
 {
-  const struct cache_entry *entry_a = a;
-  const struct cache_entry *entry_b = b;
-  int ret;
+  స్థిరరాశి నిర్మాణం cache_నమోదు *నమోదు_a = a;
+  స్థిరరాశి నిర్మాణం cache_నమోదు *నమోదు_b = b;
+  పూర్ణాంకం ret;
 
-  ret = entry_a->atime.tv_sec - entry_b->atime.tv_sec;
-  if (ret)
-    return ret;
+  ret = నమోదు_a->atime.tv_sec - నమోదు_b->atime.tv_sec;
+  ఒకవేళ (ret)
+    తిరిగి ret;
 
-  return entry_a->atime.tv_nsec - entry_b->atime.tv_nsec;
+  తిరిగి నమోదు_a->atime.tv_nsec - నమోదు_b->atime.tv_nsec;
 }
 
-static int
-evict_cache (int root_dfd, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+evict_cache (పూర్ణాంకం మూలం_dfd, libcrun_error_t *err)
 {
-  cleanup_close int cache_dir_fd = -1;
-  off_t cache_dir_inode_max_size;
-  struct stat st;
-  int ret;
+  cleanup_close పూర్ణాంకం cache_dir_fd = -1;
+  off_t cache_dir_inode_max_కొలత;
+  నిర్మాణం stat st;
+  పూర్ణాంకం ret;
 
-  ret = TEMP_FAILURE_RETRY (fstat (root_dfd, &st));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fstat rundir");
+  ret = తాత్కాలిక_FAILURE_RETRY (fstat (మూలం_dfd, &st));
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి crun_make_error (err, errno, "fstat rundir");
 
-  cache_dir_inode_max_size = get_cache_dir_inode_max_size (st.st_size);
+  cache_dir_inode_max_కొలత = get_cache_dir_inode_max_కొలత (st.st_size);
 
-  cache_dir_fd = TEMP_FAILURE_RETRY (openat (root_dfd, SECCOMP_CACHE_DIR, O_DIRECTORY | O_CLOEXEC));
-  if (UNLIKELY (cache_dir_fd < 0))
+  cache_dir_fd = తాత్కాలిక_FAILURE_RETRY (openat (మూలం_dfd, SECCOMP_CACHE_DIR, O_DIRECTORY | O_CLOEXEC));
+  ఒకవేళ (UNLIKELY (cache_dir_fd < 0))
     {
-      if (errno == ENOENT)
-        return 0;
-      return crun_make_error (err, errno, "open `%s`", SECCOMP_CACHE_DIR);
+      ఒకవేళ (errno == ENOENT)
+        తిరిగి 0;
+      తిరిగి crun_make_error (err, errno, "open `%s`", SECCOMP_CACHE_DIR);
     }
 
-  ret = TEMP_FAILURE_RETRY (fstat (cache_dir_fd, &st));
-  if (ret == 0 && st.st_size > cache_dir_inode_max_size)
+  ret = తాత్కాలిక_FAILURE_RETRY (fstat (cache_dir_fd, &st));
+  ఒకవేళ (ret == 0 && st.st_size > cache_dir_inode_max_కొలత)
     {
-      cleanup_free struct cache_entry *entries = NULL;
-      cleanup_dir DIR *d = NULL;
+      cleanup_free నిర్మాణం cache_నమోదు *entries = ఖాళీ;
+      cleanup_dir DIR *d = ఖాళీ;
       size_t i, n_entries = 0;
-      struct dirent *de;
-      int dfd;
+      నిర్మాణం dirent *de;
+      పూర్ణాంకం dfd;
 
       d = fdopendir (cache_dir_fd);
-      if (d == NULL)
-        return crun_make_error (err, errno, "cannot open seccomp cache directory");
+      ఒకవేళ (d == ఖాళీ)
+        తిరిగి crun_make_error (err, errno, "cannot open seccomp cache directory");
       /* fdopendir owns the fd now.  */
       cache_dir_fd = -1;
 
       dfd = dirfd (d);
-      while ((de = readdir (d)))
+      అయితే ((de = readdir (d)))
         {
-          if (de->d_name[0] == '.')
-            continue;
+          ఒకవేళ (de->d_name[0] == '.')
+            కొనసాగు;
 
-          ret = TEMP_FAILURE_RETRY (fstatat (dfd, de->d_name, &st, AT_SYMLINK_NOFOLLOW));
-          if (UNLIKELY (ret < 0))
-            continue;
+          ret = తాత్కాలిక_FAILURE_RETRY (fstatat (dfd, de->d_name, &st, AT_SYMLINK_NOFOLLOW));
+          ఒకవేళ (UNLIKELY (ret < 0))
+            కొనసాగు;
 
           /* The cache file is already used, it is pointless to free it.  */
-          if (st.st_nlink > 1)
-            continue;
+          ఒకవేళ (st.st_nlink > 1)
+            కొనసాగు;
 
           /* If the sticky bit is set, then ignore it.  */
-          if (st.st_mode & S_ISVTX)
-            continue;
+          ఒకవేళ (st.st_mode & S_ISVTX)
+            కొనసాగు;
 
-          if (strlen (de->d_name) != sizeof (seccomp_checksum_t) - 1)
+          ఒకవేళ (అక్షరశ్రేణి_పొడవు (de->d_name) != పరిమాణం (seccomp_checksum_t) - 1)
             {
               /* No mercy for unknown files.  */
               unlinkat (dfd, de->d_name, 0);
-              continue;
+              కొనసాగు;
             }
-          else
+          లేకపోతే
             {
-              entries = xrealloc (entries, sizeof (struct cache_entry) * (n_entries + 1));
+              entries = xrealloc (entries, పరిమాణం (నిర్మాణం cache_నమోదు) * (n_entries + 1));
 
-              memcpy (entries[n_entries].checksum, de->d_name, sizeof (seccomp_checksum_t));
+              జ్ఞాపకం_నకలు (entries[n_entries].checksum, de->d_name, పరిమాణం (seccomp_checksum_t));
               entries[n_entries].atime = st.st_atim;
               n_entries++;
             }
         }
 
-      qsort (entries, n_entries, sizeof (struct cache_entry), compare_entries_by_atime);
+      qsort (entries, n_entries, పరిమాణం (నిర్మాణం cache_నమోదు), compare_entries_by_atime);
 
       /* Attempt to delete half of them.  */
-      for (i = 0; i < (n_entries == 1 ? 1 : n_entries / 2); i++)
+      కొరకు (i = 0; i < (n_entries == 1 ? 1 : n_entries / 2); i++)
         unlinkat (dfd, entries[i].checksum, 0);
     }
-  return 0;
+  తిరిగి 0;
 }
 
 /* Open the run-directory dirfd and build the "<id>/seccomp.bpf" path
    relative to it.  Returns the (caller-owned) dirfd or a negative error.  */
-static int
-open_seccomp_bpf_dirfd (libcrun_container_t *container, char **rel_path, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+open_seccomp_bpf_dirfd (libcrun_container_t *container, అక్షరం **rel_మార్గం, libcrun_error_t *err)
 {
-  int ret;
-  int dirfd;
+  పూర్ణాంకం ret;
+  పూర్ణాంకం dirfd;
 
-  dirfd = open_rundir_dirfd (container->context ? container->context->state_root : NULL, err);
-  if (UNLIKELY (dirfd < 0))
-    return dirfd;
+  dirfd = open_rundir_dirfd (container->context ? container->context->state_మూలం : ఖాళీ, err);
+  ఒకవేళ (UNLIKELY (dirfd < 0))
+    తిరిగి dirfd;
 
   /* relative path to dirfd.  */
-  ret = append_paths (rel_path, err, container->context->id, "seccomp.bpf", NULL);
-  if (UNLIKELY (ret < 0))
+  ret = append_paths (rel_మార్గం, err, container->context->id, "seccomp.bpf", ఖాళీ);
+  ఒకవేళ (UNLIKELY (ret < 0))
     {
-      TEMP_FAILURE_RETRY (close (dirfd));
-      return ret;
+      తాత్కాలిక_FAILURE_RETRY (close (dirfd));
+      తిరిగి ret;
     }
 
-  return dirfd;
+  తిరిగి dirfd;
 }
 
-static int
-store_seccomp_cache (struct libcrun_seccomp_gen_ctx_s *ctx, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+store_seccomp_cache (నిర్మాణం libcrun_seccomp_gen_ctx_s *ctx, libcrun_error_t *err)
 {
   libcrun_container_t *container = ctx->container;
-  cleanup_free char *src_path = NULL;
-  cleanup_free char *dest_path = NULL;
-  cleanup_close int dirfd = -1;
-  int ret;
+  cleanup_free అక్షరం *src_మార్గం = ఖాళీ;
+  cleanup_free అక్షరం *dest_మార్గం = ఖాళీ;
+  cleanup_close పూర్ణాంకం dirfd = -1;
+  పూర్ణాంకం ret;
 
-  if (ctx->options & LIBCRUN_SECCOMP_SKIP_CACHE)
-    return 0;
+  ఒకవేళ (ctx->options & LIBCRUN_SECCOMP_SKIP_CACHE)
+    తిరిగి 0;
 
-  if (is_empty_string (ctx->checksum))
-    return 0;
+  ఒకవేళ (is_ఖాళీలు_string (ctx->checksum))
+    తిరిగి 0;
 
-  dirfd = open_seccomp_bpf_dirfd (container, &src_path, err);
-  if (UNLIKELY (dirfd < 0))
-    return dirfd;
+  dirfd = open_seccomp_bpf_dirfd (container, &src_మార్గం, err);
+  ఒకవేళ (UNLIKELY (dirfd < 0))
+    తిరిగి dirfd;
 
-  ret = append_paths (&dest_path, err, SECCOMP_CACHE_DIR, ctx->checksum, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&dest_మార్గం, err, SECCOMP_CACHE_DIR, ctx->checksum, ఖాళీ);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
   ret = crun_ensure_directory_at (dirfd, SECCOMP_CACHE_DIR, 0700, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
   ret = evict_cache (dirfd, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  ret = linkat (dirfd, src_path, dirfd, dest_path, 0);
-  if (UNLIKELY (ret < 0 && errno != EEXIST))
-    return crun_make_error (err, errno, "link `%s` to `%s`", src_path, dest_path);
-  return 0;
+  ret = linkat (dirfd, src_మార్గం, dirfd, dest_మార్గం, 0);
+  ఒకవేళ (UNLIKELY (ret < 0 && errno != EEXIST))
+    తిరిగి crun_make_error (err, errno, "link `%s` to `%s`", src_మార్గం, dest_మార్గం);
+  తిరిగి 0;
 }
 
-static inline runtime_spec_schema_config_linux_seccomp *
-get_seccomp_configuration (struct libcrun_seccomp_gen_ctx_s *ctx)
+స్థిర అంతఃవరుస runtime_spec_schema_config_linux_seccomp *
+get_seccomp_configuration (నిర్మాణం libcrun_seccomp_gen_ctx_s *ctx)
 {
-  if (ctx->container == NULL || ctx->container->container_def == NULL
-      || ctx->container->container_def->linux == NULL)
-    return 0;
+  ఒకవేళ (ctx->container == ఖాళీ || ctx->container->container_def == ఖాళీ
+      || ctx->container->container_def->linux == ఖాళీ)
+    తిరిగి 0;
 
-  return ctx->container->container_def->linux->seccomp;
+  తిరిగి ctx->container->container_def->linux->seccomp;
 }
 
 /* Whether a seccomp.bpf file is expected to exist for the container.  */
-static inline bool
-has_seccomp_configuration (struct libcrun_seccomp_gen_ctx_s *ctx)
+స్థిర అంతఃవరుస bool
+has_seccomp_configuration (నిర్మాణం libcrun_seccomp_gen_ctx_s *ctx)
 {
-  if (ctx->container == NULL || ctx->container->container_def == NULL
-      || ctx->container->container_def->linux == NULL)
-    return false;
+  ఒకవేళ (ctx->container == ఖాళీ || ctx->container->container_def == ఖాళీ
+      || ctx->container->container_def->linux == ఖాళీ)
+    తిరిగి false;
 
-  return ctx->container->container_def->linux->seccomp != NULL
-         || find_annotation (ctx->container, "run.oci.seccomp_bpf_data") != NULL;
+  తిరిగి ctx->container->container_def->linux->seccomp != ఖాళీ
+         || కనుగొను_annotation (ctx->container, "run.oci.seccomp_bpf_data") != ఖాళీ;
 }
 
-static int
-find_in_cache (struct libcrun_seccomp_gen_ctx_s *ctx, int dirfd, const char *dest_path, bool *created, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+కనుగొను_లోపల_cache (నిర్మాణం libcrun_seccomp_gen_ctx_s *ctx, పూర్ణాంకం dirfd, స్థిరరాశి అక్షరం *dest_మార్గం, bool *created, libcrun_error_t *err)
 {
   runtime_spec_schema_config_linux_seccomp *seccomp;
-  cleanup_free char *cache_file_path = NULL;
-  int ret;
+  cleanup_free అక్షరం *cache_file_మార్గం = ఖాళీ;
+  పూర్ణాంకం ret;
 
-  if (ctx->options & LIBCRUN_SECCOMP_SKIP_CACHE)
-    return 0;
+  ఒకవేళ (ctx->options & LIBCRUN_SECCOMP_SKIP_CACHE)
+    తిరిగి 0;
 
   seccomp = get_seccomp_configuration (ctx);
-  if (seccomp == NULL)
-    return 0;
+  ఒకవేళ (seccomp == ఖాళీ)
+    తిరిగి 0;
 
   /* if the checksum could not be computed, returns early.  */
   ret = calculate_seccomp_checksum (seccomp, ctx->options, ctx->checksum, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  ret = append_paths (&cache_file_path, err, SECCOMP_CACHE_DIR, ctx->checksum, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cache_file_మార్గం, err, SECCOMP_CACHE_DIR, ctx->checksum, ఖాళీ);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  ret = TEMP_FAILURE_RETRY (linkat (dirfd, cache_file_path, dirfd, dest_path, 0));
-  if (UNLIKELY (ret < 0 && errno != ENOENT))
-    return crun_make_error (err, errno, "linkat `%s` to `%s`", cache_file_path, dest_path);
+  ret = తాత్కాలిక_FAILURE_RETRY (linkat (dirfd, cache_file_మార్గం, dirfd, dest_మార్గం, 0));
+  ఒకవేళ (UNLIKELY (ret < 0 && errno != ENOENT))
+    తిరిగి crun_make_error (err, errno, "linkat `%s` to `%s`", cache_file_మార్గం, dest_మార్గం);
 
   *created = ret == 0;
 
-  return 0;
+  తిరిగి 0;
 }
 
-int
-libcrun_generate_seccomp (struct libcrun_seccomp_gen_ctx_s *gen_ctx, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_generate_seccomp (నిర్మాణం libcrun_seccomp_gen_ctx_s *gen_ctx, libcrun_error_t *err)
 {
-#ifdef HAVE_SECCOMP
+#నిర్వచితమైతే HAVE_SECCOMP
   runtime_spec_schema_config_linux_seccomp *seccomp;
-  int ret;
+  పూర్ణాంకం ret;
   size_t i;
-  cleanup_seccomp scmp_filter_ctx ctx = NULL;
-  int default_errno_value = EPERM;
+  cleanup_seccomp scmp_filter_ctx ctx = ఖాళీ;
+  పూర్ణాంకం default_errno_విలువ = EPERM;
   uint32_t action, default_action;
-  const char *def_action = NULL;
+  స్థిరరాశి అక్షరం *def_action = ఖాళీ;
 
   /* The bpf filter was loaded from the cache, nothing to do here.  */
-  if (gen_ctx->from_cache)
-    return 0;
+  ఒకవేళ (gen_ctx->from_cache)
+    తిరిగి 0;
 
-  if (gen_ctx->container == NULL || gen_ctx->container->container_def == NULL || gen_ctx->container->container_def->linux == NULL)
-    return 0;
+  ఒకవేళ (gen_ctx->container == ఖాళీ || gen_ctx->container->container_def == ఖాళీ || gen_ctx->container->container_def->linux == ఖాళీ)
+    తిరిగి 0;
 
   seccomp = gen_ctx->container->container_def->linux->seccomp;
-  if (seccomp == NULL)
-    return 0;
+  ఒకవేళ (seccomp == ఖాళీ)
+    తిరిగి 0;
 
   /* seccomp not available.  */
-  if (prctl (PR_GET_SECCOMP, 0, 0, 0, 0) < 0)
-    return crun_make_error (err, errno, "prctl");
+  ఒకవేళ (prctl (PR_GET_SECCOMP, 0, 0, 0, 0) < 0)
+    తిరిగి crun_make_error (err, errno, "prctl");
 
   def_action = seccomp->default_action;
-  if (def_action == NULL)
-    return crun_make_error (err, 0, "seccomp misses the default action");
+  ఒకవేళ (def_action == ఖాళీ)
+    తిరిగి crun_make_error (err, 0, "seccomp misses the default action");
 
-  if (seccomp->default_errno_ret_present)
+  ఒకవేళ (seccomp->default_errno_ret_present)
     {
-      if (! seccomp_action_supports_errno (def_action))
-        return crun_make_error (err, 0, "errno value specified for action `%s`", def_action);
+      ఒకవేళ (! seccomp_action_supports_errno (def_action))
+        తిరిగి crun_make_error (err, 0, "errno value specified for action `%s`", def_action);
 
-      default_errno_value = seccomp->default_errno_ret;
+      default_errno_విలువ = seccomp->default_errno_ret;
     }
 
-  ret = get_seccomp_action (def_action, default_errno_value, &default_action, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_seccomp_action (def_action, default_errno_విలువ, &default_action, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
   ctx = seccomp_init (default_action);
-  if (ctx == NULL)
-    return crun_make_error (err, 0, "error seccomp_init");
+  ఒకవేళ (ctx == ఖాళీ)
+    తిరిగి crun_make_error (err, 0, "error seccomp_init");
 
-  for (i = 0; i < seccomp->architectures_len; i++)
+  కొరకు (i = 0; i < seccomp->architectures_len; i++)
     {
       uint32_t arch_token;
-      const char *arch = seccomp->architectures[i];
-      char *end, lowercase_arch[32] = {
+      స్థిరరాశి అక్షరం *arch = seccomp->architectures[i];
+      అక్షరం *చివర, lowercase_arch[32] = {
         0,
       };
 
-      if (arch == NULL)
-        return crun_make_error (err, EINVAL, "seccomp architecture is not specified");
+      ఒకవేళ (arch == ఖాళీ)
+        తిరిగి crun_make_error (err, EINVAL, "seccomp architecture is not specified");
 
-      if (has_prefix (arch, "SCMP_ARCH_"))
+      ఒకవేళ (has_ఉపసర్గ (arch, "SCMP_ARCH_"))
         arch += 10;
-      end = stpncpy (lowercase_arch, arch, sizeof (lowercase_arch) - 1);
-      *end = '\0';
+      చివర = stpncpy (lowercase_arch, arch, పరిమాణం (lowercase_arch) - 1);
+      *చివర = '\0';
       make_lowercase (lowercase_arch);
 #  ifdef SECCOMP_ARCH_RESOLVE_NAME
       arch_token = seccomp_arch_resolve_name (lowercase_arch);
-      if (arch_token == 0)
-        return crun_make_error (err, 0, "seccomp unknown architecture `%s`", arch);
-#  else
+      ఒకవేళ (arch_token == 0)
+        తిరిగి crun_make_error (err, 0, "seccomp unknown architecture `%s`", arch);
+#  లేకపోతే
       arch_token = SCMP_ARCH_NATIVE;
 #  endif
-      ret = seccomp_arch_add (ctx, arch_token);
-      if (ret < 0 && ret != -EEXIST)
-        return crun_make_error (err, -ret, "seccomp adding architecture");
+      ret = seccomp_arch_కూడు (ctx, arch_token);
+      ఒకవేళ (ret < 0 && ret != -EEXIST)
+        తిరిగి crun_make_error (err, -ret, "seccomp adding architecture");
     }
 
-  for (i = 0; i < seccomp->syscalls_len; i++)
+  కొరకు (i = 0; i < seccomp->syscalls_len; i++)
     {
       size_t j;
-      bool multiple_args = false;
-      int errno_ret = EPERM;
+      bool గుణిజం_వాదనలు = false;
+      పూర్ణాంకం errno_ret = EPERM;
 
-      if (seccomp->syscalls[i]->errno_ret_present)
+      ఒకవేళ (seccomp->syscalls[i]->errno_ret_present)
         {
-          if (! seccomp_action_supports_errno (seccomp->syscalls[i]->action))
-            return crun_make_error (err, 0, "errno value specified for action `%s`", seccomp->syscalls[i]->action);
+          ఒకవేళ (! seccomp_action_supports_errno (seccomp->syscalls[i]->action))
+            తిరిగి crun_make_error (err, 0, "errno value specified for action `%s`", seccomp->syscalls[i]->action);
           errno_ret = seccomp->syscalls[i]->errno_ret;
         }
 
       ret = get_seccomp_action (seccomp->syscalls[i]->action, errno_ret, &action, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి ret;
 
-      if (action == default_action)
-        continue;
+      ఒకవేళ (action == default_action)
+        కొనసాగు;
 
       /* The argument indices do not depend on the syscall name, so validate
          them once per entry.  Doing it here also makes an invalid index an
          error even when every name below is unknown and skipped.  */
-      if (seccomp->syscalls[i]->args != NULL)
+      ఒకవేళ (seccomp->syscalls[i]->వాదనలు != ఖాళీ)
         {
-          uint32_t count[6] = {};
+          uint32_t లెక్క[6] = {};
           size_t k;
 
-          for (k = 0; k < seccomp->syscalls[i]->args_len; k++)
+          కొరకు (k = 0; k < seccomp->syscalls[i]->వాదనలు_len; k++)
             {
-              uint32_t index = seccomp->syscalls[i]->args[k]->index;
+              uint32_t సూచీ = seccomp->syscalls[i]->వాదనలు[k]->సూచీ;
 
-              if (index >= 6)
-                return crun_make_error (err, 0, "invalid seccomp index `%u`", index);
+              ఒకవేళ (సూచీ >= 6)
+                తిరిగి crun_make_error (err, 0, "invalid seccomp index `%u`", సూచీ);
 
-              count[index]++;
-              if (count[index] > 1)
-                multiple_args = true;
+              లెక్క[సూచీ]++;
+              ఒకవేళ (లెక్క[సూచీ] > 1)
+                గుణిజం_వాదనలు = true;
             }
         }
 
-      for (j = 0; j < seccomp->syscalls[i]->names_len; j++)
+      కొరకు (j = 0; j < seccomp->syscalls[i]->పేర్లు_len; j++)
         {
-          int syscall = seccomp_syscall_resolve_name (seccomp->syscalls[i]->names[j]);
+          పూర్ణాంకం syscall = seccomp_syscall_resolve_name (seccomp->syscalls[i]->పేర్లు[j]);
 
-          if (UNLIKELY (syscall == __NR_SCMP_ERROR))
+          ఒకవేళ (UNLIKELY (syscall == __NR_SCMP_ERROR))
             {
-              if (gen_ctx->options & LIBCRUN_SECCOMP_FAIL_UNKNOWN_SYSCALL)
-                return crun_make_error (err, 0, "invalid seccomp syscall `%s`", seccomp->syscalls[i]->names[j]);
+              ఒకవేళ (gen_ctx->options & LIBCRUN_SECCOMP_FAIL_UNKNOWN_SYSCALL)
+                తిరిగి crun_make_error (err, 0, "invalid seccomp syscall `%s`", seccomp->syscalls[i]->పేర్లు[j]);
 
-              libcrun_warning ("unknown seccomp syscall `%s` ignored", seccomp->syscalls[i]->names[j]);
-              continue;
+              libcrun_warning ("unknown seccomp syscall `%s` ignored", seccomp->syscalls[i]->పేర్లు[j]);
+              కొనసాగు;
             }
 
-          if (seccomp->syscalls[i]->args == NULL)
+          ఒకవేళ (seccomp->syscalls[i]->వాదనలు == ఖాళీ)
             {
-              ret = seccomp_rule_add (ctx, action, syscall, 0);
-              if (UNLIKELY (ret < 0))
-                return crun_make_error (err, -ret, "seccomp_rule_add `%s`", seccomp->syscalls[i]->names[j]);
+              ret = seccomp_నియమం_కూడు (ctx, action, syscall, 0);
+              ఒకవేళ (UNLIKELY (ret < 0))
+                తిరిగి crun_make_error (err, -ret, "seccomp_rule_add `%s`", seccomp->syscalls[i]->పేర్లు[j]);
             }
-          else
+          లేకపోతే
             {
               size_t k;
 
@@ -953,143 +953,143 @@ libcrun_generate_seccomp (struct libcrun_seccomp_gen_ctx_s *gen_ctx, libcrun_err
                  The OCI runtime specification does not define how conditions
                  combine, and this matches what runc does; see
                  https://github.com/opencontainers/runc/issues/2735.  */
-              if (multiple_args)
+              ఒకవేళ (గుణిజం_వాదనలు)
                 {
                   size_t r;
 
-                  for (r = 0; r < seccomp->syscalls[i]->args_len; r++)
+                  కొరకు (r = 0; r < seccomp->syscalls[i]->వాదనలు_len; r++)
                     {
-                      struct scmp_arg_cmp arg_cmp;
-                      char *op = seccomp->syscalls[i]->args[r]->op;
+                      నిర్మాణం scmp_arg_cmp arg_cmp;
+                      అక్షరం *op = seccomp->syscalls[i]->వాదనలు[r]->op;
 
-                      arg_cmp.arg = seccomp->syscalls[i]->args[r]->index;
+                      arg_cmp.arg = seccomp->syscalls[i]->వాదనలు[r]->సూచీ;
                       ret = get_seccomp_operator (op, &arg_cmp.op, err);
-                      if (UNLIKELY (ret < 0))
-                        return ret;
-                      arg_cmp.datum_a = seccomp->syscalls[i]->args[r]->value;
-                      arg_cmp.datum_b = seccomp->syscalls[i]->args[r]->value_two;
+                      ఒకవేళ (UNLIKELY (ret < 0))
+                        తిరిగి ret;
+                      arg_cmp.datum_a = seccomp->syscalls[i]->వాదనలు[r]->విలువ;
+                      arg_cmp.datum_b = seccomp->syscalls[i]->వాదనలు[r]->విలువ_two;
 
-                      ret = seccomp_rule_add_array (ctx, action, syscall, 1, &arg_cmp);
-                      if (UNLIKELY (ret < 0))
-                        return crun_make_error (err, -ret, "seccomp_rule_add_array");
+                      ret = seccomp_నియమం_కూడు_array (ctx, action, syscall, 1, &arg_cmp);
+                      ఒకవేళ (UNLIKELY (ret < 0))
+                        తిరిగి crun_make_error (err, -ret, "seccomp_rule_add_array");
                     }
                 }
-              else
+              లేకపోతే
                 {
                   /* No index is repeated, so there are at most 6 distinct arguments.  */
-                  const size_t args_len = seccomp->syscalls[i]->args_len;
-                  struct scmp_arg_cmp arg_cmp[6];
+                  స్థిరరాశి size_t వాదనలు_len = seccomp->syscalls[i]->వాదనలు_len;
+                  నిర్మాణం scmp_arg_cmp arg_cmp[6];
 
-                  for (k = 0; k < args_len; k++)
+                  కొరకు (k = 0; k < వాదనలు_len; k++)
                     {
-                      char *op = seccomp->syscalls[i]->args[k]->op;
+                      అక్షరం *op = seccomp->syscalls[i]->వాదనలు[k]->op;
 
-                      arg_cmp[k].arg = seccomp->syscalls[i]->args[k]->index;
+                      arg_cmp[k].arg = seccomp->syscalls[i]->వాదనలు[k]->సూచీ;
                       ret = get_seccomp_operator (op, &(arg_cmp[k].op), err);
-                      if (UNLIKELY (ret < 0))
-                        return ret;
-                      arg_cmp[k].datum_a = seccomp->syscalls[i]->args[k]->value;
-                      arg_cmp[k].datum_b = seccomp->syscalls[i]->args[k]->value_two;
+                      ఒకవేళ (UNLIKELY (ret < 0))
+                        తిరిగి ret;
+                      arg_cmp[k].datum_a = seccomp->syscalls[i]->వాదనలు[k]->విలువ;
+                      arg_cmp[k].datum_b = seccomp->syscalls[i]->వాదనలు[k]->విలువ_two;
                     }
 
                   /* An empty "args" array means the rule is unconditional.  Do not
                      hand over the uninitialized buffer for it.  */
-                  ret = seccomp_rule_add_array (ctx, action, syscall, args_len, args_len ? arg_cmp : NULL);
-                  if (UNLIKELY (ret < 0))
-                    return crun_make_error (err, -ret, "seccomp_rule_add_array");
+                  ret = seccomp_నియమం_కూడు_array (ctx, action, syscall, వాదనలు_len, వాదనలు_len ? arg_cmp : ఖాళీ);
+                  ఒకవేళ (UNLIKELY (ret < 0))
+                    తిరిగి crun_make_error (err, -ret, "seccomp_rule_add_array");
                 }
             }
         }
     }
 
-  if (gen_ctx->fd >= 0)
+  ఒకవేళ (gen_ctx->fd >= 0)
     {
       ret = export_bpf (ctx, gen_ctx->fd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి ret;
 
-      return store_seccomp_cache (gen_ctx, err);
+      తిరిగి store_seccomp_cache (gen_ctx, err);
     }
 
-  return 0;
-#else
-  return 0;
-#endif
+  తిరిగి 0;
+#లేకపోతే
+  తిరిగి 0;
+#అయితే_ముగింపు
 }
 
-int
-libcrun_copy_seccomp (struct libcrun_seccomp_gen_ctx_s *gen_ctx, const char *b64_bpf, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_copy_seccomp (నిర్మాణం libcrun_seccomp_gen_ctx_s *gen_ctx, స్థిరరాశి అక్షరం *b64_bpf, libcrun_error_t *err)
 {
-  cleanup_free char *bpf_data = NULL;
-  size_t size = 0;
-  size_t in_size;
-  int consumed;
-  int ret;
+  cleanup_free అక్షరం *bpf_దత్తాంశం = ఖాళీ;
+  size_t కొలత = 0;
+  size_t లోపల_కొలత;
+  పూర్ణాంకం consumed;
+  పూర్ణాంకం ret;
 
-  in_size = strlen (b64_bpf);
-  bpf_data = xmalloc (in_size + 1);
+  లోపల_కొలత = అక్షరశ్రేణి_పొడవు (b64_bpf);
+  bpf_దత్తాంశం = xmalloc (లోపల_కొలత + 1);
 
-  consumed = base64_decode (b64_bpf, in_size, bpf_data, in_size, &size);
-  if (UNLIKELY (consumed != (int) in_size))
-    return crun_make_error (err, 0, "invalid seccomp BPF data");
+  consumed = base64_decode (b64_bpf, లోపల_కొలత, bpf_దత్తాంశం, లోపల_కొలత, &కొలత);
+  ఒకవేళ (UNLIKELY (consumed != (పూర్ణాంకం) లోపల_కొలత))
+    తిరిగి crun_make_error (err, 0, "invalid seccomp BPF data");
 
-  ret = safe_write (gen_ctx->fd, "seccomp fd", bpf_data, size, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = సురక్షిత_write (gen_ctx->fd, "seccomp fd", bpf_దత్తాంశం, కొలత, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  return 0;
+  తిరిగి 0;
 }
 
-int
-libcrun_open_seccomp_bpf (struct libcrun_seccomp_gen_ctx_s *ctx, int *fd, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_open_seccomp_bpf (నిర్మాణం libcrun_seccomp_gen_ctx_s *ctx, పూర్ణాంకం *fd, libcrun_error_t *err)
 {
-  cleanup_close int dirfd = -1;
-  cleanup_free char *dest_path = NULL;
+  cleanup_close పూర్ణాంకం dirfd = -1;
+  cleanup_free అక్షరం *dest_మార్గం = ఖాళీ;
   libcrun_container_t *container = ctx->container;
-  int ret;
+  పూర్ణాంకం ret;
 
   ctx->fd = *fd = -1;
 
-  if (container == NULL || container->context == NULL)
-    return crun_make_error (err, EINVAL, "invalid internal state");
+  ఒకవేళ (container == ఖాళీ || container->context == ఖాళీ)
+    తిరిగి crun_make_error (err, EINVAL, "invalid internal state");
 
-  dirfd = open_seccomp_bpf_dirfd (container, &dest_path, err);
-  if (UNLIKELY (dirfd < 0))
-    return dirfd;
+  dirfd = open_seccomp_bpf_dirfd (container, &dest_మార్గం, err);
+  ఒకవేళ (UNLIKELY (dirfd < 0))
+    తిరిగి dirfd;
 
-  if (ctx->create)
+  ఒకవేళ (ctx->create)
     {
       bool created = false;
 
-      ret = find_in_cache (ctx, dirfd, dest_path, &created, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = కనుగొను_లోపల_cache (ctx, dirfd, dest_మార్గం, &created, err);
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి ret;
 
-      if (created)
+      ఒకవేళ (created)
         {
           ctx->from_cache = true;
-          goto open_existing_file;
+          వెళ్ళు open_existing_file;
         }
 
-      ret = TEMP_FAILURE_RETRY (openat (dirfd, dest_path, O_CLOEXEC | O_RDWR | O_CREAT, 0700));
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "open `seccomp.bpf`");
+      ret = తాత్కాలిక_FAILURE_RETRY (openat (dirfd, dest_మార్గం, O_CLOEXEC | O_RDWR | O_CREAT, 0700));
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి crun_make_error (err, errno, "open `seccomp.bpf`");
       ctx->fd = *fd = ret;
     }
-  else
+  లేకపోతే
     {
     open_existing_file:
-      ret = TEMP_FAILURE_RETRY (openat (dirfd, dest_path, O_CLOEXEC | O_RDONLY));
-      if (UNLIKELY (ret < 0))
+      ret = తాత్కాలిక_FAILURE_RETRY (openat (dirfd, dest_మార్గం, O_CLOEXEC | O_RDONLY));
+      ఒకవేళ (UNLIKELY (ret < 0))
         {
           /* The file is missing only when the container has no seccomp
              configuration.  If it is configured, do not run without the filter.  */
-          if (errno == ENOENT && ! has_seccomp_configuration (ctx))
-            return 0;
-          return crun_make_error (err, errno, "open `seccomp.bpf`");
+          ఒకవేళ (errno == ENOENT && ! has_seccomp_configuration (ctx))
+            తిరిగి 0;
+          తిరిగి crun_make_error (err, errno, "open `seccomp.bpf`");
         }
       ctx->fd = *fd = ret;
     }
 
-  return 0;
+  తిరిగి 0;
 }

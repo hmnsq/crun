@@ -16,156 +16,156 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#నిర్వచించు GNU_ఆధారం
 
-#include <config.h>
-#include <stdlib.h>
-#include <errno.h>
-#include "string_map.h"
-#include "utils.h"
+#అన్తర్భావ <config.h>
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ <errno.h>
+#అన్తర్భావ "string_map.h"
+#అన్తర్భావ "utils.h"
 
-#include <ocispec/runtime_spec_schema_config_schema.h>
+#అన్తర్భావ <ocispec/runtime_spec_schema_config_schema.h>
 
-struct kv_s
+నిర్మాణం kv_s
 {
-  char *key;
-  char *value;
+  అక్షరం *కీలకం;
+  అక్షరం *విలువ;
 };
 
-struct string_map_s
+నిర్మాణం string_map_s
 {
   size_t len;
-  struct kv_s *kvs;
+  నిర్మాణం kv_s *kvs;
 
-#ifdef HAVE_HSEARCH_R
-  struct hsearch_data htab;
+#నిర్వచితమైతే HAVE_HSEARCH_R
+  నిర్మాణం hsearch_దత్తాంశం htab;
   bool htab_initialized;
-#endif
+#అయితే_ముగింపు
 
   bool sorted;
 };
 
-static int
-compare_kv (const void *a, const void *b)
+స్థిర పూర్ణాంకం
+compare_kv (స్థిరరాశి శూన్య *a, స్థిరరాశి శూన్య *b)
 {
-  return strcmp (((struct kv_s *) a)->key, ((struct kv_s *) b)->key);
+  తిరిగి strcmp (((నిర్మాణం kv_s *) a)->కీలకం, ((నిర్మాణం kv_s *) b)->కీలకం);
 }
 
-const char *
-find_string_map_value (string_map *map, const char *name)
+స్థిరరాశి అక్షరం *
+కనుగొను_string_map_విలువ (string_map *map, స్థిరరాశి అక్షరం *name)
 
 {
-  struct kv_s *r, key;
+  నిర్మాణం kv_s *r, కీలకం;
 
-  if (map == NULL || map->len == 0)
-    return NULL;
+  ఒకవేళ (map == ఖాళీ || map->len == 0)
+    తిరిగి ఖాళీ;
 
-#ifdef HAVE_HSEARCH_R
-  ENTRY e, *ep;
+#నిర్వచితమైతే HAVE_HSEARCH_R
+  నమోదు_2 e, *ep;
 
   /* Do not bother with hash tables for small maps.  */
-  if (map->len < 8)
-    goto fallback;
+  ఒకవేళ (map->len < 8)
+    వెళ్ళు fallback;
 
-  if (! map->htab_initialized)
+  ఒకవేళ (! map->htab_initialized)
     {
       size_t i;
 
-      if (hcreate_r (map->len, &map->htab) == 0)
-        goto fallback;
+      ఒకవేళ (hcreate_r (map->len, &map->htab) == 0)
+        వెళ్ళు fallback;
 
-      for (i = 0; i < map->len; i++)
+      కొరకు (i = 0; i < map->len; i++)
         {
-          e.key = (char *) map->kvs[i].key;
-          e.data = map->kvs[i].value;
-          if (hsearch_r (e, ENTER, &ep, &map->htab) == 0)
+          e.కీలకం = (అక్షరం *) map->kvs[i].కీలకం;
+          e.దత్తాంశం = map->kvs[i].విలువ;
+          ఒకవేళ (hsearch_r (e, ENTER, &ep, &map->htab) == 0)
             {
               hdestroy_r (&map->htab);
-              goto fallback;
+              వెళ్ళు fallback;
             }
         }
       map->htab_initialized = true;
     }
 
-  e.key = (char *) name;
-  if (hsearch_r (e, FIND, &ep, &map->htab) == 0)
-    return NULL;
+  e.కీలకం = (అక్షరం *) name;
+  ఒకవేళ (hsearch_r (e, కనుగొను, &ep, &map->htab) == 0)
+    తిరిగి ఖాళీ;
 
-  return ep->data;
+  తిరిగి ep->దత్తాంశం;
 
 fallback:
-#endif
+#అయితే_ముగింపు
 
-  if (! map->sorted)
+  ఒకవేళ (! map->sorted)
     {
-      qsort (map->kvs, map->len, sizeof (struct kv_s), compare_kv);
+      qsort (map->kvs, map->len, పరిమాణం (నిర్మాణం kv_s), compare_kv);
       map->sorted = true;
     }
 
-  key.key = (char *) name;
+  కీలకం.కీలకం = (అక్షరం *) name;
 
-  r = bsearch (&key, map->kvs, map->len, sizeof (struct kv_s), compare_kv);
-  return r ? r->value : NULL;
+  r = bsearch (&కీలకం, map->kvs, map->len, పరిమాణం (నిర్మాణం kv_s), compare_kv);
+  తిరిగి r ? r->విలువ : ఖాళీ;
 }
 
 string_map *
 make_string_map_from_json (json_map_string_string *jmap)
 {
-  struct string_map_s *new_map = xmalloc0 (sizeof (struct string_map_s));
+  నిర్మాణం string_map_s *new_map = xmalloc0 (పరిమాణం (నిర్మాణం string_map_s));
   size_t i;
 
-  if (jmap == NULL)
-    return new_map;
+  ఒకవేళ (jmap == ఖాళీ)
+    తిరిగి new_map;
 
   new_map->len = jmap->len;
-  new_map->kvs = xmalloc0 (sizeof (struct kv_s) * (jmap->len + 1));
+  new_map->kvs = xmalloc0 (పరిమాణం (నిర్మాణం kv_s) * (jmap->len + 1));
 
-  for (i = 0; i < jmap->len; i++)
+  కొరకు (i = 0; i < jmap->len; i++)
     {
-      new_map->kvs[i].key = xstrdup (jmap->keys[i]);
-      new_map->kvs[i].value = xstrdup (jmap->values[i]);
+      new_map->kvs[i].కీలకం = xstrdup (jmap->కీలకాలు[i]);
+      new_map->kvs[i].విలువ = xstrdup (jmap->విలువలు[i]);
     }
 
-  return new_map;
+  తిరిగి new_map;
 }
 
-int
-string_map_get_at (string_map *map, size_t index, const char **name, const char **value)
+పూర్ణాంకం
+string_map_get_at (string_map *map, size_t సూచీ, స్థిరరాశి అక్షరం **name, స్థిరరాశి అక్షరం **విలువ)
 {
-  if (map == NULL || index >= map->len)
+  ఒకవేళ (map == ఖాళీ || సూచీ >= map->len)
     {
       errno = ERANGE;
-      return -1;
+      తిరిగి -1;
     }
 
-  *name = map->kvs[index].key;
-  *value = map->kvs[index].value;
+  *name = map->kvs[సూచీ].కీలకం;
+  *విలువ = map->kvs[సూచీ].విలువ;
 
-  return 0;
+  తిరిగి 0;
 }
 
-void
+శూన్య
 free_string_map (string_map *map)
 {
   size_t i;
 
-  if (map == NULL)
-    return;
+  ఒకవేళ (map == ఖాళీ)
+    తిరిగి;
 
-  if (map->htab_initialized)
+  ఒకవేళ (map->htab_initialized)
     hdestroy_r (&map->htab);
 
-  for (i = 0; i < map->len; i++)
+  కొరకు (i = 0; i < map->len; i++)
     {
-      free (map->kvs[i].key);
-      free (map->kvs[i].value);
+      విడుదల (map->kvs[i].కీలకం);
+      విడుదల (map->kvs[i].విలువ);
     }
-  free (map->kvs);
-  free (map);
+  విడుదల (map->kvs);
+  విడుదల (map);
 }
 
 size_t
-string_map_size (string_map *map)
+string_map_కొలత (string_map *map)
 {
-  return map->len;
+  తిరిగి map->len;
 }

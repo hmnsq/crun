@@ -23,29 +23,29 @@
  * 2020/02/02: Giuseppe Scrivano (don't lose terminal '/' if an absolute symlink is found)
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+#నిర్వచితమైతే HAVE_CONFIG_H
+#అన్తర్భావ <config.h>
+#అయితే_ముగింపు
 
-#include <sys/types.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
-#include <strings.h>
-#include <limits.h>				/* for PATH_MAX */
-#include <sys/param.h>			/* for MAXPATHLEN */
-#include <errno.h>
-#ifndef __set_errno
-#define __set_errno(val) ((errno) = (val))
-#endif
+#అన్తర్భావ <sys/types.h>
+#అన్తర్భావ <unistd.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <string.h>
+#అన్తర్భావ <strings.h>
+#అన్తర్భావ <limits.h>				/* for PATH_MAX */
+#అన్తర్భావ <sys/param.h>			/* for MAXPATHLEN */
+#అన్తర్భావ <errno.h>
+#నిర్వచితం_కాకపోతే __set_errno
+#నిర్వచించు __set_errno(val) ((errno) = (val))
+#అయితే_ముగింపు
 
-#include <sys/stat.h>			/* for S_IFLNK */
+#అన్తర్భావ <sys/stat.h>			/* for S_IFLNK */
 
-#ifndef PATH_MAX
-#define PATH_MAX _POSIX_PATH_MAX
-#endif
+#నిర్వచితం_కాకపోతే PATH_MAX
+#నిర్వచించు PATH_MAX _POSIX_PATH_MAX
+#అయితే_ముగింపు
 
-#define MAX_READLINKS 32
+#నిర్వచించు MAX_READLINKS 32
 
 /* Resolve PATH as if CHROOT was the root directory, storing the result in
    RESOLVED_PATH (which must be at least PATH_MAX bytes long).
@@ -57,146 +57,146 @@
 
    On failure NULL is returned and errno is set to either ENAMETOOLONG or
    ELOOP, or to any error readlink(2) can report except ENOENT and EINVAL. */
-char *chroot_realpath(const char *chroot, const char *path, char resolved_path[])
+అక్షరం *chroot_realpath(స్థిరరాశి అక్షరం *chroot, స్థిరరాశి అక్షరం *మార్గం, అక్షరం resolved_మార్గం[])
 {
-	char copy_path[PATH_MAX];
-	char link_path[PATH_MAX];
-	char got_path[PATH_MAX];
-	char *got_path_root = got_path;
-	char *new_path = got_path;
-	char *max_path;
-	int readlinks = 0;
-	int n;
-	int chroot_len;
-	int last_component;
+	అక్షరం copy_మార్గం[PATH_MAX];
+	అక్షరం link_మార్గం[PATH_MAX];
+	అక్షరం got_మార్గం[PATH_MAX];
+	అక్షరం *got_మార్గం_మూలం = got_మార్గం;
+	అక్షరం *new_మార్గం = got_మార్గం;
+	అక్షరం *max_మార్గం;
+	పూర్ణాంకం readlinks = 0;
+	పూర్ణాంకం n;
+	పూర్ణాంకం chroot_len;
+	పూర్ణాంకం చివరి_component;
 
 	/* Trivial case. */
-	if (chroot == NULL || *chroot == '\0' ||
+	ఒకవేళ (chroot == ఖాళీ || *chroot == '\0' ||
 	    (*chroot == '/' && chroot[1] == '\0')) {
-		if (strlen(path) >= PATH_MAX) {
+		ఒకవేళ (అక్షరశ్రేణి_పొడవు(మార్గం) >= PATH_MAX) {
 			__set_errno(ENAMETOOLONG);
-			return NULL;
+			తిరిగి ఖాళీ;
 		}
-		strcpy(resolved_path, path);
-		return resolved_path;
+		strcpy(resolved_మార్గం, మార్గం);
+		తిరిగి resolved_మార్గం;
 	}
 
-	chroot_len = strlen(chroot);
+	chroot_len = అక్షరశ్రేణి_పొడవు(chroot);
 
-	if (chroot_len + strlen(path) >= PATH_MAX - 3) {
+	ఒకవేళ (chroot_len + అక్షరశ్రేణి_పొడవు(మార్గం) >= PATH_MAX - 3) {
 		__set_errno(ENAMETOOLONG);
-		return NULL;
+		తిరిగి ఖాళీ;
 	}
 
 	/* Make a copy of the source path since we may need to modify it. */
-	strcpy(copy_path, path);
-	path = copy_path;
-	max_path = copy_path + PATH_MAX - chroot_len - 3;
+	strcpy(copy_మార్గం, మార్గం);
+	మార్గం = copy_మార్గం;
+	max_మార్గం = copy_మార్గం + PATH_MAX - chroot_len - 3;
 
 	/* Start with the chroot path.  It is copied verbatim so that the
 	   result is always prefixed by CHROOT and callers can strip it. */
-	strcpy(new_path, chroot);
-	new_path += chroot_len;
-	got_path_root = new_path;
-	*new_path++ = '/';
+	strcpy(new_మార్గం, chroot);
+	new_మార్గం += chroot_len;
+	got_మార్గం_మూలం = new_మార్గం;
+	*new_మార్గం++ = '/';
 
 	/* Expand each slash-separated pathname component. */
-	while (*path != '\0') {
+	అయితే (*మార్గం != '\0') {
 		/* Ignore stray "/". */
-		if (*path == '/') {
-			path++;
-			continue;
+		ఒకవేళ (*మార్గం == '/') {
+			మార్గం++;
+			కొనసాగు;
 		}
-		if (*path == '.') {
+		ఒకవేళ (*మార్గం == '.') {
 			/* Ignore ".". */
-			if (path[1] == '\0' || path[1] == '/') {
-				path++;
-				continue;
+			ఒకవేళ (మార్గం[1] == '\0' || మార్గం[1] == '/') {
+				మార్గం++;
+				కొనసాగు;
 			}
-			if (path[1] == '.') {
-				if (path[2] == '\0' || path[2] == '/') {
-					path += 2;
+			ఒకవేళ (మార్గం[1] == '.') {
+				ఒకవేళ (మార్గం[2] == '\0' || మార్గం[2] == '/') {
+					మార్గం += 2;
 					/* Ignore ".." at root. */
-					if (new_path == got_path_root + 1)
-						continue;
+					ఒకవేళ (new_మార్గం == got_మార్గం_మూలం + 1)
+						కొనసాగు;
 					/* Handle ".." by backing up. */
-					while ((--new_path)[-1] != '/');
-					continue;
+					అయితే ((--new_మార్గం)[-1] != '/');
+					కొనసాగు;
 				}
 			}
 		}
 		/* Safely copy the next pathname component. */
-		while (*path != '\0' && *path != '/') {
-			if (path > max_path || new_path >= got_path + PATH_MAX - 1) {
+		అయితే (*మార్గం != '\0' && *మార్గం != '/') {
+			ఒకవేళ (మార్గం > max_మార్గం || new_మార్గం >= got_మార్గం + PATH_MAX - 1) {
 				__set_errno(ENAMETOOLONG);
-				return NULL;
+				తిరిగి ఖాళీ;
 			}
-			*new_path++ = *path++;
+			*new_మార్గం++ = *మార్గం++;
 		}
 
-		last_component = (*path == '\0');
+		చివరి_component = (*మార్గం == '\0');
 
-#ifdef S_IFLNK
+#నిర్వచితమైతే S_IFLNK
 		/* Protect against infinite loops. */
-		if (readlinks++ > MAX_READLINKS) {
+		ఒకవేళ (readlinks++ > MAX_READLINKS) {
 			__set_errno(ELOOP);
-			return NULL;
+			తిరిగి ఖాళీ;
 		}
 		/* See if latest pathname component is a symlink. */
-		*new_path = '\0';
-		n = readlink(got_path, link_path, PATH_MAX - 1);
-		if (n < 0) {
+		*new_మార్గం = '\0';
+		n = readlink(got_మార్గం, link_మార్గం, PATH_MAX - 1);
+		ఒకవేళ (n < 0) {
 			/* If a component doesn't exist, then return what we could translate. */
-			if (errno == ENOENT) {
-				int ret = snprintf (resolved_path, PATH_MAX, "%s%s%s", got_path, path[0] == '/' || path[0] == '\0' ? "" : "/", path);
-				if (ret >= PATH_MAX) {
+			ఒకవేళ (errno == ENOENT) {
+				పూర్ణాంకం ret = snprintf (resolved_మార్గం, PATH_MAX, "%s%s%s", got_మార్గం, మార్గం[0] == '/' || మార్గం[0] == '\0' ? "" : "/", మార్గం);
+				ఒకవేళ (ret >= PATH_MAX) {
 					__set_errno(ENAMETOOLONG);
-					return NULL;
+					తిరిగి ఖాళీ;
 				}
-				return resolved_path;
+				తిరిగి resolved_మార్గం;
 			}
 			/* EINVAL means the file exists but isn't a symlink. */
-			if (errno != EINVAL)
-				return NULL;
-		} else {
+			ఒకవేళ (errno != EINVAL)
+				తిరిగి ఖాళీ;
+		} లేకపోతే {
 			/* Note: readlink doesn't add the null byte. */
-			link_path[n] = '\0';
-			if (*link_path == '/') {
+			link_మార్గం[n] = '\0';
+			ఒకవేళ (*link_మార్గం == '/') {
 				/* Start over for an absolute symlink. */
-				new_path = got_path_root;
-				*new_path++ = '/';
+				new_మార్గం = got_మార్గం_మూలం;
+				*new_మార్గం++ = '/';
 			}
-			else {
+			లేకపోతే {
 				/* Otherwise back up over this component, keeping the
 				   separator, so that the expanded symlink is not
 				   concatenated to the parent directory name. */
-				while (*(--new_path) != '/');
-				new_path++;
+				అయితే (*(--new_మార్గం) != '/');
+				new_మార్గం++;
 			}
 			/* Safe sex check. */
-			if (strlen(path) + n >= PATH_MAX - 2) {
+			ఒకవేళ (అక్షరశ్రేణి_పొడవు(మార్గం) + n >= PATH_MAX - 2) {
 				__set_errno(ENAMETOOLONG);
-				return NULL;
+				తిరిగి ఖాళీ;
 			}
 			/* Insert symlink contents into path. */
-			strcat(link_path, path);
-			strcpy(copy_path, link_path);
-			path = copy_path;
+			strcat(link_మార్గం, మార్గం);
+			strcpy(copy_మార్గం, link_మార్గం);
+			మార్గం = copy_మార్గం;
 		}
-#endif							/* S_IFLNK */
-		if (!last_component) {
-			if (new_path >= got_path + PATH_MAX - 1) {
+#అయితే_ముగింపు							/* S_IFLNK */
+		ఒకవేళ (!చివరి_component) {
+			ఒకవేళ (new_మార్గం >= got_మార్గం + PATH_MAX - 1) {
 				__set_errno(ENAMETOOLONG);
-				return NULL;
+				తిరిగి ఖాళీ;
 			}
-			*new_path++ = '/';
+			*new_మార్గం++ = '/';
 		}
 	}
 	/* Delete trailing slash but don't whomp a lone slash. */
-	if (new_path != got_path + 1 && new_path[-1] == '/')
-		new_path--;
+	ఒకవేళ (new_మార్గం != got_మార్గం + 1 && new_మార్గం[-1] == '/')
+		new_మార్గం--;
 	/* Make sure it's null terminated. */
-	*new_path = '\0';
-	strcpy(resolved_path, got_path);
-	return resolved_path;
+	*new_మార్గం = '\0';
+	strcpy(resolved_మార్గం, got_మార్గం);
+	తిరిగి resolved_మార్గం;
 }

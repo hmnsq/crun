@@ -15,119 +15,119 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ERROR_H
-#define ERROR_H
-#include <config.h>
-#ifdef HAVE_ERROR_H
+#నిర్వచితం_కాకపోతే ERROR_H
+#నిర్వచించు ERROR_H
+#అన్తర్భావ <config.h>
+#నిర్వచితమైతే HAVE_ERROR_H
 #  include <error.h>
-#else
-#  define error(status, errno, fmt, ...)                      \
-    do                                                        \
+#లేకపోతే
+#  define error(స్థితి_2, errno, fmt, ...)                      \
+    చేయి                                                        \
       {                                                       \
-        if (errno == 0)                                       \
+        ఒకవేళ (errno == 0)                                       \
           fprintf (stderr, "crun: " fmt "\n", ##__VA_ARGS__); \
-        else                                                  \
+        లేకపోతే                                                  \
           {                                                   \
             fprintf (stderr, "crun: " fmt, ##__VA_ARGS__);    \
             fprintf (stderr, ": %s\n", strerror (errno));     \
           }                                                   \
-        if (status)                                           \
-          exit (status);                                      \
-    } while (0)
-#endif
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <syslog.h>
-#include <unistd.h>
+        ఒకవేళ (స్థితి_2)                                           \
+          నిష్క్రమించు (స్థితి_2);                                      \
+    } అయితే (0)
+#అయితే_ముగింపు
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <stdbool.h>
+#అన్తర్భావ <syslog.h>
+#అన్తర్భావ <unistd.h>
 
-struct libcrun_error_s
+నిర్మాణం libcrun_error_s
 {
-  int status;
-  char *msg;
+  పూర్ణాంకం స్థితి_2;
+  అక్షరం *సందేశం;
 };
-typedef struct libcrun_error_s *libcrun_error_t;
+రకనిర్వచనం నిర్మాణం libcrun_error_s *libcrun_error_t;
 
 /* Coverage support: flush coverage data before _exit() in forked processes */
-#ifdef HAVE_COVERAGE
-extern void __gcov_dump (void);
+#నిర్వచితమైతే HAVE_COVERAGE
+బాహ్య శూన్య __gcov_dump (శూన్య);
 #  define GCOV_DUMP() __gcov_dump ()
-#else
+#లేకపోతే
 #  define GCOV_DUMP()
-#endif
+#అయితే_ముగింపు
 
 /* Use this instead of _exit() to ensure coverage data is flushed */
-#define _safe_exit(status) \
-  do                       \
+#నిర్వచించు సురక్షిత_exit(స్థితి_2) \
+  చేయి                       \
     {                      \
       GCOV_DUMP ();        \
-      _exit (status);      \
-  } while (0)
+      _exit (స్థితి_2);      \
+  } అయితే (0)
 
-#define OOM()                            \
-  do                                     \
+#నిర్వచించు OOM()                            \
+  చేయి                                     \
     {                                    \
       fprintf (stderr, "out of memory"); \
-      _safe_exit (EXIT_FAILURE);         \
-  } while (0)
+      సురక్షిత_exit (EXIT_FAILURE);         \
+  } అయితే (0)
 
-typedef void (*crun_output_handler) (int errno_, const char *msg, int verbosity, void *arg);
+రకనిర్వచనం శూన్య (*crun_output_handler) (పూర్ణాంకం errno_, స్థిరరాశి అక్షరం *సందేశం, పూర్ణాంకం verbosity, శూన్య *arg);
 
-void crun_set_output_handler (crun_output_handler handler, void *arg);
+శూన్య crun_సమితి_output_handler (crun_output_handler handler, శూన్య *arg);
 
-void log_write_to_journald (int errno_, const char *msg, int verbosity, void *arg);
+శూన్య log_write_గమ్యం_journald (పూర్ణాంకం errno_, స్థిరరాశి అక్షరం *సందేశం, పూర్ణాంకం verbosity, శూన్య *arg);
 
-void log_write_to_syslog (int errno_, const char *msg, int verbosity, void *arg);
+శూన్య log_write_గమ్యం_syslog (పూర్ణాంకం errno_, స్థిరరాశి అక్షరం *సందేశం, పూర్ణాంకం verbosity, శూన్య *arg);
 
-void log_write_to_stream (int errno_, const char *msg, int verbosity, void *arg);
+శూన్య log_write_గమ్యం_ప్రవాహం (పూర్ణాంకం errno_, స్థిరరాశి అక్షరం *సందేశం, పూర్ణాంకం verbosity, శూన్య *arg);
 
-void log_write_to_stderr (int errno_, const char *msg, int verbosity, void *arg);
+శూన్య log_write_గమ్యం_stderr (పూర్ణాంకం errno_, స్థిరరాశి అక్షరం *సందేశం, పూర్ణాంకం verbosity, శూన్య *arg);
 
-int crun_error_wrap (libcrun_error_t *err, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
+పూర్ణాంకం crun_error_wrap (libcrun_error_t *err, స్థిరరాశి అక్షరం *fmt, ...) __attribute__ ((format (రాయి, 2, 3)));
 
-int crun_error_get_errno (libcrun_error_t *err);
+పూర్ణాంకం crun_error_get_errno (libcrun_error_t *err);
 
-int crun_error_release (libcrun_error_t *err);
+పూర్ణాంకం crun_error_release (libcrun_error_t *err);
 
-void crun_error_write_warning_and_release (FILE *out, libcrun_error_t **err);
+శూన్య crun_error_write_warning_and_release (FILE *బహిర్గతం, libcrun_error_t **err);
 
-LIBCRUN_PUBLIC void libcrun_debug (const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
+LIBCRUN_ప్రజా శూన్య libcrun_debug (స్థిరరాశి అక్షరం *సందేశం, ...) __attribute__ ((format (రాయి, 1, 2)));
 
-LIBCRUN_PUBLIC void libcrun_warning (const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
+LIBCRUN_ప్రజా శూన్య libcrun_warning (స్థిరరాశి అక్షరం *సందేశం, ...) __attribute__ ((format (రాయి, 1, 2)));
 
-LIBCRUN_PUBLIC void libcrun_error (int errno_, const char *msg, ...) __attribute__ ((format (printf, 2, 3)));
+LIBCRUN_ప్రజా శూన్య libcrun_error (పూర్ణాంకం errno_, స్థిరరాశి అక్షరం *సందేశం, ...) __attribute__ ((format (రాయి, 2, 3)));
 
-LIBCRUN_PUBLIC int libcrun_make_error (libcrun_error_t *err, int status, const char *msg, ...) __attribute__ ((format (printf, 3, 4)));
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_make_error (libcrun_error_t *err, పూర్ణాంకం స్థితి_2, స్థిరరాశి అక్షరం *సందేశం, ...) __attribute__ ((format (రాయి, 3, 4)));
 
-#define crun_make_error libcrun_make_error
+#నిర్వచించు crun_make_error libcrun_make_error
 
-LIBCRUN_PUBLIC void libcrun_error_write_warning_and_release (FILE *out, libcrun_error_t **err);
+LIBCRUN_ప్రజా శూన్య libcrun_error_write_warning_and_release (FILE *బహిర్గతం, libcrun_error_t **err);
 
-LIBCRUN_PUBLIC void libcrun_error_report_and_release (libcrun_error_t *err);
+LIBCRUN_ప్రజా శూన్య libcrun_error_report_and_release (libcrun_error_t *err);
 
-LIBCRUN_PUBLIC void libcrun_fail_with_error (int errno_, const char *msg, ...) __attribute__ ((noreturn)) __attribute__ ((format (printf, 2, 3)));
+LIBCRUN_ప్రజా శూన్య libcrun_fail_with_error (పూర్ణాంకం errno_, స్థిరరాశి అక్షరం *సందేశం, ...) __attribute__ ((noreturn)) __attribute__ ((format (రాయి, 2, 3)));
 
-LIBCRUN_PUBLIC int libcrun_set_log_format (const char *format, libcrun_error_t *err);
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_సమితి_log_format (స్థిరరాశి అక్షరం *format, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_init_logging (crun_output_handler *output_handler, void **output_handler_arg, const char *id,
-                                         const char *log, libcrun_error_t *err);
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_init_logging (crun_output_handler *output_handler, శూన్య **output_handler_arg, స్థిరరాశి అక్షరం *id,
+                                         స్థిరరాశి అక్షరం *సంవర్గమానం, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_error_release (libcrun_error_t *err);
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_error_release (libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_error_get_status (libcrun_error_t err);
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_error_get_స్థితి (libcrun_error_t err);
 
-LIBCRUN_PUBLIC const char *libcrun_error_get_message (libcrun_error_t err);
+LIBCRUN_ప్రజా స్థిరరాశి అక్షరం *libcrun_error_get_సందేశం (libcrun_error_t err);
 
-int json_gen_error_to_crun_error (int gen_status, libcrun_error_t *err);
+పూర్ణాంకం json_gen_error_గమ్యం_crun_error (పూర్ణాంకం gen_స్థితి, libcrun_error_t *err);
 
-enum
+గణన
 {
   LIBCRUN_VERBOSITY_ERROR = 0,
   LIBCRUN_VERBOSITY_WARNING,
   LIBCRUN_VERBOSITY_DEBUG,
 };
 
-LIBCRUN_PUBLIC void libcrun_set_verbosity (int verbosity);
-LIBCRUN_PUBLIC int libcrun_get_verbosity ();
+LIBCRUN_ప్రజా శూన్య libcrun_సమితి_verbosity (పూర్ణాంకం verbosity);
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_get_verbosity ();
 
-#endif
+#అయితే_ముగింపు

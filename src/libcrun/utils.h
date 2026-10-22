@@ -15,541 +15,541 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef UTILS_H
-#define UTILS_H
+#నిర్వచితం_కాకపోతే UTILS_H
+#నిర్వచించు UTILS_H
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <argp.h>
-#include "error.h"
-#include <dirent.h>
-#include <unistd.h>
-#include <signal.h>
-#include <fcntl.h>
-#include <ocispec/runtime_spec_schema_config_schema.h>
-#include <sys/wait.h>
-#include "container.h"
+#అన్తర్భావ <config.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ <string.h>
+#అన్తర్భావ <errno.h>
+#అన్తర్భావ <argp.h>
+#అన్తర్భావ "error.h"
+#అన్తర్భావ <dirent.h>
+#అన్తర్భావ <unistd.h>
+#అన్తర్భావ <signal.h>
+#అన్తర్భావ <fcntl.h>
+#అన్తర్భావ <ocispec/runtime_spec_schema_config_schema.h>
+#అన్తర్భావ <sys/wait.h>
+#అన్తర్భావ "container.h"
 
-#ifndef TEMP_FAILURE_RETRY
-#  define TEMP_FAILURE_RETRY(expression)      \
+#నిర్వచితం_కాకపోతే తాత్కాలిక_FAILURE_RETRY
+#  define తాత్కాలిక_FAILURE_RETRY(వ్యక్తీకరణ)      \
     (__extension__ ({                         \
-      long int __result;                      \
-      do                                      \
-        __result = (long int) (expression);   \
-      while (__result < 0 && errno == EINTR); \
+      దీర్ఘ పూర్ణాంకం __result;                      \
+      చేయి                                      \
+        __result = (దీర్ఘ పూర్ణాంకం) (వ్యక్తీకరణ);   \
+      అయితే (__result < 0 && errno == EINTR); \
       __result;                               \
     }))
-#endif
+#అయితే_ముగింపు
 
-#define cleanup_file __attribute__ ((cleanup (cleanup_filep)))
-#define cleanup_free __attribute__ ((cleanup (cleanup_freep)))
-#define cleanup_close __attribute__ ((cleanup (cleanup_closep)))
-#define cleanup_close_vec __attribute__ ((cleanup (cleanup_close_vecp)))
-#define cleanup_close_map __attribute__ ((cleanup (cleanup_close_mapp)))
-#define cleanup_dir __attribute__ ((cleanup (cleanup_dirp)))
-#define arg_unused __attribute__ ((unused))
-#define cleanup_pid __attribute__ ((cleanup (cleanup_pidp)))
-#define cleanup_mmap __attribute__ ((cleanup (cleanup_mmapp)))
+#నిర్వచించు cleanup_file __attribute__ ((cleanup (cleanup_filep)))
+#నిర్వచించు cleanup_free __attribute__ ((cleanup (cleanup_freep)))
+#నిర్వచించు cleanup_close __attribute__ ((cleanup (cleanup_closep)))
+#నిర్వచించు cleanup_close_vec __attribute__ ((cleanup (cleanup_close_vecp)))
+#నిర్వచించు cleanup_close_map __attribute__ ((cleanup (cleanup_close_mapp)))
+#నిర్వచించు cleanup_dir __attribute__ ((cleanup (cleanup_dirp)))
+#నిర్వచించు arg_వాడని __attribute__ ((వాడని))
+#నిర్వచించు cleanup_pid __attribute__ ((cleanup (cleanup_pidp)))
+#నిర్వచించు cleanup_mmap __attribute__ ((cleanup (cleanup_mmapp)))
 
-#define LIKELY(x) __builtin_expect ((x), 1)
-#define UNLIKELY(x) __builtin_expect ((x), 0)
+#నిర్వచించు LIKELY(x) __builtin_expect ((x), 1)
+#నిర్వచించు UNLIKELY(x) __builtin_expect ((x), 0)
 
-#define WRITE_FILE_DEFAULT_FLAGS (O_CLOEXEC | O_CREAT | O_TRUNC | O_WRONLY)
+#నిర్వచించు WRITE_FILE_DEFAULT_FLAGS (O_CLOEXEC | O_CREAT | O_TRUNC | O_WRONLY)
 
-__attribute__ ((malloc)) static inline void *
-xmalloc (size_t size)
+__attribute__ ((జ్ఞాపకం_ఇవ్వు)) స్థిర అంతఃవరుస శూన్య *
+xmalloc (size_t కొలత)
 {
-  void *res = malloc (size);
-  if (UNLIKELY (res == NULL))
+  శూన్య *res = జ్ఞాపకం_ఇవ్వు (కొలత);
+  ఒకవేళ (UNLIKELY (res == ఖాళీ))
     OOM ();
-  return res;
+  తిరిగి res;
 }
 
-__attribute__ ((malloc)) static inline void *
-xmalloc0 (size_t size)
+__attribute__ ((జ్ఞాపకం_ఇవ్వు)) స్థిర అంతఃవరుస శూన్య *
+xmalloc0 (size_t కొలత)
 {
-  void *res = calloc (1, size);
-  if (UNLIKELY (res == NULL))
+  శూన్య *res = సున్నా_జ్ఞాపకం_ఇవ్వు (1, కొలత);
+  ఒకవేళ (UNLIKELY (res == ఖాళీ))
     OOM ();
-  return res;
+  తిరిగి res;
 }
 
-__attribute__ ((malloc)) static inline void *
-xrealloc (void *ptr, size_t size)
+__attribute__ ((జ్ఞాపకం_ఇవ్వు)) స్థిర అంతఃవరుస శూన్య *
+xrealloc (శూన్య *ptr, size_t కొలత)
 {
-  void *res = realloc (ptr, size);
-  if (UNLIKELY (res == NULL))
+  శూన్య *res = realloc (ptr, కొలత);
+  ఒకవేళ (UNLIKELY (res == ఖాళీ))
     OOM ();
-  return res;
+  తిరిగి res;
 }
 
-static inline void
-cleanup_freep (void *p)
+స్థిర అంతఃవరుస శూన్య
+cleanup_freep (శూన్య *p)
 {
-  void **pp = (void **) p;
-  free (*pp);
+  శూన్య **pp = (శూన్య **) p;
+  విడుదల (*pp);
 }
 
-static inline void
+స్థిర అంతఃవరుస శూన్య
 cleanup_filep (FILE **f)
 {
   FILE *file = *f;
-  if (file)
-    (void) fclose (file);
+  ఒకవేళ (file)
+    (శూన్య) fclose (file);
 }
 
-static inline void
-cleanup_closep (void *p)
+స్థిర అంతఃవరుస శూన్య
+cleanup_closep (శూన్య *p)
 {
-  int *pp = (int *) p;
-  if (*pp >= 0)
-    TEMP_FAILURE_RETRY (close (*pp));
+  పూర్ణాంకం *pp = (పూర్ణాంకం *) p;
+  ఒకవేళ (*pp >= 0)
+    తాత్కాలిక_FAILURE_RETRY (close (*pp));
 }
 
-static inline void
-cleanup_pidp (void *p)
+స్థిర అంతఃవరుస శూన్య
+cleanup_pidp (శూన్య *p)
 {
   pid_t *pp = (pid_t *) p;
-  if (*pp > 0)
+  ఒకవేళ (*pp > 0)
     {
-      TEMP_FAILURE_RETRY (kill (*pp, SIGKILL));
-      TEMP_FAILURE_RETRY (waitpid (*pp, NULL, 0));
+      తాత్కాలిక_FAILURE_RETRY (kill (*pp, SIGKILL));
+      తాత్కాలిక_FAILURE_RETRY (waitpid (*pp, ఖాళీ, 0));
     }
 }
 
-struct libcrun_mmap_s
+నిర్మాణం libcrun_mmap_s
 {
-  void *addr;
-  size_t length;
+  శూన్య *addr;
+  size_t నిడివి;
 };
 
-int libcrun_mmap (struct libcrun_mmap_s **ret, void *addr, size_t length,
-                  int prot, int flags, int fd, off_t offset,
+పూర్ణాంకం libcrun_mmap (నిర్మాణం libcrun_mmap_s **ret, శూన్య *addr, size_t నిడివి,
+                  పూర్ణాంకం prot, పూర్ణాంకం flags, పూర్ణాంకం fd, off_t స్థానభ్రంశం,
                   libcrun_error_t *err);
 
-int libcrun_munmap (struct libcrun_mmap_s *mmap, libcrun_error_t *err);
+పూర్ణాంకం libcrun_munmap (నిర్మాణం libcrun_mmap_s *mmap, libcrun_error_t *err);
 
-static inline void
-cleanup_mmapp (void *p)
+స్థిర అంతఃవరుస శూన్య
+cleanup_mmapp (శూన్య *p)
 {
-  int ret;
-  libcrun_error_t tmp_err = NULL;
-  struct libcrun_mmap_s **mm;
+  పూర్ణాంకం ret;
+  libcrun_error_t tmp_err = ఖాళీ;
+  నిర్మాణం libcrun_mmap_s **mm;
 
-  mm = (struct libcrun_mmap_s **) p;
-  if (*mm == NULL)
-    return;
+  mm = (నిర్మాణం libcrun_mmap_s **) p;
+  ఒకవేళ (*mm == ఖాళీ)
+    తిరిగి;
 
   ret = libcrun_munmap (*mm, &tmp_err);
-  if (UNLIKELY (ret < 0))
+  ఒకవేళ (UNLIKELY (ret < 0))
     crun_error_release (&tmp_err);
 }
 
-struct libcrun_fd_map
+నిర్మాణం libcrun_fd_map
 {
   size_t nfds;
-  int fds[];
+  పూర్ణాంకం fds[];
 };
 
-static inline struct libcrun_fd_map *
+స్థిర అంతఃవరుస నిర్మాణం libcrun_fd_map *
 make_libcrun_fd_map (size_t len)
 {
-  struct libcrun_fd_map *ret;
+  నిర్మాణం libcrun_fd_map *ret;
   size_t i;
 
-  ret = (struct libcrun_fd_map *) xmalloc (sizeof (*ret) + sizeof (int) * len);
+  ret = (నిర్మాణం libcrun_fd_map *) xmalloc (పరిమాణం (*ret) + పరిమాణం (పూర్ణాంకం) * len);
   ret->nfds = len;
-  for (i = 0; i < len; i++)
+  కొరకు (i = 0; i < len; i++)
     ret->fds[i] = -1;
 
-  return ret;
+  తిరిగి ret;
 }
 
-static inline void
-cleanup_close_mapp (struct libcrun_fd_map **p)
+స్థిర అంతఃవరుస శూన్య
+cleanup_close_mapp (నిర్మాణం libcrun_fd_map **p)
 {
-  struct libcrun_fd_map *m = *p;
+  నిర్మాణం libcrun_fd_map *m = *p;
   size_t i;
 
-  if (m == NULL)
-    return;
+  ఒకవేళ (m == ఖాళీ)
+    తిరిగి;
 
-  for (i = 0; i < m->nfds; i++)
-    if (m->fds[i] >= 0)
-      TEMP_FAILURE_RETRY (close (m->fds[i]));
+  కొరకు (i = 0; i < m->nfds; i++)
+    ఒకవేళ (m->fds[i] >= 0)
+      తాత్కాలిక_FAILURE_RETRY (close (m->fds[i]));
 
-  free (m);
+  విడుదల (m);
 }
 
-static inline void
-cleanup_close_vecp (int **p)
+స్థిర అంతఃవరుస శూన్య
+cleanup_close_vecp (పూర్ణాంకం **p)
 {
-  int *pp = *p;
-  int i;
+  పూర్ణాంకం *pp = *p;
+  పూర్ణాంకం i;
 
-  if (pp == NULL)
-    return;
+  ఒకవేళ (pp == ఖాళీ)
+    తిరిగి;
 
-  for (i = 0; pp[i] >= 0; i++)
-    TEMP_FAILURE_RETRY (close (pp[i]));
+  కొరకు (i = 0; pp[i] >= 0; i++)
+    తాత్కాలిక_FAILURE_RETRY (close (pp[i]));
 }
 
-static inline void
+స్థిర అంతఃవరుస శూన్య
 cleanup_dirp (DIR **p)
 {
   DIR *dir = *p;
-  if (dir)
+  ఒకవేళ (dir)
     closedir (dir);
 }
 
-static inline int
-close_and_reset (int *fd)
+స్థిర అంతఃవరుస పూర్ణాంకం
+close_and_reset (పూర్ణాంకం *fd)
 {
-  int ret = 0;
-  if (*fd >= 0)
+  పూర్ణాంకం ret = 0;
+  ఒకవేళ (*fd >= 0)
     {
-      ret = TEMP_FAILURE_RETRY (close (*fd));
-      if (LIKELY (ret == 0))
+      ret = తాత్కాలిక_FAILURE_RETRY (close (*fd));
+      ఒకవేళ (LIKELY (ret == 0))
         *fd = -1;
     }
-  return ret;
+  తిరిగి ret;
 }
 
-static inline char *
-xstrdup (const char *str)
+స్థిర అంతఃవరుస అక్షరం *
+xstrdup (స్థిరరాశి అక్షరం *str)
 {
-  char *ret;
-  if (str == NULL)
-    return NULL;
+  అక్షరం *ret;
+  ఒకవేళ (str == ఖాళీ)
+    తిరిగి ఖాళీ;
 
   ret = strdup (str);
-  if (ret == NULL)
+  ఒకవేళ (ret == ఖాళీ)
     OOM ();
 
-  return ret;
+  తిరిగి ret;
 }
 
-void consume_trailing_slashes (char *path);
+శూన్య consume_trailing_slashes (అక్షరం *మార్గం);
 
-#define consume_slashes(t) \
+#నిర్వచించు consume_slashes(t) \
   ({                       \
     typeof (t) _s = (t);   \
-    while (*_s == '/')     \
+    అయితే (*_s == '/')     \
       _s++;                \
     _s;                    \
   })
 
-static inline bool
-path_is_slash_dev (const char *path)
+స్థిర అంతఃవరుస bool
+మార్గం_is_slash_dev (స్థిరరాశి అక్షరం *మార్గం)
 {
-  path = consume_slashes (path);
+  మార్గం = consume_slashes (మార్గం);
 
-  if (strncmp (path, "dev", 3))
-    return false;
+  ఒకవేళ (అక్షరశ్రేణి_పోలిక (మార్గం, "dev", 3))
+    తిరిగి false;
 
-  path += 3;
+  మార్గం += 3;
 
   /* Check there are only '/' left.  */
-  for (; *path; path++)
-    if (*path != '/')
-      return false;
+  కొరకు (; *మార్గం; మార్గం++)
+    ఒకవేళ (*మార్గం != '/')
+      తిరిగి false;
 
-  return true;
+  తిరిగి true;
 }
 
-int xasprintf (char **str, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
+పూర్ణాంకం xasprintf (అక్షరం **str, స్థిరరాశి అక్షరం *fmt, ...) __attribute__ ((format (రాయి, 2, 3)));
 
-int crun_path_exists (const char *path, libcrun_error_t *err);
+పూర్ణాంకం crun_మార్గం_exists (స్థిరరాశి అక్షరం *మార్గం, libcrun_error_t *err);
 
-int write_file_at_with_flags (int dirfd, int flags, mode_t mode, const char *name, const void *data, size_t len, libcrun_error_t *err);
+పూర్ణాంకం write_file_at_with_flags (పూర్ణాంకం dirfd, పూర్ణాంకం flags, mode_t బహుళకం, స్థిరరాశి అక్షరం *name, స్థిరరాశి శూన్య *దత్తాంశం, size_t len, libcrun_error_t *err);
 
-static inline int
-write_file (const char *name, const void *data, size_t len, libcrun_error_t *err)
+స్థిర అంతఃవరుస పూర్ణాంకం
+write_file (స్థిరరాశి అక్షరం *name, స్థిరరాశి శూన్య *దత్తాంశం, size_t len, libcrun_error_t *err)
 {
-  return write_file_at_with_flags (AT_FDCWD, WRITE_FILE_DEFAULT_FLAGS, 0700, name, data, len, err);
+  తిరిగి write_file_at_with_flags (AT_FDCWD, WRITE_FILE_DEFAULT_FLAGS, 0700, name, దత్తాంశం, len, err);
 }
 
-static inline int
-write_file_at (int dirfd, const char *name, const void *data, size_t len, libcrun_error_t *err)
+స్థిర అంతఃవరుస పూర్ణాంకం
+write_file_at (పూర్ణాంకం dirfd, స్థిరరాశి అక్షరం *name, స్థిరరాశి శూన్య *దత్తాంశం, size_t len, libcrun_error_t *err)
 {
-  return write_file_at_with_flags (dirfd, WRITE_FILE_DEFAULT_FLAGS, 0700, name, data, len, err);
+  తిరిగి write_file_at_with_flags (dirfd, WRITE_FILE_DEFAULT_FLAGS, 0700, name, దత్తాంశం, len, err);
 }
 
-int crun_ensure_directory (const char *path, int mode, bool nofollow, libcrun_error_t *err);
+పూర్ణాంకం crun_ensure_directory (స్థిరరాశి అక్షరం *మార్గం, పూర్ణాంకం బహుళకం, bool nofollow, libcrun_error_t *err);
 
-int crun_ensure_directory_at (int dirfd, const char *path, int mode, bool nofollow, libcrun_error_t *err);
+పూర్ణాంకం crun_ensure_directory_at (పూర్ణాంకం dirfd, స్థిరరాశి అక్షరం *మార్గం, పూర్ణాంకం బహుళకం, bool nofollow, libcrun_error_t *err);
 
-int crun_safe_create_and_open_ref_at (bool dir, int dirfd, const char *dirpath, const char *path, int mode, libcrun_error_t *err);
+పూర్ణాంకం crun_సురక్షిత_create_and_open_ref_at (bool dir, పూర్ణాంకం dirfd, స్థిరరాశి అక్షరం *dirpath, స్థిరరాశి అక్షరం *మార్గం, పూర్ణాంకం బహుళకం, libcrun_error_t *err);
 
-int crun_safe_ensure_directory_at (int dirfd, const char *dirpath, const char *path, int mode,
+పూర్ణాంకం crun_సురక్షిత_ensure_directory_at (పూర్ణాంకం dirfd, స్థిరరాశి అక్షరం *dirpath, స్థిరరాశి అక్షరం *మార్గం, పూర్ణాంకం బహుళకం,
                                    libcrun_error_t *err);
 
-int crun_safe_ensure_file_at (int dirfd, const char *dirpath, const char *path, int mode,
+పూర్ణాంకం crun_సురక్షిత_ensure_file_at (పూర్ణాంకం dirfd, స్థిరరాశి అక్షరం *dirpath, స్థిరరాశి అక్షరం *మార్గం, పూర్ణాంకం బహుళకం,
                               libcrun_error_t *err);
 
-int crun_dir_p (const char *path, bool nofollow, libcrun_error_t *err);
+పూర్ణాంకం crun_dir_p (స్థిరరాశి అక్షరం *మార్గం, bool nofollow, libcrun_error_t *err);
 
-int crun_dir_p_at (int dirfd, const char *path, bool nofollow, libcrun_error_t *err);
+పూర్ణాంకం crun_dir_p_at (పూర్ణాంకం dirfd, స్థిరరాశి అక్షరం *మార్గం, bool nofollow, libcrun_error_t *err);
 
-int detach_process ();
+పూర్ణాంకం detach_process ();
 
-int create_file_if_missing_at (int dirfd, const char *file, mode_t mode, libcrun_error_t *err);
+పూర్ణాంకం create_file_if_missing_at (పూర్ణాంకం dirfd, స్థిరరాశి అక్షరం *file, mode_t బహుళకం, libcrun_error_t *err);
 
-int check_running_in_user_namespace (libcrun_error_t *err);
+పూర్ణాంకం check_running_లోపల_user_namespace (libcrun_error_t *err);
 
-int set_selinux_label (libcrun_container_t *container, const char *label, bool now, libcrun_error_t *err);
+పూర్ణాంకం సమితి_selinux_label (libcrun_container_t *container, స్థిరరాశి అక్షరం *label, bool now, libcrun_error_t *err);
 
-int add_selinux_mount_label (char **ret, const char *data, const char *label, const char *context_type, libcrun_error_t *err);
+పూర్ణాంకం కూడు_selinux_mount_label (అక్షరం **ret, స్థిరరాశి అక్షరం *దత్తాంశం, స్థిరరాశి అక్షరం *label, స్థిరరాశి అక్షరం *context_type, libcrun_error_t *err);
 
-int set_apparmor_profile (libcrun_container_t *container, const char *profile, bool no_new_privileges, bool now, libcrun_error_t *err);
+పూర్ణాంకం సమితి_apparmor_profile (libcrun_container_t *container, స్థిరరాశి అక్షరం *profile, bool no_new_privileges, bool now, libcrun_error_t *err);
 
-int read_all_fd_with_size_hint (int fd, const char *description, char **out, size_t *len, size_t hint, libcrun_error_t *err);
+పూర్ణాంకం read_all_fd_with_కొలత_hint (పూర్ణాంకం fd, స్థిరరాశి అక్షరం *description, అక్షరం **బహిర్గతం, size_t *len, size_t hint, libcrun_error_t *err);
 
-int read_all_fd_with_max_size (int fd, const char *description, char **out, size_t *len, size_t max_size, libcrun_error_t *err);
+పూర్ణాంకం read_all_fd_with_max_కొలత (పూర్ణాంకం fd, స్థిరరాశి అక్షరం *description, అక్షరం **బహిర్గతం, size_t *len, size_t max_కొలత, libcrun_error_t *err);
 
-static inline int
-read_all_fd (int fd, const char *description, char **out, size_t *len, libcrun_error_t *err)
+స్థిర అంతఃవరుస పూర్ణాంకం
+read_all_fd (పూర్ణాంకం fd, స్థిరరాశి అక్షరం *description, అక్షరం **బహిర్గతం, size_t *len, libcrun_error_t *err)
 {
-  return read_all_fd_with_size_hint (fd, description, out, len, 0, err);
+  తిరిగి read_all_fd_with_కొలత_hint (fd, description, బహిర్గతం, len, 0, err);
 }
 
-int get_realpath_to_file (int dirfd, const char *path_name, char **absolute_path, libcrun_error_t *err);
+పూర్ణాంకం get_realpath_గమ్యం_file (పూర్ణాంకం dirfd, స్థిరరాశి అక్షరం *మార్గం_name, అక్షరం **absolute_మార్గం, libcrun_error_t *err);
 
-int read_all_file (const char *path, char **out, size_t *len, libcrun_error_t *err);
+పూర్ణాంకం read_all_file (స్థిరరాశి అక్షరం *మార్గం, అక్షరం **బహిర్గతం, size_t *len, libcrun_error_t *err);
 
-int read_all_file_at (int dirfd, const char *path, char **out, size_t *len, libcrun_error_t *err);
+పూర్ణాంకం read_all_file_at (పూర్ణాంకం dirfd, స్థిరరాశి అక్షరం *మార్గం, అక్షరం **బహిర్గతం, size_t *len, libcrun_error_t *err);
 
-int open_unix_domain_client_socket (const char *path, int dgram, libcrun_error_t *err);
+పూర్ణాంకం open_unix_domain_client_socket (స్థిరరాశి అక్షరం *మార్గం, పూర్ణాంకం dgram, libcrun_error_t *err);
 
-int open_unix_domain_socket (const char *path, int dgram, libcrun_error_t *err);
+పూర్ణాంకం open_unix_domain_socket (స్థిరరాశి అక్షరం *మార్గం, పూర్ణాంకం dgram, libcrun_error_t *err);
 
-int send_fd_to_socket (int server, int fd, libcrun_error_t *err);
+పూర్ణాంకం send_fd_గమ్యం_socket (పూర్ణాంకం server, పూర్ణాంకం fd, libcrun_error_t *err);
 
-int send_fd_to_socket_with_payload (int server, int fd, const char *payload, size_t payload_len, libcrun_error_t *err);
+పూర్ణాంకం send_fd_గమ్యం_socket_with_payload (పూర్ణాంకం server, పూర్ణాంకం fd, స్థిరరాశి అక్షరం *payload, size_t payload_len, libcrun_error_t *err);
 
-int create_socket_pair (int *pair, libcrun_error_t *err);
+పూర్ణాంకం create_socket_pair (పూర్ణాంకం *pair, libcrun_error_t *err);
 
-int receive_fd_from_socket (int from, libcrun_error_t *err);
+పూర్ణాంకం receive_fd_from_socket (పూర్ణాంకం from, libcrun_error_t *err);
 
-int receive_fd_from_socket_with_payload (int from, char *payload, size_t payload_len, libcrun_error_t *err);
+పూర్ణాంకం receive_fd_from_socket_with_payload (పూర్ణాంకం from, అక్షరం *payload, size_t payload_len, libcrun_error_t *err);
 
-int create_signalfd (sigset_t *mask, libcrun_error_t *err);
+పూర్ణాంకం create_signalfd (sigset_t *ముసుగు, libcrun_error_t *err);
 
-int epoll_helper (int *in_fds, int *in_levelfds, int *out_fds, int *out_levelfds, libcrun_error_t *err);
+పూర్ణాంకం epoll_helper (పూర్ణాంకం *లోపల_fds, పూర్ణాంకం *లోపల_levelfds, పూర్ణాంకం *బహిర్గతం_fds, పూర్ణాంకం *బహిర్గతం_levelfds, libcrun_error_t *err);
 
-int copy_from_fd_to_fd (int src, int dst, int consume, libcrun_error_t *err);
+పూర్ణాంకం copy_from_fd_గమ్యం_fd (పూర్ణాంకం src, పూర్ణాంకం dst, పూర్ణాంకం consume, libcrun_error_t *err);
 
-int run_process (char **args, libcrun_error_t *err);
+పూర్ణాంకం నిరంతరం_process (అక్షరం **వాదనలు, libcrun_error_t *err);
 
-int format_default_id_mapping (char **out, uid_t container_id, uid_t host_uid, uid_t host_id, int is_uid, libcrun_error_t *err);
+పూర్ణాంకం format_default_id_mapping (అక్షరం **బహిర్గతం, uid_t container_id, uid_t host_uid, uid_t host_id, పూర్ణాంకం is_uid, libcrun_error_t *err);
 
-int run_process_with_stdin_timeout_envp (char *path, char **args, const char *cwd, int timeout, char **envp,
-                                         char *stdin, size_t stdin_len, int out_fd, int err_fd, bool can_ignore_chdir_errors, libcrun_error_t *err);
+పూర్ణాంకం నిరంతరం_process_with_stdin_timeout_envp (అక్షరం *మార్గం, అక్షరం **వాదనలు, స్థిరరాశి అక్షరం *cwd, పూర్ణాంకం timeout, అక్షరం **envp,
+                                         అక్షరం *stdin, size_t stdin_len, పూర్ణాంకం బహిర్గతం_fd, పూర్ణాంకం err_fd, bool can_ignore_chdir_errors, libcrun_error_t *err);
 
-int mark_or_close_fds_ge_than (libcrun_container_t *container, int n, bool close_now, libcrun_error_t *err);
+పూర్ణాంకం mark_or_close_fds_ge_than (libcrun_container_t *container, పూర్ణాంకం n, bool close_now, libcrun_error_t *err);
 
-void get_current_timestamp (char *out, size_t len);
+శూన్య get_current_timestamp (అక్షరం *బహిర్గతం, size_t len);
 
-int set_blocking_fd (int fd, bool blocking, libcrun_error_t *err);
+పూర్ణాంకం సమితి_blocking_fd (పూర్ణాంకం fd, bool blocking, libcrun_error_t *err);
 
 /* Exported for the language bindings (python/, lua/), which parse a
    process JSON blob before calling libcrun_container_exec.  */
-LIBCRUN_PUBLIC int parse_json_file (json_object **out, const char *jsondata, struct parser_context *ctx, libcrun_error_t *err);
+LIBCRUN_ప్రజా పూర్ణాంకం parse_json_file (json_object **బహిర్గతం, స్థిరరాశి అక్షరం *jsondata, నిర్మాణం parser_context *ctx, libcrun_error_t *err);
 
 /* Check that the string STR has the prefix PREFIX.  */
-static inline int
-has_prefix (const char *str, const char *prefix)
+స్థిర అంతఃవరుస పూర్ణాంకం
+has_ఉపసర్గ (స్థిరరాశి అక్షరం *str, స్థిరరాశి అక్షరం *ఉపసర్గ)
 {
-  size_t prefix_len;
+  size_t ఉపసర్గ_len;
 
-  if (! str || ! prefix)
-    return 0;
+  ఒకవేళ (! str || ! ఉపసర్గ)
+    తిరిగి 0;
 
-  prefix_len = strlen (prefix);
-  return strlen (str) >= prefix_len && memcmp (str, prefix, prefix_len) == 0;
+  ఉపసర్గ_len = అక్షరశ్రేణి_పొడవు (ఉపసర్గ);
+  తిరిగి అక్షరశ్రేణి_పొడవు (str) >= ఉపసర్గ_len && memcmp (str, ఉపసర్గ, ఉపసర్గ_len) == 0;
 }
 
 /* Check that the string STR has the prefix PREFIX/ (followed by a slash).  */
-static inline int
-has_dir_prefix (const char *str, const char *prefix)
+స్థిర అంతఃవరుస పూర్ణాంకం
+has_dir_ఉపసర్గ (స్థిరరాశి అక్షరం *str, స్థిరరాశి అక్షరం *ఉపసర్గ)
 {
-  size_t prefix_len;
+  size_t ఉపసర్గ_len;
 
-  if (! str || ! prefix)
-    return 0;
+  ఒకవేళ (! str || ! ఉపసర్గ)
+    తిరిగి 0;
 
-  prefix_len = strlen (prefix);
-  return strlen (str) > prefix_len && memcmp (str, prefix, prefix_len) == 0 && str[prefix_len] == '/';
+  ఉపసర్గ_len = అక్షరశ్రేణి_పొడవు (ఉపసర్గ);
+  తిరిగి అక్షరశ్రేణి_పొడవు (str) > ఉపసర్గ_len && memcmp (str, ఉపసర్గ, ఉపసర్గ_len) == 0 && str[ఉపసర్గ_len] == '/';
 }
 
-int find_executable (char **exec_path, const char *executable_path, const char *cwd, libcrun_error_t *err);
+పూర్ణాంకం కనుగొను_executable (అక్షరం **exec_మార్గం, స్థిరరాశి అక్షరం *executable_మార్గం, స్థిరరాశి అక్షరం *cwd, libcrun_error_t *err);
 
-int copy_recursive_fd_to_fd (int srcfd, int destfd, const char *srcname, const char *destname, libcrun_error_t *err);
+పూర్ణాంకం copy_recursive_fd_గమ్యం_fd (పూర్ణాంకం srcfd, పూర్ణాంకం destfd, స్థిరరాశి అక్షరం *srcname, స్థిరరాశి అక్షరం *destname, libcrun_error_t *err);
 
-int set_home_env (uid_t uid);
+పూర్ణాంకం సమితి_home_env (uid_t uid);
 
-int libcrun_initialize_selinux (libcrun_container_t *container, libcrun_error_t *err);
+పూర్ణాంకం libcrun_initialize_selinux (libcrun_container_t *container, libcrun_error_t *err);
 
-int libcrun_initialize_apparmor (libcrun_error_t *err);
+పూర్ణాంకం libcrun_initialize_apparmor (libcrun_error_t *err);
 
-const char *find_annotation (libcrun_container_t *container, const char *name);
+స్థిరరాశి అక్షరం *కనుగొను_annotation (libcrun_container_t *container, స్థిరరాశి అక్షరం *name);
 
-int get_file_type_at (int dirfd, mode_t *mode, bool nofollow, const char *path);
+పూర్ణాంకం get_file_type_at (పూర్ణాంకం dirfd, mode_t *బహుళకం, bool nofollow, స్థిరరాశి అక్షరం *మార్గం);
 
-int get_file_type (mode_t *mode, bool nofollow, const char *path);
+పూర్ణాంకం get_file_type (mode_t *బహుళకం, bool nofollow, స్థిరరాశి అక్షరం *మార్గం);
 
-int get_file_type_fd (int fd, mode_t *mode);
+పూర్ణాంకం get_file_type_fd (పూర్ణాంకం fd, mode_t *బహుళకం);
 
-char *get_user_name (uid_t uid);
+అక్షరం *get_user_name (uid_t uid);
 
-int safe_openat (int dirfd, const char *rootfs, const char *path, int flags, int mode,
+పూర్ణాంకం సురక్షిత_openat (పూర్ణాంకం dirfd, స్థిరరాశి అక్షరం *rootfs, స్థిరరాశి అక్షరం *మార్గం, పూర్ణాంకం flags, పూర్ణాంకం బహుళకం,
                  libcrun_error_t *err);
 
-int safe_write (int fd, const char *fname, const void *buf, size_t count, libcrun_error_t *err);
+పూర్ణాంకం సురక్షిత_write (పూర్ణాంకం fd, స్థిరరాశి అక్షరం *fname, స్థిరరాశి శూన్య *buf, size_t లెక్క, libcrun_error_t *err);
 
-int append_paths (char **out, libcrun_error_t *err, ...) __attribute__ ((sentinel));
+పూర్ణాంకం append_paths (అక్షరం **బహిర్గతం, libcrun_error_t *err, ...) __attribute__ ((sentinel));
 
-int str2sig (const char *name);
+పూర్ణాంకం str2sig (స్థిరరాశి అక్షరం *name);
 
-int base64_decode (const char *iptr, size_t isize, char *optr, size_t osize, size_t *nbytes);
-int has_suffix (const char *source, const char *suffix);
-char *libcrun_sysctl_key_to_proc_path (const char *key);
-char *str_join_array (int offset, size_t size, char *const array[], const char *joint);
+పూర్ణాంకం base64_decode (స్థిరరాశి అక్షరం *iptr, size_t isize, అక్షరం *optr, size_t osize, size_t *nbytes);
+పూర్ణాంకం has_suffix (స్థిరరాశి అక్షరం *ఆధారం, స్థిరరాశి అక్షరం *suffix);
+అక్షరం *libcrun_sysctl_కీలకం_గమ్యం_proc_మార్గం (స్థిరరాశి అక్షరం *కీలకం);
+అక్షరం *str_join_array (పూర్ణాంకం స్థానభ్రంశం, size_t కొలత, అక్షరం *స్థిరరాశి array[], స్థిరరాశి అక్షరం *joint);
 
-ssize_t safe_readlinkat (int dfd, const char *name, char **buffer, ssize_t hint, libcrun_error_t *err);
+ssize_t సురక్షిత_readlinkat (పూర్ణాంకం dfd, స్థిరరాశి అక్షరం *name, అక్షరం **బఫరు, ssize_t hint, libcrun_error_t *err);
 
-char **read_dir_entries (const char *path, libcrun_error_t *err);
+అక్షరం **read_dir_entries (స్థిరరాశి అక్షరం *మార్గం, libcrun_error_t *err);
 
-static inline bool
-is_empty_string (const char *s)
+స్థిర అంతఃవరుస bool
+is_ఖాళీలు_string (స్థిరరాశి అక్షరం *s)
 {
-  return s == NULL || s[0] == '\0';
+  తిరిగి s == ఖాళీ || s[0] == '\0';
 }
 
 /* Like strlen(), but a NULL string has length 0.  */
-static inline size_t
-safe_strlen (const char *s)
+స్థిర అంతఃవరుస size_t
+సురక్షిత_strlen (స్థిరరాశి అక్షరం *s)
 {
-  return s == NULL ? 0 : strlen (s);
+  తిరిగి s == ఖాళీ ? 0 : అక్షరశ్రేణి_పొడవు (s);
 }
 
-static inline bool
-path_has_dot_dot_component (const char *path)
+స్థిర అంతఃవరుస bool
+మార్గం_has_dot_dot_component (స్థిరరాశి అక్షరం *మార్గం)
 {
-  if (path == NULL)
-    return false;
-  cleanup_free char *npath = xstrdup (path);
-  char *cur, *it;
+  ఒకవేళ (మార్గం == ఖాళీ)
+    తిరిగి false;
+  cleanup_free అక్షరం *npath = xstrdup (మార్గం);
+  అక్షరం *cur, *it;
 
   cur = npath;
   it = strchr (cur, '/');
-  while (cur)
+  అయితే (cur)
     {
-      if (it)
+      ఒకవేళ (it)
         *it = '\0';
 
-      if (strcmp (cur, "..") == 0)
-        return true;
+      ఒకవేళ (strcmp (cur, "..") == 0)
+        తిరిగి true;
 
-      if (it == NULL)
-        break;
+      ఒకవేళ (it == ఖాళీ)
+        ఆపు;
 
       cur = consume_slashes (it + 1);
       *it = '/';
       it = strchr (cur, '/');
     }
-  return false;
+  తిరిగి false;
 }
 
-static inline int
-waitpid_ignore_stopped (pid_t pid, int *status, int options)
+స్థిర అంతఃవరుస పూర్ణాంకం
+waitpid_ignore_stopped (pid_t pid, పూర్ణాంకం *స్థితి_2, పూర్ణాంకం options)
 {
-  int ret, s;
-  do
+  పూర్ణాంకం ret, s;
+  చేయి
     {
       s = 0;
-      ret = TEMP_FAILURE_RETRY (waitpid (pid, &s, options));
-      if (ret < 0)
-        return ret;
-  } while (WIFSTOPPED (s) || WIFCONTINUED (s));
+      ret = తాత్కాలిక_FAILURE_RETRY (waitpid (pid, &s, options));
+      ఒకవేళ (ret < 0)
+        తిరిగి ret;
+  } అయితే (WIFSTOPPED (s) || WIFCONTINUED (s));
 
-  if (status)
-    *status = s;
+  ఒకవేళ (స్థితి_2)
+    *స్థితి_2 = s;
 
-  return ret;
+  తిరిగి ret;
 }
 
-static inline int
-get_process_exit_status (int status)
+స్థిర అంతఃవరుస పూర్ణాంకం
+get_process_exit_స్థితి (పూర్ణాంకం స్థితి_2)
 {
-  if (WIFEXITED (status))
-    return WEXITSTATUS (status);
-  if (WIFSIGNALED (status))
-    return 128 + WTERMSIG (status);
+  ఒకవేళ (WIFEXITED (స్థితి_2))
+    తిరిగి WEXITSTATUS (స్థితి_2);
+  ఒకవేళ (WIFSIGNALED (స్థితి_2))
+    తిరిగి 128 + WTERMSIG (స్థితి_2);
 
-  return -1;
+  తిరిగి -1;
 }
 
-uid_t get_overflow_uid (void);
-gid_t get_overflow_gid (void);
+uid_t get_అధికప్రవాహం_uid (శూన్య);
+gid_t get_అధికప్రవాహం_gid (శూన్య);
 
 /* Adapted from systemd.  Include space for the NUL byte.  */
-#define DECIMAL_STR_MAX(type)                                        \
-  ((size_t) 2U + (sizeof (type) <= 1 ? 3U : sizeof (type) <= 2 ? 5U  \
-                                        : sizeof (type) <= 4   ? 10U \
-                                        : sizeof (type) <= 8   ? 20U \
-                                                               : sizeof (int[-2 * (sizeof (type) > 8)])))
+#నిర్వచించు DECIMAL_STR_MAX(type)                                        \
+  ((size_t) 2U + (పరిమాణం (type) <= 1 ? 3U : పరిమాణం (type) <= 2 ? 5U  \
+                                        : పరిమాణం (type) <= 4   ? 10U \
+                                        : పరిమాణం (type) <= 8   ? 20U \
+                                                               : పరిమాణం (పూర్ణాంకం[-2 * (పరిమాణం (type) > 8)])))
 
-#define _STRLEN(s) (sizeof (s) - 1)
+#నిర్వచించు _STRLEN(s) (పరిమాణం (s) - 1)
 
 /* _STRLEN("self") < DECIMAL_STR_MAX (pid_t), so we don't need to calculate the length of both.  */
-#define PROC_PID_FD_STRLEN (_STRLEN ("/proc/") + DECIMAL_STR_MAX (pid_t) \
-                            + _STRLEN ("/fd/") + DECIMAL_STR_MAX (int))
+#నిర్వచించు PROC_PID_FD_STRLEN (_STRLEN ("/proc/") + DECIMAL_STR_MAX (pid_t) \
+                            + _STRLEN ("/fd/") + DECIMAL_STR_MAX (పూర్ణాంకం))
 
 /* A buffer long enough to hold either /proc/self/fd/$FD or a /proc/$PID/fd/$FD path.  */
-typedef char proc_fd_path_t[PROC_PID_FD_STRLEN];
+రకనిర్వచనం అక్షరం proc_fd_మార్గం_t[PROC_PID_FD_STRLEN];
 
-#undef _STRLEN
+#నిర్వచనం_రద్దు _STRLEN
 
-static inline void
-get_proc_fd_path (proc_fd_path_t path, pid_t pid, int fd)
+స్థిర అంతఃవరుస శూన్య
+get_proc_fd_మార్గం (proc_fd_మార్గం_t మార్గం, pid_t pid, పూర్ణాంకం fd)
 {
-  const size_t max_len = sizeof (proc_fd_path_t);
+  స్థిరరాశి size_t max_len = పరిమాణం (proc_fd_మార్గం_t);
   size_t n;
 
-  if (pid)
-    n = snprintf (path, max_len, "/proc/%d/fd/%d", pid, fd);
-  else
-    n = snprintf (path, max_len, "/proc/self/fd/%d", fd);
+  ఒకవేళ (pid)
+    n = snprintf (మార్గం, max_len, "/proc/%d/fd/%d", pid, fd);
+  లేకపోతే
+    n = snprintf (మార్గం, max_len, "/proc/self/fd/%d", fd);
 
-  if (UNLIKELY (n >= max_len))
+  ఒకవేళ (UNLIKELY (n >= max_len))
     abort ();
 }
 
-static inline void
-get_proc_self_fd_path (proc_fd_path_t path, int fd)
+స్థిర అంతఃవరుస శూన్య
+get_proc_self_fd_మార్గం (proc_fd_మార్గం_t మార్గం, పూర్ణాంకం fd)
 {
-  get_proc_fd_path (path, 0, fd);
+  get_proc_fd_మార్గం (మార్గం, 0, fd);
 }
 
-static inline void
-get_self_fd_path (proc_fd_path_t path, int fd)
+స్థిర అంతఃవరుస శూన్య
+get_self_fd_మార్గం (proc_fd_మార్గం_t మార్గం, పూర్ణాంకం fd)
 {
-  snprintf (path, sizeof (proc_fd_path_t), "self/fd/%d", fd);
+  snprintf (మార్గం, పరిమాణం (proc_fd_మార్గం_t), "self/fd/%d", fd);
 }
 
-static inline int
-validate_options (unsigned int specified_options, unsigned int supported_options, libcrun_error_t *err)
+స్థిర అంతఃవరుస పూర్ణాంకం
+validate_options (గుర్తులేని పూర్ణాంకం specified_options, గుర్తులేని పూర్ణాంకం supported_options, libcrun_error_t *err)
 {
-  if (! ! (~supported_options & specified_options))
-    return crun_make_error (err, 0, "internal error: unknown options %d", specified_options);
-  return 0;
+  ఒకవేళ (! ! (~supported_options & specified_options))
+    తిరిగి crun_make_error (err, 0, "internal error: unknown options %d", specified_options);
+  తిరిగి 0;
 }
 
-extern int cpuset_string_to_bitmask (const char *str, char **out, size_t *out_size, libcrun_error_t *err);
+బాహ్య పూర్ణాంకం cpuset_string_గమ్యం_bitmask (స్థిరరాశి అక్షరం *str, అక్షరం **బహిర్గతం, size_t *బహిర్గతం_కొలత, libcrun_error_t *err);
 
 /*
  * A channel_fd_pair takes care of copying data between two file descriptors.
@@ -559,11 +559,11 @@ extern int cpuset_string_to_bitmask (const char *str, char **out, size_t *out_si
  * ready to accept the data, the channel_fd_pair will buffer the data until it
  * can be written.
  */
-struct channel_fd_pair;
+నిర్మాణం channel_fd_pair;
 
-struct channel_fd_pair *channel_fd_pair_new (int in_fd, int out_fd, size_t size);
+నిర్మాణం channel_fd_pair *channel_fd_pair_new (పూర్ణాంకం లోపల_fd, పూర్ణాంకం బహిర్గతం_fd, size_t కొలత);
 
-void channel_fd_pair_free (struct channel_fd_pair *channel);
+శూన్య channel_fd_pair_free (నిర్మాణం channel_fd_pair *channel);
 
 /* Process the data in the channel_fd_pair.  This function will read data from
  * the input file descriptor and write it to the output file descriptor.  If
@@ -571,21 +571,21 @@ void channel_fd_pair_free (struct channel_fd_pair *channel);
  * buffered.  If epollfd is provided, the in_fd and out_fd will be registered
  * and unregistered as necessary.
  */
-int channel_fd_pair_process (struct channel_fd_pair *channel, int epollfd, libcrun_error_t *err);
+పూర్ణాంకం channel_fd_pair_process (నిర్మాణం channel_fd_pair *channel, పూర్ణాంకం epollfd, libcrun_error_t *err);
 
-static inline void
-cleanup_channel_fd_pairp (void *p)
+స్థిర అంతఃవరుస శూన్య
+cleanup_channel_fd_pairp (శూన్య *p)
 {
-  struct channel_fd_pair **pp = (struct channel_fd_pair **) p;
-  if (*pp == NULL)
-    return;
+  నిర్మాణం channel_fd_pair **pp = (నిర్మాణం channel_fd_pair **) p;
+  ఒకవేళ (*pp == ఖాళీ)
+    తిరిగి;
 
   channel_fd_pair_free (*pp);
 }
-#define cleanup_channel_fd_pair __attribute__ ((cleanup (cleanup_channel_fd_pairp)))
+#నిర్వచించు cleanup_channel_fd_pair __attribute__ ((cleanup (cleanup_channel_fd_pairp)))
 
-int libcrun_get_cached_proc_fd (libcrun_container_t *container, libcrun_error_t *err);
-int libcrun_open_proc_file (libcrun_container_t *container, const char *path, int flags, libcrun_error_t *err);
-int libcrun_open_proc_pid_file (libcrun_container_t *container, pid_t pid, const char *path, int flags, libcrun_error_t *err);
+పూర్ణాంకం libcrun_get_cached_proc_fd (libcrun_container_t *container, libcrun_error_t *err);
+పూర్ణాంకం libcrun_open_proc_file (libcrun_container_t *container, స్థిరరాశి అక్షరం *మార్గం, పూర్ణాంకం flags, libcrun_error_t *err);
+పూర్ణాంకం libcrun_open_proc_pid_file (libcrun_container_t *container, pid_t pid, స్థిరరాశి అక్షరం *మార్గం, పూర్ణాంకం flags, libcrun_error_t *err);
 
-#endif
+#అయితే_ముగింపు

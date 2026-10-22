@@ -15,32 +15,32 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SECCOMP_NOTIFY_PLUGINPLUGIN_H
+#నిర్వచితం_కాకపోతే SECCOMP_NOTIFY_PLUGINPLUGIN_H
 
 #  include <linux/seccomp.h>
 
-struct libcrun_load_seccomp_notify_conf_s
+నిర్మాణం libcrun_ఎక్కించు_seccomp_notify_conf_s
 {
-  const char *runtime_root_path;
-  const char *name;
-  const char *bundle_path;
-  const char *oci_config_path;
+  స్థిరరాశి అక్షరం *runtime_మూలం_మార్గం;
+  స్థిరరాశి అక్షరం *name;
+  స్థిరరాశి అక్షరం *bundle_మార్గం;
+  స్థిరరాశి అక్షరం *oci_config_మార్గం;
 };
 
 /* The plugin doesn't know how to handle the request.  */
-#  define RUN_OCI_SECCOMP_NOTIFY_HANDLE_NOT_HANDLED 0
+#  define నిరంతరం_OCI_SECCOMP_NOTIFY_HANDLE_NOT_HANDLED 0
 /* The plugin filled the response and it is ready to write.  */
-#  define RUN_OCI_SECCOMP_NOTIFY_HANDLE_SEND_RESPONSE 1
+#  define నిరంతరం_OCI_SECCOMP_NOTIFY_HANDLE_SEND_RESPONSE 1
 /* The plugin will handle the request and write directly to the fd.  */
-#  define RUN_OCI_SECCOMP_NOTIFY_HANDLE_DELAYED_RESPONSE 2
+#  define నిరంతరం_OCI_SECCOMP_NOTIFY_HANDLE_DELAYED_RESPONSE 2
 /* Specify SECCOMP_USER_NOTIF_FLAG_CONTINUE in the flags.  */
-#  define RUN_OCI_SECCOMP_NOTIFY_HANDLE_SEND_RESPONSE_AND_CONTINUE 3
+#  define నిరంతరం_OCI_SECCOMP_NOTIFY_HANDLE_SEND_RESPONSE_AND_CONTINUE 3
 
 #  ifndef SECCOMP_NOTIFY_SKIP_TYPEDEF
 
 /* Configure the plugin.  Return an opaque pointer that will be used for successive calls.  */
-typedef int (*run_oci_seccomp_notify_start_cb) (void **opaque, struct libcrun_load_seccomp_notify_conf_s *conf,
-                                                size_t size_configuration);
+రకనిర్వచనం పూర్ణాంకం (*నిరంతరం_oci_seccomp_notify_ప్రారంభం_cb) (శూన్య **opaque, నిర్మాణం libcrun_ఎక్కించు_seccomp_notify_conf_s *conf,
+                                                size_t కొలత_configuration);
 
 /* Try to handle a single request.  It MUST be defined.
    HANDLED specifies how the request was handled by the plugin:
@@ -49,16 +49,16 @@ typedef int (*run_oci_seccomp_notify_start_cb) (void **opaque, struct libcrun_lo
    RUN_OCI_SECCOMP_NOTIFY_HANDLE_DELAYED_RESPONSE: the notification will be handled internally by the plugin and
    forwarded to seccomp_fd. It is useful for asynchronous handling.
 */
-typedef int (*run_oci_seccomp_notify_handle_request_cb) (void *opaque, struct seccomp_notif_sizes *sizes,
-                                                         struct seccomp_notif *sreq, struct seccomp_notif_resp *sresp,
-                                                         int seccomp_fd, int *handled);
+రకనిర్వచనం పూర్ణాంకం (*నిరంతరం_oci_seccomp_notify_handle_request_cb) (శూన్య *opaque, నిర్మాణం seccomp_notif_sizes *sizes,
+                                                         నిర్మాణం seccomp_notif *sreq, నిర్మాణం seccomp_notif_resp *sresp,
+                                                         పూర్ణాంకం seccomp_fd, పూర్ణాంకం *handled);
 
 /* Stop the plugin.  The opaque value is the return value from run_oci_seccomp_notify_start.  */
-typedef int (*run_oci_seccomp_notify_stop_cb) (void *opaque);
+రకనిర్వచనం పూర్ణాంకం (*నిరంతరం_oci_seccomp_notify_stop_cb) (శూన్య *opaque);
 
 /* Retrieve the API version used by the plugin.  It MUST return 1. */
-typedef int (*run_oci_seccomp_notify_plugin_version_cb) ();
+రకనిర్వచనం పూర్ణాంకం (*నిరంతరం_oci_seccomp_notify_plugin_సంస్కరణ_cb) ();
 
 #  endif
 
-#endif
+#అయితే_ముగింపు

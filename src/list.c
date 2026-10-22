@@ -16,19 +16,19 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#అన్తర్భావ <config.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ <argp.h>
+#అన్తర్భావ <string.h>
+#అన్తర్భావ <unistd.h>
+#అన్తర్భావ <errno.h>
 
-#include "crun.h"
+#అన్తర్భావ "crun.h"
 
-static char doc[] = "OCI runtime";
+స్థిర అక్షరం doc[] = "OCI runtime";
 
-enum
+గణన
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -37,143 +37,143 @@ enum
   OPTION_PRESERVE_FDS
 };
 
-struct list_options_s
+నిర్మాణం list_options_s
 {
   bool quiet;
-  int format;
+  పూర్ణాంకం format;
 };
 
-enum
+గణన
 {
-  LIST_TABLE = 100,
+  LIST_పట్టిక = 100,
   LIST_JSON,
 };
 
-static struct list_options_s list_options;
+స్థిర నిర్మాణం list_options_s list_options;
 
-static struct argp_option options[]
+స్థిర నిర్మాణం argp_option options[]
     = { { "quiet", 'q', 0, 0, "show only IDs", 0 },
         { "format", 'f', "FORMAT", 0, "select one of: table or json (default: \"table\")", 0 },
         {
             0,
         } };
 
-static char args_doc[] = "list";
+స్థిర అక్షరం వాదనలు_doc[] = "list";
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state arg_unused)
+స్థిర error_t
+parse_opt (పూర్ణాంకం కీలకం, అక్షరం *arg, నిర్మాణం argp_state *state arg_వాడని)
 {
-  switch (key)
+  ఎంపిక (కీలకం)
     {
-    case 'q':
+    స్థితి 'q':
       list_options.quiet = true;
-      break;
-    case 'f':
-      if (strcmp (arg, "table") == 0)
-        list_options.format = LIST_TABLE;
-      else if (strcmp (arg, "json") == 0)
+      ఆపు;
+    స్థితి 'f':
+      ఒకవేళ (strcmp (arg, "table") == 0)
+        list_options.format = LIST_పట్టిక;
+      లేకపోతే ఒకవేళ (strcmp (arg, "json") == 0)
         list_options.format = LIST_JSON;
-      else
+      లేకపోతే
         libcrun_fail_with_error (0, "invalid format `%s`", arg);
-      break;
+      ఆపు;
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    అప్రమేయ:
+      తిరిగి ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  తిరిగి 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+స్థిర నిర్మాణం argp నిరంతరం_argp = { options, parse_opt, వాదనలు_doc, doc, ఖాళీ, ఖాళీ, ఖాళీ };
 
-int
-crun_command_list (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+పూర్ణాంకం
+crun_command_list (నిర్మాణం crun_global_arguments *global_వాదనలు, పూర్ణాంకం argc, అక్షరం **argv, libcrun_error_t *err)
 {
-  int first_arg;
-  int ret, max_length = 4;
-  cleanup_context libcrun_context_t *crun_context = NULL;
-  libcrun_container_list_t *list = NULL;
+  పూర్ణాంకం మొదటి_arg;
+  పూర్ణాంకం ret, max_నిడివి = 4;
+  cleanup_context libcrun_context_t *crun_context = ఖాళీ;
+  libcrun_container_list_t *list = ఖాళీ;
   libcrun_container_iter_t *it;
-  const char *name;
+  స్థిరరాశి అక్షరం *name;
 
-  list_options.format = LIST_TABLE;
+  list_options.format = LIST_పట్టిక;
 
-  argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &list_options);
-  crun_assert_n_args (argc - first_arg, 0, 0);
+  argp_parse (&నిరంతరం_argp, argc, argv, ARGP_లోపల_క్రమం, &మొదటి_arg, &list_options);
+  crun_assert_n_వాదనలు (argc - మొదటి_arg, 0, 0);
 
-  crun_context = new_libcrun_context (global_args);
+  crun_context = new_libcrun_context (global_వాదనలు);
 
-  ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = init_libcrun_context (crun_context, argv[మొదటి_arg], global_వాదనలు, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  if (list_options.format == LIST_JSON)
+  ఒకవేళ (list_options.format == LIST_JSON)
     {
-      cleanup_free char *json = NULL;
+      cleanup_free అక్షరం *json = ఖాళీ;
 
       ret = libcrun_container_list_json (crun_context, &json, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి ret;
 
       fputs (json, stdout);
-      return 0;
+      తిరిగి 0;
     }
 
   ret = libcrun_container_list (crun_context, &list, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  for (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
+  కొరకు (it = libcrun_container_list_iter (list); libcrun_container_iter_తదుపరి (it, &name);)
     {
-      int l = strlen (name);
-      if (l > max_length)
-        max_length = l;
+      పూర్ణాంకం l = అక్షరశ్రేణి_పొడవు (name);
+      ఒకవేళ (l > max_నిడివి)
+        max_నిడివి = l;
     }
   libcrun_container_iter_free (it);
 
-  max_length++;
+  max_నిడివి++;
 
-  if (! list_options.quiet)
-    printf ("%-*s%-10s%-8s %-39s %-30s %s\n", max_length, "NAME", "PID", "STATUS", "BUNDLE PATH", "CREATED", "OWNER");
+  ఒకవేళ (! list_options.quiet)
+    రాయి ("%-*s%-10s%-8s %-39s %-30s %s\n", max_నిడివి, "NAME", "PID", "STATUS", "BUNDLE PATH", "CREATED", "OWNER");
 
-  for (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
+  కొరకు (it = libcrun_container_list_iter (list); libcrun_container_iter_తదుపరి (it, &name);)
     {
-      libcrun_status_t *status = NULL;
+      libcrun_స్థితి_t *స్థితి_2 = ఖాళీ;
 
-      ret = libcrun_container_status_load (crun_context, name, &status, err);
-      if (UNLIKELY (ret < 0))
+      ret = libcrun_container_స్థితి_ఎక్కించు (crun_context, name, &స్థితి_2, err);
+      ఒకవేళ (UNLIKELY (ret < 0))
         {
           libcrun_error_report_and_release (err);
-          continue;
+          కొనసాగు;
         }
-      if (list_options.quiet)
-        printf ("%s\n", name);
-      else
+      ఒకవేళ (list_options.quiet)
+        రాయి ("%s\n", name);
+      లేకపోతే
         {
           libcrun_container_state_t state;
-          int running = 0;
-          int pid = libcrun_status_get_pid (status);
+          పూర్ణాంకం running = 0;
+          పూర్ణాంకం pid = libcrun_స్థితి_get_pid (స్థితి_2);
 
-          ret = libcrun_status_get_state (status, &state, &running, err);
-          if (UNLIKELY (ret < 0))
+          ret = libcrun_స్థితి_get_state (స్థితి_2, &state, &running, err);
+          ఒకవేళ (UNLIKELY (ret < 0))
             {
               libcrun_error_report_and_release (err);
-              libcrun_container_status_free (status);
-              continue;
+              libcrun_container_స్థితి_free (స్థితి_2);
+              కొనసాగు;
             }
 
-          if (! running)
+          ఒకవేళ (! running)
             pid = 0;
 
-          printf ("%-*s%-10d%-8s %-39s %-30s %s\n", max_length, name, pid,
-                  libcrun_container_state_to_string (state), libcrun_status_get_bundle (status),
-                  libcrun_status_get_created (status), libcrun_status_get_owner (status));
+          రాయి ("%-*s%-10d%-8s %-39s %-30s %s\n", max_నిడివి, name, pid,
+                  libcrun_container_state_గమ్యం_string (state), libcrun_స్థితి_get_bundle (స్థితి_2),
+                  libcrun_స్థితి_get_created (స్థితి_2), libcrun_స్థితి_get_owner (స్థితి_2));
         }
 
-      libcrun_container_status_free (status);
+      libcrun_container_స్థితి_free (స్థితి_2);
     }
   libcrun_container_iter_free (it);
 
   libcrun_container_list_free (list);
-  return ret >= 0 ? 0 : ret;
+  తిరిగి ret >= 0 ? 0 : ret;
 }

@@ -16,62 +16,62 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <regex.h>
+#అన్తర్భావ <config.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ <argp.h>
+#అన్తర్భావ <string.h>
+#అన్తర్భావ <unistd.h>
+#అన్తర్భావ <errno.h>
+#అన్తర్భావ <regex.h>
 
-#include "crun.h"
+#అన్తర్భావ "crun.h"
 
-static char doc[] = "OCI runtime";
+స్థిర అక్షరం doc[] = "OCI runtime";
 
-struct unpause_options_s
+నిర్మాణం unpause_options_s
 {
 };
 
-static struct unpause_options_s unpause_options;
+స్థిర నిర్మాణం unpause_options_s unpause_options;
 
-static struct argp_option options[] = { {
+స్థిర నిర్మాణం argp_option options[] = { {
     0,
 } };
 
-static char args_doc[] = "resume CONTAINER";
+స్థిర అక్షరం వాదనలు_doc[] = "resume CONTAINER";
 
-static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+స్థిర error_t
+parse_opt (పూర్ణాంకం కీలకం, అక్షరం *arg arg_వాడని, నిర్మాణం argp_state *state arg_వాడని)
 {
-  switch (key)
+  ఎంపిక (కీలకం)
     {
-    case ARGP_KEY_NO_ARGS:
+    స్థితి ARGP_కీలకం_NO_వాదనలు:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    అప్రమేయ:
+      తిరిగి ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  తిరిగి 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+స్థిర నిర్మాణం argp నిరంతరం_argp = { options, parse_opt, వాదనలు_doc, doc, ఖాళీ, ఖాళీ, ఖాళీ };
 
-int
-crun_command_unpause (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+పూర్ణాంకం
+crun_command_unpause (నిర్మాణం crun_global_arguments *global_వాదనలు, పూర్ణాంకం argc, అక్షరం **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
-  cleanup_context libcrun_context_t *crun_context = NULL;
+  పూర్ణాంకం మొదటి_arg = 0, ret;
+  cleanup_context libcrun_context_t *crun_context = ఖాళీ;
 
-  argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &unpause_options);
-  crun_assert_n_args (argc - first_arg, 1, 2);
+  argp_parse (&నిరంతరం_argp, argc, argv, ARGP_లోపల_క్రమం, &మొదటి_arg, &unpause_options);
+  crun_assert_n_వాదనలు (argc - మొదటి_arg, 1, 2);
 
-  crun_context = new_libcrun_context (global_args);
+  crun_context = new_libcrun_context (global_వాదనలు);
 
-  ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = init_libcrun_context (crun_context, argv[మొదటి_arg], global_వాదనలు, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  return libcrun_container_unpause (crun_context, argv[first_arg], err);
+  తిరిగి libcrun_container_unpause (crun_context, argv[మొదటి_arg], err);
 }

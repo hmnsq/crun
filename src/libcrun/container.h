@@ -16,15 +16,15 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CONTAINER_H
-#define CONTAINER_H
+#నిర్వచితం_కాకపోతే CONTAINER_H
+#నిర్వచించు CONTAINER_H
 
-#include <config.h>
-#include <ocispec/runtime_spec_schema_config_schema.h>
-#include "error.h"
-#include "string_map.h"
+#అన్తర్భావ <config.h>
+#అన్తర్భావ <ocispec/runtime_spec_schema_config_schema.h>
+#అన్తర్భావ "error.h"
+#అన్తర్భావ "string_map.h"
 
-enum handler_configure_phase
+గణన handler_configure_phase
 {
   HANDLER_CONFIGURE_BEFORE_MOUNTS = 1,
   HANDLER_CONFIGURE_AFTER_MOUNTS,
@@ -32,59 +32,59 @@ enum handler_configure_phase
   HANDLER_CONFIGURE_BEFORE_USERNS
 };
 
-struct custom_handler_manager_s;
+నిర్మాణం custom_handler_manager_s;
 
-struct libcrun_context_s
+నిర్మాణం libcrun_context_s
 {
-  const char *state_root;
-  const char *id;
-  const char *bundle;
-  const char *console_socket;
-  const char *pid_file;
-  const char *notify_socket;
-  const char *handler;
-  char *owned_state_root;
-  char *owned_id;
-  char *owned_bundle;
-  char *owned_console_socket;
-  char *owned_pid_file;
-  char *owned_notify_socket;
-  char *owned_handler;
-  int preserve_fds;
+  స్థిరరాశి అక్షరం *state_మూలం;
+  స్థిరరాశి అక్షరం *id;
+  స్థిరరాశి అక్షరం *bundle;
+  స్థిరరాశి అక్షరం *console_socket;
+  స్థిరరాశి అక్షరం *pid_file;
+  స్థిరరాశి అక్షరం *notify_socket;
+  స్థిరరాశి అక్షరం *handler;
+  అక్షరం *owned_state_మూలం;
+  అక్షరం *owned_id;
+  అక్షరం *owned_bundle;
+  అక్షరం *owned_console_socket;
+  అక్షరం *owned_pid_file;
+  అక్షరం *owned_notify_socket;
+  అక్షరం *owned_handler;
+  పూర్ణాంకం preserve_fds;
   // For some use-cases we need differentiation between preserve_fds and listen_fds.
   // Following context variable makes sure we get exact value of listen_fds irrespective of preserve_fds.
-  int listen_fds;
+  పూర్ణాంకం listen_fds;
 
   crun_output_handler output_handler;
-  void *output_handler_arg;
+  శూన్య *output_handler_arg;
 
-  int fifo_exec_wait_fd;
+  పూర్ణాంకం fifo_exec_wait_fd;
 
   bool systemd_cgroup;
   bool detach;
   bool no_new_keyring;
   bool force_no_cgroup;
-  bool no_pivot;
-  bool no_open_tree_namespace;
+  bool no_ఇరుసు;
+  bool no_open_వృక్షం_namespace;
 
-  char **argv;
-  int argc;
+  అక్షరం **argv;
+  పూర్ణాంకం argc;
 
-  struct custom_handler_manager_s *handler_manager;
+  నిర్మాణం custom_handler_manager_s *handler_manager;
 };
 
-enum
+గణన
 {
-  LIBCRUN_RUN_OPTIONS_PREFORK = 1 << 0,
-  LIBCRUN_RUN_OPTIONS_KEEP = 1 << 1,
+  LIBCRUN_నిరంతరం_OPTIONS_PREFORK = 1 << 0,
+  LIBCRUN_నిరంతరం_OPTIONS_KEEP = 1 << 1,
 };
 
-enum
+గణన
 {
   LIBCRUN_CREATE_OPTIONS_PREFORK = 1 << 0,
 };
 
-struct libcrun_container_s
+నిర్మాణం libcrun_container_s
 {
   /* Container parsed from the runtime json file.  */
   runtime_spec_schema_config_schema *container_def;
@@ -98,26 +98,26 @@ struct libcrun_container_s
   uid_t container_uid;
   gid_t container_gid;
 
-  char *config_file;
-  char *config_file_content;
+  అక్షరం *config_file;
+  అక్షరం *config_file_content;
 
   string_map *annotations;
 
-  int proc_fd;
+  పూర్ణాంకం proc_fd;
 
-  void *private_data;
-  void (*cleanup_private_data) (void *private_data);
-  struct libcrun_context_s *context;
+  శూన్య *వ్యక్తిగత_దత్తాంశం;
+  శూన్య (*cleanup_వ్యక్తిగత_దత్తాంశం) (శూన్య *వ్యక్తిగత_దత్తాంశం);
+  నిర్మాణం libcrun_context_s *context;
 };
 
-struct libcrun_container_status_s;
-typedef struct libcrun_container_status_s libcrun_container_status_t;
+నిర్మాణం libcrun_container_స్థితి_s;
+రకనిర్వచనం నిర్మాణం libcrun_container_స్థితి_s libcrun_container_స్థితి_t;
 
-typedef struct libcrun_container_s libcrun_container_t;
-typedef struct libcrun_context_s libcrun_context_t;
+రకనిర్వచనం నిర్మాణం libcrun_container_s libcrun_container_t;
+రకనిర్వచనం నిర్మాణం libcrun_context_s libcrun_context_t;
 
-struct container_entrypoint_s;
-struct cgroup_info_s
+నిర్మాణం container_entrypoint_s;
+నిర్మాణం cgroup_info_s
 {
   bool v1;
   bool v2;
@@ -125,397 +125,397 @@ struct cgroup_info_s
   bool systemd_user;
 };
 
-struct seccomp_info_s
+నిర్మాణం seccomp_info_s
 {
   bool enabled;
-  char **actions;
-  char **operators;
-  char **archs;
+  అక్షరం **actions;
+  అక్షరం **operators;
+  అక్షరం **archs;
 };
 
-struct apparmor_info_s
-{
-  bool enabled;
-};
-
-struct selinux_info_s
+నిర్మాణం apparmor_info_s
 {
   bool enabled;
 };
 
-struct idmap_info_s
+నిర్మాణం selinux_info_s
 {
   bool enabled;
 };
 
-struct intel_rdt_s
+నిర్మాణం idmap_info_s
 {
   bool enabled;
 };
 
-struct net_devices_s
+నిర్మాణం intel_rdt_s
 {
   bool enabled;
 };
 
-struct mount_ext_info_s
+నిర్మాణం net_devices_s
 {
-  struct idmap_info_s idmap;
+  bool enabled;
 };
 
-struct memory_policy_info_s
+నిర్మాణం mount_ext_info_s
 {
-  char **mode;
-  char **flags;
+  నిర్మాణం idmap_info_s idmap;
 };
 
-struct linux_info_s
+నిర్మాణం జ్ఞాపకం_policy_info_s
 {
-  char **namespaces;
-  char **capabilities;
-  struct cgroup_info_s cgroup;
-  struct seccomp_info_s seccomp;
-  struct apparmor_info_s apparmor;
-  struct selinux_info_s selinux;
-  struct mount_ext_info_s mount_ext;
-  struct intel_rdt_s intel_rdt;
-  struct net_devices_s net_devices;
-  struct memory_policy_info_s memory_policy;
+  అక్షరం **బహుళకం;
+  అక్షరం **flags;
 };
 
-struct annotations_info_s
+నిర్మాణం linux_info_s
 {
-  char *io_github_seccomp_libseccomp_version;
-  bool run_oci_crun_checkpoint_enabled;
-  char *run_oci_crun_commit;
-  char *run_oci_crun_version;
-  bool run_oci_crun_wasm;
+  అక్షరం **namespaces;
+  అక్షరం **capabilities;
+  నిర్మాణం cgroup_info_s cgroup;
+  నిర్మాణం seccomp_info_s seccomp;
+  నిర్మాణం apparmor_info_s apparmor;
+  నిర్మాణం selinux_info_s selinux;
+  నిర్మాణం mount_ext_info_s mount_ext;
+  నిర్మాణం intel_rdt_s intel_rdt;
+  నిర్మాణం net_devices_s net_devices;
+  నిర్మాణం జ్ఞాపకం_policy_info_s జ్ఞాపకం_policy;
 };
 
-struct features_info_s
+నిర్మాణం annotations_info_s
 {
-  char *oci_version_min;
-  char *oci_version_max;
-  char **hooks;
-  char **mount_options;
-  struct linux_info_s linux;
-  struct annotations_info_s annotations;
-  char **potentially_unsafe_annotations;
+  అక్షరం *io_github_seccomp_libseccomp_సంస్కరణ;
+  bool నిరంతరం_oci_crun_checkpoint_enabled;
+  అక్షరం *నిరంతరం_oci_crun_commit;
+  అక్షరం *నిరంతరం_oci_crun_సంస్కరణ;
+  bool నిరంతరం_oci_crun_wasm;
 };
 
-struct libcrun_checkpoint_restore_s
+నిర్మాణం features_info_s
 {
-  char *image_path;
-  char *work_path;
+  అక్షరం *oci_సంస్కరణ_min;
+  అక్షరం *oci_సంస్కరణ_max;
+  అక్షరం **hooks;
+  అక్షరం **mount_options;
+  నిర్మాణం linux_info_s linux;
+  నిర్మాణం annotations_info_s annotations;
+  అక్షరం **potentially_unsafe_annotations;
+};
+
+నిర్మాణం libcrun_checkpoint_restore_s
+{
+  అక్షరం *image_మార్గం;
+  అక్షరం *work_మార్గం;
   bool leave_running;
   bool tcp_established;
   bool tcp_close;
-  bool shell_job;
+  bool shell_పని;
   bool ext_unix_sk;
   bool detach;
   bool file_locks;
-  const char *console_socket;
-  char *parent_path;
+  స్థిరరాశి అక్షరం *console_socket;
+  అక్షరం *మాతృ_మార్గం;
   bool pre_dump;
-  int manage_cgroups_mode;
-  int network_lock_method;
-  char *lsm_profile;
-  char *lsm_mount_context;
+  పూర్ణాంకం manage_cgroups_బహుళకం;
+  పూర్ణాంకం జాలం_తాళం_పద్ధతి;
+  అక్షరం *lsm_profile;
+  అక్షరం *lsm_mount_context;
 };
-typedef struct libcrun_checkpoint_restore_s libcrun_checkpoint_restore_t;
+రకనిర్వచనం నిర్మాణం libcrun_checkpoint_restore_s libcrun_checkpoint_restore_t;
 
 /* Public checkpoint/restore options.  Mirror of the definition in
    <libcrun.h>; keep the two in sync.  */
-enum libcrun_cr_cgroups_mode
+గణన libcrun_cr_cgroups_బహుళకం
 {
-  LIBCRUN_CR_CG_MODE_DEFAULT = 0, /* soft, matching runc */
-  LIBCRUN_CR_CG_MODE_SOFT,
-  LIBCRUN_CR_CG_MODE_IGNORE,
-  LIBCRUN_CR_CG_MODE_FULL,
-  LIBCRUN_CR_CG_MODE_STRICT,
+  LIBCRUN_CR_CG_బహుళకం_DEFAULT = 0, /* soft, matching runc */
+  LIBCRUN_CR_CG_బహుళకం_SOFT,
+  LIBCRUN_CR_CG_బహుళకం_IGNORE,
+  LIBCRUN_CR_CG_బహుళకం_నిండిన,
+  LIBCRUN_CR_CG_బహుళకం_STRICT,
 };
 
-enum libcrun_cr_network_lock_method
+గణన libcrun_cr_జాలం_తాళం_పద్ధతి
 {
-  LIBCRUN_CR_NETWORK_LOCK_DEFAULT = 0, /* iptables */
-  LIBCRUN_CR_NETWORK_LOCK_IPTABLES,
-  LIBCRUN_CR_NETWORK_LOCK_NFTABLES,
-  LIBCRUN_CR_NETWORK_LOCK_SKIP,
+  LIBCRUN_CR_జాలం_తాళం_DEFAULT = 0, /* iptables */
+  LIBCRUN_CR_జాలం_తాళం_IPTABLES,
+  LIBCRUN_CR_జాలం_తాళం_NFTABLES,
+  LIBCRUN_CR_జాలం_తాళం_SKIP,
 };
 
-struct libcrun_checkpoint_restore_options_s
+నిర్మాణం libcrun_checkpoint_restore_options_s
 {
-  size_t struct_size;
+  size_t struct_కొలత;
 
-  const char *image_path;
-  const char *work_path;
-  const char *parent_path;
-  const char *console_socket;
-  const char *lsm_profile;
-  const char *lsm_mount_context;
+  స్థిరరాశి అక్షరం *image_మార్గం;
+  స్థిరరాశి అక్షరం *work_మార్గం;
+  స్థిరరాశి అక్షరం *మాతృ_మార్గం;
+  స్థిరరాశి అక్షరం *console_socket;
+  స్థిరరాశి అక్షరం *lsm_profile;
+  స్థిరరాశి అక్షరం *lsm_mount_context;
 
   bool leave_running;
   bool tcp_established;
   bool tcp_close;
   bool ext_unix_sk;
-  bool shell_job;
+  bool shell_పని;
   bool file_locks;
   bool pre_dump;
   bool detach;
 
-  int manage_cgroups_mode; /* enum libcrun_cr_cgroups_mode */
-  int network_lock_method; /* enum libcrun_cr_network_lock_method */
+  పూర్ణాంకం manage_cgroups_బహుళకం; /* enum libcrun_cr_cgroups_mode */
+  పూర్ణాంకం జాలం_తాళం_పద్ధతి; /* enum libcrun_cr_network_lock_method */
 };
 
-LIBCRUN_PUBLIC libcrun_container_t *libcrun_container_load_from_file (const char *path, libcrun_error_t *err);
+LIBCRUN_ప్రజా libcrun_container_t *libcrun_container_ఎక్కించు_from_file (స్థిరరాశి అక్షరం *మార్గం, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC libcrun_container_t *libcrun_container_load_from_memory (const char *json, libcrun_error_t *err);
+LIBCRUN_ప్రజా libcrun_container_t *libcrun_container_ఎక్కించు_from_జ్ఞాపకం (స్థిరరాశి అక్షరం *json, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC void libcrun_container_free (libcrun_container_t *);
+LIBCRUN_ప్రజా శూన్య libcrun_container_free (libcrun_container_t *);
 
 /* Return the configuration of CONTAINER as a JSON string owned by CONTAINER.
    The document is generated on demand and cached, so the first call mutates
    CONTAINER and must not race with other users of the same handle.  */
-LIBCRUN_PUBLIC const char *libcrun_container_get_config_json (libcrun_container_t *container, libcrun_error_t *err);
-LIBCRUN_PUBLIC const char *libcrun_container_get_annotation (libcrun_container_t *container, const char *key);
-LIBCRUN_PUBLIC size_t libcrun_container_get_annotations_len (libcrun_container_t *container);
-LIBCRUN_PUBLIC int libcrun_container_get_annotation_at (libcrun_container_t *container, size_t index,
-                                                        const char **key, const char **value);
-LIBCRUN_PUBLIC uid_t libcrun_container_get_uid (libcrun_container_t *container);
-LIBCRUN_PUBLIC gid_t libcrun_container_get_gid (libcrun_container_t *container);
+LIBCRUN_ప్రజా స్థిరరాశి అక్షరం *libcrun_container_get_config_json (libcrun_container_t *container, libcrun_error_t *err);
+LIBCRUN_ప్రజా స్థిరరాశి అక్షరం *libcrun_container_get_annotation (libcrun_container_t *container, స్థిరరాశి అక్షరం *కీలకం);
+LIBCRUN_ప్రజా size_t libcrun_container_get_annotations_len (libcrun_container_t *container);
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_get_annotation_at (libcrun_container_t *container, size_t సూచీ,
+                                                        స్థిరరాశి అక్షరం **కీలకం, స్థిరరాశి అక్షరం **విలువ);
+LIBCRUN_ప్రజా uid_t libcrun_container_get_uid (libcrun_container_t *container);
+LIBCRUN_ప్రజా gid_t libcrun_container_get_gid (libcrun_container_t *container);
 
-LIBCRUN_PUBLIC libcrun_context_t *libcrun_context_new (const char *id, const char *state_root, libcrun_error_t *err);
-LIBCRUN_PUBLIC void libcrun_context_free (libcrun_context_t *ctx);
+LIBCRUN_ప్రజా libcrun_context_t *libcrun_context_new (స్థిరరాశి అక్షరం *id, స్థిరరాశి అక్షరం *state_మూలం, libcrun_error_t *err);
+LIBCRUN_ప్రజా శూన్య libcrun_context_free (libcrun_context_t *ctx);
 
-LIBCRUN_PUBLIC void libcrun_context_set_id (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC void libcrun_context_set_state_root (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC const char *libcrun_context_get_state_root (libcrun_context_t *ctx);
-LIBCRUN_PUBLIC void libcrun_context_set_bundle (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC void libcrun_context_set_console_socket (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC void libcrun_context_set_pid_file (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC const char *libcrun_context_get_pid_file (libcrun_context_t *ctx);
-LIBCRUN_PUBLIC void libcrun_context_set_notify_socket (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC void libcrun_context_set_handler (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC void libcrun_context_set_preserve_fds (libcrun_context_t *ctx, int preserve_fds);
-LIBCRUN_PUBLIC int libcrun_context_get_preserve_fds (libcrun_context_t *ctx);
-LIBCRUN_PUBLIC void libcrun_context_set_listen_fds (libcrun_context_t *ctx, int listen_fds);
-LIBCRUN_PUBLIC void libcrun_context_set_args (libcrun_context_t *ctx, int argc, char **argv);
-LIBCRUN_PUBLIC void libcrun_context_set_systemd_cgroup (libcrun_context_t *ctx, bool value);
-LIBCRUN_PUBLIC void libcrun_context_set_detach (libcrun_context_t *ctx, bool value);
-LIBCRUN_PUBLIC void libcrun_context_set_no_new_keyring (libcrun_context_t *ctx, bool value);
-LIBCRUN_PUBLIC void libcrun_context_set_no_pivot (libcrun_context_t *ctx, bool value);
-LIBCRUN_PUBLIC void libcrun_context_set_force_no_cgroup (libcrun_context_t *ctx, bool value);
-LIBCRUN_PUBLIC void libcrun_context_set_output_handler (libcrun_context_t *ctx, crun_output_handler handler, void *arg);
+LIBCRUN_ప్రజా శూన్య libcrun_context_సమితి_id (libcrun_context_t *ctx, స్థిరరాశి అక్షరం *విలువ);
+LIBCRUN_ప్రజా శూన్య libcrun_context_సమితి_state_మూలం (libcrun_context_t *ctx, స్థిరరాశి అక్షరం *విలువ);
+LIBCRUN_ప్రజా స్థిరరాశి అక్షరం *libcrun_context_get_state_మూలం (libcrun_context_t *ctx);
+LIBCRUN_ప్రజా శూన్య libcrun_context_సమితి_bundle (libcrun_context_t *ctx, స్థిరరాశి అక్షరం *విలువ);
+LIBCRUN_ప్రజా శూన్య libcrun_context_సమితి_console_socket (libcrun_context_t *ctx, స్థిరరాశి అక్షరం *విలువ);
+LIBCRUN_ప్రజా శూన్య libcrun_context_సమితి_pid_file (libcrun_context_t *ctx, స్థిరరాశి అక్షరం *విలువ);
+LIBCRUN_ప్రజా స్థిరరాశి అక్షరం *libcrun_context_get_pid_file (libcrun_context_t *ctx);
+LIBCRUN_ప్రజా శూన్య libcrun_context_సమితి_notify_socket (libcrun_context_t *ctx, స్థిరరాశి అక్షరం *విలువ);
+LIBCRUN_ప్రజా శూన్య libcrun_context_సమితి_handler (libcrun_context_t *ctx, స్థిరరాశి అక్షరం *విలువ);
+LIBCRUN_ప్రజా శూన్య libcrun_context_సమితి_preserve_fds (libcrun_context_t *ctx, పూర్ణాంకం preserve_fds);
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_context_get_preserve_fds (libcrun_context_t *ctx);
+LIBCRUN_ప్రజా శూన్య libcrun_context_సమితి_listen_fds (libcrun_context_t *ctx, పూర్ణాంకం listen_fds);
+LIBCRUN_ప్రజా శూన్య libcrun_context_సమితి_వాదనలు (libcrun_context_t *ctx, పూర్ణాంకం argc, అక్షరం **argv);
+LIBCRUN_ప్రజా శూన్య libcrun_context_సమితి_systemd_cgroup (libcrun_context_t *ctx, bool విలువ);
+LIBCRUN_ప్రజా శూన్య libcrun_context_సమితి_detach (libcrun_context_t *ctx, bool విలువ);
+LIBCRUN_ప్రజా శూన్య libcrun_context_సమితి_no_new_keyring (libcrun_context_t *ctx, bool విలువ);
+LIBCRUN_ప్రజా శూన్య libcrun_context_సమితి_no_ఇరుసు (libcrun_context_t *ctx, bool విలువ);
+LIBCRUN_ప్రజా శూన్య libcrun_context_సమితి_force_no_cgroup (libcrun_context_t *ctx, bool విలువ);
+LIBCRUN_ప్రజా శూన్య libcrun_context_సమితి_output_handler (libcrun_context_t *ctx, crun_output_handler handler, శూన్య *arg);
 
-LIBCRUN_PUBLIC int libcrun_context_init_logging (libcrun_context_t *ctx, const char *log, libcrun_error_t *err);
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_context_init_logging (libcrun_context_t *ctx, స్థిరరాశి అక్షరం *సంవర్గమానం, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_run (libcrun_context_t *context, libcrun_container_t *container,
-                                          unsigned int options, libcrun_error_t *error);
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_నిరంతరం (libcrun_context_t *context, libcrun_container_t *container,
+                                          గుర్తులేని పూర్ణాంకం options, libcrun_error_t *error);
 
-LIBCRUN_PUBLIC int libcrun_container_delete (libcrun_context_t *context, const char *id, bool force,
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_delete (libcrun_context_t *context, స్థిరరాశి అక్షరం *id, bool force,
                                              libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_kill (libcrun_context_t *context, const char *id, const char *signal,
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_kill (libcrun_context_t *context, స్థిరరాశి అక్షరం *id, స్థిరరాశి అక్షరం *సంకేతం,
                                            libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_killall (libcrun_context_t *context, const char *id, const char *signal,
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_killall (libcrun_context_t *context, స్థిరరాశి అక్షరం *id, స్థిరరాశి అక్షరం *సంకేతం,
                                               libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_create (libcrun_context_t *context, libcrun_container_t *container,
-                                             unsigned int options, libcrun_error_t *err);
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_create (libcrun_context_t *context, libcrun_container_t *container,
+                                             గుర్తులేని పూర్ణాంకం options, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_start (libcrun_context_t *context, const char *id, libcrun_error_t *err);
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_ప్రారంభం (libcrun_context_t *context, స్థిరరాశి అక్షరం *id, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_state (libcrun_context_t *context, const char *id, FILE *out,
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_state (libcrun_context_t *context, స్థిరరాశి అక్షరం *id, FILE *బహిర్గతం,
                                             libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_state_json (libcrun_context_t *context, const char *id, char **out,
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_state_json (libcrun_context_t *context, స్థిరరాశి అక్షరం *id, అక్షరం **బహిర్గతం,
                                                  libcrun_error_t *err);
 
-int libcrun_container_notify_handler (struct container_entrypoint_s *args,
-                                      enum handler_configure_phase phase,
-                                      libcrun_container_t *container, const char *rootfs,
+పూర్ణాంకం libcrun_container_notify_handler (నిర్మాణం container_entrypoint_s *వాదనలు,
+                                      గణన handler_configure_phase phase,
+                                      libcrun_container_t *container, స్థిరరాశి అక్షరం *rootfs,
                                       libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_get_container_state_string (const char *id, libcrun_container_status_t *status,
-                                                       const char *state_root, const char **container_status,
-                                                       int *running, libcrun_error_t *err);
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_get_container_state_string (స్థిరరాశి అక్షరం *id, libcrun_container_స్థితి_t *స్థితి_2,
+                                                       స్థిరరాశి అక్షరం *state_మూలం, స్థిరరాశి అక్షరం **container_స్థితి,
+                                                       పూర్ణాంకం *running, libcrun_error_t *err);
 
-struct libcrun_container_exec_options_s
+నిర్మాణం libcrun_container_exec_options_s
 {
-  size_t struct_size;
+  size_t struct_కొలత;
   runtime_spec_schema_config_schema_process *process;
-  const char *path;
-  const char *cgroup;
-  bool merge_env;
+  స్థిరరాశి అక్షరం *మార్గం;
+  స్థిరరాశి అక్షరం *cgroup;
+  bool విలీనం_env;
 };
 
-LIBCRUN_PUBLIC int libcrun_close_inherited_fds (libcrun_context_t *context, libcrun_error_t *err);
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_close_inherited_fds (libcrun_context_t *context, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_load_process_from_file (const char *path,
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_ఎక్కించు_process_from_file (స్థిరరాశి అక్షరం *మార్గం,
                                                    runtime_spec_schema_config_schema_process **process,
                                                    libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_exec_with_options (libcrun_context_t *context, const char *id,
-                                                        struct libcrun_container_exec_options_s *opts,
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_exec_with_options (libcrun_context_t *context, స్థిరరాశి అక్షరం *id,
+                                                        నిర్మాణం libcrun_container_exec_options_s *opts,
                                                         libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_exec (libcrun_context_t *context, const char *id,
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_exec (libcrun_context_t *context, స్థిరరాశి అక్షరం *id,
                                            runtime_spec_schema_config_schema_process *process, libcrun_error_t *err);
 
-struct libcrun_exec_options_s
+నిర్మాణం libcrun_exec_options_s
 {
-  size_t struct_size;
-  const char *process_json; /* OCI Process JSON */
-  const char *cgroup;
-  bool merge_env;
+  size_t struct_కొలత;
+  స్థిరరాశి అక్షరం *process_json; /* OCI Process JSON */
+  స్థిరరాశి అక్షరం *cgroup;
+  bool విలీనం_env;
 };
 
-LIBCRUN_PUBLIC int libcrun_container_exec_json (libcrun_context_t *context, const char *id, const char *process_json,
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_exec_json (libcrun_context_t *context, స్థిరరాశి అక్షరం *id, స్థిరరాశి అక్షరం *process_json,
                                                 libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_exec_with_options_json (libcrun_context_t *context, const char *id,
-                                                             const struct libcrun_exec_options_s *opts,
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_exec_with_options_json (libcrun_context_t *context, స్థిరరాశి అక్షరం *id,
+                                                             స్థిరరాశి నిర్మాణం libcrun_exec_options_s *opts,
                                                              libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_exec_process_file (libcrun_context_t *context, const char *id, const char *path,
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_exec_process_file (libcrun_context_t *context, స్థిరరాశి అక్షరం *id, స్థిరరాశి అక్షరం *మార్గం,
                                                         libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_update (libcrun_context_t *context, const char *id, const char *content,
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_update (libcrun_context_t *context, స్థిరరాశి అక్షరం *id, స్థిరరాశి అక్షరం *content,
                                              size_t len, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_update_from_file (libcrun_context_t *context, const char *id, const char *file,
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_update_from_file (libcrun_context_t *context, స్థిరరాశి అక్షరం *id, స్థిరరాశి అక్షరం *file,
                                                        libcrun_error_t *err);
 
-struct libcrun_update_value_s
+నిర్మాణం libcrun_update_విలువ_s
 {
-  const char *section;
-  const char *name;
+  స్థిరరాశి అక్షరం *section;
+  స్థిరరాశి అక్షరం *name;
   bool numeric;
-  const char *value;
+  స్థిరరాశి అక్షరం *విలువ;
 };
 
-LIBCRUN_PUBLIC int libcrun_container_update_from_values (libcrun_context_t *context, const char *id,
-                                                         struct libcrun_update_value_s *values, size_t len,
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_update_from_విలువలు (libcrun_context_t *context, స్థిరరాశి అక్షరం *id,
+                                                         నిర్మాణం libcrun_update_విలువ_s *విలువలు, size_t len,
                                                          libcrun_error_t *err);
 
-struct libcrun_intel_rdt_update
+నిర్మాణం libcrun_intel_rdt_update
 {
-  const char *l3_cache_schema;
-  const char *mem_bw_schema;
-  char *const *schemata;
+  స్థిరరాశి అక్షరం *l3_cache_schema;
+  స్థిరరాశి అక్షరం *mem_bw_schema;
+  అక్షరం *స్థిరరాశి *schemata;
 };
 
-LIBCRUN_PUBLIC int libcrun_container_update_intel_rdt (libcrun_context_t *context, const char *id,
-                                                       struct libcrun_intel_rdt_update *update, libcrun_error_t *err);
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_update_intel_rdt (libcrun_context_t *context, స్థిరరాశి అక్షరం *id,
+                                                       నిర్మాణం libcrun_intel_rdt_update *update, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_get_features (libcrun_context_t *context, struct features_info_s **info,
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_get_features (libcrun_context_t *context, నిర్మాణం features_info_s **info,
                                                    libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_get_features_json (libcrun_context_t *context, char **out, libcrun_error_t *err);
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_get_features_json (libcrun_context_t *context, అక్షరం **బహిర్గతం, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_pause (libcrun_context_t *context, const char *id, libcrun_error_t *err);
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_pause (libcrun_context_t *context, స్థిరరాశి అక్షరం *id, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_unpause (libcrun_context_t *context, const char *id, libcrun_error_t *err);
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_unpause (libcrun_context_t *context, స్థిరరాశి అక్షరం *id, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_checkpoint (libcrun_context_t *context, const char *id,
-                                                 struct libcrun_checkpoint_restore_options_s *cr_options,
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_checkpoint (libcrun_context_t *context, స్థిరరాశి అక్షరం *id,
+                                                 నిర్మాణం libcrun_checkpoint_restore_options_s *cr_options,
                                                  libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_restore (libcrun_context_t *context, const char *id,
-                                              struct libcrun_checkpoint_restore_options_s *cr_options,
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_restore (libcrun_context_t *context, స్థిరరాశి అక్షరం *id,
+                                              నిర్మాణం libcrun_checkpoint_restore_options_s *cr_options,
                                               libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_read_pids (libcrun_context_t *context, const char *id, bool recurse, pid_t **pids, libcrun_error_t *err);
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_read_pids (libcrun_context_t *context, స్థిరరాశి అక్షరం *id, bool recurse, pid_t **pids, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_write_json_containers_list (libcrun_context_t *context, FILE *out, libcrun_error_t *err);
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_write_json_containers_list (libcrun_context_t *context, FILE *బహిర్గతం, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_list_json (libcrun_context_t *context, char **out, libcrun_error_t *err);
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_list_json (libcrun_context_t *context, అక్షరం **బహిర్గతం, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_add_mounts_from_file (libcrun_context_t *context, const char *id, const char *file,
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_కూడు_mounts_from_file (libcrun_context_t *context, స్థిరరాశి అక్షరం *id, స్థిరరాశి అక్షరం *file,
                                                            libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_remove_mounts_from_file (libcrun_context_t *context, const char *id, const char *file,
+LIBCRUN_ప్రజా పూర్ణాంకం libcrun_container_remove_mounts_from_file (libcrun_context_t *context, స్థిరరాశి అక్షరం *id, స్థిరరాశి అక్షరం *file,
                                                               libcrun_error_t *err);
 
 // Not part of the public API, just a method in container.c we need to access from linux.c
-void get_root_in_the_userns (runtime_spec_schema_config_schema *def, uid_t host_uid, gid_t host_gid,
+శూన్య get_మూలం_లోపల_the_userns (runtime_spec_schema_config_schema *def, uid_t host_uid, gid_t host_gid,
                              uid_t *uid, gid_t *gid);
 
-static inline void
+స్థిర అంతఃవరుస శూన్య
 cleanup_containerp (libcrun_container_t **c)
 {
   libcrun_container_t *container = *c;
   libcrun_container_free (container);
 }
 
-#define cleanup_container __attribute__ ((cleanup (cleanup_containerp)))
+#నిర్వచించు cleanup_container __attribute__ ((cleanup (cleanup_containerp)))
 
-static inline void
-cleanup_struct_features_free (struct features_info_s **info)
+స్థిర అంతఃవరుస శూన్య
+cleanup_struct_features_free (నిర్మాణం features_info_s **info)
 {
   size_t i;
-  struct features_info_s *ptr;
-  if (info == NULL || *info == NULL)
-    return;
+  నిర్మాణం features_info_s *ptr;
+  ఒకవేళ (info == ఖాళీ || *info == ఖాళీ)
+    తిరిగి;
 
   ptr = *info;
 
   // Free oci_version_min if it is not NULL
-  if (ptr->oci_version_min != NULL)
+  ఒకవేళ (ptr->oci_సంస్కరణ_min != ఖాళీ)
     {
-      free (ptr->oci_version_min);
-      ptr->oci_version_min = NULL; // Set to NULL after freeing
+      విడుదల (ptr->oci_సంస్కరణ_min);
+      ptr->oci_సంస్కరణ_min = ఖాళీ; // Set to NULL after freeing
     }
 
   // Free oci_version_max if it is not NULL
-  if (ptr->oci_version_max != NULL)
+  ఒకవేళ (ptr->oci_సంస్కరణ_max != ఖాళీ)
     {
-      free (ptr->oci_version_max);
-      ptr->oci_version_max = NULL; // Set to NULL after freeing
+      విడుదల (ptr->oci_సంస్కరణ_max);
+      ptr->oci_సంస్కరణ_max = ఖాళీ; // Set to NULL after freeing
     }
-  if (ptr->hooks != NULL)
+  ఒకవేళ (ptr->hooks != ఖాళీ)
     {
-      for (i = 0; ptr->hooks[i] != NULL; i++)
-        free (ptr->hooks[i]);
-      free (ptr->hooks);
+      కొరకు (i = 0; ptr->hooks[i] != ఖాళీ; i++)
+        విడుదల (ptr->hooks[i]);
+      విడుదల (ptr->hooks);
     }
-  if (ptr->mount_options != NULL)
+  ఒకవేళ (ptr->mount_options != ఖాళీ)
     {
-      for (i = 0; ptr->mount_options[i] != NULL; i++)
-        free (ptr->mount_options[i]);
-      free (ptr->mount_options);
+      కొరకు (i = 0; ptr->mount_options[i] != ఖాళీ; i++)
+        విడుదల (ptr->mount_options[i]);
+      విడుదల (ptr->mount_options);
     }
-  if (ptr->linux.namespaces != NULL)
+  ఒకవేళ (ptr->linux.namespaces != ఖాళీ)
     {
-      for (i = 0; ptr->linux.namespaces[i] != NULL; i++)
-        free (ptr->linux.namespaces[i]);
-      free (ptr->linux.namespaces);
-    }
-
-  if (ptr->linux.capabilities != NULL)
-    {
-      for (size_t i = 0; ptr->linux.capabilities[i] != NULL; i++)
-        free (ptr->linux.capabilities[i]);
-      free (ptr->linux.capabilities);
-    }
-  if (ptr->linux.seccomp.actions != NULL)
-    {
-      for (i = 0; ptr->linux.seccomp.actions[i] != NULL; i++)
-        free (ptr->linux.seccomp.actions[i]);
-      free (ptr->linux.seccomp.actions);
-    }
-  if (ptr->linux.seccomp.operators != NULL)
-    {
-      for (i = 0; ptr->linux.seccomp.operators[i] != NULL; i++)
-        free (ptr->linux.seccomp.operators[i]);
-      free (ptr->linux.seccomp.operators);
+      కొరకు (i = 0; ptr->linux.namespaces[i] != ఖాళీ; i++)
+        విడుదల (ptr->linux.namespaces[i]);
+      విడుదల (ptr->linux.namespaces);
     }
 
-  free (ptr);
-  *info = NULL;
+  ఒకవేళ (ptr->linux.capabilities != ఖాళీ)
+    {
+      కొరకు (size_t i = 0; ptr->linux.capabilities[i] != ఖాళీ; i++)
+        విడుదల (ptr->linux.capabilities[i]);
+      విడుదల (ptr->linux.capabilities);
+    }
+  ఒకవేళ (ptr->linux.seccomp.actions != ఖాళీ)
+    {
+      కొరకు (i = 0; ptr->linux.seccomp.actions[i] != ఖాళీ; i++)
+        విడుదల (ptr->linux.seccomp.actions[i]);
+      విడుదల (ptr->linux.seccomp.actions);
+    }
+  ఒకవేళ (ptr->linux.seccomp.operators != ఖాళీ)
+    {
+      కొరకు (i = 0; ptr->linux.seccomp.operators[i] != ఖాళీ; i++)
+        విడుదల (ptr->linux.seccomp.operators[i]);
+      విడుదల (ptr->linux.seccomp.operators);
+    }
+
+  విడుదల (ptr);
+  *info = ఖాళీ;
 }
 
-#define cleanup_struct_features __attribute__ ((cleanup (cleanup_struct_features_free)))
+#నిర్వచించు cleanup_struct_features __attribute__ ((cleanup (cleanup_struct_features_free)))
 
-#endif
+#అయితే_ముగింపు

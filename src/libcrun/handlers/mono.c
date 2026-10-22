@@ -15,58 +15,58 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE
+#నిర్వచించు GNU_ఆధారం
 
-#include <config.h>
-#include "../custom-handler.h"
-#include "../container.h"
-#include "../utils.h"
-#include "../linux.h"
-#include <unistd.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <sched.h>
+#అన్తర్భావ <config.h>
+#అన్తర్భావ "../custom-handler.h"
+#అన్తర్భావ "../container.h"
+#అన్తర్భావ "../utils.h"
+#అన్తర్భావ "../linux.h"
+#అన్తర్భావ <unistd.h>
+#అన్తర్భావ <sys/stat.h>
+#అన్తర్భావ <errno.h>
+#అన్తర్భావ <sys/types.h>
+#అన్తర్భావ <fcntl.h>
+#అన్తర్భావ <sched.h>
 
-#ifdef HAVE_DLOPEN
+#నిర్వచితమైతే HAVE_DLOPEN
 #  include <dlfcn.h>
-#endif
+#అయితే_ముగింపు
 
-#ifdef HAVE_MONO
+#నిర్వచితమైతే HAVE_MONO
 #  include <mono/metadata/environment.h>
 #  include <mono/utils/mono-publib.h>
 #  include <mono/metadata/mono-config.h>
 #  include <mono/jit/jit.h>
-#endif
+#అయితే_ముగింపు
 
-#if HAVE_DLOPEN && HAVE_MONO
-static int
-mono_exec (void *cookie arg_unused, libcrun_container_t *container arg_unused,
-           const char *pathname, char *const argv[] arg_unused)
+#ఒకవేళ HAVE_DLOPEN && HAVE_MONO
+స్థిర పూర్ణాంకం
+mono_exec (శూన్య *cookie arg_వాడని, libcrun_container_t *container arg_వాడని,
+           స్థిరరాశి అక్షరం *pathname, అక్షరం *స్థిరరాశి argv[] arg_వాడని)
 {
   MonoDomain *domain;
-  char *path = (char *) pathname;
-  int argc = 2;
-  char *argv_mono[] = {
-    path,
-    path,
-    NULL
+  అక్షరం *మార్గం = (అక్షరం *) pathname;
+  పూర్ణాంకం argc = 2;
+  అక్షరం *argv_mono[] = {
+    మార్గం,
+    మార్గం,
+    ఖాళీ
   };
-  const char *file;
-  int retval;
+  స్థిరరాశి అక్షరం *file;
+  పూర్ణాంకం retval;
 
   file = argv_mono[1];
 
-  MonoAllocatorVTable mem_vtable = { MONO_ALLOCATOR_VTABLE_VERSION, xmalloc, NULL, NULL, NULL };
-  mono_set_allocator_vtable (&mem_vtable);
+  MonoAllocatorVTable mem_vtable = { MONO_ALLOCATOR_VTABLE_సంస్కరణ, xmalloc, ఖాళీ, ఖాళీ, ఖాళీ };
+  mono_సమితి_allocator_vtable (&mem_vtable);
 
   /*
    * Load the default Mono configuration file, this is needed
    * if you are planning on using the dllmaps defined on the
    * system configuration
    */
-  mono_config_parse (NULL);
+  mono_config_parse (ఖాళీ);
   /*
    * mono_jit_init() creates a domain: each assembly is
    * loaded and run in a MonoDomain.
@@ -80,8 +80,8 @@ mono_exec (void *cookie arg_unused, libcrun_container_t *container arg_unused,
 
   MonoAssembly *assembly;
   assembly = mono_domain_assembly_open (domain, file);
-  if (! assembly)
-    exit (EXIT_FAILURE);
+  ఒకవేళ (! assembly)
+    నిష్క్రమించు (EXIT_FAILURE);
   /*
    * mono_jit_exec() will run the Main() method in the assembly.
    * The return value needs to be looked up from
@@ -90,32 +90,32 @@ mono_exec (void *cookie arg_unused, libcrun_container_t *container arg_unused,
   mono_jit_exec (domain, assembly, argc - 1, argv_mono + 1);
   retval = mono_environment_exitcode_get ();
   mono_jit_cleanup (domain);
-  return 0;
+  తిరిగి 0;
 }
 
-static int
-mono_load (void **cookie, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+mono_ఎక్కించు (శూన్య **cookie, libcrun_error_t *err)
 {
-  void *handle;
+  శూన్య *handle;
 
   handle = dlopen ("libmono-native.so", RTLD_NOW);
-  if (handle == NULL)
-    return crun_make_error (err, 0, "could not load `libmono-native.so`: `%s`", dlerror ());
+  ఒకవేళ (handle == ఖాళీ)
+    తిరిగి crun_make_error (err, 0, "could not load `libmono-native.so`: `%s`", dlerror ());
   *cookie = handle;
 
-  return 0;
+  తిరిగి 0;
 }
 
-static int
-mono_configure_container (void *cookie arg_unused, enum handler_configure_phase phase,
-                          libcrun_context_t *context arg_unused, libcrun_container_t *container,
-                          const char *rootfs arg_unused, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+mono_configure_container (శూన్య *cookie arg_వాడని, గణన handler_configure_phase phase,
+                          libcrun_context_t *context arg_వాడని, libcrun_container_t *container,
+                          స్థిరరాశి అక్షరం *rootfs arg_వాడని, libcrun_error_t *err)
 {
-  int ret;
-  if (phase != HANDLER_CONFIGURE_MOUNTS)
-    return 0;
+  పూర్ణాంకం ret;
+  ఒకవేళ (phase != HANDLER_CONFIGURE_MOUNTS)
+    తిరిగి 0;
 
-  char *options[] = {
+  అక్షరం *options[] = {
     "ro",
     "rprivate",
     "nosuid",
@@ -124,52 +124,52 @@ mono_configure_container (void *cookie arg_unused, enum handler_configure_phase 
   };
 
   ret = libcrun_container_do_bind_mount (container, "/etc/mono", "/etc/mono", options, 5, err);
-  if (ret != 0)
-    return ret;
+  ఒకవేళ (ret != 0)
+    తిరిగి ret;
 
   ret = libcrun_container_do_bind_mount (container, "/usr/lib/mono", "/usr/lib/mono", options, 5, err);
-  if (ret != 0)
-    return ret;
+  ఒకవేళ (ret != 0)
+    తిరిగి ret;
 
-  return 0;
+  తిరిగి 0;
 }
 
-static int
-mono_unload (void *cookie, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+mono_unload (శూన్య *cookie, libcrun_error_t *err)
 {
-  int r;
+  పూర్ణాంకం r;
 
-  if (cookie)
+  ఒకవేళ (cookie)
     {
       r = dlclose (cookie);
-      if (UNLIKELY (r < 0))
-        return crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
+      ఒకవేళ (UNLIKELY (r < 0))
+        తిరిగి crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
     }
-  return 0;
+  తిరిగి 0;
 }
 
-static int
-mono_can_handle_container (libcrun_container_t *container, libcrun_error_t *err arg_unused)
+స్థిర పూర్ణాంకం
+mono_can_handle_container (libcrun_container_t *container, libcrun_error_t *err arg_వాడని)
 {
-  const char *annotation;
+  స్థిరరాశి అక్షరం *annotation;
 
-  annotation = find_annotation (container, "run.oci.handler");
-  if (annotation)
-    return strcmp (annotation, "dotnet") == 0 ? 1 : 0;
+  annotation = కనుగొను_annotation (container, "run.oci.handler");
+  ఒకవేళ (annotation)
+    తిరిగి strcmp (annotation, "dotnet") == 0 ? 1 : 0;
 
-  return 0;
+  తిరిగి 0;
 }
 
-struct custom_handler_s handler_mono = {
+నిర్మాణం custom_handler_s handler_mono = {
   .name = "dotnet",
-  .alias = NULL,
+  .alias = ఖాళీ,
   .feature_string = ".NET:mono",
-  .supports_open_tree_namespace = false,
-  .load = mono_load,
+  .supports_open_వృక్షం_namespace = false,
+  .ఎక్కించు = mono_ఎక్కించు,
   .unload = mono_unload,
-  .run_func = mono_exec,
+  .నిరంతరం_func = mono_exec,
   .can_handle_container = mono_can_handle_container,
   .configure_container = mono_configure_container,
 };
 
-#endif
+#అయితే_ముగింపు

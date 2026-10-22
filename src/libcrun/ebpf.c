@@ -16,118 +16,118 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#నిర్వచించు GNU_ఆధారం
 
-#include <config.h>
-#include "ebpf.h"
-#include "utils.h"
-#include <unistd.h>
-#include <sys/syscall.h>
-#include <sys/resource.h>
+#అన్తర్భావ <config.h>
+#అన్తర్భావ "ebpf.h"
+#అన్తర్భావ "utils.h"
+#అన్తర్భావ <unistd.h>
+#అన్తర్భావ <sys/syscall.h>
+#అన్తర్భావ <sys/resource.h>
 
-#ifdef HAVE_EBPF
+#నిర్వచితమైతే HAVE_EBPF
 #  include <linux/bpf.h>
 
 #  ifndef HAVE_BPF
-static int
-syscall_bpf (int cmd, union bpf_attr *attr, unsigned int size)
+స్థిర పూర్ణాంకం
+syscall_bpf (పూర్ణాంకం cmd, సంఘం bpf_attr *attr, గుర్తులేని పూర్ణాంకం కొలత)
 {
-  return (int) syscall (__NR_bpf, cmd, attr, size);
+  తిరిగి (పూర్ణాంకం) syscall (__NR_bpf, cmd, attr, కొలత);
 }
 #    define bpf syscall_bpf
 #  endif
 
-#endif
+#అయితే_ముగింపు
 
-static inline uint64_t
-ptr_to_u64 (const void *ptr)
+స్థిర అంతఃవరుస uint64_t
+ptr_గమ్యం_u64 (స్థిరరాశి శూన్య *ptr)
 {
-  return (uint64_t) (unsigned long) ptr;
+  తిరిగి (uint64_t) (గుర్తులేని దీర్ఘ) ptr;
 }
 
-enum
+గణన
 {
   HAS_WILDCARD = 1
 };
 
-struct bpf_program
+నిర్మాణం bpf_కార్యక్రమం
 {
   size_t allocated;
-  size_t used;
-  unsigned int private;
-  char program[];
+  size_t వాడిన;
+  గుర్తులేని పూర్ణాంకం అంతరంగ;
+  అక్షరం కార్యక్రమం[];
 };
 
-#ifdef HAVE_EBPF
+#నిర్వచితమైతే HAVE_EBPF
 
 #  define BPF_ALU32_IMM(OP, DST, IMM) \
-    ((struct bpf_insn) { .code = BPF_ALU | BPF_OP (OP) | BPF_K, .dst_reg = DST, .src_reg = 0, .off = 0, .imm = IMM })
+    ((నిర్మాణం bpf_insn) { .సంకేతం_2 = BPF_ALU | BPF_OP (OP) | BPF_K, .dst_reg = DST, .src_reg = 0, .off = 0, .imm = IMM })
 
-#  define BPF_LDX_MEM(SIZE, DST, SRC, OFF) \
-    ((struct bpf_insn) {                   \
-        .code = BPF_LDX | BPF_SIZE (SIZE) | BPF_MEM, .dst_reg = DST, .src_reg = SRC, .off = OFF, .imm = 0 })
+#  define BPF_LDX_MEM(కొలత_2, DST, SRC, OFF) \
+    ((నిర్మాణం bpf_insn) {                   \
+        .సంకేతం_2 = BPF_LDX | BPF_కొలత (కొలత_2) | BPF_MEM, .dst_reg = DST, .src_reg = SRC, .off = OFF, .imm = 0 })
 
 #  define BPF_MOV64_REG(DST, SRC) \
-    ((struct bpf_insn) { .code = BPF_ALU64 | BPF_MOV | BPF_X, .dst_reg = DST, .src_reg = SRC, .off = 0, .imm = 0 })
+    ((నిర్మాణం bpf_insn) { .సంకేతం_2 = BPF_ALU64 | BPF_MOV | BPF_X, .dst_reg = DST, .src_reg = SRC, .off = 0, .imm = 0 })
 
 #  define BPF_JMP_A(OFF) \
-    ((struct bpf_insn) { .code = BPF_JMP | BPF_JA, .dst_reg = 0, .src_reg = 0, .off = OFF, .imm = 0 })
+    ((నిర్మాణం bpf_insn) { .సంకేతం_2 = BPF_JMP | BPF_JA, .dst_reg = 0, .src_reg = 0, .off = OFF, .imm = 0 })
 
 #  define BPF_JMP_IMM(OP, DST, IMM, OFF) \
-    ((struct bpf_insn) { .code = BPF_JMP | BPF_OP (OP) | BPF_K, .dst_reg = DST, .src_reg = 0, .off = OFF, .imm = IMM })
+    ((నిర్మాణం bpf_insn) { .సంకేతం_2 = BPF_JMP | BPF_OP (OP) | BPF_K, .dst_reg = DST, .src_reg = 0, .off = OFF, .imm = IMM })
 
 #  define BPF_JMP_REG(OP, DST, SRC, OFF) \
-    ((struct bpf_insn) { .code = BPF_JMP | BPF_OP (OP) | BPF_X, .dst_reg = DST, .src_reg = SRC, .off = OFF, .imm = 0 })
+    ((నిర్మాణం bpf_insn) { .సంకేతం_2 = BPF_JMP | BPF_OP (OP) | BPF_X, .dst_reg = DST, .src_reg = SRC, .off = OFF, .imm = 0 })
 
 #  define BPF_MOV64_IMM(DST, IMM) \
-    ((struct bpf_insn) { .code = BPF_ALU64 | BPF_MOV | BPF_K, .dst_reg = DST, .src_reg = 0, .off = 0, .imm = IMM })
+    ((నిర్మాణం bpf_insn) { .సంకేతం_2 = BPF_ALU64 | BPF_MOV | BPF_K, .dst_reg = DST, .src_reg = 0, .off = 0, .imm = IMM })
 
 #  define BPF_MOV32_REG(DST, SRC) \
-    ((struct bpf_insn) { .code = BPF_ALU | BPF_MOV | BPF_X, .dst_reg = DST, .src_reg = SRC, .off = 0, .imm = 0 })
+    ((నిర్మాణం bpf_insn) { .సంకేతం_2 = BPF_ALU | BPF_MOV | BPF_X, .dst_reg = DST, .src_reg = SRC, .off = 0, .imm = 0 })
 
 #  define BPF_EXIT_INSN() \
-    ((struct bpf_insn) { .code = BPF_JMP | BPF_EXIT, .dst_reg = 0, .src_reg = 0, .off = 0, .imm = 0 })
-#endif
+    ((నిర్మాణం bpf_insn) { .సంకేతం_2 = BPF_JMP | BPF_EXIT, .dst_reg = 0, .src_reg = 0, .off = 0, .imm = 0 })
+#అయితే_ముగింపు
 
-#ifdef HAVE_EBPF
-static size_t
-bpf_program_instructions (struct bpf_program *program)
+#నిర్వచితమైతే HAVE_EBPF
+స్థిర size_t
+bpf_కార్యక్రమం_instructions (నిర్మాణం bpf_కార్యక్రమం *కార్యక్రమం)
 {
-  return program->used / (sizeof (struct bpf_insn));
+  తిరిగి కార్యక్రమం->వాడిన / (పరిమాణం (నిర్మాణం bpf_insn));
 }
-#endif
+#అయితే_ముగింపు
 
-struct bpf_program *
-bpf_program_new (size_t size)
+నిర్మాణం bpf_కార్యక్రమం *
+bpf_కార్యక్రమం_new (size_t కొలత)
 {
-  struct bpf_program *p = xmalloc (size + sizeof (struct bpf_program));
+  నిర్మాణం bpf_కార్యక్రమం *p = xmalloc (కొలత + పరిమాణం (నిర్మాణం bpf_కార్యక్రమం));
 
-  p->used = 0;
-  p->private = 0;
-  p->allocated = size;
+  p->వాడిన = 0;
+  p->అంతరంగ = 0;
+  p->allocated = కొలత;
 
-  return p;
+  తిరిగి p;
 }
 
-struct bpf_program *
-bpf_program_append (struct bpf_program *p, void *data, size_t size)
+నిర్మాణం bpf_కార్యక్రమం *
+bpf_కార్యక్రమం_append (నిర్మాణం bpf_కార్యక్రమం *p, శూన్య *దత్తాంశం, size_t కొలత)
 {
-  if (p->allocated <= p->used + size)
+  ఒకవేళ (p->allocated <= p->వాడిన + కొలత)
     {
-      p->allocated += size * 2;
-      p = xrealloc (p, p->allocated + sizeof (struct bpf_program));
+      p->allocated += కొలత * 2;
+      p = xrealloc (p, p->allocated + పరిమాణం (నిర్మాణం bpf_కార్యక్రమం));
     }
-  memcpy (p->program + p->used, data, size);
-  p->used += size;
-  return p;
+  జ్ఞాపకం_నకలు (p->కార్యక్రమం + p->వాడిన, దత్తాంశం, కొలత);
+  p->వాడిన += కొలత;
+  తిరిగి p;
 }
 
-struct bpf_program *
-bpf_program_init_dev (struct bpf_program *program, libcrun_error_t *err arg_unused)
+నిర్మాణం bpf_కార్యక్రమం *
+bpf_కార్యక్రమం_init_dev (నిర్మాణం bpf_కార్యక్రమం *కార్యక్రమం, libcrun_error_t *err arg_వాడని)
 {
-#ifdef HAVE_EBPF
+#నిర్వచితమైతే HAVE_EBPF
   /* taken from systemd.  */
-  struct bpf_insn pre_insn[] = {
+  నిర్మాణం bpf_insn pre_insn[] = {
     /* type -> R2.  */
     BPF_LDX_MEM (BPF_W, BPF_REG_2, BPF_REG_1, 0),
     BPF_ALU32_IMM (BPF_AND, BPF_REG_2, 0xFFFF),
@@ -142,50 +142,50 @@ bpf_program_init_dev (struct bpf_program *program, libcrun_error_t *err arg_unus
     /* minor -> R5.  */
     BPF_LDX_MEM (BPF_W, BPF_REG_5, BPF_REG_1, 8),
   };
-  program = bpf_program_append (program, pre_insn, sizeof (pre_insn));
-#endif
-  return program;
+  కార్యక్రమం = bpf_కార్యక్రమం_append (కార్యక్రమం, pre_insn, పరిమాణం (pre_insn));
+#అయితే_ముగింపు
+  తిరిగి కార్యక్రమం;
 }
 
-struct bpf_program *
-bpf_program_append_dev (struct bpf_program *program, const char *access, char type, int major, int minor, bool accept,
-                        libcrun_error_t *err arg_unused)
+నిర్మాణం bpf_కార్యక్రమం *
+bpf_కార్యక్రమం_append_dev (నిర్మాణం bpf_కార్యక్రమం *కార్యక్రమం, స్థిరరాశి అక్షరం *access, అక్షరం type, పూర్ణాంకం major, పూర్ణాంకం minor, bool accept,
+                        libcrun_error_t *err arg_వాడని)
 {
-#ifdef HAVE_EBPF
-  int i;
-  int bpf_access = 0;
-  int bpf_type = type == 'b' ? BPF_DEVCG_DEV_BLOCK : BPF_DEVCG_DEV_CHAR;
+#నిర్వచితమైతే HAVE_EBPF
+  పూర్ణాంకం i;
+  పూర్ణాంకం bpf_access = 0;
+  పూర్ణాంకం bpf_type = type == 'b' ? BPF_DEVCG_DEV_ఖండం : BPF_DEVCG_DEV_CHAR;
   bool has_type = type != 'a';
   bool has_major = major >= 0;
   bool has_minor = minor >= 0;
   bool has_access = false;
-  int number_instructions = 0;
-  struct bpf_insn accept_block[] = {
+  పూర్ణాంకం సంఖ్య_instructions = 0;
+  నిర్మాణం bpf_insn accept_ఖండం[] = {
     BPF_MOV64_IMM (BPF_REG_0, accept ? 1 : 0),
     BPF_EXIT_INSN (),
   };
 
-  if (access == NULL)
+  ఒకవేళ (access == ఖాళీ)
     access = "";
 
-  if (program->private & HAS_WILDCARD)
-    return program;
+  ఒకవేళ (కార్యక్రమం->అంతరంగ & HAS_WILDCARD)
+    తిరిగి కార్యక్రమం;
 
-  for (i = 0; access[i]; i++)
+  కొరకు (i = 0; access[i]; i++)
     {
-      switch (access[i])
+      ఎంపిక (access[i])
         {
-        case 'r':
+        స్థితి 'r':
           bpf_access |= BPF_DEVCG_ACC_READ;
-          break;
+          ఆపు;
 
-        case 'w':
+        స్థితి 'w':
           bpf_access |= BPF_DEVCG_ACC_WRITE;
-          break;
+          ఆపు;
 
-        case 'm':
+        స్థితి 'm':
           bpf_access |= BPF_DEVCG_ACC_MKNOD;
-          break;
+          ఆపు;
         }
     }
 
@@ -208,432 +208,432 @@ bpf_program_append_dev (struct bpf_program *program, const char *access, char ty
   has_access = bpf_access != (BPF_DEVCG_ACC_READ | BPF_DEVCG_ACC_WRITE | BPF_DEVCG_ACC_MKNOD);
 
   /* Number of instructions to skip the ACCEPT BLOCK.  */
-  number_instructions = (has_type ? 1 : 0) + (has_access ? 3 : 0) + (has_major ? 1 : 0) + (has_minor ? 1 : 0) + 1;
+  సంఖ్య_instructions = (has_type ? 1 : 0) + (has_access ? 3 : 0) + (has_major ? 1 : 0) + (has_minor ? 1 : 0) + 1;
 
-  if (has_type)
+  ఒకవేళ (has_type)
     {
-      struct bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_2, bpf_type, number_instructions) };
-      number_instructions--;
-      program = bpf_program_append (program, i, sizeof (i));
+      నిర్మాణం bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_2, bpf_type, సంఖ్య_instructions) };
+      సంఖ్య_instructions--;
+      కార్యక్రమం = bpf_కార్యక్రమం_append (కార్యక్రమం, i, పరిమాణం (i));
     }
-  if (has_access)
+  ఒకవేళ (has_access)
     {
-      struct bpf_insn i[] = {
+      నిర్మాణం bpf_insn i[] = {
         BPF_MOV32_REG (BPF_REG_1, BPF_REG_3),
         BPF_ALU32_IMM (BPF_AND, BPF_REG_1, bpf_access),
-        accept ? BPF_JMP_REG (BPF_JNE, BPF_REG_1, BPF_REG_3, number_instructions - 2)
-               : BPF_JMP_IMM (BPF_JEQ, BPF_REG_1, 0, number_instructions - 2),
+        accept ? BPF_JMP_REG (BPF_JNE, BPF_REG_1, BPF_REG_3, సంఖ్య_instructions - 2)
+               : BPF_JMP_IMM (BPF_JEQ, BPF_REG_1, 0, సంఖ్య_instructions - 2),
       };
-      number_instructions -= 3;
-      program = bpf_program_append (program, i, sizeof (i));
+      సంఖ్య_instructions -= 3;
+      కార్యక్రమం = bpf_కార్యక్రమం_append (కార్యక్రమం, i, పరిమాణం (i));
     }
-  if (has_major)
+  ఒకవేళ (has_major)
     {
-      struct bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_4, major, number_instructions) };
-      number_instructions--;
-      program = bpf_program_append (program, i, sizeof (i));
+      నిర్మాణం bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_4, major, సంఖ్య_instructions) };
+      సంఖ్య_instructions--;
+      కార్యక్రమం = bpf_కార్యక్రమం_append (కార్యక్రమం, i, పరిమాణం (i));
     }
-  if (has_minor)
+  ఒకవేళ (has_minor)
     {
-      struct bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_5, minor, number_instructions) };
-      number_instructions--;
-      program = bpf_program_append (program, i, sizeof (i));
+      నిర్మాణం bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_5, minor, సంఖ్య_instructions) };
+      సంఖ్య_instructions--;
+      కార్యక్రమం = bpf_కార్యక్రమం_append (కార్యక్రమం, i, పరిమాణం (i));
     }
 
-  if (has_type == 0 && has_access == 0 && has_major == 0 && has_minor == 0)
-    program->private |= HAS_WILDCARD;
+  ఒకవేళ (has_type == 0 && has_access == 0 && has_major == 0 && has_minor == 0)
+    కార్యక్రమం->అంతరంగ |= HAS_WILDCARD;
 
-  program = bpf_program_append (program, accept_block, sizeof (accept_block));
-#endif
-  (void) access;
-  (void) type;
-  (void) major;
-  (void) minor;
-  (void) accept;
+  కార్యక్రమం = bpf_కార్యక్రమం_append (కార్యక్రమం, accept_ఖండం, పరిమాణం (accept_ఖండం));
+#అయితే_ముగింపు
+  (శూన్య) access;
+  (శూన్య) type;
+  (శూన్య) major;
+  (శూన్య) minor;
+  (శూన్య) accept;
 
-  return program;
+  తిరిగి కార్యక్రమం;
 }
 
-struct bpf_program *
-bpf_program_complete_dev (struct bpf_program *program, libcrun_error_t *err arg_unused)
+నిర్మాణం bpf_కార్యక్రమం *
+bpf_కార్యక్రమం_complete_dev (నిర్మాణం bpf_కార్యక్రమం *కార్యక్రమం, libcrun_error_t *err arg_వాడని)
 {
-#ifdef HAVE_EBPF
-  struct bpf_insn i[] = {
+#నిర్వచితమైతే HAVE_EBPF
+  నిర్మాణం bpf_insn i[] = {
     BPF_MOV64_IMM (BPF_REG_0, 0),
     BPF_EXIT_INSN (),
   };
 
-  if (program->private & HAS_WILDCARD)
-    return program;
+  ఒకవేళ (కార్యక్రమం->అంతరంగ & HAS_WILDCARD)
+    తిరిగి కార్యక్రమం;
 
-  program = bpf_program_append (program, &i, sizeof (i));
-#endif
-  return program;
+  కార్యక్రమం = bpf_కార్యక్రమం_append (కార్యక్రమం, &i, పరిమాణం (i));
+#అయితే_ముగింపు
+  తిరిగి కార్యక్రమం;
 }
 
-static int
-read_all_progs (int dirfd, uint32_t **progs_out, size_t *n_progs_out, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+read_all_progs (పూర్ణాంకం dirfd, uint32_t **progs_బహిర్గతం, size_t *n_progs_బహిర్గతం, libcrun_error_t *err)
 {
-#ifdef HAVE_EBPF
-  cleanup_free uint32_t *progs = NULL;
-  union bpf_attr attr;
-  int ret;
-  size_t cur_size;
+#నిర్వచితమైతే HAVE_EBPF
+  cleanup_free uint32_t *progs = ఖాళీ;
+  సంఘం bpf_attr attr;
+  పూర్ణాంకం ret;
+  size_t cur_కొలత;
 
   /* The kernel 5.7 has a hard limit of 64, let's be safe if the limit
      will be increased in future and attempt up to 4096.  */
-  for (cur_size = 64; cur_size <= 4096; cur_size *= 2)
+  కొరకు (cur_కొలత = 64; cur_కొలత <= 4096; cur_కొలత *= 2)
     {
-      progs = xrealloc (progs, sizeof (uint32_t) * cur_size);
+      progs = xrealloc (progs, పరిమాణం (uint32_t) * cur_కొలత);
 
-      memset (&attr, 0, sizeof (attr));
-      attr.query.target_fd = dirfd;
+      memset (&attr, 0, పరిమాణం (attr));
+      attr.query.లక్ష్యం_fd = dirfd;
       attr.query.attach_type = BPF_CGROUP_DEVICE;
-      attr.query.prog_cnt = cur_size;
-      attr.query.prog_ids = ptr_to_u64 (progs);
+      attr.query.prog_cnt = cur_కొలత;
+      attr.query.prog_ids = ptr_గమ్యం_u64 (progs);
 
-      ret = bpf (BPF_PROG_QUERY, &attr, sizeof (attr));
+      ret = bpf (BPF_PROG_QUERY, &attr, పరిమాణం (attr));
     }
-  while (ret < 0 && errno == ENOSPC)
+  అయితే (ret < 0 && errno == ENOSPC)
     ;
 
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "bpf query");
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి crun_make_error (err, errno, "bpf query");
 
-  *progs_out = progs;
-  progs = NULL;
-  *n_progs_out = attr.query.prog_cnt;
-  return 0;
-#else
-  (void) dirfd;
+  *progs_బహిర్గతం = progs;
+  progs = ఖాళీ;
+  *n_progs_బహిర్గతం = attr.query.prog_cnt;
+  తిరిగి 0;
+#లేకపోతే
+  (శూన్య) dirfd;
 
-  *progs_out = NULL;
-  *n_progs_out = 0;
+  *progs_బహిర్గతం = ఖాళీ;
+  *n_progs_బహిర్గతం = 0;
 
-  return crun_make_error (err, 0, "eBPF not supported");
-#endif
+  తిరిగి crun_make_error (err, 0, "eBPF not supported");
+#అయితే_ముగింపు
 }
 
-static int
-remove_all_progs (int dirfd, uint32_t *progs, size_t n_progs, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+remove_all_progs (పూర్ణాంకం dirfd, uint32_t *progs, size_t n_progs, libcrun_error_t *err)
 {
-#ifdef HAVE_EBPF
-  union bpf_attr attr;
+#నిర్వచితమైతే HAVE_EBPF
+  సంఘం bpf_attr attr;
   size_t i;
 
-  for (i = 0; i < n_progs; i++)
+  కొరకు (i = 0; i < n_progs; i++)
     {
-      cleanup_close int fd = -1;
-      int ret;
+      cleanup_close పూర్ణాంకం fd = -1;
+      పూర్ణాంకం ret;
 
-      memset (&attr, 0, sizeof (attr));
+      memset (&attr, 0, పరిమాణం (attr));
       attr.prog_id = progs[i];
-      fd = bpf (BPF_PROG_GET_FD_BY_ID, &attr, sizeof (attr));
-      if (UNLIKELY (fd < 0))
+      fd = bpf (BPF_PROG_GET_FD_BY_ID, &attr, పరిమాణం (attr));
+      ఒకవేళ (UNLIKELY (fd < 0))
         {
           /* Already removed.  Nothing to do.  */
-          if (errno == ENOENT)
-            continue;
+          ఒకవేళ (errno == ENOENT)
+            కొనసాగు;
 
-          return crun_make_error (err, errno, "cannot open existing eBPF program");
+          తిరిగి crun_make_error (err, errno, "cannot open existing eBPF program");
         }
 
-      memset (&attr, 0, sizeof (attr));
+      memset (&attr, 0, పరిమాణం (attr));
       attr.attach_type = BPF_CGROUP_DEVICE;
-      attr.target_fd = dirfd;
+      attr.లక్ష్యం_fd = dirfd;
       attr.attach_bpf_fd = fd;
 
-      ret = bpf (BPF_PROG_DETACH, &attr, sizeof (attr));
-      if (UNLIKELY (ret < 0))
+      ret = bpf (BPF_PROG_DETACH, &attr, పరిమాణం (attr));
+      ఒకవేళ (UNLIKELY (ret < 0))
         {
           /* Already removed.  Nothing to do.  */
-          if (errno == ENOENT)
-            continue;
+          ఒకవేళ (errno == ENOENT)
+            కొనసాగు;
 
-          return crun_make_error (err, errno, "cannot detach eBPF program");
+          తిరిగి crun_make_error (err, errno, "cannot detach eBPF program");
         }
     }
-  return 0;
-#else
-  (void) dirfd;
-  (void) progs;
-  (void) n_progs;
-  return crun_make_error (err, 0, "eBPF not supported");
-#endif
+  తిరిగి 0;
+#లేకపోతే
+  (శూన్య) dirfd;
+  (శూన్య) progs;
+  (శూన్య) n_progs;
+  తిరిగి crun_make_error (err, 0, "eBPF not supported");
+#అయితే_ముగింపు
 }
 
-static int
-ebpf_attach_program (int fd, int dirfd, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+ebpf_attach_కార్యక్రమం (పూర్ణాంకం fd, పూర్ణాంకం dirfd, libcrun_error_t *err)
 {
-#ifndef HAVE_EBPF
-  (void) fd;
-  (void) dirfd;
-  (void) read_all_progs;
-  (void) remove_all_progs;
+#నిర్వచితం_కాకపోతే HAVE_EBPF
+  (శూన్య) fd;
+  (శూన్య) dirfd;
+  (శూన్య) read_all_progs;
+  (శూన్య) remove_all_progs;
 
-  return crun_make_error (err, 0, "eBPF not supported");
-#else
+  తిరిగి crun_make_error (err, 0, "eBPF not supported");
+#లేకపోతే
 #  ifdef BPF_F_REPLACE
   bool skip_replace = false;
 #  endif
-  const int MAX_ATTEMPTS = 20;
-  int attempt;
+  స్థిరరాశి పూర్ణాంకం MAX_ATTEMPTS = 20;
+  పూర్ణాంకం attempt;
 
-  for (attempt = 0;; attempt++)
+  కొరకు (attempt = 0;; attempt++)
     {
-      cleanup_free uint32_t *progs = NULL;
-      cleanup_close int replacefd = -1;
-      union bpf_attr attr;
+      cleanup_free uint32_t *progs = ఖాళీ;
+      cleanup_close పూర్ణాంకం replacefd = -1;
+      సంఘం bpf_attr attr;
       size_t n_progs = 0;
-      int ret;
+      పూర్ణాంకం ret;
 
       ret = read_all_progs (dirfd, &progs, &n_progs, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి ret;
 
 #  ifdef BPF_F_REPLACE
       /* There is just one program installed, let's attempt an atomic replace if supported.  */
-      if (! skip_replace && n_progs == 1)
+      ఒకవేళ (! skip_replace && n_progs == 1)
         {
-          memset (&attr, 0, sizeof (attr));
+          memset (&attr, 0, పరిమాణం (attr));
           attr.prog_id = progs[0];
-          replacefd = bpf (BPF_PROG_GET_FD_BY_ID, &attr, sizeof (attr));
-          if (UNLIKELY (replacefd < 0))
+          replacefd = bpf (BPF_PROG_GET_FD_BY_ID, &attr, పరిమాణం (attr));
+          ఒకవేళ (UNLIKELY (replacefd < 0))
             {
-              if (errno == ENOENT && attempt < MAX_ATTEMPTS)
+              ఒకవేళ (errno == ENOENT && attempt < MAX_ATTEMPTS)
                 {
                   /* Another update might have raced and updated, try again.  */
-                  continue;
+                  కొనసాగు;
                 }
-              return crun_make_error (err, errno, "cannot open existing eBPF program");
+              తిరిగి crun_make_error (err, errno, "cannot open existing eBPF program");
             }
         }
 #  endif
 
-      memset (&attr, 0, sizeof (attr));
+      memset (&attr, 0, పరిమాణం (attr));
       attr.attach_type = BPF_CGROUP_DEVICE;
-      attr.target_fd = dirfd;
+      attr.లక్ష్యం_fd = dirfd;
       attr.attach_bpf_fd = fd;
       attr.attach_flags = BPF_F_ALLOW_MULTI;
 #  ifdef BPF_F_REPLACE
-      if (replacefd >= 0)
+      ఒకవేళ (replacefd >= 0)
         {
           attr.attach_flags = BPF_F_ALLOW_MULTI | BPF_F_REPLACE;
           attr.replace_bpf_fd = replacefd;
         }
 #  endif
 
-      ret = bpf (BPF_PROG_ATTACH, &attr, sizeof (attr));
-      if (UNLIKELY (ret < 0))
+      ret = bpf (BPF_PROG_ATTACH, &attr, పరిమాణం (attr));
+      ఒకవేళ (UNLIKELY (ret < 0))
         {
-          if (errno == ENOENT && replacefd >= 0 && attempt < MAX_ATTEMPTS)
+          ఒకవేళ (errno == ENOENT && replacefd >= 0 && attempt < MAX_ATTEMPTS)
             {
               /* Another update might have already updated the cgroup, try again.  */
-              continue;
+              కొనసాగు;
             }
 #  ifdef BPF_F_REPLACE
-          if (errno == EINVAL && replacefd >= 0)
+          ఒకవేళ (errno == EINVAL && replacefd >= 0)
             {
               skip_replace = true;
-              continue;
+              కొనసాగు;
             }
 #  endif
-          return crun_make_error (err, errno, "bpf attach");
+          తిరిగి crun_make_error (err, errno, "bpf attach");
         }
 
       /* Now that the new program is installed, remove all the programs that were previously installed.  */
-      if (replacefd < 0 && n_progs)
-        return remove_all_progs (dirfd, progs, n_progs, err);
+      ఒకవేళ (replacefd < 0 && n_progs)
+        తిరిగి remove_all_progs (dirfd, progs, n_progs, err);
 
-      return 0;
+      తిరిగి 0;
     }
-#endif
+#అయితే_ముగింపు
 }
 
-static void
+స్థిర శూన్య
 bump_memlock ()
 {
-  struct rlimit limit;
-  int ret;
+  నిర్మాణం rlimit హద్దు;
+  పూర్ణాంకం ret;
 
-  limit.rlim_cur = RLIM_INFINITY;
-  limit.rlim_max = RLIM_INFINITY;
+  హద్దు.rlim_cur = RLIM_INFINITY;
+  హద్దు.rlim_max = RLIM_INFINITY;
 
-  ret = setrlimit (RLIMIT_MEMLOCK, &limit);
-  if (ret == 0)
-    return;
+  ret = setrlimit (RLIMIT_MEMLOCK, &హద్దు);
+  ఒకవేళ (ret == 0)
+    తిరిగి;
 
   /* If the above failed, try to set the current limit
      to the max configured.  */
-  ret = getrlimit (RLIMIT_MEMLOCK, &limit);
-  if (ret < 0)
-    return;
+  ret = getrlimit (RLIMIT_MEMLOCK, &హద్దు);
+  ఒకవేళ (ret < 0)
+    తిరిగి;
 
-  limit.rlim_cur = limit.rlim_max;
+  హద్దు.rlim_cur = హద్దు.rlim_max;
   /* Best effort, ignore errors.  */
-  (void) setrlimit (RLIMIT_MEMLOCK, &limit);
+  (శూన్య) setrlimit (RLIMIT_MEMLOCK, &హద్దు);
 }
 
-int
-libcrun_ebpf_load (struct bpf_program *program, int dirfd, const char *pin, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_ebpf_ఎక్కించు (నిర్మాణం bpf_కార్యక్రమం *కార్యక్రమం, పూర్ణాంకం dirfd, స్థిరరాశి అక్షరం *pin, libcrun_error_t *err)
 {
-#ifndef HAVE_EBPF
-  (void) dirfd;
-  (void) program;
-  (void) pin;
-  (void) ebpf_attach_program;
+#నిర్వచితం_కాకపోతే HAVE_EBPF
+  (శూన్య) dirfd;
+  (శూన్య) కార్యక్రమం;
+  (శూన్య) pin;
+  (శూన్య) ebpf_attach_కార్యక్రమం;
 
-  return crun_make_error (err, 0, "eBPF not supported");
-#else
-  cleanup_close int fd = -1;
-  union bpf_attr attr;
-  int ret;
+  తిరిగి crun_make_error (err, 0, "eBPF not supported");
+#లేకపోతే
+  cleanup_close పూర్ణాంకం fd = -1;
+  సంఘం bpf_attr attr;
+  పూర్ణాంకం ret;
 
-  memset (&attr, 0, sizeof (attr));
+  memset (&attr, 0, పరిమాణం (attr));
   attr.prog_type = BPF_PROG_TYPE_CGROUP_DEVICE;
-  attr.insns = ptr_to_u64 (program->program);
-  attr.insn_cnt = bpf_program_instructions (program);
-  attr.license = ptr_to_u64 ("GPL");
+  attr.insns = ptr_గమ్యం_u64 (కార్యక్రమం->కార్యక్రమం);
+  attr.insn_cnt = bpf_కార్యక్రమం_instructions (కార్యక్రమం);
+  attr.license = ptr_గమ్యం_u64 ("GPL");
 
   /* First try without log.  */
-  fd = bpf (BPF_PROG_LOAD, &attr, sizeof (attr));
-  if (fd < 0)
+  fd = bpf (BPF_PROG_ఎక్కించు, &attr, పరిమాణం (attr));
+  ఒకవేళ (fd < 0)
     {
       /* Prior to Linux 5.11, eBPF programs were accounted to the memlock
          prlimit.  Attempt to bump the limit, if possible.  */
       bump_memlock ();
-      fd = bpf (BPF_PROG_LOAD, &attr, sizeof (attr));
+      fd = bpf (BPF_PROG_ఎక్కించు, &attr, పరిమాణం (attr));
     }
-  if (fd < 0)
+  ఒకవేళ (fd < 0)
     {
-      const size_t max_log_size = 1 << 20;
-      cleanup_free char *log = NULL;
-      size_t log_size = 8192;
+      స్థిరరాశి size_t max_log_కొలత = 1 << 20;
+      cleanup_free అక్షరం *సంవర్గమానం = ఖాళీ;
+      size_t log_కొలత = 8192;
 
     retry:
-      log = xrealloc (log, log_size);
-      log[0] = '\0';
+      సంవర్గమానం = xrealloc (సంవర్గమానం, log_కొలత);
+      సంవర్గమానం[0] = '\0';
       attr.log_level = 1;
-      attr.log_buf = ptr_to_u64 (log);
-      attr.log_size = log_size;
+      attr.log_buf = ptr_గమ్యం_u64 (సంవర్గమానం);
+      attr.log_కొలత = log_కొలత;
 
-      fd = bpf (BPF_PROG_LOAD, &attr, sizeof (attr));
-      if (fd < 0)
+      fd = bpf (BPF_PROG_ఎక్కించు, &attr, పరిమాణం (attr));
+      ఒకవేళ (fd < 0)
         {
-          if (errno == ENOSPC && log_size < max_log_size)
+          ఒకవేళ (errno == ENOSPC && log_కొలత < max_log_కొలత)
             {
               /* The provided buffer was not big enough.  */
-              log_size *= 2;
-              goto retry;
+              log_కొలత *= 2;
+              వెళ్ళు retry;
             }
-          return crun_make_error (err, errno, "bpf create `%s`", log);
+          తిరిగి crun_make_error (err, errno, "bpf create `%s`", సంవర్గమానం);
         }
     }
 
-  if (dirfd >= 0)
+  ఒకవేళ (dirfd >= 0)
     {
-      ret = ebpf_attach_program (fd, dirfd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = ebpf_attach_కార్యక్రమం (fd, dirfd, err);
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి ret;
     }
 
   /* Optionally pin the program to the specified path.  */
-  if (pin)
+  ఒకవేళ (pin)
     {
       unlink (pin);
 
-      memset (&attr, 0, sizeof (attr));
-      attr.pathname = ptr_to_u64 (pin);
+      memset (&attr, 0, పరిమాణం (attr));
+      attr.pathname = ptr_గమ్యం_u64 (pin);
       attr.bpf_fd = fd;
-      ret = bpf (BPF_OBJ_PIN, &attr, sizeof (attr));
-      if (ret < 0)
-        return crun_make_error (err, errno, "bpf pin to `%s`", pin);
+      ret = bpf (BPF_OBJ_PIN, &attr, పరిమాణం (attr));
+      ఒకవేళ (ret < 0)
+        తిరిగి crun_make_error (err, errno, "bpf pin to `%s`", pin);
     }
 
-  return 0;
-#endif
+  తిరిగి 0;
+#అయితే_ముగింపు
 }
 
-int
-libcrun_ebpf_read_program (struct bpf_program **program_ret, const char *path, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_ebpf_read_కార్యక్రమం (నిర్మాణం bpf_కార్యక్రమం **కార్యక్రమం_ret, స్థిరరాశి అక్షరం *మార్గం, libcrun_error_t *err)
 {
-#ifndef HAVE_EBPF
-  (void) program_ret;
-  (void) path;
+#నిర్వచితం_కాకపోతే HAVE_EBPF
+  (శూన్య) కార్యక్రమం_ret;
+  (శూన్య) మార్గం;
 
-  return crun_make_error (err, 0, "eBPF not supported");
-#else
-  cleanup_free struct bpf_program *program = NULL;
-  cleanup_free char *buffer = NULL;
-  cleanup_close int prog_fd = -1;
-  size_t buffer_size = 0;
-  struct bpf_prog_info info;
-  union bpf_attr attr;
-  int ret;
+  తిరిగి crun_make_error (err, 0, "eBPF not supported");
+#లేకపోతే
+  cleanup_free నిర్మాణం bpf_కార్యక్రమం *కార్యక్రమం = ఖాళీ;
+  cleanup_free అక్షరం *బఫరు = ఖాళీ;
+  cleanup_close పూర్ణాంకం prog_fd = -1;
+  size_t బఫరు_కొలత = 0;
+  నిర్మాణం bpf_prog_info info;
+  సంఘం bpf_attr attr;
+  పూర్ణాంకం ret;
 
-  memset (&attr, 0, sizeof (attr));
-  attr.pathname = ptr_to_u64 (path);
+  memset (&attr, 0, పరిమాణం (attr));
+  attr.pathname = ptr_గమ్యం_u64 (మార్గం);
 
-  prog_fd = bpf (BPF_OBJ_GET, &attr, sizeof (attr));
-  if (UNLIKELY (prog_fd < 0))
-    return crun_make_error (err, errno, "bpf get `%s`", path);
+  prog_fd = bpf (BPF_OBJ_GET, &attr, పరిమాణం (attr));
+  ఒకవేళ (UNLIKELY (prog_fd < 0))
+    తిరిగి crun_make_error (err, errno, "bpf get `%s`", మార్గం);
 
-  memset (&info, 0, sizeof (info));
+  memset (&info, 0, పరిమాణం (info));
 
-  memset (&attr, 0, sizeof (attr));
+  memset (&attr, 0, పరిమాణం (attr));
   attr.info.bpf_fd = prog_fd;
-  attr.info.info = ptr_to_u64 (&info);
-  attr.info.info_len = sizeof (info);
+  attr.info.info = ptr_గమ్యం_u64 (&info);
+  attr.info.info_len = పరిమాణం (info);
 
-  ret = bpf (BPF_OBJ_GET_INFO_BY_FD, &attr, sizeof (attr));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "bpf get info `%s`", path);
+  ret = bpf (BPF_OBJ_GET_INFO_BY_FD, &attr, పరిమాణం (attr));
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి crun_make_error (err, errno, "bpf get info `%s`", మార్గం);
 
-  buffer_size = info.xlated_prog_len;
-  buffer = xmalloc (buffer_size);
+  బఫరు_కొలత = info.xlated_prog_len;
+  బఫరు = xmalloc (బఫరు_కొలత);
 
-  memset (&info, 0, sizeof (info));
-  info.xlated_prog_insns = ptr_to_u64 (buffer);
-  info.xlated_prog_len = buffer_size;
+  memset (&info, 0, పరిమాణం (info));
+  info.xlated_prog_insns = ptr_గమ్యం_u64 (బఫరు);
+  info.xlated_prog_len = బఫరు_కొలత;
 
-  ret = bpf (BPF_OBJ_GET_INFO_BY_FD, &attr, sizeof (attr));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "bpf get info `%s`", path);
+  ret = bpf (BPF_OBJ_GET_INFO_BY_FD, &attr, పరిమాణం (attr));
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి crun_make_error (err, errno, "bpf get info `%s`", మార్గం);
 
-  program = bpf_program_new (buffer_size);
-  program = bpf_program_append (program, buffer, buffer_size);
+  కార్యక్రమం = bpf_కార్యక్రమం_new (బఫరు_కొలత);
+  కార్యక్రమం = bpf_కార్యక్రమం_append (కార్యక్రమం, బఫరు, బఫరు_కొలత);
 
-  *program_ret = program;
-  program = NULL;
+  *కార్యక్రమం_ret = కార్యక్రమం;
+  కార్యక్రమం = ఖాళీ;
 
-  return 0;
-#endif
+  తిరిగి 0;
+#అయితే_ముగింపు
 }
 
-int
-libcrun_ebpf_query_cgroup_progs (const char *cgroup_path, uint32_t **progs_out, size_t *n_progs_out, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_ebpf_query_cgroup_progs (స్థిరరాశి అక్షరం *cgroup_మార్గం, uint32_t **progs_బహిర్గతం, size_t *n_progs_బహిర్గతం, libcrun_error_t *err)
 {
-#ifndef HAVE_EBPF
-  (void) cgroup_path;
-  *progs_out = NULL;
-  *n_progs_out = 0;
-  return crun_make_error (err, 0, "eBPF not supported");
-#else
-  cleanup_close int cgroup_fd = -1;
+#నిర్వచితం_కాకపోతే HAVE_EBPF
+  (శూన్య) cgroup_మార్గం;
+  *progs_బహిర్గతం = ఖాళీ;
+  *n_progs_బహిర్గతం = 0;
+  తిరిగి crun_make_error (err, 0, "eBPF not supported");
+#లేకపోతే
+  cleanup_close పూర్ణాంకం cgroup_fd = -1;
 
-  cgroup_fd = open (cgroup_path, O_PATH | O_CLOEXEC);
-  if (UNLIKELY (cgroup_fd < 0))
-    return crun_make_error (err, errno, "open cgroup path `%s`", cgroup_path);
+  cgroup_fd = open (cgroup_మార్గం, O_మార్గం | O_CLOEXEC);
+  ఒకవేళ (UNLIKELY (cgroup_fd < 0))
+    తిరిగి crun_make_error (err, errno, "open cgroup path `%s`", cgroup_మార్గం);
 
-  return read_all_progs (cgroup_fd, progs_out, n_progs_out, err);
-#endif
+  తిరిగి read_all_progs (cgroup_fd, progs_బహిర్గతం, n_progs_బహిర్గతం, err);
+#అయితే_ముగింపు
 }
 
 bool
-libcrun_ebpf_cmp_programs (struct bpf_program *program1, struct bpf_program *program2)
+libcrun_ebpf_cmp_programs (నిర్మాణం bpf_కార్యక్రమం *program1, నిర్మాణం bpf_కార్యక్రమం *program2)
 {
-  if (program1->used != program2->used)
-    return false;
+  ఒకవేళ (program1->వాడిన != program2->వాడిన)
+    తిరిగి false;
 
-  return memcmp (program1->program, program2->program, program1->used) == 0;
+  తిరిగి memcmp (program1->కార్యక్రమం, program2->కార్యక్రమం, program1->వాడిన) == 0;
 }

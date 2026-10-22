@@ -15,63 +15,63 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE
+#నిర్వచించు GNU_ఆధారం
 
-#include <config.h>
-#include "../custom-handler.h"
-#include "../linux.h"
-#include <sys/stat.h>
+#అన్తర్భావ <config.h>
+#అన్తర్భావ "../custom-handler.h"
+#అన్తర్భావ "../linux.h"
+#అన్తర్భావ <sys/stat.h>
 
-#ifdef HAVE_DLOPEN
+#నిర్వచితమైతే HAVE_DLOPEN
 #  include <dlfcn.h>
-#endif
+#అయితే_ముగింపు
 
-#ifdef HAVE_SPIN
+#నిర్వచితమైతే HAVE_SPIN
 
-#endif
+#అయితే_ముగింపు
 
-#if HAVE_DLOPEN && HAVE_SPIN
-static int
-spin_exec (void *cookie arg_unused, libcrun_container_t *container arg_unused,
-           const char *pathname arg_unused, char *const argv[] arg_unused)
+#ఒకవేళ HAVE_DLOPEN && HAVE_SPIN
+స్థిర పూర్ణాంకం
+spin_exec (శూన్య *cookie arg_వాడని, libcrun_container_t *container arg_వాడని,
+           స్థిరరాశి అక్షరం *pathname arg_వాడని, అక్షరం *స్థిరరాశి argv[] arg_వాడని)
 {
   // wasmtime fails to determine default config path if $HOME is not set
-  char *newenviron[] = { "HOME=/root", NULL };
-  char *newargv[] = { "/bin/spin", "up", "--listen", "0.0.0.0:80", NULL };
+  అక్షరం *newenviron[] = { "HOME=/root", ఖాళీ };
+  అక్షరం *newargv[] = { "/bin/spin", "up", "--listen", "0.0.0.0:80", ఖాళీ };
 
   // spin up needs a /tmp folder
-  int dir_result = mkdir ("/tmp", 0777);
-  if (dir_result != 0 && errno != EEXIST)
+  పూర్ణాంకం dir_ఫలితం = mkdir ("/tmp", 0777);
+  ఒకవేళ (dir_ఫలితం != 0 && errno != EEXIST)
     {
       error (EXIT_FAILURE, errno, "failed to execute mkdir `/tmp`");
     }
 
   execve (newargv[0], newargv, newenviron);
   perror ("execve");
-  exit (EXIT_FAILURE);
+  నిష్క్రమించు (EXIT_FAILURE);
 }
 
-static int
-spin_load (void **cookie arg_unused, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+spin_ఎక్కించు (శూన్య **cookie arg_వాడని, libcrun_error_t *err)
 {
-  struct stat st = { 0 };
-  if (stat ("/usr/local/bin/spin", &st) == -1)
+  నిర్మాణం stat st = { 0 };
+  ఒకవేళ (stat ("/usr/local/bin/spin", &st) == -1)
     {
-      return crun_make_error (err, 0, "Could not find statically linked spin cli at `/usr/local/bin/spin` on host file system");
+      తిరిగి crun_make_error (err, 0, "Could not find statically linked spin cli at `/usr/local/bin/spin` on host file system");
     }
-  return 0;
+  తిరిగి 0;
 }
 
-static int
-spin_configure_container (void *cookie arg_unused, enum handler_configure_phase phase,
-                          libcrun_context_t *context arg_unused, libcrun_container_t *container,
-                          const char *rootfs arg_unused, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+spin_configure_container (శూన్య *cookie arg_వాడని, గణన handler_configure_phase phase,
+                          libcrun_context_t *context arg_వాడని, libcrun_container_t *container,
+                          స్థిరరాశి అక్షరం *rootfs arg_వాడని, libcrun_error_t *err)
 {
-  int ret;
-  if (phase != HANDLER_CONFIGURE_MOUNTS)
-    return 0;
+  పూర్ణాంకం ret;
+  ఒకవేళ (phase != HANDLER_CONFIGURE_MOUNTS)
+    తిరిగి 0;
 
-  char *options[] = {
+  అక్షరం *options[] = {
     "ro",
     "rprivate",
     "nosuid",
@@ -80,43 +80,43 @@ spin_configure_container (void *cookie arg_unused, enum handler_configure_phase 
   };
 
   ret = libcrun_container_do_bind_mount (container, "/usr/local/bin/spin", "/bin/spin", options, 5, err);
-  if (ret != 0)
-    return ret;
+  ఒకవేళ (ret != 0)
+    తిరిగి ret;
 
   /* release any error if set since we are going to be returning from here */
   crun_error_release (err);
 
-  return 0;
+  తిరిగి 0;
 }
 
-static int
-spin_unload (void *cookie arg_unused, libcrun_error_t *err arg_unused)
+స్థిర పూర్ణాంకం
+spin_unload (శూన్య *cookie arg_వాడని, libcrun_error_t *err arg_వాడని)
 {
-  return 0;
+  తిరిగి 0;
 }
 
-static int
-spin_can_handle_container (libcrun_container_t *container, libcrun_error_t *err arg_unused)
+స్థిర పూర్ణాంకం
+spin_can_handle_container (libcrun_container_t *container, libcrun_error_t *err arg_వాడని)
 {
-  const char *entrypoint_executable;
+  స్థిరరాశి అక్షరం *entrypoint_executable;
 
-  if (container->container_def->process == NULL || container->container_def->process->args == NULL)
-    return 0;
+  ఒకవేళ (container->container_def->process == ఖాళీ || container->container_def->process->వాదనలు == ఖాళీ)
+    తిరిగి 0;
 
-  entrypoint_executable = container->container_def->process->args[0];
-  return strcmp (entrypoint_executable, "/") ? 0 : 1;
+  entrypoint_executable = container->container_def->process->వాదనలు[0];
+  తిరిగి strcmp (entrypoint_executable, "/") ? 0 : 1;
 }
 
-struct custom_handler_s handler_spin = {
+నిర్మాణం custom_handler_s handler_spin = {
   .name = "spin",
-  .alias = NULL,
+  .alias = ఖాళీ,
   .feature_string = "WASM:spin",
-  .supports_open_tree_namespace = false,
-  .load = spin_load,
+  .supports_open_వృక్షం_namespace = false,
+  .ఎక్కించు = spin_ఎక్కించు,
   .unload = spin_unload,
-  .run_func = spin_exec,
+  .నిరంతరం_func = spin_exec,
   .can_handle_container = spin_can_handle_container,
   .configure_container = spin_configure_container,
 };
 
-#endif
+#అయితే_ముగింపు

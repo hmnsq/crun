@@ -16,341 +16,341 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#నిర్వచించు GNU_ఆధారం
 
-#include <config.h>
-#include "cgroup.h"
-#include "cgroup-internal.h"
-#include "cgroup-systemd.h"
-#include "cgroup-utils.h"
-#include "cgroup-setup.h"
-#include "ebpf.h"
-#include "utils.h"
-#include "status.h"
-#include <string.h>
-#include <sys/types.h>
-#include <signal.h>
-#include <sys/vfs.h>
-#include <inttypes.h>
-#include <time.h>
-#include <poll.h>
-#include <sys/inotify.h>
+#అన్తర్భావ <config.h>
+#అన్తర్భావ "cgroup.h"
+#అన్తర్భావ "cgroup-internal.h"
+#అన్తర్భావ "cgroup-systemd.h"
+#అన్తర్భావ "cgroup-utils.h"
+#అన్తర్భావ "cgroup-setup.h"
+#అన్తర్భావ "ebpf.h"
+#అన్తర్భావ "utils.h"
+#అన్తర్భావ "status.h"
+#అన్తర్భావ <string.h>
+#అన్తర్భావ <sys/types.h>
+#అన్తర్భావ <signal.h>
+#అన్తర్భావ <sys/vfs.h>
+#అన్తర్భావ <inttypes.h>
+#అన్తర్భావ <time.h>
+#అన్తర్భావ <poll.h>
+#అన్తర్భావ <sys/inotify.h>
 
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <libgen.h>
+#అన్తర్భావ <sys/stat.h>
+#అన్తర్భావ <sys/types.h>
+#అన్తర్భావ <fcntl.h>
+#అన్తర్భావ <libgen.h>
 
-struct symlink_s
+నిర్మాణం symlink_s
 {
-  const char *name;
-  const char *target;
+  స్థిరరాశి అక్షరం *name;
+  స్థిరరాశి అక్షరం *లక్ష్యం;
 };
 
-static struct symlink_s cgroup_symlinks[] = { { "cpu", "cpu,cpuacct" },
+స్థిర నిర్మాణం symlink_s cgroup_symlinks[] = { { "cpu", "cpu,cpuacct" },
                                               { "cpuacct", "cpu,cpuacct" },
                                               { "net_cls", "net_cls,net_prio" },
                                               { "net_prio", "net_cls,net_prio" },
-                                              { NULL, NULL } };
+                                              { ఖాళీ, ఖాళీ } };
 
-int
-libcrun_cgroups_create_symlinks (int dirfd, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_cgroups_create_symlinks (పూర్ణాంకం dirfd, libcrun_error_t *err)
 {
-  int i;
+  పూర్ణాంకం i;
 
-  for (i = 0; cgroup_symlinks[i].name; i++)
+  కొరకు (i = 0; cgroup_symlinks[i].name; i++)
     {
-      int ret;
+      పూర్ణాంకం ret;
 
-      ret = symlinkat (cgroup_symlinks[i].target, dirfd, cgroup_symlinks[i].name);
-      if (UNLIKELY (ret < 0))
+      ret = symlinkat (cgroup_symlinks[i].లక్ష్యం, dirfd, cgroup_symlinks[i].name);
+      ఒకవేళ (UNLIKELY (ret < 0))
         {
-          if (errno == ENOENT || errno == EEXIST)
-            continue;
-          return crun_make_error (err, errno, "symlinkat `%s`", cgroup_symlinks[i].name);
+          ఒకవేళ (errno == ENOENT || errno == EEXIST)
+            కొనసాగు;
+          తిరిగి crun_make_error (err, errno, "symlinkat `%s`", cgroup_symlinks[i].name);
         }
     }
-  return 0;
+  తిరిగి 0;
 }
 
-int
-maybe_make_cgroup_threaded (const char *path, libcrun_error_t *err)
+పూర్ణాంకం
+maybe_make_cgroup_threaded (స్థిరరాశి అక్షరం *మార్గం, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path_type = NULL;
-  const char *const threaded = "threaded";
-  cleanup_free char *content = NULL;
-  cleanup_free char *buffer = NULL;
-  const char *parent;
-  size_t size;
-  char *it;
-  int ret;
+  cleanup_free అక్షరం *cgroup_మార్గం_type = ఖాళీ;
+  స్థిరరాశి అక్షరం *స్థిరరాశి threaded = "threaded";
+  cleanup_free అక్షరం *content = ఖాళీ;
+  cleanup_free అక్షరం *బఫరు = ఖాళీ;
+  స్థిరరాశి అక్షరం *మాతృ_2;
+  size_t కొలత;
+  అక్షరం *it;
+  పూర్ణాంకం ret;
 
-  if (path == NULL)
-    return 0;
+  ఒకవేళ (మార్గం == ఖాళీ)
+    తిరిగి 0;
 
-  path = consume_slashes (path);
+  మార్గం = consume_slashes (మార్గం);
 
-  if (path[0] == '\0')
-    return 0;
+  ఒకవేళ (మార్గం[0] == '\0')
+    తిరిగి 0;
 
-  ret = append_paths (&cgroup_path_type, err, CGROUP_ROOT, path, "cgroup.type", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_మార్గం_type, err, CGROUP_మూలం, మార్గం, "cgroup.type", ఖాళీ);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  ret = read_all_file (cgroup_path_type, &content, &size, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file (cgroup_మార్గం_type, &content, &కొలత, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  if (size > 0)
+  ఒకవేళ (కొలత > 0)
     {
-      it = content + size - 1;
-      while (*it == '\n' && it > content)
+      it = content + కొలత - 1;
+      అయితే (*it == '\n' && it > content)
         *it-- = '\0';
     }
 
-  if (strcmp (content, "domain") == 0 || strcmp (content, "domain threaded") == 0)
-    return 0;
+  ఒకవేళ (strcmp (content, "domain") == 0 || strcmp (content, "domain threaded") == 0)
+    తిరిగి 0;
 
-  buffer = xstrdup (path);
-  parent = consume_slashes (dirname (buffer));
-  if (parent[0] && strcmp (parent, "."))
+  బఫరు = xstrdup (మార్గం);
+  మాతృ_2 = consume_slashes (dirname (బఫరు));
+  ఒకవేళ (మాతృ_2[0] && strcmp (మాతృ_2, "."))
     {
-      ret = maybe_make_cgroup_threaded (parent, err);
-      if (ret < 0)
-        return ret;
+      ret = maybe_make_cgroup_threaded (మాతృ_2, err);
+      ఒకవేళ (ret < 0)
+        తిరిగి ret;
     }
-  return write_cgroup_file (AT_FDCWD, cgroup_path_type, threaded, strlen (threaded), err);
+  తిరిగి write_cgroup_file (AT_FDCWD, cgroup_మార్గం_type, threaded, అక్షరశ్రేణి_పొడవు (threaded), err);
 }
 
-int
-move_process_to_cgroup (pid_t pid, const char *subsystem, const char *path, libcrun_error_t *err)
+పూర్ణాంకం
+move_process_గమ్యం_cgroup (pid_t pid, స్థిరరాశి అక్షరం *subsystem, స్థిరరాశి అక్షరం *మార్గం, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path_procs = NULL;
-  char pid_str[16];
-  int ret;
+  cleanup_free అక్షరం *cgroup_మార్గం_procs = ఖాళీ;
+  అక్షరం pid_str[16];
+  పూర్ణాంకం ret;
 
-  ret = append_paths (&cgroup_path_procs, err, CGROUP_ROOT,
-                      subsystem ? subsystem : "", path ? path : "",
-                      "cgroup.procs", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_మార్గం_procs, err, CGROUP_మూలం,
+                      subsystem ? subsystem : "", మార్గం ? మార్గం : "",
+                      "cgroup.procs", ఖాళీ);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  ret = snprintf (pid_str, sizeof (pid_str), "%d", pid);
-  if (UNLIKELY (ret >= (int) sizeof (pid_str)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  ret = snprintf (pid_str, పరిమాణం (pid_str), "%d", pid);
+  ఒకవేళ (UNLIKELY (ret >= (పూర్ణాంకం) పరిమాణం (pid_str)))
+    తిరిగి crun_make_error (err, 0, "internal error: static buffer too small");
 
-  ret = write_cgroup_file (AT_FDCWD, cgroup_path_procs, pid_str, strlen (pid_str), err);
-  if (UNLIKELY (ret < 0))
+  ret = write_cgroup_file (AT_FDCWD, cgroup_మార్గం_procs, pid_str, అక్షరశ్రేణి_పొడవు (pid_str), err);
+  ఒకవేళ (UNLIKELY (ret < 0))
     {
-      if (crun_error_get_errno (err) == EOPNOTSUPP)
+      ఒకవేళ (crun_error_get_errno (err) == EOPNOTSUPP)
         {
-          libcrun_error_t tmp_err = NULL;
-          int mode;
+          libcrun_error_t tmp_err = ఖాళీ;
+          పూర్ణాంకం బహుళకం;
 
-          mode = libcrun_get_cgroup_mode (&tmp_err);
-          if (UNLIKELY (mode < 0 || mode != CGROUP_MODE_UNIFIED))
+          బహుళకం = libcrun_get_cgroup_బహుళకం (&tmp_err);
+          ఒకవేళ (UNLIKELY (బహుళకం < 0 || బహుళకం != CGROUP_బహుళకం_UNIFIED))
             {
               crun_error_release (&tmp_err);
-              return ret;
+              తిరిగి ret;
             }
 
           crun_error_release (err);
 
-          ret = maybe_make_cgroup_threaded (path, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = maybe_make_cgroup_threaded (మార్గం, err);
+          ఒకవేళ (UNLIKELY (ret < 0))
+            తిరిగి ret;
 
-          return write_cgroup_file (AT_FDCWD, cgroup_path_procs, pid_str, strlen (pid_str), err);
+          తిరిగి write_cgroup_file (AT_FDCWD, cgroup_మార్గం_procs, pid_str, అక్షరశ్రేణి_పొడవు (pid_str), err);
         }
 
-      return ret;
+      తిరిగి ret;
     }
-  return ret;
+  తిరిగి ret;
 }
 
-#ifndef CGROUP2_SUPER_MAGIC
+#నిర్వచితం_కాకపోతే CGROUP2_SUPER_MAGIC
 #  define CGROUP2_SUPER_MAGIC 0x63677270
-#endif
+#అయితే_ముగింపు
 
-#ifndef TMPFS_MAGIC
+#నిర్వచితం_కాకపోతే TMPFS_MAGIC
 #  define TMPFS_MAGIC 0x01021994
-#endif
+#అయితే_ముగింపు
 
-static int
-detect_cgroup_mode (libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+detect_cgroup_బహుళకం (libcrun_error_t *err)
 {
-  struct statfs stat;
-  int ret;
+  నిర్మాణం statfs stat;
+  పూర్ణాంకం ret;
 
-  ret = statfs (CGROUP_ROOT, &stat);
-  if (ret < 0)
-    return crun_make_error (err, errno, "statfs `" CGROUP_ROOT "`");
-  if (stat.f_type == CGROUP2_SUPER_MAGIC)
-    return CGROUP_MODE_UNIFIED;
-  if (stat.f_type != TMPFS_MAGIC)
-    return crun_make_error (err, 0, "invalid file system type on `" CGROUP_ROOT "`");
-  ret = statfs (CGROUP_ROOT "/unified", &stat);
-  if (ret < 0 && errno != ENOENT)
-    return crun_make_error (err, errno, "statfs `" CGROUP_ROOT "/unified`");
-  if (ret < 0)
-    return CGROUP_MODE_LEGACY;
-  return stat.f_type == CGROUP2_SUPER_MAGIC ? CGROUP_MODE_HYBRID : CGROUP_MODE_LEGACY;
+  ret = statfs (CGROUP_మూలం, &stat);
+  ఒకవేళ (ret < 0)
+    తిరిగి crun_make_error (err, errno, "statfs `" CGROUP_మూలం "`");
+  ఒకవేళ (stat.f_type == CGROUP2_SUPER_MAGIC)
+    తిరిగి CGROUP_బహుళకం_UNIFIED;
+  ఒకవేళ (stat.f_type != TMPFS_MAGIC)
+    తిరిగి crun_make_error (err, 0, "invalid file system type on `" CGROUP_మూలం "`");
+  ret = statfs (CGROUP_మూలం "/unified", &stat);
+  ఒకవేళ (ret < 0 && errno != ENOENT)
+    తిరిగి crun_make_error (err, errno, "statfs `" CGROUP_మూలం "/unified`");
+  ఒకవేళ (ret < 0)
+    తిరిగి CGROUP_బహుళకం_LEGACY;
+  తిరిగి stat.f_type == CGROUP2_SUPER_MAGIC ? CGROUP_బహుళకం_HYBRID : CGROUP_బహుళకం_LEGACY;
 }
 
-int
-libcrun_get_cgroup_mode (libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_get_cgroup_బహుళకం (libcrun_error_t *err)
 {
-  int tmp;
-  static int cgroup_mode = 0;
+  పూర్ణాంకం tmp;
+  స్థిర పూర్ణాంకం cgroup_బహుళకం = 0;
 
-  if (cgroup_mode)
-    return cgroup_mode;
+  ఒకవేళ (cgroup_బహుళకం)
+    తిరిగి cgroup_బహుళకం;
 
-  tmp = detect_cgroup_mode (err);
-  if (UNLIKELY (tmp < 0))
-    return tmp;
+  tmp = detect_cgroup_బహుళకం (err);
+  ఒకవేళ (UNLIKELY (tmp < 0))
+    తిరిగి tmp;
 
-  cgroup_mode = tmp;
+  cgroup_బహుళకం = tmp;
 
-  return cgroup_mode;
+  తిరిగి cgroup_బహుళకం;
 }
 
-static int
-get_cgroup_process_from_content (char *content, int cgroup_mode, char **path, bool absolute, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+get_cgroup_process_from_content (అక్షరం *content, పూర్ణాంకం cgroup_బహుళకం, అక్షరం **మార్గం, bool absolute, libcrun_error_t *err)
 {
-  char *cg_path = NULL;
-  char *controller;
-  char *saveptr;
-  bool has_data;
+  అక్షరం *cg_మార్గం = ఖాళీ;
+  అక్షరం *controller;
+  అక్షరం *saveptr;
+  bool has_దత్తాంశం;
 
-  for (has_data = read_proc_cgroup (content, &saveptr, NULL, &controller, &cg_path);
-       has_data;
-       has_data = read_proc_cgroup (NULL, &saveptr, NULL, &controller, &cg_path))
+  కొరకు (has_దత్తాంశం = read_proc_cgroup (content, &saveptr, ఖాళీ, &controller, &cg_మార్గం);
+       has_దత్తాంశం;
+       has_దత్తాంశం = read_proc_cgroup (ఖాళీ, &saveptr, ఖాళీ, &controller, &cg_మార్గం))
     {
-      if (cgroup_mode == CGROUP_MODE_UNIFIED)
+      ఒకవేళ (cgroup_బహుళకం == CGROUP_బహుళకం_UNIFIED)
         {
-          if (strcmp (controller, "") == 0 && strlen (cg_path) > 0)
-            goto found;
+          ఒకవేళ (strcmp (controller, "") == 0 && అక్షరశ్రేణి_పొడవు (cg_మార్గం) > 0)
+            వెళ్ళు దొరికింది;
         }
-      else
+      లేకపోతే
         {
-          if (strcmp (controller, "memory"))
-            goto found;
+          ఒకవేళ (strcmp (controller, "memory"))
+            వెళ్ళు దొరికింది;
         }
     }
 
-  return crun_make_error (err, 0, "cannot find cgroup for the process");
+  తిరిగి crun_make_error (err, 0, "cannot find cgroup for the process");
 
-found:
-  if (absolute)
-    return append_paths (path, err, CGROUP_ROOT, cg_path, NULL);
+దొరికింది:
+  ఒకవేళ (absolute)
+    తిరిగి append_paths (మార్గం, err, CGROUP_మూలం, cg_మార్గం, ఖాళీ);
 
-  *path = xstrdup (cg_path);
-  return 0;
+  *మార్గం = xstrdup (cg_మార్గం);
+  తిరిగి 0;
 }
 
-int
-libcrun_get_cgroup_process_at (int dirfd, char **path, bool absolute, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_get_cgroup_process_at (పూర్ణాంకం dirfd, అక్షరం **మార్గం, bool absolute, libcrun_error_t *err)
 {
-  cleanup_free char *content = NULL;
-  size_t content_size;
-  int cgroup_mode;
-  int ret;
+  cleanup_free అక్షరం *content = ఖాళీ;
+  size_t content_కొలత;
+  పూర్ణాంకం cgroup_బహుళకం;
+  పూర్ణాంకం ret;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_బహుళకం = libcrun_get_cgroup_బహుళకం (err);
+  ఒకవేళ (UNLIKELY (cgroup_బహుళకం < 0))
+    తిరిగి cgroup_బహుళకం;
 
-  ret = read_all_file_at (dirfd, SELF_CGROUP, &content, &content_size, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file_at (dirfd, SELF_CGROUP, &content, &content_కొలత, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  return get_cgroup_process_from_content (content, cgroup_mode, path, absolute, err);
+  తిరిగి get_cgroup_process_from_content (content, cgroup_బహుళకం, మార్గం, absolute, err);
 }
 
-int
-libcrun_get_cgroup_process (pid_t pid, char **path, bool absolute, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_get_cgroup_process (pid_t pid, అక్షరం **మార్గం, bool absolute, libcrun_error_t *err)
 {
-  cleanup_free char *content = NULL;
-  char proc_cgroup_file[64];
-  size_t content_size;
-  int cgroup_mode;
-  int ret;
+  cleanup_free అక్షరం *content = ఖాళీ;
+  అక్షరం proc_cgroup_file[64];
+  size_t content_కొలత;
+  పూర్ణాంకం cgroup_బహుళకం;
+  పూర్ణాంకం ret;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_బహుళకం = libcrun_get_cgroup_బహుళకం (err);
+  ఒకవేళ (UNLIKELY (cgroup_బహుళకం < 0))
+    తిరిగి cgroup_బహుళకం;
 
-  if (pid == 0)
+  ఒకవేళ (pid == 0)
     strcpy (proc_cgroup_file, PROC_SELF_CGROUP);
-  else
+  లేకపోతే
     {
-      int len = snprintf (proc_cgroup_file, sizeof (proc_cgroup_file), "/proc/%d/cgroup", pid);
-      if (UNLIKELY (len >= (int) sizeof (proc_cgroup_file)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      పూర్ణాంకం len = snprintf (proc_cgroup_file, పరిమాణం (proc_cgroup_file), "/proc/%d/cgroup", pid);
+      ఒకవేళ (UNLIKELY (len >= (పూర్ణాంకం) పరిమాణం (proc_cgroup_file)))
+        తిరిగి crun_make_error (err, 0, "internal error: static buffer too small");
     }
 
-  ret = read_all_file (proc_cgroup_file, &content, &content_size, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file (proc_cgroup_file, &content, &content_కొలత, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  return get_cgroup_process_from_content (content, cgroup_mode, path, absolute, err);
+  తిరిగి get_cgroup_process_from_content (content, cgroup_బహుళకం, మార్గం, absolute, err);
 }
 
-static int
-read_pids_file (int dfd, const char *file, pid_t **pids, size_t *n_pids, size_t *allocated, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+read_pids_file (పూర్ణాంకం dfd, స్థిరరాశి అక్షరం *file, pid_t **pids, size_t *n_pids, size_t *allocated, libcrun_error_t *err)
 {
-  cleanup_close int tasksfd = -1;
-  cleanup_free char *buffer = NULL;
-  char *saveptr = NULL;
+  cleanup_close పూర్ణాంకం tasksfd = -1;
+  cleanup_free అక్షరం *బఫరు = ఖాళీ;
+  అక్షరం *saveptr = ఖాళీ;
   size_t n_new_pids;
   size_t len;
-  char *it;
-  int ret;
+  అక్షరం *it;
+  పూర్ణాంకం ret;
 
   tasksfd = openat (dfd, file, O_RDONLY | O_CLOEXEC);
-  if (tasksfd < 0)
+  ఒకవేళ (tasksfd < 0)
     {
       /* The cgroup was removed concurrently (e.g. while killing the
          container), there are no processes left to account for.  */
-      if (errno == ENOENT || errno == ENODEV)
-        return 0;
-      return crun_make_error (err, errno, "open `%s`", file);
+      ఒకవేళ (errno == ENOENT || errno == ENODEV)
+        తిరిగి 0;
+      తిరిగి crun_make_error (err, errno, "open `%s`", file);
     }
 
-  ret = read_all_fd (tasksfd, file, &buffer, &len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_fd (tasksfd, file, &బఫరు, &len, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  if (len > 0)
+  ఒకవేళ (len > 0)
     {
-      for (n_new_pids = 0, it = buffer; it; it = strchr (it + 1, '\n'))
+      కొరకు (n_new_pids = 0, it = బఫరు; it; it = strchr (it + 1, '\n'))
         n_new_pids++;
 
-      if (*allocated < *n_pids + n_new_pids + 1)
+      ఒకవేళ (*allocated < *n_pids + n_new_pids + 1)
         {
           *allocated = *n_pids + n_new_pids + 1;
-          *pids = xrealloc (*pids, sizeof (pid_t) * *allocated);
+          *pids = xrealloc (*pids, పరిమాణం (pid_t) * *allocated);
         }
 
-      for (it = strtok_r (buffer, "\n", &saveptr); it; it = strtok_r (NULL, "\n", &saveptr))
+      కొరకు (it = strtok_r (బఫరు, "\n", &saveptr); it; it = strtok_r (ఖాళీ, "\n", &saveptr))
         {
-          pid_t pid = strtoul (it, NULL, 10);
+          pid_t pid = strtoul (it, ఖాళీ, 10);
 
-          if (pid > 0)
+          ఒకవేళ (pid > 0)
             (*pids)[(*n_pids)++] = pid;
         }
       (*pids)[*n_pids] = 0;
     }
 
-  return 0;
+  తిరిగి 0;
 }
 
 /* A sub-cgroup still to be visited by a walk of the cgroup tree.  */
-struct cgroup_walk_dir_s
+నిర్మాణం cgroup_walk_dir_s
 {
-  char *name;
-  size_t depth;
+  అక్షరం *name;
+  size_t లోతు;
   bool entered;
 };
 
@@ -359,1203 +359,1203 @@ struct cgroup_walk_dir_s
    out of file descriptors on a deep chain of sub-cgroups.  Only the current
    directory is kept open, the sub-cgroups still to visit are queued by name
    and the walk goes back to a parent through "..".  */
-struct cgroup_walk_s
+నిర్మాణం cgroup_walk_s
 {
-  int dfd;
-  size_t depth;
-  struct cgroup_walk_dir_s *dirs;
+  పూర్ణాంకం dfd;
+  size_t లోతు;
+  నిర్మాణం cgroup_walk_dir_s *dirs;
   size_t n_dirs;
   size_t allocated;
 };
 
-static void
-cgroup_walk_pop (struct cgroup_walk_s *walk)
+స్థిర శూన్య
+cgroup_walk_తీయి (నిర్మాణం cgroup_walk_s *walk)
 {
-  free (walk->dirs[--walk->n_dirs].name);
+  విడుదల (walk->dirs[--walk->n_dirs].name);
 }
 
-static void
-cleanup_cgroup_walkp (struct cgroup_walk_s *walk)
+స్థిర శూన్య
+cleanup_cgroup_walkp (నిర్మాణం cgroup_walk_s *walk)
 {
-  int saved_errno = errno;
+  పూర్ణాంకం saved_errno = errno;
 
-  while (walk->n_dirs > 0)
-    cgroup_walk_pop (walk);
-  free (walk->dirs);
+  అయితే (walk->n_dirs > 0)
+    cgroup_walk_తీయి (walk);
+  విడుదల (walk->dirs);
   close_and_reset (&walk->dfd);
   errno = saved_errno;
 }
 
-#define cleanup_cgroup_walk __attribute__ ((cleanup (cleanup_cgroup_walkp)))
+#నిర్వచించు cleanup_cgroup_walk __attribute__ ((cleanup (cleanup_cgroup_walkp)))
 
 /* Make DFD the current directory of the walk and queue its sub-directories.
    DFD must be the root of the walk or a child of the current directory, and
    it is owned by the walk afterwards.  On error -1 is returned with errno set.  */
-static int
-cgroup_walk_enter (struct cgroup_walk_s *walk, int dfd)
+స్థిర పూర్ణాంకం
+cgroup_walk_enter (నిర్మాణం cgroup_walk_s *walk, పూర్ణాంకం dfd)
 {
-  cleanup_close int dfd_clone = -1;
-  cleanup_dir DIR *dir = NULL;
-  struct dirent *de;
+  cleanup_close పూర్ణాంకం dfd_clone = -1;
+  cleanup_dir DIR *dir = ఖాళీ;
+  నిర్మాణం dirent *de;
 
   close_and_reset (&walk->dfd);
   walk->dfd = dfd;
-  walk->depth++;
+  walk->లోతు++;
 
   dfd_clone = openat (dfd, ".", O_RDONLY | O_DIRECTORY | O_CLOEXEC);
-  if (UNLIKELY (dfd_clone < 0))
-    return -1;
+  ఒకవేళ (UNLIKELY (dfd_clone < 0))
+    తిరిగి -1;
 
   dir = fdopendir (dfd_clone);
-  if (UNLIKELY (dir == NULL))
-    return -1;
+  ఒకవేళ (UNLIKELY (dir == ఖాళీ))
+    తిరిగి -1;
   /* fdopendir takes ownership of dfd_clone.  */
   dfd_clone = -1;
 
-  for (de = readdir (dir); de; de = readdir (dir))
+  కొరకు (de = readdir (dir); de; de = readdir (dir))
     {
-      struct cgroup_walk_dir_s *d;
+      నిర్మాణం cgroup_walk_dir_s *d;
 
-      if (strcmp (de->d_name, ".") == 0 || strcmp (de->d_name, "..") == 0)
-        continue;
+      ఒకవేళ (strcmp (de->d_name, ".") == 0 || strcmp (de->d_name, "..") == 0)
+        కొనసాగు;
 
-      if (de->d_type != DT_DIR)
-        continue;
+      ఒకవేళ (de->d_type != DT_DIR)
+        కొనసాగు;
 
-      if (walk->n_dirs == walk->allocated)
+      ఒకవేళ (walk->n_dirs == walk->allocated)
         {
           walk->allocated = walk->allocated * 2 + 32;
-          walk->dirs = xrealloc (walk->dirs, sizeof (*walk->dirs) * walk->allocated);
+          walk->dirs = xrealloc (walk->dirs, పరిమాణం (*walk->dirs) * walk->allocated);
         }
 
       d = &walk->dirs[walk->n_dirs++];
       d->name = xstrdup (de->d_name);
-      d->depth = walk->depth + 1;
+      d->లోతు = walk->లోతు + 1;
       d->entered = false;
     }
 
-  return 0;
+  తిరిగి 0;
 }
 
 /* Store in *D the next queued sub-directory, or NULL once there are no more,
    and make its parent the current directory of the walk.  On error -1 is
    returned with errno set.  */
-static int
-cgroup_walk_next (struct cgroup_walk_s *walk, struct cgroup_walk_dir_s **d)
+స్థిర పూర్ణాంకం
+cgroup_walk_తదుపరి (నిర్మాణం cgroup_walk_s *walk, నిర్మాణం cgroup_walk_dir_s **d)
 {
-  *d = walk->n_dirs > 0 ? &walk->dirs[walk->n_dirs - 1] : NULL;
+  *d = walk->n_dirs > 0 ? &walk->dirs[walk->n_dirs - 1] : ఖాళీ;
 
-  while (*d && walk->depth >= (*d)->depth)
+  అయితే (*d && walk->లోతు >= (*d)->లోతు)
     {
-      int parent;
+      పూర్ణాంకం మాతృ_2;
 
-      parent = openat (walk->dfd, "..", O_DIRECTORY | O_PATH | O_CLOEXEC);
-      if (UNLIKELY (parent < 0))
-        return -1;
+      మాతృ_2 = openat (walk->dfd, "..", O_DIRECTORY | O_మార్గం | O_CLOEXEC);
+      ఒకవేళ (UNLIKELY (మాతృ_2 < 0))
+        తిరిగి -1;
 
       close_and_reset (&walk->dfd);
-      walk->dfd = parent;
-      walk->depth--;
+      walk->dfd = మాతృ_2;
+      walk->లోతు--;
     }
 
-  return 0;
+  తిరిగి 0;
 }
 
-static int
-read_pids_cgroup_file (int dfd, const char *file, bool recurse, pid_t **pids, size_t *n_pids, size_t *allocated, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+read_pids_cgroup_file (పూర్ణాంకం dfd, స్థిరరాశి అక్షరం *file, bool recurse, pid_t **pids, size_t *n_pids, size_t *allocated, libcrun_error_t *err)
 {
-  cleanup_cgroup_walk struct cgroup_walk_s walk = { .dfd = -1 };
-  int dfd_clone;
-  int ret;
+  cleanup_cgroup_walk నిర్మాణం cgroup_walk_s walk = { .dfd = -1 };
+  పూర్ణాంకం dfd_clone;
+  పూర్ణాంకం ret;
 
   ret = read_pids_file (dfd, file, pids, n_pids, allocated, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  if (! recurse)
-    return 0;
+  ఒకవేళ (! recurse)
+    తిరిగి 0;
 
-  dfd_clone = openat (dfd, ".", O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (dfd_clone < 0))
-    return crun_make_error (err, errno, "open cgroup sub-directory");
+  dfd_clone = openat (dfd, ".", O_DIRECTORY | O_మార్గం | O_CLOEXEC);
+  ఒకవేళ (UNLIKELY (dfd_clone < 0))
+    తిరిగి crun_make_error (err, errno, "open cgroup sub-directory");
 
   ret = cgroup_walk_enter (&walk, dfd_clone);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "open cgroup sub-directory");
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి crun_make_error (err, errno, "open cgroup sub-directory");
 
-  for (;;)
+  కొరకు (;;)
     {
-      struct cgroup_walk_dir_s *d;
-      cleanup_close int nfd = -1;
+      నిర్మాణం cgroup_walk_dir_s *d;
+      cleanup_close పూర్ణాంకం nfd = -1;
 
-      ret = cgroup_walk_next (&walk, &d);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "open parent cgroup directory");
-      if (d == NULL)
-        break;
+      ret = cgroup_walk_తదుపరి (&walk, &d);
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి crun_make_error (err, errno, "open parent cgroup directory");
+      ఒకవేళ (d == ఖాళీ)
+        ఆపు;
 
-      nfd = openat (walk.dfd, d->name, O_DIRECTORY | O_PATH | O_CLOEXEC);
-      if (UNLIKELY (nfd < 0))
+      nfd = openat (walk.dfd, d->name, O_DIRECTORY | O_మార్గం | O_CLOEXEC);
+      ఒకవేళ (UNLIKELY (nfd < 0))
         {
-          int saved_errno = errno;
+          పూర్ణాంకం saved_errno = errno;
 
-          if (saved_errno == ENOENT)
+          ఒకవేళ (saved_errno == ENOENT)
             {
-              cgroup_walk_pop (&walk);
-              continue;
+              cgroup_walk_తీయి (&walk);
+              కొనసాగు;
             }
-          return crun_make_error (err, saved_errno, "open cgroup directory `%s`", d->name);
+          తిరిగి crun_make_error (err, saved_errno, "open cgroup directory `%s`", d->name);
         }
 
-      cgroup_walk_pop (&walk);
+      cgroup_walk_తీయి (&walk);
 
       ret = read_pids_file (nfd, file, pids, n_pids, allocated, err);
-      if (UNLIKELY (ret < 0))
+      ఒకవేళ (UNLIKELY (ret < 0))
         {
-          int e = crun_error_get_errno (err);
+          పూర్ణాంకం e = crun_error_get_errno (err);
 
           /* Reading `cgroup.procs` of a threaded cgroup fails with
              EOPNOTSUPP.  Its processes are already listed by its
              threaded domain root, which was read before.  A cgroup
              removed meanwhile has nothing left to list.  */
-          if (e != EOPNOTSUPP && e != ENOENT && e != ENODEV)
-            return ret;
+          ఒకవేళ (e != EOPNOTSUPP && e != ENOENT && e != ENODEV)
+            తిరిగి ret;
           crun_error_release (err);
-          continue;
+          కొనసాగు;
         }
 
       ret = cgroup_walk_enter (&walk, nfd);
       nfd = -1;
-      if (UNLIKELY (ret < 0) && errno != ENOENT && errno != ENODEV)
-        return crun_make_error (err, errno, "open cgroup sub-directory");
+      ఒకవేళ (UNLIKELY (ret < 0) && errno != ENOENT && errno != ENODEV)
+        తిరిగి crun_make_error (err, errno, "open cgroup sub-directory");
     }
 
-  return 0;
+  తిరిగి 0;
 }
 
-static int
-read_pids_cgroup (int dfd, bool recurse, pid_t **pids, size_t *n_pids, size_t *allocated, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+read_pids_cgroup (పూర్ణాంకం dfd, bool recurse, pid_t **pids, size_t *n_pids, size_t *allocated, libcrun_error_t *err)
 {
-  int ret;
+  పూర్ణాంకం ret;
 
   ret = read_pids_cgroup_file (dfd, "cgroup.procs", recurse, pids, n_pids, allocated, err);
-  if (ret < 0 && crun_error_get_errno (err) == EOPNOTSUPP)
+  ఒకవేళ (ret < 0 && crun_error_get_errno (err) == EOPNOTSUPP)
     {
       /* A threaded cgroup has no `cgroup.procs`, list its threads instead.  */
       crun_error_release (err);
       ret = read_pids_cgroup_file (dfd, "cgroup.threads", recurse, pids, n_pids, allocated, err);
     }
-  return ret;
+  తిరిగి ret;
 }
 
-static int
-rmdir_all_fd (int dfd)
+స్థిర పూర్ణాంకం
+rmdir_all_fd (పూర్ణాంకం dfd)
 {
-  cleanup_cgroup_walk struct cgroup_walk_s walk = { .dfd = -1 };
-  int ret;
+  cleanup_cgroup_walk నిర్మాణం cgroup_walk_s walk = { .dfd = -1 };
+  పూర్ణాంకం ret;
 
   ret = cgroup_walk_enter (&walk, dfd);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  for (;;)
+  కొరకు (;;)
     {
-      struct cgroup_walk_dir_s *d;
-      int child_dfd;
+      నిర్మాణం cgroup_walk_dir_s *d;
+      పూర్ణాంకం బిడ్డ_dfd;
 
-      ret = cgroup_walk_next (&walk, &d);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      if (d == NULL)
-        break;
+      ret = cgroup_walk_తదుపరి (&walk, &d);
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి ret;
+      ఒకవేళ (d == ఖాళీ)
+        ఆపు;
 
       ret = unlinkat (walk.dfd, d->name, AT_REMOVEDIR);
-      if (ret == 0 || errno != EBUSY || d->entered)
+      ఒకవేళ (ret == 0 || errno != EBUSY || d->entered)
         {
-          cgroup_walk_pop (&walk);
-          continue;
+          cgroup_walk_తీయి (&walk);
+          కొనసాగు;
         }
 
-      child_dfd = openat (walk.dfd, d->name, O_DIRECTORY | O_CLOEXEC);
-      if (UNLIKELY (child_dfd < 0))
+      బిడ్డ_dfd = openat (walk.dfd, d->name, O_DIRECTORY | O_CLOEXEC);
+      ఒకవేళ (UNLIKELY (బిడ్డ_dfd < 0))
         {
-          if (errno == ENOENT)
+          ఒకవేళ (errno == ENOENT)
             {
-              cgroup_walk_pop (&walk);
-              continue;
+              cgroup_walk_తీయి (&walk);
+              కొనసాగు;
             }
-          return child_dfd;
+          తిరిగి బిడ్డ_dfd;
         }
 
       /* Keep the directory queued, so that removing it is retried once its
          children are gone.  */
       d->entered = true;
 
-      ret = cgroup_walk_enter (&walk, child_dfd);
-      if (UNLIKELY (ret < 0) && errno != ENOENT && errno != ENODEV)
-        return ret;
+      ret = cgroup_walk_enter (&walk, బిడ్డ_dfd);
+      ఒకవేళ (UNLIKELY (ret < 0) && errno != ENOENT && errno != ENODEV)
+        తిరిగి ret;
     }
 
-  return 0;
+  తిరిగి 0;
 }
 
-static int
-rmdir_all (const char *path)
+స్థిర పూర్ణాంకం
+rmdir_all (స్థిరరాశి అక్షరం *మార్గం)
 {
-  int ret;
-  int dfd = open (path, O_DIRECTORY | O_CLOEXEC);
-  if (UNLIKELY (dfd < 0))
-    return dfd;
+  పూర్ణాంకం ret;
+  పూర్ణాంకం dfd = open (మార్గం, O_DIRECTORY | O_CLOEXEC);
+  ఒకవేళ (UNLIKELY (dfd < 0))
+    తిరిగి dfd;
 
   ret = rmdir_all_fd (dfd);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  return rmdir (path);
+  తిరిగి rmdir (మార్గం);
 }
 
-static int
-read_pids_from_path (const char *path, bool recurse, bool threads, pid_t **pids, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+read_pids_from_మార్గం (స్థిరరాశి అక్షరం *మార్గం, bool recurse, bool దారాలు, pid_t **pids, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
-  cleanup_close int dirfd = -1;
+  cleanup_free అక్షరం *cgroup_మార్గం = ఖాళీ;
+  cleanup_close పూర్ణాంకం dirfd = -1;
   size_t n_pids, allocated;
-  int mode;
-  int ret;
+  పూర్ణాంకం బహుళకం;
+  పూర్ణాంకం ret;
 
-  if (path == NULL || *path == '\0')
-    return 0;
+  ఒకవేళ (మార్గం == ఖాళీ || *మార్గం == '\0')
+    తిరిగి 0;
 
-  mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (mode < 0))
-    return mode;
+  బహుళకం = libcrun_get_cgroup_బహుళకం (err);
+  ఒకవేళ (UNLIKELY (బహుళకం < 0))
+    తిరిగి బహుళకం;
 
-  switch (mode)
+  ఎంపిక (బహుళకం)
     {
-    case CGROUP_MODE_UNIFIED:
-      ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      break;
+    స్థితి CGROUP_బహుళకం_UNIFIED:
+      ret = append_paths (&cgroup_మార్గం, err, CGROUP_మూలం, మార్గం, ఖాళీ);
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి ret;
+      ఆపు;
 
-    case CGROUP_MODE_HYBRID:
-    case CGROUP_MODE_LEGACY:
-      ret = append_paths (&cgroup_path, err, CGROUP_ROOT "/memory", path, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      break;
+    స్థితి CGROUP_బహుళకం_HYBRID:
+    స్థితి CGROUP_బహుళకం_LEGACY:
+      ret = append_paths (&cgroup_మార్గం, err, CGROUP_మూలం "/memory", మార్గం, ఖాళీ);
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి ret;
+      ఆపు;
 
-    default:
-      return crun_make_error (err, 0, "invalid cgroup mode `%d`", mode);
+    అప్రమేయ:
+      తిరిగి crun_make_error (err, 0, "invalid cgroup mode `%d`", బహుళకం);
     }
 
-  dirfd = open (cgroup_path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (dirfd < 0)
-    return crun_make_error (err, errno, "open `%s`", cgroup_path);
+  dirfd = open (cgroup_మార్గం, O_DIRECTORY | O_మార్గం | O_CLOEXEC);
+  ఒకవేళ (dirfd < 0)
+    తిరిగి crun_make_error (err, errno, "open `%s`", cgroup_మార్గం);
 
   n_pids = 0;
   allocated = 0;
 
   /* On cgroup v1 `cgroup.procs` lists the thread group of every task in the
      cgroup, so there is no need to read `tasks` there.  */
-  if (threads && mode == CGROUP_MODE_UNIFIED)
-    return read_pids_cgroup_file (dirfd, "cgroup.threads", recurse, pids, &n_pids, &allocated, err);
+  ఒకవేళ (దారాలు && బహుళకం == CGROUP_బహుళకం_UNIFIED)
+    తిరిగి read_pids_cgroup_file (dirfd, "cgroup.threads", recurse, pids, &n_pids, &allocated, err);
 
-  return read_pids_cgroup (dirfd, recurse, pids, &n_pids, &allocated, err);
+  తిరిగి read_pids_cgroup (dirfd, recurse, pids, &n_pids, &allocated, err);
 }
 
-int
-libcrun_cgroup_read_pids_from_path (const char *path, bool recurse, pid_t **pids, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_cgroup_read_pids_from_మార్గం (స్థిరరాశి అక్షరం *మార్గం, bool recurse, pid_t **pids, libcrun_error_t *err)
 {
-  return read_pids_from_path (path, recurse, false, pids, err);
+  తిరిగి read_pids_from_మార్గం (మార్గం, recurse, false, pids, err);
 }
 
 /* same semantic as strtok_r.  */
 bool
-read_proc_cgroup (char *content, char **saveptr, char **id, char **controller_list, char **path)
+read_proc_cgroup (అక్షరం *content, అక్షరం **saveptr, అక్షరం **id, అక్షరం **controller_list, అక్షరం **మార్గం)
 {
-  char *it;
+  అక్షరం *it;
 
   it = strtok_r (content, "\n", saveptr);
-  if (it == NULL)
-    return false;
+  ఒకవేళ (it == ఖాళీ)
+    తిరిగి false;
 
-  if (id)
+  ఒకవేళ (id)
     *id = it;
 
   it = strchr (it, ':');
-  if (it == NULL)
-    return false;
+  ఒకవేళ (it == ఖాళీ)
+    తిరిగి false;
   *it++ = '\0';
 
-  if (controller_list)
+  ఒకవేళ (controller_list)
     *controller_list = it;
 
   it = strchr (it, ':');
-  if (it == NULL)
-    return false;
+  ఒకవేళ (it == ఖాళీ)
+    తిరిగి false;
   *it++ = '\0';
 
-  if (path)
-    *path = it;
+  ఒకవేళ (మార్గం)
+    *మార్గం = it;
 
-  return true;
+  తిరిగి true;
 }
 
-int
-destroy_cgroup_path (const char *path, int mode, libcrun_error_t *err)
+పూర్ణాంకం
+destroy_cgroup_మార్గం (స్థిరరాశి అక్షరం *మార్గం, పూర్ణాంకం బహుళకం, libcrun_error_t *err)
 {
   bool repeat = true;
-  int retry_count = 0;
-  const int max_attempts = 500;
-  int ret;
+  పూర్ణాంకం retry_లెక్క = 0;
+  స్థిరరాశి పూర్ణాంకం max_attempts = 500;
+  పూర్ణాంకం ret;
 
   /* Without a path there is nothing to destroy.  Bail out early, since
      append_paths() stops at the first NULL argument and would otherwise
      be left pointing at the cgroup root.  */
-  if (is_empty_string (path))
-    return 0;
+  ఒకవేళ (is_ఖాళీలు_string (మార్గం))
+    తిరిగి 0;
 
-  do
+  చేయి
     {
       repeat = false;
 
-      if (mode == CGROUP_MODE_UNIFIED)
+      ఒకవేళ (బహుళకం == CGROUP_బహుళకం_UNIFIED)
         {
-          cleanup_free char *cgroup_path = NULL;
+          cleanup_free అక్షరం *cgroup_మార్గం = ఖాళీ;
 
-          ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
-          if (UNLIKELY (ret < 0))
-            return ret;
-          ret = rmdir (cgroup_path);
-          if (ret < 0 && errno == EBUSY)
+          ret = append_paths (&cgroup_మార్గం, err, CGROUP_మూలం, మార్గం, ఖాళీ);
+          ఒకవేళ (UNLIKELY (ret < 0))
+            తిరిగి ret;
+          ret = rmdir (cgroup_మార్గం);
+          ఒకవేళ (ret < 0 && errno == EBUSY)
             {
-              ret = rmdir_all (cgroup_path);
-              if (ret < 0)
+              ret = rmdir_all (cgroup_మార్గం);
+              ఒకవేళ (ret < 0)
                 {
-                  if (retry_count >= max_attempts)
-                    return crun_make_error (err, errno, "cannot delete path `%s`", cgroup_path);
+                  ఒకవేళ (retry_లెక్క >= max_attempts)
+                    తిరిగి crun_make_error (err, errno, "cannot delete path `%s`", cgroup_మార్గం);
 
-                  retry_count++;
+                  retry_లెక్క++;
                   repeat = true;
                 }
             }
         }
-      else
+      లేకపోతే
         {
-          cleanup_free char *content = NULL;
-          size_t content_size;
-          char *controller;
-          char *saveptr;
-          bool has_data;
+          cleanup_free అక్షరం *content = ఖాళీ;
+          size_t content_కొలత;
+          అక్షరం *controller;
+          అక్షరం *saveptr;
+          bool has_దత్తాంశం;
 
-          ret = read_all_file (PROC_SELF_CGROUP, &content, &content_size, err);
-          if (UNLIKELY (ret < 0))
+          ret = read_all_file (PROC_SELF_CGROUP, &content, &content_కొలత, err);
+          ఒకవేళ (UNLIKELY (ret < 0))
             {
-              if (crun_error_get_errno (err) == ENOENT)
+              ఒకవేళ (crun_error_get_errno (err) == ENOENT)
                 {
                   crun_error_release (err);
-                  return 0;
+                  తిరిగి 0;
                 }
-              return ret;
+              తిరిగి ret;
             }
 
-          for (has_data = read_proc_cgroup (content, &saveptr, NULL, &controller, NULL);
-               has_data;
-               has_data = read_proc_cgroup (NULL, &saveptr, NULL, &controller, NULL))
+          కొరకు (has_దత్తాంశం = read_proc_cgroup (content, &saveptr, ఖాళీ, &controller, ఖాళీ);
+               has_దత్తాంశం;
+               has_దత్తాంశం = read_proc_cgroup (ఖాళీ, &saveptr, ఖాళీ, &controller, ఖాళీ))
             {
-              cleanup_free char *cgroup_path = NULL;
-              char *subsystem;
-              if (has_prefix (controller, "name="))
+              cleanup_free అక్షరం *cgroup_మార్గం = ఖాళీ;
+              అక్షరం *subsystem;
+              ఒకవేళ (has_ఉపసర్గ (controller, "name="))
                 controller += 5;
 
               subsystem = controller[0] == '\0' ? "unified" : controller;
-              if (mode == CGROUP_MODE_LEGACY && strcmp (subsystem, "unified") == 0)
-                continue;
+              ఒకవేళ (బహుళకం == CGROUP_బహుళకం_LEGACY && strcmp (subsystem, "unified") == 0)
+                కొనసాగు;
 
-              ret = append_paths (&cgroup_path, err, CGROUP_ROOT, subsystem, path, NULL);
-              if (UNLIKELY (ret < 0))
-                return ret;
+              ret = append_paths (&cgroup_మార్గం, err, CGROUP_మూలం, subsystem, మార్గం, ఖాళీ);
+              ఒకవేళ (UNLIKELY (ret < 0))
+                తిరిగి ret;
 
-              ret = rmdir (cgroup_path);
-              if (ret < 0 && errno == EBUSY)
+              ret = rmdir (cgroup_మార్గం);
+              ఒకవేళ (ret < 0 && errno == EBUSY)
                 {
-                  ret = rmdir_all (cgroup_path);
-                  if (ret < 0)
+                  ret = rmdir_all (cgroup_మార్గం);
+                  ఒకవేళ (ret < 0)
                     {
-                      if (retry_count >= max_attempts)
-                        return crun_make_error (err, errno, "cannot destroy subsystem `%s` at path `%s`", subsystem, cgroup_path);
-                      retry_count++;
+                      ఒకవేళ (retry_లెక్క >= max_attempts)
+                        తిరిగి crun_make_error (err, errno, "cannot destroy subsystem `%s` at path `%s`", subsystem, cgroup_మార్గం);
+                      retry_లెక్క++;
                       repeat = true;
                     }
                 }
             }
         }
 
-      if (repeat)
+      ఒకవేళ (repeat)
         {
-          struct timespec req = {
+          నిర్మాణం timespec req = {
             .tv_sec = 0,
             .tv_nsec = 10000000,
           };
 
-          nanosleep (&req, NULL);
+          nanosleep (&req, ఖాళీ);
 
-          ret = cgroup_killall_path (path, SIGKILL, err);
-          if (UNLIKELY (ret < 0))
+          ret = cgroup_killall_మార్గం (మార్గం, SIGKILL, err);
+          ఒకవేళ (UNLIKELY (ret < 0))
             crun_error_release (err);
         }
-  } while (repeat);
+  } అయితే (repeat);
 
-  return 0;
+  తిరిగి 0;
 }
 
-int
-chown_cgroups (const char *path, uid_t uid, gid_t gid, libcrun_error_t *err)
+పూర్ణాంకం
+chown_cgroups (స్థిరరాశి అక్షరం *మార్గం, uid_t uid, gid_t gid, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
-  cleanup_free char *delegate = NULL;
-  cleanup_close int dfd = -1;
-  size_t delegate_size;
-  char *saveptr = NULL;
-  char *name;
-  int ret;
+  cleanup_free అక్షరం *cgroup_మార్గం = ఖాళీ;
+  cleanup_free అక్షరం *delegate = ఖాళీ;
+  cleanup_close పూర్ణాంకం dfd = -1;
+  size_t delegate_కొలత;
+  అక్షరం *saveptr = ఖాళీ;
+  అక్షరం *name;
+  పూర్ణాంకం ret;
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_మార్గం, err, CGROUP_మూలం, మార్గం, ఖాళీ);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  dfd = open (cgroup_path, O_CLOEXEC | O_PATH);
-  if (UNLIKELY (dfd < 0))
-    return crun_make_error (err, errno, "open `%s`", cgroup_path);
+  dfd = open (cgroup_మార్గం, O_CLOEXEC | O_మార్గం);
+  ఒకవేళ (UNLIKELY (dfd < 0))
+    తిరిగి crun_make_error (err, errno, "open `%s`", cgroup_మార్గం);
 
-  ret = read_all_file ("/sys/kernel/cgroup/delegate", &delegate, &delegate_size, err);
-  if (UNLIKELY (ret < 0))
+  ret = read_all_file ("/sys/kernel/cgroup/delegate", &delegate, &delegate_కొలత, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
     {
-      if (crun_error_get_errno (err) == ENOENT)
+      ఒకవేళ (crun_error_get_errno (err) == ENOENT)
         {
           crun_error_release (err);
-          return 0;
+          తిరిగి 0;
         }
-      return ret;
+      తిరిగి ret;
     }
 
-  ret = fchownat (dfd, "", uid, gid, AT_EMPTY_PATH | AT_SYMLINK_NOFOLLOW);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "cannot chown `%s`", cgroup_path);
+  ret = fchownat (dfd, "", uid, gid, AT_ఖాళీలు_మార్గం | AT_SYMLINK_NOFOLLOW);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి crun_make_error (err, errno, "cannot chown `%s`", cgroup_మార్గం);
 
-  for (name = strtok_r (delegate, "\n", &saveptr); name; name = strtok_r (NULL, "\n", &saveptr))
+  కొరకు (name = strtok_r (delegate, "\n", &saveptr); name; name = strtok_r (ఖాళీ, "\n", &saveptr))
     {
       ret = fchownat (dfd, name, uid, gid, AT_SYMLINK_NOFOLLOW);
-      if (UNLIKELY (ret < 0))
+      ఒకవేళ (UNLIKELY (ret < 0))
         {
-          if (errno == ENOENT)
-            continue;
+          ఒకవేళ (errno == ENOENT)
+            కొనసాగు;
 
-          return crun_make_error (err, errno, "cannot chown `%s/%s`", cgroup_path, name);
+          తిరిగి crun_make_error (err, errno, "cannot chown `%s/%s`", cgroup_మార్గం, name);
         }
     }
 
-  return 0;
+  తిరిగి 0;
 }
 
-static int
-libcrun_cgroup_pause_unpause_with_mode (const char *cgroup_path, int cgroup_mode, const bool pause,
+స్థిర పూర్ణాంకం
+libcrun_cgroup_pause_unpause_with_బహుళకం (స్థిరరాశి అక్షరం *cgroup_మార్గం, పూర్ణాంకం cgroup_బహుళకం, స్థిరరాశి bool pause,
                                         libcrun_error_t *err)
 {
-  cleanup_free char *path = NULL;
-  const char *state = "";
-  int ret;
+  cleanup_free అక్షరం *మార్గం = ఖాళీ;
+  స్థిరరాశి అక్షరం *state = "";
+  పూర్ణాంకం ret;
 
-  if (cgroup_path == NULL || cgroup_path[0] == '\0')
-    return crun_make_error (err, 0, "cannot %s the container without a cgroup", pause ? "pause" : "resume");
+  ఒకవేళ (cgroup_మార్గం == ఖాళీ || cgroup_మార్గం[0] == '\0')
+    తిరిగి crun_make_error (err, 0, "cannot %s the container without a cgroup", pause ? "pause" : "resume");
 
-  if (cgroup_mode == CGROUP_MODE_UNIFIED)
+  ఒకవేళ (cgroup_బహుళకం == CGROUP_బహుళకం_UNIFIED)
     {
       state = pause ? "1" : "0";
-      ret = append_paths (&path, err, CGROUP_ROOT, cgroup_path, "cgroup.freeze", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&మార్గం, err, CGROUP_మూలం, cgroup_మార్గం, "cgroup.freeze", ఖాళీ);
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి ret;
     }
-  else
+  లేకపోతే
     {
       state = pause ? "FROZEN" : "THAWED";
-      ret = append_paths (&path, err, CGROUP_ROOT "/freezer", cgroup_path, "freezer.state", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&మార్గం, err, CGROUP_మూలం "/freezer", cgroup_మార్గం, "freezer.state", ఖాళీ);
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి ret;
     }
 
-  ret = write_cgroup_file (AT_FDCWD, path, state, strlen (state), err);
-  if (ret >= 0)
-    return 0;
-  return ret;
+  ret = write_cgroup_file (AT_FDCWD, మార్గం, state, అక్షరశ్రేణి_పొడవు (state), err);
+  ఒకవేళ (ret >= 0)
+    తిరిగి 0;
+  తిరిగి ret;
 }
 
-int
-libcrun_cgroup_pause_unpause_path (const char *cgroup_path, const bool pause, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_cgroup_pause_unpause_మార్గం (స్థిరరాశి అక్షరం *cgroup_మార్గం, స్థిరరాశి bool pause, libcrun_error_t *err)
 {
-  int cgroup_mode;
+  పూర్ణాంకం cgroup_బహుళకం;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_బహుళకం = libcrun_get_cgroup_బహుళకం (err);
+  ఒకవేళ (UNLIKELY (cgroup_బహుళకం < 0))
+    తిరిగి cgroup_బహుళకం;
 
-  return libcrun_cgroup_pause_unpause_with_mode (cgroup_path, cgroup_mode, pause, err);
+  తిరిగి libcrun_cgroup_pause_unpause_with_బహుళకం (cgroup_మార్గం, cgroup_బహుళకం, pause, err);
 }
 
 /* Fail if the cgroup at CGROUP_PATH exists and is frozen: a process in a
    frozen cgroup cannot make any progress, so the container creation would
    hang forever.  */
-int
-libcrun_cgroup_ensure_not_frozen (const char *cgroup_path, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_cgroup_ensure_not_frozen (స్థిరరాశి అక్షరం *cgroup_మార్గం, libcrun_error_t *err)
 {
-  cleanup_free char *content = NULL;
-  cleanup_free char *path = NULL;
-  const char *frozen;
-  int cgroup_mode;
-  int ret;
+  cleanup_free అక్షరం *content = ఖాళీ;
+  cleanup_free అక్షరం *మార్గం = ఖాళీ;
+  స్థిరరాశి అక్షరం *frozen;
+  పూర్ణాంకం cgroup_బహుళకం;
+  పూర్ణాంకం ret;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_బహుళకం = libcrun_get_cgroup_బహుళకం (err);
+  ఒకవేళ (UNLIKELY (cgroup_బహుళకం < 0))
+    తిరిగి cgroup_బహుళకం;
 
-  if (cgroup_mode == CGROUP_MODE_UNIFIED)
+  ఒకవేళ (cgroup_బహుళకం == CGROUP_బహుళకం_UNIFIED)
     {
       frozen = "1";
-      ret = append_paths (&path, err, CGROUP_ROOT, cgroup_path, "cgroup.freeze", NULL);
+      ret = append_paths (&మార్గం, err, CGROUP_మూలం, cgroup_మార్గం, "cgroup.freeze", ఖాళీ);
     }
-  else
+  లేకపోతే
     {
       frozen = "FROZEN";
-      ret = append_paths (&path, err, CGROUP_ROOT "/freezer", cgroup_path, "freezer.state", NULL);
+      ret = append_paths (&మార్గం, err, CGROUP_మూలం "/freezer", cgroup_మార్గం, "freezer.state", ఖాళీ);
     }
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  ret = read_all_file (path, &content, NULL, err);
-  if (UNLIKELY (ret < 0))
+  ret = read_all_file (మార్గం, &content, ఖాళీ, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
     {
       /* Either the cgroup does not exist yet, or there is no freezer.  */
-      if (crun_error_get_errno (err) == ENOENT)
+      ఒకవేళ (crun_error_get_errno (err) == ENOENT)
         {
           crun_error_release (err);
-          return 0;
+          తిరిగి 0;
         }
-      return ret;
+      తిరిగి ret;
     }
 
-  if (strstr (content, frozen))
-    return crun_make_error (err, 0, "container's cgroup unexpectedly frozen");
+  ఒకవేళ (అక్షరశ్రేణి_శోధన (content, frozen))
+    తిరిగి crun_make_error (err, 0, "container's cgroup unexpectedly frozen");
 
-  return 0;
+  తిరిగి 0;
 }
 
-#define CGROUP_KILL_WAIT_SEC 1
+#నిర్వచించు CGROUP_KILL_WAIT_SEC 1
 
 /* Watch cgroup.events of PATH, so that a later wait_cgroup_unpopulated does
    not miss a change.  Return -1 if the watch cannot be set up.  */
-static int
-watch_cgroup_events (const char *path)
+స్థిర పూర్ణాంకం
+watch_cgroup_events (స్థిరరాశి అక్షరం *మార్గం)
 {
-  cleanup_free char *events_file = NULL;
-  cleanup_close int fd = -1;
-  libcrun_error_t tmp_err = NULL;
-  int ret;
+  cleanup_free అక్షరం *events_file = ఖాళీ;
+  cleanup_close పూర్ణాంకం fd = -1;
+  libcrun_error_t tmp_err = ఖాళీ;
+  పూర్ణాంకం ret;
 
-  ret = append_paths (&events_file, &tmp_err, CGROUP_ROOT, path, "cgroup.events", NULL);
-  if (UNLIKELY (ret < 0))
+  ret = append_paths (&events_file, &tmp_err, CGROUP_మూలం, మార్గం, "cgroup.events", ఖాళీ);
+  ఒకవేళ (UNLIKELY (ret < 0))
     {
       crun_error_release (&tmp_err);
-      return -1;
+      తిరిగి -1;
     }
 
-  fd = inotify_init1 (IN_CLOEXEC | IN_NONBLOCK);
-  if (UNLIKELY (fd < 0))
-    return -1;
+  fd = inotify_init1 (లోపల_CLOEXEC | లోపల_NONBLOCK);
+  ఒకవేళ (UNLIKELY (fd < 0))
+    తిరిగి -1;
 
-  ret = inotify_add_watch (fd, events_file, IN_MODIFY);
-  if (UNLIKELY (ret < 0))
-    return -1;
+  ret = inotify_కూడు_watch (fd, events_file, లోపల_MODIFY);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి -1;
 
   ret = fd;
   fd = -1;
-  return ret;
+  తిరిగి ret;
 }
 
 /* Wait up to a short timeout for the cgroup to have no processes left.
    Return 1 if the cgroup is not populated anymore, 0 otherwise.  */
-static int
-wait_cgroup_unpopulated (const char *path, int inotify_fd)
+స్థిర పూర్ణాంకం
+wait_cgroup_unpopulated (స్థిరరాశి అక్షరం *మార్గం, పూర్ణాంకం inotify_fd)
 {
-  cleanup_free char *events_file = NULL;
-  libcrun_error_t tmp_err = NULL;
-  struct timespec timeout = {
+  cleanup_free అక్షరం *events_file = ఖాళీ;
+  libcrun_error_t tmp_err = ఖాళీ;
+  నిర్మాణం timespec timeout = {
     .tv_sec = CGROUP_KILL_WAIT_SEC,
     .tv_nsec = 0,
   };
-  int ret;
+  పూర్ణాంకం ret;
 
-  ret = append_paths (&events_file, &tmp_err, CGROUP_ROOT, path, "cgroup.events", NULL);
-  if (UNLIKELY (ret < 0))
+  ret = append_paths (&events_file, &tmp_err, CGROUP_మూలం, మార్గం, "cgroup.events", ఖాళీ);
+  ఒకవేళ (UNLIKELY (ret < 0))
     {
       crun_error_release (&tmp_err);
-      return 0;
+      తిరిగి 0;
     }
 
-  for (;;)
+  కొరకు (;;)
     {
-      cleanup_free char *content = NULL;
-      char buf[4096];
-      struct pollfd pfd = { .fd = inotify_fd, .events = POLLIN };
+      cleanup_free అక్షరం *content = ఖాళీ;
+      అక్షరం buf[4096];
+      నిర్మాణం pollfd pfd = { .fd = inotify_fd, .events = POLLIN };
 
-      ret = read_all_file (events_file, &content, NULL, &tmp_err);
-      if (UNLIKELY (ret < 0))
+      ret = read_all_file (events_file, &content, ఖాళీ, &tmp_err);
+      ఒకవేళ (UNLIKELY (ret < 0))
         {
           crun_error_release (&tmp_err);
-          return 0;
+          తిరిగి 0;
         }
 
-      if (strstr (content, "populated 0"))
-        return 1;
+      ఒకవేళ (అక్షరశ్రేణి_శోధన (content, "populated 0"))
+        తిరిగి 1;
 
-      ret = TEMP_FAILURE_RETRY (ppoll (&pfd, 1, &timeout, NULL));
-      if (ret <= 0)
-        return 0;
+      ret = తాత్కాలిక_FAILURE_RETRY (ppoll (&pfd, 1, &timeout, ఖాళీ));
+      ఒకవేళ (ret <= 0)
+        తిరిగి 0;
 
-      while (read (inotify_fd, buf, sizeof (buf)) > 0)
+      అయితే (పఠ (inotify_fd, buf, పరిమాణం (buf)) > 0)
         ;
     }
 }
 
-int
-cgroup_killall_path (const char *path, int signal, libcrun_error_t *err)
+పూర్ణాంకం
+cgroup_killall_మార్గం (స్థిరరాశి అక్షరం *మార్గం, పూర్ణాంకం సంకేతం, libcrun_error_t *err)
 {
   bool frozen = false;
-  cleanup_close int inotify_fd = -1;
-  int ret;
+  cleanup_close పూర్ణాంకం inotify_fd = -1;
+  పూర్ణాంకం ret;
   size_t i;
-  cleanup_free pid_t *pids = NULL;
+  cleanup_free pid_t *pids = ఖాళీ;
 
-  if (path == NULL || *path == '\0')
-    return 0;
+  ఒకవేళ (మార్గం == ఖాళీ || *మార్గం == '\0')
+    తిరిగి 0;
 
   /* If the signal is SIGKILL, try to kill each process using the `cgroup.kill` file.
      The kernel signals the thread group leaders, and that has no effect on a
      process whose leader already exited while other threads are still running.
      If the cgroup is not empty shortly after the write, go on and signal
      whatever is still listed in the cgroup.  */
-  if (signal == SIGKILL)
+  ఒకవేళ (సంకేతం == SIGKILL)
     {
-      cleanup_free char *kill_file = NULL;
+      cleanup_free అక్షరం *kill_file = ఖాళీ;
 
-      ret = append_paths (&kill_file, err, CGROUP_ROOT, path, "cgroup.kill", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&kill_file, err, CGROUP_మూలం, మార్గం, "cgroup.kill", ఖాళీ);
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి ret;
 
-      inotify_fd = watch_cgroup_events (path);
+      inotify_fd = watch_cgroup_events (మార్గం);
 
       ret = write_cgroup_file (AT_FDCWD, kill_file, "1", 1, err);
-      if (ret >= 0 && inotify_fd >= 0 && wait_cgroup_unpopulated (path, inotify_fd))
-        return 0;
+      ఒకవేళ (ret >= 0 && inotify_fd >= 0 && wait_cgroup_unpopulated (మార్గం, inotify_fd))
+        తిరిగి 0;
 
-      if (UNLIKELY (ret < 0))
+      ఒకవేళ (UNLIKELY (ret < 0))
         crun_error_release (err);
     }
 
   /* Freeze the cgroup so that the processes cannot fork while they are being
      killed.  Once frozen, make sure the cgroup is always thawed again on any
      exit path, otherwise the container would be left frozen and unresponsive.  */
-  ret = libcrun_cgroup_pause_unpause_path (path, true, err);
-  if (UNLIKELY (ret < 0))
+  ret = libcrun_cgroup_pause_unpause_మార్గం (మార్గం, true, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
     crun_error_release (err);
-  else
+  లేకపోతే
     frozen = true;
 
   /* On cgroup v2 a process is listed in `cgroup.procs` of the cgroup of its
      leader, and a process whose leader exited is not listed anywhere once it
      is moved to another cgroup.  For SIGKILL enumerate the threads instead,
      kill() accepts any thread ID and always targets the whole process.  */
-  ret = read_pids_from_path (path, true, signal == SIGKILL, &pids, err);
-  if (UNLIKELY (ret < 0))
+  ret = read_pids_from_మార్గం (మార్గం, true, సంకేతం == SIGKILL, &pids, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
     {
-      if (crun_error_get_errno (err) != ENOENT)
-        goto thaw;
+      ఒకవేళ (crun_error_get_errno (err) != ENOENT)
+        వెళ్ళు thaw;
 
       /* If the file doesn't exist then the container was already killed.  */
       crun_error_release (err);
     }
 
-  for (i = 0; pids && pids[i]; i++)
+  కొరకు (i = 0; pids && pids[i]; i++)
     {
-      ret = kill (pids[i], signal);
-      if (UNLIKELY (ret < 0 && errno != ESRCH))
+      ret = kill (pids[i], సంకేతం);
+      ఒకవేళ (UNLIKELY (ret < 0 && errno != ESRCH))
         {
           ret = crun_make_error (err, errno, "kill process `%d`", pids[i]);
-          goto thaw;
+          వెళ్ళు thaw;
         }
     }
 
   ret = 0;
 
 thaw:
-  if (frozen)
+  ఒకవేళ (frozen)
     {
-      libcrun_error_t thaw_err = NULL;
+      libcrun_error_t thaw_err = ఖాళీ;
 
       /* Thawing is best-effort: do not clobber a pending error with a
          thaw failure, but never leave the cgroup frozen.  */
-      if (libcrun_cgroup_pause_unpause_path (path, false, &thaw_err) < 0)
+      ఒకవేళ (libcrun_cgroup_pause_unpause_మార్గం (మార్గం, false, &thaw_err) < 0)
         crun_error_release (&thaw_err);
     }
 
-  return ret;
+  తిరిగి ret;
 }
 
-static int
-read_available_controllers (const char *path, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+read_అందుబాటు_controllers (స్థిరరాశి అక్షరం *మార్గం, libcrun_error_t *err)
 {
-  cleanup_free char *controllers = NULL;
-  cleanup_free char *buf = NULL;
-  char *saveptr = NULL;
-  const char *token;
-  int available = 0;
+  cleanup_free అక్షరం *controllers = ఖాళీ;
+  cleanup_free అక్షరం *buf = ఖాళీ;
+  అక్షరం *saveptr = ఖాళీ;
+  స్థిరరాశి అక్షరం *token;
+  పూర్ణాంకం అందుబాటు = 0;
   ssize_t ret;
 
-  ret = append_paths (&controllers, err, CGROUP_ROOT, path, "cgroup.controllers", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&controllers, err, CGROUP_మూలం, మార్గం, "cgroup.controllers", ఖాళీ);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  ret = read_all_file (controllers, &buf, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file (controllers, &buf, ఖాళీ, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  for (token = strtok_r (buf, " \n", &saveptr); token; token = strtok_r (NULL, " \n", &saveptr))
+  కొరకు (token = strtok_r (buf, " \n", &saveptr); token; token = strtok_r (ఖాళీ, " \n", &saveptr))
     {
-      if (strcmp (token, "memory") == 0)
-        available |= CGROUP_MEMORY;
-      else if (strcmp (token, "cpu") == 0)
-        available |= CGROUP_CPU;
-      else if (strcmp (token, "cpuset") == 0)
-        available |= CGROUP_CPUSET;
-      else if (strcmp (token, "hugetlb") == 0)
-        available |= CGROUP_HUGETLB;
-      else if (strcmp (token, "pids") == 0)
-        available |= CGROUP_PIDS;
-      else if (strcmp (token, "io") == 0)
-        available |= CGROUP_IO;
-      else if (strcmp (token, "misc") == 0)
-        available |= CGROUP_MISC;
+      ఒకవేళ (strcmp (token, "memory") == 0)
+        అందుబాటు |= CGROUP_జ్ఞాపకం;
+      లేకపోతే ఒకవేళ (strcmp (token, "cpu") == 0)
+        అందుబాటు |= CGROUP_CPU;
+      లేకపోతే ఒకవేళ (strcmp (token, "cpuset") == 0)
+        అందుబాటు |= CGROUP_CPUSET;
+      లేకపోతే ఒకవేళ (strcmp (token, "hugetlb") == 0)
+        అందుబాటు |= CGROUP_HUGETLB;
+      లేకపోతే ఒకవేళ (strcmp (token, "pids") == 0)
+        అందుబాటు |= CGROUP_PIDS;
+      లేకపోతే ఒకవేళ (strcmp (token, "io") == 0)
+        అందుబాటు |= CGROUP_IO;
+      లేకపోతే ఒకవేళ (strcmp (token, "misc") == 0)
+        అందుబాటు |= CGROUP_MISC;
     }
-  return available;
+  తిరిగి అందుబాటు;
 }
 
-static int
-write_controller_file (const char *path, int controllers_to_enable, libcrun_error_t *err)
+స్థిర పూర్ణాంకం
+write_controller_file (స్థిరరాశి అక్షరం *మార్గం, పూర్ణాంకం controllers_గమ్యం_enable, libcrun_error_t *err)
 {
-  cleanup_free char *subtree_control = NULL;
-  cleanup_free char *controllers = NULL;
+  cleanup_free అక్షరం *subtree_control = ఖాళీ;
+  cleanup_free అక్షరం *controllers = ఖాళీ;
   size_t controllers_len = 0;
-  int ret;
+  పూర్ణాంకం ret;
 
   controllers_len = xasprintf (
-      &controllers, "%s %s %s %s %s %s %s", (controllers_to_enable & CGROUP_CPU) ? "+cpu" : "",
-      (controllers_to_enable & CGROUP_IO) ? "+io" : "", (controllers_to_enable & CGROUP_MEMORY) ? "+memory" : "",
-      (controllers_to_enable & CGROUP_PIDS) ? "+pids" : "", (controllers_to_enable & CGROUP_CPUSET) ? "+cpuset" : "",
-      (controllers_to_enable & CGROUP_HUGETLB) ? "+hugetlb" : "",
-      (controllers_to_enable & CGROUP_MISC) ? "+misc" : "");
+      &controllers, "%s %s %s %s %s %s %s", (controllers_గమ్యం_enable & CGROUP_CPU) ? "+cpu" : "",
+      (controllers_గమ్యం_enable & CGROUP_IO) ? "+io" : "", (controllers_గమ్యం_enable & CGROUP_జ్ఞాపకం) ? "+memory" : "",
+      (controllers_గమ్యం_enable & CGROUP_PIDS) ? "+pids" : "", (controllers_గమ్యం_enable & CGROUP_CPUSET) ? "+cpuset" : "",
+      (controllers_గమ్యం_enable & CGROUP_HUGETLB) ? "+hugetlb" : "",
+      (controllers_గమ్యం_enable & CGROUP_MISC) ? "+misc" : "");
 
-  ret = append_paths (&subtree_control, err, CGROUP_ROOT, path, "cgroup.subtree_control", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&subtree_control, err, CGROUP_మూలం, మార్గం, "cgroup.subtree_control", ఖాళీ);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
   ret = write_cgroup_file (AT_FDCWD, subtree_control, controllers, controllers_len, err);
-  if (UNLIKELY (ret < 0))
+  ఒకవేళ (UNLIKELY (ret < 0))
     {
-      cleanup_free char *controllers_copy = xmalloc (controllers_len + 1);
-      int attempts_left;
-      char *saveptr = NULL;
-      const char *token;
-      int e;
+      cleanup_free అక్షరం *controllers_copy = xmalloc (controllers_len + 1);
+      పూర్ణాంకం attempts_ఎడమ;
+      అక్షరం *saveptr = ఖాళీ;
+      స్థిరరాశి అక్షరం *token;
+      పూర్ణాంకం e;
 
       e = crun_error_get_errno (err);
-      if (e != EPERM && e != EACCES && e != EBUSY && e != ENOENT && e != EOPNOTSUPP)
-        return crun_error_wrap (err, "enable controllers `%s`", controllers);
+      ఒకవేళ (e != EPERM && e != EACCES && e != EBUSY && e != ENOENT && e != EOPNOTSUPP)
+        తిరిగి crun_error_wrap (err, "enable controllers `%s`", controllers);
 
       /* ENOENT can mean both that the file doesn't exist or the controller is not present.  */
-      if (e == ENOENT)
+      ఒకవేళ (e == ENOENT)
         {
-          libcrun_error_t tmp_err = NULL;
-          int exists;
+          libcrun_error_t tmp_err = ఖాళీ;
+          పూర్ణాంకం exists;
 
-          exists = crun_path_exists (subtree_control, &tmp_err);
-          if (UNLIKELY (exists < 0))
+          exists = crun_మార్గం_exists (subtree_control, &tmp_err);
+          ఒకవేళ (UNLIKELY (exists < 0))
             {
               crun_error_release (&tmp_err);
-              return ret;
+              తిరిగి ret;
             }
           /* If the file doesn't exist, then return the original ENOENT.  */
-          if (exists == 0)
-            return ret;
+          ఒకవేళ (exists == 0)
+            తిరిగి ret;
         }
 
       crun_error_release (err);
 
-      if (e == EOPNOTSUPP)
+      ఒకవేళ (e == EOPNOTSUPP)
         {
-          ret = maybe_make_cgroup_threaded (path, err);
-          if (UNLIKELY (ret < 0))
-            return crun_error_wrap (err, "make cgroup threaded");
+          ret = maybe_make_cgroup_threaded (మార్గం, err);
+          ఒకవేళ (UNLIKELY (ret < 0))
+            తిరిగి crun_error_wrap (err, "make cgroup threaded");
         }
 
       /* It seems the kernel can return EBUSY when a process was moved to a sub-cgroup
          and the controllers are enabled in its parent cgroup.  Retry a few times when
          it happens.  */
-      for (attempts_left = 1000; attempts_left >= 0; attempts_left--)
+      కొరకు (attempts_ఎడమ = 1000; attempts_ఎడమ >= 0; attempts_ఎడమ--)
         {
-          int controllers_written;
+          పూర్ణాంకం controllers_written;
           bool repeat = false;
 
-          memcpy (controllers_copy, controllers, controllers_len);
+          జ్ఞాపకం_నకలు (controllers_copy, controllers, controllers_len);
           controllers_copy[controllers_len] = '\0';
           controllers_written = 0;
 
           /* Fallback to write each one individually.  */
-          for (token = strtok_r (controllers_copy, " ", &saveptr); token; token = strtok_r (NULL, " ", &saveptr))
+          కొరకు (token = strtok_r (controllers_copy, " ", &saveptr); token; token = strtok_r (ఖాళీ, " ", &saveptr))
             {
-              ret = write_cgroup_file (AT_FDCWD, subtree_control, token, strlen (token), err);
-              if (ret < 0)
+              ret = write_cgroup_file (AT_FDCWD, subtree_control, token, అక్షరశ్రేణి_పొడవు (token), err);
+              ఒకవేళ (ret < 0)
                 {
                   e = crun_error_get_errno (err);
                   crun_error_release (err);
 
-                  if (e == EBUSY)
+                  ఒకవేళ (e == EBUSY)
                     repeat = true;
 
-                  continue;
+                  కొనసాగు;
                 }
 
               controllers_written++;
             }
 
-          if (! repeat)
-            break;
+          ఒకవేళ (! repeat)
+            ఆపు;
 
           /* If there was any controller written, just try once more without any delay.  */
-          if (controllers_written > 0 && attempts_left > 2)
+          ఒకవేళ (controllers_written > 0 && attempts_ఎడమ > 2)
             {
-              attempts_left = 1;
-              continue;
+              attempts_ఎడమ = 1;
+              కొనసాగు;
             }
 
-          if (attempts_left > 0)
+          ఒకవేళ (attempts_ఎడమ > 0)
             {
-              struct timespec delay = {
+              నిర్మాణం timespec delay = {
                 .tv_sec = 0,
                 .tv_nsec = 1000000,
               };
-              nanosleep (&delay, NULL);
+              nanosleep (&delay, ఖాళీ);
             }
         }
 
       /* Refresh what controllers are available.  */
-      return read_available_controllers (path, err);
+      తిరిగి read_అందుబాటు_controllers (మార్గం, err);
     }
 
   /* All controllers were enabled successfully.  */
-  return controllers_to_enable;
+  తిరిగి controllers_గమ్యం_enable;
 }
 
-int
-enable_controllers (const char *path, libcrun_error_t *err)
+పూర్ణాంకం
+enable_controllers (స్థిరరాశి అక్షరం *మార్గం, libcrun_error_t *err)
 {
-  cleanup_free char *tmp_path = NULL;
-  char *it;
-  int ret, controllers_to_enable;
+  cleanup_free అక్షరం *tmp_మార్గం = ఖాళీ;
+  అక్షరం *it;
+  పూర్ణాంకం ret, controllers_గమ్యం_enable;
 
-  xasprintf (&tmp_path, "%s/", path);
+  xasprintf (&tmp_మార్గం, "%s/", మార్గం);
 
-  ret = read_available_controllers ("", err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_అందుబాటు_controllers ("", err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  controllers_to_enable = ret;
+  controllers_గమ్యం_enable = ret;
 
   /* Enable all possible controllers in the root cgroup.  */
-  ret = write_controller_file ("", controllers_to_enable, err);
-  if (UNLIKELY (ret < 0))
+  ret = write_controller_file ("", controllers_గమ్యం_enable, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
     {
       /* Enabling +cpu when there are realtime processes fail with EINVAL.  */
-      if ((controllers_to_enable & CGROUP_CPU) && (crun_error_get_errno (err) == EINVAL))
+      ఒకవేళ ((controllers_గమ్యం_enable & CGROUP_CPU) && (crun_error_get_errno (err) == EINVAL))
         {
           crun_error_release (err);
-          controllers_to_enable &= ~CGROUP_CPU;
-          ret = write_controller_file ("", controllers_to_enable, err);
+          controllers_గమ్యం_enable &= ~CGROUP_CPU;
+          ret = write_controller_file ("", controllers_గమ్యం_enable, err);
         }
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి ret;
     }
 
-  for (it = strchr (tmp_path + 1, '/'); it;)
+  కొరకు (it = strchr (tmp_మార్గం + 1, '/'); it;)
     {
-      cleanup_free char *cgroup_path = NULL;
-      char *next_slash = strchr (it + 1, '/');
+      cleanup_free అక్షరం *cgroup_మార్గం = ఖాళీ;
+      అక్షరం *తదుపరి_slash = strchr (it + 1, '/');
 
       *it = '\0';
 
-      ret = append_paths (&cgroup_path, err, CGROUP_ROOT, tmp_path, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&cgroup_మార్గం, err, CGROUP_మూలం, tmp_మార్గం, ఖాళీ);
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి ret;
 
-      ret = mkdir (cgroup_path, 0755);
-      if (UNLIKELY (ret < 0 && errno != EEXIST))
-        return crun_make_error (err, errno, "create `%s`", cgroup_path);
+      ret = mkdir (cgroup_మార్గం, 0755);
+      ఒకవేళ (UNLIKELY (ret < 0 && errno != EEXIST))
+        తిరిగి crun_make_error (err, errno, "create `%s`", cgroup_మార్గం);
 
-      if (next_slash)
+      ఒకవేళ (తదుపరి_slash)
         {
-          ret = write_controller_file (tmp_path, controllers_to_enable, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = write_controller_file (tmp_మార్గం, controllers_గమ్యం_enable, err);
+          ఒకవేళ (UNLIKELY (ret < 0))
+            తిరిగి ret;
         }
 
       *it = '/';
-      it = next_slash;
+      it = తదుపరి_slash;
     }
-  return 0;
+  తిరిగి 0;
 }
 
-int
-libcrun_move_process_to_cgroup (pid_t pid, pid_t init_pid, const char *path, bool create_if_missing, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_move_process_గమ్యం_cgroup (pid_t pid, pid_t init_pid, స్థిరరాశి అక్షరం *మార్గం, bool create_if_missing, libcrun_error_t *err)
 {
-  int cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  పూర్ణాంకం cgroup_బహుళకం = libcrun_get_cgroup_బహుళకం (err);
+  ఒకవేళ (UNLIKELY (cgroup_బహుళకం < 0))
+    తిరిగి cgroup_బహుళకం;
 
-  if (path == NULL || *path == '\0')
-    return 0;
+  ఒకవేళ (మార్గం == ఖాళీ || *మార్గం == '\0')
+    తిరిగి 0;
 
-  return enter_cgroup (cgroup_mode, pid, init_pid, path, create_if_missing, err);
+  తిరిగి enter_cgroup (cgroup_బహుళకం, pid, init_pid, మార్గం, create_if_missing, err);
 }
 
 /* Move the current process to the cgroups listed in CONTENT, as read from
    /proc/self/cgroup earlier.  Used to undo libcrun_move_process_to_cgroup.  */
-int
-libcrun_move_self_to_cgroups (const char *content, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_move_self_గమ్యం_cgroups (స్థిరరాశి అక్షరం *content, libcrun_error_t *err)
 {
-  cleanup_free char *buf = xstrdup (content);
-  char *saveptr = NULL;
-  char *controller;
-  char *path;
-  int cgroup_mode;
-  bool has_data;
-  int ret;
+  cleanup_free అక్షరం *buf = xstrdup (content);
+  అక్షరం *saveptr = ఖాళీ;
+  అక్షరం *controller;
+  అక్షరం *మార్గం;
+  పూర్ణాంకం cgroup_బహుళకం;
+  bool has_దత్తాంశం;
+  పూర్ణాంకం ret;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_బహుళకం = libcrun_get_cgroup_బహుళకం (err);
+  ఒకవేళ (UNLIKELY (cgroup_బహుళకం < 0))
+    తిరిగి cgroup_బహుళకం;
 
-  for (has_data = read_proc_cgroup (buf, &saveptr, NULL, &controller, &path);
-       has_data;
-       has_data = read_proc_cgroup (NULL, &saveptr, NULL, &controller, &path))
+  కొరకు (has_దత్తాంశం = read_proc_cgroup (buf, &saveptr, ఖాళీ, &controller, &మార్గం);
+       has_దత్తాంశం;
+       has_దత్తాంశం = read_proc_cgroup (ఖాళీ, &saveptr, ఖాళీ, &controller, &మార్గం))
     {
-      const char *subsystem = NULL;
+      స్థిరరాశి అక్షరం *subsystem = ఖాళీ;
 
-      if (cgroup_mode == CGROUP_MODE_UNIFIED)
+      ఒకవేళ (cgroup_బహుళకం == CGROUP_బహుళకం_UNIFIED)
         {
           /* Ignore named v1 hierarchies, if any.  */
-          if (controller[0] != '\0')
-            continue;
+          ఒకవేళ (controller[0] != '\0')
+            కొనసాగు;
         }
-      else
+      లేకపోతే
         {
-          cleanup_free char *subsystem_path = NULL;
+          cleanup_free అక్షరం *subsystem_మార్గం = ఖాళీ;
 
           /* Use the same names as enter_cgroup_v1 does.  */
-          if (has_prefix (controller, "name="))
+          ఒకవేళ (has_ఉపసర్గ (controller, "name="))
             controller += 5;
           subsystem = controller[0] == '\0' ? "unified" : controller;
-          if (strcmp (subsystem, "net_prio,net_cls") == 0)
+          ఒకవేళ (strcmp (subsystem, "net_prio,net_cls") == 0)
             subsystem = "net_cls,net_prio";
-          if (strcmp (subsystem, "cpuacct,cpu") == 0)
+          ఒకవేళ (strcmp (subsystem, "cpuacct,cpu") == 0)
             subsystem = "cpu,cpuacct";
 
-          ret = append_paths (&subsystem_path, err, CGROUP_ROOT, subsystem, NULL);
-          if (UNLIKELY (ret < 0))
-            return ret;
-          ret = crun_path_exists (subsystem_path, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
-          if (ret == 0)
-            continue;
+          ret = append_paths (&subsystem_మార్గం, err, CGROUP_మూలం, subsystem, ఖాళీ);
+          ఒకవేళ (UNLIKELY (ret < 0))
+            తిరిగి ret;
+          ret = crun_మార్గం_exists (subsystem_మార్గం, err);
+          ఒకవేళ (UNLIKELY (ret < 0))
+            తిరిగి ret;
+          ఒకవేళ (ret == 0)
+            కొనసాగు;
         }
 
-      ret = move_process_to_cgroup (0, subsystem, path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = move_process_గమ్యం_cgroup (0, subsystem, మార్గం, err);
+      ఒకవేళ (UNLIKELY (ret < 0))
+        తిరిగి ret;
     }
 
-  return 0;
+  తిరిగి 0;
 }
 
-int
-libcrun_get_cgroup_dirfd (struct libcrun_cgroup_status *status, const char *sub_cgroup, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_get_cgroup_dirfd (నిర్మాణం libcrun_cgroup_స్థితి *స్థితి_2, స్థిరరాశి అక్షరం *sub_cgroup, libcrun_error_t *err)
 {
-  cleanup_free char *path_to_cgroup = NULL;
-  int cgroup_mode;
-  int cgroupdirfd;
-  int ret;
+  cleanup_free అక్షరం *మార్గం_గమ్యం_cgroup = ఖాళీ;
+  పూర్ణాంకం cgroup_బహుళకం;
+  పూర్ణాంకం cgroupdirfd;
+  పూర్ణాంకం ret;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (cgroup_mode < 0)
-    return cgroup_mode;
+  cgroup_బహుళకం = libcrun_get_cgroup_బహుళకం (err);
+  ఒకవేళ (cgroup_బహుళకం < 0)
+    తిరిగి cgroup_బహుళకం;
 
-  if (cgroup_mode != CGROUP_MODE_UNIFIED)
-    return crun_make_error (err, 0, "cgroup dirfd supported only on cgroup v2");
+  ఒకవేళ (cgroup_బహుళకం != CGROUP_బహుళకం_UNIFIED)
+    తిరిగి crun_make_error (err, 0, "cgroup dirfd supported only on cgroup v2");
 
-  if (status == NULL)
-    return crun_make_error (err, 0, "internal error");
+  ఒకవేళ (స్థితి_2 == ఖాళీ)
+    తిరిగి crun_make_error (err, 0, "internal error");
 
-  if (is_empty_string (status->path))
-    return crun_make_error (err, 0, "no cgroup path specified");
+  ఒకవేళ (is_ఖాళీలు_string (స్థితి_2->మార్గం))
+    తిరిగి crun_make_error (err, 0, "no cgroup path specified");
 
-  ret = append_paths (&path_to_cgroup, err, CGROUP_ROOT, status->path, sub_cgroup, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&మార్గం_గమ్యం_cgroup, err, CGROUP_మూలం, స్థితి_2->మార్గం, sub_cgroup, ఖాళీ);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  cgroupdirfd = open (path_to_cgroup, O_CLOEXEC | O_NOFOLLOW | O_DIRECTORY | O_PATH);
-  if (UNLIKELY (cgroupdirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", path_to_cgroup);
+  cgroupdirfd = open (మార్గం_గమ్యం_cgroup, O_CLOEXEC | O_NOFOLLOW | O_DIRECTORY | O_మార్గం);
+  ఒకవేళ (UNLIKELY (cgroupdirfd < 0))
+    తిరిగి crun_make_error (err, errno, "open `%s`", మార్గం_గమ్యం_cgroup);
 
-  return cgroupdirfd;
+  తిరిగి cgroupdirfd;
 }
 
-int
-libcrun_migrate_all_pids_to_cgroup (pid_t init_pid, char *from, char *to, libcrun_error_t *err)
+పూర్ణాంకం
+libcrun_migrate_all_pids_గమ్యం_cgroup (pid_t init_pid, అక్షరం *from, అక్షరం *గమ్యం, libcrun_error_t *err)
 {
-  cleanup_free pid_t *pids = NULL;
-  cleanup_close int child_dfd = -1;
-  int cgroup_mode;
+  cleanup_free pid_t *pids = ఖాళీ;
+  cleanup_close పూర్ణాంకం బిడ్డ_dfd = -1;
+  పూర్ణాంకం cgroup_బహుళకం;
   size_t from_len;
   size_t i;
-  int ret;
+  పూర్ణాంకం ret;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (cgroup_mode < 0)
-    return cgroup_mode;
+  cgroup_బహుళకం = libcrun_get_cgroup_బహుళకం (err);
+  ఒకవేళ (cgroup_బహుళకం < 0)
+    తిరిగి cgroup_బహుళకం;
 
   /* Freeze the source cgroup for a consistent view of its processes while they
      are migrated, but make sure it is always thawed again on error, otherwise
      it would be left frozen.  */
-  ret = libcrun_cgroup_pause_unpause_path (from, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_cgroup_pause_unpause_మార్గం (from, true, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  ret = libcrun_cgroup_read_pids_from_path (from, true, &pids, err);
-  if (UNLIKELY (ret < 0))
-    goto thaw;
+  ret = libcrun_cgroup_read_pids_from_మార్గం (from, true, &pids, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    వెళ్ళు thaw;
 
-  from_len = strlen (from);
+  from_len = అక్షరశ్రేణి_పొడవు (from);
 
-  for (i = 0; pids && pids[i]; i++)
+  కొరకు (i = 0; pids && pids[i]; i++)
     {
-      cleanup_free char *pid_path = NULL;
-      cleanup_free char *dest_cgroup = NULL;
+      cleanup_free అక్షరం *pid_మార్గం = ఖాళీ;
+      cleanup_free అక్షరం *dest_cgroup = ఖాళీ;
 
-      ret = libcrun_get_cgroup_process (pids[i], &pid_path, false, err);
-      if (UNLIKELY (ret < 0))
-        goto thaw;
+      ret = libcrun_get_cgroup_process (pids[i], &pid_మార్గం, false, err);
+      ఒకవేళ (UNLIKELY (ret < 0))
+        వెళ్ళు thaw;
 
       /* Make sure the pid is in the cgroup we are migrating from.  */
-      if (! has_prefix (pid_path, from))
+      ఒకవేళ (! has_ఉపసర్గ (pid_మార్గం, from))
         {
           ret = crun_make_error (err, 0, "error migrating pid %d.  It is not in the cgroup `%s`", pids[i], from);
-          goto thaw;
+          వెళ్ళు thaw;
         }
 
       /* Build the destination cgroup path, keeping the same hierarchy.  */
-      xasprintf (&dest_cgroup, "%s%s", to, pid_path + from_len);
+      xasprintf (&dest_cgroup, "%s%s", గమ్యం, pid_మార్గం + from_len);
 
-      ret = enter_cgroup (cgroup_mode, pids[i], init_pid, dest_cgroup, false, err);
-      if (UNLIKELY (ret < 0))
-        goto thaw;
+      ret = enter_cgroup (cgroup_బహుళకం, pids[i], init_pid, dest_cgroup, false, err);
+      ఒకవేళ (UNLIKELY (ret < 0))
+        వెళ్ళు thaw;
     }
 
   ret = 0;
 
 thaw:
-  if (UNLIKELY (ret < 0))
+  ఒకవేళ (UNLIKELY (ret < 0))
     {
-      libcrun_error_t thaw_err = NULL;
+      libcrun_error_t thaw_err = ఖాళీ;
 
       /* Best-effort thaw: keep the original error but never leave the cgroup frozen.  */
-      if (libcrun_cgroup_pause_unpause_path (from, false, &thaw_err) < 0)
+      ఒకవేళ (libcrun_cgroup_pause_unpause_మార్గం (from, false, &thaw_err) < 0)
         crun_error_release (&thaw_err);
-      return ret;
+      తిరిగి ret;
     }
 
-  ret = libcrun_cgroup_pause_unpause_path (from, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_cgroup_pause_unpause_మార్గం (from, false, err);
+  ఒకవేళ (UNLIKELY (ret < 0))
+    తిరిగి ret;
 
-  return destroy_cgroup_path (from, cgroup_mode, err);
+  తిరిగి destroy_cgroup_మార్గం (from, cgroup_బహుళకం, err);
 }
 
-int
-get_cgroup_dirfd_path (int dirfd, char **path, libcrun_error_t *err)
+పూర్ణాంకం
+get_cgroup_dirfd_మార్గం (పూర్ణాంకం dirfd, అక్షరం **మార్గం, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
-  proc_fd_path_t fd_path;
+  cleanup_free అక్షరం *cgroup_మార్గం = ఖాళీ;
+  proc_fd_మార్గం_t fd_మార్గం;
   ssize_t len;
 
-  get_proc_self_fd_path (fd_path, dirfd);
+  get_proc_self_fd_మార్గం (fd_మార్గం, dirfd);
 
-  len = safe_readlinkat (AT_FDCWD, fd_path, &cgroup_path, 0, err);
-  if (UNLIKELY (len < 0))
-    return len;
+  len = సురక్షిత_readlinkat (AT_FDCWD, fd_మార్గం, &cgroup_మార్గం, 0, err);
+  ఒకవేళ (UNLIKELY (len < 0))
+    తిరిగి len;
 
-  if (has_prefix (cgroup_path, CGROUP_ROOT))
+  ఒకవేళ (has_ఉపసర్గ (cgroup_మార్గం, CGROUP_మూలం))
     {
-      *path = xstrdup (cgroup_path + strlen (CGROUP_ROOT));
-      return 0;
+      *మార్గం = xstrdup (cgroup_మార్గం + అక్షరశ్రేణి_పొడవు (CGROUP_మూలం));
+      తిరిగి 0;
     }
-  return crun_make_error (err, 0, "invalid cgroup path `%s`", cgroup_path);
+  తిరిగి crun_make_error (err, 0, "invalid cgroup path `%s`", cgroup_మార్గం);
 }
 
 /* Parse a cpu.max value: "QUOTA [PERIOD]", where QUOTA is either a
    number or "max" (returned as -1).  */
-int
-parse_cpu_max (const char *value, int64_t *quota, uint64_t *period, bool *has_period, libcrun_error_t *err)
+పూర్ణాంకం
+parse_cpu_max (స్థిరరాశి అక్షరం *విలువ, int64_t *quota, uint64_t *period, bool *has_period, libcrun_error_t *err)
 {
-  const char *it = value;
-  char *endptr = NULL;
+  స్థిరరాశి అక్షరం *it = విలువ;
+  అక్షరం *endptr = ఖాళీ;
 
-  while (*it == ' ')
+  అయితే (*it == ' ')
     it++;
 
   errno = 0;
-  if (has_prefix (it, "max"))
+  ఒకవేళ (has_ఉపసర్గ (it, "max"))
     {
       *quota = -1;
-      endptr = (char *) it + 3;
+      endptr = (అక్షరం *) it + 3;
     }
-  else
+  లేకపోతే
     {
       *quota = strtoll (it, &endptr, 10);
-      if (UNLIKELY (errno != 0 || endptr == it || *quota <= 0))
-        return crun_make_error (err, 0, "invalid value for `cpu.max`: `%s`", value);
+      ఒకవేళ (UNLIKELY (errno != 0 || endptr == it || *quota <= 0))
+        తిరిగి crun_make_error (err, 0, "invalid value for `cpu.max`: `%s`", విలువ);
     }
 
   it = endptr;
-  while (*it == ' ')
+  అయితే (*it == ' ')
     it++;
 
   *has_period = false;
-  if (*it && *it != '\n')
+  ఒకవేళ (*it && *it != '\n')
     {
       errno = 0;
       *period = strtoull (it, &endptr, 10);
-      if (UNLIKELY (errno != 0 || endptr == it || (*endptr && *endptr != '\n')))
-        return crun_make_error (err, 0, "invalid value for `cpu.max`: `%s`", value);
+      ఒకవేళ (UNLIKELY (errno != 0 || endptr == it || (*endptr && *endptr != '\n')))
+        తిరిగి crun_make_error (err, 0, "invalid value for `cpu.max`: `%s`", విలువ);
       *has_period = true;
     }
 
-  return 0;
+  తిరిగి 0;
 }

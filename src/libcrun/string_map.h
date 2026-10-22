@@ -16,33 +16,33 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STRING_MAP_H
-#define STRING_MAP_H
+#నిర్వచితం_కాకపోతే STRING_MAP_H
+#నిర్వచించు STRING_MAP_H
 
-#ifndef _GNU_SOURCE
-#  define _GNU_SOURCE
-#endif
+#నిర్వచితం_కాకపోతే GNU_ఆధారం
+#  define GNU_ఆధారం
+#అయితే_ముగింపు
 
-#include <config.h>
+#అన్తర్భావ <config.h>
 
-#ifdef HAVE_HSEARCH_R
+#నిర్వచితమైతే HAVE_HSEARCH_R
 #  include <search.h>
-#endif
+#అయితే_ముగింపు
 
-#include <ocispec/runtime_spec_schema_config_schema.h>
-#include "error.h"
+#అన్తర్భావ <ocispec/runtime_spec_schema_config_schema.h>
+#అన్తర్భావ "error.h"
 
-struct string_map_s;
-typedef struct string_map_s string_map;
+నిర్మాణం string_map_s;
+రకనిర్వచనం నిర్మాణం string_map_s string_map;
 
-const char *find_string_map_value (string_map *map, const char *name);
+స్థిరరాశి అక్షరం *కనుగొను_string_map_విలువ (string_map *map, స్థిరరాశి అక్షరం *name);
 
 string_map *make_string_map_from_json (json_map_string_string *jmap);
 
-void free_string_map (string_map *map);
+శూన్య free_string_map (string_map *map);
 
-int string_map_get_at (string_map *map, size_t index, const char **name, const char **value);
+పూర్ణాంకం string_map_get_at (string_map *map, size_t సూచీ, స్థిరరాశి అక్షరం **name, స్థిరరాశి అక్షరం **విలువ);
 
-size_t string_map_size (string_map *map);
+size_t string_map_కొలత (string_map *map);
 
-#endif
+#అయితే_ముగింపు
