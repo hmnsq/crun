@@ -40,7 +40,7 @@ struct libcrun_cgroup_status
   char *path;
   char *scope;
 
-  int manager;
+  целое manager;
 
   bool bpf_dev_set;
 };
@@ -51,44 +51,44 @@ struct libcrun_cgroup_args;
 struct libcrun_cgroup_manager
 {
   /* Create a new cgroup and fill PATH in OUT.  */
-  int (*create_cgroup) (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status *out, libcrun_error_t *err);
-  int (*precreate_cgroup) (struct libcrun_cgroup_args *args, int *dirfd, libcrun_error_t *err);
+  целое (*create_cgroup) (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status *out, libcrun_error_t *err);
+  целое (*precreate_cgroup) (struct libcrun_cgroup_args *args, целое *dirfd, libcrun_error_t *err);
   /* Destroy the cgroup and kill any process if needed.  */
-  int (*destroy_cgroup) (struct libcrun_cgroup_status *cgroup_status, libcrun_error_t *err);
+  целое (*destroy_cgroup) (struct libcrun_cgroup_status *cgroup_status, libcrun_error_t *err);
   /* Additional resources configuration specific to this manager.  */
-  int (*update_resources) (struct libcrun_cgroup_status *cgroup_status, const char *state_root, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err);
+  целое (*update_resources) (struct libcrun_cgroup_status *cgroup_status, const char *state_root, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err);
   /* Move PID to the cgroup PATH (the container cgroup or its sub-cgroup) by
      other means than writing to cgroup.procs.  Optional.  */
-  int (*attach_process) (struct libcrun_cgroup_status *cgroup_status, const char *path, pid_t pid, libcrun_error_t *err);
+  целое (*attach_process) (struct libcrun_cgroup_status *cgroup_status, const char *path, pid_t pid, libcrun_error_t *err);
 };
 
-int move_process_to_cgroup (pid_t pid, const char *subsystem, const char *path, libcrun_error_t *err);
-int enter_cgroup_v1_subsystem (pid_t pid, const char *subsystem, const char *path, bool create_if_missing,
+целое move_process_to_cgroup (pid_t pid, const char *subsystem, const char *path, libcrun_error_t *err);
+целое enter_cgroup_v1_subsystem (pid_t pid, const char *subsystem, const char *path, bool create_if_missing,
                                libcrun_error_t *err);
-int enable_controllers (const char *path, libcrun_error_t *err);
-int chown_cgroups (const char *path, uid_t uid, gid_t gid, libcrun_error_t *err);
-int cgroup_killall_path (const char *path, int signal, libcrun_error_t *err);
+целое enable_controllers (const char *path, libcrun_error_t *err);
+целое chown_cgroups (const char *path, uid_t uid, gid_t gid, libcrun_error_t *err);
+целое cgroup_killall_path (const char *path, целое signal, libcrun_error_t *err);
 
-int libcrun_cgroup_read_pids_from_path (const char *path, bool recurse, pid_t **pids, libcrun_error_t *err);
+целое libcrun_cgroup_read_pids_from_path (const char *path, bool recurse, pid_t **pids, libcrun_error_t *err);
 
 bool read_proc_cgroup (char *content, char **saveptr, char **id, char **controller_list, char **path);
 
-static inline int
+static inline целое
 is_rootless (libcrun_error_t *err)
 {
-  if (geteuid ())
-    return 1;
+  если (geteuid ())
+    вернуть 1;
 
-  return check_running_in_user_namespace (err);
+  вернуть check_running_in_user_namespace (err);
 }
 
-static inline int
-write_cgroup_file (int dirfd, const char *name, const void *data, size_t len, libcrun_error_t *err)
+static inline целое
+write_cgroup_file (целое dirfd, const char *name, const void *data, size_t len, libcrun_error_t *err)
 {
-  return write_file_at_with_flags (dirfd, O_WRONLY | O_CLOEXEC, 0, name, data, len, err);
+  вернуть write_file_at_with_flags (dirfd, O_WRONLY | O_CLOEXEC, 0, name, data, len, err);
 }
 
-int libcrun_cgroup_pause_unpause_path (const char *cgroup_path, const bool pause, libcrun_error_t *err);
+целое libcrun_cgroup_pause_unpause_path (const char *cgroup_path, const bool pause, libcrun_error_t *err);
 
 static inline uint64_t
 convert_shares_to_weight (uint64_t shares)
@@ -96,27 +96,27 @@ convert_shares_to_weight (uint64_t shares)
   double l, exponent;
 
   /* The value of 0 means "unset".  */
-  if (shares == 0)
-    return 0;
-  if (shares <= 2)
-    return 1;
-  if (shares >= 262144)
-    return 10000;
+  если (shares == 0)
+    вернуть 0;
+  если (shares <= 2)
+    вернуть 1;
+  если (shares >= 262144)
+    вернуть 10000;
 
   l = log2 ((double) shares);
 
   /* Quadratic function which fits min, max, and default.  */
   exponent = (l * l + 125 * l) / 612.0 - 7.0 / 34.0;
 
-  return (uint64_t) ceil (pow (10, exponent));
+  вернуть (uint64_t) ceil (pow (10, exponent));
 }
 
-int initialize_cpuset_subsystem (const char *path, libcrun_error_t *err);
-int initialize_cpuset_subsystem_resources (const char *path, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err);
+целое initialize_cpuset_subsystem (const char *path, libcrun_error_t *err);
+целое initialize_cpuset_subsystem_resources (const char *path, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err);
 
-int write_cpuset_resources (int dirfd_cpuset, int cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err);
+целое write_cpuset_resources (целое dirfd_cpuset, целое cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err);
 
-int write_cpu_idle (int cpu_dirfd, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err);
-int write_cpu_burst (int cpu_dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err);
+целое write_cpu_idle (целое cpu_dirfd, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err);
+целое write_cpu_burst (целое cpu_dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err);
 
 #endif

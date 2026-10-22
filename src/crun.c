@@ -58,15 +58,15 @@ static struct crun_global_arguments arguments;
 
 struct commands_s
 {
-  int value;
+  целое value;
   const char *name;
-  int (*handler) (struct crun_global_arguments *, int, char **, libcrun_error_t *);
+  целое (*handler) (struct crun_global_arguments *, целое, char **, libcrun_error_t *);
 };
 
-int
+целое
 init_libcrun_context (libcrun_context_t *con, const char *id, struct crun_global_arguments *glob, libcrun_error_t *err)
 {
-  int ret;
+  целое ret;
 
   libcrun_context_set_id (con, id);
   libcrun_context_set_state_root (con, glob->root);
@@ -79,20 +79,20 @@ init_libcrun_context (libcrun_context_t *con, const char *id, struct crun_global
   libcrun_context_set_handler (con, glob->handler);
 
   ret = libcrun_context_init_logging (con, glob->log, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  если (UNLIKELY (ret < 0))
+    вернуть ret;
 
-  if (glob->log_format)
+  если (glob->log_format)
     {
       ret = libcrun_set_log_format (glob->log_format, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      если (UNLIKELY (ret < 0))
+        вернуть ret;
     }
 
   libcrun_set_verbosity (glob->verbosity);
   libcrun_debug ("Using debug verbosity");
 
-  return 0;
+  вернуть 0;
 }
 
 /* Allocate a public libcrun context (with handlers loaded) for a subcommand.
@@ -104,10 +104,10 @@ new_libcrun_context (struct crun_global_arguments *glob)
   libcrun_context_t *con;
 
   con = libcrun_context_new (NULL, glob->root, &err);
-  if (UNLIKELY (con == NULL))
+  если (UNLIKELY (con == NULL))
     libcrun_fail_with_error (libcrun_error_get_status (err), "%s", libcrun_error_get_message (err));
 
-  return con;
+  вернуть con;
 }
 
 enum
@@ -145,7 +145,7 @@ struct commands_s commands[] = { { COMMAND_CREATE, "create", crun_command_create
                                  { COMMAND_PAUSE, "pause", crun_command_pause },
                                  { COMMAND_UNPAUSE, "resume", crun_command_unpause },
                                  { COMMAND_FEATURES, "features", crun_command_features },
-#if HAVE_CRIU && HAVE_DLOPEN
+#если HAVE_CRIU && HAVE_DLOPEN
                                  { COMMAND_CHECKPOINT, "checkpoint", crun_command_checkpoint },
                                  { COMMAND_RESTORE, "restore", crun_command_restore },
 #endif
@@ -155,7 +155,7 @@ struct commands_s commands[] = { { COMMAND_CREATE, "create", crun_command_create
                                  } };
 
 static char doc[] = "\nCOMMANDS:\n"
-#if HAVE_CRIU && HAVE_DLOPEN
+#если HAVE_CRIU && HAVE_DLOPEN
                     "\tcheckpoint  - checkpoint a container\n"
 #endif
                     "\tcreate      - create a container\n"
@@ -166,7 +166,7 @@ static char doc[] = "\nCOMMANDS:\n"
                     "\tmounts      - add or remove mounts from a running container\n"
                     "\tkill        - send a signal to the container init process\n"
                     "\tps          - show the processes in the container\n"
-#if HAVE_CRIU && HAVE_DLOPEN
+#если HAVE_CRIU && HAVE_DLOPEN
                     "\trestore     - restore a container\n"
 #endif
                     "\trun         - run a container\n"
@@ -183,10 +183,10 @@ static struct commands_s *
 get_command (const char *arg)
 {
   struct commands_s *it;
-  for (it = commands; it->value; it++)
-    if (strcmp (it->name, arg) == 0)
-      return it;
-  return NULL;
+  для (it = commands; it->value; it++)
+    если (strcmp (it->name, arg) == 0)
+      вернуть it;
+  вернуть NULL;
 }
 
 enum
@@ -227,15 +227,15 @@ print_version (FILE *stream, struct argp_state *state arg_unused)
   cleanup_free char *rundir = NULL;
   libcrun_context_t *ctx;
   char **tags;
-  int ret;
+  целое ret;
 
   fprintf (stream, "%s version %s\n", PACKAGE_NAME, PACKAGE_VERSION);
   fprintf (stream, "commit: %s\n", GIT_VERSION);
 
   ret = libcrun_get_state_dir (&rundir, arguments.root, NULL, &err);
-  if (LIKELY (ret == 0))
+  если (LIKELY (ret == 0))
     fprintf (stream, "rundir: %s\n", rundir);
-  else
+  иначе
     libcrun_error_release (&err);
 
   fprintf (stream, "spec: 1.0.0\n");
@@ -254,35 +254,35 @@ print_version (FILE *stream, struct argp_state *state arg_unused)
 #ifdef HAVE_EBPF
   fprintf (stream, "+EBPF ");
 #endif
-#if HAVE_CRIU && HAVE_DLOPEN
+#если HAVE_CRIU && HAVE_DLOPEN
   fprintf (stream, "+CRIU ");
 #endif
 
   ctx = libcrun_context_new (NULL, arguments.root, &err);
-  if (ctx)
+  если (ctx)
     {
       tags = libcrun_context_get_handler_feature_tags (ctx, &err);
-      if (tags)
+      если (tags)
         {
-          for (size_t i = 0; tags[i]; i++)
+          для (size_t i = 0; tags[i]; i++)
             {
               fprintf (stream, "+%s ", tags[i]);
               free (tags[i]);
             }
           free (tags);
         }
-      else
+      иначе
         libcrun_error_release (&err);
       libcrun_context_free (ctx);
     }
-  else
+  иначе
     libcrun_error_release (&err);
 
   fprintf (stream, "+JSON_C\n");
 }
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (целое key, char *arg, struct argp_state *state)
 {
   const char *tmp;
 
@@ -294,22 +294,22 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
     case OPTION_CGROUP_MANAGER:
       tmp = argp_mandatory_argument (arg, state);
-      if (strcmp (tmp, "systemd") == 0)
+      если (strcmp (tmp, "systemd") == 0)
         {
           arguments.option_force_no_cgroup = false;
           arguments.option_systemd_cgroup = true;
         }
-      else if (strcmp (tmp, "cgroupfs") == 0)
+      иначе если (strcmp (tmp, "cgroupfs") == 0)
         {
           arguments.option_force_no_cgroup = false;
           arguments.option_systemd_cgroup = false;
         }
-      else if (strcmp (tmp, "disabled") == 0)
+      иначе если (strcmp (tmp, "disabled") == 0)
         {
           arguments.option_systemd_cgroup = false;
           arguments.option_force_no_cgroup = true;
         }
-      else
+      иначе
         {
           libcrun_fail_with_error (0, "unknown cgroup manager specified");
         }
@@ -330,19 +330,19 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
     case OPTION_LOG_LEVEL:
       tmp = argp_mandatory_argument (arg, state);
-      if (strcmp (tmp, "error") == 0)
+      если (strcmp (tmp, "error") == 0)
         {
           arguments.verbosity = LIBCRUN_VERBOSITY_ERROR;
         }
-      else if (strcmp (tmp, "warning") == 0)
+      иначе если (strcmp (tmp, "warning") == 0)
         {
           arguments.verbosity = LIBCRUN_VERBOSITY_WARNING;
         }
-      else if (strcmp (tmp, "debug") == 0)
+      иначе если (strcmp (tmp, "debug") == 0)
         {
           arguments.verbosity = LIBCRUN_VERBOSITY_DEBUG;
         }
-      else
+      иначе
         {
           libcrun_fail_with_error (0, "unknown verbosity `%s` specified", arg);
         }
@@ -364,36 +364,36 @@ parse_opt (int key, char *arg, struct argp_state *state)
       print_version (stdout, state);
       exit (EXIT_SUCCESS);
     default:
-      return ARGP_ERR_UNKNOWN;
+      вернуть ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  вернуть 0;
 }
 
 static struct commands_s *command;
 
 void
-crun_assert_n_args (int n, int min, int max)
+crun_assert_n_args (целое n, целое min, целое max)
 {
-  if (min >= 0 && n < min)
+  если (min >= 0 && n < min)
     libcrun_fail_with_error (0, "`%s` requires a minimum of %d arguments", command->name, min);
-  if (max >= 0 && n > max)
+  если (max >= 0 && n > max)
     libcrun_fail_with_error (0, "`%s` requires a maximum of %d arguments", command->name, max);
 }
 
 char *
 argp_mandatory_argument (char *arg, struct argp_state *state)
 {
-  if (arg)
-    return arg;
-  return state->argv[state->next++];
+  если (arg)
+    вернуть arg;
+  вернуть state->argv[state->next++];
 }
 
 /* Parse a numeric value from STR, aborting on an out-of-range or malformed
    value.  KIND names the field for error messages.  If ENDPTR is not NULL it
    is set past the parsed number (so the caller can continue parsing, e.g. a
    "UID:GID" pair); otherwise the whole string must be a valid number.  */
-int
+целое
 parse_id_or_fail (const char *str, char **endptr, const char *kind)
 {
   char *end = NULL;
@@ -401,67 +401,67 @@ parse_id_or_fail (const char *str, char **endptr, const char *kind)
 
   errno = 0;
   l = strtoll (str, &end, 10);
-  if (end == str)
+  если (end == str)
     libcrun_fail_with_error (0, "invalid %s specified", kind);
-  if (errno == ERANGE)
+  если (errno == ERANGE)
     libcrun_fail_with_error (0, "invalid %s specified", kind);
-  if (l < INT_MIN || l > INT_MAX)
+  если (l < INT_MIN || l > INT_MAX)
     libcrun_fail_with_error (0, "invalid %s specified", kind);
 
-  if (endptr)
+  если (endptr)
     *endptr = end;
-  else if (*end != '\0')
+  иначе если (*end != '\0')
     libcrun_fail_with_error (0, "invalid %s specified", kind);
 
-  return (int) l;
+  вернуть (целое) l;
 }
 
 static struct argp argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-int ensure_cloned_binary (void);
+целое ensure_cloned_binary (void);
 
 static void
 fill_handler_from_argv0 (char *argv0, struct crun_global_arguments *args)
 {
   const char *b = basename (argv0);
 #ifdef HAVE_LIBKRUN
-  if (strcmp (b, "krun") == 0)
+  если (strcmp (b, "krun") == 0)
     {
       args->handler = "krun";
-      return;
+      вернуть;
     }
 #endif
-  if (strncmp (b, "crun-", 5) == 0 && b[5] != '\0')
+  если (strncmp (b, "crun-", 5) == 0 && b[5] != '\0')
     args->handler = b + 5;
 }
 
 static char **
-copy_args (char **argv, int argc)
+copy_args (char **argv, целое argc)
 {
   char **buff = xmalloc0 ((argc + 1) * sizeof (char *));
-  for (int i = 0; i < argc; i++)
+  для (целое i = 0; i < argc; i++)
     buff[i] = argv[i];
 
-  return buff;
+  вернуть buff;
 }
 
-int
-main (int argc, char **argv)
+целое
+основной (целое argc, char **argv)
 {
   libcrun_error_t err = NULL;
-  int ret, first_argument = 0;
+  целое ret, first_argument = 0;
 
   arguments.argc = argc;
   arguments.argv = argv;
 
 #ifdef DYNLOAD_LIBCRUN
-  if (ensure_cloned_binary () < 0)
+  если (ensure_cloned_binary () < 0)
     {
       fprintf (stderr, "Failed to re-execute libcrun via memory file descriptor\n");
       exit (EXIT_FAILURE);
     }
   /* Resolve all libcrun weak dependencies.  */
-  if (dlopen ("libcrun.so", RTLD_GLOBAL | RTLD_DEEPBIND | RTLD_LAZY) == NULL)
+  если (dlopen ("libcrun.so", RTLD_GLOBAL | RTLD_DEEPBIND | RTLD_LAZY) == NULL)
     libcrun_fail_with_error (0, "could not load `libcrun.so`: `%s`", dlerror ());
 #endif
 
@@ -469,17 +469,17 @@ main (int argc, char **argv)
   argp_parse (&argp, argc, argv, ARGP_IN_ORDER, &first_argument, &arguments);
 
   command = get_command (argv[first_argument]);
-  if (command == NULL)
+  если (command == NULL)
     libcrun_fail_with_error (0, "unknown command %s", argv[first_argument]);
 
-  int command_argc = argc - first_argument;
+  целое command_argc = argc - first_argument;
   cleanup_free char **command_argv = copy_args (argv + first_argument, command_argc);
   command_argv[0] = argv[0];
 
   ret = command->handler (&arguments, command_argc, command_argv, &err);
-  if (ret && err)
+  если (ret && err)
     {
-      if (command->value == COMMAND_EXEC)
+      если (command->value == COMMAND_EXEC)
         {
           libcrun_error (libcrun_error_get_status (err), "%s", libcrun_error_get_message (err));
           exit (EXIT_EXEC_FAILURE);
@@ -487,5 +487,5 @@ main (int argc, char **argv)
       libcrun_fail_with_error (libcrun_error_get_status (err), "%s", libcrun_error_get_message (err));
     }
 
-  return ret;
+  вернуть ret;
 }

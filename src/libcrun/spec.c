@@ -220,46 +220,46 @@ static const char *spec_cgroupns = "\
 				\"type\": \"cgroup\"\n\
 			},\n";
 
-int
+целое
 libcrun_container_spec (bool root, FILE *out, libcrun_error_t *err)
 {
-  int ret;
-  int cgroup_mode;
+  целое ret;
+  целое cgroup_mode;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  если (UNLIKELY (cgroup_mode < 0))
+    вернуть cgroup_mode;
 
   ret = fprintf (out, spec_file,
                  root ? spec_pts_tty_group : "\n",
                  root ? "" : spec_user,
                  cgroup_mode == CGROUP_MODE_UNIFIED ? spec_cgroupns : "");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fprintf failed");
+  если (UNLIKELY (ret < 0))
+    вернуть crun_make_error (err, errno, "fprintf failed");
 
-  return ret;
+  вернуть ret;
 }
 
-int
+целое
 libcrun_container_spec_json (bool root, char **out, libcrun_error_t *err)
 {
   char *buffer = NULL;
   size_t len = 0;
   FILE *f;
-  int ret;
+  целое ret;
 
   f = open_memstream (&buffer, &len);
-  if (f == NULL)
-    return crun_make_error (err, errno, "open_memstream");
+  если (f == NULL)
+    вернуть crun_make_error (err, errno, "open_memstream");
 
   ret = libcrun_container_spec (root, f, err);
   fclose (f);
-  if (UNLIKELY (ret < 0))
+  если (UNLIKELY (ret < 0))
     {
       free (buffer);
-      return ret;
+      вернуть ret;
     }
 
   *out = buffer;
-  return 0;
+  вернуть 0;
 }

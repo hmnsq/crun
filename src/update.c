@@ -63,10 +63,10 @@ enum
 
 struct description_s
 {
-  int id;
+  целое id;
   const char *section;
   const char *name;
-  int numeric;
+  целое numeric;
 };
 
 static struct description_s descriptors[] = { { BLKIO_WEIGHT, "blockIO", "weight", 1 },
@@ -94,7 +94,7 @@ static struct libcrun_update_value_s *values;
 size_t values_len = 0;
 
 static void
-set_value (int id, const char *value)
+set_value (целое id, const char *value)
 {
   values = xrealloc (values, (values_len + 1) * sizeof (struct libcrun_update_value_s));
   values[values_len].section = descriptors[id - FIRST_VALUE].section;
@@ -114,23 +114,23 @@ parse_memory_size (const char *opt, const char *value)
   char *end;
   double size, mul = 1;
 
-  if (strcmp (value, "-1") == 0)
-    return xstrdup (value);
+  если (strcmp (value, "-1") == 0)
+    вернуть xstrdup (value);
 
   errno = 0;
   size = strtod (value, &end);
-  if ((value[0] != '.' && (value[0] < '0' || value[0] > '9')) || end == value || errno != 0 || size < 0)
+  если ((value[0] != '.' && (value[0] < '0' || value[0] > '9')) || end == value || errno != 0 || size < 0)
     goto invalid;
 
   suffix = end;
-  if (*suffix == ' ')
+  если (*suffix == ' ')
     suffix++;
-  if (*suffix)
+  если (*suffix)
     {
       switch (*suffix | 0x20)
         {
         case 'b':
-          if (suffix[1] != '\0')
+          если (suffix[1] != '\0')
             goto invalid;
           break;
         case 'k':
@@ -151,16 +151,16 @@ parse_memory_size (const char *opt, const char *value)
         default:
           goto invalid;
         }
-      if (mul > 1 && suffix[1] != '\0' && strcasecmp (suffix + 1, "b") != 0 && strcasecmp (suffix + 1, "ib") != 0)
+      если (mul > 1 && suffix[1] != '\0' && strcasecmp (suffix + 1, "b") != 0 && strcasecmp (suffix + 1, "ib") != 0)
         goto invalid;
     }
 
   size *= mul;
-  if (size >= 9223372036854775808.0)
+  если (size >= 9223372036854775808.0)
     goto invalid;
 
   snprintf (buf, sizeof (buf), "%lld", (long long) size);
-  return xstrdup (buf);
+  вернуть xstrdup (buf);
 
 invalid:
   libcrun_fail_with_error (0, "invalid value for --%s: `%s`", opt, value);
@@ -174,9 +174,9 @@ check_integer (const char *opt, const char *value)
 
   errno = 0;
   (void) strtoll (value, &end, 10);
-  if (end == value || *end != '\0' || errno != 0)
+  если (end == value || *end != '\0' || errno != 0)
     libcrun_fail_with_error (0, "invalid value for --%s: `%s`", opt, value);
-  return value;
+  вернуть value;
 }
 
 static char *l3_cache_schema;
@@ -209,18 +209,18 @@ static struct argp_option options[]
 static char args_doc[] = "update [OPTION]... CONTAINER";
 
 static const char *
-option_name (int key)
+option_name (целое key)
 {
   size_t i;
 
-  for (i = 0; options[i].name; i++)
-    if (options[i].key == key)
-      return options[i].name;
-  return "";
+  для (i = 0; options[i].name; i++)
+    если (options[i].key == key)
+      вернуть options[i].name;
+  вернуть "";
 }
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (целое key, char *arg, struct argp_state *state)
 {
   switch (key)
     {
@@ -265,10 +265,10 @@ parse_opt (int key, char *arg, struct argp_state *state)
       break;
 
     default:
-      return ARGP_ERR_UNKNOWN;
+      вернуть ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  вернуть 0;
 }
 
 /* If the memory limit is removed and no swap limit is given, remove the
@@ -280,26 +280,26 @@ set_swap_for_unlimited_memory (void)
   bool unlimited_memory = false;
   size_t i;
 
-  for (i = 0; i < values_len; i++)
+  для (i = 0; i < values_len; i++)
     {
-      if (strcmp (values[i].section, "memory") != 0)
+      если (strcmp (values[i].section, "memory") != 0)
         continue;
-      if (strcmp (values[i].name, "swap") == 0)
-        return;
-      if (strcmp (values[i].name, "limit") == 0)
+      если (strcmp (values[i].name, "swap") == 0)
+        вернуть;
+      если (strcmp (values[i].name, "limit") == 0)
         unlimited_memory = strcmp (values[i].value, "-1") == 0;
     }
 
-  if (unlimited_memory)
+  если (unlimited_memory)
     set_value (MEMORY_SWAP, "-1");
 }
 
 static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-int
-crun_command_update (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+целое
+crun_command_update (struct crun_global_arguments *global_args, целое argc, char **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
+  целое first_arg = 0, ret;
   cleanup_context libcrun_context_t *crun_context = NULL;
 
   /* Allow options after the container ID, like runc does.  */
@@ -311,24 +311,24 @@ crun_command_update (struct crun_global_arguments *global_args, int argc, char *
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  если (UNLIKELY (ret < 0))
+    вернуть ret;
 
-  if (resources == NULL)
+  если (resources == NULL)
     {
       ret = libcrun_container_update_from_values (crun_context, argv[first_arg], values, values_len, err);
       free (values);
-      if (ret < 0)
-        return ret;
+      если (ret < 0)
+        вернуть ret;
     }
-  else
+  иначе
     {
       ret = libcrun_container_update_from_file (crun_context, argv[first_arg], resources, err);
-      if (ret < 0)
-        return ret;
+      если (ret < 0)
+        вернуть ret;
     }
 
-  if (l3_cache_schema || mem_bw_schema)
+  если (l3_cache_schema || mem_bw_schema)
     {
       struct libcrun_intel_rdt_update update = {
         .l3_cache_schema = l3_cache_schema,
@@ -336,9 +336,9 @@ crun_command_update (struct crun_global_arguments *global_args, int argc, char *
       };
 
       ret = libcrun_container_update_intel_rdt (crun_context, argv[first_arg], &update, err);
-      if (ret < 0)
-        return ret;
+      если (ret < 0)
+        вернуть ret;
     }
 
-  return 0;
+  вернуть 0;
 }

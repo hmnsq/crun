@@ -20,20 +20,20 @@
 #include <config.h>
 #ifdef HAVE_ERROR_H
 #  include <error.h>
-#else
+#иначе
 #  define error(status, errno, fmt, ...)                      \
     do                                                        \
       {                                                       \
-        if (errno == 0)                                       \
+        если (errno == 0)                                       \
           fprintf (stderr, "crun: " fmt "\n", ##__VA_ARGS__); \
-        else                                                  \
+        иначе                                                  \
           {                                                   \
             fprintf (stderr, "crun: " fmt, ##__VA_ARGS__);    \
             fprintf (stderr, ": %s\n", strerror (errno));     \
           }                                                   \
-        if (status)                                           \
+        если (status)                                           \
           exit (status);                                      \
-    } while (0)
+    } пока (0)
 #endif
 #include <stdlib.h>
 #include <stdio.h>
@@ -43,7 +43,7 @@
 
 struct libcrun_error_s
 {
-  int status;
+  целое status;
   char *msg;
 };
 typedef struct libcrun_error_s *libcrun_error_t;
@@ -52,7 +52,7 @@ typedef struct libcrun_error_s *libcrun_error_t;
 #ifdef HAVE_COVERAGE
 extern void __gcov_dump (void);
 #  define GCOV_DUMP() __gcov_dump ()
-#else
+#иначе
 #  define GCOV_DUMP()
 #endif
 
@@ -62,32 +62,32 @@ extern void __gcov_dump (void);
     {                      \
       GCOV_DUMP ();        \
       _exit (status);      \
-  } while (0)
+  } пока (0)
 
 #define OOM()                            \
   do                                     \
     {                                    \
       fprintf (stderr, "out of memory"); \
       _safe_exit (EXIT_FAILURE);         \
-  } while (0)
+  } пока (0)
 
-typedef void (*crun_output_handler) (int errno_, const char *msg, int verbosity, void *arg);
+typedef void (*crun_output_handler) (целое errno_, const char *msg, целое verbosity, void *arg);
 
 void crun_set_output_handler (crun_output_handler handler, void *arg);
 
-void log_write_to_journald (int errno_, const char *msg, int verbosity, void *arg);
+void log_write_to_journald (целое errno_, const char *msg, целое verbosity, void *arg);
 
-void log_write_to_syslog (int errno_, const char *msg, int verbosity, void *arg);
+void log_write_to_syslog (целое errno_, const char *msg, целое verbosity, void *arg);
 
-void log_write_to_stream (int errno_, const char *msg, int verbosity, void *arg);
+void log_write_to_stream (целое errno_, const char *msg, целое verbosity, void *arg);
 
-void log_write_to_stderr (int errno_, const char *msg, int verbosity, void *arg);
+void log_write_to_stderr (целое errno_, const char *msg, целое verbosity, void *arg);
 
-int crun_error_wrap (libcrun_error_t *err, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
+целое crun_error_wrap (libcrun_error_t *err, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 
-int crun_error_get_errno (libcrun_error_t *err);
+целое crun_error_get_errno (libcrun_error_t *err);
 
-int crun_error_release (libcrun_error_t *err);
+целое crun_error_release (libcrun_error_t *err);
 
 void crun_error_write_warning_and_release (FILE *out, libcrun_error_t **err);
 
@@ -95,9 +95,9 @@ LIBCRUN_PUBLIC void libcrun_debug (const char *msg, ...) __attribute__ ((format 
 
 LIBCRUN_PUBLIC void libcrun_warning (const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
 
-LIBCRUN_PUBLIC void libcrun_error (int errno_, const char *msg, ...) __attribute__ ((format (printf, 2, 3)));
+LIBCRUN_PUBLIC void libcrun_error (целое errno_, const char *msg, ...) __attribute__ ((format (printf, 2, 3)));
 
-LIBCRUN_PUBLIC int libcrun_make_error (libcrun_error_t *err, int status, const char *msg, ...) __attribute__ ((format (printf, 3, 4)));
+LIBCRUN_PUBLIC целое libcrun_make_error (libcrun_error_t *err, целое status, const char *msg, ...) __attribute__ ((format (printf, 3, 4)));
 
 #define crun_make_error libcrun_make_error
 
@@ -105,20 +105,20 @@ LIBCRUN_PUBLIC void libcrun_error_write_warning_and_release (FILE *out, libcrun_
 
 LIBCRUN_PUBLIC void libcrun_error_report_and_release (libcrun_error_t *err);
 
-LIBCRUN_PUBLIC void libcrun_fail_with_error (int errno_, const char *msg, ...) __attribute__ ((noreturn)) __attribute__ ((format (printf, 2, 3)));
+LIBCRUN_PUBLIC void libcrun_fail_with_error (целое errno_, const char *msg, ...) __attribute__ ((noreturn)) __attribute__ ((format (printf, 2, 3)));
 
-LIBCRUN_PUBLIC int libcrun_set_log_format (const char *format, libcrun_error_t *err);
+LIBCRUN_PUBLIC целое libcrun_set_log_format (const char *format, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_init_logging (crun_output_handler *output_handler, void **output_handler_arg, const char *id,
+LIBCRUN_PUBLIC целое libcrun_init_logging (crun_output_handler *output_handler, void **output_handler_arg, const char *id,
                                          const char *log, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_error_release (libcrun_error_t *err);
+LIBCRUN_PUBLIC целое libcrun_error_release (libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_error_get_status (libcrun_error_t err);
+LIBCRUN_PUBLIC целое libcrun_error_get_status (libcrun_error_t err);
 
 LIBCRUN_PUBLIC const char *libcrun_error_get_message (libcrun_error_t err);
 
-int json_gen_error_to_crun_error (int gen_status, libcrun_error_t *err);
+целое json_gen_error_to_crun_error (целое gen_status, libcrun_error_t *err);
 
 enum
 {
@@ -127,7 +127,7 @@ enum
   LIBCRUN_VERBOSITY_DEBUG,
 };
 
-LIBCRUN_PUBLIC void libcrun_set_verbosity (int verbosity);
-LIBCRUN_PUBLIC int libcrun_get_verbosity ();
+LIBCRUN_PUBLIC void libcrun_set_verbosity (целое verbosity);
+LIBCRUN_PUBLIC целое libcrun_get_verbosity ();
 
 #endif

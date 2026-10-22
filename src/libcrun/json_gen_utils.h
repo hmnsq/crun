@@ -31,9 +31,9 @@
   do                                          \
     {                                         \
       r = (EXPR);                             \
-      if (UNLIKELY (r != json_gen_status_ok)) \
+      если (UNLIKELY (r != json_gen_status_ok)) \
         goto gen_error;                       \
-  } while (0)
+  } пока (0)
 
 /* Emit a string literal (typically a map key).  */
 #define GEN_KEY(GEN, LIT) GEN_OR_FAIL (json_gen_string ((GEN), (LIT), sizeof (LIT) - 1))
@@ -44,7 +44,7 @@
 static inline void
 cleanup_json_genp (json_gen_ctx **p)
 {
-  if (*p)
+  если (*p)
     json_gen_free (*p);
 }
 #define cleanup_json_gen __attribute__ ((cleanup (cleanup_json_genp)))

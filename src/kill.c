@@ -57,7 +57,7 @@ static struct argp_option options[]
 static char args_doc[] = "kill CONTAINER [SIGNAL]";
 
 static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+parse_opt (целое key, char *arg arg_unused, struct argp_state *state arg_unused)
 {
   switch (key)
     {
@@ -73,18 +73,18 @@ parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
     default:
-      return ARGP_ERR_UNKNOWN;
+      вернуть ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  вернуть 0;
 }
 
 static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-int
-crun_command_kill (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+целое
+crun_command_kill (struct crun_global_arguments *global_args, целое argc, char **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
+  целое first_arg = 0, ret;
   const char *signal;
   cleanup_context libcrun_context_t *crun_context = NULL;
 
@@ -94,14 +94,14 @@ crun_command_kill (struct crun_global_arguments *global_args, int argc, char **a
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  если (UNLIKELY (ret < 0))
+    вернуть ret;
 
   signal = "SIGTERM";
-  if (argc - first_arg > 1)
+  если (argc - first_arg > 1)
     signal = argv[first_arg + 1];
 
-  if (kill_options.regex)
+  если (kill_options.regex)
     {
       regex_t re;
       libcrun_container_list_t *list;
@@ -109,29 +109,29 @@ crun_command_kill (struct crun_global_arguments *global_args, int argc, char **a
       const char *name;
 
       ret = regcomp (&re, argv[first_arg], REG_EXTENDED | REG_NOSUB);
-      if (UNLIKELY (ret < 0))
+      если (UNLIKELY (ret < 0))
         libcrun_fail_with_error (0, "invalid regular expression %s", argv[first_arg]);
 
       ret = libcrun_container_list (crun_context, &list, err);
-      if (UNLIKELY (ret < 0))
+      если (UNLIKELY (ret < 0))
         libcrun_fail_with_error (0, "cannot read containers list");
 
-      for (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
-        if (regexec (&re, name, 0, NULL, 0) == 0)
+      для (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
+        если (regexec (&re, name, 0, NULL, 0) == 0)
           {
             ret = libcrun_container_kill (crun_context, name, signal, err);
-            if (UNLIKELY (ret < 0))
+            если (UNLIKELY (ret < 0))
               libcrun_error_report_and_release (err);
           }
 
       libcrun_container_iter_free (it);
       libcrun_container_list_free (list);
       regfree (&re);
-      return 0;
+      вернуть 0;
     }
 
-  if (kill_options.all)
-    return libcrun_container_killall (crun_context, argv[first_arg], signal, err);
+  если (kill_options.all)
+    вернуть libcrun_container_killall (crun_context, argv[first_arg], signal, err);
 
-  return libcrun_container_kill (crun_context, argv[first_arg], signal, err);
+  вернуть libcrun_container_kill (crun_context, argv[first_arg], signal, err);
 }

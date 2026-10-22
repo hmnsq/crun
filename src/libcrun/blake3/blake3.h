@@ -4,23 +4,23 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#if !defined(BLAKE3_API)
-# if defined(_WIN32) || defined(__CYGWIN__)
-#   if defined(BLAKE3_DLL)
-#     if defined(BLAKE3_DLL_EXPORTS)
+#если !defined(BLAKE3_API)
+# если defined(_WIN32) || defined(__CYGWIN__)
+#   если defined(BLAKE3_DLL)
+#     если defined(BLAKE3_DLL_EXPORTS)
 #       define BLAKE3_API __declspec(dllexport)
-#     else
+#     иначе
 #       define BLAKE3_API __declspec(dllimport)
 #     endif
 #     define BLAKE3_PRIVATE
-#   else
+#   иначе
 #     define BLAKE3_API
 #     define BLAKE3_PRIVATE
 #   endif
 # elif __GNUC__ >= 4
 #   define BLAKE3_API __attribute__((visibility("default")))
 #   define BLAKE3_PRIVATE __attribute__((visibility("hidden")))
-# else
+# иначе
 #   define BLAKE3_API
 #   define BLAKE3_PRIVATE
 # endif
