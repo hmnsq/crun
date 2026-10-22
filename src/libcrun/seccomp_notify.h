@@ -18,24 +18,24 @@
 #ifndef SECCOMP_NOTIFY_H
 #define SECCOMP_NOTIFY_H
 
-#include <config.h>
-#include "error.h"
+#अन्तर्भाव <config.h>
+#अन्तर्भाव "error.h"
 
-#if ! (HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES)
+#सचे ! (HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES)
 #  define SECCOMP_NOTIFY_SKIP_TYPEDEF
 #endif
-#include "seccomp_notify_plugin.h"
+#अन्तर्भाव "seccomp_notify_plugin.h"
 
-struct seccomp_notify_context_s;
+संरचना seccomp_notify_context_s;
 
-LIBCRUN_PUBLIC int libcrun_load_seccomp_notify_plugins (struct seccomp_notify_context_s **out, const char *plugins,
-                                                        struct libcrun_load_seccomp_notify_conf_s *conf,
+LIBCRUN_PUBLIC पूर्णाङ्क libcrun_load_seccomp_notify_plugins (संरचना seccomp_notify_context_s **out, ध्रुव वर्ण *plugins,
+                                                        संरचना libcrun_load_seccomp_notify_conf_s *conf,
                                                         libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, int seccomp_fd,
+LIBCRUN_PUBLIC पूर्णाङ्क libcrun_seccomp_notify_plugins (संरचना seccomp_notify_context_s *ctx, पूर्णाङ्क seccomp_fd,
                                                    libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_free_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, libcrun_error_t *err);
+LIBCRUN_PUBLIC पूर्णाङ्क libcrun_free_seccomp_notify_plugins (संरचना seccomp_notify_context_s *ctx, libcrun_error_t *err);
 
 #define cleanup_seccomp_notify_context __attribute__ ((cleanup (cleanup_seccomp_notify_pluginsp)))
-void cleanup_seccomp_notify_pluginsp (void *p);
+शून्य cleanup_seccomp_notify_pluginsp (शून्य *p);
 
 #endif
