@@ -18,8 +18,8 @@
 #ifndef PS_H
 #define PS_H
 
-#include "crun.h"
+#अन्तर्भाव "crun.h"
 
-int crun_command_ps (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+पूर्णाङ्क crun_command_ps (संरचना crun_global_arguments *global_args, पूर्णाङ्क argc, वर्ण **argv, libcrun_error_t *error);
 
 #endif

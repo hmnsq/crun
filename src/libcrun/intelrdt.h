@@ -19,17 +19,17 @@
 #ifndef INTEL_RDT_H
 #define INTEL_RDT_H
 
-#include <config.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include "error.h"
+#अन्तर्भाव <config.h>
+#अन्तर्भाव <stdio.h>
+#अन्तर्भाव <stdbool.h>
+#अन्तर्भाव "error.h"
 
-int resctl_create (const char *name, bool explicit_clos_id, bool *created, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err);
-int resctl_move_task_to (const char *name, const char *monitoring_name, pid_t pid, libcrun_error_t *err);
-int resctl_update (const char *name, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err);
-int resctl_destroy (const char *name, libcrun_error_t *err);
+पूर्णाङ्क resctl_create (ध्रुव वर्ण *name, bool explicit_clos_id, bool *created, ध्रुव वर्ण *l3_cache_schema, ध्रुव वर्ण *mem_bw_schema, वर्ण *ध्रुव *schemata, libcrun_error_t *err);
+पूर्णाङ्क resctl_move_task_to (ध्रुव वर्ण *name, ध्रुव वर्ण *monitoring_name, pid_t pid, libcrun_error_t *err);
+पूर्णाङ्क resctl_update (ध्रुव वर्ण *name, ध्रुव वर्ण *l3_cache_schema, ध्रुव वर्ण *mem_bw_schema, वर्ण *ध्रुव *schemata, libcrun_error_t *err);
+पूर्णाङ्क resctl_destroy (ध्रुव वर्ण *name, libcrun_error_t *err);
 
-int resctl_destroy_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err);
-int resctl_create_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err);
+पूर्णाङ्क resctl_destroy_monitoring_group (ध्रुव वर्ण *resctrl_group_name, ध्रुव वर्ण *container_id, libcrun_error_t *err);
+पूर्णाङ्क resctl_create_monitoring_group (ध्रुव वर्ण *resctrl_group_name, ध्रुव वर्ण *container_id, libcrun_error_t *err);
 
 #endif
