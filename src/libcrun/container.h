@@ -19,12 +19,12 @@
 #ifndef CONTAINER_H
 #define CONTAINER_H
 
-#include <config.h>
-#include <ocispec/runtime_spec_schema_config_schema.h>
-#include "error.h"
-#include "string_map.h"
+#અન્તર્ભાવ <config.h>
+#અન્તર્ભાવ <ocispec/runtime_spec_schema_config_schema.h>
+#અન્તર્ભાવ "error.h"
+#અન્તર્ભાવ "string_map.h"
 
-enum handler_configure_phase
+ગણના handler_configure_phase
 {
   HANDLER_CONFIGURE_BEFORE_MOUNTS = 1,
   HANDLER_CONFIGURE_AFTER_MOUNTS,
@@ -32,59 +32,59 @@ enum handler_configure_phase
   HANDLER_CONFIGURE_BEFORE_USERNS
 };
 
-struct custom_handler_manager_s;
+સંરચના custom_handler_manager_s;
 
-struct libcrun_context_s
+સંરચના libcrun_context_s
 {
-  const char *state_root;
-  const char *id;
-  const char *bundle;
-  const char *console_socket;
-  const char *pid_file;
-  const char *notify_socket;
-  const char *handler;
-  char *owned_state_root;
-  char *owned_id;
-  char *owned_bundle;
-  char *owned_console_socket;
-  char *owned_pid_file;
-  char *owned_notify_socket;
-  char *owned_handler;
-  int preserve_fds;
+  અચલ અક્ષર *state_મૂળ;
+  અચલ અક્ષર *id;
+  અચલ અક્ષર *bundle;
+  અચલ અક્ષર *console_socket;
+  અચલ અક્ષર *pid_file;
+  અચલ અક્ષર *notify_socket;
+  અચલ અક્ષર *handler;
+  અક્ષર *owned_state_મૂળ;
+  અક્ષર *owned_id;
+  અક્ષર *owned_bundle;
+  અક્ષર *owned_console_socket;
+  અક્ષર *owned_pid_file;
+  અક્ષર *owned_notify_socket;
+  અક્ષર *owned_handler;
+  પૂર્ણાંક preserve_fds;
   // For some use-cases we need differentiation between preserve_fds and listen_fds.
   // Following context variable makes sure we get exact value of listen_fds irrespective of preserve_fds.
-  int listen_fds;
+  પૂર્ણાંક listen_fds;
 
   crun_output_handler output_handler;
-  void *output_handler_arg;
+  શૂન્ય *output_handler_arg;
 
-  int fifo_exec_wait_fd;
+  પૂર્ણાંક fifo_exec_wait_fd;
 
   bool systemd_cgroup;
   bool detach;
   bool no_new_keyring;
   bool force_no_cgroup;
   bool no_pivot;
-  bool no_open_tree_namespace;
+  bool no_open_વૃક્ષ_namespace;
 
-  char **argv;
-  int argc;
+  અક્ષર **argv;
+  પૂર્ણાંક argc;
 
-  struct custom_handler_manager_s *handler_manager;
+  સંરચના custom_handler_manager_s *handler_manager;
 };
 
-enum
+ગણના
 {
   LIBCRUN_RUN_OPTIONS_PREFORK = 1 << 0,
   LIBCRUN_RUN_OPTIONS_KEEP = 1 << 1,
 };
 
-enum
+ગણના
 {
   LIBCRUN_CREATE_OPTIONS_PREFORK = 1 << 0,
 };
 
-struct libcrun_container_s
+સંરચના libcrun_container_s
 {
   /* Container parsed from the runtime json file.  */
   runtime_spec_schema_config_schema *container_def;
@@ -98,26 +98,26 @@ struct libcrun_container_s
   uid_t container_uid;
   gid_t container_gid;
 
-  char *config_file;
-  char *config_file_content;
+  અક્ષર *config_file;
+  અક્ષર *config_file_content;
 
   string_map *annotations;
 
-  int proc_fd;
+  પૂર્ણાંક proc_fd;
 
-  void *private_data;
-  void (*cleanup_private_data) (void *private_data);
-  struct libcrun_context_s *context;
+  શૂન્ય *private_data;
+  શૂન્ય (*cleanup_private_data) (શૂન્ય *private_data);
+  સંરચના libcrun_context_s *context;
 };
 
-struct libcrun_container_status_s;
-typedef struct libcrun_container_status_s libcrun_container_status_t;
+સંરચના libcrun_container_status_s;
+પ્રકારવ્યાખ્યા સંરચના libcrun_container_status_s libcrun_container_status_t;
 
-typedef struct libcrun_container_s libcrun_container_t;
-typedef struct libcrun_context_s libcrun_context_t;
+પ્રકારવ્યાખ્યા સંરચના libcrun_container_s libcrun_container_t;
+પ્રકારવ્યાખ્યા સંરચના libcrun_context_s libcrun_context_t;
 
-struct container_entrypoint_s;
-struct cgroup_info_s
+સંરચના container_entrypoint_s;
+સંરચના cgroup_info_s
 {
   bool v1;
   bool v2;
@@ -125,88 +125,88 @@ struct cgroup_info_s
   bool systemd_user;
 };
 
-struct seccomp_info_s
+સંરચના seccomp_info_s
 {
   bool enabled;
-  char **actions;
-  char **operators;
-  char **archs;
+  અક્ષર **actions;
+  અક્ષર **operators;
+  અક્ષર **archs;
 };
 
-struct apparmor_info_s
-{
-  bool enabled;
-};
-
-struct selinux_info_s
+સંરચના apparmor_info_s
 {
   bool enabled;
 };
 
-struct idmap_info_s
+સંરચના selinux_info_s
 {
   bool enabled;
 };
 
-struct intel_rdt_s
+સંરચના idmap_info_s
 {
   bool enabled;
 };
 
-struct net_devices_s
+સંરચના intel_rdt_s
 {
   bool enabled;
 };
 
-struct mount_ext_info_s
+સંરચના net_devices_s
 {
-  struct idmap_info_s idmap;
+  bool enabled;
 };
 
-struct memory_policy_info_s
+સંરચના mount_ext_info_s
 {
-  char **mode;
-  char **flags;
+  સંરચના idmap_info_s idmap;
 };
 
-struct linux_info_s
+સંરચના memory_policy_info_s
 {
-  char **namespaces;
-  char **capabilities;
-  struct cgroup_info_s cgroup;
-  struct seccomp_info_s seccomp;
-  struct apparmor_info_s apparmor;
-  struct selinux_info_s selinux;
-  struct mount_ext_info_s mount_ext;
-  struct intel_rdt_s intel_rdt;
-  struct net_devices_s net_devices;
-  struct memory_policy_info_s memory_policy;
+  અક્ષર **mode;
+  અક્ષર **flags;
 };
 
-struct annotations_info_s
+સંરચના linux_info_s
 {
-  char *io_github_seccomp_libseccomp_version;
+  અક્ષર **namespaces;
+  અક્ષર **capabilities;
+  સંરચના cgroup_info_s cgroup;
+  સંરચના seccomp_info_s seccomp;
+  સંરચના apparmor_info_s apparmor;
+  સંરચના selinux_info_s selinux;
+  સંરચના mount_ext_info_s mount_ext;
+  સંરચના intel_rdt_s intel_rdt;
+  સંરચના net_devices_s net_devices;
+  સંરચના memory_policy_info_s memory_policy;
+};
+
+સંરચના annotations_info_s
+{
+  અક્ષર *io_github_seccomp_libseccomp_version;
   bool run_oci_crun_checkpoint_enabled;
-  char *run_oci_crun_commit;
-  char *run_oci_crun_version;
+  અક્ષર *run_oci_crun_commit;
+  અક્ષર *run_oci_crun_version;
   bool run_oci_crun_wasm;
 };
 
-struct features_info_s
+સંરચના features_info_s
 {
-  char *oci_version_min;
-  char *oci_version_max;
-  char **hooks;
-  char **mount_options;
-  struct linux_info_s linux;
-  struct annotations_info_s annotations;
-  char **potentially_unsafe_annotations;
+  અક્ષર *oci_version_min;
+  અક્ષર *oci_version_max;
+  અક્ષર **hooks;
+  અક્ષર **mount_options;
+  સંરચના linux_info_s linux;
+  સંરચના annotations_info_s annotations;
+  અક્ષર **potentially_unsafe_annotations;
 };
 
-struct libcrun_checkpoint_restore_s
+સંરચના libcrun_checkpoint_restore_s
 {
-  char *image_path;
-  char *work_path;
+  અક્ષર *image_path;
+  અક્ષર *work_path;
   bool leave_running;
   bool tcp_established;
   bool tcp_close;
@@ -214,19 +214,19 @@ struct libcrun_checkpoint_restore_s
   bool ext_unix_sk;
   bool detach;
   bool file_locks;
-  const char *console_socket;
-  char *parent_path;
+  અચલ અક્ષર *console_socket;
+  અક્ષર *parent_path;
   bool pre_dump;
-  int manage_cgroups_mode;
-  int network_lock_method;
-  char *lsm_profile;
-  char *lsm_mount_context;
+  પૂર્ણાંક manage_cgroups_mode;
+  પૂર્ણાંક network_lock_method;
+  અક્ષર *lsm_profile;
+  અક્ષર *lsm_mount_context;
 };
-typedef struct libcrun_checkpoint_restore_s libcrun_checkpoint_restore_t;
+પ્રકારવ્યાખ્યા સંરચના libcrun_checkpoint_restore_s libcrun_checkpoint_restore_t;
 
 /* Public checkpoint/restore options.  Mirror of the definition in
    <libcrun.h>; keep the two in sync.  */
-enum libcrun_cr_cgroups_mode
+ગણના libcrun_cr_cgroups_mode
 {
   LIBCRUN_CR_CG_MODE_DEFAULT = 0, /* soft, matching runc */
   LIBCRUN_CR_CG_MODE_SOFT,
@@ -235,7 +235,7 @@ enum libcrun_cr_cgroups_mode
   LIBCRUN_CR_CG_MODE_STRICT,
 };
 
-enum libcrun_cr_network_lock_method
+ગણના libcrun_cr_network_lock_method
 {
   LIBCRUN_CR_NETWORK_LOCK_DEFAULT = 0, /* iptables */
   LIBCRUN_CR_NETWORK_LOCK_IPTABLES,
@@ -243,16 +243,16 @@ enum libcrun_cr_network_lock_method
   LIBCRUN_CR_NETWORK_LOCK_SKIP,
 };
 
-struct libcrun_checkpoint_restore_options_s
+સંરચના libcrun_checkpoint_restore_options_s
 {
   size_t struct_size;
 
-  const char *image_path;
-  const char *work_path;
-  const char *parent_path;
-  const char *console_socket;
-  const char *lsm_profile;
-  const char *lsm_mount_context;
+  અચલ અક્ષર *image_path;
+  અચલ અક્ષર *work_path;
+  અચલ અક્ષર *parent_path;
+  અચલ અક્ષર *console_socket;
+  અચલ અક્ષર *lsm_profile;
+  અચલ અક્ષર *lsm_mount_context;
 
   bool leave_running;
   bool tcp_established;
@@ -263,186 +263,186 @@ struct libcrun_checkpoint_restore_options_s
   bool pre_dump;
   bool detach;
 
-  int manage_cgroups_mode; /* enum libcrun_cr_cgroups_mode */
-  int network_lock_method; /* enum libcrun_cr_network_lock_method */
+  પૂર્ણાંક manage_cgroups_mode; /* enum libcrun_cr_cgroups_mode */
+  પૂર્ણાંક network_lock_method; /* enum libcrun_cr_network_lock_method */
 };
 
-LIBCRUN_PUBLIC libcrun_container_t *libcrun_container_load_from_file (const char *path, libcrun_error_t *err);
+LIBCRUN_PUBLIC libcrun_container_t *libcrun_container_load_from_file (અચલ અક્ષર *path, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC libcrun_container_t *libcrun_container_load_from_memory (const char *json, libcrun_error_t *err);
+LIBCRUN_PUBLIC libcrun_container_t *libcrun_container_load_from_memory (અચલ અક્ષર *json, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC void libcrun_container_free (libcrun_container_t *);
+LIBCRUN_PUBLIC શૂન્ય libcrun_container_free (libcrun_container_t *);
 
 /* Return the configuration of CONTAINER as a JSON string owned by CONTAINER.
    The document is generated on demand and cached, so the first call mutates
    CONTAINER and must not race with other users of the same handle.  */
-LIBCRUN_PUBLIC const char *libcrun_container_get_config_json (libcrun_container_t *container, libcrun_error_t *err);
-LIBCRUN_PUBLIC const char *libcrun_container_get_annotation (libcrun_container_t *container, const char *key);
+LIBCRUN_PUBLIC અચલ અક્ષર *libcrun_container_get_config_json (libcrun_container_t *container, libcrun_error_t *err);
+LIBCRUN_PUBLIC અચલ અક્ષર *libcrun_container_get_annotation (libcrun_container_t *container, અચલ અક્ષર *ચાવી);
 LIBCRUN_PUBLIC size_t libcrun_container_get_annotations_len (libcrun_container_t *container);
-LIBCRUN_PUBLIC int libcrun_container_get_annotation_at (libcrun_container_t *container, size_t index,
-                                                        const char **key, const char **value);
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_get_annotation_at (libcrun_container_t *container, size_t index,
+                                                        અચલ અક્ષર **ચાવી, અચલ અક્ષર **કિંમત);
 LIBCRUN_PUBLIC uid_t libcrun_container_get_uid (libcrun_container_t *container);
 LIBCRUN_PUBLIC gid_t libcrun_container_get_gid (libcrun_container_t *container);
 
-LIBCRUN_PUBLIC libcrun_context_t *libcrun_context_new (const char *id, const char *state_root, libcrun_error_t *err);
-LIBCRUN_PUBLIC void libcrun_context_free (libcrun_context_t *ctx);
+LIBCRUN_PUBLIC libcrun_context_t *libcrun_context_new (અચલ અક્ષર *id, અચલ અક્ષર *state_મૂળ, libcrun_error_t *err);
+LIBCRUN_PUBLIC શૂન્ય libcrun_context_free (libcrun_context_t *ctx);
 
-LIBCRUN_PUBLIC void libcrun_context_set_id (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC void libcrun_context_set_state_root (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC const char *libcrun_context_get_state_root (libcrun_context_t *ctx);
-LIBCRUN_PUBLIC void libcrun_context_set_bundle (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC void libcrun_context_set_console_socket (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC void libcrun_context_set_pid_file (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC const char *libcrun_context_get_pid_file (libcrun_context_t *ctx);
-LIBCRUN_PUBLIC void libcrun_context_set_notify_socket (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC void libcrun_context_set_handler (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC void libcrun_context_set_preserve_fds (libcrun_context_t *ctx, int preserve_fds);
-LIBCRUN_PUBLIC int libcrun_context_get_preserve_fds (libcrun_context_t *ctx);
-LIBCRUN_PUBLIC void libcrun_context_set_listen_fds (libcrun_context_t *ctx, int listen_fds);
-LIBCRUN_PUBLIC void libcrun_context_set_args (libcrun_context_t *ctx, int argc, char **argv);
-LIBCRUN_PUBLIC void libcrun_context_set_systemd_cgroup (libcrun_context_t *ctx, bool value);
-LIBCRUN_PUBLIC void libcrun_context_set_detach (libcrun_context_t *ctx, bool value);
-LIBCRUN_PUBLIC void libcrun_context_set_no_new_keyring (libcrun_context_t *ctx, bool value);
-LIBCRUN_PUBLIC void libcrun_context_set_no_pivot (libcrun_context_t *ctx, bool value);
-LIBCRUN_PUBLIC void libcrun_context_set_force_no_cgroup (libcrun_context_t *ctx, bool value);
-LIBCRUN_PUBLIC void libcrun_context_set_output_handler (libcrun_context_t *ctx, crun_output_handler handler, void *arg);
+LIBCRUN_PUBLIC શૂન્ય libcrun_context_set_id (libcrun_context_t *ctx, અચલ અક્ષર *કિંમત);
+LIBCRUN_PUBLIC શૂન્ય libcrun_context_set_state_મૂળ (libcrun_context_t *ctx, અચલ અક્ષર *કિંમત);
+LIBCRUN_PUBLIC અચલ અક્ષર *libcrun_context_get_state_મૂળ (libcrun_context_t *ctx);
+LIBCRUN_PUBLIC શૂન્ય libcrun_context_set_bundle (libcrun_context_t *ctx, અચલ અક્ષર *કિંમત);
+LIBCRUN_PUBLIC શૂન્ય libcrun_context_set_console_socket (libcrun_context_t *ctx, અચલ અક્ષર *કિંમત);
+LIBCRUN_PUBLIC શૂન્ય libcrun_context_set_pid_file (libcrun_context_t *ctx, અચલ અક્ષર *કિંમત);
+LIBCRUN_PUBLIC અચલ અક્ષર *libcrun_context_get_pid_file (libcrun_context_t *ctx);
+LIBCRUN_PUBLIC શૂન્ય libcrun_context_set_notify_socket (libcrun_context_t *ctx, અચલ અક્ષર *કિંમત);
+LIBCRUN_PUBLIC શૂન્ય libcrun_context_set_handler (libcrun_context_t *ctx, અચલ અક્ષર *કિંમત);
+LIBCRUN_PUBLIC શૂન્ય libcrun_context_set_preserve_fds (libcrun_context_t *ctx, પૂર્ણાંક preserve_fds);
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_context_get_preserve_fds (libcrun_context_t *ctx);
+LIBCRUN_PUBLIC શૂન્ય libcrun_context_set_listen_fds (libcrun_context_t *ctx, પૂર્ણાંક listen_fds);
+LIBCRUN_PUBLIC શૂન્ય libcrun_context_set_args (libcrun_context_t *ctx, પૂર્ણાંક argc, અક્ષર **argv);
+LIBCRUN_PUBLIC શૂન્ય libcrun_context_set_systemd_cgroup (libcrun_context_t *ctx, bool કિંમત);
+LIBCRUN_PUBLIC શૂન્ય libcrun_context_set_detach (libcrun_context_t *ctx, bool કિંમત);
+LIBCRUN_PUBLIC શૂન્ય libcrun_context_set_no_new_keyring (libcrun_context_t *ctx, bool કિંમત);
+LIBCRUN_PUBLIC શૂન્ય libcrun_context_set_no_pivot (libcrun_context_t *ctx, bool કિંમત);
+LIBCRUN_PUBLIC શૂન્ય libcrun_context_set_force_no_cgroup (libcrun_context_t *ctx, bool કિંમત);
+LIBCRUN_PUBLIC શૂન્ય libcrun_context_set_output_handler (libcrun_context_t *ctx, crun_output_handler handler, શૂન્ય *arg);
 
-LIBCRUN_PUBLIC int libcrun_context_init_logging (libcrun_context_t *ctx, const char *log, libcrun_error_t *err);
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_context_init_logging (libcrun_context_t *ctx, અચલ અક્ષર *log, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_run (libcrun_context_t *context, libcrun_container_t *container,
-                                          unsigned int options, libcrun_error_t *error);
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_run (libcrun_context_t *context, libcrun_container_t *container,
+                                          unsigned પૂર્ણાંક options, libcrun_error_t *error);
 
-LIBCRUN_PUBLIC int libcrun_container_delete (libcrun_context_t *context, const char *id, bool force,
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_delete (libcrun_context_t *context, અચલ અક્ષર *id, bool force,
                                              libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_kill (libcrun_context_t *context, const char *id, const char *signal,
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_kill (libcrun_context_t *context, અચલ અક્ષર *id, અચલ અક્ષર *સંકેત,
                                            libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_killall (libcrun_context_t *context, const char *id, const char *signal,
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_killall (libcrun_context_t *context, અચલ અક્ષર *id, અચલ અક્ષર *સંકેત,
                                               libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_create (libcrun_context_t *context, libcrun_container_t *container,
-                                             unsigned int options, libcrun_error_t *err);
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_create (libcrun_context_t *context, libcrun_container_t *container,
+                                             unsigned પૂર્ણાંક options, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_start (libcrun_context_t *context, const char *id, libcrun_error_t *err);
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_start (libcrun_context_t *context, અચલ અક્ષર *id, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_state (libcrun_context_t *context, const char *id, FILE *out,
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_state (libcrun_context_t *context, અચલ અક્ષર *id, FILE *out,
                                             libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_state_json (libcrun_context_t *context, const char *id, char **out,
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_state_json (libcrun_context_t *context, અચલ અક્ષર *id, અક્ષર **out,
                                                  libcrun_error_t *err);
 
-int libcrun_container_notify_handler (struct container_entrypoint_s *args,
-                                      enum handler_configure_phase phase,
-                                      libcrun_container_t *container, const char *rootfs,
+પૂર્ણાંક libcrun_container_notify_handler (સંરચના container_entrypoint_s *args,
+                                      ગણના handler_configure_phase phase,
+                                      libcrun_container_t *container, અચલ અક્ષર *rootfs,
                                       libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_get_container_state_string (const char *id, libcrun_container_status_t *status,
-                                                       const char *state_root, const char **container_status,
-                                                       int *running, libcrun_error_t *err);
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_get_container_state_string (અચલ અક્ષર *id, libcrun_container_status_t *status,
+                                                       અચલ અક્ષર *state_મૂળ, અચલ અક્ષર **container_status,
+                                                       પૂર્ણાંક *running, libcrun_error_t *err);
 
-struct libcrun_container_exec_options_s
+સંરચના libcrun_container_exec_options_s
 {
   size_t struct_size;
   runtime_spec_schema_config_schema_process *process;
-  const char *path;
-  const char *cgroup;
+  અચલ અક્ષર *path;
+  અચલ અક્ષર *cgroup;
   bool merge_env;
 };
 
-LIBCRUN_PUBLIC int libcrun_close_inherited_fds (libcrun_context_t *context, libcrun_error_t *err);
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_close_inherited_fds (libcrun_context_t *context, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_load_process_from_file (const char *path,
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_load_process_from_file (અચલ અક્ષર *path,
                                                    runtime_spec_schema_config_schema_process **process,
                                                    libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_exec_with_options (libcrun_context_t *context, const char *id,
-                                                        struct libcrun_container_exec_options_s *opts,
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_exec_with_options (libcrun_context_t *context, અચલ અક્ષર *id,
+                                                        સંરચના libcrun_container_exec_options_s *opts,
                                                         libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_exec (libcrun_context_t *context, const char *id,
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_exec (libcrun_context_t *context, અચલ અક્ષર *id,
                                            runtime_spec_schema_config_schema_process *process, libcrun_error_t *err);
 
-struct libcrun_exec_options_s
+સંરચના libcrun_exec_options_s
 {
   size_t struct_size;
-  const char *process_json; /* OCI Process JSON */
-  const char *cgroup;
+  અચલ અક્ષર *process_json; /* OCI Process JSON */
+  અચલ અક્ષર *cgroup;
   bool merge_env;
 };
 
-LIBCRUN_PUBLIC int libcrun_container_exec_json (libcrun_context_t *context, const char *id, const char *process_json,
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_exec_json (libcrun_context_t *context, અચલ અક્ષર *id, અચલ અક્ષર *process_json,
                                                 libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_exec_with_options_json (libcrun_context_t *context, const char *id,
-                                                             const struct libcrun_exec_options_s *opts,
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_exec_with_options_json (libcrun_context_t *context, અચલ અક્ષર *id,
+                                                             અચલ સંરચના libcrun_exec_options_s *opts,
                                                              libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_exec_process_file (libcrun_context_t *context, const char *id, const char *path,
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_exec_process_file (libcrun_context_t *context, અચલ અક્ષર *id, અચલ અક્ષર *path,
                                                         libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_update (libcrun_context_t *context, const char *id, const char *content,
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_update (libcrun_context_t *context, અચલ અક્ષર *id, અચલ અક્ષર *content,
                                              size_t len, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_update_from_file (libcrun_context_t *context, const char *id, const char *file,
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_update_from_file (libcrun_context_t *context, અચલ અક્ષર *id, અચલ અક્ષર *file,
                                                        libcrun_error_t *err);
 
-struct libcrun_update_value_s
+સંરચના libcrun_update_કિંમત_s
 {
-  const char *section;
-  const char *name;
+  અચલ અક્ષર *section;
+  અચલ અક્ષર *name;
   bool numeric;
-  const char *value;
+  અચલ અક્ષર *કિંમત;
 };
 
-LIBCRUN_PUBLIC int libcrun_container_update_from_values (libcrun_context_t *context, const char *id,
-                                                         struct libcrun_update_value_s *values, size_t len,
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_update_from_કિંમતો (libcrun_context_t *context, અચલ અક્ષર *id,
+                                                         સંરચના libcrun_update_કિંમત_s *કિંમતો, size_t len,
                                                          libcrun_error_t *err);
 
-struct libcrun_intel_rdt_update
+સંરચના libcrun_intel_rdt_update
 {
-  const char *l3_cache_schema;
-  const char *mem_bw_schema;
-  char *const *schemata;
+  અચલ અક્ષર *l3_cache_schema;
+  અચલ અક્ષર *mem_bw_schema;
+  અક્ષર *અચલ *schemata;
 };
 
-LIBCRUN_PUBLIC int libcrun_container_update_intel_rdt (libcrun_context_t *context, const char *id,
-                                                       struct libcrun_intel_rdt_update *update, libcrun_error_t *err);
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_update_intel_rdt (libcrun_context_t *context, અચલ અક્ષર *id,
+                                                       સંરચના libcrun_intel_rdt_update *update, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_get_features (libcrun_context_t *context, struct features_info_s **info,
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_get_features (libcrun_context_t *context, સંરચના features_info_s **info,
                                                    libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_get_features_json (libcrun_context_t *context, char **out, libcrun_error_t *err);
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_get_features_json (libcrun_context_t *context, અક્ષર **out, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_pause (libcrun_context_t *context, const char *id, libcrun_error_t *err);
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_pause (libcrun_context_t *context, અચલ અક્ષર *id, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_unpause (libcrun_context_t *context, const char *id, libcrun_error_t *err);
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_unpause (libcrun_context_t *context, અચલ અક્ષર *id, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_checkpoint (libcrun_context_t *context, const char *id,
-                                                 struct libcrun_checkpoint_restore_options_s *cr_options,
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_checkpoint (libcrun_context_t *context, અચલ અક્ષર *id,
+                                                 સંરચના libcrun_checkpoint_restore_options_s *cr_options,
                                                  libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_restore (libcrun_context_t *context, const char *id,
-                                              struct libcrun_checkpoint_restore_options_s *cr_options,
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_restore (libcrun_context_t *context, અચલ અક્ષર *id,
+                                              સંરચના libcrun_checkpoint_restore_options_s *cr_options,
                                               libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_read_pids (libcrun_context_t *context, const char *id, bool recurse, pid_t **pids, libcrun_error_t *err);
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_read_pids (libcrun_context_t *context, અચલ અક્ષર *id, bool recurse, pid_t **pids, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_write_json_containers_list (libcrun_context_t *context, FILE *out, libcrun_error_t *err);
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_write_json_containers_list (libcrun_context_t *context, FILE *out, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_list_json (libcrun_context_t *context, char **out, libcrun_error_t *err);
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_list_json (libcrun_context_t *context, અક્ષર **out, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_add_mounts_from_file (libcrun_context_t *context, const char *id, const char *file,
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_add_mounts_from_file (libcrun_context_t *context, અચલ અક્ષર *id, અચલ અક્ષર *file,
                                                            libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_remove_mounts_from_file (libcrun_context_t *context, const char *id, const char *file,
+LIBCRUN_PUBLIC પૂર્ણાંક libcrun_container_remove_mounts_from_file (libcrun_context_t *context, અચલ અક્ષર *id, અચલ અક્ષર *file,
                                                               libcrun_error_t *err);
 
 // Not part of the public API, just a method in container.c we need to access from linux.c
-void get_root_in_the_userns (runtime_spec_schema_config_schema *def, uid_t host_uid, gid_t host_gid,
+શૂન્ય get_મૂળ_in_the_userns (runtime_spec_schema_config_schema *def, uid_t host_uid, gid_t host_gid,
                              uid_t *uid, gid_t *gid);
 
-static inline void
+સ્થિર અંતઃરેખ શૂન્ય
 cleanup_containerp (libcrun_container_t **c)
 {
   libcrun_container_t *container = *c;
@@ -451,69 +451,69 @@ cleanup_containerp (libcrun_container_t **c)
 
 #define cleanup_container __attribute__ ((cleanup (cleanup_containerp)))
 
-static inline void
-cleanup_struct_features_free (struct features_info_s **info)
+સ્થિર અંતઃરેખ શૂન્ય
+cleanup_struct_features_free (સંરચના features_info_s **info)
 {
   size_t i;
-  struct features_info_s *ptr;
-  if (info == NULL || *info == NULL)
-    return;
+  સંરચના features_info_s *ptr;
+  જો (info == ખાલી || *info == ખાલી)
+    પાછા;
 
   ptr = *info;
 
   // Free oci_version_min if it is not NULL
-  if (ptr->oci_version_min != NULL)
+  જો (ptr->oci_version_min != ખાલી)
     {
-      free (ptr->oci_version_min);
-      ptr->oci_version_min = NULL; // Set to NULL after freeing
+      મુક્ત (ptr->oci_version_min);
+      ptr->oci_version_min = ખાલી; // Set to NULL after freeing
     }
 
   // Free oci_version_max if it is not NULL
-  if (ptr->oci_version_max != NULL)
+  જો (ptr->oci_version_max != ખાલી)
     {
-      free (ptr->oci_version_max);
-      ptr->oci_version_max = NULL; // Set to NULL after freeing
+      મુક્ત (ptr->oci_version_max);
+      ptr->oci_version_max = ખાલી; // Set to NULL after freeing
     }
-  if (ptr->hooks != NULL)
+  જો (ptr->hooks != ખાલી)
     {
-      for (i = 0; ptr->hooks[i] != NULL; i++)
-        free (ptr->hooks[i]);
-      free (ptr->hooks);
+      માટે (i = 0; ptr->hooks[i] != ખાલી; i++)
+        મુક્ત (ptr->hooks[i]);
+      મુક્ત (ptr->hooks);
     }
-  if (ptr->mount_options != NULL)
+  જો (ptr->mount_options != ખાલી)
     {
-      for (i = 0; ptr->mount_options[i] != NULL; i++)
-        free (ptr->mount_options[i]);
-      free (ptr->mount_options);
+      માટે (i = 0; ptr->mount_options[i] != ખાલી; i++)
+        મુક્ત (ptr->mount_options[i]);
+      મુક્ત (ptr->mount_options);
     }
-  if (ptr->linux.namespaces != NULL)
+  જો (ptr->linux.namespaces != ખાલી)
     {
-      for (i = 0; ptr->linux.namespaces[i] != NULL; i++)
-        free (ptr->linux.namespaces[i]);
-      free (ptr->linux.namespaces);
-    }
-
-  if (ptr->linux.capabilities != NULL)
-    {
-      for (size_t i = 0; ptr->linux.capabilities[i] != NULL; i++)
-        free (ptr->linux.capabilities[i]);
-      free (ptr->linux.capabilities);
-    }
-  if (ptr->linux.seccomp.actions != NULL)
-    {
-      for (i = 0; ptr->linux.seccomp.actions[i] != NULL; i++)
-        free (ptr->linux.seccomp.actions[i]);
-      free (ptr->linux.seccomp.actions);
-    }
-  if (ptr->linux.seccomp.operators != NULL)
-    {
-      for (i = 0; ptr->linux.seccomp.operators[i] != NULL; i++)
-        free (ptr->linux.seccomp.operators[i]);
-      free (ptr->linux.seccomp.operators);
+      માટે (i = 0; ptr->linux.namespaces[i] != ખાલી; i++)
+        મુક્ત (ptr->linux.namespaces[i]);
+      મુક્ત (ptr->linux.namespaces);
     }
 
-  free (ptr);
-  *info = NULL;
+  જો (ptr->linux.capabilities != ખાલી)
+    {
+      માટે (size_t i = 0; ptr->linux.capabilities[i] != ખાલી; i++)
+        મુક્ત (ptr->linux.capabilities[i]);
+      મુક્ત (ptr->linux.capabilities);
+    }
+  જો (ptr->linux.seccomp.actions != ખાલી)
+    {
+      માટે (i = 0; ptr->linux.seccomp.actions[i] != ખાલી; i++)
+        મુક્ત (ptr->linux.seccomp.actions[i]);
+      મુક્ત (ptr->linux.seccomp.actions);
+    }
+  જો (ptr->linux.seccomp.operators != ખાલી)
+    {
+      માટે (i = 0; ptr->linux.seccomp.operators[i] != ખાલી; i++)
+        મુક્ત (ptr->linux.seccomp.operators[i]);
+      મુક્ત (ptr->linux.seccomp.operators);
+    }
+
+  મુક્ત (ptr);
+  *info = ખાલી;
 }
 
 #define cleanup_struct_features __attribute__ ((cleanup (cleanup_struct_features_free)))

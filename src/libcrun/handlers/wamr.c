@@ -17,20 +17,20 @@
  */
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "../custom-handler.h"
-#include "../container.h"
-#include "../utils.h"
-#include "../linux.h"
-#include "handler-utils.h"
-#include <unistd.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <sched.h>
-#include <stdio.h>
-#include <stdlib.h>
+#અન્તર્ભાવ <config.h>
+#અન્તર્ભાવ "../custom-handler.h"
+#અન્તર્ભાવ "../container.h"
+#અન્તર્ભાવ "../utils.h"
+#અન્તર્ભાવ "../linux.h"
+#અન્તર્ભાવ "handler-utils.h"
+#અન્તર્ભાવ <unistd.h>
+#અન્તર્ભાવ <sys/stat.h>
+#અન્તર્ભાવ <errno.h>
+#અન્તર્ભાવ <sys/types.h>
+#અન્તર્ભાવ <fcntl.h>
+#અન્તર્ભાવ <sched.h>
+#અન્તર્ભાવ <stdio.h>
+#અન્તર્ભાવ <stdlib.h>
 
 #ifdef HAVE_DLOPEN
 #  include <dlfcn.h>
@@ -40,63 +40,63 @@
 #  include <wasm_export.h>
 #endif
 
-#if HAVE_DLOPEN && HAVE_WAMR
+#જો HAVE_DLOPEN && HAVE_WAMR
 
-static int
-libwamr_load (void **cookie, libcrun_error_t *err)
+સ્થિર પૂર્ણાંક
+libwamr_load (શૂન્ય **cookie, libcrun_error_t *err)
 {
-  void *handle;
+  શૂન્ય *handle;
 
   handle = dlopen ("libiwasm.so", RTLD_NOW);
-  if (handle == NULL)
-    return crun_make_error (err, 0, "could not load `libiwasm.so`: `%s`", dlerror ());
+  જો (handle == ખાલી)
+    પાછા crun_make_error (err, 0, "could not load `libiwasm.so`: `%s`", dlerror ());
   *cookie = handle;
 
-  return 0;
+  પાછા 0;
 }
 
-static int
-libwamr_unload (void *cookie, libcrun_error_t *err)
+સ્થિર પૂર્ણાંક
+libwamr_unload (શૂન્ય *cookie, libcrun_error_t *err)
 {
-  int r;
+  પૂર્ણાંક r;
 
-  if (cookie)
+  જો (cookie)
     {
       r = dlclose (cookie);
-      if (UNLIKELY (r < 0))
-        return crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
+      જો (UNLIKELY (r < 0))
+        પાછા crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
     }
-  return 0;
+  પાછા 0;
 }
 
-static int
-libwamr_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *container, const char *pathname, char *const argv[])
+સ્થિર પૂર્ણાંક
+libwamr_exec (શૂન્ય *cookie, __attribute__ ((unused)) libcrun_container_t *container, અચલ અક્ષર *pathname, અક્ષર *અચલ argv[])
 {
   // load symbols from the shared library libiwasm.so
   bool (*wasm_runtime_init) ();
   RuntimeInitArgs init_args;
   bool (*wasm_runtime_full_init) (RuntimeInitArgs *init_args);
   wasm_module_t module;
-  wasm_module_t (*wasm_runtime_load) (uint8_t *buf, uint32_t size, char *error_buf, uint32_t error_buf_size);
+  wasm_module_t (*wasm_runtime_load) (uint8_t *buf, uint32_t size, અક્ષર *error_buf, uint32_t error_buf_size);
   wasm_module_inst_t module_inst;
-  wasm_module_inst_t (*wasm_runtime_instantiate) (const wasm_module_t module, uint32_t default_stack_size, uint32_t host_managed_heap_size, char *error_buf, uint32_t error_buf_size);
+  wasm_module_inst_t (*wasm_runtime_instantiate) (અચલ wasm_module_t module, uint32_t default_ઢગલો_size, uint32_t host_managed_heap_size, અક્ષર *error_buf, uint32_t error_buf_size);
   wasm_function_inst_t func;
-  wasm_function_inst_t (*wasm_runtime_lookup_function) (wasm_module_inst_t const module_inst, const char *name);
+  wasm_function_inst_t (*wasm_runtime_lookup_function) (wasm_module_inst_t અચલ module_inst, અચલ અક્ષર *name);
   wasm_exec_env_t exec_env;
-  wasm_exec_env_t (*wasm_runtime_create_exec_env) (wasm_module_inst_t module_inst, uint32_t stack_size);
+  wasm_exec_env_t (*wasm_runtime_create_exec_env) (wasm_module_inst_t module_inst, uint32_t ઢગલો_size);
   bool (*wasm_runtime_call_wasm) (wasm_exec_env_t exec_env, wasm_function_inst_t function, uint32_t argc, uint32_t argv[]);
-  const char *(*wasm_runtime_get_exception) (wasm_module_inst_t module_inst);
-  void (*wasm_runtime_set_exception) (wasm_module_inst_t module_inst, const char *exception);
-  void (*wasm_runtime_clear_exception) (wasm_module_inst_t module_inst);
-  void (*wasm_runtime_destroy_exec_env) (wasm_exec_env_t exec_env);
-  void (*wasm_runtime_deinstantiate) (wasm_module_inst_t module_inst);
-  void (*wasm_runtime_unload) (wasm_module_t module);
-  void (*wasm_runtime_destroy) ();
+  અચલ અક્ષર *(*wasm_runtime_get_exception) (wasm_module_inst_t module_inst);
+  શૂન્ય (*wasm_runtime_set_exception) (wasm_module_inst_t module_inst, અચલ અક્ષર *exception);
+  શૂન્ય (*wasm_runtime_clear_exception) (wasm_module_inst_t module_inst);
+  શૂન્ય (*wasm_runtime_destroy_exec_env) (wasm_exec_env_t exec_env);
+  શૂન્ય (*wasm_runtime_deinstantiate) (wasm_module_inst_t module_inst);
+  શૂન્ય (*wasm_runtime_unload) (wasm_module_t module);
+  શૂન્ય (*wasm_runtime_destroy) ();
   uint32_t (*wasm_runtime_get_wasi_exit_code) (wasm_module_inst_t module_inst);
-  bool (*wasm_application_execute_main) (wasm_module_inst_t module_inst, int32_t argc, char *argv[]);
-  void (*wasm_runtime_set_wasi_args) (wasm_module_t module, const char *dir_list[], uint32_t dir_count, const char *map_dir_list[], uint32_t map_dir_count, const char *env[], uint32_t env_count, char *argv[], int argc);
-  void (*wasm_runtime_set_wasi_addr_pool) (wasm_module_t module, const char *addr_pool[], uint32_t pool_size);
-  void (*wasm_runtime_set_wasi_ns_lookup_pool) (wasm_module_t module, const char *ns_lookup_pool[], uint32_t pool_size);
+  bool (*wasm_application_execute_main) (wasm_module_inst_t module_inst, int32_t argc, અક્ષર *argv[]);
+  શૂન્ય (*wasm_runtime_set_wasi_args) (wasm_module_t module, અચલ અક્ષર *dir_list[], uint32_t dir_ગણતરી, અચલ અક્ષર *map_dir_list[], uint32_t map_dir_ગણતરી, અચલ અક્ષર *env[], uint32_t env_ગણતરી, અક્ષર *argv[], પૂર્ણાંક argc);
+  શૂન્ય (*wasm_runtime_set_wasi_addr_pool) (wasm_module_t module, અચલ અક્ષર *addr_pool[], uint32_t pool_size);
+  શૂન્ય (*wasm_runtime_set_wasi_ns_lookup_pool) (wasm_module_t module, અચલ અક્ષર *ns_lookup_pool[], uint32_t pool_size);
 
   wasm_runtime_init = dlsym (cookie, "wasm_runtime_init");
   wasm_runtime_full_init = dlsym (cookie, "wasm_runtime_full_init");
@@ -118,113 +118,113 @@ libwamr_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *contai
   wasm_runtime_set_wasi_addr_pool = dlsym (cookie, "wasm_runtime_set_wasi_addr_pool");
   wasm_runtime_set_wasi_ns_lookup_pool = dlsym (cookie, "wasm_runtime_set_wasi_ns_lookup_pool");
 
-  if (wasm_runtime_init == NULL)
+  જો (wasm_runtime_init == ખાલી)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_init symbol in `libiwasm.so`");
-  if (wasm_runtime_full_init == NULL)
+  જો (wasm_runtime_full_init == ખાલી)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_full_init symbol in `libiwasm.so`");
-  if (wasm_runtime_load == NULL)
+  જો (wasm_runtime_load == ખાલી)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_load symbol in `libiwasm.so`");
-  if (wasm_runtime_instantiate == NULL)
+  જો (wasm_runtime_instantiate == ખાલી)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_instantiate symbol in `libiwasm.so`");
-  if (wasm_runtime_lookup_function == NULL)
+  જો (wasm_runtime_lookup_function == ખાલી)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_lookup_function symbol in `libiwasm.so`");
-  if (wasm_runtime_create_exec_env == NULL)
+  જો (wasm_runtime_create_exec_env == ખાલી)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_create_exec_env symbol in `libiwasm.so`");
-  if (wasm_runtime_call_wasm == NULL)
+  જો (wasm_runtime_call_wasm == ખાલી)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_call_wasm symbol in `libiwasm.so`");
-  if (wasm_runtime_get_exception == NULL)
+  જો (wasm_runtime_get_exception == ખાલી)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_get_exception symbol in `libiwasm.so`");
-  if (wasm_runtime_set_exception == NULL)
+  જો (wasm_runtime_set_exception == ખાલી)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_set_exception symbol in `libiwasm.so`");
-  if (wasm_runtime_clear_exception == NULL)
+  જો (wasm_runtime_clear_exception == ખાલી)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_clear_exception symbol in `libiwasm.so`");
-  if (wasm_runtime_destroy_exec_env == NULL)
+  જો (wasm_runtime_destroy_exec_env == ખાલી)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_destroy_exec_env symbol in `libiwasm.so`");
-  if (wasm_runtime_deinstantiate == NULL)
+  જો (wasm_runtime_deinstantiate == ખાલી)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_deinstantiate symbol in `libiwasm.so`");
-  if (wasm_runtime_unload == NULL)
+  જો (wasm_runtime_unload == ખાલી)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_unload symbol in `libiwasm.so`");
-  if (wasm_runtime_destroy == NULL)
+  જો (wasm_runtime_destroy == ખાલી)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_destroy symbol in `libiwasm.so`");
-  if (wasm_runtime_get_wasi_exit_code == NULL)
+  જો (wasm_runtime_get_wasi_exit_code == ખાલી)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_get_wasi_exit_code symbol in `libiwasm.so`");
-  if (wasm_application_execute_main == NULL)
+  જો (wasm_application_execute_main == ખાલી)
     error (EXIT_FAILURE, 0, "could not find wasm_application_execute_main symbol in `libiwasm.so`");
-  if (wasm_runtime_set_wasi_args == NULL)
+  જો (wasm_runtime_set_wasi_args == ખાલી)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_set_wasi_args symbol in `libiwasm.so`");
-  if (wasm_runtime_set_wasi_addr_pool == NULL)
+  જો (wasm_runtime_set_wasi_addr_pool == ખાલી)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_set_wasi_addr_pool symbol in `libiwasm.so`");
-  if (wasm_runtime_set_wasi_ns_lookup_pool == NULL)
+  જો (wasm_runtime_set_wasi_ns_lookup_pool == ખાલી)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_set_wasi_ns_lookup_pool symbol in `libiwasm.so`");
 
-  int ret;
-  const char *exception;
-  cleanup_free char *buffer = NULL;
-  char error_buf[128];
+  પૂર્ણાંક ret;
+  અચલ અક્ષર *exception;
+  cleanup_free અક્ષર *buffer = ખાલી;
+  અક્ષર error_buf[128];
   size_t buffer_size;
-  uint32_t stack_size = 8096, heap_size = 0;
-  libcrun_error_t tmp_err = NULL;
-  const char *wasi_proc_exit_exception = "wasi proc exit";
-  const char *wasi_addr_pool[2] = { "0.0.0.0/0", "::/0" };
-  const char *wasi_ns_lookup_pool[1] = { "*" };
+  uint32_t ઢગલો_size = 8096, heap_size = 0;
+  libcrun_error_t tmp_err = ખાલી;
+  અચલ અક્ષર *wasi_proc_exit_exception = "wasi proc exit";
+  અચલ અક્ષર *wasi_addr_pool[2] = { "0.0.0.0/0", "::/0" };
+  અચલ અક્ષર *wasi_ns_lookup_pool[1] = { "*" };
 
-  const char *dirs[2] = { "/", "." };
-  char **container_env = container->container_def->process->env;
-  size_t env_count = container->container_def->process->env_len;
+  અચલ અક્ષર *dirs[2] = { "/", "." };
+  અક્ષર **container_env = container->container_def->process->env;
+  size_t env_ગણતરી = container->container_def->process->env_len;
 
-  int arg_count = 0;
-  char *const *arg;
-  for (arg = argv; *arg != NULL; ++arg)
-    arg_count++;
+  પૂર્ણાંક arg_ગણતરી = 0;
+  અક્ષર *અચલ *arg;
+  માટે (arg = argv; *arg != ખાલી; ++arg)
+    arg_ગણતરી++;
 
   // initialize the wasm runtime by default configurations
-  if (! wasm_runtime_init ())
+  જો (! wasm_runtime_init ())
     error (EXIT_FAILURE, 0, "Failed to initialize the wasm runtime");
 
   // read WASM file into a memory buffer
   ret = read_all_file (pathname, &buffer, &buffer_size, &tmp_err);
-  if (UNLIKELY (ret < 0))
+  જો (UNLIKELY (ret < 0))
     {
       crun_error_release (&tmp_err);
       error (EXIT_FAILURE, 0, "Failed to read file");
     }
 
-  if (UNLIKELY (buffer_size > UINT32_MAX))
+  જો (UNLIKELY (buffer_size > UINT32_MAX))
     error (EXIT_FAILURE, 0, "File size is too large");
 
   // parse the WASM file from buffer and create a WASM module
-  module = wasm_runtime_load (buffer, buffer_size, error_buf, sizeof (error_buf));
-  if (! module)
+  module = wasm_runtime_load (buffer, buffer_size, error_buf, કદ (error_buf));
+  જો (! module)
     error (EXIT_FAILURE, 0, "Failed to load WASM file");
 
   // instantiate the WASI environment
-  wasm_runtime_set_wasi_args (module, dirs, 1, NULL, 0, (const char **) container_env, env_count, (char **) argv, arg_count);
+  wasm_runtime_set_wasi_args (module, dirs, 1, ખાલી, 0, (અચલ અક્ષર **) container_env, env_ગણતરી, (અક્ષર **) argv, arg_ગણતરી);
 
   // enable the WASI socket api
   wasm_runtime_set_wasi_addr_pool (module, wasi_addr_pool, 2);
   wasm_runtime_set_wasi_ns_lookup_pool (module, wasi_ns_lookup_pool, 1);
 
   // create an instance of the WASM module (WASM linear memory is ready)
-  module_inst = wasm_runtime_instantiate (module, stack_size, heap_size, error_buf, sizeof (error_buf));
-  if (! module_inst)
+  module_inst = wasm_runtime_instantiate (module, ઢગલો_size, heap_size, error_buf, કદ (error_buf));
+  જો (! module_inst)
     error (EXIT_FAILURE, 0, "Failed to instantiate the WASM module");
 
   // look up a WASM function by its name (The function signature can NULL here)
   func = wasm_runtime_lookup_function (module_inst, "_start");
-  if (! func)
+  જો (! func)
     error (EXIT_FAILURE, 0, "Failed to look up the WASM function");
 
   // create an execution environment to execute the WASM functions
-  exec_env = wasm_runtime_create_exec_env (module_inst, stack_size);
-  if (! exec_env)
+  exec_env = wasm_runtime_create_exec_env (module_inst, ઢગલો_size);
+  જો (! exec_env)
     error (EXIT_FAILURE, 0, "Failed to create the execution environment");
 
   // call the WASM function
-  ret = wasm_runtime_call_wasm (exec_env, func, 0, NULL);
-  if (ret)
+  ret = wasm_runtime_call_wasm (exec_env, func, 0, ખાલી);
+  જો (ret)
     wasm_runtime_set_exception (module_inst, wasi_proc_exit_exception);
   exception = wasm_runtime_get_exception (module_inst);
-  if (! strstr (exception, wasi_proc_exit_exception))
+  જો (! strstr (exception, wasi_proc_exit_exception))
     error (EXIT_FAILURE, 0, "Failed to call the WASM function");
   wasm_runtime_clear_exception (module_inst);
 
@@ -236,17 +236,17 @@ libwamr_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *contai
   exit (EXIT_SUCCESS);
 }
 
-static int
+સ્થિર પૂર્ણાંક
 libwamr_can_handle_container (libcrun_container_t *container, libcrun_error_t *err)
 {
-  return wasm_can_handle_container (container, err);
+  પાછા wasm_can_handle_container (container, err);
 }
 
-struct custom_handler_s handler_wamr = {
+સંરચના custom_handler_s handler_wamr = {
   .name = "wamr",
   .alias = "wasm",
   .feature_string = "WASM:wamr",
-  .supports_open_tree_namespace = false,
+  .supports_open_વૃક્ષ_namespace = false,
   .load = libwamr_load,
   .unload = libwamr_unload,
   .run_func = libwamr_exec,

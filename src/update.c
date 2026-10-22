@@ -16,25 +16,25 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#અન્તર્ભાવ <config.h>
+#અન્તર્ભાવ <stdio.h>
+#અન્તર્ભાવ <stdlib.h>
+#અન્તર્ભાવ <argp.h>
+#અન્તર્ભાવ <string.h>
+#અન્તર્ભાવ <unistd.h>
+#અન્તર્ભાવ <errno.h>
 
-#include "crun.h"
+#અન્તર્ભાવ "crun.h"
 
-static char doc[] = "OCI runtime";
+સ્થિર અક્ષર doc[] = "OCI runtime";
 
-static char *resources = NULL;
+સ્થિર અક્ષર *resources = ખાલી;
 
-enum
+ગણના
 {
-  FIRST_VALUE = 1000,
+  FIRST_કિંમત = 1000,
 
-  BLKIO_WEIGHT = FIRST_VALUE,
+  BLKIO_WEIGHT = FIRST_કિંમત,
 
   CPU_PERIOD,
   CPU_QUOTA,
@@ -58,18 +58,18 @@ enum
   L3_CACHE_SCHEMA,
   MEM_BW_SCHEMA,
 
-  LAST_VALUE,
+  LAST_કિંમત,
 };
 
-struct description_s
+સંરચના description_s
 {
-  int id;
-  const char *section;
-  const char *name;
-  int numeric;
+  પૂર્ણાંક id;
+  અચલ અક્ષર *section;
+  અચલ અક્ષર *name;
+  પૂર્ણાંક numeric;
 };
 
-static struct description_s descriptors[] = { { BLKIO_WEIGHT, "blockIO", "weight", 1 },
+સ્થિર સંરચના description_s descriptors[] = { { BLKIO_WEIGHT, "blockIO", "weight", 1 },
 
                                               { CPU_PERIOD, "cpu", "period", 1 },
                                               { CPU_QUOTA, "cpu", "quota", 1 },
@@ -90,99 +90,99 @@ static struct description_s descriptors[] = { { BLKIO_WEIGHT, "blockIO", "weight
                                               { PIDS_LIMIT, "pids", "limit", 1 },
                                               { 0 } };
 
-static struct libcrun_update_value_s *values;
-size_t values_len = 0;
+સ્થિર સંરચના libcrun_update_કિંમત_s *કિંમતો;
+size_t કિંમતો_len = 0;
 
-static void
-set_value (int id, const char *value)
+સ્થિર શૂન્ય
+set_કિંમત (પૂર્ણાંક id, અચલ અક્ષર *કિંમત)
 {
-  values = xrealloc (values, (values_len + 1) * sizeof (struct libcrun_update_value_s));
-  values[values_len].section = descriptors[id - FIRST_VALUE].section;
-  values[values_len].name = descriptors[id - FIRST_VALUE].name;
-  values[values_len].numeric = descriptors[id - FIRST_VALUE].numeric;
-  values[values_len].value = value;
-  values_len++;
+  કિંમતો = xrealloc (કિંમતો, (કિંમતો_len + 1) * કદ (સંરચના libcrun_update_કિંમત_s));
+  કિંમતો[કિંમતો_len].section = descriptors[id - FIRST_કિંમત].section;
+  કિંમતો[કિંમતો_len].name = descriptors[id - FIRST_કિંમત].name;
+  કિંમતો[કિંમતો_len].numeric = descriptors[id - FIRST_કિંમત].numeric;
+  કિંમતો[કિંમતો_len].કિંમત = કિંમત;
+  કિંમતો_len++;
 }
 
 /* Parse a memory size, which may have a unit suffix (e.g. 512k or 1.5G),
    like runc does.  Return the size in bytes as a string.  */
-static char *
-parse_memory_size (const char *opt, const char *value)
+સ્થિર અક્ષર *
+parse_memory_size (અચલ અક્ષર *opt, અચલ અક્ષર *કિંમત)
 {
-  const char *suffix;
-  char buf[32];
-  char *end;
-  double size, mul = 1;
+  અચલ અક્ષર *suffix;
+  અક્ષર buf[32];
+  અક્ષર *end;
+  દ્વિગુણ size, mul = 1;
 
-  if (strcmp (value, "-1") == 0)
-    return xstrdup (value);
+  જો (strcmp (કિંમત, "-1") == 0)
+    પાછા xstrdup (કિંમત);
 
   errno = 0;
-  size = strtod (value, &end);
-  if ((value[0] != '.' && (value[0] < '0' || value[0] > '9')) || end == value || errno != 0 || size < 0)
-    goto invalid;
+  size = strtod (કિંમત, &end);
+  જો ((કિંમત[0] != '.' && (કિંમત[0] < '0' || કિંમત[0] > '9')) || end == કિંમત || errno != 0 || size < 0)
+    જાઓ invalid;
 
   suffix = end;
-  if (*suffix == ' ')
+  જો (*suffix == ' ')
     suffix++;
-  if (*suffix)
+  જો (*suffix)
     {
-      switch (*suffix | 0x20)
+      પસંદગી (*suffix | 0x20)
         {
-        case 'b':
-          if (suffix[1] != '\0')
-            goto invalid;
-          break;
-        case 'k':
+        સ્થિતિ 'b':
+          જો (suffix[1] != '\0')
+            જાઓ invalid;
+          તોડો;
+        સ્થિતિ 'k':
           mul = 1ULL << 10;
-          break;
-        case 'm':
+          તોડો;
+        સ્થિતિ 'm':
           mul = 1ULL << 20;
-          break;
-        case 'g':
+          તોડો;
+        સ્થિતિ 'g':
           mul = 1ULL << 30;
-          break;
-        case 't':
+          તોડો;
+        સ્થિતિ 't':
           mul = 1ULL << 40;
-          break;
-        case 'p':
+          તોડો;
+        સ્થિતિ 'p':
           mul = 1ULL << 50;
-          break;
-        default:
-          goto invalid;
+          તોડો;
+        મૂળભૂત:
+          જાઓ invalid;
         }
-      if (mul > 1 && suffix[1] != '\0' && strcasecmp (suffix + 1, "b") != 0 && strcasecmp (suffix + 1, "ib") != 0)
-        goto invalid;
+      જો (mul > 1 && suffix[1] != '\0' && strcasecmp (suffix + 1, "b") != 0 && strcasecmp (suffix + 1, "ib") != 0)
+        જાઓ invalid;
     }
 
   size *= mul;
-  if (size >= 9223372036854775808.0)
-    goto invalid;
+  જો (size >= 9223372036854775808.0)
+    જાઓ invalid;
 
-  snprintf (buf, sizeof (buf), "%lld", (long long) size);
-  return xstrdup (buf);
+  snprintf (buf, કદ (buf), "%lld", (long long) size);
+  પાછા xstrdup (buf);
 
 invalid:
-  libcrun_fail_with_error (0, "invalid value for --%s: `%s`", opt, value);
+  libcrun_fail_with_error (0, "invalid value for --%s: `%s`", opt, કિંમત);
 }
 
 /* Check that VALUE is an integer.  */
-static const char *
-check_integer (const char *opt, const char *value)
+સ્થિર અચલ અક્ષર *
+check_integer (અચલ અક્ષર *opt, અચલ અક્ષર *કિંમત)
 {
-  char *end;
+  અક્ષર *end;
 
   errno = 0;
-  (void) strtoll (value, &end, 10);
-  if (end == value || *end != '\0' || errno != 0)
-    libcrun_fail_with_error (0, "invalid value for --%s: `%s`", opt, value);
-  return value;
+  (શૂન્ય) strtoll (કિંમત, &end, 10);
+  જો (end == કિંમત || *end != '\0' || errno != 0)
+    libcrun_fail_with_error (0, "invalid value for --%s: `%s`", opt, કિંમત);
+  પાછા કિંમત;
 }
 
-static char *l3_cache_schema;
-static char *mem_bw_schema;
+સ્થિર અક્ષર *l3_cache_schema;
+સ્થિર અક્ષર *mem_bw_schema;
 
-static struct argp_option options[]
+સ્થિર સંરચના argp_option options[]
     = { { "resources", 'r', "FILE", 0, "path to the file containing the resources to update", 0 },
         { "blkio-weight", BLKIO_WEIGHT, "VALUE", 0, "Specifies per cgroup weight", 0 },
         { "cpu-period", CPU_PERIOD, "VALUE", 0, "CPU CFS period to be used for hardcapping", 0 },
@@ -206,104 +206,104 @@ static struct argp_option options[]
             0,
         } };
 
-static char args_doc[] = "update [OPTION]... CONTAINER";
+સ્થિર અક્ષર args_doc[] = "update [OPTION]... CONTAINER";
 
-static const char *
-option_name (int key)
+સ્થિર અચલ અક્ષર *
+option_name (પૂર્ણાંક ચાવી)
 {
   size_t i;
 
-  for (i = 0; options[i].name; i++)
-    if (options[i].key == key)
-      return options[i].name;
-  return "";
+  માટે (i = 0; options[i].name; i++)
+    જો (options[i].ચાવી == ચાવી)
+      પાછા options[i].name;
+  પાછા "";
 }
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+સ્થિર error_t
+parse_opt (પૂર્ણાંક ચાવી, અક્ષર *arg, સંરચના argp_state *state)
 {
-  switch (key)
+  પસંદગી (ચાવી)
     {
-    case 'r':
+    સ્થિતિ 'r':
       resources = argp_mandatory_argument (arg, state);
-      break;
+      તોડો;
 
-    case ARGP_KEY_NO_ARGS:
+    સ્થિતિ ARGP_ચાવી_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    case CPUSET_CPUS:
-    case CPUSET_MEMS:
-      set_value (key, argp_mandatory_argument (arg, state));
-      break;
+    સ્થિતિ CPUSET_CPUS:
+    સ્થિતિ CPUSET_MEMS:
+      set_કિંમત (ચાવી, argp_mandatory_argument (arg, state));
+      તોડો;
 
-    case BLKIO_WEIGHT:
-    case CPU_PERIOD:
-    case CPU_QUOTA:
-    case CPU_SHARE:
-    case CPU_RT_PERIOD:
-    case CPU_RT_RUNTIME:
-    case CPU_BURST:
-    case CPU_IDLE:
-    case PIDS_LIMIT:
-      set_value (key, check_integer (option_name (key), argp_mandatory_argument (arg, state)));
-      break;
+    સ્થિતિ BLKIO_WEIGHT:
+    સ્થિતિ CPU_PERIOD:
+    સ્થિતિ CPU_QUOTA:
+    સ્થિતિ CPU_SHARE:
+    સ્થિતિ CPU_RT_PERIOD:
+    સ્થિતિ CPU_RT_RUNTIME:
+    સ્થિતિ CPU_BURST:
+    સ્થિતિ CPU_IDLE:
+    સ્થિતિ PIDS_LIMIT:
+      set_કિંમત (ચાવી, check_integer (option_name (ચાવી), argp_mandatory_argument (arg, state)));
+      તોડો;
 
-    case KERNEL_MEMORY:
-    case KERNEL_MEMORY_TCP:
-    case MEMORY:
-    case MEMORY_RESERVATION:
-    case MEMORY_SWAP:
-      set_value (key, parse_memory_size (option_name (key), argp_mandatory_argument (arg, state)));
-      break;
+    સ્થિતિ KERNEL_MEMORY:
+    સ્થિતિ KERNEL_MEMORY_TCP:
+    સ્થિતિ MEMORY:
+    સ્થિતિ MEMORY_RESERVATION:
+    સ્થિતિ MEMORY_SWAP:
+      set_કિંમત (ચાવી, parse_memory_size (option_name (ચાવી), argp_mandatory_argument (arg, state)));
+      તોડો;
 
-    case L3_CACHE_SCHEMA:
+    સ્થિતિ L3_CACHE_SCHEMA:
       l3_cache_schema = argp_mandatory_argument (arg, state);
-      break;
+      તોડો;
 
-    case MEM_BW_SCHEMA:
+    સ્થિતિ MEM_BW_SCHEMA:
       mem_bw_schema = argp_mandatory_argument (arg, state);
-      break;
+      તોડો;
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    મૂળભૂત:
+      પાછા ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  પાછા 0;
 }
 
 /* If the memory limit is removed and no swap limit is given, remove the
    swap limit as well (which cannot be larger than the memory one), like
    runc does.  */
-static void
-set_swap_for_unlimited_memory (void)
+સ્થિર શૂન્ય
+set_swap_for_unlimited_memory (શૂન્ય)
 {
   bool unlimited_memory = false;
   size_t i;
 
-  for (i = 0; i < values_len; i++)
+  માટે (i = 0; i < કિંમતો_len; i++)
     {
-      if (strcmp (values[i].section, "memory") != 0)
-        continue;
-      if (strcmp (values[i].name, "swap") == 0)
-        return;
-      if (strcmp (values[i].name, "limit") == 0)
-        unlimited_memory = strcmp (values[i].value, "-1") == 0;
+      જો (strcmp (કિંમતો[i].section, "memory") != 0)
+        ચાલુ;
+      જો (strcmp (કિંમતો[i].name, "swap") == 0)
+        પાછા;
+      જો (strcmp (કિંમતો[i].name, "limit") == 0)
+        unlimited_memory = strcmp (કિંમતો[i].કિંમત, "-1") == 0;
     }
 
-  if (unlimited_memory)
-    set_value (MEMORY_SWAP, "-1");
+  જો (unlimited_memory)
+    set_કિંમત (MEMORY_SWAP, "-1");
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+સ્થિર સંરચના argp run_argp = { options, parse_opt, args_doc, doc, ખાલી, ખાલી, ખાલી };
 
-int
-crun_command_update (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+પૂર્ણાંક
+crun_command_update (સંરચના crun_global_arguments *global_args, પૂર્ણાંક argc, અક્ષર **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
-  cleanup_context libcrun_context_t *crun_context = NULL;
+  પૂર્ણાંક first_arg = 0, ret;
+  cleanup_context libcrun_context_t *crun_context = ખાલી;
 
   /* Allow options after the container ID, like runc does.  */
-  argp_parse (&run_argp, argc, argv, 0, &first_arg, NULL);
+  argp_parse (&run_argp, argc, argv, 0, &first_arg, ખાલી);
   crun_assert_n_args (argc - first_arg, 1, 1);
 
   set_swap_for_unlimited_memory ();
@@ -311,34 +311,34 @@ crun_command_update (struct crun_global_arguments *global_args, int argc, char *
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
-  if (resources == NULL)
+  જો (resources == ખાલી)
     {
-      ret = libcrun_container_update_from_values (crun_context, argv[first_arg], values, values_len, err);
-      free (values);
-      if (ret < 0)
-        return ret;
+      ret = libcrun_container_update_from_કિંમતો (crun_context, argv[first_arg], કિંમતો, કિંમતો_len, err);
+      મુક્ત (કિંમતો);
+      જો (ret < 0)
+        પાછા ret;
     }
-  else
+  નહીંતર
     {
       ret = libcrun_container_update_from_file (crun_context, argv[first_arg], resources, err);
-      if (ret < 0)
-        return ret;
+      જો (ret < 0)
+        પાછા ret;
     }
 
-  if (l3_cache_schema || mem_bw_schema)
+  જો (l3_cache_schema || mem_bw_schema)
     {
-      struct libcrun_intel_rdt_update update = {
+      સંરચના libcrun_intel_rdt_update update = {
         .l3_cache_schema = l3_cache_schema,
         .mem_bw_schema = mem_bw_schema,
       };
 
       ret = libcrun_container_update_intel_rdt (crun_context, argv[first_arg], &update, err);
-      if (ret < 0)
-        return ret;
+      જો (ret < 0)
+        પાછા ret;
     }
 
-  return 0;
+  પાછા 0;
 }

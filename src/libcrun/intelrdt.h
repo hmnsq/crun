@@ -19,17 +19,17 @@
 #ifndef INTEL_RDT_H
 #define INTEL_RDT_H
 
-#include <config.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include "error.h"
+#અન્તર્ભાવ <config.h>
+#અન્તર્ભાવ <stdio.h>
+#અન્તર્ભાવ <stdbool.h>
+#અન્તર્ભાવ "error.h"
 
-int resctl_create (const char *name, bool explicit_clos_id, bool *created, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err);
-int resctl_move_task_to (const char *name, const char *monitoring_name, pid_t pid, libcrun_error_t *err);
-int resctl_update (const char *name, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err);
-int resctl_destroy (const char *name, libcrun_error_t *err);
+પૂર્ણાંક resctl_create (અચલ અક્ષર *name, bool explicit_clos_id, bool *created, અચલ અક્ષર *l3_cache_schema, અચલ અક્ષર *mem_bw_schema, અક્ષર *અચલ *schemata, libcrun_error_t *err);
+પૂર્ણાંક resctl_move_task_to (અચલ અક્ષર *name, અચલ અક્ષર *monitoring_name, pid_t pid, libcrun_error_t *err);
+પૂર્ણાંક resctl_update (અચલ અક્ષર *name, અચલ અક્ષર *l3_cache_schema, અચલ અક્ષર *mem_bw_schema, અક્ષર *અચલ *schemata, libcrun_error_t *err);
+પૂર્ણાંક resctl_destroy (અચલ અક્ષર *name, libcrun_error_t *err);
 
-int resctl_destroy_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err);
-int resctl_create_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err);
+પૂર્ણાંક resctl_destroy_monitoring_group (અચલ અક્ષર *resctrl_group_name, અચલ અક્ષર *container_id, libcrun_error_t *err);
+પૂર્ણાંક resctl_create_monitoring_group (અચલ અક્ષર *resctrl_group_name, અચલ અક્ષર *container_id, libcrun_error_t *err);
 
 #endif

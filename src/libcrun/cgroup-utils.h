@@ -18,34 +18,34 @@
 #ifndef CGROUP_UTILS_H
 #define CGROUP_UTILS_H
 
-#include "container.h"
-#include "cgroup.h"
-#include <unistd.h>
+#અન્તર્ભાવ "container.h"
+#અન્તર્ભાવ "cgroup.h"
+#અન્તર્ભાવ <unistd.h>
 
-int libcrun_move_process_to_cgroup (pid_t pid, pid_t init_pid, const char *path, bool create_if_missing, libcrun_error_t *err);
+પૂર્ણાંક libcrun_move_process_to_cgroup (pid_t pid, pid_t init_pid, અચલ અક્ષર *path, bool create_if_missing, libcrun_error_t *err);
 
-int libcrun_move_self_to_cgroups (const char *content, libcrun_error_t *err);
+પૂર્ણાંક libcrun_move_self_to_cgroups (અચલ અક્ષર *content, libcrun_error_t *err);
 
-int libcrun_cgroups_create_symlinks (int dirfd, libcrun_error_t *err);
+પૂર્ણાંક libcrun_cgroups_create_symlinks (પૂર્ણાંક dirfd, libcrun_error_t *err);
 
-int libcrun_get_cgroup_process (pid_t pid, char **path, bool absolute, libcrun_error_t *err);
+પૂર્ણાંક libcrun_get_cgroup_process (pid_t pid, અક્ષર **path, bool absolute, libcrun_error_t *err);
 
-int libcrun_get_cgroup_process_at (int dirfd, char **path, bool absolute, libcrun_error_t *err);
+પૂર્ણાંક libcrun_get_cgroup_process_at (પૂર્ણાંક dirfd, અક્ષર **path, bool absolute, libcrun_error_t *err);
 
-int libcrun_get_cgroup_mode (libcrun_error_t *err);
+પૂર્ણાંક libcrun_get_cgroup_mode (libcrun_error_t *err);
 
-int libcrun_get_cgroup_dirfd (struct libcrun_cgroup_status *status, const char *sub_cgroup, libcrun_error_t *err);
+પૂર્ણાંક libcrun_get_cgroup_dirfd (સંરચના libcrun_cgroup_status *status, અચલ અક્ષર *sub_cgroup, libcrun_error_t *err);
 
-int maybe_make_cgroup_threaded (const char *path, libcrun_error_t *err);
+પૂર્ણાંક maybe_make_cgroup_threaded (અચલ અક્ષર *path, libcrun_error_t *err);
 
-int libcrun_migrate_all_pids_to_cgroup (pid_t init_pid, char *from, char *to, libcrun_error_t *err);
+પૂર્ણાંક libcrun_migrate_all_pids_to_cgroup (pid_t init_pid, અક્ષર *from, અક્ષર *to, libcrun_error_t *err);
 
-int destroy_cgroup_path (const char *path, int mode, libcrun_error_t *err);
+પૂર્ણાંક destroy_cgroup_path (અચલ અક્ષર *path, પૂર્ણાંક mode, libcrun_error_t *err);
 
-int get_cgroup_dirfd_path (int dirfd, char **path, libcrun_error_t *err);
+પૂર્ણાંક get_cgroup_dirfd_path (પૂર્ણાંક dirfd, અક્ષર **path, libcrun_error_t *err);
 
-int libcrun_cgroup_ensure_not_frozen (const char *cgroup_path, libcrun_error_t *err);
+પૂર્ણાંક libcrun_cgroup_ensure_not_frozen (અચલ અક્ષર *cgroup_path, libcrun_error_t *err);
 
-int parse_cpu_max (const char *value, int64_t *quota, uint64_t *period, bool *has_period, libcrun_error_t *err);
+પૂર્ણાંક parse_cpu_max (અચલ અક્ષર *કિંમત, int64_t *quota, uint64_t *period, bool *has_period, libcrun_error_t *err);
 
 #endif

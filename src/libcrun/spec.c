@@ -17,16 +17,16 @@
  */
 #define _GNU_SOURCE
 
-#include <config.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <errno.h>
-#include "spec.h"
-#include "utils.h"
-#include "cgroup.h"
-#include "cgroup-utils.h"
+#અન્તર્ભાવ <config.h>
+#અન્તર્ભાવ <stdbool.h>
+#અન્તર્ભાવ <stdio.h>
+#અન્તર્ભાવ <errno.h>
+#અન્તર્ભાવ "spec.h"
+#અન્તર્ભાવ "utils.h"
+#અન્તર્ભાવ "cgroup.h"
+#અન્તર્ભાવ "cgroup-utils.h"
 
-static const char spec_file[] = "\
+સ્થિર અચલ અક્ષર spec_file[] = "\
 {\n\
 	\"ociVersion\": \"1.0.0\",\n\
 	\"process\": {\n\
@@ -76,7 +76,7 @@ static const char spec_file[] = "\
 		],\n\
 		\"noNewPrivileges\": true\n\
 	},\n\
-	\"root\": {\n\
+	\"મૂળ\": {\n\
 		\"path\": \"rootfs\",\n\
 		\"readonly\": true\n\
 	},\n\
@@ -189,7 +189,7 @@ static const char spec_file[] = "\
 			\"/proc/acpi\",\n\
 			\"/proc/asound\",\n\
 			\"/proc/kcore\",\n\
-			\"/proc/keys\",\n\
+			\"/proc/ચાવીઓ\",\n\
 			\"/proc/latency_stats\",\n\
 			\"/proc/timer_list\",\n\
 			\"/proc/timer_stats\",\n\
@@ -207,59 +207,59 @@ static const char spec_file[] = "\
 	}\n\
 }\n";
 
-static const char *spec_pts_tty_group = ",\n\
+સ્થિર અચલ અક્ષર *spec_pts_tty_group = ",\n\
 				\"gid=5\"\n";
 
-static const char *spec_user = "\
+સ્થિર અચલ અક્ષર *spec_user = "\
 			{\n\
 				\"type\": \"user\"\n\
 			},\n";
 
-static const char *spec_cgroupns = "\
+સ્થિર અચલ અક્ષર *spec_cgroupns = "\
 			{\n\
 				\"type\": \"cgroup\"\n\
 			},\n";
 
-int
-libcrun_container_spec (bool root, FILE *out, libcrun_error_t *err)
+પૂર્ણાંક
+libcrun_container_spec (bool મૂળ, FILE *out, libcrun_error_t *err)
 {
-  int ret;
-  int cgroup_mode;
+  પૂર્ણાંક ret;
+  પૂર્ણાંક cgroup_mode;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  જો (UNLIKELY (cgroup_mode < 0))
+    પાછા cgroup_mode;
 
   ret = fprintf (out, spec_file,
-                 root ? spec_pts_tty_group : "\n",
-                 root ? "" : spec_user,
+                 મૂળ ? spec_pts_tty_group : "\n",
+                 મૂળ ? "" : spec_user,
                  cgroup_mode == CGROUP_MODE_UNIFIED ? spec_cgroupns : "");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fprintf failed");
+  જો (UNLIKELY (ret < 0))
+    પાછા crun_make_error (err, errno, "fprintf failed");
 
-  return ret;
+  પાછા ret;
 }
 
-int
-libcrun_container_spec_json (bool root, char **out, libcrun_error_t *err)
+પૂર્ણાંક
+libcrun_container_spec_json (bool મૂળ, અક્ષર **out, libcrun_error_t *err)
 {
-  char *buffer = NULL;
+  અક્ષર *buffer = ખાલી;
   size_t len = 0;
   FILE *f;
-  int ret;
+  પૂર્ણાંક ret;
 
   f = open_memstream (&buffer, &len);
-  if (f == NULL)
-    return crun_make_error (err, errno, "open_memstream");
+  જો (f == ખાલી)
+    પાછા crun_make_error (err, errno, "open_memstream");
 
-  ret = libcrun_container_spec (root, f, err);
+  ret = libcrun_container_spec (મૂળ, f, err);
   fclose (f);
-  if (UNLIKELY (ret < 0))
+  જો (UNLIKELY (ret < 0))
     {
-      free (buffer);
-      return ret;
+      મુક્ત (buffer);
+      પાછા ret;
     }
 
   *out = buffer;
-  return 0;
+  પાછા 0;
 }

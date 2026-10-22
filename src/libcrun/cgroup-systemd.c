@@ -18,25 +18,25 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "cgroup.h"
-#include "cgroup-internal.h"
-#include "cgroup-systemd.h"
-#include "cgroup-resources.h"
-#include "cgroup-utils.h"
-#include "ebpf.h"
-#include "utils.h"
-#include "status.h"
-#include <string.h>
-#include <sys/types.h>
-#include <signal.h>
-#include <sys/vfs.h>
-#include <inttypes.h>
-#include <fcntl.h>
-#include <time.h>
-#include <sys/stat.h>
-#include <sys/vfs.h>
-#include <linux/magic.h>
+#અન્તર્ભાવ <config.h>
+#અન્તર્ભાવ "cgroup.h"
+#અન્તર્ભાવ "cgroup-internal.h"
+#અન્તર્ભાવ "cgroup-systemd.h"
+#અન્તર્ભાવ "cgroup-resources.h"
+#અન્તર્ભાવ "cgroup-utils.h"
+#અન્તર્ભાવ "ebpf.h"
+#અન્તર્ભાવ "utils.h"
+#અન્તર્ભાવ "status.h"
+#અન્તર્ભાવ <string.h>
+#અન્તર્ભાવ <sys/types.h>
+#અન્તર્ભાવ <signal.h>
+#અન્તર્ભાવ <sys/vfs.h>
+#અન્તર્ભાવ <inttypes.h>
+#અન્તર્ભાવ <fcntl.h>
+#અન્તર્ભાવ <time.h>
+#અન્તર્ભાવ <sys/stat.h>
+#અન્તર્ભાવ <sys/vfs.h>
+#અન્તર્ભાવ <linux/magic.h>
 
 #ifdef HAVE_SYSTEMD
 #  include <systemd/sd-bus.h>
@@ -59,576 +59,576 @@
 
 #  define IS_WILDCARD(x) (x <= 0)
 
-static int
-register_missing_property_from_message (const char *state_dir, const char *message, libcrun_error_t *err)
+સ્થિર પૂર્ણાંક
+register_missing_property_from_message (અચલ અક્ષર *state_dir, અચલ અક્ષર *message, libcrun_error_t *err)
 {
-  cleanup_free char *file_path = NULL;
-  cleanup_free char *dir_path = NULL;
-  cleanup_free char *property = NULL;
-  char *p;
-  int ret;
+  cleanup_free અક્ષર *file_path = ખાલી;
+  cleanup_free અક્ષર *dir_path = ખાલી;
+  cleanup_free અક્ષર *property = ખાલી;
+  અક્ષર *p;
+  પૂર્ણાંક ret;
 
-  if (! has_prefix (message, "Cannot set property "))
-    return 0;
+  જો (! has_prefix (message, "Cannot set property "))
+    પાછા 0;
 
-  property = xstrdup (message + sizeof ("Cannot set property ") - 1);
+  property = xstrdup (message + કદ ("Cannot set property ") - 1);
   p = strchr (property, ',');
-  if (! p)
-    return 0;
+  જો (! p)
+    પાછા 0;
   *p = '\0';
 
-  ret = append_paths (&dir_path, err, state_dir, SYSTEMD_MISSING_PROPERTIES_DIR, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&dir_path, err, state_dir, SYSTEMD_MISSING_PROPERTIES_DIR, ખાલી);
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
   ret = crun_ensure_directory (dir_path, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
-  ret = append_paths (&file_path, err, dir_path, property, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&file_path, err, dir_path, property, ખાલી);
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
   libcrun_debug ("Registering missing property for systemd `%s`", property);
 
-  ret = write_file (file_path, NULL, 0, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = write_file (file_path, ખાલી, 0, err);
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
-  return 1;
+  પાછા 1;
 }
 
-static bool
-property_missing_p (char **missing_properties, const char *property)
+સ્થિર bool
+property_missing_p (અક્ષર **missing_properties, અચલ અક્ષર *property)
 {
   size_t i;
 
-  for (i = 0; missing_properties && missing_properties[i]; i++)
-    if (strcmp (missing_properties[i], property) == 0)
+  માટે (i = 0; missing_properties && missing_properties[i]; i++)
+    જો (strcmp (missing_properties[i], property) == 0)
       {
         libcrun_debug ("Skipping property for systemd as it is not supported `%s`", property);
-        return true;
+        પાછા true;
       }
 
-  return false;
+  પાછા false;
 }
 
-static void
-get_systemd_scope_and_slice (const char *id, bool user_slice, const char *cgroup_path,
-                             char **scope, char **slice)
+સ્થિર શૂન્ય
+get_systemd_scope_and_slice (અચલ અક્ષર *id, bool user_slice, અચલ અક્ષર *cgroup_path,
+                             અક્ષર **scope, અક્ષર **slice)
 {
-  const char *n;
-  char *p;
+  અચલ અક્ષર *n;
+  અક્ષર *p;
 
-  if (cgroup_path == NULL || cgroup_path[0] == '\0')
+  જો (cgroup_path == ખાલી || cgroup_path[0] == '\0')
     {
       xasprintf (scope, "crun-%s.scope", id);
-      return;
+      પાછા;
     }
 
   n = strchr (cgroup_path, ':');
-  if (n == NULL)
+  જો (n == ખાલી)
     xasprintf (scope, "%s.scope", cgroup_path);
-  else
+  નહીંતર
     {
       xasprintf (scope, "%s.scope", n + 1);
       p = strchr (*scope, ':');
-      if (p)
+      જો (p)
         *p = '-';
     }
-  if (slice)
+  જો (slice)
     {
       *slice = xstrdup (cgroup_path);
       p = strchr (*slice, ':');
-      if (p)
+      જો (p)
         *p = '\0';
 
       /* Ref: https://github.com/opencontainers/runc/blob/main/docs/systemd.md#systemd-unit-name-and-placement */
-      if (is_empty_string (*slice))
+      જો (is_empty_string (*slice))
         {
-          free (*slice);
-          if (user_slice)
+          મુક્ત (*slice);
+          જો (user_slice)
             *slice = xstrdup ("user.slice");
-          else
+          નહીંતર
             *slice = xstrdup ("system.slice");
         }
     }
 }
 
 /* set the rt-runtime for the current cgroup and its parent if the path is not a scope.  */
-static int
+સ્થિર પૂર્ણાંક
 setup_rt_runtime (runtime_spec_schema_config_linux_resources *resources,
-                  const char *path, libcrun_error_t *err)
+                  અચલ અક્ષર *path, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
-  cleanup_close int dirfd = -1;
+  cleanup_free અક્ષર *cgroup_path = ખાલી;
+  cleanup_close પૂર્ણાંક dirfd = -1;
   bool need_set_parent = true;
-  char fmt_buf[64];
-  int len;
-  int ret;
+  અક્ષર fmt_buf[64];
+  પૂર્ણાંક len;
+  પૂર્ણાંક ret;
 
-  if (resources == NULL || resources->cpu == NULL)
-    return 0;
+  જો (resources == ખાલી || resources->cpu == ખાલી)
+    પાછા 0;
 
   /* Without a cgroup path append_paths() below would end up at the cgroup
      root, so refuse rather than change the root cgroup settings.  */
-  if (is_empty_string (path))
-    return crun_make_error (err, 0, "cannot set the RT runtime without a cgroup");
+  જો (is_empty_string (path))
+    પાછા crun_make_error (err, 0, "cannot set the RT runtime without a cgroup");
 
-  if (has_suffix (path, ".scope"))
+  જો (has_suffix (path, ".scope"))
     need_set_parent = false;
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, "cpu", path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_path, err, CGROUP_મૂળ, "cpu", path, ખાલી);
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
   ret = crun_ensure_directory (cgroup_path, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
   dirfd = open (cgroup_path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", cgroup_path);
+  જો (UNLIKELY (dirfd < 0))
+    પાછા crun_make_error (err, errno, "open `%s`", cgroup_path);
 
-  if (resources->cpu->realtime_period)
+  જો (resources->cpu->realtime_period)
     {
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, resources->cpu->realtime_period);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, કદ (fmt_buf), "%" PRIu64, resources->cpu->realtime_period);
+      જો (UNLIKELY (len >= (પૂર્ણાંક) કદ (fmt_buf)))
+        પાછા crun_make_error (err, 0, "internal error: static buffer too small");
 
-      if (need_set_parent)
+      જો (need_set_parent)
         {
           ret = write_file_at_with_flags (dirfd, O_WRONLY | O_CLOEXEC, 0, "../cpu.rt_period_us", fmt_buf, len, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          જો (UNLIKELY (ret < 0))
+            પાછા ret;
         }
 
       ret = write_file_at_with_flags (dirfd, O_WRONLY | O_CLOEXEC, 0, "cpu.rt_period_us", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      જો (UNLIKELY (ret < 0))
+        પાછા ret;
     }
 
-  if (resources->cpu->realtime_runtime)
+  જો (resources->cpu->realtime_runtime)
     {
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, resources->cpu->realtime_runtime);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, કદ (fmt_buf), "%" PRIu64, resources->cpu->realtime_runtime);
+      જો (UNLIKELY (len >= (પૂર્ણાંક) કદ (fmt_buf)))
+        પાછા crun_make_error (err, 0, "internal error: static buffer too small");
 
-      if (need_set_parent)
+      જો (need_set_parent)
         {
           ret = write_file_at_with_flags (dirfd, O_WRONLY | O_CLOEXEC, 0, "../cpu.rt_runtime_us", fmt_buf, len, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          જો (UNLIKELY (ret < 0))
+            પાછા ret;
         }
 
       ret = write_file_at_with_flags (dirfd, O_WRONLY | O_CLOEXEC, 0, "cpu.rt_runtime_us", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      જો (UNLIKELY (ret < 0))
+        પાછા ret;
     }
-  return 0;
+  પાછા 0;
 }
 
-static int
-setup_missing_cpu_options_for_systemd (runtime_spec_schema_config_linux_resources *resources, bool cgroup2, const char *path, libcrun_error_t *err)
+સ્થિર પૂર્ણાંક
+setup_missing_cpu_options_for_systemd (runtime_spec_schema_config_linux_resources *resources, bool cgroup2, અચલ અક્ષર *path, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
-  int parent;
-  int ret;
+  cleanup_free અક્ષર *cgroup_path = ખાલી;
+  પૂર્ણાંક parent;
+  પૂર્ણાંક ret;
 
-  if (resources == NULL || resources->cpu == NULL)
-    return 0;
+  જો (resources == ખાલી || resources->cpu == ખાલી)
+    પાછા 0;
 
-  if (! resources->cpu->burst_present && ! (cgroup2 && resources->cpu->idle_present))
-    return 0;
+  જો (! resources->cpu->burst_present && ! (cgroup2 && resources->cpu->idle_present))
+    પાછા 0;
 
-  for (parent = 0; parent < 2; parent++)
+  માટે (parent = 0; parent < 2; parent++)
     {
-      cleanup_close int dirfd = -1;
+      cleanup_close પૂર્ણાંક dirfd = -1;
 
-      if (cgroup2)
-        ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path ? path : "", (parent ? ".." : NULL), NULL);
-      else
-        ret = append_paths (&cgroup_path, err, CGROUP_ROOT, "/cpu", path ? path : "", (parent ? ".." : NULL), NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      જો (cgroup2)
+        ret = append_paths (&cgroup_path, err, CGROUP_મૂળ, path ? path : "", (parent ? ".." : ખાલી), ખાલી);
+      નહીંતર
+        ret = append_paths (&cgroup_path, err, CGROUP_મૂળ, "/cpu", path ? path : "", (parent ? ".." : ખાલી), ખાલી);
+      જો (UNLIKELY (ret < 0))
+        પાછા ret;
 
       dirfd = open (cgroup_path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-      if (UNLIKELY (dirfd < 0))
-        return crun_make_error (err, errno, "open `%s`", cgroup_path);
+      જો (UNLIKELY (dirfd < 0))
+        પાછા crun_make_error (err, errno, "open `%s`", cgroup_path);
 
       ret = write_cpu_burst (dirfd, cgroup2, resources->cpu, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      જો (UNLIKELY (ret < 0))
+        પાછા ret;
 
       /* cpu.idle can be set by systemd (via CPUWeight=0), but not reset.  */
-      if (cgroup2)
+      જો (cgroup2)
         {
           ret = write_cpu_idle (dirfd, resources->cpu, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          જો (UNLIKELY (ret < 0))
+            પાછા ret;
         }
     }
 
-  return 0;
+  પાછા 0;
 }
 
-static int
-setup_cpuset_for_systemd_v1 (runtime_spec_schema_config_linux_resources *resources, const char *path, libcrun_error_t *err)
+સ્થિર પૂર્ણાંક
+setup_cpuset_for_systemd_v1 (runtime_spec_schema_config_linux_resources *resources, અચલ અક્ષર *path, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
-  int parent;
-  int ret;
-  int levels;
+  cleanup_free અક્ષર *cgroup_path = ખાલી;
+  પૂર્ણાંક parent;
+  પૂર્ણાંક ret;
+  પૂર્ણાંક levels;
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, "/cpuset", path ? path : "", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_path, err, CGROUP_મૂળ, "/cpuset", path ? path : "", ખાલી);
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
   ret = crun_ensure_directory (cgroup_path, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
   ret = initialize_cpuset_subsystem_resources (cgroup_path, resources, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
   // Check if we have a subcgroup defined. If not, we only need to write this on one level.
   levels = has_suffix (path, ".scope") ? 1 : 2;
 
-  for (parent = 0; parent < levels; parent++)
+  માટે (parent = 0; parent < levels; parent++)
     {
-      cleanup_close int dirfd_cpuset = -1;
-      cleanup_free char *path_to_cpuset = NULL;
+      cleanup_close પૂર્ણાંક dirfd_cpuset = -1;
+      cleanup_free અક્ષર *path_to_cpuset = ખાલી;
 
-      ret = append_paths (&path_to_cpuset, err, CGROUP_ROOT "/cpuset", path, (parent ? ".." : NULL), NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&path_to_cpuset, err, CGROUP_મૂળ "/cpuset", path, (parent ? ".." : ખાલી), ખાલી);
+      જો (UNLIKELY (ret < 0))
+        પાછા ret;
 
       dirfd_cpuset = open (path_to_cpuset, O_DIRECTORY | O_PATH | O_CLOEXEC);
-      if (UNLIKELY (dirfd_cpuset < 0))
-        return crun_make_error (err, errno, "open `%s`", path_to_cpuset);
+      જો (UNLIKELY (dirfd_cpuset < 0))
+        પાછા crun_make_error (err, errno, "open `%s`", path_to_cpuset);
 
       ret = write_cpuset_resources (dirfd_cpuset, false, resources->cpu, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      જો (UNLIKELY (ret < 0))
+        પાછા ret;
     }
 
-  return 0;
+  પાછા 0;
 }
 
 /* Build PATH from the cgroup slice FROM, appending SUFFIX when set.  */
-static int
-compute_finalized_path (char **path, const char *from, const char *suffix, libcrun_error_t *err)
+સ્થિર પૂર્ણાંક
+compute_finalized_path (અક્ષર **path, અચલ અક્ષર *from, અચલ અક્ષર *suffix, libcrun_error_t *err)
 {
-  if (suffix == NULL)
+  જો (suffix == ખાલી)
     {
       *path = xstrdup (from);
-      return 0;
+      પાછા 0;
     }
-  return append_paths (path, err, from, suffix, NULL);
+  પાછા append_paths (path, err, from, suffix, ખાલી);
 }
 
-static int
-systemd_finalize (struct libcrun_cgroup_args *args, char **path_out,
-                  int cgroup_mode, const char *suffix, libcrun_error_t *err)
+સ્થિર પૂર્ણાંક
+systemd_finalize (સંરચના libcrun_cgroup_args *args, અક્ષર **path_out,
+                  પૂર્ણાંક cgroup_mode, અચલ અક્ષર *suffix, libcrun_error_t *err)
 {
   runtime_spec_schema_config_linux_resources *resources = args->resources;
-  cleanup_free char *content = NULL;
-  cleanup_free char *path = NULL;
+  cleanup_free અક્ષર *content = ખાલી;
+  cleanup_free અક્ષર *path = ખાલી;
   pid_t pid = args->pid;
-  int ret;
-  char *from, *to;
-  char *saveptr = NULL;
+  પૂર્ણાંક ret;
+  અક્ષર *from, *to;
+  અક્ષર *saveptr = ખાલી;
 
-  cleanup_free char *proc_path = NULL;
-  cleanup_close int fd = -1;
+  cleanup_free અક્ષર *proc_path = ખાલી;
+  cleanup_close પૂર્ણાંક fd = -1;
 
   xasprintf (&proc_path, "%d/cgroup", pid);
   fd = libcrun_open_proc_file (args->container, proc_path, O_RDONLY, err);
-  if (UNLIKELY (fd < 0))
-    return fd;
+  જો (UNLIKELY (fd < 0))
+    પાછા fd;
 
-  ret = read_all_fd (fd, "cgroup path", &content, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_fd (fd, "cgroup path", &content, ખાલી, err);
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
-  switch (cgroup_mode)
+  પસંદગી (cgroup_mode)
     {
-    case CGROUP_MODE_HYBRID:
-    case CGROUP_MODE_LEGACY:
+    સ્થિતિ CGROUP_MODE_HYBRID:
+    સ્થિતિ CGROUP_MODE_LEGACY:
       from = strstr (content, ":memory:");
-      if (LIKELY (from != NULL))
+      જો (LIKELY (from != ખાલી))
         from += 8;
-      else
+      નહીંતર
         {
           from = strstr (content, ":pids:");
-          if (UNLIKELY (from == NULL))
-            return crun_make_error (err, 0, "cannot find memory or pids controller for the current process");
+          જો (UNLIKELY (from == ખાલી))
+            પાછા crun_make_error (err, 0, "cannot find memory or pids controller for the current process");
 
           from += 6;
         }
 
       to = strchr (from, '\n');
-      if (UNLIKELY (to == NULL))
-        return crun_make_error (err, 0, "cannot parse `%s`", PROC_SELF_CGROUP);
+      જો (UNLIKELY (to == ખાલી))
+        પાછા crun_make_error (err, 0, "cannot parse `%s`", PROC_SELF_CGROUP);
       *to = '\0';
       ret = compute_finalized_path (&path, from, suffix, err);
       *to = '\n';
-      if (UNLIKELY (ret < 0))
-        return ret;
+      જો (UNLIKELY (ret < 0))
+        પાછા ret;
 
-      if (geteuid ())
-        return 0;
+      જો (geteuid ())
+        પાછા 0;
 
       ret = setup_rt_runtime (resources, path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      જો (UNLIKELY (ret < 0))
+        પાછા ret;
 
       ret = setup_cpuset_for_systemd_v1 (resources, path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      જો (UNLIKELY (ret < 0))
+        પાછા ret;
 
-      for (from = strtok_r (content, "\n", &saveptr); from; from = strtok_r (NULL, "\n", &saveptr))
+      માટે (from = strtok_r (content, "\n", &saveptr); from; from = strtok_r (ખાલી, "\n", &saveptr))
         {
-          char *subpath, *subsystem;
+          અક્ષર *subpath, *subsystem;
           subsystem = strchr (from, ':') + 1;
           subpath = strchr (subsystem, ':') + 1;
           *(subpath - 1) = '\0';
 
-          if (subsystem[0] == '\0')
+          જો (subsystem[0] == '\0')
             {
-              if (cgroup_mode == CGROUP_MODE_LEGACY)
-                continue;
+              જો (cgroup_mode == CGROUP_MODE_LEGACY)
+                ચાલુ;
 
               subsystem = "unified";
             }
 
-          if (strcmp (subpath, path))
+          જો (strcmp (subpath, path))
             {
               ret = enter_cgroup_v1_subsystem (pid, subsystem, path, true, err);
-              if (UNLIKELY (ret < 0))
+              જો (UNLIKELY (ret < 0))
                 {
                   /* If it is a named hierarchy, skip the error.  */
-                  if (strchr (subsystem, '='))
+                  જો (strchr (subsystem, '='))
                     {
                       crun_error_release (err);
-                      continue;
+                      ચાલુ;
                     }
-                  return ret;
+                  પાછા ret;
                 }
             }
         }
 
-      break;
+      તોડો;
 
-    case CGROUP_MODE_UNIFIED:
+    સ્થિતિ CGROUP_MODE_UNIFIED:
       {
-        cleanup_free char *dir = NULL;
+        cleanup_free અક્ષર *dir = ખાલી;
 
         from = strstr (content, "0::");
-        if (UNLIKELY (from == NULL))
-          return crun_make_error (err, 0, "cannot find cgroup2 for the current process");
+        જો (UNLIKELY (from == ખાલી))
+          પાછા crun_make_error (err, 0, "cannot find cgroup2 for the current process");
 
         from += 3;
         to = strchr (from, '\n');
-        if (UNLIKELY (to == NULL))
-          return crun_make_error (err, 0, "cannot parse `%s`", PROC_SELF_CGROUP);
+        જો (UNLIKELY (to == ખાલી))
+          પાછા crun_make_error (err, 0, "cannot parse `%s`", PROC_SELF_CGROUP);
         *to = '\0';
         ret = compute_finalized_path (&path, from, suffix, err);
         *to = '\n';
-        if (UNLIKELY (ret < 0))
-          return ret;
+        જો (UNLIKELY (ret < 0))
+          પાછા ret;
 
-        ret = append_paths (&dir, err, CGROUP_ROOT, path, NULL);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ret = append_paths (&dir, err, CGROUP_મૂળ, path, ખાલી);
+        જો (UNLIKELY (ret < 0))
+          પાછા ret;
 
         /* On cgroup v2, processes can be only in leaf nodes.  If a suffix is used,
            move the process immediately to the new location before enabling
            the controllers.  */
         ret = crun_ensure_directory (dir, 0755, true, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        જો (UNLIKELY (ret < 0))
+          પાછા ret;
 
-        ret = move_process_to_cgroup (pid, NULL, path, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ret = move_process_to_cgroup (pid, ખાલી, path, err);
+        જો (UNLIKELY (ret < 0))
+          પાછા ret;
 
         ret = enable_controllers (path, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        જો (UNLIKELY (ret < 0))
+          પાછા ret;
 
-        if (suffix)
+        જો (suffix)
           {
-            ret = chown_cgroups (path, args->root_uid, args->root_gid, err);
-            if (UNLIKELY (ret < 0))
-              return ret;
+            ret = chown_cgroups (path, args->મૂળ_uid, args->મૂળ_gid, err);
+            જો (UNLIKELY (ret < 0))
+              પાછા ret;
           }
       }
-      break;
+      તોડો;
 
-    default:
-      return crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_mode);
+    મૂળભૂત:
+      પાછા crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_mode);
     }
 
   ret = setup_missing_cpu_options_for_systemd (resources, cgroup_mode == CGROUP_MODE_UNIFIED, path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
   *path_out = path;
-  path = NULL;
+  path = ખાલી;
 
-  return 0;
+  પાછા 0;
 }
 
-struct systemd_job_removed_s
+સંરચના systemd_job_removed_s
 {
-  const char *path;
-  const char *op;
-  int terminated;
+  અચલ અક્ષર *path;
+  અચલ અક્ષર *op;
+  પૂર્ણાંક terminated;
   libcrun_error_t err;
 };
 
-static int
-systemd_job_removed (sd_bus_message *m, void *userdata, sd_bus_error *error arg_unused)
+સ્થિર પૂર્ણાંક
+systemd_job_removed (sd_bus_message *m, શૂન્ય *userdata, sd_bus_error *error arg_unused)
 {
-  const char *path, *unit, *result;
+  અચલ અક્ષર *path, *unit, *result;
   uint32_t id;
-  int ret;
-  struct systemd_job_removed_s *d = userdata;
+  પૂર્ણાંક ret;
+  સંરચના systemd_job_removed_s *d = userdata;
 
   ret = sd_bus_message_read (m, "uoss", &id, &path, &unit, &result);
-  if (ret < 0)
-    return -1;
+  જો (ret < 0)
+    પાછા -1;
 
-  if (strcmp (d->path, path) == 0)
+  જો (strcmp (d->path, path) == 0)
     {
       d->terminated = 1;
-      if (strcmp (result, "done") != 0)
+      જો (strcmp (result, "done") != 0)
         {
           crun_make_error (&d->err, 0, "error `%s` systemd unit `%s`: got `%s`", d->op, unit, result);
-          return -1;
+          પાછા -1;
         }
     }
-  return 0;
+  પાછા 0;
 }
 
-static int
-systemd_check_job_status_setup (sd_bus *bus, struct systemd_job_removed_s *data, libcrun_error_t *err)
+સ્થિર પૂર્ણાંક
+systemd_check_job_status_setup (sd_bus *bus, સંરચના systemd_job_removed_s *data, libcrun_error_t *err)
 {
-  int ret;
+  પૂર્ણાંક ret;
 
-  ret = sd_bus_match_signal_async (bus, NULL, "org.freedesktop.systemd1", "/org/freedesktop/systemd1",
-                                   "org.freedesktop.systemd1.Manager", "JobRemoved", systemd_job_removed, NULL, data);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, -ret, "sd-bus match signal");
+  ret = sd_bus_match_signal_async (bus, ખાલી, "org.freedesktop.systemd1", "/org/freedesktop/systemd1",
+                                   "org.freedesktop.systemd1.Manager", "JobRemoved", systemd_job_removed, ખાલી, data);
+  જો (UNLIKELY (ret < 0))
+    પાછા crun_make_error (err, -ret, "sd-bus match signal");
 
-  return 0;
+  પાછા 0;
 }
 
-static int
-systemd_check_job_status (sd_bus *bus, struct systemd_job_removed_s *data, const char *path, const char *op,
+સ્થિર પૂર્ણાંક
+systemd_check_job_status (sd_bus *bus, સંરચના systemd_job_removed_s *data, અચલ અક્ષર *path, અચલ અક્ષર *op,
                           libcrun_error_t *err)
 {
-  int sd_err;
+  પૂર્ણાંક sd_err;
 
   data->path = path;
   data->op = op;
-  while (! data->terminated)
+  જ્યારે (! data->terminated)
     {
-      sd_err = sd_bus_process (bus, NULL);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus process");
+      sd_err = sd_bus_process (bus, ખાલી);
+      જો (UNLIKELY (sd_err < 0))
+        પાછા crun_make_error (err, -sd_err, "sd-bus process");
 
-      if (sd_err != 0)
-        continue;
+      જો (sd_err != 0)
+        ચાલુ;
 
       sd_err = sd_bus_wait (bus, (uint64_t) -1);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus wait");
+      જો (UNLIKELY (sd_err < 0))
+        પાછા crun_make_error (err, -sd_err, "sd-bus wait");
     }
 
-  if (data->err != NULL)
+  જો (data->err != ખાલી)
     {
       *err = data->err;
-      return -1;
+      પાછા -1;
     }
 
-  return 0;
+  પાછા 0;
 }
 
-int
-parse_sd_array (char *s, char **out, char **next, libcrun_error_t *err)
+પૂર્ણાંક
+parse_sd_array (અક્ષર *s, અક્ષર **out, અક્ષર **next, libcrun_error_t *err)
 {
-  char endchr;
-  char *it, *dest;
+  અક્ષર endchr;
+  અક્ષર *it, *dest;
   bool escaped = false;
 
-  *out = NULL;
-  *next = NULL;
+  *out = ખાલી;
+  *next = ખાલી;
 
-  while (isspace (*s))
+  જ્યારે (isspace (*s))
     s++;
-  if (*s == '\0')
-    return 0;
-  else if (*s != '\'' && *s != '"')
-    return crun_make_error (err, 0, "invalid string `%s`", s);
+  જો (*s == '\0')
+    પાછા 0;
+  નહીંતર જો (*s != '\'' && *s != '"')
+    પાછા crun_make_error (err, 0, "invalid string `%s`", s);
 
   it = s;
   endchr = *it++;
   *out = dest = it;
 
-  while (1)
+  જ્યારે (1)
     {
-      if (*it == '\0')
-        return crun_make_error (err, 0, "invalid string `%s`", s);
-      if (*it == endchr && ! escaped)
+      જો (*it == '\0')
+        પાછા crun_make_error (err, 0, "invalid string `%s`", s);
+      જો (*it == endchr && ! escaped)
         {
           *it++ = '\0';
-          while (isspace (*it))
+          જ્યારે (isspace (*it))
             it++;
-          if (*it == ',')
+          જો (*it == ',')
             {
               *next = ++it;
               *dest = '\0';
-              return 0;
+              પાછા 0;
             }
 
-          if (*it == ']' || *it == '\0')
+          જો (*it == ']' || *it == '\0')
             {
               *dest = '\0';
-              return 0;
+              પાછા 0;
             }
 
-          return crun_make_error (err, 0, "invalid character found `%c`", *it);
+          પાછા crun_make_error (err, 0, "invalid character found `%c`", *it);
         }
 
       escaped = *it == '\\' ? ! escaped : false;
-      if (! escaped)
+      જો (! escaped)
         *dest++ = *it;
       it++;
     }
 
-  return 0;
+  પાછા 0;
 }
 
 /* Parse a gvariant string.  Support only a subset of types, just enough for systemd .  */
-static int
-append_systemd_annotation (sd_bus_message *m, const char *name, size_t name_len, const char *value,
+સ્થિર પૂર્ણાંક
+append_systemd_annotation (sd_bus_message *m, અચલ અક્ષર *name, size_t name_len, અચલ અક્ષર *કિંમત,
                            libcrun_error_t *err)
 {
-  cleanup_free char *tmp_name = NULL;
+  cleanup_free અક્ષર *tmp_name = ખાલી;
   uint32_t factor = 1;
-  const char *it;
-  int sd_err;
+  અચલ અક્ષર *it;
+  પૂર્ણાંક sd_err;
 
-  while (*value == ' ')
-    value++;
+  જ્યારે (*કિંમત == ' ')
+    કિંમત++;
 
-  it = value;
+  it = કિંમત;
 
   /* If the name has the form NameSec, convert it to NameUSec.  */
-  if (name_len > 4 && name[name_len - 4] != 'U' && name[name_len - 3] == 'S' && name[name_len - 2] == 'e'
+  જો (name_len > 4 && name[name_len - 4] != 'U' && name[name_len - 3] == 'S' && name[name_len - 2] == 'e'
       && name[name_len - 1] == 'c')
     {
       factor = 1000000;
@@ -643,904 +643,904 @@ append_systemd_annotation (sd_bus_message *m, const char *name, size_t name_len,
   /* A *USec property is always an uint64, so, like runc does, accept any
      number of seconds (possibly with a fractional part, and with an
      optional integer type), and convert it to uint64 microseconds.  */
-  if (factor != 1)
+  જો (factor != 1)
     {
-      static const char *types[] = { "uint64 ", "int64 ", "uint32 ", "int32 ", NULL };
-      const char *num = it;
-      char *endptr = NULL;
-      double v;
+      સ્થિર અચલ અક્ષર *types[] = { "uint64 ", "int64 ", "uint32 ", "int32 ", ખાલી };
+      અચલ અક્ષર *અંક = it;
+      અક્ષર *endptr = ખાલી;
+      દ્વિગુણ v;
       size_t i;
 
-      for (i = 0; types[i]; i++)
-        if (has_prefix (num, types[i]))
+      માટે (i = 0; types[i]; i++)
+        જો (has_prefix (અંક, types[i]))
           {
-            num += strlen (types[i]);
-            break;
+            અંક += strlen (types[i]);
+            તોડો;
           }
 
       errno = 0;
-      v = strtod (num, &endptr);
-      if (UNLIKELY (errno != 0 || endptr == num || *endptr || v < 0 || v * factor >= 18446744073709551615.0))
-        return crun_make_error (err, errno, "invalid value for `%s`: `%s`", name, value);
+      v = strtod (અંક, &endptr);
+      જો (UNLIKELY (errno != 0 || endptr == અંક || *endptr || v < 0 || v * factor >= 18446744073709551615.0))
+        પાછા crun_make_error (err, errno, "invalid value for `%s`: `%s`", name, કિંમત);
 
       sd_err = sd_bus_message_append (m, "(sv)", name, "t", (uint64_t) (v * factor));
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      જો (UNLIKELY (sd_err < 0))
+        પાછા crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
-      return 0;
+      પાછા 0;
     }
 
-  if ((strcmp (it, "true") == 0) || (strcmp (it, "false") == 0))
+  જો ((strcmp (it, "true") == 0) || (strcmp (it, "false") == 0))
     {
       bool b = *it == 't';
 
       sd_err = sd_bus_message_append (m, "(sv)", name, "b", b);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      જો (UNLIKELY (sd_err < 0))
+        પાછા crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
-      return 0;
+      પાછા 0;
     }
-  else if (*it == '\'')
+  નહીંતર જો (*it == '\'')
     {
-      cleanup_free char *v_start = NULL;
-      char *end;
+      cleanup_free અક્ષર *v_start = ખાલી;
+      અક્ષર *end;
 
-      it = v_start = xstrdup (value);
+      it = v_start = xstrdup (કિંમત);
 
       end = strchr (v_start + 1, '\'');
-      if (end == NULL)
-        return crun_make_error (err, 0, "invalid variant `%s`", value);
+      જો (end == ખાલી)
+        પાછા crun_make_error (err, 0, "invalid variant `%s`", કિંમત);
       *end = '\0';
 
       sd_err = sd_bus_message_append (m, "(sv)", name, "s", it + 1);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      જો (UNLIKELY (sd_err < 0))
+        પાછા crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
-      return 0;
+      પાછા 0;
     }
-  else if (*it == '[')
+  નહીંતર જો (*it == '[')
     {
-      cleanup_free char *v_start = NULL;
+      cleanup_free અક્ષર *v_start = ખાલી;
       size_t n_parts = 0, parts_size = 32;
-      cleanup_free char **parts = xmalloc (sizeof (char *) * parts_size);
-      char *part;
+      cleanup_free અક્ષર **parts = xmalloc (કદ (અક્ષર *) * parts_size);
+      અક્ષર *part;
 
       part = v_start = xstrdup (it + 1);
-      while (1)
+      જ્યારે (1)
         {
-          char *out = NULL, *next = NULL;
-          int ret;
+          અક્ષર *out = ખાલી, *next = ખાલી;
+          પૂર્ણાંક ret;
 
           ret = parse_sd_array (part, &out, &next, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          જો (UNLIKELY (ret < 0))
+            પાછા ret;
 
           parts[n_parts++] = out;
-          if (n_parts == parts_size - 1)
+          જો (n_parts == parts_size - 1)
             {
               parts_size += 32;
-              parts = xrealloc (parts, sizeof (char *) * parts_size);
+              parts = xrealloc (parts, કદ (અક્ષર *) * parts_size);
             }
-          parts[n_parts] = NULL;
-          if (next == NULL)
-            break;
+          parts[n_parts] = ખાલી;
+          જો (next == ખાલી)
+            તોડો;
 
           part = next;
         }
 
       sd_err = sd_bus_message_open_container (m, 'r', "sv");
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus open container");
+      જો (UNLIKELY (sd_err < 0))
+        પાછા crun_make_error (err, -sd_err, "sd-bus open container");
 
       sd_err = sd_bus_message_append (m, "s", name);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      જો (UNLIKELY (sd_err < 0))
+        પાછા crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
       sd_err = sd_bus_message_open_container (m, 'v', "as");
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus open container");
+      જો (UNLIKELY (sd_err < 0))
+        પાછા crun_make_error (err, -sd_err, "sd-bus open container");
 
       sd_err = sd_bus_message_append_strv (m, parts);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      જો (UNLIKELY (sd_err < 0))
+        પાછા crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
       sd_err = sd_bus_message_close_container (m);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus close container");
+      જો (UNLIKELY (sd_err < 0))
+        પાછા crun_make_error (err, -sd_err, "sd-bus close container");
 
       sd_err = sd_bus_message_close_container (m);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus close container");
+      જો (UNLIKELY (sd_err < 0))
+        પાછા crun_make_error (err, -sd_err, "sd-bus close container");
 
-      return 0;
+      પાછા 0;
     }
-  else if (has_prefix (it, "uint64 "))
+  નહીંતર જો (has_prefix (it, "uint64 "))
     {
-      char *endptr = NULL;
+      અક્ષર *endptr = ખાલી;
       uint64_t v;
 
       errno = 0;
-      v = strtoull (it + sizeof ("uint64"), &endptr, 10);
-      if (UNLIKELY (errno != 0 || *endptr))
-        return crun_make_error (err, errno, "invalid value for `%s`", name);
+      v = strtoull (it + કદ ("uint64"), &endptr, 10);
+      જો (UNLIKELY (errno != 0 || *endptr))
+        પાછા crun_make_error (err, errno, "invalid value for `%s`", name);
 
       sd_err = sd_bus_message_append (m, "(sv)", name, "t", (uint64_t) (v * factor));
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      જો (UNLIKELY (sd_err < 0))
+        પાછા crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
-      return 0;
+      પાછા 0;
     }
-  else if (has_prefix (it, "int64 "))
+  નહીંતર જો (has_prefix (it, "int64 "))
     {
-      char *endptr = NULL;
+      અક્ષર *endptr = ખાલી;
       int64_t v;
 
       errno = 0;
-      v = strtoll (it + sizeof ("int64"), &endptr, 10);
-      if (UNLIKELY (errno != 0 || *endptr))
-        return crun_make_error (err, errno, "invalid value for `%s`", name);
+      v = strtoll (it + કદ ("int64"), &endptr, 10);
+      જો (UNLIKELY (errno != 0 || *endptr))
+        પાછા crun_make_error (err, errno, "invalid value for `%s`", name);
 
       sd_err = sd_bus_message_append (m, "(sv)", name, "x", (int64_t) (v * factor));
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      જો (UNLIKELY (sd_err < 0))
+        પાછા crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
-      return 0;
+      પાછા 0;
     }
-  else if (has_prefix (it, "uint32 "))
+  નહીંતર જો (has_prefix (it, "uint32 "))
     {
-      char *endptr = NULL;
+      અક્ષર *endptr = ખાલી;
       uint32_t v;
 
       errno = 0;
-      v = strtoul (it + sizeof ("uint32"), &endptr, 10);
-      if (UNLIKELY (errno != 0 || *endptr))
-        return crun_make_error (err, errno, "invalid value for `%s`", name);
+      v = strtoul (it + કદ ("uint32"), &endptr, 10);
+      જો (UNLIKELY (errno != 0 || *endptr))
+        પાછા crun_make_error (err, errno, "invalid value for `%s`", name);
 
       sd_err = sd_bus_message_append (m, "(sv)", name, "u", (uint32_t) (v * factor));
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      જો (UNLIKELY (sd_err < 0))
+        પાછા crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
-      return 0;
+      પાછા 0;
     }
-  else if (has_prefix (it, "int32 ") || strchr (it, ' ') == NULL)
+  નહીંતર જો (has_prefix (it, "int32 ") || strchr (it, ' ') == ખાલી)
     {
-      char *endptr = NULL;
+      અક્ષર *endptr = ખાલી;
       int32_t v;
 
       /* If no type is specified, try to parse it as int32.  */
 
       errno = 0;
-      if (has_prefix (it, "int32 "))
-        v = strtol (it + sizeof ("int32"), &endptr, 10);
-      else
+      જો (has_prefix (it, "int32 "))
+        v = strtol (it + કદ ("int32"), &endptr, 10);
+      નહીંતર
         v = strtol (it, &endptr, 10);
-      if (UNLIKELY (errno != 0 || *endptr))
-        return crun_make_error (err, errno, "invalid value for `%s`", name);
+      જો (UNLIKELY (errno != 0 || *endptr))
+        પાછા crun_make_error (err, errno, "invalid value for `%s`", name);
 
       sd_err = sd_bus_message_append (m, "(sv)", name, "i", (int32_t) (v * factor));
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      જો (UNLIKELY (sd_err < 0))
+        પાછા crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
-      return 0;
+      પાછા 0;
     }
 
-  return crun_make_error (err, 0, "unknown type for `%s`", name);
+  પાછા crun_make_error (err, 0, "unknown type for `%s`", name);
 }
 
-static int
+સ્થિર પૂર્ણાંક
 open_sd_bus_connection (sd_bus **bus, libcrun_error_t *err)
 {
-  int rootless;
-  int sd_err = 0;
+  પૂર્ણાંક rootless;
+  પૂર્ણાંક sd_err = 0;
 
   rootless = is_rootless (err);
-  if (UNLIKELY (rootless < 0))
-    return rootless;
+  જો (UNLIKELY (rootless < 0))
+    પાછા rootless;
 
-  if (rootless)
+  જો (rootless)
     sd_err = sd_bus_default_user (bus);
-  if (! rootless || sd_err < 0)
+  જો (! rootless || sd_err < 0)
     sd_err = sd_bus_default_system (bus);
-  if (sd_err < 0)
-    return crun_make_error (err, -sd_err, "cannot open sd-bus");
+  જો (sd_err < 0)
+    પાછા crun_make_error (err, -sd_err, "cannot open sd-bus");
 
-  return 0;
+  પાછા 0;
 }
 
-static const char *
-get_string_from_unified_map (runtime_spec_schema_config_linux_resources *resources, const char *name)
+સ્થિર અચલ અક્ષર *
+get_string_from_unified_map (runtime_spec_schema_config_linux_resources *resources, અચલ અક્ષર *name)
 {
   size_t i;
 
-  if (resources == NULL || resources->unified == NULL)
-    return NULL;
+  જો (resources == ખાલી || resources->unified == ખાલી)
+    પાછા ખાલી;
 
-  for (i = 0; i < resources->unified->len; i++)
-    if (strcmp (resources->unified->keys[i], name) == 0)
-      return resources->unified->values[i];
-  return NULL;
+  માટે (i = 0; i < resources->unified->len; i++)
+    જો (strcmp (resources->unified->ચાવીઓ[i], name) == 0)
+      પાછા resources->unified->કિંમતો[i];
+  પાછા ખાલી;
 }
 
-static int
-get_value_from_unified_map (runtime_spec_schema_config_linux_resources *resources, const char *name,
-                            uint64_t *value, libcrun_error_t *err)
+સ્થિર પૂર્ણાંક
+get_કિંમત_from_unified_map (runtime_spec_schema_config_linux_resources *resources, અચલ અક્ષર *name,
+                            uint64_t *કિંમત, libcrun_error_t *err)
 {
-  char *endptr = NULL;
+  અક્ષર *endptr = ખાલી;
   size_t i;
 
-  if (resources == NULL || resources->unified == NULL)
-    return 0;
+  જો (resources == ખાલી || resources->unified == ખાલી)
+    પાછા 0;
 
-  for (i = 0; i < resources->unified->len; i++)
-    if (strcmp (resources->unified->keys[i], name) == 0)
+  માટે (i = 0; i < resources->unified->len; i++)
+    જો (strcmp (resources->unified->ચાવીઓ[i], name) == 0)
       {
-        if (strcmp (resources->unified->values[i], "max") == 0)
+        જો (strcmp (resources->unified->કિંમતો[i], "max") == 0)
           {
-            *value = UINT64_MAX;
-            return 1;
+            *કિંમત = UINT64_MAX;
+            પાછા 1;
           }
 
         errno = 0;
-        *value = strtoull (resources->unified->values[i], &endptr, 10);
-        if (UNLIKELY (errno))
-          return crun_make_error (err, errno, "invalid value for `%s`: %s", name,
-                                  resources->unified->values[i]);
-        if (endptr && *endptr)
-          return crun_make_error (err, 0, "invalid value for `%s`: %s", name,
-                                  resources->unified->values[i]);
-        return 1;
+        *કિંમત = strtoull (resources->unified->કિંમતો[i], &endptr, 10);
+        જો (UNLIKELY (errno))
+          પાછા crun_make_error (err, errno, "invalid value for `%s`: %s", name,
+                                  resources->unified->કિંમતો[i]);
+        જો (endptr && *endptr)
+          પાછા crun_make_error (err, 0, "invalid value for `%s`: %s", name,
+                                  resources->unified->કિંમતો[i]);
+        પાછા 1;
       }
-  return 0;
+  પાછા 0;
 }
 
-static inline int
-get_memory_low (runtime_spec_schema_config_linux_resources *resources, uint64_t *limit, libcrun_error_t *err)
+સ્થિર અંતઃરેખ પૂર્ણાંક
+get_memory_નીચલું (runtime_spec_schema_config_linux_resources *resources, uint64_t *limit, libcrun_error_t *err)
 {
-  if (resources->memory && resources->memory->reservation_present)
+  જો (resources->memory && resources->memory->reservation_present)
     {
       *limit = resources->memory->reservation;
-      return 1;
+      પાછા 1;
     }
 
-  return get_value_from_unified_map (resources, "memory.low", limit, err);
+  પાછા get_કિંમત_from_unified_map (resources, "memory.low", limit, err);
 }
 
-static inline int
+સ્થિર અંતઃરેખ પૂર્ણાંક
 get_pids_max (runtime_spec_schema_config_linux_resources *resources, uint64_t *limit, libcrun_error_t *err)
 {
-  if (resources->pids && resources->pids->limit)
+  જો (resources->pids && resources->pids->limit)
     {
       *limit = resources->pids->limit;
-      return 1;
+      પાછા 1;
     }
 
-  return get_value_from_unified_map (resources, "pids.max", limit, err);
+  પાછા get_કિંમત_from_unified_map (resources, "pids.max", limit, err);
 }
 
-static inline int
+સ્થિર અંતઃરેખ પૂર્ણાંક
 get_memory_max (runtime_spec_schema_config_linux_resources *resources, uint64_t *limit, libcrun_error_t *err)
 {
-  if (resources->memory && resources->memory->limit_present)
+  જો (resources->memory && resources->memory->limit_present)
     {
       *limit = resources->memory->limit;
-      return 1;
+      પાછા 1;
     }
 
-  return get_value_from_unified_map (resources, "memory.max", limit, err);
+  પાછા get_કિંમત_from_unified_map (resources, "memory.max", limit, err);
 }
 
-static inline int
+સ્થિર અંતઃરેખ પૂર્ણાંક
 get_memory_swap_max (runtime_spec_schema_config_linux_resources *resources, uint64_t *limit, libcrun_error_t *err)
 {
-  if (resources->memory && resources->memory->swap_present)
+  જો (resources->memory && resources->memory->swap_present)
     {
       runtime_spec_schema_config_linux_resources_memory *memory = resources->memory;
       int64_t mem = memory->limit_present ? memory->limit : 0;
 
       /* The OCI swap limit is for memory+swap, while MemorySwapMax is for
          swap only, so convert it, like it is done for memory.swap.max.  */
-      if (memory->swap == -1 || (mem == -1 && memory->swap == 0))
+      જો (memory->swap == -1 || (mem == -1 && memory->swap == 0))
         {
           *limit = UINT64_MAX;
-          return 1;
+          પાછા 1;
         }
       /* 0 means unset.  */
-      if (memory->swap == 0)
-        return 0;
-      if (mem <= 0)
-        return crun_make_error (err, 0, "cannot set swap limit without the memory limit");
-      if (memory->swap < mem)
-        return crun_make_error (err, 0, "cannot set memory+swap limit less than the memory limit");
+      જો (memory->swap == 0)
+        પાછા 0;
+      જો (mem <= 0)
+        પાછા crun_make_error (err, 0, "cannot set swap limit without the memory limit");
+      જો (memory->swap < mem)
+        પાછા crun_make_error (err, 0, "cannot set memory+swap limit less than the memory limit");
 
       *limit = memory->swap - mem;
-      return 1;
+      પાછા 1;
     }
 
-  return get_value_from_unified_map (resources, "memory.swap.max", limit, err);
+  પાછા get_કિંમત_from_unified_map (resources, "memory.swap.max", limit, err);
 }
 
-static inline int
+સ્થિર અંતઃરેખ પૂર્ણાંક
 get_cpu_weight (runtime_spec_schema_config_linux_resources *resources, uint64_t *weight, libcrun_error_t *err)
 {
   bool has_idle = false;
-  uint64_t value;
-  int ret;
+  uint64_t કિંમત;
+  પૂર્ણાંક ret;
 
-  ret = get_value_from_unified_map (resources, "cpu.idle", &value, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
-  if (ret > 0 && value == 1)
+  ret = get_કિંમત_from_unified_map (resources, "cpu.idle", &કિંમત, err);
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
+  જો (ret > 0 && કિંમત == 1)
     has_idle = true;
-  if (resources->cpu && resources->cpu->idle_present && resources->cpu->idle == 1)
+  જો (resources->cpu && resources->cpu->idle_present && resources->cpu->idle == 1)
     has_idle = true;
 
   /* The unified map takes precedence, like with the cgroupfs driver.  */
-  ret = get_value_from_unified_map (resources, "cpu.weight", weight, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
-  if (ret > 0)
+  ret = get_કિંમત_from_unified_map (resources, "cpu.weight", weight, err);
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
+  જો (ret > 0)
     {
-      if (has_idle)
-        return crun_make_error (err, 0, "cannot set both `cpu.idle` and `cpu.weight`");
+      જો (has_idle)
+        પાછા crun_make_error (err, 0, "cannot set both `cpu.idle` and `cpu.weight`");
 
-      return 1;
+      પાછા 1;
     }
 
-  if (resources->cpu && resources->cpu->shares_present)
+  જો (resources->cpu && resources->cpu->shares_present)
     {
-      if (has_idle)
-        return crun_make_error (err, 0, "cannot set both `cpu.idle` and `cpu.shares`");
+      જો (has_idle)
+        પાછા crun_make_error (err, 0, "cannot set both `cpu.idle` and `cpu.shares`");
 
       /* Docker uses shares == 0 to specify no limit.  */
-      if (resources->cpu->shares == 0)
-        return 0;
+      જો (resources->cpu->shares == 0)
+        પાછા 0;
       *weight = convert_shares_to_weight (resources->cpu->shares);
-      return 1;
+      પાછા 1;
     }
-  if (has_idle)
+  જો (has_idle)
     {
       /* setting CPUWeight to 0 will tell systemd to set cpu.idle.  */
       *weight = 0;
-      return 1;
+      પાછા 1;
     }
-  return 0;
+  પાછા 0;
 }
 
-static int
-read_uint64_value (const char *str, uint64_t *value, libcrun_error_t *err)
+સ્થિર પૂર્ણાંક
+read_uint64_કિંમત (અચલ અક્ષર *str, uint64_t *કિંમત, libcrun_error_t *err)
 {
-  char *endptr = NULL;
+  અક્ષર *endptr = ખાલી;
 
   errno = 0;
-  *value = strtoull (str, &endptr, 10);
-  if (UNLIKELY (errno))
-    return crun_make_error (err, errno, "invalid value: %s", str);
-  if (endptr && *endptr)
-    return crun_make_error (err, 0, "invalid value: %s", str);
-  return 0;
+  *કિંમત = strtoull (str, &endptr, 10);
+  જો (UNLIKELY (errno))
+    પાછા crun_make_error (err, errno, "invalid value: %s", str);
+  જો (endptr && *endptr)
+    પાછા crun_make_error (err, 0, "invalid value: %s", str);
+  પાછા 0;
 }
 
 /* Convert io.bfq.weight to io.weight doing the inverse conversion performed by systemd with BFQ_WEIGHT.  */
-static inline uint64_t
+સ્થિર અંતઃરેખ uint64_t
 IO_WEIGHT (uint64_t bfq_weight)
 {
-  return bfq_weight <= CGROUP_BFQ_WEIGHT_DEFAULT ? CGROUP_WEIGHT_DEFAULT - (CGROUP_BFQ_WEIGHT_DEFAULT - bfq_weight) * (CGROUP_WEIGHT_DEFAULT - CGROUP_WEIGHT_MIN) / (CGROUP_BFQ_WEIGHT_DEFAULT - CGROUP_BFQ_WEIGHT_MIN) : CGROUP_WEIGHT_DEFAULT + (bfq_weight - CGROUP_BFQ_WEIGHT_DEFAULT) * (CGROUP_WEIGHT_MAX - CGROUP_WEIGHT_DEFAULT) / (CGROUP_BFQ_WEIGHT_MAX - CGROUP_BFQ_WEIGHT_DEFAULT);
+  પાછા bfq_weight <= CGROUP_BFQ_WEIGHT_DEFAULT ? CGROUP_WEIGHT_DEFAULT - (CGROUP_BFQ_WEIGHT_DEFAULT - bfq_weight) * (CGROUP_WEIGHT_DEFAULT - CGROUP_WEIGHT_MIN) / (CGROUP_BFQ_WEIGHT_DEFAULT - CGROUP_BFQ_WEIGHT_MIN) : CGROUP_WEIGHT_DEFAULT + (bfq_weight - CGROUP_BFQ_WEIGHT_DEFAULT) * (CGROUP_WEIGHT_MAX - CGROUP_WEIGHT_DEFAULT) / (CGROUP_BFQ_WEIGHT_MAX - CGROUP_BFQ_WEIGHT_DEFAULT);
 }
 
-static int
-append_io_weight (sd_bus_message *m, char **missing_properties, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
+સ્થિર પૂર્ણાંક
+append_io_weight (sd_bus_message *m, અક્ષર **missing_properties, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
 {
   uint64_t weight;
-  int sd_err;
+  પૂર્ણાંક sd_err;
   size_t i;
-  int ret;
+  પૂર્ણાંક ret;
 
-#  define APPEND_IO_WEIGHT(value)                                                      \
-    do                                                                                 \
+#  define APPEND_IO_WEIGHT(કિંમત)                                                      \
+    કરો                                                                                 \
       {                                                                                \
-        if (! property_missing_p (missing_properties, "IOWeight"))                     \
+        જો (! property_missing_p (missing_properties, "IOWeight"))                     \
           {                                                                            \
             sd_err = sd_bus_message_append (m, "(sv)", "IOWeight", "t", weight);       \
-            if (UNLIKELY (sd_err < 0))                                                 \
-              return crun_make_error (err, -sd_err, "sd-bus message append IOWeight"); \
+            જો (UNLIKELY (sd_err < 0))                                                 \
+              પાછા crun_make_error (err, -sd_err, "sd-bus message append IOWeight"); \
           }                                                                            \
-    } while (0)
+    } જ્યારે (0)
 
-#  define APPEND_IO_DEVICE_WEIGHT(device, value)                                                      \
-    do                                                                                                \
+#  define APPEND_IO_DEVICE_WEIGHT(device, કિંમત)                                                      \
+    કરો                                                                                                \
       {                                                                                               \
-        if (! property_missing_p (missing_properties, "IODeviceWeight"))                              \
+        જો (! property_missing_p (missing_properties, "IODeviceWeight"))                              \
           {                                                                                           \
             sd_err = sd_bus_message_append (m, "(sv)", "IODeviceWeight", "a(st)", 1, device, weight); \
-            if (UNLIKELY (sd_err < 0))                                                                \
-              return crun_make_error (err, -sd_err, "sd-bus message append IODeviceWeight");          \
+            જો (UNLIKELY (sd_err < 0))                                                                \
+              પાછા crun_make_error (err, -sd_err, "sd-bus message append IODeviceWeight");          \
           }                                                                                           \
-    } while (0)
+    } જ્યારે (0)
 
-  if (resources->block_io && resources->block_io->weight_present)
+  જો (resources->block_io && resources->block_io->weight_present)
     {
       weight = IO_WEIGHT (resources->block_io->weight);
       APPEND_IO_WEIGHT (weight);
     }
 
-  for (i = 0; resources->block_io && i < resources->block_io->weight_device_len; i++)
+  માટે (i = 0; resources->block_io && i < resources->block_io->weight_device_len; i++)
     {
-      char name[64];
-      int len;
+      અક્ષર name[64];
+      પૂર્ણાંક len;
 
-      len = snprintf (name, sizeof (name), "%" PRIu64 ":%" PRIu64,
+      len = snprintf (name, કદ (name), "%" PRIu64 ":%" PRIu64,
                       resources->block_io->weight_device[i]->major,
                       resources->block_io->weight_device[i]->minor);
-      if (UNLIKELY (len >= (int) sizeof (name)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      જો (UNLIKELY (len >= (પૂર્ણાંક) કદ (name)))
+        પાછા crun_make_error (err, 0, "internal error: static buffer too small");
 
       weight = IO_WEIGHT (resources->block_io->weight_device[i]->weight);
       APPEND_IO_DEVICE_WEIGHT (name, weight);
     }
 
-  for (i = 0; resources->unified && i < resources->unified->len; i++)
+  માટે (i = 0; resources->unified && i < resources->unified->len; i++)
     {
-      cleanup_free char *value = NULL;
+      cleanup_free અક્ષર *કિંમત = ખાલી;
       bool need_conversion = false;
-      char *saveptr = NULL;
-      char *line;
+      અક્ષર *saveptr = ખાલી;
+      અક્ષર *લીટી;
 
-      if (strcmp (resources->unified->keys[i], "io.bfq.weight") == 0)
+      જો (strcmp (resources->unified->ચાવીઓ[i], "io.bfq.weight") == 0)
         {
           /* If io.bfq.weight was provided, it must be converted to io.weight.  */
           need_conversion = true;
         }
-      else if (strcmp (resources->unified->keys[i], "io.weight") == 0)
+      નહીંતર જો (strcmp (resources->unified->ચાવીઓ[i], "io.weight") == 0)
         {
           /* If io.weight was provided, then it is expected to already be
              in the range [1, 10000] so IO_WEIGHT() is not needed.  */
           need_conversion = false;
         }
-      else
+      નહીંતર
         {
           /* Skip other keys.  */
-          continue;
+          ચાલુ;
         }
 
-      value = xstrdup (resources->unified->values[i]);
+      કિંમત = xstrdup (resources->unified->કિંમતો[i]);
 
-      for (line = strtok_r (value, "\n", &saveptr); line; line = strtok_r (NULL, "\n", &saveptr))
+      માટે (લીટી = strtok_r (કિંમત, "\n", &saveptr); લીટી; લીટી = strtok_r (ખાલી, "\n", &saveptr))
         {
-          char *sep;
+          અક્ષર *sep;
 
-          sep = strchr (line, ' ');
-          while (sep && *sep == ' ')
+          sep = strchr (લીટી, ' ');
+          જ્યારે (sep && *sep == ' ')
             *sep++ = '\0';
 
-          ret = read_uint64_value (sep ? sep : line, &weight, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
-          if (need_conversion)
+          ret = read_uint64_કિંમત (sep ? sep : લીટી, &weight, err);
+          જો (UNLIKELY (ret < 0))
+            પાછા ret;
+          જો (need_conversion)
             weight = IO_WEIGHT (weight);
 
-          if (sep == NULL || strcmp (line, "default") == 0)
+          જો (sep == ખાલી || strcmp (લીટી, "default") == 0)
             APPEND_IO_WEIGHT (weight);
-          else
-            APPEND_IO_DEVICE_WEIGHT (line, weight);
+          નહીંતર
+            APPEND_IO_DEVICE_WEIGHT (લીટી, weight);
         }
     }
 
-  return 0;
+  પાછા 0;
 }
 
 /* Adapted from systemd.  */
-static int
-bus_append_byte_array (sd_bus_message *m, const char *field, const void *buf, size_t n, libcrun_error_t *err)
+સ્થિર પૂર્ણાંક
+bus_append_byte_array (sd_bus_message *m, અચલ અક્ષર *field, અચલ શૂન્ય *buf, size_t n, libcrun_error_t *err)
 {
-  int ret;
+  પૂર્ણાંક ret;
 
   ret = sd_bus_message_open_container (m, SD_BUS_TYPE_STRUCT, "sv");
-  if (ret < 0)
-    return crun_make_error (err, -ret, "sd-bus open container");
+  જો (ret < 0)
+    પાછા crun_make_error (err, -ret, "sd-bus open container");
 
   ret = sd_bus_message_append_basic (m, SD_BUS_TYPE_STRING, field);
-  if (ret < 0)
-    return crun_make_error (err, -ret, "sd_bus_message_append_basic");
+  જો (ret < 0)
+    પાછા crun_make_error (err, -ret, "sd_bus_message_append_basic");
 
   ret = sd_bus_message_open_container (m, 'v', "ay");
-  if (ret < 0)
-    return crun_make_error (err, -ret, "sd_bus_message_open_container");
+  જો (ret < 0)
+    પાછા crun_make_error (err, -ret, "sd_bus_message_open_container");
 
   ret = sd_bus_message_append_array (m, 'y', buf, n);
-  if (ret < 0)
-    return crun_make_error (err, -ret, "sd_bus_message_append_array");
+  જો (ret < 0)
+    પાછા crun_make_error (err, -ret, "sd_bus_message_append_array");
 
   ret = sd_bus_message_close_container (m);
-  if (ret < 0)
-    return crun_make_error (err, -ret, "sd_bus_message_close_container");
+  જો (ret < 0)
+    પાછા crun_make_error (err, -ret, "sd_bus_message_close_container");
 
   ret = sd_bus_message_close_container (m);
-  if (ret < 0)
-    return crun_make_error (err, -ret, "sd_bus_message_close_container");
+  જો (ret < 0)
+    પાછા crun_make_error (err, -ret, "sd_bus_message_close_container");
 
-  return 1;
+  પાછા 1;
 }
 
-static int
+સ્થિર પૂર્ણાંક
 append_uint64_from_unified_map (sd_bus_message *m,
-                                char **missing_properties,
-                                const char *attr,
-                                const char *key,
+                                અક્ષર **missing_properties,
+                                અચલ અક્ષર *attr,
+                                અચલ અક્ષર *ચાવી,
                                 runtime_spec_schema_config_linux_resources *resources,
                                 libcrun_error_t *err)
 {
-  uint64_t value;
-  int ret;
+  uint64_t કિંમત;
+  પૂર્ણાંક ret;
 
-  if (property_missing_p (missing_properties, attr))
-    return 0;
+  જો (property_missing_p (missing_properties, attr))
+    પાછા 0;
 
-  ret = get_value_from_unified_map (resources, key, &value, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
-  if (ret)
+  ret = get_કિંમત_from_unified_map (resources, ચાવી, &કિંમત, err);
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
+  જો (ret)
     {
-      int sd_err = sd_bus_message_append (m, "(sv)", attr, "t", value);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", attr);
+      પૂર્ણાંક sd_err = sd_bus_message_append (m, "(sv)", attr, "t", કિંમત);
+      જો (UNLIKELY (sd_err < 0))
+        પાછા crun_make_error (err, -sd_err, "sd-bus message append `%s`", attr);
     }
 
-  return 0;
+  પાછા 0;
 }
 
 /* append a single "DeviceAllow" attribute to the message.  type can either be 'c' or 'b'.  */
-static int
+સ્થિર પૂર્ણાંક
 append_device_allow (sd_bus_message *m,
-                     const char type,
-                     int major,
-                     int minor,
-                     const char *access,
+                     અચલ અક્ષર type,
+                     પૂર્ણાંક major,
+                     પૂર્ણાંક minor,
+                     અચલ અક્ષર *access,
                      libcrun_error_t *err)
 {
-  char device[64];
-  int sd_err;
-  int len;
+  અક્ષર device[64];
+  પૂર્ણાંક sd_err;
+  પૂર્ણાંક len;
 
-  if (IS_WILDCARD (major) && ! IS_WILDCARD (minor))
+  જો (IS_WILDCARD (major) && ! IS_WILDCARD (minor))
     {
       libcrun_warning ("devices rule with wildcard for major is not supported and it is ignored with systemd");
-      return 0;
+      પાછા 0;
     }
 
-  if (IS_WILDCARD (major) && IS_WILDCARD (minor))
-    len = snprintf (device, sizeof (device), "%s-*", type == 'c' ? "char" : "block");
-  else if (IS_WILDCARD (minor))
-    len = snprintf (device, sizeof (device), type == 'c' ? "char-%d" : "block-%d", major);
-  else
-    len = snprintf (device, sizeof (device), "/dev/%s/%d:%d", type == 'c' ? "char" : "block", major, minor);
+  જો (IS_WILDCARD (major) && IS_WILDCARD (minor))
+    len = snprintf (device, કદ (device), "%s-*", type == 'c' ? "char" : "block");
+  નહીંતર જો (IS_WILDCARD (minor))
+    len = snprintf (device, કદ (device), type == 'c' ? "char-%d" : "block-%d", major);
+  નહીંતર
+    len = snprintf (device, કદ (device), "/dev/%s/%d:%d", type == 'c' ? "char" : "block", major, minor);
 
-  if (UNLIKELY (len >= (int) sizeof (device)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  જો (UNLIKELY (len >= (પૂર્ણાંક) કદ (device)))
+    પાછા crun_make_error (err, 0, "internal error: static buffer too small");
 
   sd_err = sd_bus_message_append (m, "(sv)", "DeviceAllow", "a(ss)", 1, device, access);
-  if (UNLIKELY (sd_err < 0))
-    return crun_make_error (err, -sd_err, "sd-bus message append DeviceAllow `%s` with access `%s`", device, access);
+  જો (UNLIKELY (sd_err < 0))
+    પાછા crun_make_error (err, -sd_err, "sd-bus message append DeviceAllow `%s` with access `%s`", device, access);
 
-  return 0;
+  પાછા 0;
 }
 
 #  define MODE_R 1
 #  define MODE_W 2
 #  define MODE_M 4
 
-static int
-access_to_mode (const char *access, libcrun_error_t *err)
+સ્થિર પૂર્ણાંક
+access_to_mode (અચલ અક્ષર *access, libcrun_error_t *err)
 {
-  int mode = 0;
+  પૂર્ણાંક mode = 0;
 
-  while (access && *access)
+  જ્યારે (access && *access)
     {
-      int c = *access++;
+      પૂર્ણાંક c = *access++;
 
-      switch (c)
+      પસંદગી (c)
         {
-        case 'r':
+        સ્થિતિ 'r':
           mode |= MODE_R;
-          break;
+          તોડો;
 
-        case 'w':
+        સ્થિતિ 'w':
           mode |= MODE_W;
-          break;
+          તોડો;
 
-        case 'm':
+        સ્થિતિ 'm':
           mode |= MODE_M;
-          break;
+          તોડો;
 
-        default:
-          return crun_make_error (err, 0, "unknown access string specified: `%c`", c);
+        મૂળભૂત:
+          પાછા crun_make_error (err, 0, "unknown access string specified: `%c`", c);
         }
     }
-  return mode;
+  પાછા mode;
 }
 
 /* check if the type b is included in type a.  */
-static bool
-has_same_type (const char *a, const char *b)
+સ્થિર bool
+has_same_type (અચલ અક્ષર *a, અચલ અક્ષર *b)
 {
-  bool a_all = a == NULL || strcmp (a, "a") == 0;
-  if (b == NULL || strcmp (b, "a") == 0)
-    return a_all;
+  bool a_all = a == ખાલી || strcmp (a, "a") == 0;
+  જો (b == ખાલી || strcmp (b, "a") == 0)
+    પાછા a_all;
 
-  return a_all || strcmp (a, b) == 0;
+  પાછા a_all || strcmp (a, b) == 0;
 }
 
 /* check if there is already another "deny rule" specified before that already blocks the
  * device DEVICES[n].  */
-static int
+સ્થિર પૂર્ણાંક
 is_deny_rule_redundant (runtime_spec_schema_defs_linux_device_cgroup **devices, size_t n, libcrun_error_t *err)
 {
   size_t i;
-  int req_mode;
+  પૂર્ણાંક req_mode;
 
-#  define CMP_DEV_NUM(a, b) ((a) == (b) || IS_WILDCARD (a) || IS_WILDCARD (b))
+#  define CMP_DEV_અંક(a, b) ((a) == (b) || IS_WILDCARD (a) || IS_WILDCARD (b))
 
   req_mode = access_to_mode (devices[n]->access, err);
-  if (UNLIKELY (req_mode < 0))
-    return req_mode;
+  જો (UNLIKELY (req_mode < 0))
+    પાછા req_mode;
 
-  for (i = n; i > 0; i--)
+  માટે (i = n; i > 0; i--)
     {
       size_t current_rule = i - 1;
-      int mode;
+      પૂર્ણાંક mode;
 
-      if (! CMP_DEV_NUM (devices[n]->minor, devices[current_rule]->minor))
-        continue;
-      if (! CMP_DEV_NUM (devices[n]->major, devices[current_rule]->major))
-        continue;
+      જો (! CMP_DEV_અંક (devices[n]->minor, devices[current_rule]->minor))
+        ચાલુ;
+      જો (! CMP_DEV_અંક (devices[n]->major, devices[current_rule]->major))
+        ચાલુ;
 
-      if (! has_same_type (devices[n]->type, devices[current_rule]->type)
+      જો (! has_same_type (devices[n]->type, devices[current_rule]->type)
           && has_same_type ("a", devices[current_rule]->type))
-        continue;
+        ચાલુ;
 
       mode = access_to_mode (devices[i]->access, err);
-      if (UNLIKELY (mode < 0))
-        return mode;
+      જો (UNLIKELY (mode < 0))
+        પાછા mode;
 
-      if (devices[current_rule]->allow && (mode & req_mode))
-        return 0;
+      જો (devices[current_rule]->allow && (mode & req_mode))
+        પાછા 0;
 
       req_mode &= ! mode;
 
       /* no more access bits to validate.  */
-      if (req_mode == 0)
-        return 1;
+      જો (req_mode == 0)
+        પાછા 1;
     }
 
-  return 0;
-#  undef CMP_DEV_NUM
+  પાછા 0;
+#  undef CMP_DEV_અંક
 }
 
-static size_t
+સ્થિર size_t
 find_first_rule_no_default (runtime_spec_schema_defs_linux_device_cgroup **devices, size_t n)
 {
   size_t i;
 
-  if (n == 0)
-    return 1;
+  જો (n == 0)
+    પાછા 1;
 
   /* Find the first rule that is after the last "block all".  */
-  for (i = n - 1; i-- > 0;)
+  માટે (i = n - 1; i-- > 0;)
     {
-      if ((is_empty_string (devices[i]->type) || strcmp (devices[i]->type, "a") == 0)
+      જો ((is_empty_string (devices[i]->type) || strcmp (devices[i]->type, "a") == 0)
           && IS_WILDCARD (devices[i]->major)
           && IS_WILDCARD (devices[i]->minor)
           && (! devices[i]->allow))
-        return i + 1;
+        પાછા i + 1;
     }
 
   /* If there is not a default rule, the skip to the first rule that is not a deny rule.  */
-  for (i = 0; i < n; i++)
-    if (devices[i]->allow)
-      return i;
+  માટે (i = 0; i < n; i++)
+    જો (devices[i]->allow)
+      પાછા i;
 
   /* All blocked.  Move at the end of the array and rely on the default block all devices rule.  */
-  return n + 1;
+  પાછા n + 1;
 }
 
-static bool
+સ્થિર bool
 has_allow_all (runtime_spec_schema_defs_linux_device_cgroup **devices, size_t n)
 {
 #  define DEV_TYPE_BLOCK 1
 #  define DEV_TYPE_CHAR 2
-  int remaining = DEV_TYPE_BLOCK | DEV_TYPE_CHAR;
+  પૂર્ણાંક remaining = DEV_TYPE_BLOCK | DEV_TYPE_CHAR;
   size_t i;
 
-  for (i = 0; i < n; i++)
+  માટે (i = 0; i < n; i++)
     {
       size_t current_rule = n - i - 1;
-      if (! devices[current_rule]->allow)
-        return false;
+      જો (! devices[current_rule]->allow)
+        પાછા false;
 
-      if (IS_WILDCARD (devices[current_rule]->major) && IS_WILDCARD (devices[current_rule]->minor))
+      જો (IS_WILDCARD (devices[current_rule]->major) && IS_WILDCARD (devices[current_rule]->minor))
         {
-          if (is_empty_string (devices[current_rule]->type) || strcmp (devices[current_rule]->type, "a") == 0)
-            return true;
+          જો (is_empty_string (devices[current_rule]->type) || strcmp (devices[current_rule]->type, "a") == 0)
+            પાછા true;
 
-          if (strcmp (devices[current_rule]->type, "c") == 0)
+          જો (strcmp (devices[current_rule]->type, "c") == 0)
             remaining &= ~DEV_TYPE_CHAR;
-          else if (strcmp (devices[current_rule]->type, "b") == 0)
+          નહીંતર જો (strcmp (devices[current_rule]->type, "b") == 0)
             remaining &= ~DEV_TYPE_BLOCK;
 
-          if (remaining == 0)
-            return true;
+          જો (remaining == 0)
+            પાછા true;
         }
     }
 #  undef DEV_TYPE_BLOCK
 #  undef DEV_TYPE_CHAR
 
-  return false;
+  પાછા false;
 }
 
-static int
+સ્થિર પૂર્ણાંક
 append_devices (sd_bus_message *m,
                 runtime_spec_schema_config_linux_resources *resources,
                 libcrun_error_t *err)
 {
-  struct default_dev_s *default_devices = get_default_devices ();
-  int ret, sd_err;
+  સંરચના default_dev_s *default_devices = get_default_devices ();
+  પૂર્ણાંક ret, sd_err;
   size_t i;
 
-  if (has_allow_all (resources->devices, resources->devices_len))
+  જો (has_allow_all (resources->devices, resources->devices_len))
     {
       sd_err = sd_bus_message_append (m, "(sv)", "DevicePolicy", "s", "auto");
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append DevicePolicy");
+      જો (UNLIKELY (sd_err < 0))
+        પાછા crun_make_error (err, -sd_err, "sd-bus message append DevicePolicy");
 
       sd_err = sd_bus_message_append (m, "(sv)", "DeviceAllow", "a(ss)", 0);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append empty DeviceAllow");
+      જો (UNLIKELY (sd_err < 0))
+        પાછા crun_make_error (err, -sd_err, "sd-bus message append empty DeviceAllow");
 
-      return 0;
+      પાછા 0;
     }
 
   sd_err = sd_bus_message_append (m, "(sv)", "DevicePolicy", "s", "strict");
-  if (UNLIKELY (sd_err < 0))
-    return crun_make_error (err, -sd_err, "sd-bus message append DevicePolicy");
+  જો (UNLIKELY (sd_err < 0))
+    પાછા crun_make_error (err, -sd_err, "sd-bus message append DevicePolicy");
 
-  for (i = 0; default_devices[i].type; i++)
+  માટે (i = 0; default_devices[i].type; i++)
     {
       ret = append_device_allow (m, default_devices[i].type, default_devices[i].major, default_devices[i].minor, default_devices[i].access, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      જો (UNLIKELY (ret < 0))
+        પાછા ret;
     }
 
-  for (i = find_first_rule_no_default (resources->devices, resources->devices_len); i < resources->devices_len; i++)
+  માટે (i = find_first_rule_no_default (resources->devices, resources->devices_len); i < resources->devices_len; i++)
     {
       runtime_spec_schema_defs_linux_device_cgroup *d = resources->devices[i];
-      char type;
+      અક્ષર type;
 
-      if (! d->allow)
+      જો (! d->allow)
         {
-          int redundant;
+          પૂર્ણાંક redundant;
 
           redundant = is_deny_rule_redundant (resources->devices, i, err);
-          if (UNLIKELY (redundant < 0))
-            return redundant;
+          જો (UNLIKELY (redundant < 0))
+            પાછા redundant;
 
-          if (redundant)
-            continue;
+          જો (redundant)
+            ચાલુ;
 
-          return crun_make_error (err, 0, "systemd does not support deny rules for devices");
+          પાછા crun_make_error (err, 0, "systemd does not support deny rules for devices");
         }
 
-      if (d->type == NULL || strcmp (d->type, "a") == 0)
+      જો (d->type == ખાલી || strcmp (d->type, "a") == 0)
         type = 'a';
-      else if (strcmp (d->type, "c") == 0)
+      નહીંતર જો (strcmp (d->type, "c") == 0)
         type = 'c';
-      else if (strcmp (d->type, "b") == 0)
+      નહીંતર જો (strcmp (d->type, "b") == 0)
         type = 'b';
-      else
-        return crun_make_error (err, 0, "unknown device type `%s`", d->type);
+      નહીંતર
+        પાછા crun_make_error (err, 0, "unknown device type `%s`", d->type);
 
-      if (type != 'a')
+      જો (type != 'a')
         {
           ret = append_device_allow (m, type, d->major, d->minor, d->access, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          જો (UNLIKELY (ret < 0))
+            પાછા ret;
         }
-      else
+      નહીંતર
         {
           ret = append_device_allow (m, 'c', d->major, d->minor, d->access, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          જો (UNLIKELY (ret < 0))
+            પાછા ret;
           ret = append_device_allow (m, 'b', d->major, d->minor, d->access, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          જો (UNLIKELY (ret < 0))
+            પાછા ret;
         }
     }
 
-  return 0;
+  પાછા 0;
 }
 
-static bool
+સ્થિર bool
 has_bpf_fs ()
 {
-  struct statfs stat;
+  સંરચના statfs stat;
 
-  return statfs (SYS_FS_BPF, &stat) == 0 && (stat.f_type == (typeof (stat.f_type)) BPF_FS_MAGIC);
+  પાછા statfs (SYS_FS_BPF, &stat) == 0 && (stat.f_type == (typeof (stat.f_type)) BPF_FS_MAGIC);
 }
 
-static int
-bpfprog_path_from_scope (char **path, const char *scope, libcrun_error_t *err)
+સ્થિર પૂર્ણાંક
+bpfprog_path_from_scope (અક્ષર **path, અચલ અક્ષર *scope, libcrun_error_t *err)
 {
-  cleanup_free char *flat_scope = xstrdup (scope);
-  char *it;
+  cleanup_free અક્ષર *flat_scope = xstrdup (scope);
+  અક્ષર *it;
 
   /* Remove dots as EBPF code don't like them.  */
   it = flat_scope;
-  while ((it = strchr (it, '.')) != NULL)
+  જ્યારે ((it = strchr (it, '.')) != ખાલી)
     *it = '_';
 
-  return append_paths (path, err, CRUN_BPF_DIR, flat_scope, NULL);
+  પાછા append_paths (path, err, CRUN_BPF_DIR, flat_scope, ખાલી);
 }
 
-static int
+સ્થિર પૂર્ણાંક
 add_bpf_program (sd_bus_message *m,
                  bool is_update,
                  runtime_spec_schema_config_linux_resources *resources,
-                 char **missing_properties,
-                 const char *scope,
+                 અક્ષર **missing_properties,
+                 અચલ અક્ષર *scope,
                  bool *devices_set,
                  libcrun_error_t *err)
 {
-  int ret = 0;
-  int in_userns, sd_err;
-  const char *property_name = "BPFProgram";
-  cleanup_free struct bpf_program *program = NULL;
-  cleanup_free char *path = NULL;
+  પૂર્ણાંક ret = 0;
+  પૂર્ણાંક in_userns, sd_err;
+  અચલ અક્ષર *property_name = "BPFProgram";
+  cleanup_free સંરચના bpf_program *program = ખાલી;
+  cleanup_free અક્ષર *path = ખાલી;
 
   *devices_set = false;
 
   /* Only root in the initial user namespace can pin a bpf program. */
-  if (getuid () != 0 || ! has_bpf_fs () || property_missing_p (missing_properties, property_name))
-    return 0;
+  જો (getuid () != 0 || ! has_bpf_fs () || property_missing_p (missing_properties, property_name))
+    પાછા 0;
 
   in_userns = check_running_in_user_namespace (err);
-  if (UNLIKELY (in_userns < 0))
-    return in_userns;
+  જો (UNLIKELY (in_userns < 0))
+    પાછા in_userns;
 
-  if (in_userns)
-    return 0;
+  જો (in_userns)
+    પાછા 0;
 
   program = create_dev_bpf (resources->devices, resources->devices_len, err);
-  if (UNLIKELY (program == NULL))
+  જો (UNLIKELY (program == ખાલી))
     {
       crun_error_release (err);
-      return 0;
+      પાછા 0;
     }
 
   ret = bpfprog_path_from_scope (&path, scope, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
   ret = mkdir (CRUN_BPF_DIR, 0700);
-  if (UNLIKELY (ret < 0 && errno != EEXIST))
-    return crun_make_error (err, errno, "mkdir " CRUN_BPF_DIR);
+  જો (UNLIKELY (ret < 0 && errno != EEXIST))
+    પાછા crun_make_error (err, errno, "mkdir " CRUN_BPF_DIR);
 
-  if (is_update)
+  જો (is_update)
     {
-      cleanup_free struct bpf_program *program_loaded = NULL;
+      cleanup_free સંરચના bpf_program *program_loaded = ખાલી;
 
-      if (resources->devices == NULL || resources->devices_len == 0)
+      જો (resources->devices == ખાલી || resources->devices_len == 0)
         {
           *devices_set = true;
-          return 0;
+          પાછા 0;
         }
 
       ret = libcrun_ebpf_read_program (&program_loaded, path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      જો (UNLIKELY (ret < 0))
+        પાછા ret;
 
       /* it is the same as the loaded program.  */
-      if (libcrun_ebpf_cmp_programs (program, program_loaded))
+      જો (libcrun_ebpf_cmp_programs (program, program_loaded))
         {
           *devices_set = true;
-          return 0;
+          પાછા 0;
         }
 
       /* Some platforms (e.g. ppc64) modify an EBPF program as it is
@@ -1550,356 +1550,356 @@ add_bpf_program (sd_bus_message *m,
        * the BPFProgram property.
        */
       {
-        cleanup_free struct bpf_program *program_new = NULL;
-        char tmp[64];
-        int len;
+        cleanup_free સંરચના bpf_program *program_new = ખાલી;
+        અક્ષર tmp[64];
+        પૂર્ણાંક len;
 
         /* A unique name, as container name can't start with a digit. */
-        len = snprintf (tmp, sizeof (tmp), "%s/%d", CRUN_BPF_DIR, getpid ());
-        if (UNLIKELY (len >= (int) sizeof (tmp)))
-          return crun_make_error (err, 0, "internal error: static buffer too small");
+        len = snprintf (tmp, કદ (tmp), "%s/%d", CRUN_BPF_DIR, getpid ());
+        જો (UNLIKELY (len >= (પૂર્ણાંક) કદ (tmp)))
+          પાછા crun_make_error (err, 0, "internal error: static buffer too small");
 
         ret = libcrun_ebpf_load (program, -1, tmp, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        જો (UNLIKELY (ret < 0))
+          પાછા ret;
 
         ret = libcrun_ebpf_read_program (&program_new, tmp, err);
         unlink (tmp);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        જો (UNLIKELY (ret < 0))
+          પાછા ret;
 
-        if (libcrun_ebpf_cmp_programs (program_new, program_loaded))
+        જો (libcrun_ebpf_cmp_programs (program_new, program_loaded))
           {
             *devices_set = true;
-            return 0;
+            પાછા 0;
           }
       }
 
-      return crun_make_error (err, 0, "updating device access list not supported when using BPFProgram");
+      પાછા crun_make_error (err, 0, "updating device access list not supported when using BPFProgram");
     }
 
   ret = libcrun_ebpf_load (program, -1, path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
   sd_err = sd_bus_message_append (m, "(sv)", property_name, "a(ss)", 1, "device", path);
-  if (UNLIKELY (sd_err < 0))
-    return crun_make_error (err, -sd_err, "sd-bus message append BPFProgram");
+  જો (UNLIKELY (sd_err < 0))
+    પાછા crun_make_error (err, -sd_err, "sd-bus message append BPFProgram");
 
   *devices_set = true;
 
-  return 0;
+  પાછા 0;
 }
 
 /* Append CPUQuotaPeriodUSec and CPUQuotaPerSecUSec, the way runc does.  */
-static int
-append_cpu_quota (sd_bus_message *m, char **missing_properties,
+સ્થિર પૂર્ણાંક
+append_cpu_quota (sd_bus_message *m, અક્ષર **missing_properties,
                   runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
 {
   uint64_t period = (resources->cpu && resources->cpu->period_present) ? resources->cpu->period : 0;
   int64_t quota = (resources->cpu && resources->cpu->quota_present) ? resources->cpu->quota : 0;
-  const char *cpu_max = get_string_from_unified_map (resources, "cpu.max");
-  int sd_err;
+  અચલ અક્ષર *cpu_max = get_string_from_unified_map (resources, "cpu.max");
+  પૂર્ણાંક sd_err;
 
   /* The unified map takes precedence, like with the cgroupfs driver.  */
-  if (cpu_max)
+  જો (cpu_max)
     {
       uint64_t max_period;
       bool has_period;
-      int ret;
+      પૂર્ણાંક ret;
 
       ret = parse_cpu_max (cpu_max, &quota, &max_period, &has_period, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      if (has_period)
+      જો (UNLIKELY (ret < 0))
+        પાછા ret;
+      જો (has_period)
         period = max_period;
     }
 
-  if (period && ! property_missing_p (missing_properties, "CPUQuotaPeriodUSec"))
+  જો (period && ! property_missing_p (missing_properties, "CPUQuotaPeriodUSec"))
     {
       sd_err = sd_bus_message_append (m, "(sv)", "CPUQuotaPeriodUSec", "t", period);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append CPUQuotaPeriodUSec");
+      જો (UNLIKELY (sd_err < 0))
+        પાછા crun_make_error (err, -sd_err, "sd-bus message append CPUQuotaPeriodUSec");
     }
 
-  if ((quota != 0 || period) && ! property_missing_p (missing_properties, "CPUQuotaPerSecUSec"))
+  જો ((quota != 0 || period) && ! property_missing_p (missing_properties, "CPUQuotaPerSecUSec"))
     {
       /* USEC_INFINITY in systemd.  */
       uint64_t quota_per_sec = UINT64_MAX;
 
-      if (quota > 0)
+      જો (quota > 0)
         {
           quota_per_sec = ((uint64_t) quota * 1000000) / (period ? period : DEFAULT_CPU_QUOTA_PERIOD);
           /* systemd converts CPUQuotaPerSecUSec to a percentage of CPU, so round it
              up to the next 10ms, to not give the container less than it asked for.  */
-          if (quota_per_sec % 10000)
+          જો (quota_per_sec % 10000)
             quota_per_sec = ((quota_per_sec / 10000) + 1) * 10000;
         }
 
       sd_err = sd_bus_message_append (m, "(sv)", "CPUQuotaPerSecUSec", "t", quota_per_sec);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append CPUQuotaPerSecUSec");
+      જો (UNLIKELY (sd_err < 0))
+        પાછા crun_make_error (err, -sd_err, "sd-bus message append CPUQuotaPerSecUSec");
     }
 
-  return 0;
+  પાછા 0;
 }
 
-static int
+સ્થિર પૂર્ણાંક
 append_resources (sd_bus_message *m,
                   bool is_update,
-                  const char *state_dir,
+                  અચલ અક્ષર *state_dir,
                   runtime_spec_schema_config_linux_resources *resources,
-                  int cgroup_mode,
-                  const char *scope,
+                  પૂર્ણાંક cgroup_mode,
+                  અચલ અક્ષર *scope,
                   bool *devices_set,
                   libcrun_error_t *err)
 {
-  uint64_t value;
-  int sd_err;
-  int ret;
-  cleanup_free char *dir = NULL;
-  cleanup_free char **missing_properties = NULL;
+  uint64_t કિંમત;
+  પૂર્ણાંક sd_err;
+  પૂર્ણાંક ret;
+  cleanup_free અક્ષર *dir = ખાલી;
+  cleanup_free અક્ષર **missing_properties = ખાલી;
 
   *devices_set = false;
 
-  ret = append_paths (&dir, err, state_dir, SYSTEMD_MISSING_PROPERTIES_DIR, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&dir, err, state_dir, SYSTEMD_MISSING_PROPERTIES_DIR, ખાલી);
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
   missing_properties = read_dir_entries (dir, err);
-  if (UNLIKELY (missing_properties == NULL))
+  જો (UNLIKELY (missing_properties == ખાલી))
     {
-      if (crun_error_get_errno (err) != ENOENT)
-        return -1;
+      જો (crun_error_get_errno (err) != ENOENT)
+        પાછા -1;
 
       /* The directory does not exist, so there are no missing features.  */
       crun_error_release (err);
     }
 
-#  define APPEND_UINT64_VALUE(name, value)                                             \
-    do                                                                                 \
+#  define APPEND_UINT64_કિંમત(name, કિંમત)                                             \
+    કરો                                                                                 \
       {                                                                                \
-        if (! property_missing_p (missing_properties, name))                           \
+        જો (! property_missing_p (missing_properties, name))                           \
           {                                                                            \
-            sd_err = sd_bus_message_append (m, "(sv)", name, "t", value);              \
-            if (UNLIKELY (sd_err < 0))                                                 \
-              return crun_make_error (err, -sd_err, "sd-bus message append %s", name); \
+            sd_err = sd_bus_message_append (m, "(sv)", name, "t", કિંમત);              \
+            જો (UNLIKELY (sd_err < 0))                                                 \
+              પાછા crun_make_error (err, -sd_err, "sd-bus message append %s", name); \
           }                                                                            \
-    } while (0)
+    } જ્યારે (0)
 
 #  define APPEND_UINT64(name, fn)              \
-    do                                         \
+    કરો                                         \
       {                                        \
-        ret = fn (resources, &value, err);     \
-        if (UNLIKELY (ret < 0))                \
-          return ret;                          \
-        if (ret)                               \
+        ret = fn (resources, &કિંમત, err);     \
+        જો (UNLIKELY (ret < 0))                \
+          પાછા ret;                          \
+        જો (ret)                               \
           {                                    \
-            APPEND_UINT64_VALUE (name, value); \
+            APPEND_UINT64_કિંમત (name, કિંમત); \
           }                                    \
-    } while (0)
+    } જ્યારે (0)
 
-  if (resources == NULL)
-    return 0;
+  જો (resources == ખાલી)
+    પાછા 0;
 
-  APPEND_UINT64 ("MemoryLow", get_memory_low);
+  APPEND_UINT64 ("MemoryLow", get_memory_નીચલું);
   APPEND_UINT64 ("MemoryMax", get_memory_max);
   APPEND_UINT64 ("MemorySwapMax", get_memory_swap_max);
   APPEND_UINT64 ("TasksMax", get_pids_max);
 
   ret = append_cpu_quota (m, missing_properties, resources, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
-  switch (cgroup_mode)
+  પસંદગી (cgroup_mode)
     {
-    case CGROUP_MODE_UNIFIED:
+    સ્થિતિ CGROUP_MODE_UNIFIED:
       {
         ret = append_io_weight (m, missing_properties, resources, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        જો (UNLIKELY (ret < 0))
+          પાછા ret;
 
         APPEND_UINT64 ("CPUWeight", get_cpu_weight);
 
         ret = append_uint64_from_unified_map (m, missing_properties, "MemoryMin", "memory.min", resources, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        જો (UNLIKELY (ret < 0))
+          પાછા ret;
         ret = append_uint64_from_unified_map (m, missing_properties, "MemoryHigh", "memory.high", resources, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        જો (UNLIKELY (ret < 0))
+          પાછા ret;
         ret = append_uint64_from_unified_map (m, missing_properties, "MemoryZSwapMax", "memory.zswap.max", resources, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        જો (UNLIKELY (ret < 0))
+          પાછા ret;
 
-        if (get_string_from_unified_map (resources, "cpuset.cpus") || (resources->cpu && resources->cpu->cpus))
+        જો (get_string_from_unified_map (resources, "cpuset.cpus") || (resources->cpu && resources->cpu->cpus))
           {
-            const char *property_name = "AllowedCPUs";
-            const char *value = get_string_from_unified_map (resources, "cpuset.cpus");
-            cleanup_free char *allowed_cpus = NULL;
+            અચલ અક્ષર *property_name = "AllowedCPUs";
+            અચલ અક્ષર *કિંમત = get_string_from_unified_map (resources, "cpuset.cpus");
+            cleanup_free અક્ષર *allowed_cpus = ખાલી;
             size_t allowed_cpus_len = 0;
 
-            if (value == NULL)
-              value = resources->cpu->cpus;
+            જો (કિંમત == ખાલી)
+              કિંમત = resources->cpu->cpus;
 
-            ret = cpuset_string_to_bitmask (value, &allowed_cpus, &allowed_cpus_len, err);
-            if (UNLIKELY (ret < 0))
-              return ret;
+            ret = cpuset_string_to_bitmask (કિંમત, &allowed_cpus, &allowed_cpus_len, err);
+            જો (UNLIKELY (ret < 0))
+              પાછા ret;
 
-            if (! property_missing_p (missing_properties, property_name))
+            જો (! property_missing_p (missing_properties, property_name))
               {
                 ret = bus_append_byte_array (m, property_name, allowed_cpus, allowed_cpus_len, err);
-                if (UNLIKELY (ret < 0))
-                  return ret;
+                જો (UNLIKELY (ret < 0))
+                  પાછા ret;
               }
           }
 
-        if (get_string_from_unified_map (resources, "cpuset.mems") || (resources->cpu && resources->cpu->mems))
+        જો (get_string_from_unified_map (resources, "cpuset.mems") || (resources->cpu && resources->cpu->mems))
           {
-            const char *property_name = "AllowedMemoryNodes";
-            const char *value = get_string_from_unified_map (resources, "cpuset.mems");
-            cleanup_free char *allowed_mems = NULL;
+            અચલ અક્ષર *property_name = "AllowedMemoryNodes";
+            અચલ અક્ષર *કિંમત = get_string_from_unified_map (resources, "cpuset.mems");
+            cleanup_free અક્ષર *allowed_mems = ખાલી;
             size_t allowed_mems_len = 0;
 
-            if (value == NULL)
-              value = resources->cpu->mems;
+            જો (કિંમત == ખાલી)
+              કિંમત = resources->cpu->mems;
 
-            ret = cpuset_string_to_bitmask (value, &allowed_mems, &allowed_mems_len, err);
-            if (UNLIKELY (ret < 0))
-              return ret;
+            ret = cpuset_string_to_bitmask (કિંમત, &allowed_mems, &allowed_mems_len, err);
+            જો (UNLIKELY (ret < 0))
+              પાછા ret;
 
-            if (! property_missing_p (missing_properties, property_name))
+            જો (! property_missing_p (missing_properties, property_name))
               {
                 ret = bus_append_byte_array (m, property_name, allowed_mems, allowed_mems_len, err);
-                if (UNLIKELY (ret < 0))
-                  return ret;
+                જો (UNLIKELY (ret < 0))
+                  પાછા ret;
               }
           }
 
         ret = add_bpf_program (m, is_update, resources, missing_properties, scope, devices_set, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        જો (UNLIKELY (ret < 0))
+          પાછા ret;
       }
-      break;
+      તોડો;
 
-    case CGROUP_MODE_LEGACY:
-    case CGROUP_MODE_HYBRID:
-      if (resources->cpu && resources->cpu->shares > 0)
-        APPEND_UINT64_VALUE ("CPUShares", resources->cpu->shares);
-      break;
+    સ્થિતિ CGROUP_MODE_LEGACY:
+    સ્થિતિ CGROUP_MODE_HYBRID:
+      જો (resources->cpu && resources->cpu->shares > 0)
+        APPEND_UINT64_કિંમત ("CPUShares", resources->cpu->shares);
+      તોડો;
 
-    default:
-      return crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_mode);
+    મૂળભૂત:
+      પાછા crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_mode);
     }
 
 #  undef APPEND_UINT64
-#  undef APPEND_UINT64_VALUE
+#  undef APPEND_UINT64_કિંમત
 
-  if (! *devices_set && (! is_update || resources->devices))
+  જો (! *devices_set && (! is_update || resources->devices))
     {
       ret = append_devices (m, resources, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      જો (UNLIKELY (ret < 0))
+        પાછા ret;
     }
-  return 0;
+  પાછા 0;
 }
 
-static int
-reset_failed_unit (sd_bus *bus, const char *unit)
+સ્થિર પૂર્ણાંક
+reset_failed_unit (sd_bus *bus, અચલ અક્ષર *unit)
 {
-  int sd_err;
+  પૂર્ણાંક sd_err;
   sd_bus_error error = SD_BUS_ERROR_NULL;
-  sd_bus_message *m = NULL, *reply = NULL;
+  sd_bus_message *m = ખાલી, *reply = ખાલી;
 
   sd_err = sd_bus_message_new_method_call (bus, &m, "org.freedesktop.systemd1", "/org/freedesktop/systemd1",
                                            "org.freedesktop.systemd1.Manager", "ResetFailedUnit");
-  if (UNLIKELY (sd_err < 0))
-    goto exit;
+  જો (UNLIKELY (sd_err < 0))
+    જાઓ exit;
 
   sd_err = sd_bus_message_append (m, "s", unit);
-  if (UNLIKELY (sd_err < 0))
-    goto exit;
+  જો (UNLIKELY (sd_err < 0))
+    જાઓ exit;
 
   sd_err = sd_bus_call (bus, m, 0, &error, &reply);
-  if (UNLIKELY (sd_err < 0))
-    goto exit;
+  જો (UNLIKELY (sd_err < 0))
+    જાઓ exit;
 
   sd_err = 0;
 
 exit:
-  if (m)
+  જો (m)
     sd_bus_message_unref (m);
-  if (reply)
+  જો (reply)
     sd_bus_message_unref (reply);
   sd_bus_error_free (&error);
 
-  return sd_err;
+  પાછા sd_err;
 }
 
-static int
-verify_ebpf_device_filter_installed (const char *cgroup_path, libcrun_error_t *err)
+સ્થિર પૂર્ણાંક
+verify_ebpf_device_filter_installed (અચલ અક્ષર *cgroup_path, libcrun_error_t *err)
 {
-  cleanup_free uint32_t *progs = NULL;
-  cleanup_free char *full_path = NULL;
+  cleanup_free uint32_t *progs = ખાલી;
+  cleanup_free અક્ષર *full_path = ખાલી;
   size_t n_progs = 0;
-  int ret;
+  પૂર્ણાંક ret;
 
-  ret = append_paths (&full_path, err, CGROUP_ROOT, cgroup_path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&full_path, err, CGROUP_મૂળ, cgroup_path, ખાલી);
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
   ret = libcrun_ebpf_query_cgroup_progs (full_path, &progs, &n_progs, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
-  if (n_progs == 0)
-    return crun_make_error (err, 0, "systemd failed to install eBPF device filter on cgroup `%s`", full_path);
+  જો (n_progs == 0)
+    પાછા crun_make_error (err, 0, "systemd failed to install eBPF device filter on cgroup `%s`", full_path);
 
-  return 0;
+  પાછા 0;
 }
 
 /* Release the sd-bus objects used by a D-Bus call and return RET.  */
-static int
+સ્થિર પૂર્ણાંક
 cleanup_sd_bus_and_return (sd_bus *bus, sd_bus_message *m, sd_bus_message *reply,
-                           sd_bus_error *error, int ret)
+                           sd_bus_error *error, પૂર્ણાંક ret)
 {
-  if (bus)
+  જો (bus)
     sd_bus_unref (bus);
-  if (m)
+  જો (m)
     sd_bus_message_unref (m);
-  if (reply)
+  જો (reply)
     sd_bus_message_unref (reply);
   sd_bus_error_free (error);
-  return ret;
+  પાછા ret;
 }
 
-static int
+સ્થિર પૂર્ણાંક
 enter_systemd_cgroup_scope (runtime_spec_schema_config_linux_resources *resources,
-                            int cgroup_mode,
+                            પૂર્ણાંક cgroup_mode,
                             string_map *annotations,
-                            const char *state_root,
-                            const char *scope, const char *slice,
+                            અચલ અક્ષર *state_મૂળ,
+                            અચલ અક્ષર *scope, અચલ અક્ષર *slice,
                             pid_t pid,
                             bool *can_retry,
                             bool *devices_set,
                             libcrun_error_t *err)
 {
-  sd_bus *bus = NULL;
-  sd_bus_message *m = NULL;
-  sd_bus_message *reply = NULL;
-  int sd_err, ret = 0;
+  sd_bus *bus = ખાલી;
+  sd_bus_message *m = ખાલી;
+  sd_bus_message *reply = ખાલી;
+  પૂર્ણાંક sd_err, ret = 0;
   sd_bus_error error = SD_BUS_ERROR_NULL;
-  const char *object = NULL;
-  struct systemd_job_removed_s job_data = {};
-  int i;
-  const char *boolean_opts[10];
-  cleanup_free char *state_dir = NULL;
+  અચલ અક્ષર *object = ખાલી;
+  સંરચના systemd_job_removed_s job_data = {};
+  પૂર્ણાંક i;
+  અચલ અક્ષર *boolean_opts[10];
+  cleanup_free અક્ષર *state_dir = ખાલી;
 
   *can_retry = false;
   *devices_set = false;
 
-  ret = libcrun_get_state_directory (&state_dir, state_root, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_get_state_directory (&state_dir, state_મૂળ, ખાલી, err);
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
   i = 0;
   boolean_opts[i++] = "Delegate";
@@ -1910,223 +1910,223 @@ enter_systemd_cgroup_scope (runtime_spec_schema_config_linux_resources *resource
   boolean_opts[i++] = "MemoryAccounting";
   boolean_opts[i++] = "IOAccounting";
   boolean_opts[i++] = "TasksAccounting";
-  boolean_opts[i++] = NULL;
+  boolean_opts[i++] = ખાલી;
 
   ret = open_sd_bus_connection (&bus, err);
-  if (UNLIKELY (ret < 0))
-    goto exit;
+  જો (UNLIKELY (ret < 0))
+    જાઓ exit;
 
   ret = systemd_check_job_status_setup (bus, &job_data, err);
-  if (UNLIKELY (ret < 0))
-    goto exit;
+  જો (UNLIKELY (ret < 0))
+    જાઓ exit;
 
   sd_err = sd_bus_message_new_method_call (bus, &m, "org.freedesktop.systemd1", "/org/freedesktop/systemd1",
                                            "org.freedesktop.systemd1.Manager", "StartTransientUnit");
-  if (UNLIKELY (sd_err < 0))
+  જો (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "set up dbus message");
-      goto exit;
+      જાઓ exit;
     }
 
   sd_err = sd_bus_message_append (m, "ss", scope, "fail");
-  if (UNLIKELY (sd_err < 0))
+  જો (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus message append scope");
-      goto exit;
+      જાઓ exit;
     }
 
   sd_err = sd_bus_message_open_container (m, 'a', "(sv)");
-  if (UNLIKELY (sd_err < 0))
+  જો (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus open container");
-      goto exit;
+      જાઓ exit;
     }
 
-  if (slice)
+  જો (slice)
     {
       sd_err = sd_bus_message_append (m, "(sv)", "Slice", "s", slice);
-      if (UNLIKELY (sd_err < 0))
+      જો (UNLIKELY (sd_err < 0))
         {
           ret = crun_make_error (err, -sd_err, "sd-bus message append Slice");
-          goto exit;
+          જાઓ exit;
         }
     }
 
   sd_err = sd_bus_message_append (m, "(sv)", "DefaultDependencies", "b", 0);
-  if (UNLIKELY (sd_err < 0))
+  જો (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus message append DefaultDependencies");
-      goto exit;
+      જાઓ exit;
     }
 
-  if (annotations)
+  જો (annotations)
     {
-      size_t prefix_len = sizeof (SYSTEMD_PROPERTY_PREFIX) - 1;
+      size_t prefix_len = કદ (SYSTEMD_PROPERTY_PREFIX) - 1;
       size_t annotations_len = string_map_size (annotations);
       size_t i;
 
-      for (i = 0; i < annotations_len; i++)
+      માટે (i = 0; i < annotations_len; i++)
         {
-          const char *key;
-          const char *value;
+          અચલ અક્ષર *ચાવી;
+          અચલ અક્ષર *કિંમત;
           size_t len;
 
-          ret = string_map_get_at (annotations, i, &key, &value);
-          if (UNLIKELY (ret < 0))
+          ret = string_map_get_at (annotations, i, &ચાવી, &કિંમત);
+          જો (UNLIKELY (ret < 0))
             {
               ret = crun_make_error (err, 0, "internal error: failed to get annotation at index %zu", i);
-              goto exit;
+              જાઓ exit;
             }
 
-          if (! has_prefix (key, SYSTEMD_PROPERTY_PREFIX))
-            continue;
+          જો (! has_prefix (ચાવી, SYSTEMD_PROPERTY_PREFIX))
+            ચાલુ;
 
-          len = strlen (key);
-          if (len < prefix_len + 3)
+          len = strlen (ચાવી);
+          જો (len < prefix_len + 3)
             {
-              ret = crun_make_error (err, EINVAL, "invalid systemd property name `%s`", key);
-              goto exit;
+              ret = crun_make_error (err, EINVAL, "invalid systemd property name `%s`", ચાવી);
+              જાઓ exit;
             }
 
-          ret = append_systemd_annotation (m, key + prefix_len, len - prefix_len,
-                                           value, err);
-          if (UNLIKELY (ret < 0))
-            goto exit;
+          ret = append_systemd_annotation (m, ચાવી + prefix_len, len - prefix_len,
+                                           કિંમત, err);
+          જો (UNLIKELY (ret < 0))
+            જાઓ exit;
         }
     }
 
   sd_err = sd_bus_message_append (m, "(sv)", "Description", "s", "libcrun container");
-  if (UNLIKELY (sd_err < 0))
+  જો (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus message append Description");
-      goto exit;
+      જાઓ exit;
     }
 
   sd_err = sd_bus_message_append (m, "(sv)", "PIDs", "au", 1, pid);
-  if (UNLIKELY (sd_err < 0))
+  જો (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus message append PIDs");
-      goto exit;
+      જાઓ exit;
     }
 
-  for (i = 0; boolean_opts[i]; i++)
+  માટે (i = 0; boolean_opts[i]; i++)
     {
       sd_err = sd_bus_message_append (m, "(sv)", boolean_opts[i], "b", 1);
-      if (UNLIKELY (sd_err < 0))
+      જો (UNLIKELY (sd_err < 0))
         {
           ret = crun_make_error (err, -sd_err, "sd-bus message append `%s`", boolean_opts[i]);
-          goto exit;
+          જાઓ exit;
         }
     }
 
   ret = append_resources (m, false, state_dir, resources, cgroup_mode, scope, devices_set, err);
-  if (UNLIKELY (ret < 0))
-    goto exit;
+  જો (UNLIKELY (ret < 0))
+    જાઓ exit;
 
   sd_err = sd_bus_message_close_container (m);
-  if (UNLIKELY (sd_err < 0))
+  જો (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus close container");
-      goto exit;
+      જાઓ exit;
     }
 
   sd_err = sd_bus_message_append (m, "a(sa(sv))", 0);
-  if (UNLIKELY (sd_err < 0))
+  જો (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus message append");
-      goto exit;
+      જાઓ exit;
     }
 
   sd_err = sd_bus_call (bus, m, 0, &error, &reply);
-  if (UNLIKELY (sd_err < 0))
+  જો (UNLIKELY (sd_err < 0))
     {
-      if (reset_failed_unit (bus, scope) == 0)
+      જો (reset_failed_unit (bus, scope) == 0)
         {
           sd_bus_error_free (&error);
-          if (reply)
+          જો (reply)
             sd_bus_message_unref (reply);
 
           error = SD_BUS_ERROR_NULL;
-          reply = NULL;
+          reply = ખાલી;
 
           sd_err = sd_bus_call (bus, m, 0, &error, &reply);
         }
-      if (sd_err < 0)
+      જો (sd_err < 0)
         {
-          if (sd_err == -EROFS)
+          જો (sd_err == -EROFS)
             {
               ret = register_missing_property_from_message (state_dir, error.message, err);
-              if (UNLIKELY (ret < 0))
-                goto exit;
-              if (ret > 0)
+              જો (UNLIKELY (ret < 0))
+                જાઓ exit;
+              જો (ret > 0)
                 *can_retry = true;
             }
           ret = crun_make_error (err, sd_bus_error_get_errno (&error), "sd-bus call: %s", error.message ?: error.name);
-          goto exit;
+          જાઓ exit;
         }
     }
 
   sd_err = sd_bus_message_read (reply, "o", &object);
-  if (UNLIKELY (sd_err < 0))
+  જો (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus message read");
-      goto exit;
+      જાઓ exit;
     }
 
   ret = systemd_check_job_status (bus, &job_data, object, "creating", err);
 
 exit:
-  return cleanup_sd_bus_and_return (bus, m, reply, &error, ret);
+  પાછા cleanup_sd_bus_and_return (bus, m, reply, &error, ret);
 }
 
-static int
-libcrun_destroy_systemd_cgroup_scope (struct libcrun_cgroup_status *cgroup_status,
+સ્થિર પૂર્ણાંક
+libcrun_destroy_systemd_cgroup_scope (સંરચના libcrun_cgroup_status *cgroup_status,
                                       libcrun_error_t *err)
 {
-  sd_bus *bus = NULL;
-  sd_bus_message *m = NULL;
-  sd_bus_message *reply = NULL;
-  int ret = 0;
+  sd_bus *bus = ખાલી;
+  sd_bus_message *m = ખાલી;
+  sd_bus_message *reply = ખાલી;
+  પૂર્ણાંક ret = 0;
   sd_bus_error error = SD_BUS_ERROR_NULL;
-  const char *object;
-  const char *scope = cgroup_status->scope;
-  struct systemd_job_removed_s job_data = {};
+  અચલ અક્ષર *object;
+  અચલ અક્ષર *scope = cgroup_status->scope;
+  સંરચના systemd_job_removed_s job_data = {};
 
   ret = open_sd_bus_connection (&bus, err);
-  if (UNLIKELY (ret < 0))
-    goto exit;
+  જો (UNLIKELY (ret < 0))
+    જાઓ exit;
 
   ret = systemd_check_job_status_setup (bus, &job_data, err);
-  if (UNLIKELY (ret < 0))
-    goto exit;
+  જો (UNLIKELY (ret < 0))
+    જાઓ exit;
 
   ret = sd_bus_message_new_method_call (bus, &m, "org.freedesktop.systemd1", "/org/freedesktop/systemd1",
                                         "org.freedesktop.systemd1.Manager", "StopUnit");
-  if (UNLIKELY (ret < 0))
+  જો (UNLIKELY (ret < 0))
     {
       ret = crun_make_error (err, -ret, "set up dbus message");
-      goto exit;
+      જાઓ exit;
     }
 
   ret = sd_bus_message_append (m, "ss", scope, "replace");
-  if (UNLIKELY (ret < 0))
+  જો (UNLIKELY (ret < 0))
     {
       ret = crun_make_error (err, -ret, "sd-bus message append");
-      goto exit;
+      જાઓ exit;
     }
 
   ret = sd_bus_call (bus, m, 0, &error, &reply);
-  if (UNLIKELY (ret < 0))
+  જો (UNLIKELY (ret < 0))
     {
       ret = crun_make_error (err, sd_bus_error_get_errno (&error), "sd-bus call: %s", error.message ?: error.name);
-      goto exit;
+      જાઓ exit;
     }
 
   ret = sd_bus_message_read (reply, "o", &object);
-  if (UNLIKELY (ret < 0))
+  જો (UNLIKELY (ret < 0))
     {
       ret = crun_make_error (err, -ret, "sd-bus message read");
-      goto exit;
+      જાઓ exit;
     }
 
   ret = systemd_check_job_status (bus, &job_data, object, "removing", err);
@@ -2135,91 +2135,91 @@ libcrun_destroy_systemd_cgroup_scope (struct libcrun_cgroup_status *cgroup_statu
   reset_failed_unit (bus, scope);
 
 exit:
-  return cleanup_sd_bus_and_return (bus, m, reply, &error, ret);
+  પાછા cleanup_sd_bus_and_return (bus, m, reply, &error, ret);
 }
 
-static const char *
+સ્થિર અચલ અક્ષર *
 find_systemd_subgroup (string_map *annotations)
 {
-  const char *annotation;
+  અચલ અક્ષર *annotation;
 
-  annotation = find_string_map_value (annotations, "run.oci.systemd.subgroup");
-  if (annotation)
+  annotation = find_string_map_કિંમત (annotations, "run.oci.systemd.subgroup");
+  જો (annotation)
     {
-      if (annotation[0] == '\0')
-        return NULL;
-      return annotation;
+      જો (annotation[0] == '\0')
+        પાછા ખાલી;
+      પાછા annotation;
     }
 
-  return "container";
+  પાછા "container";
 }
 
-static int
-libcrun_cgroup_enter_systemd (struct libcrun_cgroup_args *args,
-                              struct libcrun_cgroup_status *out,
+સ્થિર પૂર્ણાંક
+libcrun_cgroup_enter_systemd (સંરચના libcrun_cgroup_args *args,
+                              સંરચના libcrun_cgroup_status *out,
                               libcrun_error_t *err)
 {
   runtime_spec_schema_config_linux_resources *resources = args->resources;
-  const char *cgroup_path = args->cgroup_path;
-  cleanup_free char *scope_path = NULL;
-  cleanup_free char *scope = NULL;
-  cleanup_free char *path = NULL;
-  cleanup_free char *slice = NULL;
-  int retries_left = 32;
-  const char *suffix;
-  const char *id = args->id;
+  અચલ અક્ષર *cgroup_path = args->cgroup_path;
+  cleanup_free અક્ષર *scope_path = ખાલી;
+  cleanup_free અક્ષર *scope = ખાલી;
+  cleanup_free અક્ષર *path = ખાલી;
+  cleanup_free અક્ષર *slice = ખાલી;
+  પૂર્ણાંક retries_ડાબું = 32;
+  અચલ અક્ષર *suffix;
+  અચલ અક્ષર *id = args->id;
   pid_t pid = args->pid;
-  int cgroup_mode;
-  int rootless = 0;
-  int ret;
+  પૂર્ણાંક cgroup_mode;
+  પૂર્ણાંક rootless = 0;
+  પૂર્ણાંક ret;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  જો (UNLIKELY (cgroup_mode < 0))
+    પાછા cgroup_mode;
 
-  if (cgroup_mode == CGROUP_MODE_UNIFIED)
+  જો (cgroup_mode == CGROUP_MODE_UNIFIED)
     {
       rootless = is_rootless (err);
-      if (UNLIKELY (rootless < 0))
-        return rootless;
+      જો (UNLIKELY (rootless < 0))
+        પાછા rootless;
     }
 
   get_systemd_scope_and_slice (id, rootless == 1, cgroup_path, &scope, &slice);
 
-  for (;;)
+  માટે (;;)
     {
       bool can_retry = false;
 
-      ret = enter_systemd_cgroup_scope (resources, cgroup_mode, args->annotations, args->state_root,
+      ret = enter_systemd_cgroup_scope (resources, cgroup_mode, args->annotations, args->state_મૂળ,
                                         scope, slice, pid, &can_retry, &out->bpf_dev_set, err);
-      if (LIKELY (ret >= 0))
-        break;
+      જો (LIKELY (ret >= 0))
+        તોડો;
 
-      if (can_retry && retries_left-- > 0)
+      જો (can_retry && retries_ડાબું-- > 0)
         {
           crun_error_release (err);
-          continue;
+          ચાલુ;
         }
 
-      return ret;
+      પાછા ret;
     }
 
   suffix = find_systemd_subgroup (args->annotations);
 
   ret = systemd_finalize (args, &path, cgroup_mode, suffix, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
   /* Remove the suffix that was added by systemd_finalize.  */
-  if (is_empty_string (suffix))
+  જો (is_empty_string (suffix))
     scope_path = xstrdup (path);
-  else
+  નહીંતર
     {
       size_t path_len = strlen (path);
       size_t suffix_len = strlen (suffix);
 
       scope_path = strndup (path, path_len - suffix_len - 1);
-      if (UNLIKELY (scope_path == NULL))
+      જો (UNLIKELY (scope_path == ખાલી))
         OOM ();
     }
 
@@ -2228,181 +2228,181 @@ libcrun_cgroup_enter_systemd (struct libcrun_cgroup_args *args,
      sub-cgroup is created by us, and would appear not frozen even if
      the scope is.  */
   ret = libcrun_cgroup_ensure_not_frozen (scope_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
   /* Verify that systemd has actually installed the eBPF device filter if one was requested.
      eBPF programs are attached to the systemd scope, not the subgroup.  */
-  if (out->bpf_dev_set)
+  જો (out->bpf_dev_set)
     {
       ret = verify_ebpf_device_filter_installed (scope_path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      જો (UNLIKELY (ret < 0))
+        પાછા ret;
     }
 
   out->path = path;
-  path = NULL;
+  path = ખાલી;
 
   out->scope = scope;
-  scope = NULL;
-  return 0;
+  scope = ખાલી;
+  પાછા 0;
 }
 
-char *
-get_cgroup_scope_path (const char *cgroup_path, const char *scope)
+અક્ષર *
+get_cgroup_scope_path (અચલ અક્ષર *cgroup_path, અચલ અક્ષર *scope)
 {
-  char *path_to_scope = NULL;
-  char *cur;
+  અક્ષર *path_to_scope = ખાલી;
+  અક્ષર *cur;
 
-  if (is_empty_string (cgroup_path))
-    return NULL;
+  જો (is_empty_string (cgroup_path))
+    પાછા ખાલી;
 
   path_to_scope = xstrdup (cgroup_path);
 
   cur = strchr (path_to_scope, '/');
-  while (cur)
+  જ્યારે (cur)
     {
-      char *next = strchr (cur + 1, '/');
-      if (next == NULL)
-        break;
+      અક્ષર *next = strchr (cur + 1, '/');
+      જો (next == ખાલી)
+        તોડો;
 
       *next = '\0';
-      if (strcmp (cur, scope) == 0)
-        return path_to_scope;
+      જો (strcmp (cur, scope) == 0)
+        પાછા path_to_scope;
       *next = '/';
 
       cur = next;
-      while (*cur == '/')
+      જ્યારે (*cur == '/')
         cur++;
     }
 
-  return path_to_scope;
+  પાછા path_to_scope;
 }
 
-static int
-libcrun_destroy_cgroup_systemd (struct libcrun_cgroup_status *cgroup_status,
+સ્થિર પૂર્ણાંક
+libcrun_destroy_cgroup_systemd (સંરચના libcrun_cgroup_status *cgroup_status,
                                 libcrun_error_t *err)
 {
-  cleanup_free char *path_to_scope = NULL;
-  cleanup_free char *bpfprog = NULL;
-  int mode;
-  int ret;
+  cleanup_free અક્ષર *path_to_scope = ખાલી;
+  cleanup_free અક્ષર *bpfprog = ખાલી;
+  પૂર્ણાંક mode;
+  પૂર્ણાંક ret;
 
   mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (mode < 0))
-    return mode;
+  જો (UNLIKELY (mode < 0))
+    પાછા mode;
 
   ret = cgroup_killall_path (cgroup_status->path, SIGKILL, err);
-  if (UNLIKELY (ret < 0))
+  જો (UNLIKELY (ret < 0))
     crun_error_release (err);
 
   ret = libcrun_destroy_systemd_cgroup_scope (cgroup_status, err);
-  if (UNLIKELY (ret < 0))
+  જો (UNLIKELY (ret < 0))
     crun_error_release (err);
 
   ret = bpfprog_path_from_scope (&bpfprog, cgroup_status->scope, err);
-  if (UNLIKELY (ret < 0))
+  જો (UNLIKELY (ret < 0))
     crun_error_release (err);
-  else
+  નહીંતર
     unlink (bpfprog); // Best effort.
 
   path_to_scope = get_cgroup_scope_path (cgroup_status->path, cgroup_status->scope);
 
-  return destroy_cgroup_path (path_to_scope, mode, err);
+  પાછા destroy_cgroup_path (path_to_scope, mode, err);
 }
 
-static int
-libcrun_update_resources_systemd (struct libcrun_cgroup_status *cgroup_status,
-                                  const char *state_root,
+સ્થિર પૂર્ણાંક
+libcrun_update_resources_systemd (સંરચના libcrun_cgroup_status *cgroup_status,
+                                  અચલ અક્ષર *state_મૂળ,
                                   runtime_spec_schema_config_linux_resources *resources,
                                   libcrun_error_t *err)
 {
-  struct systemd_job_removed_s job_data = {};
+  સંરચના systemd_job_removed_s job_data = {};
   sd_bus_error error = SD_BUS_ERROR_NULL;
-  cleanup_free char *state_dir = NULL;
-  sd_bus_message *reply = NULL;
-  sd_bus_message *m = NULL;
-  sd_bus *bus = NULL;
-  int sd_err, ret;
-  int cgroup_mode;
+  cleanup_free અક્ષર *state_dir = ખાલી;
+  sd_bus_message *reply = ખાલી;
+  sd_bus_message *m = ખાલી;
+  sd_bus *bus = ખાલી;
+  પૂર્ણાંક sd_err, ret;
+  પૂર્ણાંક cgroup_mode;
 
-  ret = libcrun_get_state_directory (&state_dir, state_root, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_get_state_directory (&state_dir, state_મૂળ, ખાલી, err);
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  જો (UNLIKELY (cgroup_mode < 0))
+    પાછા cgroup_mode;
 
   ret = open_sd_bus_connection (&bus, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
   ret = systemd_check_job_status_setup (bus, &job_data, err);
-  if (UNLIKELY (ret < 0))
-    goto exit;
+  જો (UNLIKELY (ret < 0))
+    જાઓ exit;
 
   sd_err = sd_bus_message_new_method_call (bus, &m, "org.freedesktop.systemd1",
                                            "/org/freedesktop/systemd1",
                                            "org.freedesktop.systemd1.Manager",
                                            "SetUnitProperties");
-  if (UNLIKELY (sd_err < 0))
+  જો (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "set up dbus message");
-      goto exit;
+      જાઓ exit;
     }
 
   sd_err = sd_bus_message_append (m, "sb", cgroup_status->scope, 1);
-  if (UNLIKELY (sd_err < 0))
+  જો (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus message append");
-      goto exit;
+      જાઓ exit;
     }
 
   sd_err = sd_bus_message_open_container (m, 'a', "(sv)");
-  if (UNLIKELY (sd_err < 0))
+  જો (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus open container");
-      goto exit;
+      જાઓ exit;
     }
 
   ret = append_resources (m, true, state_dir, resources, cgroup_mode, cgroup_status->scope, &cgroup_status->bpf_dev_set, err);
-  if (UNLIKELY (ret < 0))
-    goto exit;
+  જો (UNLIKELY (ret < 0))
+    જાઓ exit;
 
   sd_err = sd_bus_message_close_container (m);
-  if (UNLIKELY (sd_err < 0))
+  જો (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus close container");
-      goto exit;
+      જાઓ exit;
     }
 
   sd_err = sd_bus_call (bus, m, 0, &error, &reply);
-  if (UNLIKELY (sd_err < 0))
+  જો (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, sd_bus_error_get_errno (&error), "sd-bus call: %s", error.message ?: error.name);
-      goto exit;
+      જાઓ exit;
     }
 
-  if (cgroup_mode != CGROUP_MODE_UNIFIED)
+  જો (cgroup_mode != CGROUP_MODE_UNIFIED)
     {
       ret = setup_rt_runtime (resources, cgroup_status->path, err);
-      if (UNLIKELY (ret < 0))
-        goto exit;
+      જો (UNLIKELY (ret < 0))
+        જાઓ exit;
 
       ret = setup_cpuset_for_systemd_v1 (resources, cgroup_status->path, err);
-      if (UNLIKELY (ret < 0))
-        goto exit;
+      જો (UNLIKELY (ret < 0))
+        જાઓ exit;
     }
 
   ret = setup_missing_cpu_options_for_systemd (resources, cgroup_mode == CGROUP_MODE_UNIFIED, cgroup_status->path, err);
-  if (UNLIKELY (ret < 0))
-    goto exit;
+  જો (UNLIKELY (ret < 0))
+    જાઓ exit;
 
   ret = 0;
 
 exit:
-  return cleanup_sd_bus_and_return (bus, m, reply, &error, ret);
+  પાછા cleanup_sd_bus_and_return (bus, m, reply, &error, ret);
 }
 
 /* Ask systemd to move PID to PATH, which is either the container scope
@@ -2410,97 +2410,97 @@ exit:
    access to the cgroup.procs file of the common ancestor of the source and
    the destination cgroups, as it is the case for a rootless user in a login
    session, which is outside of user@.service.  */
-static int
-libcrun_attach_process_systemd (struct libcrun_cgroup_status *cgroup_status,
-                                const char *path, pid_t pid,
+સ્થિર પૂર્ણાંક
+libcrun_attach_process_systemd (સંરચના libcrun_cgroup_status *cgroup_status,
+                                અચલ અક્ષર *path, pid_t pid,
                                 libcrun_error_t *err)
 {
-  const char *scope = cgroup_status->scope;
+  અચલ અક્ષર *scope = cgroup_status->scope;
   sd_bus_error error = SD_BUS_ERROR_NULL;
-  cleanup_free char *scope_path = NULL;
-  sd_bus_message *reply = NULL;
-  const char *subcgroup;
-  const char *last;
-  sd_bus *bus = NULL;
+  cleanup_free અક્ષર *scope_path = ખાલી;
+  sd_bus_message *reply = ખાલી;
+  અચલ અક્ષર *subcgroup;
+  અચલ અક્ષર *last;
+  sd_bus *bus = ખાલી;
   size_t len;
-  int sd_err, ret;
+  પૂર્ણાંક sd_err, ret;
 
-  if (is_empty_string (scope))
-    return crun_make_error (err, 0, "cannot attach process to cgroup: no systemd scope");
+  જો (is_empty_string (scope))
+    પાછા crun_make_error (err, 0, "cannot attach process to cgroup: no systemd scope");
 
   /* The sub-cgroup is relative to the scope cgroup.  */
   scope_path = get_cgroup_scope_path (path, scope);
-  if (scope_path == NULL)
-    return crun_make_error (err, 0, "cannot attach process to cgroup: empty path");
+  જો (scope_path == ખાલી)
+    પાછા crun_make_error (err, 0, "cannot attach process to cgroup: empty path");
   last = strrchr (scope_path, '/');
-  if (last == NULL || strcmp (last + 1, scope) != 0)
-    return crun_make_error (err, 0, "cannot find scope `%s` in cgroup path `%s`", scope, path);
+  જો (last == ખાલી || strcmp (last + 1, scope) != 0)
+    પાછા crun_make_error (err, 0, "cannot find scope `%s` in cgroup path `%s`", scope, path);
   len = strlen (scope_path);
   subcgroup = path[len] ? path + len : "/";
 
   ret = open_sd_bus_connection (&bus, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
   sd_err = sd_bus_call_method (bus, "org.freedesktop.systemd1", "/org/freedesktop/systemd1",
                                "org.freedesktop.systemd1.Manager", "AttachProcessesToUnit",
                                &error, &reply, "ssau", scope, subcgroup, 1, (uint32_t) pid);
-  if (UNLIKELY (sd_err < 0))
+  જો (UNLIKELY (sd_err < 0))
     ret = crun_make_error (err, sd_bus_error_get_errno (&error), "sd-bus call AttachProcessesToUnit: %s",
                            error.message ?: error.name);
 
-  return cleanup_sd_bus_and_return (bus, NULL, reply, &error, ret);
+  પાછા cleanup_sd_bus_and_return (bus, ખાલી, reply, &error, ret);
 }
 
-#else
-static int
-libcrun_cgroup_enter_systemd (struct libcrun_cgroup_args *args,
-                              struct libcrun_cgroup_status *out,
+#નહીંતર
+સ્થિર પૂર્ણાંક
+libcrun_cgroup_enter_systemd (સંરચના libcrun_cgroup_args *args,
+                              સંરચના libcrun_cgroup_status *out,
                               libcrun_error_t *err)
 {
-  (void) args;
-  (void) out;
+  (શૂન્ય) args;
+  (શૂન્ય) out;
 
-  return crun_make_error (err, ENOTSUP, "systemd not supported");
+  પાછા crun_make_error (err, ENOTSUP, "systemd not supported");
 }
 
-static int
-libcrun_destroy_cgroup_systemd (struct libcrun_cgroup_status *cgroup_status,
+સ્થિર પૂર્ણાંક
+libcrun_destroy_cgroup_systemd (સંરચના libcrun_cgroup_status *cgroup_status,
                                 libcrun_error_t *err)
 {
-  (void) cgroup_status;
+  (શૂન્ય) cgroup_status;
 
-  return crun_make_error (err, ENOTSUP, "systemd not supported");
+  પાછા crun_make_error (err, ENOTSUP, "systemd not supported");
 }
 
-static int
-libcrun_update_resources_systemd (struct libcrun_cgroup_status *cgroup_status,
-                                  const char *state_root,
+સ્થિર પૂર્ણાંક
+libcrun_update_resources_systemd (સંરચના libcrun_cgroup_status *cgroup_status,
+                                  અચલ અક્ષર *state_મૂળ,
                                   runtime_spec_schema_config_linux_resources *resources,
                                   libcrun_error_t *err)
 {
-  (void) cgroup_status;
-  (void) state_root;
-  (void) resources;
+  (શૂન્ય) cgroup_status;
+  (શૂન્ય) state_મૂળ;
+  (શૂન્ય) resources;
 
-  return crun_make_error (err, ENOTSUP, "systemd not supported");
+  પાછા crun_make_error (err, ENOTSUP, "systemd not supported");
 }
 
-static int
-libcrun_attach_process_systemd (struct libcrun_cgroup_status *cgroup_status,
-                                const char *path, pid_t pid,
+સ્થિર પૂર્ણાંક
+libcrun_attach_process_systemd (સંરચના libcrun_cgroup_status *cgroup_status,
+                                અચલ અક્ષર *path, pid_t pid,
                                 libcrun_error_t *err)
 {
-  (void) cgroup_status;
-  (void) path;
-  (void) pid;
+  (શૂન્ય) cgroup_status;
+  (શૂન્ય) path;
+  (શૂન્ય) pid;
 
-  return crun_make_error (err, ENOTSUP, "systemd not supported");
+  પાછા crun_make_error (err, ENOTSUP, "systemd not supported");
 }
 #endif
 
-struct libcrun_cgroup_manager cgroup_manager_systemd = {
-  .precreate_cgroup = NULL,
+સંરચના libcrun_cgroup_manager cgroup_manager_systemd = {
+  .precreate_cgroup = ખાલી,
   .create_cgroup = libcrun_cgroup_enter_systemd,
   .destroy_cgroup = libcrun_destroy_cgroup_systemd,
   .update_resources = libcrun_update_resources_systemd,

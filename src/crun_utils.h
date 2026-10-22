@@ -23,89 +23,89 @@
    non-public headers).  The binary is a pure consumer of the public
    <libcrun.h> API; everything here is either libc or a trivial inline.  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
+#અન્તર્ભાવ <stdlib.h>
+#અન્તર્ભાવ <stdio.h>
+#અન્તર્ભાવ <string.h>
+#અન્તર્ભાવ <unistd.h>
 
 #ifdef __GNUC__
 #  define LIKELY(x) __builtin_expect ((x), 1)
 #  define UNLIKELY(x) __builtin_expect ((x), 0)
 #  define arg_unused __attribute__ ((unused))
-#else
+#નહીંતર
 #  define LIKELY(x) (x)
 #  define UNLIKELY(x) (x)
 #  define arg_unused
 #endif
 
 #define OOM()                            \
-  do                                     \
+  કરો                                     \
     {                                    \
       fprintf (stderr, "out of memory"); \
       _exit (EXIT_FAILURE);              \
-  } while (0)
+  } જ્યારે (0)
 
 #define crun_make_error libcrun_make_error
 
-__attribute__ ((malloc)) static inline void *
+__attribute__ ((malloc)) સ્થિર અંતઃરેખ શૂન્ય *
 xmalloc (size_t size)
 {
-  void *res = malloc (size);
-  if (UNLIKELY (res == NULL))
+  શૂન્ય *res = malloc (size);
+  જો (UNLIKELY (res == ખાલી))
     OOM ();
-  return res;
+  પાછા res;
 }
 
-__attribute__ ((malloc)) static inline void *
+__attribute__ ((malloc)) સ્થિર અંતઃરેખ શૂન્ય *
 xmalloc0 (size_t size)
 {
-  void *res = calloc (1, size);
-  if (UNLIKELY (res == NULL))
+  શૂન્ય *res = calloc (1, size);
+  જો (UNLIKELY (res == ખાલી))
     OOM ();
-  return res;
+  પાછા res;
 }
 
-__attribute__ ((malloc)) static inline void *
-xrealloc (void *ptr, size_t size)
+__attribute__ ((malloc)) સ્થિર અંતઃરેખ શૂન્ય *
+xrealloc (શૂન્ય *ptr, size_t size)
 {
-  void *res = realloc (ptr, size);
-  if (UNLIKELY (res == NULL))
+  શૂન્ય *res = realloc (ptr, size);
+  જો (UNLIKELY (res == ખાલી))
     OOM ();
-  return res;
+  પાછા res;
 }
 
-static inline char *
-xstrdup (const char *str)
+સ્થિર અંતઃરેખ અક્ષર *
+xstrdup (અચલ અક્ષર *str)
 {
-  char *ret;
-  if (str == NULL)
-    return NULL;
+  અક્ષર *ret;
+  જો (str == ખાલી)
+    પાછા ખાલી;
   ret = strdup (str);
-  if (UNLIKELY (ret == NULL))
+  જો (UNLIKELY (ret == ખાલી))
     OOM ();
-  return ret;
+  પાછા ret;
 }
 
-static inline void
-cleanup_freep (void *p)
+સ્થિર અંતઃરેખ શૂન્ય
+cleanup_freep (શૂન્ય *p)
 {
-  void **pp = (void **) p;
-  free (*pp);
+  શૂન્ય **pp = (શૂન્ય **) p;
+  મુક્ત (*pp);
 }
 
-static inline void
+સ્થિર અંતઃરેખ શૂન્ય
 cleanup_filep (FILE **f)
 {
   FILE *file = *f;
-  if (file)
-    (void) fclose (file);
+  જો (file)
+    (શૂન્ય) fclose (file);
 }
 
-static inline void
-cleanup_closep (void *p)
+સ્થિર અંતઃરેખ શૂન્ય
+cleanup_closep (શૂન્ય *p)
 {
-  int *pp = (int *) p;
-  if (*pp >= 0)
+  પૂર્ણાંક *pp = (પૂર્ણાંક *) p;
+  જો (*pp >= 0)
     close (*pp);
 }
 
@@ -115,19 +115,19 @@ cleanup_closep (void *p)
 
 /* Relies on <libcrun.h> (included before this header via crun.h) for the
    opaque libcrun_context_t and libcrun_context_free.  */
-static inline void
+સ્થિર અંતઃરેખ શૂન્ય
 cleanup_libcrun_contextp (libcrun_context_t **p)
 {
-  if (*p)
+  જો (*p)
     libcrun_context_free (*p);
 }
 
 #define cleanup_context __attribute__ ((cleanup (cleanup_libcrun_contextp)))
 
-static inline void
+સ્થિર અંતઃરેખ શૂન્ય
 cleanup_libcrun_containerp (libcrun_container_t **p)
 {
-  if (*p)
+  જો (*p)
     libcrun_container_free (*p);
 }
 

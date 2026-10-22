@@ -16,19 +16,19 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#અન્તર્ભાવ <config.h>
+#અન્તર્ભાવ <stdio.h>
+#અન્તર્ભાવ <stdlib.h>
+#અન્તર્ભાવ <argp.h>
+#અન્તર્ભાવ <string.h>
+#અન્તર્ભાવ <unistd.h>
+#અન્તર્ભાવ <errno.h>
 
-#include "crun.h"
+#અન્તર્ભાવ "crun.h"
 
-static char doc[] = "OCI runtime";
+સ્થિર અક્ષર doc[] = "OCI runtime";
 
-enum
+ગણના
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -37,56 +37,56 @@ enum
   OPTION_PRESERVE_FDS
 };
 
-struct ps_options_s
+સંરચના ps_options_s
 {
-  int format;
+  પૂર્ણાંક format;
 };
 
-enum
+ગણના
 {
   PS_TABLE = 100,
   PS_JSON,
 };
 
-static struct ps_options_s ps_options;
+સ્થિર સંરચના ps_options_s ps_options;
 
-static struct argp_option options[] = { { "format", 'f', "FORMAT", 0, "select the output format", 0 },
+સ્થિર સંરચના argp_option options[] = { { "format", 'f', "FORMAT", 0, "select the output format", 0 },
                                         {
                                             0,
                                         } };
 
-static char args_doc[] = "ps";
+સ્થિર અક્ષર args_doc[] = "ps";
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state arg_unused)
+સ્થિર error_t
+parse_opt (પૂર્ણાંક ચાવી, અક્ષર *arg, સંરચના argp_state *state arg_unused)
 {
-  switch (key)
+  પસંદગી (ચાવી)
     {
-    case 'f':
-      if (strcmp (arg, "table") == 0)
+    સ્થિતિ 'f':
+      જો (strcmp (arg, "table") == 0)
         ps_options.format = PS_TABLE;
-      else if (strcmp (arg, "json") == 0)
+      નહીંતર જો (strcmp (arg, "json") == 0)
         ps_options.format = PS_JSON;
-      else
+      નહીંતર
         libcrun_fail_with_error (0, "invalid format `%s`", arg);
-      break;
+      તોડો;
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    મૂળભૂત:
+      પાછા ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  પાછા 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+સ્થિર સંરચના argp run_argp = { options, parse_opt, args_doc, doc, ખાલી, ખાલી, ખાલી };
 
-int
-crun_command_ps (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+પૂર્ણાંક
+crun_command_ps (સંરચના crun_global_arguments *global_args, પૂર્ણાંક argc, અક્ષર **argv, libcrun_error_t *err)
 {
-  int first_arg;
-  int ret;
-  cleanup_free pid_t *pids = NULL;
-  cleanup_context libcrun_context_t *crun_context = NULL;
+  પૂર્ણાંક first_arg;
+  પૂર્ણાંક ret;
+  cleanup_free pid_t *pids = ખાલી;
+  cleanup_context libcrun_context_t *crun_context = ખાલી;
   size_t i;
 
   ps_options.format = PS_TABLE;
@@ -97,31 +97,31 @@ crun_command_ps (struct crun_global_arguments *global_args, int argc, char **arg
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
   ret = libcrun_container_read_pids (crun_context, argv[first_arg], true, &pids, err);
-  if (UNLIKELY (ret < 0))
+  જો (UNLIKELY (ret < 0))
     {
       libcrun_error_report_and_release (err);
-      return ret;
+      પાછા ret;
     }
 
-  switch (ps_options.format)
+  પસંદગી (ps_options.format)
     {
-    case PS_JSON:
+    સ્થિતિ PS_JSON:
       printf ("[\n");
-      for (i = 0; pids && pids[i]; i++)
+      માટે (i = 0; pids && pids[i]; i++)
         printf ("  %d%s\n", pids[i], pids[i + 1] ? "," : "");
       printf ("]\n");
-      break;
+      તોડો;
 
-    case PS_TABLE:
+    સ્થિતિ PS_TABLE:
       printf ("PID\n");
-      for (i = 0; pids && pids[i]; i++)
+      માટે (i = 0; pids && pids[i]; i++)
         printf ("%d\n", pids[i]);
-      break;
+      તોડો;
     }
 
-  return 0;
+  પાછા 0;
 }

@@ -19,35 +19,35 @@
 #ifndef CRIU_H
 #define CRIU_H
 
-#include <config.h>
-#include "container.h"
-#include "error.h"
-#include "utils.h"
+#અન્તર્ભાવ <config.h>
+#અન્તર્ભાવ "container.h"
+#અન્તર્ભાવ "error.h"
+#અન્તર્ભાવ "utils.h"
 
-#if HAVE_CRIU && HAVE_DLOPEN
+#જો HAVE_CRIU && HAVE_DLOPEN
 
-int libcrun_container_checkpoint_linux_criu (libcrun_container_status_t *status, libcrun_container_t *container,
+પૂર્ણાંક libcrun_container_checkpoint_linux_criu (libcrun_container_status_t *status, libcrun_container_t *container,
                                              libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err);
 
-int libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcrun_container_t *container,
+પૂર્ણાંક libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcrun_container_t *container,
                                           libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err);
 
-#else
+#નહીંતર
 
-static inline int
+સ્થિર અંતઃરેખ પૂર્ણાંક
 libcrun_container_checkpoint_linux_criu (arg_unused libcrun_container_status_t *status,
                                          arg_unused libcrun_container_t *container,
                                          arg_unused libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
 {
-  return crun_make_error (err, 0, "compiled without CRIU support. Checkpointing not available");
+  પાછા crun_make_error (err, 0, "compiled without CRIU support. Checkpointing not available");
 }
 
-static inline int
+સ્થિર અંતઃરેખ પૂર્ણાંક
 libcrun_container_restore_linux_criu (arg_unused libcrun_container_status_t *status,
                                       arg_unused libcrun_container_t *container,
                                       arg_unused libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
 {
-  return crun_make_error (err, 0, "compiled without CRIU support. Restore not available");
+  પાછા crun_make_error (err, 0, "compiled without CRIU support. Restore not available");
 }
 
 #endif

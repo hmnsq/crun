@@ -18,10 +18,10 @@
 #ifndef CGROUP_CGROUPFS_H
 #define CGROUP_CGROUPFS_H
 
-#include "container.h"
-#include "cgroup.h"
-#include <unistd.h>
+#અન્તર્ભાવ "container.h"
+#અન્તર્ભાવ "cgroup.h"
+#અન્તર્ભાવ <unistd.h>
 
-extern struct libcrun_cgroup_manager cgroup_manager_cgroupfs;
+બાહ્ય સંરચના libcrun_cgroup_manager cgroup_manager_cgroupfs;
 
 #endif

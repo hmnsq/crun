@@ -16,40 +16,40 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <limits.h>
+#અન્તર્ભાવ <config.h>
+#અન્તર્ભાવ <stdio.h>
+#અન્તર્ભાવ <stdlib.h>
+#અન્તર્ભાવ <argp.h>
+#અન્તર્ભાવ <string.h>
+#અન્તર્ભાવ <unistd.h>
+#અન્તર્ભાવ <errno.h>
+#અન્તર્ભાવ <limits.h>
 
-#include "crun.h"
+#અન્તર્ભાવ "crun.h"
 
-static char doc[] = "OCI runtime";
+સ્થિર અક્ષર doc[] = "OCI runtime";
 
-struct exec_options_s
+સંરચના exec_options_s
 {
   bool tty;
   bool detach;
   bool no_new_privs;
-  int preserve_fds;
-  const char *process;
-  const char *console_socket;
-  const char *pid_file;
-  char *process_label;
-  char *apparmor;
-  char *cwd;
-  char *user;
-  char **env;
-  char **cap;
+  પૂર્ણાંક preserve_fds;
+  અચલ અક્ષર *process;
+  અચલ અક્ષર *console_socket;
+  અચલ અક્ષર *pid_file;
+  અક્ષર *process_label;
+  અક્ષર *apparmor;
+  અક્ષર *cwd;
+  અક્ષર *user;
+  અક્ષર **env;
+  અક્ષર **cap;
   size_t cap_size;
   size_t env_size;
-  char *cgroup;
+  અક્ષર *cgroup;
 };
 
-enum
+ગણના
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -61,9 +61,9 @@ enum
   OPTION_CGROUP,
 };
 
-static struct exec_options_s exec_options;
+સ્થિર સંરચના exec_options_s exec_options;
 
-static struct argp_option options[]
+સ્થિર સંરચના argp_option options[]
     = { { "console-socket", OPTION_CONSOLE_SOCKET, "SOCKET", 0,
           "path to a socket that will receive the ptmx end of the tty", 0 },
         { "tty", 't', "TTY", OPTION_ARG_OPTIONAL, "allocate a pseudo-TTY", 0 },
@@ -83,127 +83,127 @@ static struct argp_option options[]
             0,
         } };
 
-static char args_doc[] = "exec CONTAINER cmd";
+સ્થિર અક્ષર args_doc[] = "exec CONTAINER cmd";
 
-static void
-append_to_string_array (char ***arr, size_t *size, const char *arg)
+સ્થિર શૂન્ય
+append_to_string_array (અક્ષર ***arr, size_t *size, અચલ અક્ષર *arg)
 {
-  *arr = xrealloc (*arr, (*size + 2) * sizeof (**arr));
-  (*arr)[*size + 1] = NULL;
+  *arr = xrealloc (*arr, (*size + 2) * કદ (**arr));
+  (*arr)[*size + 1] = ખાલી;
   (*arr)[*size] = xstrdup (arg);
   (*size)++;
 }
 
-static void
-append_env (const char *arg)
+સ્થિર શૂન્ય
+append_env (અચલ અક્ષર *arg)
 {
   append_to_string_array (&exec_options.env, &exec_options.env_size, arg);
 }
 
-static void
-append_cap (const char *arg)
+સ્થિર શૂન્ય
+append_cap (અચલ અક્ષર *arg)
 {
   append_to_string_array (&exec_options.cap, &exec_options.cap_size, arg);
 }
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+સ્થિર error_t
+parse_opt (પૂર્ણાંક ચાવી, અક્ષર *arg, સંરચના argp_state *state)
 {
-  switch (key)
+  પસંદગી (ચાવી)
     {
-    case OPTION_CONSOLE_SOCKET:
+    સ્થિતિ OPTION_CONSOLE_SOCKET:
       exec_options.console_socket = arg;
-      break;
+      તોડો;
 
-    case OPTION_PID_FILE:
+    સ્થિતિ OPTION_PID_FILE:
       exec_options.pid_file = arg;
-      break;
+      તોડો;
 
-    case OPTION_NO_NEW_PRIVS:
+    સ્થિતિ OPTION_NO_NEW_PRIVS:
       exec_options.no_new_privs = true;
-      break;
+      તોડો;
 
-    case OPTION_PROCESS_LABEL:
+    સ્થિતિ OPTION_PROCESS_LABEL:
       exec_options.process_label = argp_mandatory_argument (arg, state);
-      break;
+      તોડો;
 
-    case OPTION_APPARMOR:
+    સ્થિતિ OPTION_APPARMOR:
       exec_options.apparmor = argp_mandatory_argument (arg, state);
-      break;
+      તોડો;
 
-    case OPTION_PRESERVE_FDS:
-      exec_options.preserve_fds = parse_id_or_fail (argp_mandatory_argument (arg, state), NULL, "preserve-fds");
-      break;
+    સ્થિતિ OPTION_PRESERVE_FDS:
+      exec_options.preserve_fds = parse_id_or_fail (argp_mandatory_argument (arg, state), ખાલી, "preserve-fds");
+      તોડો;
 
-    case OPTION_CGROUP:
+    સ્થિતિ OPTION_CGROUP:
       exec_options.cgroup = argp_mandatory_argument (arg, state);
-      break;
+      તોડો;
 
-    case 'd':
+    સ્થિતિ 'd':
       exec_options.detach = true;
-      break;
+      તોડો;
 
-    case 'p':
+    સ્થિતિ 'p':
       exec_options.process = arg;
-      break;
+      તોડો;
 
-    case 't':
-      exec_options.tty = arg == NULL || (strcmp (arg, "false") != 0 && strcmp (arg, "no") != 0);
-      break;
+    સ્થિતિ 't':
+      exec_options.tty = arg == ખાલી || (strcmp (arg, "false") != 0 && strcmp (arg, "no") != 0);
+      તોડો;
 
-    case 'u':
+    સ્થિતિ 'u':
       exec_options.user = arg;
-      break;
+      તોડો;
 
-    case 'e':
+    સ્થિતિ 'e':
       append_env (arg);
-      break;
+      તોડો;
 
-    case 'c':
+    સ્થિતિ 'c':
       append_cap (arg);
-      break;
+      તોડો;
 
-    case OPTION_CWD:
+    સ્થિતિ OPTION_CWD:
       exec_options.cwd = xstrdup (arg);
-      break;
+      તોડો;
 
-    case ARGP_KEY_NO_ARGS:
+    સ્થિતિ ARGP_ચાવી_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    મૂળભૂત:
+      પાછા ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  પાછા 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+સ્થિર સંરચના argp run_argp = { options, parse_opt, args_doc, doc, ખાલી, ખાલી, ખાલી };
 
 /* Minimal growable string buffer used to assemble the OCI Process JSON.  The
    binary is a pure consumer of the public API, so it builds the process as a
    JSON string rather than reaching for the internal ocispec types.  */
-struct strbuf
+સંરચના strbuf
 {
-  char *buf;
+  અક્ષર *buf;
   size_t len;
   size_t cap;
 };
 
-static void
-sb_ensure (struct strbuf *sb, size_t extra)
+સ્થિર શૂન્ય
+sb_ensure (સંરચના strbuf *sb, size_t extra)
 {
-  if (sb->len + extra + 1 > sb->cap)
+  જો (sb->len + extra + 1 > sb->cap)
     {
       size_t ncap = sb->cap ? sb->cap : 256;
-      while (ncap < sb->len + extra + 1)
+      જ્યારે (ncap < sb->len + extra + 1)
         ncap *= 2;
       sb->buf = xrealloc (sb->buf, ncap);
       sb->cap = ncap;
     }
 }
 
-static void
-sb_puts (struct strbuf *sb, const char *s)
+સ્થિર શૂન્ય
+sb_puts (સંરચના strbuf *sb, અચલ અક્ષર *s)
 {
   size_t l = strlen (s);
   sb_ensure (sb, l);
@@ -212,8 +212,8 @@ sb_puts (struct strbuf *sb, const char *s)
   sb->buf[sb->len] = '\0';
 }
 
-static void
-sb_putc (struct strbuf *sb, char c)
+સ્થિર શૂન્ય
+sb_putc (સંરચના strbuf *sb, અક્ષર c)
 {
   sb_ensure (sb, 1);
   sb->buf[sb->len++] = c;
@@ -221,58 +221,58 @@ sb_putc (struct strbuf *sb, char c)
 }
 
 /* Append S as a quoted, escaped JSON string.  */
-static void
-sb_put_json_string (struct strbuf *sb, const char *s)
+સ્થિર શૂન્ય
+sb_put_json_string (સંરચના strbuf *sb, અચલ અક્ષર *s)
 {
   sb_putc (sb, '"');
-  for (; *s; s++)
+  માટે (; *s; s++)
     {
-      unsigned char c = (unsigned char) *s;
-      switch (c)
+      unsigned અક્ષર c = (unsigned અક્ષર) *s;
+      પસંદગી (c)
         {
-        case '"':
+        સ્થિતિ '"':
           sb_puts (sb, "\\\"");
-          break;
-        case '\\':
+          તોડો;
+        સ્થિતિ '\\':
           sb_puts (sb, "\\\\");
-          break;
-        case '\b':
+          તોડો;
+        સ્થિતિ '\b':
           sb_puts (sb, "\\b");
-          break;
-        case '\f':
+          તોડો;
+        સ્થિતિ '\f':
           sb_puts (sb, "\\f");
-          break;
-        case '\n':
+          તોડો;
+        સ્થિતિ '\n':
           sb_puts (sb, "\\n");
-          break;
-        case '\r':
+          તોડો;
+        સ્થિતિ '\r':
           sb_puts (sb, "\\r");
-          break;
-        case '\t':
+          તોડો;
+        સ્થિતિ '\t':
           sb_puts (sb, "\\t");
-          break;
-        default:
-          if (c < 0x20)
+          તોડો;
+        મૂળભૂત:
+          જો (c < 0x20)
             {
-              char tmp[8];
-              snprintf (tmp, sizeof (tmp), "\\u%04x", c);
+              અક્ષર tmp[8];
+              snprintf (tmp, કદ (tmp), "\\u%04x", c);
               sb_puts (sb, tmp);
             }
-          else
+          નહીંતર
             sb_putc (sb, c);
         }
     }
   sb_putc (sb, '"');
 }
 
-static void
-sb_put_json_string_array (struct strbuf *sb, char **arr, size_t len)
+સ્થિર શૂન્ય
+sb_put_json_string_array (સંરચના strbuf *sb, અક્ષર **arr, size_t len)
 {
   size_t i;
   sb_putc (sb, '[');
-  for (i = 0; i < len; i++)
+  માટે (i = 0; i < len; i++)
     {
-      if (i)
+      જો (i)
         sb_putc (sb, ',');
       sb_put_json_string (sb, arr[i]);
     }
@@ -281,48 +281,48 @@ sb_put_json_string_array (struct strbuf *sb, char **arr, size_t len)
 
 /* Read the whole file at PATH into a NUL-terminated string.  A PATH of `-`
    reads from stdin.  */
-static char *
-read_file_to_string (const char *path, libcrun_error_t *err)
+સ્થિર અક્ષર *
+read_file_to_string (અચલ અક્ષર *path, libcrun_error_t *err)
 {
-  cleanup_file FILE *f = NULL;
-  struct strbuf sb = { 0 };
-  char chunk[4096];
+  cleanup_file FILE *f = ખાલી;
+  સંરચના strbuf sb = { 0 };
+  અક્ષર chunk[4096];
   size_t n;
 
-  if (strcmp (path, "-") == 0)
+  જો (strcmp (path, "-") == 0)
     path = "/dev/stdin";
 
   f = fopen (path, "re");
-  if (f == NULL)
+  જો (f == ખાલી)
     {
       libcrun_make_error (err, errno, "cannot open `%s`", path);
-      return NULL;
+      પાછા ખાલી;
     }
 
-  while ((n = fread (chunk, 1, sizeof (chunk), f)) > 0)
+  જ્યારે ((n = fread (chunk, 1, કદ (chunk), f)) > 0)
     {
       sb_ensure (&sb, n);
       memcpy (sb.buf + sb.len, chunk, n);
       sb.len += n;
       sb.buf[sb.len] = '\0';
     }
-  if (ferror (f))
+  જો (ferror (f))
     {
-      free (sb.buf);
+      મુક્ત (sb.buf);
       libcrun_make_error (err, errno, "cannot read `%s`", path);
-      return NULL;
+      પાછા ખાલી;
     }
 
-  if (sb.buf == NULL)
+  જો (sb.buf == ખાલી)
     sb.buf = xstrdup ("");
-  return sb.buf;
+  પાછા sb.buf;
 }
 
 /* Build the OCI Process JSON from the CLI options.  */
-static char *
-build_process_json (struct crun_global_arguments *global_args arg_unused, char **args, size_t args_len)
+સ્થિર અક્ષર *
+build_process_json (સંરચના crun_global_arguments *global_args arg_unused, અક્ષર **args, size_t args_len)
 {
-  struct strbuf sb = { 0 };
+  સંરચના strbuf sb = { 0 };
 
   sb_putc (&sb, '{');
 
@@ -337,52 +337,52 @@ build_process_json (struct crun_global_arguments *global_args arg_unused, char *
   sb_puts (&sb, ",\"terminal\":");
   sb_puts (&sb, exec_options.tty ? "true" : "false");
 
-  if (exec_options.env_size > 0)
+  જો (exec_options.env_size > 0)
     {
       sb_puts (&sb, ",\"env\":");
       sb_put_json_string_array (&sb, exec_options.env, exec_options.env_size);
     }
 
-  if (exec_options.user)
+  જો (exec_options.user)
     {
-      char *endptr = NULL;
-      char *gidstr;
-      int uid, gid = 0;
-      char tmp[32];
+      અક્ષર *endptr = ખાલી;
+      અક્ષર *gidstr;
+      પૂર્ણાંક uid, gid = 0;
+      અક્ષર tmp[32];
 
       uid = parse_id_or_fail (exec_options.user, &endptr, "UID");
-      if (*endptr == ':')
+      જો (*endptr == ':')
         {
           gidstr = endptr + 1;
           gid = parse_id_or_fail (gidstr, &endptr, "GID");
-          if (*endptr != '\0')
+          જો (*endptr != '\0')
             libcrun_fail_with_error (0, "invalid USERSPEC specified");
         }
-      else if (*endptr != '\0')
+      નહીંતર જો (*endptr != '\0')
         libcrun_fail_with_error (0, "invalid USERSPEC specified");
 
       sb_puts (&sb, ",\"user\":{\"uid\":");
-      snprintf (tmp, sizeof (tmp), "%d", uid);
+      snprintf (tmp, કદ (tmp), "%d", uid);
       sb_puts (&sb, tmp);
       sb_puts (&sb, ",\"gid\":");
-      snprintf (tmp, sizeof (tmp), "%d", gid);
+      snprintf (tmp, કદ (tmp), "%d", gid);
       sb_puts (&sb, tmp);
       sb_putc (&sb, '}');
     }
 
-  if (exec_options.process_label != NULL)
+  જો (exec_options.process_label != ખાલી)
     {
       sb_puts (&sb, ",\"selinuxLabel\":");
       sb_put_json_string (&sb, exec_options.process_label);
     }
 
-  if (exec_options.apparmor != NULL)
+  જો (exec_options.apparmor != ખાલી)
     {
       sb_puts (&sb, ",\"apparmorProfile\":");
       sb_put_json_string (&sb, exec_options.apparmor);
     }
 
-  if (exec_options.cap_size > 0)
+  જો (exec_options.cap_size > 0)
     {
       sb_puts (&sb, ",\"capabilities\":{");
       sb_puts (&sb, "\"effective\":");
@@ -397,24 +397,24 @@ build_process_json (struct crun_global_arguments *global_args arg_unused, char *
     }
 
   /* noNewPrivileges remains at the config default unless explicitly requested.  */
-  if (exec_options.no_new_privs)
+  જો (exec_options.no_new_privs)
     sb_puts (&sb, ",\"noNewPrivileges\":true");
 
   sb_putc (&sb, '}');
 
-  return sb.buf;
+  પાછા sb.buf;
 }
 
-int
-crun_command_exec (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+પૂર્ણાંક
+crun_command_exec (સંરચના crun_global_arguments *global_args, પૂર્ણાંક argc, અક્ષર **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret = 0;
-  cleanup_context libcrun_context_t *crun_context = NULL;
-  cleanup_free char *process_json = NULL;
-  struct libcrun_exec_options_s exec_opts;
+  પૂર્ણાંક first_arg = 0, ret = 0;
+  cleanup_context libcrun_context_t *crun_context = ખાલી;
+  cleanup_free અક્ષર *process_json = ખાલી;
+  સંરચના libcrun_exec_options_s exec_opts;
 
-  memset (&exec_opts, 0, sizeof (exec_opts));
-  exec_opts.struct_size = sizeof (exec_opts);
+  memset (&exec_opts, 0, કદ (exec_opts));
+  exec_opts.struct_size = કદ (exec_opts);
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &exec_options);
   crun_assert_n_args (argc - first_arg, exec_options.process ? 1 : 2, -1);
@@ -423,33 +423,33 @@ crun_command_exec (struct crun_global_arguments *global_args, int argc, char **a
 
   libcrun_context_set_preserve_fds (crun_context, exec_options.preserve_fds);
 
-  if (getenv ("LISTEN_FDS"))
+  જો (getenv ("LISTEN_FDS"))
     {
-      int listen_fds = strtoll (getenv ("LISTEN_FDS"), NULL, 10);
+      પૂર્ણાંક listen_fds = strtoll (getenv ("LISTEN_FDS"), ખાલી, 10);
       libcrun_context_set_listen_fds (crun_context, listen_fds);
       libcrun_context_set_preserve_fds (crun_context, exec_options.preserve_fds + listen_fds);
     }
 
   /* The process file may be passed as /dev/fd/N, so read it before
      closing the file descriptors.  */
-  if (exec_options.process)
+  જો (exec_options.process)
     {
       process_json = read_file_to_string (exec_options.process, err);
-      if (process_json == NULL)
-        return -1;
+      જો (process_json == ખાલી)
+        પાછા -1;
       exec_opts.merge_env = false;
     }
-  else
+  નહીંતર
     {
-      cleanup_free char **args = NULL;
+      cleanup_free અક્ષર **args = ખાલી;
       size_t args_len = argc - first_arg - 1;
       size_t i;
 
       /* argv[first_arg] is the container id, the command follows it.  */
-      args = xmalloc0 ((args_len + 1) * sizeof (*args));
-      for (i = 0; i < args_len; i++)
+      args = xmalloc0 ((args_len + 1) * કદ (*args));
+      માટે (i = 0; i < args_len; i++)
         args[i] = argv[first_arg + i + 1];
-      args[i] = NULL;
+      args[i] = ખાલી;
 
       process_json = build_process_json (global_args, args, args_len);
       exec_opts.merge_env = true;
@@ -458,12 +458,12 @@ crun_command_exec (struct crun_global_arguments *global_args, int argc, char **a
   /* Close the file descriptors inherited from the caller, so they do
      not leak into the container.  */
   ret = libcrun_close_inherited_fds (crun_context, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  જો (UNLIKELY (ret < 0))
+    પાછા ret;
 
   libcrun_context_set_detach (crun_context, exec_options.detach);
   libcrun_context_set_console_socket (crun_context, exec_options.console_socket);
@@ -472,5 +472,5 @@ crun_command_exec (struct crun_global_arguments *global_args, int argc, char **a
   exec_opts.process_json = process_json;
   exec_opts.cgroup = exec_options.cgroup;
 
-  return libcrun_container_exec_with_options_json (crun_context, argv[first_arg], &exec_opts, err);
+  પાછા libcrun_container_exec_with_options_json (crun_context, argv[first_arg], &exec_opts, err);
 }

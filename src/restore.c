@@ -18,19 +18,19 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <regex.h>
+#અન્તર્ભાવ <config.h>
+#અન્તર્ભાવ <stdio.h>
+#અન્તર્ભાવ <stdlib.h>
+#અન્તર્ભાવ <argp.h>
+#અન્તર્ભાવ <string.h>
+#અન્તર્ભાવ <unistd.h>
+#અન્તર્ભાવ <errno.h>
+#અન્તર્ભાવ <regex.h>
 
-#include "crun.h"
-#include "checkpoint.h"
+#અન્તર્ભાવ "crun.h"
+#અન્તર્ભાવ "checkpoint.h"
 
-enum
+ગણના
 {
   OPTION_IMAGE_PATH = 1000,
   OPTION_WORK_PATH,
@@ -48,15 +48,15 @@ enum
   OPTION_NO_NEW_KEYRING,
 };
 
-static char doc[] = "OCI runtime";
+સ્થિર અક્ષર doc[] = "OCI runtime";
 
-static const char *bundle = NULL;
+સ્થિર અચલ અક્ષર *bundle = ખાલી;
 
-static libcrun_context_t *crun_context;
+સ્થિર libcrun_context_t *crun_context;
 
-static struct libcrun_checkpoint_restore_options_s cr_options;
+સ્થિર સંરચના libcrun_checkpoint_restore_options_s cr_options;
 
-static struct argp_option options[]
+સ્થિર સંરચના argp_option options[]
     = { { "bundle", 'b', "DIR", 0, "container bundle (default \".\")", 0 },
         { "image-path", OPTION_IMAGE_PATH, "DIR", 0, "path for saving criu image files", 0 },
         { "work-path", OPTION_WORK_PATH, "DIR", 0, "path for saving work files and logs", 0 },
@@ -78,99 +78,99 @@ static struct argp_option options[]
             0,
         } };
 
-static char args_doc[] = "restore CONTAINER";
+સ્થિર અક્ષર args_doc[] = "restore CONTAINER";
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+સ્થિર error_t
+parse_opt (પૂર્ણાંક ચાવી, અક્ષર *arg, સંરચના argp_state *state)
 {
-  switch (key)
+  પસંદગી (ચાવી)
     {
-    case ARGP_KEY_NO_ARGS:
+    સ્થિતિ ARGP_ચાવી_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    case OPTION_IMAGE_PATH:
+    સ્થિતિ OPTION_IMAGE_PATH:
       cr_options.image_path = argp_mandatory_argument (arg, state);
-      break;
+      તોડો;
 
-    case OPTION_WORK_PATH:
+    સ્થિતિ OPTION_WORK_PATH:
       cr_options.work_path = argp_mandatory_argument (arg, state);
-      break;
+      તોડો;
 
-    case 'b':
+    સ્થિતિ 'b':
       bundle = argp_mandatory_argument (arg, state);
-      break;
+      તોડો;
 
-    case OPTION_TCP_ESTABLISHED:
+    સ્થિતિ OPTION_TCP_ESTABLISHED:
       cr_options.tcp_established = true;
-      break;
+      તોડો;
 
-    case OPTION_TCP_CLOSE:
+    સ્થિતિ OPTION_TCP_CLOSE:
       cr_options.tcp_close = true;
-      break;
+      તોડો;
 
-    case OPTION_EXT_UNIX_SK:
+    સ્થિતિ OPTION_EXT_UNIX_SK:
       cr_options.ext_unix_sk = true;
-      break;
+      તોડો;
 
-    case OPTION_SHELL_JOB:
+    સ્થિતિ OPTION_SHELL_JOB:
       cr_options.shell_job = true;
-      break;
+      તોડો;
 
-    case OPTION_FILE_LOCKS:
+    સ્થિતિ OPTION_FILE_LOCKS:
       cr_options.file_locks = true;
-      break;
+      તોડો;
 
-    case 'd':
+    સ્થિતિ 'd':
       cr_options.detach = true;
-      break;
+      તોડો;
 
-    case OPTION_CONSOLE_SOCKET:
+    સ્થિતિ OPTION_CONSOLE_SOCKET:
       cr_options.console_socket = argp_mandatory_argument (arg, state);
-      break;
+      તોડો;
 
-    case OPTION_PID_FILE:
+    સ્થિતિ OPTION_PID_FILE:
       libcrun_context_set_pid_file (crun_context, argp_mandatory_argument (arg, state));
-      break;
+      તોડો;
 
-    case OPTION_MANAGE_CGROUPS_MODE:
+    સ્થિતિ OPTION_MANAGE_CGROUPS_MODE:
       cr_options.manage_cgroups_mode = crun_parse_manage_cgroups_mode (argp_mandatory_argument (arg, state));
-      break;
+      તોડો;
 
-    case OPTION_NETWORK_LOCK_METHOD:
+    સ્થિતિ OPTION_NETWORK_LOCK_METHOD:
       cr_options.network_lock_method = crun_parse_network_lock_method (argp_mandatory_argument (arg, state));
-      break;
+      તોડો;
 
-    case OPTION_LSM_PROFILE:
+    સ્થિતિ OPTION_LSM_PROFILE:
       cr_options.lsm_profile = argp_mandatory_argument (arg, state);
-      break;
+      તોડો;
 
-    case OPTION_LSM_MOUNT_CONTEXT:
+    સ્થિતિ OPTION_LSM_MOUNT_CONTEXT:
       cr_options.lsm_mount_context = argp_mandatory_argument (arg, state);
-      break;
+      તોડો;
 
-    case OPTION_NO_NEW_KEYRING:
+    સ્થિતિ OPTION_NO_NEW_KEYRING:
       libcrun_context_set_no_new_keyring (crun_context, true);
-      break;
+      તોડો;
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    મૂળભૂત:
+      પાછા ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  પાછા 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+સ્થિર સંરચના argp run_argp = { options, parse_opt, args_doc, doc, ખાલી, ખાલી, ખાલી };
 
-int
-crun_command_restore (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+પૂર્ણાંક
+crun_command_restore (સંરચના crun_global_arguments *global_args, પૂર્ણાંક argc, અક્ષર **argv, libcrun_error_t *err)
 {
-  cleanup_free char *bundle_cleanup = NULL;
-  cleanup_free char *cr_path = NULL;
-  int first_arg;
-  int ret;
+  cleanup_free અક્ષર *bundle_cleanup = ખાલી;
+  cleanup_free અક્ષર *cr_path = ખાલી;
+  પૂર્ણાંક first_arg;
+  પૂર્ણાંક ret;
 
   crun_context = new_libcrun_context (global_args);
-  cr_options.struct_size = sizeof (cr_options);
+  cr_options.struct_size = કદ (cr_options);
   cr_options.manage_cgroups_mode = -1;
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &cr_options);
@@ -178,44 +178,44 @@ crun_command_restore (struct crun_global_arguments *global_args, int argc, char 
 
   /* Make sure the bundle is an absolute path.  */
 
-  if (bundle == NULL)
+  જો (bundle == ખાલી)
     {
-      bundle_cleanup = realpath (".", NULL);
-      if (bundle_cleanup == NULL)
+      bundle_cleanup = realpath (".", ખાલી);
+      જો (bundle_cleanup == ખાલી)
         libcrun_fail_with_error (errno, "realpath `.` failed");
       bundle = bundle_cleanup;
     }
-  else
+  નહીંતર
     {
-      if (bundle[0] != '/')
+      જો (bundle[0] != '/')
         {
-          bundle_cleanup = realpath (bundle, NULL);
-          if (bundle_cleanup == NULL)
+          bundle_cleanup = realpath (bundle, ખાલી);
+          જો (bundle_cleanup == ખાલી)
             libcrun_fail_with_error (errno, "realpath `%s` failed", bundle);
           bundle = bundle_cleanup;
         }
 
-      if (chdir (bundle) < 0)
+      જો (chdir (bundle) < 0)
         libcrun_fail_with_error (errno, "chdir `%s` failed", bundle);
     }
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
+  જો (UNLIKELY (ret < 0))
     {
       libcrun_context_free (crun_context);
-      return ret;
+      પાછા ret;
     }
 
-  if (cr_options.image_path == NULL)
+  જો (cr_options.image_path == ખાલી)
     {
-      cleanup_free char *path = NULL;
+      cleanup_free અક્ષર *path = ખાલી;
 
-      path = getcwd (NULL, 0);
-      if (UNLIKELY (path == NULL))
+      path = getcwd (ખાલી, 0);
+      જો (UNLIKELY (path == ખાલી))
         libcrun_fail_with_error (errno, "getcwd failed");
 
       ret = asprintf (&cr_path, "%s/checkpoint", path);
-      if (UNLIKELY (ret < 0))
+      જો (UNLIKELY (ret < 0))
         OOM ();
       cr_options.image_path = cr_path;
     }
@@ -223,5 +223,5 @@ crun_command_restore (struct crun_global_arguments *global_args, int argc, char 
   libcrun_context_set_bundle (crun_context, bundle);
   ret = libcrun_container_restore (crun_context, argv[first_arg], &cr_options, err);
   libcrun_context_free (crun_context);
-  return ret;
+  પાછા ret;
 }

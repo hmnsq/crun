@@ -20,71 +20,71 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "linux.h"
-#include "utils.h"
+#અન્તર્ભાવ <config.h>
+#અન્તર્ભાવ "linux.h"
+#અન્તર્ભાવ "utils.h"
 
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <termios.h>
+#અન્તર્ભાવ <stdlib.h>
+#અન્તર્ભાવ <unistd.h>
+#અન્તર્ભાવ <fcntl.h>
+#અન્તર્ભાવ <sys/ioctl.h>
+#અન્તર્ભાવ <termios.h>
 
 #ifndef TIOCGPTPEER
 #  define TIOCGPTPEER _IO ('T', 0x41)
 #endif
 
-struct terminal_status_s
+સંરચના terminal_status_s
 {
-  int fd;
-  struct termios termios;
+  પૂર્ણાંક fd;
+  સંરચના termios termios;
 };
 
-int
-libcrun_new_terminal (char **pty, libcrun_error_t *err)
+પૂર્ણાંક
+libcrun_new_terminal (અક્ષર **pty, libcrun_error_t *err)
 {
-  char buf[64];
-  int ret;
-  cleanup_close int fd = open ("/dev/ptmx", O_RDWR | O_NOCTTY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `/dev/ptmx`");
+  અક્ષર buf[64];
+  પૂર્ણાંક ret;
+  cleanup_close પૂર્ણાંક fd = open ("/dev/ptmx", O_RDWR | O_NOCTTY | O_CLOEXEC);
+  જો (UNLIKELY (fd < 0))
+    પાછા crun_make_error (err, errno, "open `/dev/ptmx`");
 
-  ret = ptsname_r (fd, buf, sizeof (buf));
-  if (UNLIKELY (ret != 0))
-    return crun_make_error (err, errno, "ptsname");
+  ret = ptsname_r (fd, buf, કદ (buf));
+  જો (UNLIKELY (ret != 0))
+    પાછા crun_make_error (err, errno, "ptsname");
 
   ret = unlockpt (fd);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "unlockpt");
+  જો (UNLIKELY (ret < 0))
+    પાછા crun_make_error (err, errno, "unlockpt");
 
   *pty = xstrdup (buf);
 
   ret = fd;
   fd = -1;
 
-  return ret;
+  પાછા ret;
 }
 
-int
-libcrun_set_raw (int fd, void **current_status, libcrun_error_t *err)
+પૂર્ણાંક
+libcrun_set_raw (પૂર્ણાંક fd, શૂન્ય **current_status, libcrun_error_t *err)
 {
-  int ret;
-  struct termios termios;
+  પૂર્ણાંક ret;
+  સંરચના termios termios;
 
   ret = tcgetattr (fd, &termios);
-  if (UNLIKELY (ret < 0))
+  જો (UNLIKELY (ret < 0))
     {
       /* Nothing to do if FD is not a terminal.  */
-      if (errno == ENOTTY)
-        return 0;
-      return crun_make_error (err, errno, "tcgetattr");
+      જો (errno == ENOTTY)
+        પાછા 0;
+      પાછા crun_make_error (err, errno, "tcgetattr");
     }
 
-  if (current_status)
+  જો (current_status)
     {
-      struct terminal_status_s *s = xmalloc (sizeof (*s));
+      સંરચના terminal_status_s *s = xmalloc (કદ (*s));
       s->fd = fd;
-      memcpy (&(s->termios), &termios, sizeof (termios));
+      memcpy (&(s->termios), &termios, કદ (termios));
       *current_status = s;
     }
 
@@ -92,94 +92,94 @@ libcrun_set_raw (int fd, void **current_status, libcrun_error_t *err)
   termios.c_iflag = 0;
 
   ret = tcsetattr (fd, TCSANOW, &termios);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "tcsetattr");
+  જો (UNLIKELY (ret < 0))
+    પાછા crun_make_error (err, errno, "tcsetattr");
 
-  return 0;
+  પાછા 0;
 }
 
 /* Do not translate "\n" to "\r\n" on output, so that what the container
    writes to the terminal reaches our stdout unchanged.  */
-int
-libcrun_clear_onlcr (int fd, libcrun_error_t *err)
+પૂર્ણાંક
+libcrun_clear_onlcr (પૂર્ણાંક fd, libcrun_error_t *err)
 {
-  int ret;
-  struct termios termios;
+  પૂર્ણાંક ret;
+  સંરચના termios termios;
 
   ret = tcgetattr (fd, &termios);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "tcgetattr");
+  જો (UNLIKELY (ret < 0))
+    પાછા crun_make_error (err, errno, "tcgetattr");
 
   termios.c_oflag &= ~ONLCR;
 
   ret = tcsetattr (fd, TCSANOW, &termios);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "tcsetattr");
+  જો (UNLIKELY (ret < 0))
+    પાછા crun_make_error (err, errno, "tcsetattr");
 
-  return 0;
+  પાછા 0;
 }
 
-int
-libcrun_set_stdio (int ptmx_fd, char *pty, libcrun_error_t *err)
+પૂર્ણાંક
+libcrun_set_stdio (પૂર્ણાંક ptmx_fd, અક્ષર *pty, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
-  int ret, i;
+  cleanup_close પૂર્ણાંક fd = -1;
+  પૂર્ણાંક ret, i;
 
   /* Open the slave directly from the master.  The path is resolved in the
      container mount namespace, and could point anywhere.  */
   fd = ioctl (ptmx_fd, TIOCGPTPEER, O_RDWR | O_CLOEXEC);
-  if (fd < 0 && (errno == EINVAL || errno == ENOTTY))
+  જો (fd < 0 && (errno == EINVAL || errno == ENOTTY))
     {
       /* TIOCGPTPEER requires Linux 4.13.  */
       fd = open (pty, O_RDWR | O_CLOEXEC);
     }
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s`", pty);
+  જો (UNLIKELY (fd < 0))
+    પાછા crun_make_error (err, errno, "open `%s`", pty);
 
-  for (i = 0; i < 3; i++)
+  માટે (i = 0; i < 3; i++)
     {
       ret = dup3 (fd, i, 0);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "dup terminal");
+      જો (UNLIKELY (ret < 0))
+        પાછા crun_make_error (err, errno, "dup terminal");
     }
 
   ret = ioctl (0, TIOCSCTTY, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "ioctl TIOCSCTTY");
+  જો (UNLIKELY (ret < 0))
+    પાછા crun_make_error (err, errno, "ioctl TIOCSCTTY");
 
-  return 0;
+  પાછા 0;
 }
 
-void
-cleanup_terminalp (void *p)
+શૂન્ય
+cleanup_terminalp (શૂન્ય *p)
 {
-  struct terminal_status_s **s = (struct terminal_status_s **) p;
-  if (*s)
+  સંરચના terminal_status_s **s = (સંરચના terminal_status_s **) p;
+  જો (*s)
     {
       tcsetattr ((*s)->fd, TCSANOW, &(*s)->termios);
-      free (*s);
+      મુક્ત (*s);
     }
 }
 
-int
-libcrun_terminal_setup_size (int fd, unsigned short rows, unsigned short cols, libcrun_error_t *err)
+પૂર્ણાંક
+libcrun_terminal_setup_size (પૂર્ણાંક fd, unsigned short rows, unsigned short cols, libcrun_error_t *err)
 {
-  struct winsize ws = { .ws_row = rows, .ws_col = cols };
-  int ret;
+  સંરચના winsize ws = { .ws_row = rows, .ws_col = cols };
+  પૂર્ણાંક ret;
 
-  if (ws.ws_row == 0 || ws.ws_col == 0)
+  જો (ws.ws_row == 0 || ws.ws_col == 0)
     {
       ret = ioctl (0, TIOCGWINSZ, &ws);
-      if (UNLIKELY (ret < 0))
+      જો (UNLIKELY (ret < 0))
         {
-          if (errno == ENOTTY)
-            return 0;
-          return crun_make_error (err, errno, "ioctl TIOCGWINSZ");
+          જો (errno == ENOTTY)
+            પાછા 0;
+          પાછા crun_make_error (err, errno, "ioctl TIOCGWINSZ");
         }
     }
 
   ret = ioctl (fd, TIOCSWINSZ, &ws);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "ioctl TIOCSWINSZ");
-  return 0;
+  જો (UNLIKELY (ret < 0))
+    પાછા crun_make_error (err, errno, "ioctl TIOCSWINSZ");
+  પાછા 0;
 }

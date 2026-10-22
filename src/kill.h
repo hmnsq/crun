@@ -18,8 +18,8 @@
 #ifndef KILL_H
 #define KILL_H
 
-#include "crun.h"
+#અન્તર્ભાવ "crun.h"
 
-int crun_command_kill (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+પૂર્ણાંક crun_command_kill (સંરચના crun_global_arguments *global_args, પૂર્ણાંક argc, અક્ષર **argv, libcrun_error_t *error);
 
 #endif
