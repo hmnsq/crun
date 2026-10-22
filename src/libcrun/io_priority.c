@@ -18,77 +18,77 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
+#ضمن <config.h>
 
 #ifdef HAVE_LINUX_IOPRIO_H
 #  include <linux/ioprio.h>
 #endif
 
-#include "linux.h"
-#include "utils.h"
-#include "io_priority.h"
-#include <sys/sysmacros.h>
+#ضمن "linux.h"
+#ضمن "utils.h"
+#ضمن "io_priority.h"
+#ضمن <sys/sysmacros.h>
 
 #ifdef HAVE_LINUX_IOPRIO_H
-static int
-syscall_ioprio_set (int which, int who, int ioprio)
+ساكن صحيح
+syscall_ioprio_set (صحيح which, صحيح who, صحيح ioprio)
 {
 #  ifdef __NR_ioprio_set
-  return syscall (__NR_ioprio_set, which, who, ioprio);
-#  else
-  (void) which;
-  (void) who;
-  (void) ioprio;
+  أرجع syscall (__NR_ioprio_set, which, who, ioprio);
+#  وإلا
+  (فراغ) which;
+  (فراغ) who;
+  (فراغ) ioprio;
   errno = ENOSYS;
-  return -1;
+  أرجع -1;
 #  endif
 }
 #endif
 
-int
+صحيح
 libcrun_set_io_priority (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err)
 {
 #ifdef HAVE_LINUX_IOPRIO_H
-  int ret, i, class_value, value;
-  struct
+  صحيح ret, i, class_قدر, قدر;
+  بنية
   {
-    const char *name;
-    int value;
+    ثابت حرف *name;
+    صحيح قدر;
   } classes[] = {
     { "IOPRIO_CLASS_RT", IOPRIO_CLASS_RT },
     { "IOPRIO_CLASS_BE", IOPRIO_CLASS_BE },
     { "IOPRIO_CLASS_IDLE", IOPRIO_CLASS_IDLE },
-    { NULL, 0 },
+    { عدم, 0 },
   };
 
-  if (process == NULL || process->io_priority == NULL)
-    return 0;
+  إذا (process == عدم || process->io_priority == عدم)
+    أرجع 0;
 
-  class_value = -1;
-  for (i = 0; classes[i].name; i++)
-    if (strcmp (process->io_priority->_class, classes[i].name) == 0)
+  class_قدر = -1;
+  لكل (i = 0; classes[i].name; i++)
+    إذا (strcmp (process->io_priority->_class, classes[i].name) == 0)
       {
-        class_value = i;
-        break;
+        class_قدر = i;
+        اكسر;
       }
-  if (UNLIKELY (class_value < 0))
-    return crun_make_error (err, 0, "invalid io priority `%s`", process->io_priority->_class);
+  إذا (UNLIKELY (class_قدر < 0))
+    أرجع crun_make_error (err, 0, "invalid io priority `%s`", process->io_priority->_class);
 
-  value = IOPRIO_PRIO_VALUE (classes[class_value].value, process->io_priority->priority);
+  قدر = IOPRIO_PRIO_قدر (classes[class_قدر].قدر, process->io_priority->priority);
 
-  ret = syscall_ioprio_set (IOPRIO_WHO_PROCESS, pid, value);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "failed to set io priority");
+  ret = syscall_ioprio_set (IOPRIO_WHO_PROCESS, pid, قدر);
+  إذا (UNLIKELY (ret < 0))
+    أرجع crun_make_error (err, errno, "failed to set io priority");
 
-  return 0;
-#else
+  أرجع 0;
+#وإلا
   // If io_priority is not set then return without doing
   // anything.
-  if (process == NULL || process->io_priority == NULL)
-    return 0;
+  إذا (process == عدم || process->io_priority == عدم)
+    أرجع 0;
 
-  (void) pid;
-  (void) process;
-  return crun_make_error (err, 0, "io priority not supported");
+  (فراغ) pid;
+  (فراغ) process;
+  أرجع crun_make_error (err, 0, "io priority not supported");
 #endif
 }
