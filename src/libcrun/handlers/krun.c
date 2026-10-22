@@ -17,22 +17,22 @@
  */
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "../custom-handler.h"
-#include "../container.h"
-#include "../utils.h"
-#include "../linux.h"
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/socket.h>
-#include <errno.h>
-#include <sys/mount.h>
-#include <sys/param.h>
-#include <sys/types.h>
-#include <sys/sysmacros.h>
-#include <fcntl.h>
-#include <sched.h>
-#include <ocispec/runtime_spec_schema_config_schema.h>
+#അന്തര്ഭാവ <config.h>
+#അന്തര്ഭാവ "../custom-handler.h"
+#അന്തര്ഭാവ "../container.h"
+#അന്തര്ഭാവ "../utils.h"
+#അന്തര്ഭാവ "../linux.h"
+#അന്തര്ഭാവ <unistd.h>
+#അന്തര്ഭാവ <sys/stat.h>
+#അന്തര്ഭാവ <sys/socket.h>
+#അന്തര്ഭാവ <errno.h>
+#അന്തര്ഭാവ <sys/mount.h>
+#അന്തര്ഭാവ <sys/param.h>
+#അന്തര്ഭാവ <sys/types.h>
+#അന്തര്ഭാവ <sys/sysmacros.h>
+#അന്തര്ഭാവ <fcntl.h>
+#അന്തര്ഭാവ <sched.h>
+#അന്തര്ഭാവ <ocispec/runtime_spec_schema_config_schema.h>
 
 #ifdef HAVE_DLOPEN
 #  include <dlfcn.h>
@@ -85,11 +85,11 @@
 #define FD_PAIR_PARENT 0
 #define FD_PAIR_CHILD 1
 
-struct krun_config
+ഘടന krun_config
 {
-  void *handle;
-  void *handle_sev;
-  void *handle_awsnitro;
+  ശൂന്യം *handle;
+  ശൂന്യം *handle_sev;
+  ശൂന്യം *handle_awsnitro;
   bool sev;
   bool awsnitro;
   int32_t ctx_id;
@@ -97,128 +97,128 @@ struct krun_config
   int32_t ctx_id_awsnitro;
   bool has_kvm;
   bool has_awsnitro;
-  int passt_fds[2];
+  പൂർണ്ണസംഖ്യ passt_fds[2];
   json_object *config_doc;
-  json_object *config_tree;
+  json_object *config_വൃക്ഷം;
   bool use_passt;
-  const char *tap_name;
-  int gpu_render_server_fd;
-  int gpu_flags;
+  സ്ഥിരം അക്ഷരം *tap_name;
+  പൂർണ്ണസംഖ്യ gpu_render_server_fd;
+  പൂർണ്ണസംഖ്യ gpu_flags;
 };
 
 /* libkrun handler.  */
-#if HAVE_DLOPEN && HAVE_LIBKRUN
-static int32_t
-libkrun_create_context (void *handle, libcrun_error_t *err)
+#എങ്കിൽ HAVE_DLOPEN && HAVE_LIBKRUN
+സ്ഥിതം int32_t
+libkrun_create_context (ശൂന്യം *handle, libcrun_error_t *err)
 {
   int32_t (*krun_create_ctx) ();
   int32_t ctx_id;
 
   krun_create_ctx = dlsym (handle, "krun_create_ctx");
-  if (krun_create_ctx == NULL)
-    return crun_make_error (err, 0, "could not find symbol in the krun library");
+  എങ്കിൽ (krun_create_ctx == ശൂന്യ)
+    തിരികെ crun_make_error (err, 0, "could not find symbol in the krun library");
 
   ctx_id = krun_create_ctx ();
-  if (UNLIKELY (ctx_id < 0))
-    return crun_make_error (err, -ctx_id, "could not create krun context");
+  എങ്കിൽ (UNLIKELY (ctx_id < 0))
+    തിരികെ crun_make_error (err, -ctx_id, "could not create krun context");
 
-  return ctx_id;
+  തിരികെ ctx_id;
 }
 
-static int
-libkrun_configure_kernel (uint32_t ctx_id, void *handle, json_object *config_tree, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+libkrun_configure_kernel (uint32_t ctx_id, ശൂന്യം *handle, json_object *config_വൃക്ഷം, libcrun_error_t *err)
 {
-  int32_t (*krun_set_kernel) (uint32_t ctx_id, const char *kernel_path,
-                              uint32_t kernel_format, const char *initrd_path, const char *kernel_cmdline);
-  json_object *kernel_path = NULL;
-  json_object *kernel_format = NULL;
-  json_object *val_initrd_path = NULL;
-  json_object *val_kernel_cmdline = NULL;
-  const char *initrd_path = NULL;
-  const char *kernel_cmdline = NULL;
-  int ret;
+  int32_t (*krun_set_kernel) (uint32_t ctx_id, സ്ഥിരം അക്ഷരം *kernel_path,
+                              uint32_t kernel_format, സ്ഥിരം അക്ഷരം *initrd_path, സ്ഥിരം അക്ഷരം *kernel_cmdline);
+  json_object *kernel_path = ശൂന്യ;
+  json_object *kernel_format = ശൂന്യ;
+  json_object *val_initrd_path = ശൂന്യ;
+  json_object *val_kernel_cmdline = ശൂന്യ;
+  സ്ഥിരം അക്ഷരം *initrd_path = ശൂന്യ;
+  സ്ഥിരം അക്ഷരം *kernel_cmdline = ശൂന്യ;
+  പൂർണ്ണസംഖ്യ ret;
 
   /* kernel_path and kernel_format must be present */
-  kernel_path = json_object_object_get (config_tree, "kernel_path");
-  if (kernel_path == NULL || ! json_object_is_type (kernel_path, json_type_string))
-    return 0;
+  kernel_path = json_object_object_get (config_വൃക്ഷം, "kernel_path");
+  എങ്കിൽ (kernel_path == ശൂന്യ || ! json_object_is_type (kernel_path, json_type_string))
+    തിരികെ 0;
 
-  kernel_format = json_object_object_get (config_tree, "kernel_format");
-  if (kernel_format == NULL || ! json_object_is_type (kernel_format, json_type_int))
-    return 0;
+  kernel_format = json_object_object_get (config_വൃക്ഷം, "kernel_format");
+  എങ്കിൽ (kernel_format == ശൂന്യ || ! json_object_is_type (kernel_format, json_type_int))
+    തിരികെ 0;
 
   /* initrd and kernel_cmdline are optional */
-  val_initrd_path = json_object_object_get (config_tree, "initrd_path");
-  if (val_initrd_path != NULL && json_object_is_type (val_initrd_path, json_type_string))
+  val_initrd_path = json_object_object_get (config_വൃക്ഷം, "initrd_path");
+  എങ്കിൽ (val_initrd_path != ശൂന്യ && json_object_is_type (val_initrd_path, json_type_string))
     initrd_path = json_object_get_string (val_initrd_path);
 
-  val_kernel_cmdline = json_object_object_get (config_tree, "kernel_cmdline");
-  if (val_kernel_cmdline != NULL && json_object_is_type (val_kernel_cmdline, json_type_string))
+  val_kernel_cmdline = json_object_object_get (config_വൃക്ഷം, "kernel_cmdline");
+  എങ്കിൽ (val_kernel_cmdline != ശൂന്യ && json_object_is_type (val_kernel_cmdline, json_type_string))
     kernel_cmdline = json_object_get_string (val_kernel_cmdline);
 
   krun_set_kernel = dlsym (handle, "krun_set_kernel");
-  if (krun_set_kernel == NULL)
-    return crun_make_error (err, 0, "could not find symbol in krun library");
+  എങ്കിൽ (krun_set_kernel == ശൂന്യ)
+    തിരികെ crun_make_error (err, 0, "could not find symbol in krun library");
 
   ret = krun_set_kernel (ctx_id,
                          json_object_get_string (kernel_path),
                          (uint32_t) json_object_get_int64 (kernel_format),
                          initrd_path, kernel_cmdline);
 
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, -ret, "could not configure a krun external kernel");
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ crun_make_error (err, -ret, "could not configure a krun external kernel");
 
-  return 0;
+  തിരികെ 0;
 }
 
-static int
-libkrun_read_vm_config (struct krun_config *kconf, int rootfsfd, const char *rootfs, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+libkrun_read_vm_config (ഘടന krun_config *kconf, പൂർണ്ണസംഖ്യ rootfsfd, സ്ഥിരം അക്ഷരം *rootfs, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_free char *config = NULL;
-  cleanup_close int pathfd = -1;
-  cleanup_close int fd = -1;
+  പൂർണ്ണസംഖ്യ ret;
+  cleanup_free അക്ഷരം *config = ശൂന്യ;
+  cleanup_close പൂർണ്ണസംഖ്യ pathfd = -1;
+  cleanup_close പൂർണ്ണസംഖ്യ fd = -1;
   proc_fd_path_t fd_path;
-  struct stat st;
+  ഘടന stat st;
 
   /* The content of the rootfs is controlled by the user: look at the file through an
      O_PATH descriptor first and refuse anything that is not a small regular file, as
      opening a FIFO blocks and a device node must not be accessed.  */
   pathfd = safe_openat (rootfsfd, rootfs, KRUN_VM_FILE, O_PATH | O_CLOEXEC | O_NOFOLLOW, 0, err);
-  if (pathfd < 0)
+  എങ്കിൽ (pathfd < 0)
     {
       // The configuration file is optional, don't generate an error if it's missing.
-      if (crun_error_get_errno (err) == ENOENT)
+      എങ്കിൽ (crun_error_get_errno (err) == ENOENT)
         {
           crun_error_release (err);
-          return 0;
+          തിരികെ 0;
         }
-      return pathfd;
+      തിരികെ pathfd;
     }
 
   ret = fstat (pathfd, &st);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "stat `%s`", KRUN_VM_FILE);
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ crun_make_error (err, errno, "stat `%s`", KRUN_VM_FILE);
 
-  if (! S_ISREG (st.st_mode))
-    return crun_make_error (err, 0, "`%s` is not a regular file", KRUN_VM_FILE);
+  എങ്കിൽ (! S_ISREG (st.st_mode))
+    തിരികെ crun_make_error (err, 0, "`%s` is not a regular file", KRUN_VM_FILE);
 
   get_proc_self_fd_path (fd_path, pathfd);
 
   fd = open (fd_path, O_RDONLY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s`", KRUN_VM_FILE);
+  എങ്കിൽ (UNLIKELY (fd < 0))
+    തിരികെ crun_make_error (err, errno, "open `%s`", KRUN_VM_FILE);
 
-  ret = read_all_fd_with_max_size (fd, KRUN_VM_FILE, &config, NULL, KRUN_VM_FILE_MAX_SIZE, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_fd_with_max_size (fd, KRUN_VM_FILE, &config, ശൂന്യ, KRUN_VM_FILE_MAX_SIZE, err);
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
-  ret = parse_json_file (&kconf->config_doc, config, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = parse_json_file (&kconf->config_doc, config, ശൂന്യ, err);
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
-  kconf->config_tree = kconf->config_doc;
-  return 0;
+  kconf->config_വൃക്ഷം = kconf->config_doc;
+  തിരികെ 0;
 }
 
 /*
@@ -230,240 +230,240 @@ libkrun_read_vm_config (struct krun_config *kconf, int rootfsfd, const char *roo
  * OCI annotations -> krun_vm.json.
  * The config file is only used if "use_config_file" is "true".
  */
-static int
-libkrun_parse_resource_configuration (json_object *config_tree, libcrun_container_t *container, const char *annotation, const char *key, bool use_config_file)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+libkrun_parse_resource_configuration (json_object *config_വൃക്ഷം, libcrun_container_t *container, സ്ഥിരം അക്ഷരം *annotation, സ്ഥിരം അക്ഷരം *താക്കോൽ, bool use_config_file)
 {
-  char *val_str, *endptr;
-  int val = -1;
-  json_object *val_json = NULL;
+  അക്ഷരം *val_str, *endptr;
+  പൂർണ്ണസംഖ്യ val = -1;
+  json_object *val_json = ശൂന്യ;
 
-  val_str = (char *) find_annotation (container, annotation);
-  if (val_str != NULL)
+  val_str = (അക്ഷരം *) find_annotation (container, annotation);
+  എങ്കിൽ (val_str != ശൂന്യ)
     {
       errno = 0;
-      val = (int) strtol (val_str, &endptr, 10);
-      if (errno != 0 || endptr == val_str || *endptr != '\0')
+      val = (പൂർണ്ണസംഖ്യ) strtol (val_str, &endptr, 10);
+      എങ്കിൽ (errno != 0 || endptr == val_str || *endptr != '\0')
         /* Annotations value is not a valid integer. */
         error (EXIT_FAILURE, 0, "krun annotation %s value cannot be converted to an integer", annotation);
 
-      if (val < 0)
+      എങ്കിൽ (val < 0)
         error (EXIT_FAILURE, 0, "krun annotation %s value must be a positive integer", annotation);
 
-      return val;
+      തിരികെ val;
     }
-  else if (use_config_file && config_tree != NULL)
+  അല്ലെങ്കിൽ എങ്കിൽ (use_config_file && config_വൃക്ഷം != ശൂന്യ)
     {
-      val_json = json_object_object_get (config_tree, key);
-      if (val_json == NULL)
-        return val;
-      if (! json_object_is_type (val_json, json_type_int))
-        error (EXIT_FAILURE, 0, "krun krun_vm.json %s value is not an integer", key);
+      val_json = json_object_object_get (config_വൃക്ഷം, താക്കോൽ);
+      എങ്കിൽ (val_json == ശൂന്യ)
+        തിരികെ val;
+      എങ്കിൽ (! json_object_is_type (val_json, json_type_int))
+        error (EXIT_FAILURE, 0, "krun krun_vm.json %s value is not an integer", താക്കോൽ);
 
-      val = (int) json_object_get_int64 (val_json);
+      val = (പൂർണ്ണസംഖ്യ) json_object_get_int64 (val_json);
     }
 
-  return val;
+  തിരികെ val;
 }
 
-static int
-libkrun_parse_string_configuration (json_object *config_tree, libcrun_container_t *container,
-                                    const char *annotation, const char *key,
-                                    const char **value, libcrun_error_t *err, bool use_config_file)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+libkrun_parse_string_configuration (json_object *config_വൃക്ഷം, libcrun_container_t *container,
+                                    സ്ഥിരം അക്ഷരം *annotation, സ്ഥിരം അക്ഷരം *താക്കോൽ,
+                                    സ്ഥിരം അക്ഷരം **മൂല്യം, libcrun_error_t *err, bool use_config_file)
 {
-  const char *val;
-  json_object *val_json = NULL;
+  സ്ഥിരം അക്ഷരം *val;
+  json_object *val_json = ശൂന്യ;
 
-  *value = NULL;
+  *മൂല്യം = ശൂന്യ;
 
   val = find_annotation (container, annotation);
-  if (val != NULL)
+  എങ്കിൽ (val != ശൂന്യ)
     {
-      *value = val;
-      return 0;
+      *മൂല്യം = val;
+      തിരികെ 0;
     }
 
-  if (! use_config_file || config_tree == NULL)
-    return 0;
+  എങ്കിൽ (! use_config_file || config_വൃക്ഷം == ശൂന്യ)
+    തിരികെ 0;
 
-  val_json = json_object_object_get (config_tree, key);
-  if (val_json == NULL)
-    return 0;
+  val_json = json_object_object_get (config_വൃക്ഷം, താക്കോൽ);
+  എങ്കിൽ (val_json == ശൂന്യ)
+    തിരികെ 0;
 
-  if (! json_object_is_type (val_json, json_type_string))
-    return crun_make_error (err, 0, ".krun_vm.json %s value is not a string", key);
+  എങ്കിൽ (! json_object_is_type (val_json, json_type_string))
+    തിരികെ crun_make_error (err, 0, ".krun_vm.json %s value is not a string", താക്കോൽ);
 
-  *value = json_object_get_string (val_json);
-  return 0;
+  *മൂല്യം = json_object_get_string (val_json);
+  തിരികെ 0;
 }
 
-static void
-libkrun_make_tap_mac (const char *id, uint8_t mac[6])
+സ്ഥിതം ശൂന്യം
+libkrun_make_tap_mac (സ്ഥിരം അക്ഷരം *id, uint8_t mac[6])
 {
   uint64_t hash = 14695981039346656037ULL;
   size_t i;
 
-  for (; *id != '\0'; id++)
+  വേണ്ടി (; *id != '\0'; id++)
     {
       hash ^= (uint8_t) *id;
       hash *= 1099511628211ULL;
     }
 
-  for (i = 0; i < 6; i++)
+  വേണ്ടി (i = 0; i < 6; i++)
     mac[i] = (uint8_t) (hash >> (i * 8));
 
   mac[0] = (mac[0] & 0xfe) | 0x02;
 }
 
-static int
-libkrun_configure_vm (uint32_t ctx_id, void *handle, struct krun_config *kconf, libcrun_container_t *container, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+libkrun_configure_vm (uint32_t ctx_id, ശൂന്യം *handle, ഘടന krun_config *kconf, libcrun_container_t *container, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  int32_t (*krun_set_vm_config) (uint32_t ctx_id, uint8_t num_vcpus, uint32_t ram_mib);
-  int32_t (*krun_add_net_unixstream) (uint32_t ctx_id, const char *c_path, int fd, uint8_t *const c_mac, uint32_t features, uint32_t flags);
-  int32_t (*krun_add_net_tap) (uint32_t ctx_id, const char *c_tap_name, const uint8_t *c_mac, uint32_t features, uint32_t flags);
+  int32_t (*krun_set_vm_config) (uint32_t ctx_id, uint8_t അക്കം_vcpus, uint32_t ram_mib);
+  int32_t (*krun_add_net_unixstream) (uint32_t ctx_id, സ്ഥിരം അക്ഷരം *c_path, പൂർണ്ണസംഖ്യ fd, uint8_t *സ്ഥിരം c_mac, uint32_t features, uint32_t flags);
+  int32_t (*krun_add_net_tap) (uint32_t ctx_id, സ്ഥിരം അക്ഷരം *c_tap_name, സ്ഥിരം uint8_t *c_mac, uint32_t features, uint32_t flags);
   int32_t (*krun_set_gpu_options) (uint32_t ctx_id, uint32_t virgl_flags);
-  int32_t (*krun_set_gpu_render_server_fd) (uint32_t ctx_id, int fd);
-  int cpus, ram_mib, nested_virt, ret;
+  int32_t (*krun_set_gpu_render_server_fd) (uint32_t ctx_id, പൂർണ്ണസംഖ്യ fd);
+  പൂർണ്ണസംഖ്യ cpus, ram_mib, nested_virt, ret;
   cpu_set_t set;
 
   /* We let the OCI set the number of vCPUs for the VM, since cgroups CPU restrictions still apply. */
-  cpus = libkrun_parse_resource_configuration (kconf->config_tree, container, "krun.cpus", "cpus", true);
-  if (cpus <= 0)
+  cpus = libkrun_parse_resource_configuration (kconf->config_വൃക്ഷം, container, "krun.cpus", "cpus", true);
+  എങ്കിൽ (cpus <= 0)
     {
       CPU_ZERO (&set);
-      if (sched_getaffinity (getpid (), sizeof (set), &set) == 0)
-        cpus = MIN (CPU_COUNT (&set), LIBKRUN_MAX_VCPUS);
-      else
+      എങ്കിൽ (sched_getaffinity (getpid (), വലുപ്പം (set), &set) == 0)
+        cpus = MIN (CPU_എണ്ണം (&set), LIBKRUN_MAX_VCPUS);
+      അല്ലെങ്കിൽ
         cpus = 1;
     }
 
   /* We let the OCI set the amount of RAM for the VM, since cgroups memory restrictions still apply. */
-  ram_mib = libkrun_parse_resource_configuration (kconf->config_tree, container, "krun.ram_mib", "ram_mib", true);
-  if (ram_mib <= LIBKRUN_MINIMUM_RAM_MIB)
+  ram_mib = libkrun_parse_resource_configuration (kconf->config_വൃക്ഷം, container, "krun.ram_mib", "ram_mib", true);
+  എങ്കിൽ (ram_mib <= LIBKRUN_MINIMUM_RAM_MIB)
     {
-      if (def && def->linux && def->linux->resources && def->linux->resources->memory
+      എങ്കിൽ (def && def->linux && def->linux->resources && def->linux->resources->memory
           && def->linux->resources->memory->limit_present)
         ram_mib = def->linux->resources->memory->limit / (1024 * 1024);
-      else
+      അല്ലെങ്കിൽ
         ram_mib = LIBKRUN_DEFAULT_RAM_MIB;
     }
 
   krun_set_vm_config = dlsym (handle, "krun_set_vm_config");
 
-  if (krun_set_vm_config == NULL)
-    return crun_make_error (err, 0, "could not find symbol in the krun library");
+  എങ്കിൽ (krun_set_vm_config == ശൂന്യ)
+    തിരികെ crun_make_error (err, 0, "could not find symbol in the krun library");
 
   ret = krun_set_vm_config (ctx_id, cpus, ram_mib);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, -ret, "could not set krun vm configuration");
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ crun_make_error (err, -ret, "could not set krun vm configuration");
 
-  nested_virt = libkrun_parse_resource_configuration (kconf->config_tree, container, "krun.nested_virt", "nested_virt", false);
-  if (nested_virt > 0)
+  nested_virt = libkrun_parse_resource_configuration (kconf->config_വൃക്ഷം, container, "krun.nested_virt", "nested_virt", false);
+  എങ്കിൽ (nested_virt > 0)
     {
-      int32_t (*krun_check_nested_virt) (void);
+      int32_t (*krun_check_nested_virt) (ശൂന്യം);
       int32_t (*krun_set_nested_virt) (uint32_t ctx_id, bool enabled);
 
       krun_check_nested_virt = dlsym (handle, "krun_check_nested_virt");
-      if (krun_check_nested_virt != NULL && krun_check_nested_virt () != 1)
+      എങ്കിൽ (krun_check_nested_virt != ശൂന്യ && krun_check_nested_virt () != 1)
         libcrun_warning ("nested virtualization requested but may not be supported on this host");
 
       krun_set_nested_virt = dlsym (handle, "krun_set_nested_virt");
-      if (krun_set_nested_virt == NULL)
-        return crun_make_error (err, 0, "could not find symbol `krun_set_nested_virt` in the krun library");
+      എങ്കിൽ (krun_set_nested_virt == ശൂന്യ)
+        തിരികെ crun_make_error (err, 0, "could not find symbol `krun_set_nested_virt` in the krun library");
 
       ret = krun_set_nested_virt (ctx_id, true);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, -ret, "could not enable nested virtualization");
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ crun_make_error (err, -ret, "could not enable nested virtualization");
     }
 
-  if (kconf->tap_name != NULL)
+  എങ്കിൽ (kconf->tap_name != ശൂന്യ)
     {
       krun_add_net_tap = dlsym (handle, "krun_add_net_tap");
-      if (krun_add_net_tap == NULL)
-        return crun_make_error (err, 0, "could not find symbol `krun_add_net_tap` in the krun library");
+      എങ്കിൽ (krun_add_net_tap == ശൂന്യ)
+        തിരികെ crun_make_error (err, 0, "could not find symbol `krun_add_net_tap` in the krun library");
 
       uint8_t mac[6];
       libkrun_make_tap_mac (container->context->id, mac);
       ret = krun_add_net_tap (ctx_id, kconf->tap_name, &mac[0], COMPAT_NET_FEATURES, 0);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, -ret, "could not add krun TAP interface `%s`", kconf->tap_name);
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ crun_make_error (err, -ret, "could not add krun TAP interface `%s`", kconf->tap_name);
     }
-  else if (kconf->use_passt)
+  അല്ലെങ്കിൽ എങ്കിൽ (kconf->use_passt)
     {
       krun_add_net_unixstream = dlsym (handle, "krun_add_net_unixstream");
-      if (krun_add_net_unixstream == NULL)
-        return crun_make_error (err, 0, "could not find symbol `krun_add_net_unixstream` in the krun library");
+      എങ്കിൽ (krun_add_net_unixstream == ശൂന്യ)
+        തിരികെ crun_make_error (err, 0, "could not find symbol `krun_add_net_unixstream` in the krun library");
 
       uint8_t mac[] = { 0x5a, 0x94, 0xef, 0xe4, 0x0c, 0xee };
-      ret = krun_add_net_unixstream (ctx_id, NULL, kconf->passt_fds[FD_PAIR_PARENT], &mac[0], COMPAT_NET_FEATURES, NET_FLAG_DHCP_CLIENT);
-      if (UNLIKELY (ret == -EINVAL))
-        ret = krun_add_net_unixstream (ctx_id, NULL, kconf->passt_fds[FD_PAIR_PARENT], &mac[0], COMPAT_NET_FEATURES, 0);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, -ret, "could not set krun net configuration");
+      ret = krun_add_net_unixstream (ctx_id, ശൂന്യ, kconf->passt_fds[FD_PAIR_PARENT], &mac[0], COMPAT_NET_FEATURES, NET_FLAG_DHCP_CLIENT);
+      എങ്കിൽ (UNLIKELY (ret == -EINVAL))
+        ret = krun_add_net_unixstream (ctx_id, ശൂന്യ, kconf->passt_fds[FD_PAIR_PARENT], &mac[0], COMPAT_NET_FEATURES, 0);
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ crun_make_error (err, -ret, "could not set krun net configuration");
     }
 
-  if (kconf->gpu_flags > 0)
+  എങ്കിൽ (kconf->gpu_flags > 0)
     {
       krun_set_gpu_options = dlsym (kconf->handle, "krun_set_gpu_options");
-      if (krun_set_gpu_options == NULL)
-        return crun_make_error (err, 0, "gpu requested but the version of libkrun in this system does not support it");
+      എങ്കിൽ (krun_set_gpu_options == ശൂന്യ)
+        തിരികെ crun_make_error (err, 0, "gpu requested but the version of libkrun in this system does not support it");
 
       ret = krun_set_gpu_options (kconf->ctx_id, kconf->gpu_flags);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, -ret, "gpu requested but could not configure virtio gpu device");
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ crun_make_error (err, -ret, "gpu requested but could not configure virtio gpu device");
 
-      if (kconf->gpu_flags & VIRGLRENDERER_RENDER_SERVER)
+      എങ്കിൽ (kconf->gpu_flags & VIRGLRENDERER_RENDER_SERVER)
         {
           krun_set_gpu_render_server_fd = dlsym (kconf->handle, "krun_set_gpu_render_server_fd");
-          if (krun_set_gpu_render_server_fd == NULL)
-            return crun_make_error (err, 0, "gpu with render server requested but the version of libkrun in this system does not support it");
+          എങ്കിൽ (krun_set_gpu_render_server_fd == ശൂന്യ)
+            തിരികെ crun_make_error (err, 0, "gpu with render server requested but the version of libkrun in this system does not support it");
 
           ret = krun_set_gpu_render_server_fd (kconf->ctx_id, kconf->gpu_render_server_fd);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, -ret, "gpu with render server requested but could not configure its file descriptor");
+          എങ്കിൽ (UNLIKELY (ret < 0))
+            തിരികെ crun_make_error (err, -ret, "gpu with render server requested but could not configure its file descriptor");
         }
     }
 
-  if (kconf->config_tree != NULL)
+  എങ്കിൽ (kconf->config_വൃക്ഷം != ശൂന്യ)
     {
       /* Try to configure an external kernel. If the configuration file doesn't
        * specify a kernel, libkrun automatically fall back to using libkrunfw,
        * if the library is present and was loaded while creating the context.
        */
-      int custom_kernel = libkrun_parse_resource_configuration (kconf->config_tree, container, "krun.custom_kernel", "custom_kernel", false);
-      if (custom_kernel > 0)
+      പൂർണ്ണസംഖ്യ custom_kernel = libkrun_parse_resource_configuration (kconf->config_വൃക്ഷം, container, "krun.custom_kernel", "custom_kernel", false);
+      എങ്കിൽ (custom_kernel > 0)
         {
-          ret = libkrun_configure_kernel (ctx_id, handle, kconf->config_tree, err);
-          if (UNLIKELY (ret))
-            return ret;
+          ret = libkrun_configure_kernel (ctx_id, handle, kconf->config_വൃക്ഷം, err);
+          എങ്കിൽ (UNLIKELY (ret))
+            തിരികെ ret;
         }
     }
 
-  return 0;
+  തിരികെ 0;
 }
 
-static int
-libkrun_configure_flavor (void *cookie, libcrun_container_t *container, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+libkrun_configure_flavor (ശൂന്യം *cookie, libcrun_container_t *container, libcrun_error_t *err)
 {
-  int ret, sev_indicated = 0, awsnitro_indicated = 0;
-  struct krun_config *kconf = (struct krun_config *) cookie;
-  const char *flavor = NULL;
-  void *close_handles[2];
+  പൂർണ്ണസംഖ്യ ret, sev_indicated = 0, awsnitro_indicated = 0;
+  ഘടന krun_config *kconf = (ഘടന krun_config *) cookie;
+  സ്ഥിരം അക്ഷരം *flavor = ശൂന്യ;
+  ശൂന്യം *close_handles[2];
 
-  close_handles[0] = NULL;
-  close_handles[1] = NULL;
+  close_handles[0] = ശൂന്യ;
+  close_handles[1] = ശൂന്യ;
 
   // Check if the user provided the krun variant through OCI annotations.
   flavor = find_annotation (container, "krun.variant");
-  if (flavor != NULL)
+  എങ്കിൽ (flavor != ശൂന്യ)
     {
       sev_indicated |= strcmp (flavor, KRUN_FLAVOR_SEV) == 0;
       awsnitro_indicated |= strcmp (flavor, KRUN_FLAVOR_AWS_NITRO) == 0;
     }
 
-  if (sev_indicated)
+  എങ്കിൽ (sev_indicated)
     {
-      if (kconf->handle_sev == NULL)
+      എങ്കിൽ (kconf->handle_sev == ശൂന്യ)
         error (EXIT_FAILURE, 0, "the container requires libkrun-sev but it's not available");
 
       close_handles[0] = kconf->handle;
@@ -473,9 +473,9 @@ libkrun_configure_flavor (void *cookie, libcrun_container_t *container, libcrun_
       kconf->ctx_id = kconf->ctx_id_sev;
       kconf->sev = true;
     }
-  else if (awsnitro_indicated)
+  അല്ലെങ്കിൽ എങ്കിൽ (awsnitro_indicated)
     {
-      if (kconf->handle_awsnitro == NULL)
+      എങ്കിൽ (kconf->handle_awsnitro == ശൂന്യ)
         error (EXIT_FAILURE, 0, "the container requires libkrun-awsnitro but it's not available");
 
       close_handles[0] = kconf->handle;
@@ -485,9 +485,9 @@ libkrun_configure_flavor (void *cookie, libcrun_container_t *container, libcrun_
       kconf->ctx_id = kconf->ctx_id_awsnitro;
       kconf->awsnitro = true;
     }
-  else
+  അല്ലെങ്കിൽ
     {
-      if (kconf->handle == NULL)
+      എങ്കിൽ (kconf->handle == ശൂന്യ)
         error (EXIT_FAILURE, 0, "the container requires libkrun but it's not available");
 
       close_handles[0] = kconf->handle_sev;
@@ -495,46 +495,46 @@ libkrun_configure_flavor (void *cookie, libcrun_container_t *container, libcrun_
     }
 
   // We no longer need the other two libkrun handles.
-  for (int i = 0; i < 2; i++)
+  വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < 2; i++)
     {
-      if (close_handles[i] == NULL)
-        continue;
+      എങ്കിൽ (close_handles[i] == ശൂന്യ)
+        തുടരുക;
 
       ret = dlclose (close_handles[i]);
-      if (UNLIKELY (ret != 0))
-        return crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
+      എങ്കിൽ (UNLIKELY (ret != 0))
+        തിരികെ crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
     }
 
-  return 0;
+  തിരികെ 0;
 }
 
-static int
-libkrun_exec (void *cookie, libcrun_container_t *container, const char *pathname, char *const argv[])
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+libkrun_exec (ശൂന്യം *cookie, libcrun_container_t *container, സ്ഥിരം അക്ഷരം *pathname, അക്ഷരം *സ്ഥിരം argv[])
 {
   runtime_spec_schema_config_schema *def = container->container_def;
   int32_t (*krun_set_log_level) (uint32_t level);
-  int (*krun_start_enter) (uint32_t ctx_id);
-  int32_t (*krun_add_virtiofs2) (uint32_t ctx_id, const char *c_tag, const char *c_path, uint64_t shm_size);
-  int32_t (*krun_set_root_disk) (uint32_t ctx_id, const char *disk_path);
-  int32_t (*krun_set_tee_config_file) (uint32_t ctx_id, const char *file_path);
-  int32_t (*krun_set_console_output) (uint32_t ctx_id, const char *c_filepath);
-  int32_t (*krun_set_exec) (uint32_t ctx_id, const char *exec_path,
-                            const char *const argv[], const char *const envp[]);
-  struct krun_config *kconf = (struct krun_config *) cookie;
-  void *handle;
+  പൂർണ്ണസംഖ്യ (*krun_start_enter) (uint32_t ctx_id);
+  int32_t (*krun_add_virtiofs2) (uint32_t ctx_id, സ്ഥിരം അക്ഷരം *c_tag, സ്ഥിരം അക്ഷരം *c_path, uint64_t shm_size);
+  int32_t (*krun_set_വേര്_disk) (uint32_t ctx_id, സ്ഥിരം അക്ഷരം *disk_path);
+  int32_t (*krun_set_tee_config_file) (uint32_t ctx_id, സ്ഥിരം അക്ഷരം *file_path);
+  int32_t (*krun_set_console_output) (uint32_t ctx_id, സ്ഥിരം അക്ഷരം *c_filepath);
+  int32_t (*krun_set_exec) (uint32_t ctx_id, സ്ഥിരം അക്ഷരം *exec_path,
+                            സ്ഥിരം അക്ഷരം *സ്ഥിരം argv[], സ്ഥിരം അക്ഷരം *സ്ഥിരം envp[]);
+  ഘടന krun_config *kconf = (ഘടന krun_config *) cookie;
+  ശൂന്യം *handle;
   int32_t ctx_id, ret;
   libcrun_error_t err;
 
   ret = libkrun_configure_flavor (cookie, container, &err);
-  if (UNLIKELY (ret < 0))
+  എങ്കിൽ (UNLIKELY (ret < 0))
     {
-      int errcode = crun_error_get_errno (&err);
+      പൂർണ്ണസംഖ്യ errcode = crun_error_get_errno (&err);
       crun_error_release (&err);
       error (EXIT_FAILURE, errcode, "unable to configure libkrun flavor");
     }
 
   // /dev/kvm is required for all non AWS nitro workloads.
-  if (! kconf->awsnitro && ! kconf->has_kvm)
+  എങ്കിൽ (! kconf->awsnitro && ! kconf->has_kvm)
     error (EXIT_FAILURE, 0, "`/dev/kvm` unavailable");
 
   handle = kconf->handle;
@@ -542,92 +542,92 @@ libkrun_exec (void *cookie, libcrun_container_t *container, const char *pathname
 
   krun_set_log_level = dlsym (handle, "krun_set_log_level");
   krun_start_enter = dlsym (handle, "krun_start_enter");
-  if (krun_set_log_level == NULL || krun_start_enter == NULL)
+  എങ്കിൽ (krun_set_log_level == ശൂന്യ || krun_start_enter == ശൂന്യ)
     error (EXIT_FAILURE, 0, "could not find symbol in the krun library");
 
   /* Set log level according to crun's verbosity. */
-  switch (libcrun_get_verbosity ())
+  തിരഞ്ഞെടുപ്പ് (libcrun_get_verbosity ())
     {
-    case LIBCRUN_VERBOSITY_DEBUG:
+    അവസ്ഥ LIBCRUN_VERBOSITY_DEBUG:
       krun_set_log_level (KRUN_LOG_LEVEL_DEBUG);
-      break;
-    case LIBCRUN_VERBOSITY_WARNING:
+      നിർത്തുക;
+    അവസ്ഥ LIBCRUN_VERBOSITY_WARNING:
       krun_set_log_level (KRUN_LOG_LEVEL_WARN);
-      break;
-    default:
+      നിർത്തുക;
+    സ്ഥിരസ്ഥിതി:
       krun_set_log_level (KRUN_LOG_LEVEL_ERROR);
-      break;
+      നിർത്തുക;
     }
 
-  if (kconf->sev)
+  എങ്കിൽ (kconf->sev)
     {
-      krun_set_root_disk = dlsym (handle, "krun_set_root_disk");
+      krun_set_വേര്_disk = dlsym (handle, "krun_set_root_disk");
       krun_set_tee_config_file = dlsym (handle, "krun_set_tee_config_file");
-      if (krun_set_root_disk == NULL || krun_set_tee_config_file == NULL)
+      എങ്കിൽ (krun_set_വേര്_disk == ശൂന്യ || krun_set_tee_config_file == ശൂന്യ)
         error (EXIT_FAILURE, 0, "could not find symbol in `libkrun-sev.so`");
 
-      ret = krun_set_root_disk (ctx_id, "/disk.img");
-      if (UNLIKELY (ret < 0))
+      ret = krun_set_വേര്_disk (ctx_id, "/disk.img");
+      എങ്കിൽ (UNLIKELY (ret < 0))
         error (EXIT_FAILURE, -ret, "could not set root disk");
 
       ret = krun_set_tee_config_file (ctx_id, KRUN_SEV_FILE);
-      if (UNLIKELY (ret < 0))
+      എങ്കിൽ (UNLIKELY (ret < 0))
         error (EXIT_FAILURE, -ret, "could not set krun tee config file");
     }
-  else
+  അല്ലെങ്കിൽ
     {
-      json_object *val_virtiofs_tag = NULL;
-      json_object *val_virtiofs_shm_size = NULL;
-      const char *virtiofs_tag = NULL;
+      json_object *val_virtiofs_tag = ശൂന്യ;
+      json_object *val_virtiofs_shm_size = ശൂന്യ;
+      സ്ഥിരം അക്ഷരം *virtiofs_tag = ശൂന്യ;
       // Default to a conservative DAX size of 512MB, just like krun_set_root() does.
       uint64_t virtiofs_shm_size = 512 * 1024 * 1024ULL;
 
-      if (kconf->config_tree != NULL)
+      എങ്കിൽ (kconf->config_വൃക്ഷം != ശൂന്യ)
         {
-          val_virtiofs_tag = json_object_object_get (kconf->config_tree, "virtiofs_tag");
-          if (val_virtiofs_tag != NULL && json_object_is_type (val_virtiofs_tag, json_type_string))
+          val_virtiofs_tag = json_object_object_get (kconf->config_വൃക്ഷം, "virtiofs_tag");
+          എങ്കിൽ (val_virtiofs_tag != ശൂന്യ && json_object_is_type (val_virtiofs_tag, json_type_string))
             virtiofs_tag = json_object_get_string (val_virtiofs_tag);
 
-          val_virtiofs_shm_size = json_object_object_get (kconf->config_tree, "virtiofs_shm_size");
-          if (val_virtiofs_shm_size != NULL && json_object_is_type (val_virtiofs_shm_size, json_type_int))
+          val_virtiofs_shm_size = json_object_object_get (kconf->config_വൃക്ഷം, "virtiofs_shm_size");
+          എങ്കിൽ (val_virtiofs_shm_size != ശൂന്യ && json_object_is_type (val_virtiofs_shm_size, json_type_int))
             virtiofs_shm_size = json_object_get_uint64 (val_virtiofs_shm_size);
         }
 
-      if (virtiofs_tag == NULL)
+      എങ്കിൽ (virtiofs_tag == ശൂന്യ)
         virtiofs_tag = "/dev/root";
 
       krun_add_virtiofs2 = dlsym (handle, "krun_add_virtiofs2");
 
-      if (krun_add_virtiofs2 == NULL)
+      എങ്കിൽ (krun_add_virtiofs2 == ശൂന്യ)
         error (EXIT_FAILURE, 0, "could not find symbol `krun_add_virtiofs2` in `libkrun.so`");
 
       ret = krun_add_virtiofs2 (ctx_id, virtiofs_tag, "/", virtiofs_shm_size);
-      if (UNLIKELY (ret < 0))
+      എങ്കിൽ (UNLIKELY (ret < 0))
         error (EXIT_FAILURE, -ret, "could not add virtiofs root with tag `%s`", virtiofs_tag);
     }
 
-  if (kconf->awsnitro)
+  എങ്കിൽ (kconf->awsnitro)
     {
       krun_set_console_output = dlsym (handle, "krun_set_console_output");
       krun_set_exec = dlsym (handle, "krun_set_exec");
-      if (krun_set_console_output == NULL || krun_set_exec == NULL)
+      എങ്കിൽ (krun_set_console_output == ശൂന്യ || krun_set_exec == ശൂന്യ)
         error (EXIT_FAILURE, 0, "could not find symbol in `libkrun-awsnitro.so`");
 
       // Redirect all enclave output (read from vsock) to stdout.
       ret = krun_set_console_output (ctx_id, "/dev/stdout");
-      if (UNLIKELY (ret < 0))
+      എങ്കിൽ (UNLIKELY (ret < 0))
         error (EXIT_FAILURE, -ret, "could not redirect enclave output to stdout");
 
-      ret = krun_set_exec (ctx_id, pathname, (const char *const *) argv,
-                           (const char *const *) def->process->env);
-      if (UNLIKELY (ret < 0))
+      ret = krun_set_exec (ctx_id, pathname, (സ്ഥിരം അക്ഷരം *സ്ഥിരം *) argv,
+                           (സ്ഥിരം അക്ഷരം *സ്ഥിരം *) def->process->env);
+      എങ്കിൽ (UNLIKELY (ret < 0))
         error (EXIT_FAILURE, -ret, "could not set enclave execution arguments");
     }
 
   ret = libkrun_configure_vm (ctx_id, handle, kconf, container, &err);
-  if (UNLIKELY (ret))
+  എങ്കിൽ (UNLIKELY (ret))
     {
-      int errcode = crun_error_get_errno (&err);
+      പൂർണ്ണസംഖ്യ errcode = crun_error_get_errno (&err);
       libcrun_error_t *tmp_err = &err;
       libcrun_error_report_and_release (tmp_err);
       error (EXIT_FAILURE, errcode, "could not configure krun vm");
@@ -636,97 +636,97 @@ libkrun_exec (void *cookie, libcrun_container_t *container, const char *pathname
   json_object_put (kconf->config_doc);
 
   ret = krun_start_enter (ctx_id);
-  if (UNLIKELY (ret < 0))
+  എങ്കിൽ (UNLIKELY (ret < 0))
     error (EXIT_FAILURE, -ret, "could not start krun");
 
-  return ret;
+  തിരികെ ret;
 }
 
-static int
-libkrun_start_render_server (struct krun_config *kconf, libcrun_container_t *container, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+libkrun_start_render_server (ഘടന krun_config *kconf, libcrun_container_t *container, libcrun_error_t *err)
 {
-  int ret;
+  പൂർണ്ണസംഖ്യ ret;
 
-  kconf->gpu_flags = libkrun_parse_resource_configuration (kconf->config_tree, container, "krun.gpu_flags", "gpu_flags", false);
-  if (kconf->gpu_flags > 0)
+  kconf->gpu_flags = libkrun_parse_resource_configuration (kconf->config_വൃക്ഷം, container, "krun.gpu_flags", "gpu_flags", false);
+  എങ്കിൽ (kconf->gpu_flags > 0)
     {
-      if (access ("/dev/dri", F_OK) != 0)
-        return crun_make_error (err, errno, "gpu requested but /dev/dri is not available");
+      എങ്കിൽ (access ("/dev/dri", F_OK) != 0)
+        തിരികെ crun_make_error (err, errno, "gpu requested but /dev/dri is not available");
 
-      if ((kconf->gpu_flags & VIRGLRENDERER_RENDER_SERVER) != 0)
+      എങ്കിൽ ((kconf->gpu_flags & VIRGLRENDERER_RENDER_SERVER) != 0)
         {
-          char *rs_argv[40];
-          int rs_argc = 0;
-          char fd_as_str[16];
-          int gpu_fds[2];
+          അക്ഷരം *rs_argv[40];
+          പൂർണ്ണസംഖ്യ rs_argc = 0;
+          അക്ഷരം fd_as_str[16];
+          പൂർണ്ണസംഖ്യ gpu_fds[2];
           pid_t pid;
-          int null;
+          പൂർണ്ണസംഖ്യ null;
 
-          if (access ("/usr/libexec/virgl_render_server", X_OK) != 0)
-            return crun_make_error (err, errno, "gpu with render server requested but couldn't find /usr/libexec/virgl_render_server binary");
+          എങ്കിൽ (access ("/usr/libexec/virgl_render_server", X_OK) != 0)
+            തിരികെ crun_make_error (err, errno, "gpu with render server requested but couldn't find /usr/libexec/virgl_render_server binary");
 
-          if (access ("/usr/bin/bwrap", X_OK) != 0)
-            return crun_make_error (err, errno, "gpu with render server requested but couldn't find /usr/bin/bwrap binary");
+          എങ്കിൽ (access ("/usr/bin/bwrap", X_OK) != 0)
+            തിരികെ crun_make_error (err, errno, "gpu with render server requested but couldn't find /usr/bin/bwrap binary");
 
           ret = socketpair (AF_UNIX, SOCK_SEQPACKET, 0, gpu_fds);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "could not create socketpair for virgl_render_server");
+          എങ്കിൽ (UNLIKELY (ret < 0))
+            തിരികെ crun_make_error (err, errno, "could not create socketpair for virgl_render_server");
 
-          snprintf (fd_as_str, sizeof (fd_as_str), "%d", gpu_fds[FD_PAIR_CHILD]);
+          snprintf (fd_as_str, വലുപ്പം (fd_as_str), "%d", gpu_fds[FD_PAIR_CHILD]);
 
-          rs_argv[rs_argc++] = (char *) "bwrap";
-          rs_argv[rs_argc++] = (char *) "--ro-bind";
-          rs_argv[rs_argc++] = (char *) "/usr";
-          rs_argv[rs_argc++] = (char *) "/usr";
-          if (access ("/lib", F_OK) == 0)
+          rs_argv[rs_argc++] = (അക്ഷരം *) "bwrap";
+          rs_argv[rs_argc++] = (അക്ഷരം *) "--ro-bind";
+          rs_argv[rs_argc++] = (അക്ഷരം *) "/usr";
+          rs_argv[rs_argc++] = (അക്ഷരം *) "/usr";
+          എങ്കിൽ (access ("/lib", F_OK) == 0)
             {
-              rs_argv[rs_argc++] = (char *) "--ro-bind";
-              rs_argv[rs_argc++] = (char *) "/lib";
-              rs_argv[rs_argc++] = (char *) "/lib";
+              rs_argv[rs_argc++] = (അക്ഷരം *) "--ro-bind";
+              rs_argv[rs_argc++] = (അക്ഷരം *) "/lib";
+              rs_argv[rs_argc++] = (അക്ഷരം *) "/lib";
             }
-          if (access ("/lib64", F_OK) == 0)
+          എങ്കിൽ (access ("/lib64", F_OK) == 0)
             {
-              rs_argv[rs_argc++] = (char *) "--ro-bind";
-              rs_argv[rs_argc++] = (char *) "/lib64";
-              rs_argv[rs_argc++] = (char *) "/lib64";
+              rs_argv[rs_argc++] = (അക്ഷരം *) "--ro-bind";
+              rs_argv[rs_argc++] = (അക്ഷരം *) "/lib64";
+              rs_argv[rs_argc++] = (അക്ഷരം *) "/lib64";
             }
-          rs_argv[rs_argc++] = (char *) "--ro-bind";
-          rs_argv[rs_argc++] = (char *) "/etc";
-          rs_argv[rs_argc++] = (char *) "/etc";
-          rs_argv[rs_argc++] = (char *) "--ro-bind";
-          rs_argv[rs_argc++] = (char *) "/sys";
-          rs_argv[rs_argc++] = (char *) "/sys";
-          rs_argv[rs_argc++] = (char *) "--dev";
-          rs_argv[rs_argc++] = (char *) "/dev";
-          rs_argv[rs_argc++] = (char *) "--dev-bind";
-          rs_argv[rs_argc++] = (char *) "/dev/dri";
-          rs_argv[rs_argc++] = (char *) "/dev/dri";
-          rs_argv[rs_argc++] = (char *) "--proc";
-          rs_argv[rs_argc++] = (char *) "/proc";
-          rs_argv[rs_argc++] = (char *) "--tmpfs";
-          rs_argv[rs_argc++] = (char *) "/tmp";
-          rs_argv[rs_argc++] = (char *) "--unshare-pid";
-          rs_argv[rs_argc++] = (char *) "--unshare-ipc";
-          rs_argv[rs_argc++] = (char *) "--unshare-net";
-          rs_argv[rs_argc++] = (char *) "--";
-          rs_argv[rs_argc++] = (char *) "/usr/libexec/virgl_render_server";
-          rs_argv[rs_argc++] = (char *) "--socket-fd";
+          rs_argv[rs_argc++] = (അക്ഷരം *) "--ro-bind";
+          rs_argv[rs_argc++] = (അക്ഷരം *) "/etc";
+          rs_argv[rs_argc++] = (അക്ഷരം *) "/etc";
+          rs_argv[rs_argc++] = (അക്ഷരം *) "--ro-bind";
+          rs_argv[rs_argc++] = (അക്ഷരം *) "/sys";
+          rs_argv[rs_argc++] = (അക്ഷരം *) "/sys";
+          rs_argv[rs_argc++] = (അക്ഷരം *) "--dev";
+          rs_argv[rs_argc++] = (അക്ഷരം *) "/dev";
+          rs_argv[rs_argc++] = (അക്ഷരം *) "--dev-bind";
+          rs_argv[rs_argc++] = (അക്ഷരം *) "/dev/dri";
+          rs_argv[rs_argc++] = (അക്ഷരം *) "/dev/dri";
+          rs_argv[rs_argc++] = (അക്ഷരം *) "--proc";
+          rs_argv[rs_argc++] = (അക്ഷരം *) "/proc";
+          rs_argv[rs_argc++] = (അക്ഷരം *) "--tmpfs";
+          rs_argv[rs_argc++] = (അക്ഷരം *) "/tmp";
+          rs_argv[rs_argc++] = (അക്ഷരം *) "--unshare-pid";
+          rs_argv[rs_argc++] = (അക്ഷരം *) "--unshare-ipc";
+          rs_argv[rs_argc++] = (അക്ഷരം *) "--unshare-net";
+          rs_argv[rs_argc++] = (അക്ഷരം *) "--";
+          rs_argv[rs_argc++] = (അക്ഷരം *) "/usr/libexec/virgl_render_server";
+          rs_argv[rs_argc++] = (അക്ഷരം *) "--socket-fd";
           rs_argv[rs_argc++] = fd_as_str;
-          rs_argv[rs_argc] = NULL;
+          rs_argv[rs_argc] = ശൂന്യ;
 
           pid = fork ();
-          if (pid < 0)
+          എങ്കിൽ (pid < 0)
             {
               close (gpu_fds[FD_PAIR_PARENT]);
               close (gpu_fds[FD_PAIR_CHILD]);
-              return crun_make_error (err, errno, "could not fork for virgl_render_server");
+              തിരികെ crun_make_error (err, errno, "could not fork for virgl_render_server");
             }
-          else if (pid == 0)
+          അല്ലെങ്കിൽ എങ്കിൽ (pid == 0)
             {
               close (gpu_fds[FD_PAIR_PARENT]);
 
               null = open ("/dev/null", O_WRONLY);
-              if (null == -1)
+              എങ്കിൽ (null == -1)
                 _exit (EXIT_FAILURE);
 
               dup2 (null, STDOUT_FILENO);
@@ -742,75 +742,75 @@ libkrun_start_render_server (struct krun_config *kconf, libcrun_container_t *con
         }
     }
 
-  return 0;
+  തിരികെ 0;
 }
 
-static int
-libkrun_configure_network (void *cookie, libcrun_container_t *container, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+libkrun_configure_network (ശൂന്യം *cookie, libcrun_container_t *container, libcrun_error_t *err)
 {
-  struct krun_config *kconf = (struct krun_config *) cookie;
+  ഘടന krun_config *kconf = (ഘടന krun_config *) cookie;
   pid_t pid;
-  char *passt_argv[10];
-  char fd_as_str[16];
-  int use_passt;
-  int argv_idx;
-  int status;
-  int null;
-  int ret;
+  അക്ഷരം *passt_argv[10];
+  അക്ഷരം fd_as_str[16];
+  പൂർണ്ണസംഖ്യ use_passt;
+  പൂർണ്ണസംഖ്യ argv_idx;
+  പൂർണ്ണസംഖ്യ status;
+  പൂർണ്ണസംഖ്യ null;
+  പൂർണ്ണസംഖ്യ ret;
 
-  ret = libkrun_parse_string_configuration (kconf->config_tree, container,
+  ret = libkrun_parse_string_configuration (kconf->config_വൃക്ഷം, container,
                                             "krun.tap_name", "tap_name",
                                             &kconf->tap_name, err, false);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
-  if (kconf->tap_name != NULL && is_empty_string (kconf->tap_name))
-    return crun_make_error (err, 0, "krun.tap_name cannot be empty");
+  എങ്കിൽ (kconf->tap_name != ശൂന്യ && is_empty_string (kconf->tap_name))
+    തിരികെ crun_make_error (err, 0, "krun.tap_name cannot be empty");
 
-  use_passt = libkrun_parse_resource_configuration (kconf->config_tree, container, "krun.use_passt", "use_passt", false);
+  use_passt = libkrun_parse_resource_configuration (kconf->config_വൃക്ഷം, container, "krun.use_passt", "use_passt", false);
 
-  if (use_passt > 0)
+  എങ്കിൽ (use_passt > 0)
     {
-      if (kconf->tap_name != NULL)
-        return crun_make_error (err, 0, "krun.tap_name and krun.use_passt are mutually exclusive");
+      എങ്കിൽ (kconf->tap_name != ശൂന്യ)
+        തിരികെ crun_make_error (err, 0, "krun.tap_name and krun.use_passt are mutually exclusive");
 
       kconf->use_passt = 1;
     }
-  else
-    return 0;
+  അല്ലെങ്കിൽ
+    തിരികെ 0;
 
   ret = socketpair (AF_UNIX, SOCK_STREAM, 0, kconf->passt_fds);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "create passt socketpair");
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ crun_make_error (err, errno, "create passt socketpair");
 
-  snprintf (fd_as_str, sizeof (fd_as_str), "%d", kconf->passt_fds[FD_PAIR_CHILD]);
+  snprintf (fd_as_str, വലുപ്പം (fd_as_str), "%d", kconf->passt_fds[FD_PAIR_CHILD]);
 
   argv_idx = 0;
-  passt_argv[argv_idx++] = (char *) "passt";
-  passt_argv[argv_idx++] = (char *) "-t";
-  passt_argv[argv_idx++] = (char *) "all";
+  passt_argv[argv_idx++] = (അക്ഷരം *) "passt";
+  passt_argv[argv_idx++] = (അക്ഷരം *) "-t";
+  passt_argv[argv_idx++] = (അക്ഷരം *) "all";
 
-  if (! kconf->has_awsnitro)
+  എങ്കിൽ (! kconf->has_awsnitro)
     {
-      passt_argv[argv_idx++] = (char *) "-u";
-      passt_argv[argv_idx++] = (char *) "all";
-      passt_argv[argv_idx++] = (char *) "--no-dhcp-dns";
+      passt_argv[argv_idx++] = (അക്ഷരം *) "-u";
+      passt_argv[argv_idx++] = (അക്ഷരം *) "all";
+      passt_argv[argv_idx++] = (അക്ഷരം *) "--no-dhcp-dns";
     }
 
   /* Set --no-map-gw. If the gateway for the network is also the DNS server
    * we won't be able to query the DNS server without --no-map-gw.
    * See discussion in https://github.com/containers/crun/pull/2099
    */
-  passt_argv[argv_idx++] = (char *) "--no-map-gw";
+  passt_argv[argv_idx++] = (അക്ഷരം *) "--no-map-gw";
 
-  passt_argv[argv_idx++] = (char *) "--fd";
+  passt_argv[argv_idx++] = (അക്ഷരം *) "--fd";
   passt_argv[argv_idx++] = fd_as_str;
-  passt_argv[argv_idx] = NULL;
+  passt_argv[argv_idx] = ശൂന്യ;
 
   pid = fork ();
-  if (pid < 0)
-    return crun_make_error (err, errno, "fork passt");
-  else if (pid == 0)
+  എങ്കിൽ (pid < 0)
+    തിരികെ crun_make_error (err, errno, "fork passt");
+  അല്ലെങ്കിൽ എങ്കിൽ (pid == 0)
     {
       runtime_spec_schema_config_schema *def = container->container_def;
       size_t i;
@@ -818,22 +818,22 @@ libkrun_configure_network (void *cookie, libcrun_container_t *container, libcrun
       close (kconf->passt_fds[FD_PAIR_PARENT]);
 
       null = open ("/dev/null", O_WRONLY);
-      if (null == -1)
+      എങ്കിൽ (null == -1)
         _exit (EXIT_FAILURE);
 
       /* Remount /proc if the parent detached its PID namespace, as passt(1)
        * needs a consistent /proc view to operate properly.
        */
-      for (i = 0; i < def->linux->namespaces_len; i++)
+      വേണ്ടി (i = 0; i < def->linux->namespaces_len; i++)
         {
-          int value = libcrun_find_namespace (def->linux->namespaces[i]->type);
+          പൂർണ്ണസംഖ്യ മൂല്യം = libcrun_find_namespace (def->linux->namespaces[i]->type);
 
-          if (value == CLONE_NEWPID)
+          എങ്കിൽ (മൂല്യം == CLONE_NEWPID)
             {
-              if (mount ("", "/proc", "proc", MS_NOSUID | MS_NODEV | MS_NOEXEC, NULL))
+              എങ്കിൽ (mount ("", "/proc", "proc", MS_NOSUID | MS_NODEV | MS_NOEXEC, ശൂന്യ))
                 _exit (EXIT_FAILURE);
 
-              break;
+              നിർത്തുക;
             }
         }
 
@@ -852,167 +852,167 @@ libkrun_configure_network (void *cookie, libcrun_container_t *container, libcrun
 
   // Wait for passt to daemonize itself.
   waitpid (pid, &status, 0);
-  if (! (WIFEXITED (status)) || WEXITSTATUS (status) != 0)
-    return crun_make_error (err, 0, "start passt");
+  എങ്കിൽ (! (WIFEXITED (status)) || WEXITSTATUS (status) != 0)
+    തിരികെ crun_make_error (err, 0, "start passt");
 
-  return 0;
+  തിരികെ 0;
 }
 
 /* Return true if the spec already declares a device with the given PATH.  */
-static bool
-spec_has_device (runtime_spec_schema_config_schema *def, const char *path)
+സ്ഥിതം bool
+spec_has_device (runtime_spec_schema_config_schema *def, സ്ഥിരം അക്ഷരം *path)
 {
   size_t i;
 
-  for (i = 0; i < def->linux->devices_len; i++)
-    if (strcmp (def->linux->devices[i]->path, path) == 0)
-      return true;
-  return false;
+  വേണ്ടി (i = 0; i < def->linux->devices_len; i++)
+    എങ്കിൽ (strcmp (def->linux->devices[i]->path, path) == 0)
+      തിരികെ true;
+  തിരികെ false;
 }
 
 /* libkrun_create_kvm_device: explicitly adds kvm device.  */
-static int
-libkrun_configure_container (void *cookie, enum handler_configure_phase phase,
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+libkrun_configure_container (ശൂന്യം *cookie, എണ്ണൽ handler_configure_phase phase,
                              libcrun_context_t *context, libcrun_container_t *container,
-                             const char *rootfs, libcrun_error_t *err)
+                             സ്ഥിരം അക്ഷരം *rootfs, libcrun_error_t *err)
 {
-  int ret, rootfsfd;
-  struct krun_config *kconf = (struct krun_config *) cookie;
-  struct device_s kvm_device = { "/dev/kvm", "c", 10, 232, 0666, 0, 0 };
-  struct device_s sev_device = { "/dev/sev", "c", 10, 124, 0666, 0, 0 };
-  struct device_s nitro_device = { "/dev/nitro_enclaves", "c", 10, 122, 0666, 0, 0 };
-  cleanup_close int devfd = -1;
-  cleanup_close int rootfsfd_cleanup = -1;
+  പൂർണ്ണസംഖ്യ ret, rootfsfd;
+  ഘടന krun_config *kconf = (ഘടന krun_config *) cookie;
+  ഘടന device_s kvm_device = { "/dev/kvm", "c", 10, 232, 0666, 0, 0 };
+  ഘടന device_s sev_device = { "/dev/sev", "c", 10, 124, 0666, 0, 0 };
+  ഘടന device_s nitro_device = { "/dev/nitro_enclaves", "c", 10, 122, 0666, 0, 0 };
+  cleanup_close പൂർണ്ണസംഖ്യ devfd = -1;
+  cleanup_close പൂർണ്ണസംഖ്യ rootfsfd_cleanup = -1;
   runtime_spec_schema_config_schema *def = container->container_def;
   bool create_sev = false, create_awsnitro = false;
   bool is_user_ns;
 
-  if (rootfs == NULL)
+  എങ്കിൽ (rootfs == ശൂന്യ)
     rootfsfd = AT_FDCWD;
-  else
+  അല്ലെങ്കിൽ
     {
       rootfsfd = rootfsfd_cleanup = open (rootfs, O_PATH | O_CLOEXEC);
-      if (UNLIKELY (rootfsfd < 0))
-        return crun_make_error (err, errno, "open `%s`", rootfs);
+      എങ്കിൽ (UNLIKELY (rootfsfd < 0))
+        തിരികെ crun_make_error (err, errno, "open `%s`", rootfs);
     }
 
-  if (phase == HANDLER_CONFIGURE_BEFORE_USERNS)
+  എങ്കിൽ (phase == HANDLER_CONFIGURE_BEFORE_USERNS)
     {
-      cleanup_free char *origin_config_path = NULL;
-      cleanup_free char *state_dir = NULL;
-      cleanup_free char *config = NULL;
-      cleanup_close int fd = -1;
+      cleanup_free അക്ഷരം *origin_config_path = ശൂന്യ;
+      cleanup_free അക്ഷരം *state_dir = ശൂന്യ;
+      cleanup_free അക്ഷരം *config = ശൂന്യ;
+      cleanup_close പൂർണ്ണസംഖ്യ fd = -1;
       size_t config_size;
 
-      ret = libcrun_get_state_directory (&state_dir, context->state_root, context->id, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_get_state_directory (&state_dir, context->state_വേര്, context->id, err);
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
 
-      ret = append_paths (&origin_config_path, err, state_dir, "config.json", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&origin_config_path, err, state_dir, "config.json", ശൂന്യ);
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
 
       ret = read_all_file (origin_config_path, &config, &config_size, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
 
       /* CVE-2025-24965: the content below rootfs cannot be trusted because it is controlled by the user.  We
          must ensure the file is opened below the rootfs directory.  Whatever the image ships at that name
          could also be a device node or a FIFO, so never open it: unlink it and create a new regular file.  */
       ret = unlinkat (rootfsfd, KRUN_CONFIG_FILE, 0);
-      if (UNLIKELY (ret < 0 && errno != ENOENT))
-        return crun_make_error (err, errno, "unlink `%s`", KRUN_CONFIG_FILE);
+      എങ്കിൽ (UNLIKELY (ret < 0 && errno != ENOENT))
+        തിരികെ crun_make_error (err, errno, "unlink `%s`", KRUN_CONFIG_FILE);
 
       fd = safe_openat (rootfsfd, rootfs, KRUN_CONFIG_FILE, WRITE_FILE_DEFAULT_FLAGS | O_EXCL | O_NOFOLLOW, S_IRUSR | S_IRGRP | S_IROTH, err);
-      if (UNLIKELY (fd < 0))
-        return fd;
+      എങ്കിൽ (UNLIKELY (fd < 0))
+        തിരികെ fd;
 
       ret = safe_write (fd, KRUN_CONFIG_FILE, config, config_size, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
 
       ret = libkrun_read_vm_config (kconf, rootfsfd, rootfs, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
 
       ret = libkrun_start_render_server (kconf, container, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
 
-  if (phase != HANDLER_CONFIGURE_AFTER_MOUNTS)
-    return 0;
+  എങ്കിൽ (phase != HANDLER_CONFIGURE_AFTER_MOUNTS)
+    തിരികെ 0;
 
   ret = libkrun_configure_network (cookie, container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
   /* Do nothing if /dev/kvm is already present in spec */
-  if (spec_has_device (def, "/dev/kvm"))
-    return 0;
+  എങ്കിൽ (spec_has_device (def, "/dev/kvm"))
+    തിരികെ 0;
 
-  if (kconf->handle_sev != NULL)
+  എങ്കിൽ (kconf->handle_sev != ശൂന്യ)
     create_sev = ! spec_has_device (def, "/dev/sev");
 
-  if (kconf->handle_awsnitro != NULL)
+  എങ്കിൽ (kconf->handle_awsnitro != ശൂന്യ)
     create_awsnitro = ! spec_has_device (def, "/dev/nitro_enclaves");
 
   devfd = safe_openat (rootfsfd, rootfs, "dev", O_PATH | O_DIRECTORY | O_CLOEXEC, 0, err);
-  if (UNLIKELY (devfd < 0))
-    return devfd;
+  എങ്കിൽ (UNLIKELY (devfd < 0))
+    തിരികെ devfd;
 
   ret = check_running_in_user_namespace (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
   is_user_ns = ret;
 
-  if (kconf->has_kvm)
+  എങ്കിൽ (kconf->has_kvm)
     {
       ret = libcrun_create_dev (container, devfd, -1, &kvm_device, is_user_ns, true, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
 
-  if (create_sev)
+  എങ്കിൽ (create_sev)
     {
       ret = libcrun_create_dev (container, devfd, -1, &sev_device, is_user_ns, true, err);
-      if (UNLIKELY (ret < 0))
+      എങ്കിൽ (UNLIKELY (ret < 0))
         {
           ret = dlclose (kconf->handle_sev);
-          if (UNLIKELY (ret < 0))
-            return ret;
-          kconf->handle_sev = NULL;
+          എങ്കിൽ (UNLIKELY (ret < 0))
+            തിരികെ ret;
+          kconf->handle_sev = ശൂന്യ;
         }
     }
 
-  if (create_awsnitro)
+  എങ്കിൽ (create_awsnitro)
     {
       ret = libcrun_create_dev (container, devfd, -1, &nitro_device, is_user_ns, true, err);
-      if (UNLIKELY (ret < 0))
+      എങ്കിൽ (UNLIKELY (ret < 0))
         {
           ret = dlclose (kconf->handle_awsnitro);
-          if (UNLIKELY (ret < 0))
-            return ret;
-          kconf->handle_awsnitro = NULL;
+          എങ്കിൽ (UNLIKELY (ret < 0))
+            തിരികെ ret;
+          kconf->handle_awsnitro = ശൂന്യ;
         }
     }
 
-  return 0;
+  തിരികെ 0;
 }
 
-static int
-libkrun_load (void **cookie, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+libkrun_load (ശൂന്യം **cookie, libcrun_error_t *err)
 {
   int32_t ret;
-  struct krun_config *kconf;
-  const char *libkrun_so = "libkrun.so.1";
-  const char *libkrun_sev_so = "libkrun-sev.so.1";
-  const char *libkrun_awsnitro_so = "libkrun-awsnitro.so.1";
+  ഘടന krun_config *kconf;
+  സ്ഥിരം അക്ഷരം *libkrun_so = "libkrun.so.1";
+  സ്ഥിരം അക്ഷരം *libkrun_sev_so = "libkrun-sev.so.1";
+  സ്ഥിരം അക്ഷരം *libkrun_awsnitro_so = "libkrun-awsnitro.so.1";
 
-  kconf = malloc (sizeof (struct krun_config));
-  if (kconf == NULL)
-    return crun_make_error (err, 0, "could not allocate memory for krun_config");
-  memset (kconf, 0, sizeof (struct krun_config));
+  kconf = malloc (വലുപ്പം (ഘടന krun_config));
+  എങ്കിൽ (kconf == ശൂന്യ)
+    തിരികെ crun_make_error (err, 0, "could not allocate memory for krun_config");
+  memset (kconf, 0, വലുപ്പം (ഘടന krun_config));
 
   kconf->gpu_render_server_fd = -1;
 
@@ -1020,10 +1020,10 @@ libkrun_load (void **cookie, libcrun_error_t *err)
   kconf->handle_sev = dlopen (libkrun_sev_so, RTLD_NOW);
   kconf->handle_awsnitro = dlopen (libkrun_awsnitro_so, RTLD_NOW);
 
-  if (kconf->handle == NULL && kconf->handle_sev == NULL && kconf->handle_awsnitro == NULL)
+  എങ്കിൽ (kconf->handle == ശൂന്യ && kconf->handle_sev == ശൂന്യ && kconf->handle_awsnitro == ശൂന്യ)
     {
-      free (kconf);
-      return crun_make_error (err, 0, "failed to open `%s`, `%s`, and `%s` for krun_config: %s", libkrun_so, libkrun_sev_so, libkrun_awsnitro_so, dlerror ());
+      സ്വതന്ത്രം (kconf);
+      തിരികെ crun_make_error (err, 0, "failed to open `%s`, `%s`, and `%s` for krun_config: %s", libkrun_so, libkrun_sev_so, libkrun_awsnitro_so, dlerror ());
     }
 
   kconf->sev = false;
@@ -1033,79 +1033,79 @@ libkrun_load (void **cookie, libcrun_error_t *err)
      instead they open it when creating the context. This implies
      we need to call "krun_create_ctx" before switching namespaces
      or it won't be able to find the library bundling the kernel. */
-  if (kconf->handle)
+  എങ്കിൽ (kconf->handle)
     {
       ret = libkrun_create_context (kconf->handle, err);
-      if (UNLIKELY (ret < 0))
-        goto error;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        പോകുക error;
       kconf->ctx_id = ret;
     }
 
-  if (kconf->handle_sev)
+  എങ്കിൽ (kconf->handle_sev)
     {
       ret = libkrun_create_context (kconf->handle_sev, err);
-      if (UNLIKELY (ret < 0))
-        goto error;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        പോകുക error;
       kconf->ctx_id_sev = ret;
     }
-  if (kconf->handle_awsnitro)
+  എങ്കിൽ (kconf->handle_awsnitro)
     {
       ret = libkrun_create_context (kconf->handle_awsnitro, err);
-      if (UNLIKELY (ret < 0))
-        goto error;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        പോകുക error;
       kconf->ctx_id_awsnitro = ret;
     }
 
   *cookie = kconf;
 
-  return 0;
+  തിരികെ 0;
 
 error:
-  if (kconf->handle)
+  എങ്കിൽ (kconf->handle)
     dlclose (kconf->handle);
-  if (kconf->handle_sev)
+  എങ്കിൽ (kconf->handle_sev)
     dlclose (kconf->handle_sev);
-  if (kconf->handle_awsnitro)
+  എങ്കിൽ (kconf->handle_awsnitro)
     dlclose (kconf->handle_awsnitro);
-  free (kconf);
-  return ret;
+  സ്വതന്ത്രം (kconf);
+  തിരികെ ret;
 }
 
-static int
-libkrun_unload (void *cookie, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+libkrun_unload (ശൂന്യം *cookie, libcrun_error_t *err)
 {
-  int r;
+  പൂർണ്ണസംഖ്യ r;
 
-  struct krun_config *kconf = (struct krun_config *) cookie;
-  if (kconf != NULL)
+  ഘടന krun_config *kconf = (ഘടന krun_config *) cookie;
+  എങ്കിൽ (kconf != ശൂന്യ)
     {
-      if (kconf->handle != NULL)
+      എങ്കിൽ (kconf->handle != ശൂന്യ)
         {
           r = dlclose (kconf->handle);
-          if (UNLIKELY (r != 0))
-            return crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
+          എങ്കിൽ (UNLIKELY (r != 0))
+            തിരികെ crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
         }
-      if (kconf->handle_sev != NULL)
+      എങ്കിൽ (kconf->handle_sev != ശൂന്യ)
         {
           r = dlclose (kconf->handle_sev);
-          if (UNLIKELY (r != 0))
-            return crun_make_error (err, 0, "could not unload handle_sev: `%s`", dlerror ());
+          എങ്കിൽ (UNLIKELY (r != 0))
+            തിരികെ crun_make_error (err, 0, "could not unload handle_sev: `%s`", dlerror ());
         }
-      if (kconf->handle_awsnitro != NULL)
+      എങ്കിൽ (kconf->handle_awsnitro != ശൂന്യ)
         {
           r = dlclose (kconf->handle_awsnitro);
-          if (UNLIKELY (r != 0))
-            return crun_make_error (err, 0, "could not unload handle_awsnitro: `%s`", dlerror ());
+          എങ്കിൽ (UNLIKELY (r != 0))
+            തിരികെ crun_make_error (err, 0, "could not unload handle_awsnitro: `%s`", dlerror ());
         }
-      free (kconf);
+      സ്വതന്ത്രം (kconf);
     }
-  return 0;
+  തിരികെ 0;
 }
 
-static runtime_spec_schema_defs_linux_device_cgroup *
-make_oci_spec_dev (const char *type, dev_t device, bool allow, const char *access)
+സ്ഥിതം runtime_spec_schema_defs_linux_device_cgroup *
+make_oci_spec_dev (സ്ഥിരം അക്ഷരം *type, dev_t device, bool allow, സ്ഥിരം അക്ഷരം *access)
 {
-  runtime_spec_schema_defs_linux_device_cgroup *dev = xmalloc0 (sizeof (*dev));
+  runtime_spec_schema_defs_linux_device_cgroup *dev = xmalloc0 (വലുപ്പം (*dev));
 
   dev->allow = allow;
   dev->allow_present = 1;
@@ -1120,132 +1120,132 @@ make_oci_spec_dev (const char *type, dev_t device, bool allow, const char *acces
 
   dev->access = xstrdup (access);
 
-  return dev;
+  തിരികെ dev;
 }
 
 /* stat an optional device: on ENOENT clear *PRESENT, any other error fails.  */
-static int
-stat_optional_device (const char *path, struct stat *st, bool *present, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+stat_optional_device (സ്ഥിരം അക്ഷരം *path, ഘടന stat *st, bool *present, libcrun_error_t *err)
 {
-  int ret = stat (path, st);
-  if (UNLIKELY (ret < 0))
+  പൂർണ്ണസംഖ്യ ret = stat (path, st);
+  എങ്കിൽ (UNLIKELY (ret < 0))
     {
-      if (errno != ENOENT)
-        return crun_make_error (err, errno, "stat `%s`", path);
+      എങ്കിൽ (errno != ENOENT)
+        തിരികെ crun_make_error (err, errno, "stat `%s`", path);
       *present = false;
     }
-  return 0;
+  തിരികെ 0;
 }
 
-static int
-libkrun_modify_oci_configuration (void *cookie arg_unused, libcrun_context_t *context arg_unused,
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+libkrun_modify_oci_configuration (ശൂന്യം *cookie arg_unused, libcrun_context_t *context arg_unused,
                                   runtime_spec_schema_config_schema *def,
                                   libcrun_error_t *err)
 {
-  const size_t device_size = sizeof (runtime_spec_schema_defs_linux_device_cgroup);
-  struct krun_config *kconf = (struct krun_config *) cookie;
-  struct stat st_kvm, st_sev, st_awsnitro;
+  സ്ഥിരം size_t device_size = വലുപ്പം (runtime_spec_schema_defs_linux_device_cgroup);
+  ഘടന krun_config *kconf = (ഘടന krun_config *) cookie;
+  ഘടന stat st_kvm, st_sev, st_awsnitro;
   bool has_kvm = true, has_sev = true, has_awsnitro = true;
   size_t old_len, new_len;
-  int ret;
+  പൂർണ്ണസംഖ്യ ret;
 
   /* Always allow the /dev/kvm device.  */
 
   ret = stat_optional_device ("/dev/kvm", &st_kvm, &has_kvm, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
   ret = stat_optional_device ("/dev/sev", &st_sev, &has_sev, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
   ret = stat_optional_device ("/dev/nitro_enclaves", &st_awsnitro, &has_awsnitro, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
   kconf->has_kvm = has_kvm;
   kconf->has_awsnitro = has_awsnitro;
 
-  if (! has_kvm && ! has_awsnitro)
-    return 0;
+  എങ്കിൽ (! has_kvm && ! has_awsnitro)
+    തിരികെ 0;
 
   /* spec says these are optional, ensure they exist so we can add our devices */
-  if (def->linux == NULL)
-    def->linux = xmalloc0 (sizeof (runtime_spec_schema_config_linux));
+  എങ്കിൽ (def->linux == ശൂന്യ)
+    def->linux = xmalloc0 (വലുപ്പം (runtime_spec_schema_config_linux));
 
-  if (def->linux->resources == NULL)
-    def->linux->resources = xmalloc0 (sizeof (runtime_spec_schema_config_linux_resources));
+  എങ്കിൽ (def->linux->resources == ശൂന്യ)
+    def->linux->resources = xmalloc0 (വലുപ്പം (runtime_spec_schema_config_linux_resources));
 
   old_len = def->linux->resources->devices_len;
   new_len = old_len;
-  if (has_kvm)
+  എങ്കിൽ (has_kvm)
     new_len += has_sev ? 2 : 1;
-  if (has_awsnitro)
+  എങ്കിൽ (has_awsnitro)
     new_len += 1;
 
   def->linux->resources->devices = xrealloc (def->linux->resources->devices, device_size * (new_len + 1));
   def->linux->resources->devices_len = new_len;
 
-  if (has_kvm)
+  എങ്കിൽ (has_kvm)
     {
       def->linux->resources->devices[old_len++] = make_oci_spec_dev ("a", st_kvm.st_rdev, true, "rwm");
-      if (has_sev)
+      എങ്കിൽ (has_sev)
         def->linux->resources->devices[old_len++] = make_oci_spec_dev ("a", st_sev.st_rdev, true, "rwm");
     }
 
-  if (has_awsnitro)
+  എങ്കിൽ (has_awsnitro)
     def->linux->resources->devices[old_len++] = make_oci_spec_dev ("a", st_awsnitro.st_rdev, true, "rwm");
 
-  return 0;
+  തിരികെ 0;
 }
 
-static int
-libkrun_close_fds (void *cookie, libcrun_container_t *container, int preserve_fds, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+libkrun_close_fds (ശൂന്യം *cookie, libcrun_container_t *container, പൂർണ്ണസംഖ്യ preserve_fds, libcrun_error_t *err)
 {
-  struct krun_config *kconf = (struct krun_config *) cookie;
-  int first_fd_to_close = preserve_fds + 3;
-  int low_fd, high_fd;
-  int i;
+  ഘടന krun_config *kconf = (ഘടന krun_config *) cookie;
+  പൂർണ്ണസംഖ്യ first_fd_to_close = preserve_fds + 3;
+  പൂർണ്ണസംഖ്യ താഴെയുള്ള_fd, മുകളിലെ_fd;
+  പൂർണ്ണസംഖ്യ i;
 
-  low_fd = high_fd = -1;
+  താഴെയുള്ള_fd = മുകളിലെ_fd = -1;
 
-  if (kconf->use_passt)
-    high_fd = kconf->passt_fds[FD_PAIR_PARENT];
+  എങ്കിൽ (kconf->use_passt)
+    മുകളിലെ_fd = kconf->passt_fds[FD_PAIR_PARENT];
 
-  if (kconf->gpu_render_server_fd != -1)
+  എങ്കിൽ (kconf->gpu_render_server_fd != -1)
     {
-      if (kconf->gpu_render_server_fd > high_fd)
+      എങ്കിൽ (kconf->gpu_render_server_fd > മുകളിലെ_fd)
         {
-          low_fd = high_fd;
-          high_fd = kconf->gpu_render_server_fd;
+          താഴെയുള്ള_fd = മുകളിലെ_fd;
+          മുകളിലെ_fd = kconf->gpu_render_server_fd;
         }
-      else
-        low_fd = kconf->gpu_render_server_fd;
+      അല്ലെങ്കിൽ
+        താഴെയുള്ള_fd = kconf->gpu_render_server_fd;
     }
 
-  if (first_fd_to_close <= high_fd)
+  എങ്കിൽ (first_fd_to_close <= മുകളിലെ_fd)
     {
-      for (i = first_fd_to_close; i < high_fd; i++)
+      വേണ്ടി (i = first_fd_to_close; i < മുകളിലെ_fd; i++)
         {
           // If we're closing proc_fd, make sure to invalidate it.
-          if (i == container->proc_fd)
+          എങ്കിൽ (i == container->proc_fd)
             container->proc_fd = -1;
-          else if (i == low_fd)
-            continue;
+          അല്ലെങ്കിൽ എങ്കിൽ (i == താഴെയുള്ള_fd)
+            തുടരുക;
           close (i);
         }
 
-      first_fd_to_close = high_fd + 1;
+      first_fd_to_close = മുകളിലെ_fd + 1;
     }
 
-  return mark_or_close_fds_ge_than (container, first_fd_to_close, true, err);
+  തിരികെ mark_or_close_fds_ge_than (container, first_fd_to_close, true, err);
 }
 
-struct custom_handler_s handler_libkrun = {
+ഘടന custom_handler_s handler_libkrun = {
   .name = "krun",
-  .alias = NULL,
+  .alias = ശൂന്യ,
   .feature_string = "LIBKRUN",
-  .supports_open_tree_namespace = false,
+  .supports_open_വൃക്ഷം_namespace = false,
   .load = libkrun_load,
   .unload = libkrun_unload,
   .run_func = libkrun_exec,

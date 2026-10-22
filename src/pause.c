@@ -16,53 +16,53 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <regex.h>
+#അന്തര്ഭാവ <config.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <stdlib.h>
+#അന്തര്ഭാവ <argp.h>
+#അന്തര്ഭാവ <string.h>
+#അന്തര്ഭാവ <unistd.h>
+#അന്തര്ഭാവ <errno.h>
+#അന്തര്ഭാവ <regex.h>
 
-#include "crun.h"
+#അന്തര്ഭാവ "crun.h"
 
-static char doc[] = "OCI runtime";
+സ്ഥിതം അക്ഷരം doc[] = "OCI runtime";
 
-struct pause_options_s
+ഘടന pause_options_s
 {
 };
 
-static struct pause_options_s pause_options;
+സ്ഥിതം ഘടന pause_options_s pause_options;
 
-static struct argp_option options[] = { {
+സ്ഥിതം ഘടന argp_option options[] = { {
     0,
 } };
 
-static char args_doc[] = "pause CONTAINER";
+സ്ഥിതം അക്ഷരം args_doc[] = "pause CONTAINER";
 
-static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+സ്ഥിതം error_t
+parse_opt (പൂർണ്ണസംഖ്യ താക്കോൽ, അക്ഷരം *arg arg_unused, ഘടന argp_state *state arg_unused)
 {
-  switch (key)
+  തിരഞ്ഞെടുപ്പ് (താക്കോൽ)
     {
-    case ARGP_KEY_NO_ARGS:
+    അവസ്ഥ ARGP_താക്കോൽ_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    സ്ഥിരസ്ഥിതി:
+      തിരികെ ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  തിരികെ 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+സ്ഥിതം ഘടന argp run_argp = { options, parse_opt, args_doc, doc, ശൂന്യ, ശൂന്യ, ശൂന്യ };
 
-int
-crun_command_pause (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+പൂർണ്ണസംഖ്യ
+crun_command_pause (ഘടന crun_global_arguments *global_args, പൂർണ്ണസംഖ്യ argc, അക്ഷരം **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
-  cleanup_context libcrun_context_t *crun_context = NULL;
+  പൂർണ്ണസംഖ്യ first_arg = 0, ret;
+  cleanup_context libcrun_context_t *crun_context = ശൂന്യ;
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &pause_options);
   crun_assert_n_args (argc - first_arg, 1, 2);
@@ -70,8 +70,8 @@ crun_command_pause (struct crun_global_arguments *global_args, int argc, char **
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
-  return libcrun_container_pause (crun_context, argv[first_arg], err);
+  തിരികെ libcrun_container_pause (crun_context, argv[first_arg], err);
 }

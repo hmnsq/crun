@@ -18,77 +18,77 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
+#അന്തര്ഭാവ <config.h>
 
 #ifdef HAVE_LINUX_IOPRIO_H
 #  include <linux/ioprio.h>
 #endif
 
-#include "linux.h"
-#include "utils.h"
-#include "io_priority.h"
-#include <sys/sysmacros.h>
+#അന്തര്ഭാവ "linux.h"
+#അന്തര്ഭാവ "utils.h"
+#അന്തര്ഭാവ "io_priority.h"
+#അന്തര്ഭാവ <sys/sysmacros.h>
 
 #ifdef HAVE_LINUX_IOPRIO_H
-static int
-syscall_ioprio_set (int which, int who, int ioprio)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+syscall_ioprio_set (പൂർണ്ണസംഖ്യ which, പൂർണ്ണസംഖ്യ who, പൂർണ്ണസംഖ്യ ioprio)
 {
 #  ifdef __NR_ioprio_set
-  return syscall (__NR_ioprio_set, which, who, ioprio);
-#  else
-  (void) which;
-  (void) who;
-  (void) ioprio;
+  തിരികെ syscall (__NR_ioprio_set, which, who, ioprio);
+#  അല്ലെങ്കിൽ
+  (ശൂന്യം) which;
+  (ശൂന്യം) who;
+  (ശൂന്യം) ioprio;
   errno = ENOSYS;
-  return -1;
+  തിരികെ -1;
 #  endif
 }
 #endif
 
-int
+പൂർണ്ണസംഖ്യ
 libcrun_set_io_priority (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err)
 {
 #ifdef HAVE_LINUX_IOPRIO_H
-  int ret, i, class_value, value;
-  struct
+  പൂർണ്ണസംഖ്യ ret, i, class_മൂല്യം, മൂല്യം;
+  ഘടന
   {
-    const char *name;
-    int value;
+    സ്ഥിരം അക്ഷരം *name;
+    പൂർണ്ണസംഖ്യ മൂല്യം;
   } classes[] = {
     { "IOPRIO_CLASS_RT", IOPRIO_CLASS_RT },
     { "IOPRIO_CLASS_BE", IOPRIO_CLASS_BE },
     { "IOPRIO_CLASS_IDLE", IOPRIO_CLASS_IDLE },
-    { NULL, 0 },
+    { ശൂന്യ, 0 },
   };
 
-  if (process == NULL || process->io_priority == NULL)
-    return 0;
+  എങ്കിൽ (process == ശൂന്യ || process->io_priority == ശൂന്യ)
+    തിരികെ 0;
 
-  class_value = -1;
-  for (i = 0; classes[i].name; i++)
-    if (strcmp (process->io_priority->_class, classes[i].name) == 0)
+  class_മൂല്യം = -1;
+  വേണ്ടി (i = 0; classes[i].name; i++)
+    എങ്കിൽ (strcmp (process->io_priority->_class, classes[i].name) == 0)
       {
-        class_value = i;
-        break;
+        class_മൂല്യം = i;
+        നിർത്തുക;
       }
-  if (UNLIKELY (class_value < 0))
-    return crun_make_error (err, 0, "invalid io priority `%s`", process->io_priority->_class);
+  എങ്കിൽ (UNLIKELY (class_മൂല്യം < 0))
+    തിരികെ crun_make_error (err, 0, "invalid io priority `%s`", process->io_priority->_class);
 
-  value = IOPRIO_PRIO_VALUE (classes[class_value].value, process->io_priority->priority);
+  മൂല്യം = IOPRIO_PRIO_മൂല്യം (classes[class_മൂല്യം].മൂല്യം, process->io_priority->priority);
 
-  ret = syscall_ioprio_set (IOPRIO_WHO_PROCESS, pid, value);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "failed to set io priority");
+  ret = syscall_ioprio_set (IOPRIO_WHO_PROCESS, pid, മൂല്യം);
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ crun_make_error (err, errno, "failed to set io priority");
 
-  return 0;
-#else
+  തിരികെ 0;
+#അല്ലെങ്കിൽ
   // If io_priority is not set then return without doing
   // anything.
-  if (process == NULL || process->io_priority == NULL)
-    return 0;
+  എങ്കിൽ (process == ശൂന്യ || process->io_priority == ശൂന്യ)
+    തിരികെ 0;
 
-  (void) pid;
-  (void) process;
-  return crun_make_error (err, 0, "io priority not supported");
+  (ശൂന്യം) pid;
+  (ശൂന്യം) process;
+  തിരികെ crun_make_error (err, 0, "io priority not supported");
 #endif
 }

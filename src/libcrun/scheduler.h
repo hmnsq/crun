@@ -17,15 +17,15 @@
  */
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
-#include <config.h>
-#include "error.h"
-#include "container.h"
-#include "status.h"
+#അന്തര്ഭാവ <config.h>
+#അന്തര്ഭാവ "error.h"
+#അന്തര്ഭാവ "container.h"
+#അന്തര്ഭാവ "status.h"
 
-int libcrun_set_scheduler (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ libcrun_set_scheduler (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err);
 
-int libcrun_set_cpu_affinity_from_string (pid_t pid, const char *str, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ libcrun_set_cpu_affinity_from_string (pid_t pid, സ്ഥിരം അക്ഷരം *str, libcrun_error_t *err);
 
-int libcrun_reset_cpu_affinity_mask (pid_t pid, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ libcrun_reset_cpu_affinity_mask (pid_t pid, libcrun_error_t *err);
 
 #endif

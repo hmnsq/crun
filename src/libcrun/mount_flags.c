@@ -2,7 +2,7 @@
 /* Command-line: gperf --lookup-function-name libcrun_mount_flag_in_word_set -m 100 -tCEG -S1 src/libcrun/mount_flags.perf  */
 /* Computed positions: -k'1-4' */
 
-#if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
+#എങ്കിൽ !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
       && ('%' == 37) && ('&' == 38) && ('\'' == 39) && ('(' == 40) \
       && (')' == 41) && ('*' == 42) && ('+' == 43) && (',' == 44) \
       && ('-' == 45) && ('.' == 46) && ('/' == 47) && ('0' == 48) \
@@ -33,41 +33,41 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include <stddef.h>
-#include <stdlib.h>
+#അന്തര്ഭാവ <config.h>
+#അന്തര്ഭാവ <stddef.h>
+#അന്തര്ഭാവ <stdlib.h>
 
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/mount.h>
+#അന്തര്ഭാവ <fcntl.h>
+#അന്തര്ഭാവ <unistd.h>
+#അന്തര്ഭാവ <sys/mount.h>
 
-#include "utils.h"
-#include "mount_flags.h"
+#അന്തര്ഭാവ "utils.h"
+#അന്തര്ഭാവ "mount_flags.h"
 
 #line 34 "src/libcrun/mount_flags.perf"
-struct propagation_flags_s;
-enum
+ഘടന propagation_flags_s;
+എണ്ണൽ
   {
     TOTAL_KEYWORDS = 63,
     MIN_WORD_LENGTH = 2,
     MAX_WORD_LENGTH = 14,
-    MIN_HASH_VALUE = 2,
-    MAX_HASH_VALUE = 96
+    MIN_HASH_മൂല്യം = 2,
+    MAX_HASH_മൂല്യം = 96
   };
 
 /* maximum key range = 95, duplicates = 0 */
 
 #ifdef __GNUC__
 __inline
-#else
+#അല്ലെങ്കിൽ
 #ifdef __cplusplus
-inline
+വരിയിൽ
 #endif
 #endif
-static unsigned int
-hash (register const char *str, register size_t len)
+സ്ഥിതം unsigned പൂർണ്ണസംഖ്യ
+hash (രജിസ്റ്റർ സ്ഥിരം അക്ഷരം *str, രജിസ്റ്റർ size_t len)
 {
-  static const unsigned char asso_values[] =
+  സ്ഥിതം സ്ഥിരം unsigned അക്ഷരം asso_മൂല്യങ്ങൾ[] =
     {
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
@@ -96,27 +96,27 @@ hash (register const char *str, register size_t len)
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
       97, 97, 97, 97, 97, 97
     };
-  register unsigned int hval = len;
+  രജിസ്റ്റർ unsigned പൂർണ്ണസംഖ്യ hval = len;
 
-  switch (hval)
+  തിരഞ്ഞെടുപ്പ് (hval)
     {
-      default:
-        hval += asso_values[(unsigned char)str[3]];
+      സ്ഥിരസ്ഥിതി:
+        hval += asso_മൂല്യങ്ങൾ[(unsigned അക്ഷരം)str[3]];
       /*FALLTHROUGH*/
-      case 3:
-        hval += asso_values[(unsigned char)str[2]];
+      അവസ്ഥ 3:
+        hval += asso_മൂല്യങ്ങൾ[(unsigned അക്ഷരം)str[2]];
       /*FALLTHROUGH*/
-      case 2:
-        hval += asso_values[(unsigned char)str[1]];
+      അവസ്ഥ 2:
+        hval += asso_മൂല്യങ്ങൾ[(unsigned അക്ഷരം)str[1]];
       /*FALLTHROUGH*/
-      case 1:
-        hval += asso_values[(unsigned char)str[0]];
-        break;
+      അവസ്ഥ 1:
+        hval += asso_മൂല്യങ്ങൾ[(unsigned അക്ഷരം)str[0]];
+        നിർത്തുക;
     }
-  return hval;
+  തിരികെ hval;
 }
 
-static const struct propagation_flags_s wordlist[] =
+സ്ഥിതം സ്ഥിരം ഘടന propagation_flags_s wordlist[] =
   {
 #line 40 "src/libcrun/mount_flags.perf"
     {"rw", 1, MS_RDONLY, 0},
@@ -246,240 +246,240 @@ static const struct propagation_flags_s wordlist[] =
     {"copy-symlink", 0, 0, OPTION_COPY_SYMLINK}
   };
 
-const struct propagation_flags_s *
-libcrun_mount_flag_in_word_set (register const char *str, register size_t len)
+സ്ഥിരം ഘടന propagation_flags_s *
+libcrun_mount_flag_in_word_set (രജിസ്റ്റർ സ്ഥിരം അക്ഷരം *str, രജിസ്റ്റർ size_t len)
 {
-  if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
+  എങ്കിൽ (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
-      register unsigned int key = hash (str, len);
+      രജിസ്റ്റർ unsigned പൂർണ്ണസംഖ്യ താക്കോൽ = hash (str, len);
 
-      if (key <= MAX_HASH_VALUE && key >= MIN_HASH_VALUE)
+      എങ്കിൽ (താക്കോൽ <= MAX_HASH_മൂല്യം && താക്കോൽ >= MIN_HASH_മൂല്യം)
         {
-          register const struct propagation_flags_s *resword;
+          രജിസ്റ്റർ സ്ഥിരം ഘടന propagation_flags_s *resword;
 
-          switch (key - 2)
+          തിരഞ്ഞെടുപ്പ് (താക്കോൽ - 2)
             {
-              case 0:
+              അവസ്ഥ 0:
                 resword = &wordlist[0];
-                goto compare;
-              case 1:
+                പോകുക compare;
+              അവസ്ഥ 1:
                 resword = &wordlist[1];
-                goto compare;
-              case 4:
+                പോകുക compare;
+              അവസ്ഥ 4:
                 resword = &wordlist[2];
-                goto compare;
-              case 5:
+                പോകുക compare;
+              അവസ്ഥ 5:
                 resword = &wordlist[3];
-                goto compare;
-              case 9:
+                പോകുക compare;
+              അവസ്ഥ 9:
                 resword = &wordlist[4];
-                goto compare;
-              case 10:
+                പോകുക compare;
+              അവസ്ഥ 10:
                 resword = &wordlist[5];
-                goto compare;
-              case 11:
+                പോകുക compare;
+              അവസ്ഥ 11:
                 resword = &wordlist[6];
-                goto compare;
-              case 13:
+                പോകുക compare;
+              അവസ്ഥ 13:
                 resword = &wordlist[7];
-                goto compare;
-              case 15:
+                പോകുക compare;
+              അവസ്ഥ 15:
                 resword = &wordlist[8];
-                goto compare;
-              case 16:
+                പോകുക compare;
+              അവസ്ഥ 16:
                 resword = &wordlist[9];
-                goto compare;
-              case 17:
+                പോകുക compare;
+              അവസ്ഥ 17:
                 resword = &wordlist[10];
-                goto compare;
-              case 18:
+                പോകുക compare;
+              അവസ്ഥ 18:
                 resword = &wordlist[11];
-                goto compare;
-              case 19:
+                പോകുക compare;
+              അവസ്ഥ 19:
                 resword = &wordlist[12];
-                goto compare;
-              case 20:
+                പോകുക compare;
+              അവസ്ഥ 20:
                 resword = &wordlist[13];
-                goto compare;
-              case 21:
+                പോകുക compare;
+              അവസ്ഥ 21:
                 resword = &wordlist[14];
-                goto compare;
-              case 22:
+                പോകുക compare;
+              അവസ്ഥ 22:
                 resword = &wordlist[15];
-                goto compare;
-              case 23:
+                പോകുക compare;
+              അവസ്ഥ 23:
                 resword = &wordlist[16];
-                goto compare;
-              case 24:
+                പോകുക compare;
+              അവസ്ഥ 24:
                 resword = &wordlist[17];
-                goto compare;
-              case 25:
+                പോകുക compare;
+              അവസ്ഥ 25:
                 resword = &wordlist[18];
-                goto compare;
-              case 26:
+                പോകുക compare;
+              അവസ്ഥ 26:
                 resword = &wordlist[19];
-                goto compare;
-              case 28:
+                പോകുക compare;
+              അവസ്ഥ 28:
                 resword = &wordlist[20];
-                goto compare;
-              case 29:
+                പോകുക compare;
+              അവസ്ഥ 29:
                 resword = &wordlist[21];
-                goto compare;
-              case 30:
+                പോകുക compare;
+              അവസ്ഥ 30:
                 resword = &wordlist[22];
-                goto compare;
-              case 31:
+                പോകുക compare;
+              അവസ്ഥ 31:
                 resword = &wordlist[23];
-                goto compare;
-              case 32:
+                പോകുക compare;
+              അവസ്ഥ 32:
                 resword = &wordlist[24];
-                goto compare;
-              case 33:
+                പോകുക compare;
+              അവസ്ഥ 33:
                 resword = &wordlist[25];
-                goto compare;
-              case 34:
+                പോകുക compare;
+              അവസ്ഥ 34:
                 resword = &wordlist[26];
-                goto compare;
-              case 35:
+                പോകുക compare;
+              അവസ്ഥ 35:
                 resword = &wordlist[27];
-                goto compare;
-              case 36:
+                പോകുക compare;
+              അവസ്ഥ 36:
                 resword = &wordlist[28];
-                goto compare;
-              case 37:
+                പോകുക compare;
+              അവസ്ഥ 37:
                 resword = &wordlist[29];
-                goto compare;
-              case 38:
+                പോകുക compare;
+              അവസ്ഥ 38:
                 resword = &wordlist[30];
-                goto compare;
-              case 39:
+                പോകുക compare;
+              അവസ്ഥ 39:
                 resword = &wordlist[31];
-                goto compare;
-              case 40:
+                പോകുക compare;
+              അവസ്ഥ 40:
                 resword = &wordlist[32];
-                goto compare;
-              case 41:
+                പോകുക compare;
+              അവസ്ഥ 41:
                 resword = &wordlist[33];
-                goto compare;
-              case 42:
+                പോകുക compare;
+              അവസ്ഥ 42:
                 resword = &wordlist[34];
-                goto compare;
-              case 43:
+                പോകുക compare;
+              അവസ്ഥ 43:
                 resword = &wordlist[35];
-                goto compare;
-              case 44:
+                പോകുക compare;
+              അവസ്ഥ 44:
                 resword = &wordlist[36];
-                goto compare;
-              case 45:
+                പോകുക compare;
+              അവസ്ഥ 45:
                 resword = &wordlist[37];
-                goto compare;
-              case 46:
+                പോകുക compare;
+              അവസ്ഥ 46:
                 resword = &wordlist[38];
-                goto compare;
-              case 47:
+                പോകുക compare;
+              അവസ്ഥ 47:
                 resword = &wordlist[39];
-                goto compare;
-              case 48:
+                പോകുക compare;
+              അവസ്ഥ 48:
                 resword = &wordlist[40];
-                goto compare;
-              case 49:
+                പോകുക compare;
+              അവസ്ഥ 49:
                 resword = &wordlist[41];
-                goto compare;
-              case 50:
+                പോകുക compare;
+              അവസ്ഥ 50:
                 resword = &wordlist[42];
-                goto compare;
-              case 51:
+                പോകുക compare;
+              അവസ്ഥ 51:
                 resword = &wordlist[43];
-                goto compare;
-              case 52:
+                പോകുക compare;
+              അവസ്ഥ 52:
                 resword = &wordlist[44];
-                goto compare;
-              case 53:
+                പോകുക compare;
+              അവസ്ഥ 53:
                 resword = &wordlist[45];
-                goto compare;
-              case 54:
+                പോകുക compare;
+              അവസ്ഥ 54:
                 resword = &wordlist[46];
-                goto compare;
-              case 55:
+                പോകുക compare;
+              അവസ്ഥ 55:
                 resword = &wordlist[47];
-                goto compare;
-              case 56:
+                പോകുക compare;
+              അവസ്ഥ 56:
                 resword = &wordlist[48];
-                goto compare;
-              case 57:
+                പോകുക compare;
+              അവസ്ഥ 57:
                 resword = &wordlist[49];
-                goto compare;
-              case 58:
+                പോകുക compare;
+              അവസ്ഥ 58:
                 resword = &wordlist[50];
-                goto compare;
-              case 59:
+                പോകുക compare;
+              അവസ്ഥ 59:
                 resword = &wordlist[51];
-                goto compare;
-              case 60:
+                പോകുക compare;
+              അവസ്ഥ 60:
                 resword = &wordlist[52];
-                goto compare;
-              case 61:
+                പോകുക compare;
+              അവസ്ഥ 61:
                 resword = &wordlist[53];
-                goto compare;
-              case 62:
+                പോകുക compare;
+              അവസ്ഥ 62:
                 resword = &wordlist[54];
-                goto compare;
-              case 63:
+                പോകുക compare;
+              അവസ്ഥ 63:
                 resword = &wordlist[55];
-                goto compare;
-              case 65:
+                പോകുക compare;
+              അവസ്ഥ 65:
                 resword = &wordlist[56];
-                goto compare;
-              case 67:
+                പോകുക compare;
+              അവസ്ഥ 67:
                 resword = &wordlist[57];
-                goto compare;
-              case 68:
+                പോകുക compare;
+              അവസ്ഥ 68:
                 resword = &wordlist[58];
-                goto compare;
-              case 75:
+                പോകുക compare;
+              അവസ്ഥ 75:
                 resword = &wordlist[59];
-                goto compare;
-              case 84:
+                പോകുക compare;
+              അവസ്ഥ 84:
                 resword = &wordlist[60];
-                goto compare;
-              case 85:
+                പോകുക compare;
+              അവസ്ഥ 85:
                 resword = &wordlist[61];
-                goto compare;
-              case 94:
+                പോകുക compare;
+              അവസ്ഥ 94:
                 resword = &wordlist[62];
-                goto compare;
+                പോകുക compare;
             }
-          return 0;
+          തിരികെ 0;
         compare:
           {
-            register const char *s = resword->name;
+            രജിസ്റ്റർ സ്ഥിരം അക്ഷരം *s = resword->name;
 
-            if (*str == *s && !strcmp (str + 1, s + 1))
-              return resword;
+            എങ്കിൽ (*str == *s && !strcmp (str + 1, s + 1))
+              തിരികെ resword;
           }
         }
     }
-  return 0;
+  തിരികെ 0;
 }
 #line 99 "src/libcrun/mount_flags.perf"
 
 
-const struct propagation_flags_s *
-libcrun_str2mount_flags (const char *name)
+സ്ഥിരം ഘടന propagation_flags_s *
+libcrun_str2mount_flags (സ്ഥിരം അക്ഷരം *name)
 {
-  return libcrun_mount_flag_in_word_set (name, strlen (name));
+  തിരികെ libcrun_mount_flag_in_word_set (name, strlen (name));
 }
 
-const struct propagation_flags_s *
-get_mount_flags_from_wordlist (void)
+സ്ഥിരം ഘടന propagation_flags_s *
+get_mount_flags_from_wordlist (ശൂന്യം)
 {
-  struct propagation_flags_s *flags;
+  ഘടന propagation_flags_s *flags;
   size_t i;
-  size_t num_wordlist_flags = sizeof (wordlist) / sizeof (wordlist[0]);
+  size_t അക്കം_wordlist_flags = വലുപ്പം (wordlist) / വലുപ്പം (wordlist[0]);
 
-  flags = xmalloc0 ((sizeof (struct propagation_flags_s) + 1) * num_wordlist_flags);
-  for (i = 0; i < num_wordlist_flags; i++)
+  flags = xmalloc0 ((വലുപ്പം (ഘടന propagation_flags_s) + 1) * അക്കം_wordlist_flags);
+  വേണ്ടി (i = 0; i < അക്കം_wordlist_flags; i++)
     flags[i].name = wordlist[i].name;
 
-  return flags;
+  തിരികെ flags;
 }

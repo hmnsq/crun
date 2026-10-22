@@ -16,15 +16,15 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <argp.h>
+#അന്തര്ഭാവ <config.h>
+#അന്തര്ഭാവ <argp.h>
 
-#include "crun.h"
-#include "run_create.h"
+#അന്തര്ഭാവ "crun.h"
+#അന്തര്ഭാവ "run_create.h"
 
-static char doc[] = "OCI runtime";
+സ്ഥിതം അക്ഷരം doc[] = "OCI runtime";
 
-enum
+എണ്ണൽ
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -35,13 +35,13 @@ enum
   OPTION_KEEP,
 };
 
-static const char *bundle = NULL;
+സ്ഥിതം സ്ഥിരം അക്ഷരം *bundle = ശൂന്യ;
 
-static bool keep = false;
+സ്ഥിതം bool keep = false;
 
-static libcrun_context_t *crun_context;
+സ്ഥിതം libcrun_context_t *crun_context;
 
-static struct argp_option options[]
+സ്ഥിതം ഘടന argp_option options[]
     = { { "bundle", 'b', "DIR", 0, "container bundle (default \".\")", 0 },
         { "config", 'f', "FILE", 0, "override the config file name", 0 },
         { "detach", 'd', 0, 0, "detach from the parent", 0 },
@@ -57,79 +57,79 @@ static struct argp_option options[]
             0,
         } };
 
-static char args_doc[] = "run [OPTION]... CONTAINER";
+സ്ഥിതം അക്ഷരം args_doc[] = "run [OPTION]... CONTAINER";
 
-static const char *config_file = "config.json";
+സ്ഥിതം സ്ഥിരം അക്ഷരം *config_file = "config.json";
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+സ്ഥിതം error_t
+parse_opt (പൂർണ്ണസംഖ്യ താക്കോൽ, അക്ഷരം *arg, ഘടന argp_state *state)
 {
-  switch (key)
+  തിരഞ്ഞെടുപ്പ് (താക്കോൽ)
     {
-    case 'd':
+    അവസ്ഥ 'd':
       libcrun_context_set_detach (crun_context, true);
-      break;
+      നിർത്തുക;
 
-    case 'f':
+    അവസ്ഥ 'f':
       config_file = argp_mandatory_argument (arg, state);
-      break;
+      നിർത്തുക;
 
-    case 'b':
+    അവസ്ഥ 'b':
       bundle = argp_mandatory_argument (arg, state);
-      break;
+      നിർത്തുക;
 
-    case OPTION_KEEP:
+    അവസ്ഥ OPTION_KEEP:
       keep = true;
-      break;
+      നിർത്തുക;
 
-    case OPTION_CONSOLE_SOCKET:
+    അവസ്ഥ OPTION_CONSOLE_SOCKET:
       libcrun_context_set_console_socket (crun_context, argp_mandatory_argument (arg, state));
-      break;
+      നിർത്തുക;
 
-    case OPTION_PRESERVE_FDS:
-      libcrun_context_set_preserve_fds (crun_context, parse_id_or_fail (argp_mandatory_argument (arg, state), NULL, "preserve-fds"));
-      break;
+    അവസ്ഥ OPTION_PRESERVE_FDS:
+      libcrun_context_set_preserve_fds (crun_context, parse_id_or_fail (argp_mandatory_argument (arg, state), ശൂന്യ, "preserve-fds"));
+      നിർത്തുക;
 
-    case OPTION_NO_SUBREAPER:
-      break;
+    അവസ്ഥ OPTION_NO_SUBREAPER:
+      നിർത്തുക;
 
-    case OPTION_NO_NEW_KEYRING:
+    അവസ്ഥ OPTION_NO_NEW_KEYRING:
       libcrun_context_set_no_new_keyring (crun_context, true);
-      break;
+      നിർത്തുക;
 
-    case OPTION_PID_FILE:
+    അവസ്ഥ OPTION_PID_FILE:
       libcrun_context_set_pid_file (crun_context, argp_mandatory_argument (arg, state));
-      break;
+      നിർത്തുക;
 
-    case OPTION_NO_PIVOT:
+    അവസ്ഥ OPTION_NO_PIVOT:
       libcrun_context_set_no_pivot (crun_context, true);
-      break;
+      നിർത്തുക;
 
-    case ARGP_KEY_NO_ARGS:
+    അവസ്ഥ ARGP_താക്കോൽ_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    സ്ഥിരസ്ഥിതി:
+      തിരികെ ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  തിരികെ 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+സ്ഥിതം ഘടന argp run_argp = { options, parse_opt, args_doc, doc, ശൂന്യ, ശൂന്യ, ശൂന്യ };
 
-static unsigned int
+സ്ഥിതം unsigned പൂർണ്ണസംഖ്യ
 get_options ()
 {
-  return keep ? LIBCRUN_RUN_OPTIONS_KEEP : 0;
+  തിരികെ keep ? LIBCRUN_RUN_OPTIONS_KEEP : 0;
 }
 
-int
-crun_command_run (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+പൂർണ്ണസംഖ്യ
+crun_command_run (ഘടന crun_global_arguments *global_args, പൂർണ്ണസംഖ്യ argc, അക്ഷരം **argv, libcrun_error_t *err)
 {
-  int ret;
+  പൂർണ്ണസംഖ്യ ret;
 
   crun_context = new_libcrun_context (global_args);
   ret = crun_run_create_internal (global_args, argc, argv, libcrun_container_run, get_options, crun_context, &run_argp, &config_file, &bundle, err);
   libcrun_context_free (crun_context);
-  return ret;
+  തിരികെ ret;
 }

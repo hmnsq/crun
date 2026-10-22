@@ -18,31 +18,31 @@
 #ifndef EBPF_H
 #define EBPF_H
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include "error.h"
-#include <errno.h>
-#include <argp.h>
-#include <ocispec/runtime_spec_schema_config_schema.h>
-#include "container.h"
+#അന്തര്ഭാവ <config.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <stdlib.h>
+#അന്തര്ഭാവ "error.h"
+#അന്തര്ഭാവ <errno.h>
+#അന്തര്ഭാവ <argp.h>
+#അന്തര്ഭാവ <ocispec/runtime_spec_schema_config_schema.h>
+#അന്തര്ഭാവ "container.h"
 
 #define SYS_FS_BPF "/sys/fs/bpf"
 #define CRUN_BPF_DIR SYS_FS_BPF "/crun"
 
-struct bpf_program;
+ഘടന bpf_program;
 
-struct bpf_program *bpf_program_new (size_t size);
-struct bpf_program *bpf_program_append (struct bpf_program *p, void *data, size_t size);
+ഘടന bpf_program *bpf_program_new (size_t size);
+ഘടന bpf_program *bpf_program_append (ഘടന bpf_program *p, ശൂന്യം *data, size_t size);
 
-struct bpf_program *bpf_program_init_dev (struct bpf_program *program, libcrun_error_t *err);
-struct bpf_program *bpf_program_append_dev (struct bpf_program *program, const char *access, char type, int major,
-                                            int minor, bool accept, libcrun_error_t *err);
-struct bpf_program *bpf_program_complete_dev (struct bpf_program *program, libcrun_error_t *err);
+ഘടന bpf_program *bpf_program_init_dev (ഘടന bpf_program *program, libcrun_error_t *err);
+ഘടന bpf_program *bpf_program_append_dev (ഘടന bpf_program *program, സ്ഥിരം അക്ഷരം *access, അക്ഷരം type, പൂർണ്ണസംഖ്യ major,
+                                            പൂർണ്ണസംഖ്യ minor, bool accept, libcrun_error_t *err);
+ഘടന bpf_program *bpf_program_complete_dev (ഘടന bpf_program *program, libcrun_error_t *err);
 
-int libcrun_ebpf_load (struct bpf_program *program, int dirfd, const char *pin, libcrun_error_t *err);
-int libcrun_ebpf_read_program (struct bpf_program **program, const char *path, libcrun_error_t *err);
-int libcrun_ebpf_query_cgroup_progs (const char *cgroup_path, uint32_t **progs_out, size_t *n_progs_out, libcrun_error_t *err);
-bool libcrun_ebpf_cmp_programs (struct bpf_program *program1, struct bpf_program *program2);
+പൂർണ്ണസംഖ്യ libcrun_ebpf_load (ഘടന bpf_program *program, പൂർണ്ണസംഖ്യ dirfd, സ്ഥിരം അക്ഷരം *pin, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ libcrun_ebpf_read_program (ഘടന bpf_program **program, സ്ഥിരം അക്ഷരം *path, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ libcrun_ebpf_query_cgroup_progs (സ്ഥിരം അക്ഷരം *cgroup_path, uint32_t **progs_out, size_t *n_progs_out, libcrun_error_t *err);
+bool libcrun_ebpf_cmp_programs (ഘടന bpf_program *program1, ഘടന bpf_program *program2);
 
 #endif

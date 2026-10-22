@@ -16,57 +16,57 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#അന്തര്ഭാവ <config.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <stdlib.h>
+#അന്തര്ഭാവ <argp.h>
+#അന്തര്ഭാവ <string.h>
+#അന്തര്ഭാവ <unistd.h>
+#അന്തര്ഭാവ <errno.h>
 
-#include "crun.h"
+#അന്തര്ഭാവ "crun.h"
 
-static char doc[] = "OCI runtime";
+സ്ഥിതം അക്ഷരം doc[] = "OCI runtime";
 
-static struct argp_option options[] = {
+സ്ഥിതം ഘടന argp_option options[] = {
   0,
 };
 
-static char args_doc[] = "mounts [add|remove] CONTAINER FILE";
+സ്ഥിതം അക്ഷരം args_doc[] = "mounts [add|remove] CONTAINER FILE";
 
-static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+സ്ഥിതം error_t
+parse_opt (പൂർണ്ണസംഖ്യ താക്കോൽ, അക്ഷരം *arg arg_unused, ഘടന argp_state *state arg_unused)
 {
-  switch (key)
+  തിരഞ്ഞെടുപ്പ് (താക്കോൽ)
     {
-    default:
-      return ARGP_ERR_UNKNOWN;
+    സ്ഥിരസ്ഥിതി:
+      തിരികെ ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  തിരികെ 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+സ്ഥിതം ഘടന argp run_argp = { options, parse_opt, args_doc, doc, ശൂന്യ, ശൂന്യ, ശൂന്യ };
 
-int
-crun_command_mounts (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+പൂർണ്ണസംഖ്യ
+crun_command_mounts (ഘടന crun_global_arguments *global_args, പൂർണ്ണസംഖ്യ argc, അക്ഷരം **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
-  cleanup_context libcrun_context_t *crun_context = NULL;
+  പൂർണ്ണസംഖ്യ first_arg = 0, ret;
+  cleanup_context libcrun_context_t *crun_context = ശൂന്യ;
 
-  argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, NULL);
+  argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, ശൂന്യ);
   crun_assert_n_args (argc - first_arg, 3, 3);
 
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
-  if (strcmp (argv[first_arg], "add") == 0)
-    return libcrun_container_add_mounts_from_file (crun_context, argv[first_arg + 1], argv[first_arg + 2], err);
-  else if (strcmp (argv[first_arg], "remove") == 0)
-    return libcrun_container_remove_mounts_from_file (crun_context, argv[first_arg + 1], argv[first_arg + 2], err);
+  എങ്കിൽ (strcmp (argv[first_arg], "add") == 0)
+    തിരികെ libcrun_container_add_mounts_from_file (crun_context, argv[first_arg + 1], argv[first_arg + 2], err);
+  അല്ലെങ്കിൽ എങ്കിൽ (strcmp (argv[first_arg], "remove") == 0)
+    തിരികെ libcrun_container_remove_mounts_from_file (crun_context, argv[first_arg + 1], argv[first_arg + 2], err);
 
-  return crun_make_error (err, 0, "unknown command %s", argv[first_arg]);
+  തിരികെ crun_make_error (err, 0, "unknown command %s", argv[first_arg]);
 }

@@ -18,28 +18,28 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <argp.h>
-#include "error.h"
-#include <dirent.h>
-#include <unistd.h>
-#include <signal.h>
-#include <fcntl.h>
-#include <ocispec/runtime_spec_schema_config_schema.h>
-#include <sys/wait.h>
-#include "container.h"
+#അന്തര്ഭാവ <config.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <stdlib.h>
+#അന്തര്ഭാവ <string.h>
+#അന്തര്ഭാവ <errno.h>
+#അന്തര്ഭാവ <argp.h>
+#അന്തര്ഭാവ "error.h"
+#അന്തര്ഭാവ <dirent.h>
+#അന്തര്ഭാവ <unistd.h>
+#അന്തര്ഭാവ <signal.h>
+#അന്തര്ഭാവ <fcntl.h>
+#അന്തര്ഭാവ <ocispec/runtime_spec_schema_config_schema.h>
+#അന്തര്ഭാവ <sys/wait.h>
+#അന്തര്ഭാവ "container.h"
 
 #ifndef TEMP_FAILURE_RETRY
 #  define TEMP_FAILURE_RETRY(expression)      \
     (__extension__ ({                         \
-      long int __result;                      \
-      do                                      \
-        __result = (long int) (expression);   \
-      while (__result < 0 && errno == EINTR); \
+      long പൂർണ്ണസംഖ്യ __result;                      \
+      ചെയ്യുക                                      \
+        __result = (long പൂർണ്ണസംഖ്യ) (expression);   \
+      ആകുമ്പോൾ (__result < 0 && errno == EINTR); \
       __result;                               \
     }))
 #endif
@@ -59,497 +59,497 @@
 
 #define WRITE_FILE_DEFAULT_FLAGS (O_CLOEXEC | O_CREAT | O_TRUNC | O_WRONLY)
 
-__attribute__ ((malloc)) static inline void *
+__attribute__ ((malloc)) സ്ഥിതം വരിയിൽ ശൂന്യം *
 xmalloc (size_t size)
 {
-  void *res = malloc (size);
-  if (UNLIKELY (res == NULL))
+  ശൂന്യം *res = malloc (size);
+  എങ്കിൽ (UNLIKELY (res == ശൂന്യ))
     OOM ();
-  return res;
+  തിരികെ res;
 }
 
-__attribute__ ((malloc)) static inline void *
+__attribute__ ((malloc)) സ്ഥിതം വരിയിൽ ശൂന്യം *
 xmalloc0 (size_t size)
 {
-  void *res = calloc (1, size);
-  if (UNLIKELY (res == NULL))
+  ശൂന്യം *res = calloc (1, size);
+  എങ്കിൽ (UNLIKELY (res == ശൂന്യ))
     OOM ();
-  return res;
+  തിരികെ res;
 }
 
-__attribute__ ((malloc)) static inline void *
-xrealloc (void *ptr, size_t size)
+__attribute__ ((malloc)) സ്ഥിതം വരിയിൽ ശൂന്യം *
+xrealloc (ശൂന്യം *ptr, size_t size)
 {
-  void *res = realloc (ptr, size);
-  if (UNLIKELY (res == NULL))
+  ശൂന്യം *res = realloc (ptr, size);
+  എങ്കിൽ (UNLIKELY (res == ശൂന്യ))
     OOM ();
-  return res;
+  തിരികെ res;
 }
 
-static inline void
-cleanup_freep (void *p)
+സ്ഥിതം വരിയിൽ ശൂന്യം
+cleanup_freep (ശൂന്യം *p)
 {
-  void **pp = (void **) p;
-  free (*pp);
+  ശൂന്യം **pp = (ശൂന്യം **) p;
+  സ്വതന്ത്രം (*pp);
 }
 
-static inline void
+സ്ഥിതം വരിയിൽ ശൂന്യം
 cleanup_filep (FILE **f)
 {
   FILE *file = *f;
-  if (file)
-    (void) fclose (file);
+  എങ്കിൽ (file)
+    (ശൂന്യം) fclose (file);
 }
 
-static inline void
-cleanup_closep (void *p)
+സ്ഥിതം വരിയിൽ ശൂന്യം
+cleanup_closep (ശൂന്യം *p)
 {
-  int *pp = (int *) p;
-  if (*pp >= 0)
+  പൂർണ്ണസംഖ്യ *pp = (പൂർണ്ണസംഖ്യ *) p;
+  എങ്കിൽ (*pp >= 0)
     TEMP_FAILURE_RETRY (close (*pp));
 }
 
-static inline void
-cleanup_pidp (void *p)
+സ്ഥിതം വരിയിൽ ശൂന്യം
+cleanup_pidp (ശൂന്യം *p)
 {
   pid_t *pp = (pid_t *) p;
-  if (*pp > 0)
+  എങ്കിൽ (*pp > 0)
     {
       TEMP_FAILURE_RETRY (kill (*pp, SIGKILL));
-      TEMP_FAILURE_RETRY (waitpid (*pp, NULL, 0));
+      TEMP_FAILURE_RETRY (waitpid (*pp, ശൂന്യ, 0));
     }
 }
 
-struct libcrun_mmap_s
+ഘടന libcrun_mmap_s
 {
-  void *addr;
+  ശൂന്യം *addr;
   size_t length;
 };
 
-int libcrun_mmap (struct libcrun_mmap_s **ret, void *addr, size_t length,
-                  int prot, int flags, int fd, off_t offset,
+പൂർണ്ണസംഖ്യ libcrun_mmap (ഘടന libcrun_mmap_s **ret, ശൂന്യം *addr, size_t length,
+                  പൂർണ്ണസംഖ്യ prot, പൂർണ്ണസംഖ്യ flags, പൂർണ്ണസംഖ്യ fd, off_t offset,
                   libcrun_error_t *err);
 
-int libcrun_munmap (struct libcrun_mmap_s *mmap, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ libcrun_munmap (ഘടന libcrun_mmap_s *mmap, libcrun_error_t *err);
 
-static inline void
-cleanup_mmapp (void *p)
+സ്ഥിതം വരിയിൽ ശൂന്യം
+cleanup_mmapp (ശൂന്യം *p)
 {
-  int ret;
-  libcrun_error_t tmp_err = NULL;
-  struct libcrun_mmap_s **mm;
+  പൂർണ്ണസംഖ്യ ret;
+  libcrun_error_t tmp_err = ശൂന്യ;
+  ഘടന libcrun_mmap_s **mm;
 
-  mm = (struct libcrun_mmap_s **) p;
-  if (*mm == NULL)
-    return;
+  mm = (ഘടന libcrun_mmap_s **) p;
+  എങ്കിൽ (*mm == ശൂന്യ)
+    തിരികെ;
 
   ret = libcrun_munmap (*mm, &tmp_err);
-  if (UNLIKELY (ret < 0))
+  എങ്കിൽ (UNLIKELY (ret < 0))
     crun_error_release (&tmp_err);
 }
 
-struct libcrun_fd_map
+ഘടന libcrun_fd_map
 {
   size_t nfds;
-  int fds[];
+  പൂർണ്ണസംഖ്യ fds[];
 };
 
-static inline struct libcrun_fd_map *
+സ്ഥിതം വരിയിൽ ഘടന libcrun_fd_map *
 make_libcrun_fd_map (size_t len)
 {
-  struct libcrun_fd_map *ret;
+  ഘടന libcrun_fd_map *ret;
   size_t i;
 
-  ret = (struct libcrun_fd_map *) xmalloc (sizeof (*ret) + sizeof (int) * len);
+  ret = (ഘടന libcrun_fd_map *) xmalloc (വലുപ്പം (*ret) + വലുപ്പം (പൂർണ്ണസംഖ്യ) * len);
   ret->nfds = len;
-  for (i = 0; i < len; i++)
+  വേണ്ടി (i = 0; i < len; i++)
     ret->fds[i] = -1;
 
-  return ret;
+  തിരികെ ret;
 }
 
-static inline void
-cleanup_close_mapp (struct libcrun_fd_map **p)
+സ്ഥിതം വരിയിൽ ശൂന്യം
+cleanup_close_mapp (ഘടന libcrun_fd_map **p)
 {
-  struct libcrun_fd_map *m = *p;
+  ഘടന libcrun_fd_map *m = *p;
   size_t i;
 
-  if (m == NULL)
-    return;
+  എങ്കിൽ (m == ശൂന്യ)
+    തിരികെ;
 
-  for (i = 0; i < m->nfds; i++)
-    if (m->fds[i] >= 0)
+  വേണ്ടി (i = 0; i < m->nfds; i++)
+    എങ്കിൽ (m->fds[i] >= 0)
       TEMP_FAILURE_RETRY (close (m->fds[i]));
 
-  free (m);
+  സ്വതന്ത്രം (m);
 }
 
-static inline void
-cleanup_close_vecp (int **p)
+സ്ഥിതം വരിയിൽ ശൂന്യം
+cleanup_close_vecp (പൂർണ്ണസംഖ്യ **p)
 {
-  int *pp = *p;
-  int i;
+  പൂർണ്ണസംഖ്യ *pp = *p;
+  പൂർണ്ണസംഖ്യ i;
 
-  if (pp == NULL)
-    return;
+  എങ്കിൽ (pp == ശൂന്യ)
+    തിരികെ;
 
-  for (i = 0; pp[i] >= 0; i++)
+  വേണ്ടി (i = 0; pp[i] >= 0; i++)
     TEMP_FAILURE_RETRY (close (pp[i]));
 }
 
-static inline void
+സ്ഥിതം വരിയിൽ ശൂന്യം
 cleanup_dirp (DIR **p)
 {
   DIR *dir = *p;
-  if (dir)
+  എങ്കിൽ (dir)
     closedir (dir);
 }
 
-static inline int
-close_and_reset (int *fd)
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ
+close_and_reset (പൂർണ്ണസംഖ്യ *fd)
 {
-  int ret = 0;
-  if (*fd >= 0)
+  പൂർണ്ണസംഖ്യ ret = 0;
+  എങ്കിൽ (*fd >= 0)
     {
       ret = TEMP_FAILURE_RETRY (close (*fd));
-      if (LIKELY (ret == 0))
+      എങ്കിൽ (LIKELY (ret == 0))
         *fd = -1;
     }
-  return ret;
+  തിരികെ ret;
 }
 
-static inline char *
-xstrdup (const char *str)
+സ്ഥിതം വരിയിൽ അക്ഷരം *
+xstrdup (സ്ഥിരം അക്ഷരം *str)
 {
-  char *ret;
-  if (str == NULL)
-    return NULL;
+  അക്ഷരം *ret;
+  എങ്കിൽ (str == ശൂന്യ)
+    തിരികെ ശൂന്യ;
 
   ret = strdup (str);
-  if (ret == NULL)
+  എങ്കിൽ (ret == ശൂന്യ)
     OOM ();
 
-  return ret;
+  തിരികെ ret;
 }
 
-void consume_trailing_slashes (char *path);
+ശൂന്യം consume_trailing_slashes (അക്ഷരം *path);
 
 #define consume_slashes(t) \
   ({                       \
     typeof (t) _s = (t);   \
-    while (*_s == '/')     \
+    ആകുമ്പോൾ (*_s == '/')     \
       _s++;                \
     _s;                    \
   })
 
-static inline bool
-path_is_slash_dev (const char *path)
+സ്ഥിതം വരിയിൽ bool
+path_is_slash_dev (സ്ഥിരം അക്ഷരം *path)
 {
   path = consume_slashes (path);
 
-  if (strncmp (path, "dev", 3))
-    return false;
+  എങ്കിൽ (strncmp (path, "dev", 3))
+    തിരികെ false;
 
   path += 3;
 
   /* Check there are only '/' left.  */
-  for (; *path; path++)
-    if (*path != '/')
-      return false;
+  വേണ്ടി (; *path; path++)
+    എങ്കിൽ (*path != '/')
+      തിരികെ false;
 
-  return true;
+  തിരികെ true;
 }
 
-int xasprintf (char **str, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
+പൂർണ്ണസംഖ്യ xasprintf (അക്ഷരം **str, സ്ഥിരം അക്ഷരം *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 
-int crun_path_exists (const char *path, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ crun_path_exists (സ്ഥിരം അക്ഷരം *path, libcrun_error_t *err);
 
-int write_file_at_with_flags (int dirfd, int flags, mode_t mode, const char *name, const void *data, size_t len, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ write_file_at_with_flags (പൂർണ്ണസംഖ്യ dirfd, പൂർണ്ണസംഖ്യ flags, mode_t mode, സ്ഥിരം അക്ഷരം *name, സ്ഥിരം ശൂന്യം *data, size_t len, libcrun_error_t *err);
 
-static inline int
-write_file (const char *name, const void *data, size_t len, libcrun_error_t *err)
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ
+write_file (സ്ഥിരം അക്ഷരം *name, സ്ഥിരം ശൂന്യം *data, size_t len, libcrun_error_t *err)
 {
-  return write_file_at_with_flags (AT_FDCWD, WRITE_FILE_DEFAULT_FLAGS, 0700, name, data, len, err);
+  തിരികെ write_file_at_with_flags (AT_FDCWD, WRITE_FILE_DEFAULT_FLAGS, 0700, name, data, len, err);
 }
 
-static inline int
-write_file_at (int dirfd, const char *name, const void *data, size_t len, libcrun_error_t *err)
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ
+write_file_at (പൂർണ്ണസംഖ്യ dirfd, സ്ഥിരം അക്ഷരം *name, സ്ഥിരം ശൂന്യം *data, size_t len, libcrun_error_t *err)
 {
-  return write_file_at_with_flags (dirfd, WRITE_FILE_DEFAULT_FLAGS, 0700, name, data, len, err);
+  തിരികെ write_file_at_with_flags (dirfd, WRITE_FILE_DEFAULT_FLAGS, 0700, name, data, len, err);
 }
 
-int crun_ensure_directory (const char *path, int mode, bool nofollow, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ crun_ensure_directory (സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ mode, bool nofollow, libcrun_error_t *err);
 
-int crun_ensure_directory_at (int dirfd, const char *path, int mode, bool nofollow, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ crun_ensure_directory_at (പൂർണ്ണസംഖ്യ dirfd, സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ mode, bool nofollow, libcrun_error_t *err);
 
-int crun_safe_create_and_open_ref_at (bool dir, int dirfd, const char *dirpath, const char *path, int mode, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ crun_safe_create_and_open_ref_at (bool dir, പൂർണ്ണസംഖ്യ dirfd, സ്ഥിരം അക്ഷരം *dirpath, സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ mode, libcrun_error_t *err);
 
-int crun_safe_ensure_directory_at (int dirfd, const char *dirpath, const char *path, int mode,
+പൂർണ്ണസംഖ്യ crun_safe_ensure_directory_at (പൂർണ്ണസംഖ്യ dirfd, സ്ഥിരം അക്ഷരം *dirpath, സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ mode,
                                    libcrun_error_t *err);
 
-int crun_safe_ensure_file_at (int dirfd, const char *dirpath, const char *path, int mode,
+പൂർണ്ണസംഖ്യ crun_safe_ensure_file_at (പൂർണ്ണസംഖ്യ dirfd, സ്ഥിരം അക്ഷരം *dirpath, സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ mode,
                               libcrun_error_t *err);
 
-int crun_dir_p (const char *path, bool nofollow, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ crun_dir_p (സ്ഥിരം അക്ഷരം *path, bool nofollow, libcrun_error_t *err);
 
-int crun_dir_p_at (int dirfd, const char *path, bool nofollow, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ crun_dir_p_at (പൂർണ്ണസംഖ്യ dirfd, സ്ഥിരം അക്ഷരം *path, bool nofollow, libcrun_error_t *err);
 
-int detach_process ();
+പൂർണ്ണസംഖ്യ detach_process ();
 
-int create_file_if_missing_at (int dirfd, const char *file, mode_t mode, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ create_file_if_missing_at (പൂർണ്ണസംഖ്യ dirfd, സ്ഥിരം അക്ഷരം *file, mode_t mode, libcrun_error_t *err);
 
-int check_running_in_user_namespace (libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ check_running_in_user_namespace (libcrun_error_t *err);
 
-int set_selinux_label (libcrun_container_t *container, const char *label, bool now, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ set_selinux_label (libcrun_container_t *container, സ്ഥിരം അക്ഷരം *label, bool now, libcrun_error_t *err);
 
-int add_selinux_mount_label (char **ret, const char *data, const char *label, const char *context_type, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ add_selinux_mount_label (അക്ഷരം **ret, സ്ഥിരം അക്ഷരം *data, സ്ഥിരം അക്ഷരം *label, സ്ഥിരം അക്ഷരം *context_type, libcrun_error_t *err);
 
-int set_apparmor_profile (libcrun_container_t *container, const char *profile, bool no_new_privileges, bool now, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ set_apparmor_profile (libcrun_container_t *container, സ്ഥിരം അക്ഷരം *profile, bool no_new_privileges, bool now, libcrun_error_t *err);
 
-int read_all_fd_with_size_hint (int fd, const char *description, char **out, size_t *len, size_t hint, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ read_all_fd_with_size_hint (പൂർണ്ണസംഖ്യ fd, സ്ഥിരം അക്ഷരം *description, അക്ഷരം **out, size_t *len, size_t hint, libcrun_error_t *err);
 
-int read_all_fd_with_max_size (int fd, const char *description, char **out, size_t *len, size_t max_size, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ read_all_fd_with_max_size (പൂർണ്ണസംഖ്യ fd, സ്ഥിരം അക്ഷരം *description, അക്ഷരം **out, size_t *len, size_t max_size, libcrun_error_t *err);
 
-static inline int
-read_all_fd (int fd, const char *description, char **out, size_t *len, libcrun_error_t *err)
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ
+read_all_fd (പൂർണ്ണസംഖ്യ fd, സ്ഥിരം അക്ഷരം *description, അക്ഷരം **out, size_t *len, libcrun_error_t *err)
 {
-  return read_all_fd_with_size_hint (fd, description, out, len, 0, err);
+  തിരികെ read_all_fd_with_size_hint (fd, description, out, len, 0, err);
 }
 
-int get_realpath_to_file (int dirfd, const char *path_name, char **absolute_path, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ get_realpath_to_file (പൂർണ്ണസംഖ്യ dirfd, സ്ഥിരം അക്ഷരം *path_name, അക്ഷരം **absolute_path, libcrun_error_t *err);
 
-int read_all_file (const char *path, char **out, size_t *len, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ read_all_file (സ്ഥിരം അക്ഷരം *path, അക്ഷരം **out, size_t *len, libcrun_error_t *err);
 
-int read_all_file_at (int dirfd, const char *path, char **out, size_t *len, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ read_all_file_at (പൂർണ്ണസംഖ്യ dirfd, സ്ഥിരം അക്ഷരം *path, അക്ഷരം **out, size_t *len, libcrun_error_t *err);
 
-int open_unix_domain_client_socket (const char *path, int dgram, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ open_unix_domain_client_socket (സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ dgram, libcrun_error_t *err);
 
-int open_unix_domain_socket (const char *path, int dgram, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ open_unix_domain_socket (സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ dgram, libcrun_error_t *err);
 
-int send_fd_to_socket (int server, int fd, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ send_fd_to_socket (പൂർണ്ണസംഖ്യ server, പൂർണ്ണസംഖ്യ fd, libcrun_error_t *err);
 
-int send_fd_to_socket_with_payload (int server, int fd, const char *payload, size_t payload_len, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ send_fd_to_socket_with_payload (പൂർണ്ണസംഖ്യ server, പൂർണ്ണസംഖ്യ fd, സ്ഥിരം അക്ഷരം *payload, size_t payload_len, libcrun_error_t *err);
 
-int create_socket_pair (int *pair, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ create_socket_pair (പൂർണ്ണസംഖ്യ *pair, libcrun_error_t *err);
 
-int receive_fd_from_socket (int from, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ receive_fd_from_socket (പൂർണ്ണസംഖ്യ from, libcrun_error_t *err);
 
-int receive_fd_from_socket_with_payload (int from, char *payload, size_t payload_len, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ receive_fd_from_socket_with_payload (പൂർണ്ണസംഖ്യ from, അക്ഷരം *payload, size_t payload_len, libcrun_error_t *err);
 
-int create_signalfd (sigset_t *mask, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ create_signalfd (sigset_t *mask, libcrun_error_t *err);
 
-int epoll_helper (int *in_fds, int *in_levelfds, int *out_fds, int *out_levelfds, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ epoll_helper (പൂർണ്ണസംഖ്യ *in_fds, പൂർണ്ണസംഖ്യ *in_levelfds, പൂർണ്ണസംഖ്യ *out_fds, പൂർണ്ണസംഖ്യ *out_levelfds, libcrun_error_t *err);
 
-int copy_from_fd_to_fd (int src, int dst, int consume, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ copy_from_fd_to_fd (പൂർണ്ണസംഖ്യ src, പൂർണ്ണസംഖ്യ dst, പൂർണ്ണസംഖ്യ consume, libcrun_error_t *err);
 
-int run_process (char **args, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ run_process (അക്ഷരം **args, libcrun_error_t *err);
 
-int format_default_id_mapping (char **out, uid_t container_id, uid_t host_uid, uid_t host_id, int is_uid, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ format_default_id_mapping (അക്ഷരം **out, uid_t container_id, uid_t host_uid, uid_t host_id, പൂർണ്ണസംഖ്യ is_uid, libcrun_error_t *err);
 
-int run_process_with_stdin_timeout_envp (char *path, char **args, const char *cwd, int timeout, char **envp,
-                                         char *stdin, size_t stdin_len, int out_fd, int err_fd, bool can_ignore_chdir_errors, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ run_process_with_stdin_timeout_envp (അക്ഷരം *path, അക്ഷരം **args, സ്ഥിരം അക്ഷരം *cwd, പൂർണ്ണസംഖ്യ timeout, അക്ഷരം **envp,
+                                         അക്ഷരം *stdin, size_t stdin_len, പൂർണ്ണസംഖ്യ out_fd, പൂർണ്ണസംഖ്യ err_fd, bool can_ignore_chdir_errors, libcrun_error_t *err);
 
-int mark_or_close_fds_ge_than (libcrun_container_t *container, int n, bool close_now, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ mark_or_close_fds_ge_than (libcrun_container_t *container, പൂർണ്ണസംഖ്യ n, bool close_now, libcrun_error_t *err);
 
-void get_current_timestamp (char *out, size_t len);
+ശൂന്യം get_current_timestamp (അക്ഷരം *out, size_t len);
 
-int set_blocking_fd (int fd, bool blocking, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ set_blocking_fd (പൂർണ്ണസംഖ്യ fd, bool blocking, libcrun_error_t *err);
 
 /* Exported for the language bindings (python/, lua/), which parse a
    process JSON blob before calling libcrun_container_exec.  */
-LIBCRUN_PUBLIC int parse_json_file (json_object **out, const char *jsondata, struct parser_context *ctx, libcrun_error_t *err);
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ parse_json_file (json_object **out, സ്ഥിരം അക്ഷരം *jsondata, ഘടന parser_context *ctx, libcrun_error_t *err);
 
 /* Check that the string STR has the prefix PREFIX.  */
-static inline int
-has_prefix (const char *str, const char *prefix)
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ
+has_prefix (സ്ഥിരം അക്ഷരം *str, സ്ഥിരം അക്ഷരം *prefix)
 {
   size_t prefix_len;
 
-  if (! str || ! prefix)
-    return 0;
+  എങ്കിൽ (! str || ! prefix)
+    തിരികെ 0;
 
   prefix_len = strlen (prefix);
-  return strlen (str) >= prefix_len && memcmp (str, prefix, prefix_len) == 0;
+  തിരികെ strlen (str) >= prefix_len && memcmp (str, prefix, prefix_len) == 0;
 }
 
 /* Check that the string STR has the prefix PREFIX/ (followed by a slash).  */
-static inline int
-has_dir_prefix (const char *str, const char *prefix)
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ
+has_dir_prefix (സ്ഥിരം അക്ഷരം *str, സ്ഥിരം അക്ഷരം *prefix)
 {
   size_t prefix_len;
 
-  if (! str || ! prefix)
-    return 0;
+  എങ്കിൽ (! str || ! prefix)
+    തിരികെ 0;
 
   prefix_len = strlen (prefix);
-  return strlen (str) > prefix_len && memcmp (str, prefix, prefix_len) == 0 && str[prefix_len] == '/';
+  തിരികെ strlen (str) > prefix_len && memcmp (str, prefix, prefix_len) == 0 && str[prefix_len] == '/';
 }
 
-int find_executable (char **exec_path, const char *executable_path, const char *cwd, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ find_executable (അക്ഷരം **exec_path, സ്ഥിരം അക്ഷരം *executable_path, സ്ഥിരം അക്ഷരം *cwd, libcrun_error_t *err);
 
-int copy_recursive_fd_to_fd (int srcfd, int destfd, const char *srcname, const char *destname, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ copy_recursive_fd_to_fd (പൂർണ്ണസംഖ്യ srcfd, പൂർണ്ണസംഖ്യ destfd, സ്ഥിരം അക്ഷരം *srcname, സ്ഥിരം അക്ഷരം *destname, libcrun_error_t *err);
 
-int set_home_env (uid_t uid);
+പൂർണ്ണസംഖ്യ set_home_env (uid_t uid);
 
-int libcrun_initialize_selinux (libcrun_container_t *container, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ libcrun_initialize_selinux (libcrun_container_t *container, libcrun_error_t *err);
 
-int libcrun_initialize_apparmor (libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ libcrun_initialize_apparmor (libcrun_error_t *err);
 
-const char *find_annotation (libcrun_container_t *container, const char *name);
+സ്ഥിരം അക്ഷരം *find_annotation (libcrun_container_t *container, സ്ഥിരം അക്ഷരം *name);
 
-int get_file_type_at (int dirfd, mode_t *mode, bool nofollow, const char *path);
+പൂർണ്ണസംഖ്യ get_file_type_at (പൂർണ്ണസംഖ്യ dirfd, mode_t *mode, bool nofollow, സ്ഥിരം അക്ഷരം *path);
 
-int get_file_type (mode_t *mode, bool nofollow, const char *path);
+പൂർണ്ണസംഖ്യ get_file_type (mode_t *mode, bool nofollow, സ്ഥിരം അക്ഷരം *path);
 
-int get_file_type_fd (int fd, mode_t *mode);
+പൂർണ്ണസംഖ്യ get_file_type_fd (പൂർണ്ണസംഖ്യ fd, mode_t *mode);
 
-char *get_user_name (uid_t uid);
+അക്ഷരം *get_user_name (uid_t uid);
 
-int safe_openat (int dirfd, const char *rootfs, const char *path, int flags, int mode,
+പൂർണ്ണസംഖ്യ safe_openat (പൂർണ്ണസംഖ്യ dirfd, സ്ഥിരം അക്ഷരം *rootfs, സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ flags, പൂർണ്ണസംഖ്യ mode,
                  libcrun_error_t *err);
 
-int safe_write (int fd, const char *fname, const void *buf, size_t count, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ safe_write (പൂർണ്ണസംഖ്യ fd, സ്ഥിരം അക്ഷരം *fname, സ്ഥിരം ശൂന്യം *buf, size_t എണ്ണം, libcrun_error_t *err);
 
-int append_paths (char **out, libcrun_error_t *err, ...) __attribute__ ((sentinel));
+പൂർണ്ണസംഖ്യ append_paths (അക്ഷരം **out, libcrun_error_t *err, ...) __attribute__ ((sentinel));
 
-int str2sig (const char *name);
+പൂർണ്ണസംഖ്യ str2sig (സ്ഥിരം അക്ഷരം *name);
 
-int base64_decode (const char *iptr, size_t isize, char *optr, size_t osize, size_t *nbytes);
-int has_suffix (const char *source, const char *suffix);
-char *libcrun_sysctl_key_to_proc_path (const char *key);
-char *str_join_array (int offset, size_t size, char *const array[], const char *joint);
+പൂർണ്ണസംഖ്യ base64_decode (സ്ഥിരം അക്ഷരം *iptr, size_t isize, അക്ഷരം *optr, size_t osize, size_t *nbytes);
+പൂർണ്ണസംഖ്യ has_suffix (സ്ഥിരം അക്ഷരം *source, സ്ഥിരം അക്ഷരം *suffix);
+അക്ഷരം *libcrun_sysctl_താക്കോൽ_to_proc_path (സ്ഥിരം അക്ഷരം *താക്കോൽ);
+അക്ഷരം *str_join_array (പൂർണ്ണസംഖ്യ offset, size_t size, അക്ഷരം *സ്ഥിരം array[], സ്ഥിരം അക്ഷരം *joint);
 
-ssize_t safe_readlinkat (int dfd, const char *name, char **buffer, ssize_t hint, libcrun_error_t *err);
+ssize_t safe_readlinkat (പൂർണ്ണസംഖ്യ dfd, സ്ഥിരം അക്ഷരം *name, അക്ഷരം **buffer, ssize_t hint, libcrun_error_t *err);
 
-char **read_dir_entries (const char *path, libcrun_error_t *err);
+അക്ഷരം **read_dir_entries (സ്ഥിരം അക്ഷരം *path, libcrun_error_t *err);
 
-static inline bool
-is_empty_string (const char *s)
+സ്ഥിതം വരിയിൽ bool
+is_empty_string (സ്ഥിരം അക്ഷരം *s)
 {
-  return s == NULL || s[0] == '\0';
+  തിരികെ s == ശൂന്യ || s[0] == '\0';
 }
 
 /* Like strlen(), but a NULL string has length 0.  */
-static inline size_t
-safe_strlen (const char *s)
+സ്ഥിതം വരിയിൽ size_t
+safe_strlen (സ്ഥിരം അക്ഷരം *s)
 {
-  return s == NULL ? 0 : strlen (s);
+  തിരികെ s == ശൂന്യ ? 0 : strlen (s);
 }
 
-static inline bool
-path_has_dot_dot_component (const char *path)
+സ്ഥിതം വരിയിൽ bool
+path_has_dot_dot_component (സ്ഥിരം അക്ഷരം *path)
 {
-  if (path == NULL)
-    return false;
-  cleanup_free char *npath = xstrdup (path);
-  char *cur, *it;
+  എങ്കിൽ (path == ശൂന്യ)
+    തിരികെ false;
+  cleanup_free അക്ഷരം *npath = xstrdup (path);
+  അക്ഷരം *cur, *it;
 
   cur = npath;
   it = strchr (cur, '/');
-  while (cur)
+  ആകുമ്പോൾ (cur)
     {
-      if (it)
+      എങ്കിൽ (it)
         *it = '\0';
 
-      if (strcmp (cur, "..") == 0)
-        return true;
+      എങ്കിൽ (strcmp (cur, "..") == 0)
+        തിരികെ true;
 
-      if (it == NULL)
-        break;
+      എങ്കിൽ (it == ശൂന്യ)
+        നിർത്തുക;
 
       cur = consume_slashes (it + 1);
       *it = '/';
       it = strchr (cur, '/');
     }
-  return false;
+  തിരികെ false;
 }
 
-static inline int
-waitpid_ignore_stopped (pid_t pid, int *status, int options)
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ
+waitpid_ignore_stopped (pid_t pid, പൂർണ്ണസംഖ്യ *status, പൂർണ്ണസംഖ്യ options)
 {
-  int ret, s;
-  do
+  പൂർണ്ണസംഖ്യ ret, s;
+  ചെയ്യുക
     {
       s = 0;
       ret = TEMP_FAILURE_RETRY (waitpid (pid, &s, options));
-      if (ret < 0)
-        return ret;
-  } while (WIFSTOPPED (s) || WIFCONTINUED (s));
+      എങ്കിൽ (ret < 0)
+        തിരികെ ret;
+  } ആകുമ്പോൾ (WIFSTOPPED (s) || WIFCONTINUED (s));
 
-  if (status)
+  എങ്കിൽ (status)
     *status = s;
 
-  return ret;
+  തിരികെ ret;
 }
 
-static inline int
-get_process_exit_status (int status)
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ
+get_process_exit_status (പൂർണ്ണസംഖ്യ status)
 {
-  if (WIFEXITED (status))
-    return WEXITSTATUS (status);
-  if (WIFSIGNALED (status))
-    return 128 + WTERMSIG (status);
+  എങ്കിൽ (WIFEXITED (status))
+    തിരികെ WEXITSTATUS (status);
+  എങ്കിൽ (WIFSIGNALED (status))
+    തിരികെ 128 + WTERMSIG (status);
 
-  return -1;
+  തിരികെ -1;
 }
 
-uid_t get_overflow_uid (void);
-gid_t get_overflow_gid (void);
+uid_t get_overflow_uid (ശൂന്യം);
+gid_t get_overflow_gid (ശൂന്യം);
 
 /* Adapted from systemd.  Include space for the NUL byte.  */
 #define DECIMAL_STR_MAX(type)                                        \
-  ((size_t) 2U + (sizeof (type) <= 1 ? 3U : sizeof (type) <= 2 ? 5U  \
-                                        : sizeof (type) <= 4   ? 10U \
-                                        : sizeof (type) <= 8   ? 20U \
-                                                               : sizeof (int[-2 * (sizeof (type) > 8)])))
+  ((size_t) 2U + (വലുപ്പം (type) <= 1 ? 3U : വലുപ്പം (type) <= 2 ? 5U  \
+                                        : വലുപ്പം (type) <= 4   ? 10U \
+                                        : വലുപ്പം (type) <= 8   ? 20U \
+                                                               : വലുപ്പം (പൂർണ്ണസംഖ്യ[-2 * (വലുപ്പം (type) > 8)])))
 
-#define _STRLEN(s) (sizeof (s) - 1)
+#define _STRLEN(s) (വലുപ്പം (s) - 1)
 
 /* _STRLEN("self") < DECIMAL_STR_MAX (pid_t), so we don't need to calculate the length of both.  */
 #define PROC_PID_FD_STRLEN (_STRLEN ("/proc/") + DECIMAL_STR_MAX (pid_t) \
-                            + _STRLEN ("/fd/") + DECIMAL_STR_MAX (int))
+                            + _STRLEN ("/fd/") + DECIMAL_STR_MAX (പൂർണ്ണസംഖ്യ))
 
 /* A buffer long enough to hold either /proc/self/fd/$FD or a /proc/$PID/fd/$FD path.  */
-typedef char proc_fd_path_t[PROC_PID_FD_STRLEN];
+തരനിർവചനം അക്ഷരം proc_fd_path_t[PROC_PID_FD_STRLEN];
 
 #undef _STRLEN
 
-static inline void
-get_proc_fd_path (proc_fd_path_t path, pid_t pid, int fd)
+സ്ഥിതം വരിയിൽ ശൂന്യം
+get_proc_fd_path (proc_fd_path_t path, pid_t pid, പൂർണ്ണസംഖ്യ fd)
 {
-  const size_t max_len = sizeof (proc_fd_path_t);
+  സ്ഥിരം size_t max_len = വലുപ്പം (proc_fd_path_t);
   size_t n;
 
-  if (pid)
+  എങ്കിൽ (pid)
     n = snprintf (path, max_len, "/proc/%d/fd/%d", pid, fd);
-  else
+  അല്ലെങ്കിൽ
     n = snprintf (path, max_len, "/proc/self/fd/%d", fd);
 
-  if (UNLIKELY (n >= max_len))
+  എങ്കിൽ (UNLIKELY (n >= max_len))
     abort ();
 }
 
-static inline void
-get_proc_self_fd_path (proc_fd_path_t path, int fd)
+സ്ഥിതം വരിയിൽ ശൂന്യം
+get_proc_self_fd_path (proc_fd_path_t path, പൂർണ്ണസംഖ്യ fd)
 {
   get_proc_fd_path (path, 0, fd);
 }
 
-static inline void
-get_self_fd_path (proc_fd_path_t path, int fd)
+സ്ഥിതം വരിയിൽ ശൂന്യം
+get_self_fd_path (proc_fd_path_t path, പൂർണ്ണസംഖ്യ fd)
 {
-  snprintf (path, sizeof (proc_fd_path_t), "self/fd/%d", fd);
+  snprintf (path, വലുപ്പം (proc_fd_path_t), "self/fd/%d", fd);
 }
 
-static inline int
-validate_options (unsigned int specified_options, unsigned int supported_options, libcrun_error_t *err)
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ
+validate_options (unsigned പൂർണ്ണസംഖ്യ specified_options, unsigned പൂർണ്ണസംഖ്യ supported_options, libcrun_error_t *err)
 {
-  if (! ! (~supported_options & specified_options))
-    return crun_make_error (err, 0, "internal error: unknown options %d", specified_options);
-  return 0;
+  എങ്കിൽ (! ! (~supported_options & specified_options))
+    തിരികെ crun_make_error (err, 0, "internal error: unknown options %d", specified_options);
+  തിരികെ 0;
 }
 
-extern int cpuset_string_to_bitmask (const char *str, char **out, size_t *out_size, libcrun_error_t *err);
+ബാഹ്യ പൂർണ്ണസംഖ്യ cpuset_string_to_bitmask (സ്ഥിരം അക്ഷരം *str, അക്ഷരം **out, size_t *out_size, libcrun_error_t *err);
 
 /*
  * A channel_fd_pair takes care of copying data between two file descriptors.
@@ -559,11 +559,11 @@ extern int cpuset_string_to_bitmask (const char *str, char **out, size_t *out_si
  * ready to accept the data, the channel_fd_pair will buffer the data until it
  * can be written.
  */
-struct channel_fd_pair;
+ഘടന channel_fd_pair;
 
-struct channel_fd_pair *channel_fd_pair_new (int in_fd, int out_fd, size_t size);
+ഘടന channel_fd_pair *channel_fd_pair_new (പൂർണ്ണസംഖ്യ in_fd, പൂർണ്ണസംഖ്യ out_fd, size_t size);
 
-void channel_fd_pair_free (struct channel_fd_pair *channel);
+ശൂന്യം channel_fd_pair_free (ഘടന channel_fd_pair *channel);
 
 /* Process the data in the channel_fd_pair.  This function will read data from
  * the input file descriptor and write it to the output file descriptor.  If
@@ -571,21 +571,21 @@ void channel_fd_pair_free (struct channel_fd_pair *channel);
  * buffered.  If epollfd is provided, the in_fd and out_fd will be registered
  * and unregistered as necessary.
  */
-int channel_fd_pair_process (struct channel_fd_pair *channel, int epollfd, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ channel_fd_pair_process (ഘടന channel_fd_pair *channel, പൂർണ്ണസംഖ്യ epollfd, libcrun_error_t *err);
 
-static inline void
-cleanup_channel_fd_pairp (void *p)
+സ്ഥിതം വരിയിൽ ശൂന്യം
+cleanup_channel_fd_pairp (ശൂന്യം *p)
 {
-  struct channel_fd_pair **pp = (struct channel_fd_pair **) p;
-  if (*pp == NULL)
-    return;
+  ഘടന channel_fd_pair **pp = (ഘടന channel_fd_pair **) p;
+  എങ്കിൽ (*pp == ശൂന്യ)
+    തിരികെ;
 
   channel_fd_pair_free (*pp);
 }
 #define cleanup_channel_fd_pair __attribute__ ((cleanup (cleanup_channel_fd_pairp)))
 
-int libcrun_get_cached_proc_fd (libcrun_container_t *container, libcrun_error_t *err);
-int libcrun_open_proc_file (libcrun_container_t *container, const char *path, int flags, libcrun_error_t *err);
-int libcrun_open_proc_pid_file (libcrun_container_t *container, pid_t pid, const char *path, int flags, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ libcrun_get_cached_proc_fd (libcrun_container_t *container, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ libcrun_open_proc_file (libcrun_container_t *container, സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ flags, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ libcrun_open_proc_pid_file (libcrun_container_t *container, pid_t pid, സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ flags, libcrun_error_t *err);
 
 #endif

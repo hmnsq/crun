@@ -18,14 +18,14 @@
 #ifndef RUN_CREATE_H
 #define RUN_CREATE_H
 
-#include "crun.h"
+#അന്തര്ഭാവ "crun.h"
 
-typedef int (*container_run_create_func_t) (libcrun_context_t *, libcrun_container_t *, unsigned int, libcrun_error_t *);
-typedef unsigned int (*get_options_func_t) ();
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*container_run_create_func_t) (libcrun_context_t *, libcrun_container_t *, unsigned പൂർണ്ണസംഖ്യ, libcrun_error_t *);
+തരനിർവചനം unsigned പൂർണ്ണസംഖ്യ (*get_options_func_t) ();
 
-int crun_run_create_internal (struct crun_global_arguments *global_args, int argc, char **argv,
+പൂർണ്ണസംഖ്യ crun_run_create_internal (ഘടന crun_global_arguments *global_args, പൂർണ്ണസംഖ്യ argc, അക്ഷരം **argv,
                               container_run_create_func_t container_run_create_func, get_options_func_t get_options_func,
-                              libcrun_context_t *crun_context, struct argp *run_argp, const char **config_file,
-                              const char **bundle, libcrun_error_t *err);
+                              libcrun_context_t *crun_context, ഘടന argp *run_argp, സ്ഥിരം അക്ഷരം **config_file,
+                              സ്ഥിരം അക്ഷരം **bundle, libcrun_error_t *err);
 
 #endif

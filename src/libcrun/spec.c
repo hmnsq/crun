@@ -17,16 +17,16 @@
  */
 #define _GNU_SOURCE
 
-#include <config.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <errno.h>
-#include "spec.h"
-#include "utils.h"
-#include "cgroup.h"
-#include "cgroup-utils.h"
+#അന്തര്ഭാവ <config.h>
+#അന്തര്ഭാവ <stdbool.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <errno.h>
+#അന്തര്ഭാവ "spec.h"
+#അന്തര്ഭാവ "utils.h"
+#അന്തര്ഭാവ "cgroup.h"
+#അന്തര്ഭാവ "cgroup-utils.h"
 
-static const char spec_file[] = "\
+സ്ഥിതം സ്ഥിരം അക്ഷരം spec_file[] = "\
 {\n\
 	\"ociVersion\": \"1.0.0\",\n\
 	\"process\": {\n\
@@ -76,7 +76,7 @@ static const char spec_file[] = "\
 		],\n\
 		\"noNewPrivileges\": true\n\
 	},\n\
-	\"root\": {\n\
+	\"വേര്\": {\n\
 		\"path\": \"rootfs\",\n\
 		\"readonly\": true\n\
 	},\n\
@@ -189,7 +189,7 @@ static const char spec_file[] = "\
 			\"/proc/acpi\",\n\
 			\"/proc/asound\",\n\
 			\"/proc/kcore\",\n\
-			\"/proc/keys\",\n\
+			\"/proc/താക്കോലുകൾ\",\n\
 			\"/proc/latency_stats\",\n\
 			\"/proc/timer_list\",\n\
 			\"/proc/timer_stats\",\n\
@@ -207,59 +207,59 @@ static const char spec_file[] = "\
 	}\n\
 }\n";
 
-static const char *spec_pts_tty_group = ",\n\
+സ്ഥിതം സ്ഥിരം അക്ഷരം *spec_pts_tty_group = ",\n\
 				\"gid=5\"\n";
 
-static const char *spec_user = "\
+സ്ഥിതം സ്ഥിരം അക്ഷരം *spec_user = "\
 			{\n\
 				\"type\": \"user\"\n\
 			},\n";
 
-static const char *spec_cgroupns = "\
+സ്ഥിതം സ്ഥിരം അക്ഷരം *spec_cgroupns = "\
 			{\n\
 				\"type\": \"cgroup\"\n\
 			},\n";
 
-int
-libcrun_container_spec (bool root, FILE *out, libcrun_error_t *err)
+പൂർണ്ണസംഖ്യ
+libcrun_container_spec (bool വേര്, FILE *out, libcrun_error_t *err)
 {
-  int ret;
-  int cgroup_mode;
+  പൂർണ്ണസംഖ്യ ret;
+  പൂർണ്ണസംഖ്യ cgroup_mode;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  എങ്കിൽ (UNLIKELY (cgroup_mode < 0))
+    തിരികെ cgroup_mode;
 
   ret = fprintf (out, spec_file,
-                 root ? spec_pts_tty_group : "\n",
-                 root ? "" : spec_user,
+                 വേര് ? spec_pts_tty_group : "\n",
+                 വേര് ? "" : spec_user,
                  cgroup_mode == CGROUP_MODE_UNIFIED ? spec_cgroupns : "");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fprintf failed");
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ crun_make_error (err, errno, "fprintf failed");
 
-  return ret;
+  തിരികെ ret;
 }
 
-int
-libcrun_container_spec_json (bool root, char **out, libcrun_error_t *err)
+പൂർണ്ണസംഖ്യ
+libcrun_container_spec_json (bool വേര്, അക്ഷരം **out, libcrun_error_t *err)
 {
-  char *buffer = NULL;
+  അക്ഷരം *buffer = ശൂന്യ;
   size_t len = 0;
   FILE *f;
-  int ret;
+  പൂർണ്ണസംഖ്യ ret;
 
   f = open_memstream (&buffer, &len);
-  if (f == NULL)
-    return crun_make_error (err, errno, "open_memstream");
+  എങ്കിൽ (f == ശൂന്യ)
+    തിരികെ crun_make_error (err, errno, "open_memstream");
 
-  ret = libcrun_container_spec (root, f, err);
+  ret = libcrun_container_spec (വേര്, f, err);
   fclose (f);
-  if (UNLIKELY (ret < 0))
+  എങ്കിൽ (UNLIKELY (ret < 0))
     {
-      free (buffer);
-      return ret;
+      സ്വതന്ത്രം (buffer);
+      തിരികെ ret;
     }
 
   *out = buffer;
-  return 0;
+  തിരികെ 0;
 }

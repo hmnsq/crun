@@ -24,22 +24,22 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+#അന്തര്ഭാവ <config.h>
 #endif
 
-#include <sys/types.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
-#include <strings.h>
-#include <limits.h>				/* for PATH_MAX */
-#include <sys/param.h>			/* for MAXPATHLEN */
-#include <errno.h>
+#അന്തര്ഭാവ <sys/types.h>
+#അന്തര്ഭാവ <unistd.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <string.h>
+#അന്തര്ഭാവ <strings.h>
+#അന്തര്ഭാവ <limits.h>				/* for PATH_MAX */
+#അന്തര്ഭാവ <sys/param.h>			/* for MAXPATHLEN */
+#അന്തര്ഭാവ <errno.h>
 #ifndef __set_errno
 #define __set_errno(val) ((errno) = (val))
 #endif
 
-#include <sys/stat.h>			/* for S_IFLNK */
+#അന്തര്ഭാവ <sys/stat.h>			/* for S_IFLNK */
 
 #ifndef PATH_MAX
 #define PATH_MAX _POSIX_PATH_MAX
@@ -57,35 +57,35 @@
 
    On failure NULL is returned and errno is set to either ENAMETOOLONG or
    ELOOP, or to any error readlink(2) can report except ENOENT and EINVAL. */
-char *chroot_realpath(const char *chroot, const char *path, char resolved_path[])
+അക്ഷരം *chroot_realpath(സ്ഥിരം അക്ഷരം *chroot, സ്ഥിരം അക്ഷരം *path, അക്ഷരം resolved_path[])
 {
-	char copy_path[PATH_MAX];
-	char link_path[PATH_MAX];
-	char got_path[PATH_MAX];
-	char *got_path_root = got_path;
-	char *new_path = got_path;
-	char *max_path;
-	int readlinks = 0;
-	int n;
-	int chroot_len;
-	int last_component;
+	അക്ഷരം copy_path[PATH_MAX];
+	അക്ഷരം link_path[PATH_MAX];
+	അക്ഷരം got_path[PATH_MAX];
+	അക്ഷരം *got_path_വേര് = got_path;
+	അക്ഷരം *new_path = got_path;
+	അക്ഷരം *max_path;
+	പൂർണ്ണസംഖ്യ readlinks = 0;
+	പൂർണ്ണസംഖ്യ n;
+	പൂർണ്ണസംഖ്യ chroot_len;
+	പൂർണ്ണസംഖ്യ last_component;
 
 	/* Trivial case. */
-	if (chroot == NULL || *chroot == '\0' ||
+	എങ്കിൽ (chroot == ശൂന്യ || *chroot == '\0' ||
 	    (*chroot == '/' && chroot[1] == '\0')) {
-		if (strlen(path) >= PATH_MAX) {
+		എങ്കിൽ (strlen(path) >= PATH_MAX) {
 			__set_errno(ENAMETOOLONG);
-			return NULL;
+			തിരികെ ശൂന്യ;
 		}
 		strcpy(resolved_path, path);
-		return resolved_path;
+		തിരികെ resolved_path;
 	}
 
 	chroot_len = strlen(chroot);
 
-	if (chroot_len + strlen(path) >= PATH_MAX - 3) {
+	എങ്കിൽ (chroot_len + strlen(path) >= PATH_MAX - 3) {
 		__set_errno(ENAMETOOLONG);
-		return NULL;
+		തിരികെ ശൂന്യ;
 	}
 
 	/* Make a copy of the source path since we may need to modify it. */
@@ -97,39 +97,39 @@ char *chroot_realpath(const char *chroot, const char *path, char resolved_path[]
 	   result is always prefixed by CHROOT and callers can strip it. */
 	strcpy(new_path, chroot);
 	new_path += chroot_len;
-	got_path_root = new_path;
+	got_path_വേര് = new_path;
 	*new_path++ = '/';
 
 	/* Expand each slash-separated pathname component. */
-	while (*path != '\0') {
+	ആകുമ്പോൾ (*path != '\0') {
 		/* Ignore stray "/". */
-		if (*path == '/') {
+		എങ്കിൽ (*path == '/') {
 			path++;
-			continue;
+			തുടരുക;
 		}
-		if (*path == '.') {
+		എങ്കിൽ (*path == '.') {
 			/* Ignore ".". */
-			if (path[1] == '\0' || path[1] == '/') {
+			എങ്കിൽ (path[1] == '\0' || path[1] == '/') {
 				path++;
-				continue;
+				തുടരുക;
 			}
-			if (path[1] == '.') {
-				if (path[2] == '\0' || path[2] == '/') {
+			എങ്കിൽ (path[1] == '.') {
+				എങ്കിൽ (path[2] == '\0' || path[2] == '/') {
 					path += 2;
 					/* Ignore ".." at root. */
-					if (new_path == got_path_root + 1)
-						continue;
+					എങ്കിൽ (new_path == got_path_വേര് + 1)
+						തുടരുക;
 					/* Handle ".." by backing up. */
-					while ((--new_path)[-1] != '/');
-					continue;
+					ആകുമ്പോൾ ((--new_path)[-1] != '/');
+					തുടരുക;
 				}
 			}
 		}
 		/* Safely copy the next pathname component. */
-		while (*path != '\0' && *path != '/') {
-			if (path > max_path || new_path >= got_path + PATH_MAX - 1) {
+		ആകുമ്പോൾ (*path != '\0' && *path != '/') {
+			എങ്കിൽ (path > max_path || new_path >= got_path + PATH_MAX - 1) {
 				__set_errno(ENAMETOOLONG);
-				return NULL;
+				തിരികെ ശൂന്യ;
 			}
 			*new_path++ = *path++;
 		}
@@ -138,45 +138,45 @@ char *chroot_realpath(const char *chroot, const char *path, char resolved_path[]
 
 #ifdef S_IFLNK
 		/* Protect against infinite loops. */
-		if (readlinks++ > MAX_READLINKS) {
+		എങ്കിൽ (readlinks++ > MAX_READLINKS) {
 			__set_errno(ELOOP);
-			return NULL;
+			തിരികെ ശൂന്യ;
 		}
 		/* See if latest pathname component is a symlink. */
 		*new_path = '\0';
 		n = readlink(got_path, link_path, PATH_MAX - 1);
-		if (n < 0) {
+		എങ്കിൽ (n < 0) {
 			/* If a component doesn't exist, then return what we could translate. */
-			if (errno == ENOENT) {
-				int ret = snprintf (resolved_path, PATH_MAX, "%s%s%s", got_path, path[0] == '/' || path[0] == '\0' ? "" : "/", path);
-				if (ret >= PATH_MAX) {
+			എങ്കിൽ (errno == ENOENT) {
+				പൂർണ്ണസംഖ്യ ret = snprintf (resolved_path, PATH_MAX, "%s%s%s", got_path, path[0] == '/' || path[0] == '\0' ? "" : "/", path);
+				എങ്കിൽ (ret >= PATH_MAX) {
 					__set_errno(ENAMETOOLONG);
-					return NULL;
+					തിരികെ ശൂന്യ;
 				}
-				return resolved_path;
+				തിരികെ resolved_path;
 			}
 			/* EINVAL means the file exists but isn't a symlink. */
-			if (errno != EINVAL)
-				return NULL;
-		} else {
+			എങ്കിൽ (errno != EINVAL)
+				തിരികെ ശൂന്യ;
+		} അല്ലെങ്കിൽ {
 			/* Note: readlink doesn't add the null byte. */
 			link_path[n] = '\0';
-			if (*link_path == '/') {
+			എങ്കിൽ (*link_path == '/') {
 				/* Start over for an absolute symlink. */
-				new_path = got_path_root;
+				new_path = got_path_വേര്;
 				*new_path++ = '/';
 			}
-			else {
+			അല്ലെങ്കിൽ {
 				/* Otherwise back up over this component, keeping the
 				   separator, so that the expanded symlink is not
 				   concatenated to the parent directory name. */
-				while (*(--new_path) != '/');
+				ആകുമ്പോൾ (*(--new_path) != '/');
 				new_path++;
 			}
 			/* Safe sex check. */
-			if (strlen(path) + n >= PATH_MAX - 2) {
+			എങ്കിൽ (strlen(path) + n >= PATH_MAX - 2) {
 				__set_errno(ENAMETOOLONG);
-				return NULL;
+				തിരികെ ശൂന്യ;
 			}
 			/* Insert symlink contents into path. */
 			strcat(link_path, path);
@@ -184,19 +184,19 @@ char *chroot_realpath(const char *chroot, const char *path, char resolved_path[]
 			path = copy_path;
 		}
 #endif							/* S_IFLNK */
-		if (!last_component) {
-			if (new_path >= got_path + PATH_MAX - 1) {
+		എങ്കിൽ (!last_component) {
+			എങ്കിൽ (new_path >= got_path + PATH_MAX - 1) {
 				__set_errno(ENAMETOOLONG);
-				return NULL;
+				തിരികെ ശൂന്യ;
 			}
 			*new_path++ = '/';
 		}
 	}
 	/* Delete trailing slash but don't whomp a lone slash. */
-	if (new_path != got_path + 1 && new_path[-1] == '/')
+	എങ്കിൽ (new_path != got_path + 1 && new_path[-1] == '/')
 		new_path--;
 	/* Make sure it's null terminated. */
 	*new_path = '\0';
 	strcpy(resolved_path, got_path);
-	return resolved_path;
+	തിരികെ resolved_path;
 }

@@ -16,19 +16,19 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#അന്തര്ഭാവ <config.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <stdlib.h>
+#അന്തര്ഭാവ <argp.h>
+#അന്തര്ഭാവ <string.h>
+#അന്തര്ഭാവ <unistd.h>
+#അന്തര്ഭാവ <errno.h>
 
-#include "crun.h"
+#അന്തര്ഭാവ "crun.h"
 
-static char doc[] = "OCI runtime";
+സ്ഥിതം അക്ഷരം doc[] = "OCI runtime";
 
-enum
+എണ്ണൽ
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -37,64 +37,64 @@ enum
   OPTION_PRESERVE_FDS
 };
 
-struct list_options_s
+ഘടന list_options_s
 {
   bool quiet;
-  int format;
+  പൂർണ്ണസംഖ്യ format;
 };
 
-enum
+എണ്ണൽ
 {
   LIST_TABLE = 100,
   LIST_JSON,
 };
 
-static struct list_options_s list_options;
+സ്ഥിതം ഘടന list_options_s list_options;
 
-static struct argp_option options[]
+സ്ഥിതം ഘടന argp_option options[]
     = { { "quiet", 'q', 0, 0, "show only IDs", 0 },
         { "format", 'f', "FORMAT", 0, "select one of: table or json (default: \"table\")", 0 },
         {
             0,
         } };
 
-static char args_doc[] = "list";
+സ്ഥിതം അക്ഷരം args_doc[] = "list";
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state arg_unused)
+സ്ഥിതം error_t
+parse_opt (പൂർണ്ണസംഖ്യ താക്കോൽ, അക്ഷരം *arg, ഘടന argp_state *state arg_unused)
 {
-  switch (key)
+  തിരഞ്ഞെടുപ്പ് (താക്കോൽ)
     {
-    case 'q':
+    അവസ്ഥ 'q':
       list_options.quiet = true;
-      break;
-    case 'f':
-      if (strcmp (arg, "table") == 0)
+      നിർത്തുക;
+    അവസ്ഥ 'f':
+      എങ്കിൽ (strcmp (arg, "table") == 0)
         list_options.format = LIST_TABLE;
-      else if (strcmp (arg, "json") == 0)
+      അല്ലെങ്കിൽ എങ്കിൽ (strcmp (arg, "json") == 0)
         list_options.format = LIST_JSON;
-      else
+      അല്ലെങ്കിൽ
         libcrun_fail_with_error (0, "invalid format `%s`", arg);
-      break;
+      നിർത്തുക;
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    സ്ഥിരസ്ഥിതി:
+      തിരികെ ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  തിരികെ 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+സ്ഥിതം ഘടന argp run_argp = { options, parse_opt, args_doc, doc, ശൂന്യ, ശൂന്യ, ശൂന്യ };
 
-int
-crun_command_list (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+പൂർണ്ണസംഖ്യ
+crun_command_list (ഘടന crun_global_arguments *global_args, പൂർണ്ണസംഖ്യ argc, അക്ഷരം **argv, libcrun_error_t *err)
 {
-  int first_arg;
-  int ret, max_length = 4;
-  cleanup_context libcrun_context_t *crun_context = NULL;
-  libcrun_container_list_t *list = NULL;
+  പൂർണ്ണസംഖ്യ first_arg;
+  പൂർണ്ണസംഖ്യ ret, max_length = 4;
+  cleanup_context libcrun_context_t *crun_context = ശൂന്യ;
+  libcrun_container_list_t *list = ശൂന്യ;
   libcrun_container_iter_t *it;
-  const char *name;
+  സ്ഥിരം അക്ഷരം *name;
 
   list_options.format = LIST_TABLE;
 
@@ -104,65 +104,65 @@ crun_command_list (struct crun_global_arguments *global_args, int argc, char **a
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
-  if (list_options.format == LIST_JSON)
+  എങ്കിൽ (list_options.format == LIST_JSON)
     {
-      cleanup_free char *json = NULL;
+      cleanup_free അക്ഷരം *json = ശൂന്യ;
 
       ret = libcrun_container_list_json (crun_context, &json, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
 
       fputs (json, stdout);
-      return 0;
+      തിരികെ 0;
     }
 
   ret = libcrun_container_list (crun_context, &list, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
-  for (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
+  വേണ്ടി (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
     {
-      int l = strlen (name);
-      if (l > max_length)
+      പൂർണ്ണസംഖ്യ l = strlen (name);
+      എങ്കിൽ (l > max_length)
         max_length = l;
     }
   libcrun_container_iter_free (it);
 
   max_length++;
 
-  if (! list_options.quiet)
+  എങ്കിൽ (! list_options.quiet)
     printf ("%-*s%-10s%-8s %-39s %-30s %s\n", max_length, "NAME", "PID", "STATUS", "BUNDLE PATH", "CREATED", "OWNER");
 
-  for (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
+  വേണ്ടി (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
     {
-      libcrun_status_t *status = NULL;
+      libcrun_status_t *status = ശൂന്യ;
 
       ret = libcrun_container_status_load (crun_context, name, &status, err);
-      if (UNLIKELY (ret < 0))
+      എങ്കിൽ (UNLIKELY (ret < 0))
         {
           libcrun_error_report_and_release (err);
-          continue;
+          തുടരുക;
         }
-      if (list_options.quiet)
+      എങ്കിൽ (list_options.quiet)
         printf ("%s\n", name);
-      else
+      അല്ലെങ്കിൽ
         {
           libcrun_container_state_t state;
-          int running = 0;
-          int pid = libcrun_status_get_pid (status);
+          പൂർണ്ണസംഖ്യ running = 0;
+          പൂർണ്ണസംഖ്യ pid = libcrun_status_get_pid (status);
 
           ret = libcrun_status_get_state (status, &state, &running, err);
-          if (UNLIKELY (ret < 0))
+          എങ്കിൽ (UNLIKELY (ret < 0))
             {
               libcrun_error_report_and_release (err);
               libcrun_container_status_free (status);
-              continue;
+              തുടരുക;
             }
 
-          if (! running)
+          എങ്കിൽ (! running)
             pid = 0;
 
           printf ("%-*s%-10d%-8s %-39s %-30s %s\n", max_length, name, pid,
@@ -175,5 +175,5 @@ crun_command_list (struct crun_global_arguments *global_args, int argc, char **a
   libcrun_container_iter_free (it);
 
   libcrun_container_list_free (list);
-  return ret >= 0 ? 0 : ret;
+  തിരികെ ret >= 0 ? 0 : ret;
 }

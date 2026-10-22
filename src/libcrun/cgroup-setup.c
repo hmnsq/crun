@@ -18,96 +18,96 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "cgroup.h"
-#include "cgroup-internal.h"
-#include "cgroup-systemd.h"
-#include "cgroup-utils.h"
-#include "ebpf.h"
-#include "utils.h"
-#include "status.h"
-#include <string.h>
-#include <sys/types.h>
-#include <signal.h>
-#include <sys/vfs.h>
-#include <inttypes.h>
-#include <time.h>
+#അന്തര്ഭാവ <config.h>
+#അന്തര്ഭാവ "cgroup.h"
+#അന്തര്ഭാവ "cgroup-internal.h"
+#അന്തര്ഭാവ "cgroup-systemd.h"
+#അന്തര്ഭാവ "cgroup-utils.h"
+#അന്തര്ഭാവ "ebpf.h"
+#അന്തര്ഭാവ "utils.h"
+#അന്തര്ഭാവ "status.h"
+#അന്തര്ഭാവ <string.h>
+#അന്തര്ഭാവ <sys/types.h>
+#അന്തര്ഭാവ <signal.h>
+#അന്തര്ഭാവ <sys/vfs.h>
+#അന്തര്ഭാവ <inttypes.h>
+#അന്തര്ഭാവ <time.h>
 
-#include <sched.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <libgen.h>
+#അന്തര്ഭാവ <sched.h>
+#അന്തര്ഭാവ <sys/stat.h>
+#അന്തര്ഭാവ <sys/types.h>
+#അന്തര്ഭാവ <fcntl.h>
+#അന്തര്ഭാവ <libgen.h>
 
-static int
-initialize_cpuset_subsystem_rec (char *path, size_t path_len, char *cpus, char *mems, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+initialize_cpuset_subsystem_rec (അക്ഷരം *path, size_t path_len, അക്ഷരം *cpus, അക്ഷരം *mems, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
 {
-  cleanup_free char *allocated_cpus = NULL;
-  cleanup_free char *allocated_mems = NULL;
-  cleanup_close int dirfd = -1;
-  cleanup_close int mems_fd = -1;
-  cleanup_close int cpus_fd = -1;
+  cleanup_free അക്ഷരം *allocated_cpus = ശൂന്യ;
+  cleanup_free അക്ഷരം *allocated_mems = ശൂന്യ;
+  cleanup_close പൂർണ്ണസംഖ്യ dirfd = -1;
+  cleanup_close പൂർണ്ണസംഖ്യ mems_fd = -1;
+  cleanup_close പൂർണ്ണസംഖ്യ cpus_fd = -1;
   bool has_cpus = false, has_mems = false;
-  int b_len;
+  പൂർണ്ണസംഖ്യ b_len;
 
   dirfd = open (path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", path);
+  എങ്കിൽ (UNLIKELY (dirfd < 0))
+    തിരികെ crun_make_error (err, errno, "open `%s`", path);
 
   /* If we don't yet have a cpu/mem value to base the child off of, we attempt to read it.
    * Either, it's the newly created cgroup (and thus is still empty), or it's a parent that's been
    * prepopulated. */
-  if (cpus[0] == '\0')
+  എങ്കിൽ (cpus[0] == '\0')
     {
       cpus_fd = openat (dirfd, "cpuset.cpus", O_RDWR | O_CLOEXEC);
-      if (UNLIKELY (cpus_fd < 0 && errno == ENOENT))
+      എങ്കിൽ (UNLIKELY (cpus_fd < 0 && errno == ENOENT))
         cpus_fd = openat (dirfd, "cpus", O_RDWR | O_CLOEXEC);
-      if (UNLIKELY (cpus_fd < 0))
-        return crun_make_error (err, errno, "open `%s/%s`", path, "cpuset.cpus");
+      എങ്കിൽ (UNLIKELY (cpus_fd < 0))
+        തിരികെ crun_make_error (err, errno, "open `%s/%s`", path, "cpuset.cpus");
 
-      b_len = TEMP_FAILURE_RETRY (read (cpus_fd, cpus, 256));
-      if (UNLIKELY (b_len < 0))
-        return crun_make_error (err, errno, "read from `cpuset.cpus`");
+      b_len = TEMP_FAILURE_RETRY (പഠ (cpus_fd, cpus, 256));
+      എങ്കിൽ (UNLIKELY (b_len < 0))
+        തിരികെ crun_make_error (err, errno, "read from `cpuset.cpus`");
       cpus[b_len] = '\0';
-      if (cpus[0] == '\n')
+      എങ്കിൽ (cpus[0] == '\n')
         cpus[0] = '\0';
-      if (cpus[0] != '\0')
+      എങ്കിൽ (cpus[0] != '\0')
         has_cpus = true;
     }
 
-  if (mems[0] == '\0')
+  എങ്കിൽ (mems[0] == '\0')
     {
       mems_fd = openat (dirfd, "cpuset.mems", O_RDWR | O_CLOEXEC);
-      if (UNLIKELY (mems_fd < 0 && errno == ENOENT))
+      എങ്കിൽ (UNLIKELY (mems_fd < 0 && errno == ENOENT))
         mems_fd = openat (dirfd, "mems", O_RDWR | O_CLOEXEC);
-      if (UNLIKELY (mems_fd < 0))
-        return crun_make_error (err, errno, "open `%s/%s`", path, "cpuset.mems");
+      എങ്കിൽ (UNLIKELY (mems_fd < 0))
+        തിരികെ crun_make_error (err, errno, "open `%s/%s`", path, "cpuset.mems");
 
-      b_len = TEMP_FAILURE_RETRY (read (mems_fd, mems, 256));
-      if (UNLIKELY (b_len < 0))
-        return crun_make_error (err, errno, "read from `cpuset.mems`");
+      b_len = TEMP_FAILURE_RETRY (പഠ (mems_fd, mems, 256));
+      എങ്കിൽ (UNLIKELY (b_len < 0))
+        തിരികെ crun_make_error (err, errno, "read from `cpuset.mems`");
       mems[b_len] = '\0';
-      if (mems[0] == '\n')
+      എങ്കിൽ (mems[0] == '\n')
         mems[0] = '\0';
-      if (mems[0] != '\0')
+      എങ്കിൽ (mems[0] != '\0')
         has_mems = true;
     }
 
   /* If we fail to find one, we should continue searching up until we find one */
-  if (cpus[0] == '\0' || mems[0] == '\0')
+  എങ്കിൽ (cpus[0] == '\0' || mems[0] == '\0')
     {
       size_t parent_path_len;
-      int ret;
+      പൂർണ്ണസംഖ്യ ret;
 
-      for (parent_path_len = path_len - 1; parent_path_len > 1 && path[parent_path_len] != '/'; parent_path_len--)
+      വേണ്ടി (parent_path_len = path_len - 1; parent_path_len > 1 && path[parent_path_len] != '/'; parent_path_len--)
         ;
-      if (parent_path_len == 1)
-        return 0;
+      എങ്കിൽ (parent_path_len == 1)
+        തിരികെ 0;
 
       path[parent_path_len] = '\0';
       ret = initialize_cpuset_subsystem_rec (path, parent_path_len, cpus, mems, resources, err);
       path[parent_path_len] = '/';
-      if (UNLIKELY (ret < 0))
+      എങ്കിൽ (UNLIKELY (ret < 0))
         {
           /* Ignore errors here and try to write the configuration we want later on.  */
           crun_error_release (err);
@@ -117,336 +117,336 @@ initialize_cpuset_subsystem_rec (char *path, size_t path_len, char *cpus, char *
   /* If we know the resources, use them, instead of initializing with the full set, only to revert it later.
    * Only do so if we didn't read the cpus and mems we have from this cgroup.
    * Otherwise, we'll clobber existing values, which is problematic when there are multiple containers in a cgroup. */
-  if (resources && resources->cpu)
+  എങ്കിൽ (resources && resources->cpu)
     {
-      if (resources->cpu->cpus && ! has_cpus)
+      എങ്കിൽ (resources->cpu->cpus && ! has_cpus)
         cpus = allocated_cpus = xstrdup (resources->cpu->cpus);
-      if (resources->cpu->mems && ! has_mems)
+      എങ്കിൽ (resources->cpu->mems && ! has_mems)
         mems = allocated_mems = xstrdup (resources->cpu->mems);
     }
 
   /* Finally, if we have a fd to populate, write the value chosen. If we have a value from the resources struct to base it off of,
    * use that, otherwise use the parent's. */
-  if (cpus_fd >= 0)
+  എങ്കിൽ (cpus_fd >= 0)
     {
-      b_len = TEMP_FAILURE_RETRY (write (cpus_fd, cpus, strlen (cpus)));
-      if (UNLIKELY (b_len < 0))
-        return crun_make_error (err, errno, "write `cpuset.cpus`");
+      b_len = TEMP_FAILURE_RETRY (ലിഖ (cpus_fd, cpus, strlen (cpus)));
+      എങ്കിൽ (UNLIKELY (b_len < 0))
+        തിരികെ crun_make_error (err, errno, "write `cpuset.cpus`");
     }
 
-  if (mems_fd >= 0)
+  എങ്കിൽ (mems_fd >= 0)
     {
-      b_len = TEMP_FAILURE_RETRY (write (mems_fd, mems, strlen (mems)));
-      if (UNLIKELY (b_len < 0))
-        return crun_make_error (err, errno, "write `cpuset.mems`");
+      b_len = TEMP_FAILURE_RETRY (ലിഖ (mems_fd, mems, strlen (mems)));
+      എങ്കിൽ (UNLIKELY (b_len < 0))
+        തിരികെ crun_make_error (err, errno, "write `cpuset.mems`");
     }
 
-  return 0;
+  തിരികെ 0;
 }
 
-int
-initialize_cpuset_subsystem (const char *path, libcrun_error_t *err)
+പൂർണ്ണസംഖ്യ
+initialize_cpuset_subsystem (സ്ഥിരം അക്ഷരം *path, libcrun_error_t *err)
 {
-  cleanup_free char *tmp_path = xstrdup (path);
-  char cpus_buf[257];
-  char mems_buf[257];
+  cleanup_free അക്ഷരം *tmp_path = xstrdup (path);
+  അക്ഷരം cpus_buf[257];
+  അക്ഷരം mems_buf[257];
 
   cpus_buf[0] = mems_buf[0] = '\0';
-  return initialize_cpuset_subsystem_rec (tmp_path, strlen (tmp_path), cpus_buf, mems_buf, NULL, err);
+  തിരികെ initialize_cpuset_subsystem_rec (tmp_path, strlen (tmp_path), cpus_buf, mems_buf, ശൂന്യ, err);
 }
 
-int
-initialize_cpuset_subsystem_resources (const char *path, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
+പൂർണ്ണസംഖ്യ
+initialize_cpuset_subsystem_resources (സ്ഥിരം അക്ഷരം *path, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
 {
-  cleanup_free char *tmp_path = xstrdup (path);
-  char cpus_buf[257];
-  char mems_buf[257];
+  cleanup_free അക്ഷരം *tmp_path = xstrdup (path);
+  അക്ഷരം cpus_buf[257];
+  അക്ഷരം mems_buf[257];
 
   cpus_buf[0] = mems_buf[0] = '\0';
-  return initialize_cpuset_subsystem_rec (tmp_path, strlen (tmp_path), cpus_buf, mems_buf, resources, err);
+  തിരികെ initialize_cpuset_subsystem_rec (tmp_path, strlen (tmp_path), cpus_buf, mems_buf, resources, err);
 }
 
-static int
-initialize_memory_subsystem (const char *path, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+initialize_memory_subsystem (സ്ഥിരം അക്ഷരം *path, libcrun_error_t *err)
 {
-  const char *const files[]
-      = { "memory.limit_in_bytes", "memory.kmem.limit_in_bytes", "memory.memsw.limit_in_bytes", NULL };
-  cleanup_close int dirfd = -1;
-  int i;
+  സ്ഥിരം അക്ഷരം *സ്ഥിരം files[]
+      = { "memory.limit_in_bytes", "memory.kmem.limit_in_bytes", "memory.memsw.limit_in_bytes", ശൂന്യ };
+  cleanup_close പൂർണ്ണസംഖ്യ dirfd = -1;
+  പൂർണ്ണസംഖ്യ i;
 
   dirfd = open (path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", path);
+  എങ്കിൽ (UNLIKELY (dirfd < 0))
+    തിരികെ crun_make_error (err, errno, "open `%s`", path);
 
-  for (i = 0; files[i]; i++)
+  വേണ്ടി (i = 0; files[i]; i++)
     {
-      int ret;
+      പൂർണ്ണസംഖ്യ ret;
 
       ret = write_cgroup_file (dirfd, files[i], "-1", 2, err);
-      if (UNLIKELY (ret < 0))
+      എങ്കിൽ (UNLIKELY (ret < 0))
         {
           /* Ignore any error here.  */
           crun_error_release (err);
         }
     }
 
-  return 0;
+  തിരികെ 0;
 }
 
-int
-enter_cgroup_v1_subsystem (pid_t pid, const char *subsystem, const char *path, bool create_if_missing,
+പൂർണ്ണസംഖ്യ
+enter_cgroup_v1_subsystem (pid_t pid, സ്ഥിരം അക്ഷരം *subsystem, സ്ഥിരം അക്ഷരം *path, bool create_if_missing,
                            libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
-  int ret;
+  cleanup_free അക്ഷരം *cgroup_path = ശൂന്യ;
+  പൂർണ്ണസംഖ്യ ret;
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, subsystem, path ? path : "", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_path, err, CGROUP_വേര്, subsystem, path ? path : "", ശൂന്യ);
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
-  if (create_if_missing)
+  എങ്കിൽ (create_if_missing)
     {
       ret = crun_ensure_directory (cgroup_path, 0755, false, err);
-      if (UNLIKELY (ret < 0))
+      എങ്കിൽ (UNLIKELY (ret < 0))
         {
-          if (crun_error_get_errno (err) != EROFS)
-            return crun_error_wrap (err, "creating cgroup directory `%s`", cgroup_path);
+          എങ്കിൽ (crun_error_get_errno (err) != EROFS)
+            തിരികെ crun_error_wrap (err, "creating cgroup directory `%s`", cgroup_path);
 
           crun_error_release (err);
-          return 0;
+          തിരികെ 0;
         }
 
-      if (strcmp (subsystem, "cpuset") == 0)
+      എങ്കിൽ (strcmp (subsystem, "cpuset") == 0)
         {
           ret = initialize_cpuset_subsystem (cgroup_path, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          എങ്കിൽ (UNLIKELY (ret < 0))
+            തിരികെ ret;
         }
-      if (strcmp (subsystem, "memory") == 0)
+      എങ്കിൽ (strcmp (subsystem, "memory") == 0)
         {
           ret = initialize_memory_subsystem (cgroup_path, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          എങ്കിൽ (UNLIKELY (ret < 0))
+            തിരികെ ret;
         }
     }
-  else
+  അല്ലെങ്കിൽ
     {
       ret = crun_path_exists (cgroup_path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      if (ret == 0)
-        return 0;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
+      എങ്കിൽ (ret == 0)
+        തിരികെ 0;
     }
 
-  return move_process_to_cgroup (pid, subsystem, path, err);
+  തിരികെ move_process_to_cgroup (pid, subsystem, path, err);
 }
 
-static int
-get_file_owner (const char *path, uid_t *uid, gid_t *gid)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+get_file_owner (സ്ഥിരം അക്ഷരം *path, uid_t *uid, gid_t *gid)
 {
-  struct stat st;
-  int ret;
+  ഘടന stat st;
+  പൂർണ്ണസംഖ്യ ret;
 
 #ifdef HAVE_STATX
-  struct statx stx;
+  ഘടന statx stx;
 
   ret = statx (AT_FDCWD, path, AT_STATX_DONT_SYNC, STATX_UID | STATX_GID, &stx);
-  if (UNLIKELY (ret < 0))
+  എങ്കിൽ (UNLIKELY (ret < 0))
     {
-      if (errno == ENOSYS || errno == EINVAL)
-        goto fallback;
+      എങ്കിൽ (errno == ENOSYS || errno == EINVAL)
+        പോകുക fallback;
 
-      return ret;
+      തിരികെ ret;
     }
   *uid = stx.stx_uid;
   *gid = stx.stx_gid;
-  return ret;
+  തിരികെ ret;
 
 fallback:
 #endif
   ret = stat (path, &st);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
   *uid = st.st_uid;
   *gid = st.st_gid;
-  return ret;
+  തിരികെ ret;
 }
 
-static int
-copy_owner (const char *from, const char *to, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+copy_owner (സ്ഥിരം അക്ഷരം *from, സ്ഥിരം അക്ഷരം *to, libcrun_error_t *err)
 {
   uid_t uid = 0;
   gid_t gid = 0;
-  int ret;
+  പൂർണ്ണസംഖ്യ ret;
 
   ret = get_file_owner (from, &uid, &gid);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "cannot get file owner for `%s`", from);
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ crun_make_error (err, errno, "cannot get file owner for `%s`", from);
 
-  if (uid == 0 && gid == 0)
-    return 0;
+  എങ്കിൽ (uid == 0 && gid == 0)
+    തിരികെ 0;
 
-  return chown_cgroups (to, uid, gid, err);
+  തിരികെ chown_cgroups (to, uid, gid, err);
 }
 
-static int
-read_unified_cgroup_pid (pid_t pid, char **path, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+read_unified_cgroup_pid (pid_t pid, അക്ഷരം **path, libcrun_error_t *err)
 {
-  int ret;
-  char cgroup_path[32];
-  char *from, *to;
-  cleanup_free char *content = NULL;
-  int len;
+  പൂർണ്ണസംഖ്യ ret;
+  അക്ഷരം cgroup_path[32];
+  അക്ഷരം *from, *to;
+  cleanup_free അക്ഷരം *content = ശൂന്യ;
+  പൂർണ്ണസംഖ്യ len;
 
-  len = snprintf (cgroup_path, sizeof (cgroup_path), "/proc/%d/cgroup", pid);
-  if (UNLIKELY (len >= (int) sizeof (cgroup_path)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  len = snprintf (cgroup_path, വലുപ്പം (cgroup_path), "/proc/%d/cgroup", pid);
+  എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (cgroup_path)))
+    തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
 
   cgroup_path[len] = '\0';
 
-  ret = read_all_file (cgroup_path, &content, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file (cgroup_path, &content, ശൂന്യ, err);
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
   from = strstr (content, "0::");
-  if (UNLIKELY (from == NULL))
-    return crun_make_error (err, 0, "cannot find cgroup2 for the process `%d`", pid);
+  എങ്കിൽ (UNLIKELY (from == ശൂന്യ))
+    തിരികെ crun_make_error (err, 0, "cannot find cgroup2 for the process `%d`", pid);
 
   from += 3;
 
   to = strchr (from, '\n');
-  if (UNLIKELY (to == NULL))
-    return crun_make_error (err, 0, "cannot parse `%s`", cgroup_path);
+  എങ്കിൽ (UNLIKELY (to == ശൂന്യ))
+    തിരികെ crun_make_error (err, 0, "cannot parse `%s`", cgroup_path);
   *to = '\0';
 
   *path = xstrdup (from);
-  return 0;
+  തിരികെ 0;
 }
 
-static int
-enter_cgroup_v1 (pid_t pid, const char *path, bool create_if_missing, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+enter_cgroup_v1 (pid_t pid, സ്ഥിരം അക്ഷരം *path, bool create_if_missing, libcrun_error_t *err)
 {
-  cleanup_free char *content = NULL;
+  cleanup_free അക്ഷരം *content = ശൂന്യ;
   bool entered_any = false;
   size_t content_size;
-  char *controller;
-  char *saveptr;
+  അക്ഷരം *controller;
+  അക്ഷരം *saveptr;
   bool has_data;
-  int rootless;
-  int ret;
+  പൂർണ്ണസംഖ്യ rootless;
+  പൂർണ്ണസംഖ്യ ret;
 
   rootless = is_rootless (err);
-  if (UNLIKELY (rootless < 0))
-    return rootless;
+  എങ്കിൽ (UNLIKELY (rootless < 0))
+    തിരികെ rootless;
 
   ret = read_all_file (PROC_SELF_CGROUP, &content, &content_size, err);
-  if (UNLIKELY (ret < 0))
+  എങ്കിൽ (UNLIKELY (ret < 0))
     {
-      if (crun_error_get_errno (err) == ENOENT)
+      എങ്കിൽ (crun_error_get_errno (err) == ENOENT)
         {
           crun_error_release (err);
-          return 0;
+          തിരികെ 0;
         }
-      return ret;
+      തിരികെ ret;
     }
 
-  for (has_data = read_proc_cgroup (content, &saveptr, NULL, &controller, NULL);
+  വേണ്ടി (has_data = read_proc_cgroup (content, &saveptr, ശൂന്യ, &controller, ശൂന്യ);
        has_data;
-       has_data = read_proc_cgroup (NULL, &saveptr, NULL, &controller, NULL))
+       has_data = read_proc_cgroup (ശൂന്യ, &saveptr, ശൂന്യ, &controller, ശൂന്യ))
     {
-      char subsystem_path[64];
-      char *subsystem;
+      അക്ഷരം subsystem_path[64];
+      അക്ഷരം *subsystem;
       size_t len;
 
-      if (has_prefix (controller, "name="))
+      എങ്കിൽ (has_prefix (controller, "name="))
         controller += 5;
 
       subsystem = controller[0] == '\0' ? "unified" : controller;
 
-      if (strcmp (subsystem, "net_prio,net_cls") == 0)
+      എങ്കിൽ (strcmp (subsystem, "net_prio,net_cls") == 0)
         subsystem = "net_cls,net_prio";
-      if (strcmp (subsystem, "cpuacct,cpu") == 0)
+      എങ്കിൽ (strcmp (subsystem, "cpuacct,cpu") == 0)
         subsystem = "cpu,cpuacct";
 
-      len = snprintf (subsystem_path, sizeof (subsystem_path), CGROUP_ROOT "/%s", subsystem);
-      if (UNLIKELY (len >= (int) sizeof (subsystem_path)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (subsystem_path, വലുപ്പം (subsystem_path), CGROUP_വേര് "/%s", subsystem);
+      എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (subsystem_path)))
+        തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
 
       ret = crun_path_exists (subsystem_path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      if (ret == 0)
-        continue;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
+      എങ്കിൽ (ret == 0)
+        തുടരുക;
 
       entered_any = true;
       ret = enter_cgroup_v1_subsystem (pid, subsystem, path, create_if_missing, err);
-      if (UNLIKELY (ret < 0))
+      എങ്കിൽ (UNLIKELY (ret < 0))
         {
-          int errcode = crun_error_get_errno (err);
-          if (rootless && (errcode == EACCES || errcode == EPERM))
+          പൂർണ്ണസംഖ്യ errcode = crun_error_get_errno (err);
+          എങ്കിൽ (rootless && (errcode == EACCES || errcode == EPERM))
             {
               crun_error_release (err);
-              continue;
+              തുടരുക;
             }
-          return ret;
+          തിരികെ ret;
         }
     }
 
-  if (entered_any)
-    return 0;
+  എങ്കിൽ (entered_any)
+    തിരികെ 0;
 
-  return crun_make_error (err, 0, "could not join cgroup");
+  തിരികെ crun_make_error (err, 0, "could not join cgroup");
 }
 
-static int
-enter_cgroup_v2 (pid_t pid, pid_t init_pid, const char *path, bool create_if_missing, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+enter_cgroup_v2 (pid_t pid, pid_t init_pid, സ്ഥിരം അക്ഷരം *path, bool create_if_missing, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path_procs = NULL;
-  cleanup_free char *cgroup_path = NULL;
-  char pid_str[16];
-  int repeat;
-  int len;
-  int ret;
+  cleanup_free അക്ഷരം *cgroup_path_procs = ശൂന്യ;
+  cleanup_free അക്ഷരം *cgroup_path = ശൂന്യ;
+  അക്ഷരം pid_str[16];
+  പൂർണ്ണസംഖ്യ repeat;
+  പൂർണ്ണസംഖ്യ len;
+  പൂർണ്ണസംഖ്യ ret;
 
-  len = snprintf (pid_str, sizeof (pid_str), "%d", pid);
-  if (UNLIKELY (len >= (int) sizeof (pid_str)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  len = snprintf (pid_str, വലുപ്പം (pid_str), "%d", pid);
+  എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (pid_str)))
+    തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_path, err, CGROUP_വേര്, path, ശൂന്യ);
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
-  if (create_if_missing)
+  എങ്കിൽ (create_if_missing)
     {
       ret = crun_ensure_directory (cgroup_path, 0755, false, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
 
-  ret = append_paths (&cgroup_path_procs, err, cgroup_path, "cgroup.procs", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_path_procs, err, cgroup_path, "cgroup.procs", ശൂന്യ);
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
   ret = write_cgroup_file (AT_FDCWD, cgroup_path_procs, pid_str, strlen (pid_str), err);
-  if (LIKELY (ret >= 0))
-    return ret;
+  എങ്കിൽ (LIKELY (ret >= 0))
+    തിരികെ ret;
 
-  if (UNLIKELY (crun_error_get_errno (err) == EOPNOTSUPP))
+  എങ്കിൽ (UNLIKELY (crun_error_get_errno (err) == EOPNOTSUPP))
     {
       crun_error_release (err);
 
       ret = maybe_make_cgroup_threaded (path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
 
       ret = write_cgroup_file (AT_FDCWD, cgroup_path_procs, pid_str, strlen (pid_str), err);
-      if (LIKELY (ret >= 0))
-        return ret;
+      എങ്കിൽ (LIKELY (ret >= 0))
+        തിരികെ ret;
     }
 
-  if (create_if_missing || crun_error_get_errno (err) != EBUSY)
-    return ret;
+  എങ്കിൽ (create_if_missing || crun_error_get_errno (err) != EBUSY)
+    തിരികെ ret;
 
   crun_error_release (err);
 
@@ -454,72 +454,72 @@ enter_cgroup_v2 (pid_t pid, pid_t init_pid, const char *path, bool create_if_mis
      cgroup.  Create a subdirectory and use that.
      It can still fail if the container creates a subdirectory under
      /sys/fs/cgroup/../crun-exec/  */
-  for (repeat = 0;; repeat++)
+  വേണ്ടി (repeat = 0;; repeat++)
     {
-      cleanup_free char *cgroup_crun_exec_path = NULL;
-      cleanup_free char *cgroup_sub_path_procs = NULL;
+      cleanup_free അക്ഷരം *cgroup_crun_exec_path = ശൂന്യ;
+      cleanup_free അക്ഷരം *cgroup_sub_path_procs = ശൂന്യ;
 
       /* There is an init pid, try to join its cgroup.  */
-      if (init_pid > 0)
+      എങ്കിൽ (init_pid > 0)
         {
           ret = read_unified_cgroup_pid (init_pid, &cgroup_crun_exec_path, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          എങ്കിൽ (UNLIKELY (ret < 0))
+            തിരികെ ret;
 
           /* Make sure the cgroup is below the initial cgroup specified for the container.  */
-          if (strncmp (path, cgroup_crun_exec_path, strlen (path)))
+          എങ്കിൽ (strncmp (path, cgroup_crun_exec_path, strlen (path)))
             {
-              free (cgroup_crun_exec_path);
-              cgroup_crun_exec_path = NULL;
+              സ്വതന്ത്രം (cgroup_crun_exec_path);
+              cgroup_crun_exec_path = ശൂന്യ;
             }
         }
 
       /* There is no init_pid to lookup, try a static path.  */
-      if (cgroup_crun_exec_path == NULL)
+      എങ്കിൽ (cgroup_crun_exec_path == ശൂന്യ)
         xasprintf (&cgroup_crun_exec_path, "%s/crun-exec", path);
 
       /* The sub-cgroup is managed by the container, make sure it is not
          frozen or the process would never run once moved there.  */
       ret = libcrun_cgroup_ensure_not_frozen (cgroup_crun_exec_path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
 
-      ret = append_paths (&cgroup_sub_path_procs, err, CGROUP_ROOT, cgroup_crun_exec_path, "cgroup.procs", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&cgroup_sub_path_procs, err, CGROUP_വേര്, cgroup_crun_exec_path, "cgroup.procs", ശൂന്യ);
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
 
       ret = write_cgroup_file (AT_FDCWD, cgroup_sub_path_procs, pid_str, strlen (pid_str), err);
-      if (UNLIKELY (ret < 0))
+      എങ്കിൽ (UNLIKELY (ret < 0))
         {
           /* The init process might have moved to a different cgroup, try again.  */
-          if (crun_error_get_errno (err) == EBUSY && init_pid && repeat < 20)
+          എങ്കിൽ (crun_error_get_errno (err) == EBUSY && init_pid && repeat < 20)
             {
               crun_error_release (err);
-              continue;
+              തുടരുക;
             }
-          return ret;
+          തിരികെ ret;
         }
-      return copy_owner (cgroup_path_procs, cgroup_crun_exec_path, err);
+      തിരികെ copy_owner (cgroup_path_procs, cgroup_crun_exec_path, err);
     }
-  return ret;
+  തിരികെ ret;
 }
 
-int
-enter_cgroup (int cgroup_mode, pid_t pid, pid_t init_pid, const char *path,
+പൂർണ്ണസംഖ്യ
+enter_cgroup (പൂർണ്ണസംഖ്യ cgroup_mode, pid_t pid, pid_t init_pid, സ്ഥിരം അക്ഷരം *path,
               bool create_if_missing, libcrun_error_t *err)
 {
-  int ret;
-  if (cgroup_mode == CGROUP_MODE_UNIFIED)
+  പൂർണ്ണസംഖ്യ ret;
+  എങ്കിൽ (cgroup_mode == CGROUP_MODE_UNIFIED)
     {
       ret = enter_cgroup_v2 (pid, init_pid, path, create_if_missing, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
-  else
+  അല്ലെങ്കിൽ
     {
       ret = enter_cgroup_v1 (pid, path, create_if_missing, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
-  return 0;
+  തിരികെ 0;
 }

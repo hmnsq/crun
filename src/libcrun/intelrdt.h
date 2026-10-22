@@ -19,17 +19,17 @@
 #ifndef INTEL_RDT_H
 #define INTEL_RDT_H
 
-#include <config.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include "error.h"
+#അന്തര്ഭാവ <config.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <stdbool.h>
+#അന്തര്ഭാവ "error.h"
 
-int resctl_create (const char *name, bool explicit_clos_id, bool *created, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err);
-int resctl_move_task_to (const char *name, const char *monitoring_name, pid_t pid, libcrun_error_t *err);
-int resctl_update (const char *name, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err);
-int resctl_destroy (const char *name, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ resctl_create (സ്ഥിരം അക്ഷരം *name, bool explicit_clos_id, bool *created, സ്ഥിരം അക്ഷരം *l3_cache_schema, സ്ഥിരം അക്ഷരം *mem_bw_schema, അക്ഷരം *സ്ഥിരം *schemata, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ resctl_move_task_to (സ്ഥിരം അക്ഷരം *name, സ്ഥിരം അക്ഷരം *monitoring_name, pid_t pid, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ resctl_update (സ്ഥിരം അക്ഷരം *name, സ്ഥിരം അക്ഷരം *l3_cache_schema, സ്ഥിരം അക്ഷരം *mem_bw_schema, അക്ഷരം *സ്ഥിരം *schemata, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ resctl_destroy (സ്ഥിരം അക്ഷരം *name, libcrun_error_t *err);
 
-int resctl_destroy_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err);
-int resctl_create_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ resctl_destroy_monitoring_group (സ്ഥിരം അക്ഷരം *resctrl_group_name, സ്ഥിരം അക്ഷരം *container_id, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ resctl_create_monitoring_group (സ്ഥിരം അക്ഷരം *resctrl_group_name, സ്ഥിരം അക്ഷരം *container_id, libcrun_error_t *err);
 
 #endif

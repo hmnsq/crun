@@ -16,19 +16,19 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#അന്തര്ഭാവ <config.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <stdlib.h>
+#അന്തര്ഭാവ <argp.h>
+#അന്തര്ഭാവ <string.h>
+#അന്തര്ഭാവ <unistd.h>
+#അന്തര്ഭാവ <errno.h>
 
-#include "crun.h"
+#അന്തര്ഭാവ "crun.h"
 
-static char doc[] = "OCI runtime";
+സ്ഥിതം അക്ഷരം doc[] = "OCI runtime";
 
-enum
+എണ്ണൽ
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -37,56 +37,56 @@ enum
   OPTION_PRESERVE_FDS
 };
 
-struct ps_options_s
+ഘടന ps_options_s
 {
-  int format;
+  പൂർണ്ണസംഖ്യ format;
 };
 
-enum
+എണ്ണൽ
 {
   PS_TABLE = 100,
   PS_JSON,
 };
 
-static struct ps_options_s ps_options;
+സ്ഥിതം ഘടന ps_options_s ps_options;
 
-static struct argp_option options[] = { { "format", 'f', "FORMAT", 0, "select the output format", 0 },
+സ്ഥിതം ഘടന argp_option options[] = { { "format", 'f', "FORMAT", 0, "select the output format", 0 },
                                         {
                                             0,
                                         } };
 
-static char args_doc[] = "ps";
+സ്ഥിതം അക്ഷരം args_doc[] = "ps";
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state arg_unused)
+സ്ഥിതം error_t
+parse_opt (പൂർണ്ണസംഖ്യ താക്കോൽ, അക്ഷരം *arg, ഘടന argp_state *state arg_unused)
 {
-  switch (key)
+  തിരഞ്ഞെടുപ്പ് (താക്കോൽ)
     {
-    case 'f':
-      if (strcmp (arg, "table") == 0)
+    അവസ്ഥ 'f':
+      എങ്കിൽ (strcmp (arg, "table") == 0)
         ps_options.format = PS_TABLE;
-      else if (strcmp (arg, "json") == 0)
+      അല്ലെങ്കിൽ എങ്കിൽ (strcmp (arg, "json") == 0)
         ps_options.format = PS_JSON;
-      else
+      അല്ലെങ്കിൽ
         libcrun_fail_with_error (0, "invalid format `%s`", arg);
-      break;
+      നിർത്തുക;
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    സ്ഥിരസ്ഥിതി:
+      തിരികെ ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  തിരികെ 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+സ്ഥിതം ഘടന argp run_argp = { options, parse_opt, args_doc, doc, ശൂന്യ, ശൂന്യ, ശൂന്യ };
 
-int
-crun_command_ps (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+പൂർണ്ണസംഖ്യ
+crun_command_ps (ഘടന crun_global_arguments *global_args, പൂർണ്ണസംഖ്യ argc, അക്ഷരം **argv, libcrun_error_t *err)
 {
-  int first_arg;
-  int ret;
-  cleanup_free pid_t *pids = NULL;
-  cleanup_context libcrun_context_t *crun_context = NULL;
+  പൂർണ്ണസംഖ്യ first_arg;
+  പൂർണ്ണസംഖ്യ ret;
+  cleanup_free pid_t *pids = ശൂന്യ;
+  cleanup_context libcrun_context_t *crun_context = ശൂന്യ;
   size_t i;
 
   ps_options.format = PS_TABLE;
@@ -97,31 +97,31 @@ crun_command_ps (struct crun_global_arguments *global_args, int argc, char **arg
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
   ret = libcrun_container_read_pids (crun_context, argv[first_arg], true, &pids, err);
-  if (UNLIKELY (ret < 0))
+  എങ്കിൽ (UNLIKELY (ret < 0))
     {
       libcrun_error_report_and_release (err);
-      return ret;
+      തിരികെ ret;
     }
 
-  switch (ps_options.format)
+  തിരഞ്ഞെടുപ്പ് (ps_options.format)
     {
-    case PS_JSON:
+    അവസ്ഥ PS_JSON:
       printf ("[\n");
-      for (i = 0; pids && pids[i]; i++)
+      വേണ്ടി (i = 0; pids && pids[i]; i++)
         printf ("  %d%s\n", pids[i], pids[i + 1] ? "," : "");
       printf ("]\n");
-      break;
+      നിർത്തുക;
 
-    case PS_TABLE:
+    അവസ്ഥ PS_TABLE:
       printf ("PID\n");
-      for (i = 0; pids && pids[i]; i++)
+      വേണ്ടി (i = 0; pids && pids[i]; i++)
         printf ("%d\n", pids[i]);
-      break;
+      നിർത്തുക;
     }
 
-  return 0;
+  തിരികെ 0;
 }

@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <config.h>
-#include <errno.h>
+#അന്തര്ഭാവ <config.h>
+#അന്തര്ഭാവ <errno.h>
 
-#if HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
+#എങ്കിൽ HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
 #  include <seccomp.h>
 #  include <sys/ioctl.h>
 #  include <linux/seccomp.h>
@@ -29,186 +29,186 @@
 #  include <dlfcn.h>
 #endif
 
-#include "utils.h"
-#include "seccomp_notify.h"
+#അന്തര്ഭാവ "utils.h"
+#അന്തര്ഭാവ "seccomp_notify.h"
 
 #ifndef SECCOMP_USER_NOTIF_FLAG_CONTINUE
 #  define SECCOMP_USER_NOTIF_FLAG_CONTINUE (1UL << 0)
 #endif
 
-struct plugin
+ഘടന plugin
 {
-  void *handle;
-  void *opaque;
-#if HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
+  ശൂന്യം *handle;
+  ശൂന്യം *opaque;
+#എങ്കിൽ HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
   run_oci_seccomp_notify_handle_request_cb handle_request_cb;
 #endif
 };
 
-struct seccomp_notify_context_s
+ഘടന seccomp_notify_context_s
 {
-  struct plugin *plugins;
+  ഘടന plugin *plugins;
   size_t n_plugins;
 
-#if HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES
-  struct seccomp_notif_resp *sresp;
-  struct seccomp_notif *sreq;
-  struct seccomp_notif_sizes sizes;
+#എങ്കിൽ HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES
+  ഘടന seccomp_notif_resp *sresp;
+  ഘടന seccomp_notif *sreq;
+  ഘടന seccomp_notif_sizes sizes;
 #endif
 };
 
-void
-cleanup_seccomp_notify_pluginsp (void *p)
+ശൂന്യം
+cleanup_seccomp_notify_pluginsp (ശൂന്യം *p)
 {
-  struct seccomp_notify_context_s **pp = p;
-  if (*pp)
+  ഘടന seccomp_notify_context_s **pp = p;
+  എങ്കിൽ (*pp)
     {
-      libcrun_error_t tmp_err = NULL;
+      libcrun_error_t tmp_err = ശൂന്യ;
       libcrun_free_seccomp_notify_plugins (*pp, &tmp_err);
       crun_error_release (&tmp_err);
-      *pp = NULL;
+      *pp = ശൂന്യ;
     }
 }
 
-#if HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
-static int
-seccomp_syscall (unsigned int op, unsigned int flags, void *args)
+#എങ്കിൽ HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+seccomp_syscall (unsigned പൂർണ്ണസംഖ്യ op, unsigned പൂർണ്ണസംഖ്യ flags, ശൂന്യം *args)
 {
   errno = 0;
-  return syscall (__NR_seccomp, op, flags, args);
+  തിരികെ syscall (__NR_seccomp, op, flags, args);
 }
 #endif
 
-LIBCRUN_PUBLIC int
-libcrun_load_seccomp_notify_plugins (struct seccomp_notify_context_s **out, const char *plugins,
-                                     struct libcrun_load_seccomp_notify_conf_s *conf, libcrun_error_t *err)
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ
+libcrun_load_seccomp_notify_plugins (ഘടന seccomp_notify_context_s **out, സ്ഥിരം അക്ഷരം *plugins,
+                                     ഘടന libcrun_load_seccomp_notify_conf_s *conf, libcrun_error_t *err)
 {
-#if HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
-  cleanup_seccomp_notify_context struct seccomp_notify_context_s *ctx = xmalloc0 (sizeof *ctx);
-  cleanup_free char *b = NULL;
-  char *it, *saveptr;
+#എങ്കിൽ HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
+  cleanup_seccomp_notify_context ഘടന seccomp_notify_context_s *ctx = xmalloc0 (വലുപ്പം *ctx);
+  cleanup_free അക്ഷരം *b = ശൂന്യ;
+  അക്ഷരം *it, *saveptr;
   size_t s;
 
-  if (seccomp_syscall (SECCOMP_GET_NOTIF_SIZES, 0, &ctx->sizes) < 0)
-    return crun_make_error (err, errno, "seccomp GET_NOTIF_SIZES");
+  എങ്കിൽ (seccomp_syscall (SECCOMP_GET_NOTIF_SIZES, 0, &ctx->sizes) < 0)
+    തിരികെ crun_make_error (err, errno, "seccomp GET_NOTIF_SIZES");
 
   ctx->sreq = xmalloc (ctx->sizes.seccomp_notif);
   ctx->sresp = xmalloc (ctx->sizes.seccomp_notif_resp);
 
-  if (is_empty_string (plugins))
-    return 0;
+  എങ്കിൽ (is_empty_string (plugins))
+    തിരികെ 0;
 
   b = xstrdup (plugins);
 
   ctx->n_plugins = 1;
-  for (it = b; *it; it++)
-    if (*it == ':')
+  വേണ്ടി (it = b; *it; it++)
+    എങ്കിൽ (*it == ':')
       ctx->n_plugins++;
 
-  ctx->plugins = xmalloc0 (sizeof (struct plugin) * (ctx->n_plugins + 1));
-  for (s = 0, it = strtok_r (b, ":", &saveptr); it; s++, it = strtok_r (NULL, ":", &saveptr))
+  ctx->plugins = xmalloc0 (വലുപ്പം (ഘടന plugin) * (ctx->n_plugins + 1));
+  വേണ്ടി (s = 0, it = strtok_r (b, ":", &saveptr); it; s++, it = strtok_r (ശൂന്യ, ":", &saveptr))
     {
       run_oci_seccomp_notify_plugin_version_cb version_cb;
       run_oci_seccomp_notify_start_cb start_cb;
-      void *opq = NULL;
+      ശൂന്യം *opq = ശൂന്യ;
 
       /* do not accept relative paths.  It is fine to accept only filenames as dlopen() semantics apply.  */
-      if (strchr (it, '/') && it[0] != '/')
-        return crun_make_error (err, 0, "invalid relative plugin path: `%s`", it);
+      എങ്കിൽ (strchr (it, '/') && it[0] != '/')
+        തിരികെ crun_make_error (err, 0, "invalid relative plugin path: `%s`", it);
 
       ctx->plugins[s].handle = dlopen (it, RTLD_NOW);
-      if (ctx->plugins[s].handle == NULL)
-        return crun_make_error (err, 0, "cannot load `%s`: %s", it, dlerror ());
+      എങ്കിൽ (ctx->plugins[s].handle == ശൂന്യ)
+        തിരികെ crun_make_error (err, 0, "cannot load `%s`: %s", it, dlerror ());
 
       version_cb
           = (run_oci_seccomp_notify_plugin_version_cb) dlsym (ctx->plugins[s].handle, "run_oci_seccomp_notify_version");
-      if (version_cb != NULL)
+      എങ്കിൽ (version_cb != ശൂന്യ)
         {
-          int version;
+          പൂർണ്ണസംഖ്യ version;
 
           version = version_cb ();
-          if (version != 1)
-            return crun_make_error (err, ENOTSUP, "invalid version supported by the plugin `%s`", it);
+          എങ്കിൽ (version != 1)
+            തിരികെ crun_make_error (err, ENOTSUP, "invalid version supported by the plugin `%s`", it);
         }
 
       ctx->plugins[s].handle_request_cb = (run_oci_seccomp_notify_handle_request_cb) dlsym (
           ctx->plugins[s].handle, "run_oci_seccomp_notify_handle_request");
-      if (ctx->plugins[s].handle_request_cb == NULL)
-        return crun_make_error (err, ENOTSUP, "plugin `%s` doesn't export `run_oci_seccomp_notify_handle_request`", it);
+      എങ്കിൽ (ctx->plugins[s].handle_request_cb == ശൂന്യ)
+        തിരികെ crun_make_error (err, ENOTSUP, "plugin `%s` doesn't export `run_oci_seccomp_notify_handle_request`", it);
 
       start_cb = (run_oci_seccomp_notify_start_cb) dlsym (ctx->plugins[s].handle, "run_oci_seccomp_notify_start");
-      if (start_cb)
+      എങ്കിൽ (start_cb)
         {
-          int ret;
+          പൂർണ്ണസംഖ്യ ret;
 
-          ret = start_cb (&opq, conf, sizeof (*conf));
-          if (UNLIKELY (ret != 0))
-            return crun_make_error (err, 0, "error loading `%s`", it);
+          ret = start_cb (&opq, conf, വലുപ്പം (*conf));
+          എങ്കിൽ (UNLIKELY (ret != 0))
+            തിരികെ crun_make_error (err, 0, "error loading `%s`", it);
         }
       ctx->plugins[s].opaque = opq;
     }
 
   /* Change ownership.  */
   *out = ctx;
-  ctx = NULL;
-  return 0;
-#else
-  (void) out;
-  (void) plugins;
-  (void) conf;
-  (void) err;
-  return crun_make_error (err, ENOTSUP, "seccomp notify support not available");
+  ctx = ശൂന്യ;
+  തിരികെ 0;
+#അല്ലെങ്കിൽ
+  (ശൂന്യം) out;
+  (ശൂന്യം) plugins;
+  (ശൂന്യം) conf;
+  (ശൂന്യം) err;
+  തിരികെ crun_make_error (err, ENOTSUP, "seccomp notify support not available");
 #endif
 }
 
-LIBCRUN_PUBLIC int
-libcrun_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, int seccomp_fd, libcrun_error_t *err)
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ
+libcrun_seccomp_notify_plugins (ഘടന seccomp_notify_context_s *ctx, പൂർണ്ണസംഖ്യ seccomp_fd, libcrun_error_t *err)
 {
-#if HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
+#എങ്കിൽ HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
   size_t i;
-  int ret;
+  പൂർണ്ണസംഖ്യ ret;
 
   memset (ctx->sreq, 0, ctx->sizes.seccomp_notif);
   memset (ctx->sresp, 0, ctx->sizes.seccomp_notif_resp);
 
   ret = ioctl (seccomp_fd, SECCOMP_IOCTL_NOTIF_RECV, ctx->sreq);
-  if (UNLIKELY (ret < 0))
+  എങ്കിൽ (UNLIKELY (ret < 0))
     {
-      if (errno == ENOENT)
-        return 0;
-      return crun_make_error (err, errno, "ioctl");
+      എങ്കിൽ (errno == ENOENT)
+        തിരികെ 0;
+      തിരികെ crun_make_error (err, errno, "ioctl");
     }
 
-  for (i = 0; i < ctx->n_plugins; i++)
+  വേണ്ടി (i = 0; i < ctx->n_plugins; i++)
     {
-      if (ctx->plugins[i].handle_request_cb)
+      എങ്കിൽ (ctx->plugins[i].handle_request_cb)
         {
-          int handled = 0;
-          int ret;
+          പൂർണ്ണസംഖ്യ handled = 0;
+          പൂർണ്ണസംഖ്യ ret;
 
           ret = ctx->plugins[i].handle_request_cb (ctx->plugins[i].opaque, &ctx->sizes, ctx->sreq, ctx->sresp,
                                                    seccomp_fd, &handled);
-          if (UNLIKELY (ret != 0))
-            return crun_make_error (err, 0, "error handling seccomp notify request");
+          എങ്കിൽ (UNLIKELY (ret != 0))
+            തിരികെ crun_make_error (err, 0, "error handling seccomp notify request");
 
-          switch (handled)
+          തിരഞ്ഞെടുപ്പ് (handled)
             {
-            case RUN_OCI_SECCOMP_NOTIFY_HANDLE_NOT_HANDLED:
-              break;
+            അവസ്ഥ RUN_OCI_SECCOMP_NOTIFY_HANDLE_NOT_HANDLED:
+              നിർത്തുക;
 
-            case RUN_OCI_SECCOMP_NOTIFY_HANDLE_SEND_RESPONSE:
-              goto send_resp;
+            അവസ്ഥ RUN_OCI_SECCOMP_NOTIFY_HANDLE_SEND_RESPONSE:
+              പോകുക send_resp;
 
               /* The plugin will take care of it.  */
-            case RUN_OCI_SECCOMP_NOTIFY_HANDLE_DELAYED_RESPONSE:
-              return 0;
+            അവസ്ഥ RUN_OCI_SECCOMP_NOTIFY_HANDLE_DELAYED_RESPONSE:
+              തിരികെ 0;
 
-            case RUN_OCI_SECCOMP_NOTIFY_HANDLE_SEND_RESPONSE_AND_CONTINUE:
+            അവസ്ഥ RUN_OCI_SECCOMP_NOTIFY_HANDLE_SEND_RESPONSE_AND_CONTINUE:
               ctx->sresp->flags |= SECCOMP_USER_NOTIF_FLAG_CONTINUE;
-              goto send_resp;
+              പോകുക send_resp;
 
-            default:
-              return crun_make_error (err, EINVAL, "unknown action specified by the plugin `%d`", handled);
+            സ്ഥിരസ്ഥിതി:
+              തിരികെ crun_make_error (err, EINVAL, "unknown action specified by the plugin `%d`", handled);
             }
         }
     }
@@ -220,51 +220,51 @@ libcrun_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, int seccom
 send_resp:
   ctx->sresp->id = ctx->sreq->id;
   ret = ioctl (seccomp_fd, SECCOMP_IOCTL_NOTIF_SEND, ctx->sresp);
-  if (UNLIKELY (ret < 0))
+  എങ്കിൽ (UNLIKELY (ret < 0))
     {
-      if (errno == ENOENT)
-        return 0;
-      return crun_make_error (err, errno, "ioctl");
+      എങ്കിൽ (errno == ENOENT)
+        തിരികെ 0;
+      തിരികെ crun_make_error (err, errno, "ioctl");
     }
-  return 0;
-#else
-  (void) ctx;
-  (void) seccomp_fd;
-  (void) err;
-  return crun_make_error (err, ENOTSUP, "seccomp notify support not available");
+  തിരികെ 0;
+#അല്ലെങ്കിൽ
+  (ശൂന്യം) ctx;
+  (ശൂന്യം) seccomp_fd;
+  (ശൂന്യം) err;
+  തിരികെ crun_make_error (err, ENOTSUP, "seccomp notify support not available");
 #endif
 }
 
-LIBCRUN_PUBLIC int
-libcrun_free_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, libcrun_error_t *err)
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ
+libcrun_free_seccomp_notify_plugins (ഘടന seccomp_notify_context_s *ctx, libcrun_error_t *err)
 {
-#if HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
+#എങ്കിൽ HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
   size_t i;
 
-  if (ctx == NULL)
-    return crun_make_error (err, EINVAL, "invalid seccomp notify context");
+  എങ്കിൽ (ctx == ശൂന്യ)
+    തിരികെ crun_make_error (err, EINVAL, "invalid seccomp notify context");
 
-  free (ctx->sreq);
-  free (ctx->sresp);
+  സ്വതന്ത്രം (ctx->sreq);
+  സ്വതന്ത്രം (ctx->sresp);
 
-  for (i = 0; i < ctx->n_plugins; i++)
-    if (ctx->plugins && ctx->plugins[i].handle)
+  വേണ്ടി (i = 0; i < ctx->n_plugins; i++)
+    എങ്കിൽ (ctx->plugins && ctx->plugins[i].handle)
       {
         run_oci_seccomp_notify_stop_cb cb;
 
         cb = (run_oci_seccomp_notify_stop_cb) dlsym (ctx->plugins[i].handle, "run_oci_seccomp_notify_stop");
-        if (cb)
+        എങ്കിൽ (cb)
           cb (ctx->plugins[i].opaque);
         dlclose (ctx->plugins[i].handle);
       }
 
-  free (ctx->plugins);
-  free (ctx);
+  സ്വതന്ത്രം (ctx->plugins);
+  സ്വതന്ത്രം (ctx);
 
-  return 0;
-#else
-  (void) ctx;
-  (void) err;
-  return crun_make_error (err, ENOTSUP, "seccomp notify support not available");
+  തിരികെ 0;
+#അല്ലെങ്കിൽ
+  (ശൂന്യം) ctx;
+  (ശൂന്യം) err;
+  തിരികെ crun_make_error (err, ENOTSUP, "seccomp notify support not available");
 #endif
 }

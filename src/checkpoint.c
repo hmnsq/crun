@@ -18,18 +18,18 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <regex.h>
+#അന്തര്ഭാവ <config.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <stdlib.h>
+#അന്തര്ഭാവ <argp.h>
+#അന്തര്ഭാവ <string.h>
+#അന്തര്ഭാവ <unistd.h>
+#അന്തര്ഭാവ <errno.h>
+#അന്തര്ഭാവ <regex.h>
 
-#include "crun.h"
+#അന്തര്ഭാവ "crun.h"
 
-enum
+എണ്ണൽ
 {
   OPTION_IMAGE_PATH = 1000,
   OPTION_WORK_PATH,
@@ -44,11 +44,11 @@ enum
   OPTION_MANAGE_CGROUPS_MODE,
 };
 
-static char doc[] = "OCI runtime";
+സ്ഥിതം അക്ഷരം doc[] = "OCI runtime";
 
-static struct libcrun_checkpoint_restore_options_s cr_options;
+സ്ഥിതം ഘടന libcrun_checkpoint_restore_options_s cr_options;
 
-static struct argp_option options[]
+സ്ഥിതം ഘടന argp_option options[]
     = { { "image-path", OPTION_IMAGE_PATH, "DIR", 0, "path for saving criu image files", 0 },
         { "work-path", OPTION_WORK_PATH, "DIR", 0, "path for saving work files and logs", 0 },
         { "leave-running", OPTION_LEAVE_RUNNING, 0, 0, "leave the process running after checkpointing", 0 },
@@ -66,108 +66,108 @@ static struct argp_option options[]
             0,
         } };
 
-static char args_doc[] = "checkpoint CONTAINER";
+സ്ഥിതം അക്ഷരം args_doc[] = "checkpoint CONTAINER";
 
 /* Map the CLI names onto the public LIBCRUN_CR_* enums; libcrun translates
    these to CRIU's own values internally so CRIU headers never reach here.  */
-int
-crun_parse_network_lock_method (char *param)
+പൂർണ്ണസംഖ്യ
+crun_parse_network_lock_method (അക്ഷരം *param)
 {
-  if (strcmp (param, "iptables") == 0)
-    return LIBCRUN_CR_NETWORK_LOCK_IPTABLES;
-  else if (strcmp (param, "nftables") == 0)
-    return LIBCRUN_CR_NETWORK_LOCK_NFTABLES;
-  else if (strcmp (param, "skip") == 0)
-    return LIBCRUN_CR_NETWORK_LOCK_SKIP;
-  else
+  എങ്കിൽ (strcmp (param, "iptables") == 0)
+    തിരികെ LIBCRUN_CR_NETWORK_LOCK_IPTABLES;
+  അല്ലെങ്കിൽ എങ്കിൽ (strcmp (param, "nftables") == 0)
+    തിരികെ LIBCRUN_CR_NETWORK_LOCK_NFTABLES;
+  അല്ലെങ്കിൽ എങ്കിൽ (strcmp (param, "skip") == 0)
+    തിരികെ LIBCRUN_CR_NETWORK_LOCK_SKIP;
+  അല്ലെങ്കിൽ
     libcrun_fail_with_error (0, "unknown network lock method specified");
 }
 
-int
-crun_parse_manage_cgroups_mode (char *param)
+പൂർണ്ണസംഖ്യ
+crun_parse_manage_cgroups_mode (അക്ഷരം *param)
 {
-  if (strcmp (param, "soft") == 0)
-    return LIBCRUN_CR_CG_MODE_SOFT;
-  else if (strcmp (param, "ignore") == 0)
-    return LIBCRUN_CR_CG_MODE_IGNORE;
-  else if (strcmp (param, "full") == 0)
-    return LIBCRUN_CR_CG_MODE_FULL;
-  else if (strcmp (param, "strict") == 0)
-    return LIBCRUN_CR_CG_MODE_STRICT;
-  else
+  എങ്കിൽ (strcmp (param, "soft") == 0)
+    തിരികെ LIBCRUN_CR_CG_MODE_SOFT;
+  അല്ലെങ്കിൽ എങ്കിൽ (strcmp (param, "ignore") == 0)
+    തിരികെ LIBCRUN_CR_CG_MODE_IGNORE;
+  അല്ലെങ്കിൽ എങ്കിൽ (strcmp (param, "full") == 0)
+    തിരികെ LIBCRUN_CR_CG_MODE_FULL;
+  അല്ലെങ്കിൽ എങ്കിൽ (strcmp (param, "strict") == 0)
+    തിരികെ LIBCRUN_CR_CG_MODE_STRICT;
+  അല്ലെങ്കിൽ
     libcrun_fail_with_error (0, "unknown cgroup mode specified");
 }
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+സ്ഥിതം error_t
+parse_opt (പൂർണ്ണസംഖ്യ താക്കോൽ, അക്ഷരം *arg, ഘടന argp_state *state)
 {
-  switch (key)
+  തിരഞ്ഞെടുപ്പ് (താക്കോൽ)
     {
-    case ARGP_KEY_NO_ARGS:
+    അവസ്ഥ ARGP_താക്കോൽ_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    case OPTION_IMAGE_PATH:
+    അവസ്ഥ OPTION_IMAGE_PATH:
       cr_options.image_path = argp_mandatory_argument (arg, state);
-      break;
+      നിർത്തുക;
 
-    case OPTION_WORK_PATH:
+    അവസ്ഥ OPTION_WORK_PATH:
       cr_options.work_path = argp_mandatory_argument (arg, state);
-      break;
+      നിർത്തുക;
 
-    case OPTION_PARENT_PATH:
+    അവസ്ഥ OPTION_PARENT_PATH:
       cr_options.parent_path = argp_mandatory_argument (arg, state);
-      break;
+      നിർത്തുക;
 
-    case OPTION_PRE_DUMP:
+    അവസ്ഥ OPTION_PRE_DUMP:
       cr_options.pre_dump = true;
-      break;
+      നിർത്തുക;
 
-    case OPTION_LEAVE_RUNNING:
+    അവസ്ഥ OPTION_LEAVE_RUNNING:
       cr_options.leave_running = true;
-      break;
+      നിർത്തുക;
 
-    case OPTION_TCP_ESTABLISHED:
+    അവസ്ഥ OPTION_TCP_ESTABLISHED:
       cr_options.tcp_established = true;
-      break;
+      നിർത്തുക;
 
-    case OPTION_EXT_UNIX_SK:
+    അവസ്ഥ OPTION_EXT_UNIX_SK:
       cr_options.ext_unix_sk = true;
-      break;
+      നിർത്തുക;
 
-    case OPTION_SHELL_JOB:
+    അവസ്ഥ OPTION_SHELL_JOB:
       cr_options.shell_job = true;
-      break;
+      നിർത്തുക;
 
-    case OPTION_FILE_LOCKS:
+    അവസ്ഥ OPTION_FILE_LOCKS:
       cr_options.file_locks = true;
-      break;
+      നിർത്തുക;
 
-    case OPTION_MANAGE_CGROUPS_MODE:
+    അവസ്ഥ OPTION_MANAGE_CGROUPS_MODE:
       cr_options.manage_cgroups_mode = crun_parse_manage_cgroups_mode (argp_mandatory_argument (arg, state));
-      break;
+      നിർത്തുക;
 
-    case OPTION_NETWORK_LOCK_METHOD:
+    അവസ്ഥ OPTION_NETWORK_LOCK_METHOD:
       cr_options.network_lock_method = crun_parse_network_lock_method (argp_mandatory_argument (arg, state));
-      break;
+      നിർത്തുക;
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    സ്ഥിരസ്ഥിതി:
+      തിരികെ ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  തിരികെ 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+സ്ഥിതം ഘടന argp run_argp = { options, parse_opt, args_doc, doc, ശൂന്യ, ശൂന്യ, ശൂന്യ };
 
-int
-crun_command_checkpoint (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+പൂർണ്ണസംഖ്യ
+crun_command_checkpoint (ഘടന crun_global_arguments *global_args, പൂർണ്ണസംഖ്യ argc, അക്ഷരം **argv, libcrun_error_t *err)
 {
-  cleanup_free char *cr_path = NULL;
-  int first_arg;
-  int ret;
-  cleanup_context libcrun_context_t *crun_context = NULL;
+  cleanup_free അക്ഷരം *cr_path = ശൂന്യ;
+  പൂർണ്ണസംഖ്യ first_arg;
+  പൂർണ്ണസംഖ്യ ret;
+  cleanup_context libcrun_context_t *crun_context = ശൂന്യ;
 
-  cr_options.struct_size = sizeof (cr_options);
+  cr_options.struct_size = വലുപ്പം (cr_options);
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &cr_options);
   crun_assert_n_args (argc - first_arg, 1, 2);
@@ -175,22 +175,22 @@ crun_command_checkpoint (struct crun_global_arguments *global_args, int argc, ch
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
-  if (cr_options.image_path == NULL)
+  എങ്കിൽ (cr_options.image_path == ശൂന്യ)
     {
-      cleanup_free char *path = NULL;
+      cleanup_free അക്ഷരം *path = ശൂന്യ;
 
-      path = getcwd (NULL, 0);
-      if (UNLIKELY (path == NULL))
+      path = getcwd (ശൂന്യ, 0);
+      എങ്കിൽ (UNLIKELY (path == ശൂന്യ))
         libcrun_fail_with_error (errno, "getcwd failed");
 
       ret = asprintf (&cr_path, "%s/checkpoint", path);
-      if (UNLIKELY (ret < 0))
+      എങ്കിൽ (UNLIKELY (ret < 0))
         OOM ();
       cr_options.image_path = cr_path;
     }
 
-  return libcrun_container_checkpoint (crun_context, argv[first_arg], &cr_options, err);
+  തിരികെ libcrun_container_checkpoint (crun_context, argv[first_arg], &cr_options, err);
 }

@@ -40,29 +40,29 @@
  */
 
 #define _GNU_SOURCE
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include <limits.h>
-#include <fcntl.h>
-#include <errno.h>
+#അന്തര്ഭാവ <unistd.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <stdlib.h>
+#അന്തര്ഭാവ <stdbool.h>
+#അന്തര്ഭാവ <string.h>
+#അന്തര്ഭാവ <limits.h>
+#അന്തര്ഭാവ <fcntl.h>
+#അന്തര്ഭാവ <errno.h>
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/statfs.h>
-#include <sys/vfs.h>
-#include <sys/mman.h>
-#include <sys/mount.h>
-#include <sys/sendfile.h>
-#include <sys/syscall.h>
+#അന്തര്ഭാവ <sys/types.h>
+#അന്തര്ഭാവ <sys/stat.h>
+#അന്തര്ഭാവ <sys/statfs.h>
+#അന്തര്ഭാവ <sys/vfs.h>
+#അന്തര്ഭാവ <sys/mman.h>
+#അന്തര്ഭാവ <sys/mount.h>
+#അന്തര്ഭാവ <sys/sendfile.h>
+#അന്തര്ഭാവ <sys/syscall.h>
 
-#include "utils.h"
-#include "linux.h"
+#അന്തര്ഭാവ "utils.h"
+#അന്തര്ഭാവ "linux.h"
 
 /* Use our own wrapper for memfd_create. */
-#if !defined(SYS_memfd_create) && defined(__NR_memfd_create)
+#എങ്കിൽ !defined(SYS_memfd_create) && defined(__NR_memfd_create)
 #  define SYS_memfd_create __NR_memfd_create
 #endif
 /* memfd_create(2) flags -- copied from <linux/memfd.h>. */
@@ -70,13 +70,13 @@
 #  define MFD_CLOEXEC       0x0001U
 #  define MFD_ALLOW_SEALING 0x0002U
 #endif
-int memfd_create(const char *name, unsigned int flags)
+പൂർണ്ണസംഖ്യ memfd_create(സ്ഥിരം അക്ഷരം *name, unsigned പൂർണ്ണസംഖ്യ flags)
 {
 #ifdef SYS_memfd_create
-	return syscall(SYS_memfd_create, name, flags);
-#else
+	തിരികെ syscall(SYS_memfd_create, name, flags);
+#അല്ലെങ്കിൽ
 	errno = ENOSYS;
-	return -1;
+	തിരികെ -1;
 #endif
 }
 
@@ -96,7 +96,7 @@ int memfd_create(const char *name, unsigned int flags)
 #  define F_SEAL_WRITE  0x0008	/* prevent writes */
 #endif
 
-#define CLONED_BINARY_ENV "_LIBCONTAINER_CLONED_BINARY"
+#define CLONED_ദ്വിമാന_ENV "_LIBCONTAINER_CLONED_BINARY"
 #define CRUN_MEMFD_COMMENT "crun_cloned:/proc/self/exe"
 #define CRUN_MEMFD_SEALS \
 	(F_SEAL_SEAL | F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE)
@@ -106,15 +106,15 @@ int memfd_create(const char *name, unsigned int flags)
  * /proc/self/exe a memfd). F_GET_SEALS will only succeed for memfds (or rather
  * for shmem files), and we want to be sure it's actually sealed.
  */
-static int is_self_cloned(void)
+സ്ഥിതം പൂർണ്ണസംഖ്യ is_self_cloned(ശൂന്യം)
 {
-	int fd, ret, is_cloned = 0;
-	struct stat statbuf = {};
-	struct statfs fsbuf = {};
+	പൂർണ്ണസംഖ്യ fd, ret, is_cloned = 0;
+	ഘടന stat statbuf = {};
+	ഘടന statfs fsbuf = {};
 
 	fd = open("/proc/self/exe", O_RDONLY|O_CLOEXEC);
-	if (fd < 0)
-		return -ENOTRECOVERABLE;
+	എങ്കിൽ (fd < 0)
+		തിരികെ -ENOTRECOVERABLE;
 
 	/*
 	 * Is the binary a fully-sealed memfd? We don't need CLONED_BINARY_ENV for
@@ -123,9 +123,9 @@ static int is_self_cloned(void)
 	 * memfd to /usr/bin/crun to allow reuse).
 	 */
 	ret = fcntl(fd, F_GET_SEALS);
-	if (ret >= 0) {
+	എങ്കിൽ (ret >= 0) {
 		is_cloned = (ret == CRUN_MEMFD_SEALS);
-		goto out;
+		പോകുക out;
 	}
 
 	/* Is the binary on a read-only filesystem? We can't detect bind-mounts in
@@ -134,9 +134,9 @@ static int is_self_cloned(void)
 	 * such as truly read-only filesystems like squashfs/erofs as well as
 	 * things like the ostree read-only bind mount.
 	 */
-	if (fstatfs(fd, &fsbuf) >= 0 && (fsbuf.f_flags & MS_RDONLY)) {
+	എങ്കിൽ (fstatfs(fd, &fsbuf) >= 0 && (fsbuf.f_flags & MS_RDONLY)) {
 		is_cloned = true;
-		goto out;
+		പോകുക out;
 	}
 
 	/*
@@ -144,9 +144,9 @@ static int is_self_cloned(void)
 	 * writeable (or we can't tell if they're fully safe) and thus we must
 	 * check the environment as an extra layer of defence.
 	 */
-	if (!getenv(CLONED_BINARY_ENV)) {
+	എങ്കിൽ (!getenv(CLONED_ദ്വിമാന_ENV)) {
 		is_cloned = false;
-		goto out;
+		പോകുക out;
 	}
 
 	/*
@@ -157,48 +157,48 @@ static int is_self_cloned(void)
 	 * cannot fake (because unlinking requires being able to resolve the
 	 * path that you want to unlink).
 	 */
-	if (fstat(fd, &statbuf) >= 0)
+	എങ്കിൽ (fstat(fd, &statbuf) >= 0)
 		is_cloned |= (statbuf.st_nlink == 0);
 
 out:
 	close(fd);
-	return is_cloned;
+	തിരികെ is_cloned;
 }
 
 /* Read a given file into a new buffer, and providing the length. */
-static char *read_file(char *path, size_t *length)
+സ്ഥിതം അക്ഷരം *read_file(അക്ഷരം *path, size_t *length)
 {
-	int fd;
-	char buf[4096], *copy = NULL;
+	പൂർണ്ണസംഖ്യ fd;
+	അക്ഷരം buf[4096], *copy = ശൂന്യ;
 
-	if (!length)
-		return NULL;
+	എങ്കിൽ (!length)
+		തിരികെ ശൂന്യ;
 
 	fd = open(path, O_RDONLY | O_CLOEXEC);
-	if (fd < 0)
-		return NULL;
+	എങ്കിൽ (fd < 0)
+		തിരികെ ശൂന്യ;
 
 	*length = 0;
-	for (;;) {
+	വേണ്ടി (;;) {
 		ssize_t n;
 
-		n = read(fd, buf, sizeof(buf));
-		if (n < 0)
-			goto error;
-		if (!n)
-			break;
+		n = പഠ(fd, buf, വലുപ്പം(buf));
+		എങ്കിൽ (n < 0)
+			പോകുക error;
+		എങ്കിൽ (!n)
+			നിർത്തുക;
 
-		copy = xrealloc(copy, (*length + n) * sizeof(*copy));
+		copy = xrealloc(copy, (*length + n) * വലുപ്പം(*copy));
 		memcpy(copy + *length, buf, n);
 		*length += n;
 	}
 	close(fd);
-	return copy;
+	തിരികെ copy;
 
 error:
 	close(fd);
-	free(copy);
-	return NULL;
+	സ്വതന്ത്രം(copy);
+	തിരികെ ശൂന്യ;
 }
 
 /*
@@ -206,22 +206,22 @@ error:
  * NUL-delimited data, within the given length and adds a pointer to each entry
  * to the array of pointers.
  */
-static int parse_xargs(char *data, int data_length, char ***output)
+സ്ഥിതം പൂർണ്ണസംഖ്യ parse_xargs(അക്ഷരം *data, പൂർണ്ണസംഖ്യ data_length, അക്ഷരം ***output)
 {
-	int num = 0;
-	char *cur = data;
+	പൂർണ്ണസംഖ്യ അക്കം = 0;
+	അക്ഷരം *cur = data;
 
-	if (!data || *output != NULL)
-		return -1;
+	എങ്കിൽ (!data || *output != ശൂന്യ)
+		തിരികെ -1;
 
-	while (cur < data + data_length) {
-		num++;
-		*output = xrealloc(*output, (num + 1) * sizeof(**output));
-		(*output)[num - 1] = cur;
+	ആകുമ്പോൾ (cur < data + data_length) {
+		അക്കം++;
+		*output = xrealloc(*output, (അക്കം + 1) * വലുപ്പം(**output));
+		(*output)[അക്കം - 1] = cur;
 		cur += strlen(cur) + 1;
 	}
-	(*output)[num] = NULL;
-	return num;
+	(*output)[അക്കം] = ശൂന്യ;
+	തിരികെ അക്കം;
 }
 
 /*
@@ -229,26 +229,26 @@ static int parse_xargs(char *data, int data_length, char ***output)
  * This is necessary because we are running in a context where we don't have a
  * main() that we can just get the arguments from.
  */
-static int fetchve(char ***argv)
+സ്ഥിതം പൂർണ്ണസംഖ്യ fetchve(അക്ഷരം ***argv)
 {
-	char *cmdline = NULL;
+	അക്ഷരം *cmdline = ശൂന്യ;
 	size_t cmdline_size;
 
 	cmdline = read_file("/proc/self/cmdline", &cmdline_size);
-	if (!cmdline)
-		goto error;
+	എങ്കിൽ (!cmdline)
+		പോകുക error;
 
-	if (parse_xargs(cmdline, cmdline_size, argv) <= 0)
-		goto error;
+	എങ്കിൽ (parse_xargs(cmdline, cmdline_size, argv) <= 0)
+		പോകുക error;
 
-	return 0;
+	തിരികെ 0;
 
 error:
-	free(cmdline);
-	return -EINVAL;
+	സ്വതന്ത്രം(cmdline);
+	തിരികെ -EINVAL;
 }
 
-enum {
+എണ്ണൽ {
 	EFD_NONE = 0,
 	EFD_MEMFD,
 	EFD_FILE,
@@ -260,21 +260,21 @@ enum {
  * have the mkostemp(3) fallback.
  */
 #ifndef O_TMPFILE
-#  if defined(__O_TMPFILE) && defined(O_DIRECTORY)
+#  എങ്കിൽ defined(__O_TMPFILE) && defined(O_DIRECTORY)
 #    define O_TMPFILE (__O_TMPFILE | O_DIRECTORY)
 #  endif
 #endif
 
-static int make_execfd(int *fdtype)
+സ്ഥിതം പൂർണ്ണസംഖ്യ make_execfd(പൂർണ്ണസംഖ്യ *fdtype)
 {
-	int fd = -1;
-	char template[PATH_MAX] = {0};
-	char *prefix = getenv("_LIBCONTAINER_STATEDIR");
+	പൂർണ്ണസംഖ്യ fd = -1;
+	അക്ഷരം template[PATH_MAX] = {0};
+	അക്ഷരം *prefix = getenv("_LIBCONTAINER_STATEDIR");
 
-	if (!prefix || *prefix != '/')
+	എങ്കിൽ (!prefix || *prefix != '/')
 		prefix = "/tmp";
-	if (snprintf(template, sizeof(template), "%s/crun.XXXXXX", prefix) < 0)
-		return -1;
+	എങ്കിൽ (snprintf(template, വലുപ്പം(template), "%s/crun.XXXXXX", prefix) < 0)
+		തിരികെ -1;
 
 	/*
 	 * Now try memfd, it's much nicer than actually creating a file in STATEDIR
@@ -283,10 +283,10 @@ static int make_execfd(int *fdtype)
 	 */
 	*fdtype = EFD_MEMFD;
 	fd = memfd_create(CRUN_MEMFD_COMMENT, MFD_CLOEXEC | MFD_ALLOW_SEALING);
-	if (fd >= 0)
-		return fd;
-	if (errno != ENOSYS && errno != EINVAL)
-		goto error;
+	എങ്കിൽ (fd >= 0)
+		തിരികെ fd;
+	എങ്കിൽ (errno != ENOSYS && errno != EINVAL)
+		പോകുക error;
 
 #ifdef O_TMPFILE
 	/*
@@ -296,8 +296,8 @@ static int make_execfd(int *fdtype)
 	 */
 	*fdtype = EFD_FILE;
 	fd = open(prefix, O_TMPFILE | O_EXCL | O_RDWR | O_CLOEXEC, 0700);
-	if (fd >= 0) {
-		struct stat statbuf = {};
+	എങ്കിൽ (fd >= 0) {
+		ഘടന stat statbuf = {};
 		bool working_otmpfile = false;
 
 		/*
@@ -306,18 +306,18 @@ static int make_execfd(int *fdtype)
 		 * if we get nlink != 0 (or EISDIR) then we know that this kernel
 		 * doesn't support O_TMPFILE.
 		 */
-		if (fstat(fd, &statbuf) >= 0)
+		എങ്കിൽ (fstat(fd, &statbuf) >= 0)
 			working_otmpfile = (statbuf.st_nlink == 0);
 
-		if (working_otmpfile)
-			return fd;
+		എങ്കിൽ (working_otmpfile)
+			തിരികെ fd;
 
 		/* Pretend that we got EISDIR since O_TMPFILE failed. */
 		close(fd);
 		errno = EISDIR;
 	}
-	if (errno != EISDIR)
-		goto error;
+	എങ്കിൽ (errno != EISDIR)
+		പോകുക error;
 #endif /* defined(O_TMPFILE) */
 
 	/*
@@ -326,69 +326,69 @@ static int make_execfd(int *fdtype)
 	 */
 	*fdtype = EFD_FILE;
 	fd = mkostemp(template, O_CLOEXEC);
-	if (fd >= 0) {
-		if (unlink(template) >= 0)
-			return fd;
+	എങ്കിൽ (fd >= 0) {
+		എങ്കിൽ (unlink(template) >= 0)
+			തിരികെ fd;
 		close(fd);
 	}
 
 error:
 	*fdtype = EFD_NONE;
-	return -1;
+	തിരികെ -1;
 }
 
-static int seal_execfd(int *fd, int fdtype)
+സ്ഥിതം പൂർണ്ണസംഖ്യ seal_execfd(പൂർണ്ണസംഖ്യ *fd, പൂർണ്ണസംഖ്യ fdtype)
 {
-	switch (fdtype) {
-	case EFD_MEMFD:
-		return fcntl(*fd, F_ADD_SEALS, CRUN_MEMFD_SEALS);
-	case EFD_FILE: {
+	തിരഞ്ഞെടുപ്പ് (fdtype) {
+	അവസ്ഥ EFD_MEMFD:
+		തിരികെ fcntl(*fd, F_ADD_SEALS, CRUN_MEMFD_SEALS);
+	അവസ്ഥ EFD_FILE: {
 		/* Need to re-open our pseudo-memfd as an O_PATH to avoid execve(2) giving -ETXTBSY. */
-		int newfd;
-		char fdpath[PATH_MAX] = {0};
+		പൂർണ്ണസംഖ്യ newfd;
+		അക്ഷരം fdpath[PATH_MAX] = {0};
 
-		if (fchmod(*fd, 0100) < 0)
-			return -1;
+		എങ്കിൽ (fchmod(*fd, 0100) < 0)
+			തിരികെ -1;
 
-		if (snprintf(fdpath, sizeof(fdpath), "/proc/self/fd/%d", *fd) < 0)
-			return -1;
+		എങ്കിൽ (snprintf(fdpath, വലുപ്പം(fdpath), "/proc/self/fd/%d", *fd) < 0)
+			തിരികെ -1;
 
 		newfd = open(fdpath, O_PATH | O_CLOEXEC);
-		if (newfd < 0)
-			return -1;
+		എങ്കിൽ (newfd < 0)
+			തിരികെ -1;
 
 		close(*fd);
 		*fd = newfd;
-		return 0;
+		തിരികെ 0;
 	}
-	default:
-	   break;
+	സ്ഥിരസ്ഥിതി:
+	   നിർത്തുക;
 	}
-	return -1;
+	തിരികെ -1;
 }
 
-static int try_bindfd_mount_api(void)
+സ്ഥിതം പൂർണ്ണസംഖ്യ try_bindfd_mount_api(ശൂന്യം)
 {
 	libcrun_error_t err;
-	int mountfd = get_bind_mount (-1, "/proc/self/exe", false, true, false, MS_PRIVATE, &err);
-	if (mountfd < 0) {
+	പൂർണ്ണസംഖ്യ mountfd = get_bind_mount (-1, "/proc/self/exe", false, true, false, MS_PRIVATE, &err);
+	എങ്കിൽ (mountfd < 0) {
 		crun_error_release (&err);
-		return -1;
+		തിരികെ -1;
 	}
-	return mountfd;
+	തിരികെ mountfd;
 }
 
-static int try_bindfd(void)
+സ്ഥിതം പൂർണ്ണസംഖ്യ try_bindfd(ശൂന്യം)
 {
 	mode_t mask;
-	int fd, ret = -1;
-	char template[PATH_MAX] = {0};
-	char *prefix = getenv("_LIBCONTAINER_STATEDIR");
+	പൂർണ്ണസംഖ്യ fd, ret = -1;
+	അക്ഷരം template[PATH_MAX] = {0};
+	അക്ഷരം *prefix = getenv("_LIBCONTAINER_STATEDIR");
 
-	if (!prefix || *prefix != '/')
+	എങ്കിൽ (!prefix || *prefix != '/')
 		prefix = "/tmp";
-	if (snprintf(template, sizeof(template), "%s/crun.XXXXXX", prefix) < 0)
-		return ret;
+	എങ്കിൽ (snprintf(template, വലുപ്പം(template), "%s/crun.XXXXXX", prefix) < 0)
+		തിരികെ ret;
 
 	/*
 	 * We need somewhere to mount it, mounting anything over /proc/self is a
@@ -397,8 +397,8 @@ static int try_bindfd(void)
 	mask = umask(0700);
 	fd = mkstemp(template);
 	umask(mask);
-	if (fd < 0)
-		return ret;
+	എങ്കിൽ (fd < 0)
+		തിരികെ ret;
 	close(fd);
 
 	/*
@@ -407,10 +407,10 @@ static int try_bindfd(void)
 	 * complicated and it's only worth doing if someone actually needs it.
 	 */
 	ret = -EPERM;
-	if (mount("/proc/self/exe", template, "", MS_BIND, "") < 0)
-		goto out;
-	if (mount("", template, "", MS_REMOUNT | MS_BIND | MS_RDONLY, "") < 0)
-		goto out_umount;
+	എങ്കിൽ (mount("/proc/self/exe", template, "", MS_BIND, "") < 0)
+		പോകുക out;
+	എങ്കിൽ (mount("", template, "", MS_REMOUNT | MS_BIND | MS_RDONLY, "") < 0)
+		പോകുക out_umount;
 
 
 	/* Get read-only handle that we're sure can't be made read-write. */
@@ -422,8 +422,8 @@ out_umount:
 	 * read-write and that would be quite bad (the fd would be made read-write
 	 * too, invalidating the protection).
 	 */
-	if (umount2(template, MNT_DETACH) < 0) {
-		if (ret >= 0)
+	എങ്കിൽ (umount2(template, MNT_DETACH) < 0) {
+		എങ്കിൽ (ret >= 0)
 			close(ret);
 		ret = -ENOTRECOVERABLE;
 	}
@@ -434,60 +434,60 @@ out:
 	 * there's an empty file left around in STATEDIR.
 	 */
 	unlink(template);
-	return ret;
+	തിരികെ ret;
 }
 
-static ssize_t fd_to_fd(int outfd, int infd)
+സ്ഥിതം ssize_t fd_to_fd(പൂർണ്ണസംഖ്യ outfd, പൂർണ്ണസംഖ്യ infd)
 {
 	ssize_t total = 0;
-	char buffer[4096];
+	അക്ഷരം buffer[4096];
 
-	for (;;) {
+	വേണ്ടി (;;) {
 		ssize_t nread, nwritten = 0;
 
-		nread = read(infd, buffer, sizeof(buffer));
-		if (nread < 0)
-			return -1;
-		if (!nread)
-			break;
+		nread = പഠ(infd, buffer, വലുപ്പം(buffer));
+		എങ്കിൽ (nread < 0)
+			തിരികെ -1;
+		എങ്കിൽ (!nread)
+			നിർത്തുക;
 
-		do {
-			ssize_t n = write(outfd, buffer + nwritten, nread - nwritten);
-			if (n < 0)
-				return -1;
+		ചെയ്യുക {
+			ssize_t n = ലിഖ(outfd, buffer + nwritten, nread - nwritten);
+			എങ്കിൽ (n < 0)
+				തിരികെ -1;
 			nwritten += n;
-		} while(nwritten < nread);
+		} ആകുമ്പോൾ(nwritten < nread);
 
 		total += nwritten;
 	}
 
-	return total;
+	തിരികെ total;
 }
 
-static int clone_binary(void)
+സ്ഥിതം പൂർണ്ണസംഖ്യ clone_ദ്വിമാന(ശൂന്യം)
 {
-	cleanup_close int execfd = -1;
-	struct stat statbuf = {};
+	cleanup_close പൂർണ്ണസംഖ്യ execfd = -1;
+	ഘടന stat statbuf = {};
 	ssize_t sent = 0;
-	int fdtype = EFD_NONE;
+	പൂർണ്ണസംഖ്യ fdtype = EFD_NONE;
 
 	/*
 	 * Before we resort to copying, let's try creating an ro-binfd in one shot
 	 * by getting a handle for a read-only bind-mount of the execfd.
 	 */
 	execfd = try_bindfd_mount_api();
-	if (execfd >= 0) {
+	എങ്കിൽ (execfd >= 0) {
 		/* Transfer ownership to caller */
-		int ret_execfd = execfd;
+		പൂർണ്ണസംഖ്യ ret_execfd = execfd;
 		execfd = -1;
-		return ret_execfd;
+		തിരികെ ret_execfd;
 	}
 	execfd = try_bindfd();
-	if (execfd >= 0) {
+	എങ്കിൽ (execfd >= 0) {
 		/* Transfer ownership to caller */
-		int ret_execfd = execfd;
+		പൂർണ്ണസംഖ്യ ret_execfd = execfd;
 		execfd = -1;
-		return ret_execfd;
+		തിരികെ ret_execfd;
 	}
 
 	/*
@@ -495,69 +495,69 @@ static int clone_binary(void)
 	 * can seal the contents.
 	 */
 	execfd = make_execfd(&fdtype);
-	if (execfd < 0 || fdtype == EFD_NONE)
-		return -ENOTRECOVERABLE;
+	എങ്കിൽ (execfd < 0 || fdtype == EFD_NONE)
+		തിരികെ -ENOTRECOVERABLE;
 
 	{
-		cleanup_close int binfd = -1;
+		cleanup_close പൂർണ്ണസംഖ്യ binfd = -1;
 		binfd = open("/proc/self/exe", O_RDONLY | O_CLOEXEC);
-		if (binfd < 0)
-			goto error;
+		എങ്കിൽ (binfd < 0)
+			പോകുക error;
 
-		if (fstat(binfd, &statbuf) < 0)
-			goto error;
+		എങ്കിൽ (fstat(binfd, &statbuf) < 0)
+			പോകുക error;
 
-		while (sent < statbuf.st_size) {
-			int n = sendfile(execfd, binfd, NULL, statbuf.st_size - sent);
-			if (n < 0) {
+		ആകുമ്പോൾ (sent < statbuf.st_size) {
+			പൂർണ്ണസംഖ്യ n = sendfile(execfd, binfd, ശൂന്യ, statbuf.st_size - sent);
+			എങ്കിൽ (n < 0) {
 				/* sendfile can fail so we fallback to a dumb user-space copy. */
 				n = fd_to_fd(execfd, binfd);
-				if (n < 0)
-					goto error;
+				എങ്കിൽ (n < 0)
+					പോകുക error;
 			}
 			sent += n;
 		}
 	}
-	if (sent != statbuf.st_size)
-		goto error;
+	എങ്കിൽ (sent != statbuf.st_size)
+		പോകുക error;
 
-	if (seal_execfd(&execfd, fdtype) < 0)
-		goto error;
+	എങ്കിൽ (seal_execfd(&execfd, fdtype) < 0)
+		പോകുക error;
 
 	{
 		/* Transfer ownership to caller */
-		int ret_execfd = execfd;
+		പൂർണ്ണസംഖ്യ ret_execfd = execfd;
 		execfd = -1;
-		return ret_execfd;
+		തിരികെ ret_execfd;
 	}
 error:
-	return -EIO;
+	തിരികെ -EIO;
 }
 
 /* Get cheap access to the environment. */
-extern char **environ;
+ബാഹ്യ അക്ഷരം **environ;
 
-int ensure_cloned_binary(void)
+പൂർണ്ണസംഖ്യ ensure_cloned_ദ്വിമാന(ശൂന്യം)
 {
-	cleanup_close int execfd = -1;
-	char **argv = NULL;
+	cleanup_close പൂർണ്ണസംഖ്യ execfd = -1;
+	അക്ഷരം **argv = ശൂന്യ;
 
 	/* Check that we're not self-cloned, and if we are then bail. */
-	int cloned = is_self_cloned();
-	if (cloned > 0 || cloned == -ENOTRECOVERABLE)
-		return cloned;
+	പൂർണ്ണസംഖ്യ cloned = is_self_cloned();
+	എങ്കിൽ (cloned > 0 || cloned == -ENOTRECOVERABLE)
+		തിരികെ cloned;
 
-	if (fetchve(&argv) < 0)
-		return -EINVAL;
+	എങ്കിൽ (fetchve(&argv) < 0)
+		തിരികെ -EINVAL;
 
-	execfd = clone_binary();
-	if (execfd < 0)
-		return -EIO;
+	execfd = clone_ദ്വിമാന();
+	എങ്കിൽ (execfd < 0)
+		തിരികെ -EIO;
 
-	if (putenv(CLONED_BINARY_ENV "=1"))
-		goto error;
+	എങ്കിൽ (putenv(CLONED_ദ്വിമാന_ENV "=1"))
+		പോകുക error;
 
 	fexecve(execfd, argv, environ);
 error:
-	return -ENOEXEC;
+	തിരികെ -ENOEXEC;
 }

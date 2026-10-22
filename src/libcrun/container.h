@@ -19,12 +19,12 @@
 #ifndef CONTAINER_H
 #define CONTAINER_H
 
-#include <config.h>
-#include <ocispec/runtime_spec_schema_config_schema.h>
-#include "error.h"
-#include "string_map.h"
+#അന്തര്ഭാവ <config.h>
+#അന്തര്ഭാവ <ocispec/runtime_spec_schema_config_schema.h>
+#അന്തര്ഭാവ "error.h"
+#അന്തര്ഭാവ "string_map.h"
 
-enum handler_configure_phase
+എണ്ണൽ handler_configure_phase
 {
   HANDLER_CONFIGURE_BEFORE_MOUNTS = 1,
   HANDLER_CONFIGURE_AFTER_MOUNTS,
@@ -32,59 +32,59 @@ enum handler_configure_phase
   HANDLER_CONFIGURE_BEFORE_USERNS
 };
 
-struct custom_handler_manager_s;
+ഘടന custom_handler_manager_s;
 
-struct libcrun_context_s
+ഘടന libcrun_context_s
 {
-  const char *state_root;
-  const char *id;
-  const char *bundle;
-  const char *console_socket;
-  const char *pid_file;
-  const char *notify_socket;
-  const char *handler;
-  char *owned_state_root;
-  char *owned_id;
-  char *owned_bundle;
-  char *owned_console_socket;
-  char *owned_pid_file;
-  char *owned_notify_socket;
-  char *owned_handler;
-  int preserve_fds;
+  സ്ഥിരം അക്ഷരം *state_വേര്;
+  സ്ഥിരം അക്ഷരം *id;
+  സ്ഥിരം അക്ഷരം *bundle;
+  സ്ഥിരം അക്ഷരം *console_socket;
+  സ്ഥിരം അക്ഷരം *pid_file;
+  സ്ഥിരം അക്ഷരം *notify_socket;
+  സ്ഥിരം അക്ഷരം *handler;
+  അക്ഷരം *owned_state_വേര്;
+  അക്ഷരം *owned_id;
+  അക്ഷരം *owned_bundle;
+  അക്ഷരം *owned_console_socket;
+  അക്ഷരം *owned_pid_file;
+  അക്ഷരം *owned_notify_socket;
+  അക്ഷരം *owned_handler;
+  പൂർണ്ണസംഖ്യ preserve_fds;
   // For some use-cases we need differentiation between preserve_fds and listen_fds.
   // Following context variable makes sure we get exact value of listen_fds irrespective of preserve_fds.
-  int listen_fds;
+  പൂർണ്ണസംഖ്യ listen_fds;
 
   crun_output_handler output_handler;
-  void *output_handler_arg;
+  ശൂന്യം *output_handler_arg;
 
-  int fifo_exec_wait_fd;
+  പൂർണ്ണസംഖ്യ fifo_exec_wait_fd;
 
   bool systemd_cgroup;
   bool detach;
   bool no_new_keyring;
   bool force_no_cgroup;
   bool no_pivot;
-  bool no_open_tree_namespace;
+  bool no_open_വൃക്ഷം_namespace;
 
-  char **argv;
-  int argc;
+  അക്ഷരം **argv;
+  പൂർണ്ണസംഖ്യ argc;
 
-  struct custom_handler_manager_s *handler_manager;
+  ഘടന custom_handler_manager_s *handler_manager;
 };
 
-enum
+എണ്ണൽ
 {
   LIBCRUN_RUN_OPTIONS_PREFORK = 1 << 0,
   LIBCRUN_RUN_OPTIONS_KEEP = 1 << 1,
 };
 
-enum
+എണ്ണൽ
 {
   LIBCRUN_CREATE_OPTIONS_PREFORK = 1 << 0,
 };
 
-struct libcrun_container_s
+ഘടന libcrun_container_s
 {
   /* Container parsed from the runtime json file.  */
   runtime_spec_schema_config_schema *container_def;
@@ -98,26 +98,26 @@ struct libcrun_container_s
   uid_t container_uid;
   gid_t container_gid;
 
-  char *config_file;
-  char *config_file_content;
+  അക്ഷരം *config_file;
+  അക്ഷരം *config_file_content;
 
   string_map *annotations;
 
-  int proc_fd;
+  പൂർണ്ണസംഖ്യ proc_fd;
 
-  void *private_data;
-  void (*cleanup_private_data) (void *private_data);
-  struct libcrun_context_s *context;
+  ശൂന്യം *private_data;
+  ശൂന്യം (*cleanup_private_data) (ശൂന്യം *private_data);
+  ഘടന libcrun_context_s *context;
 };
 
-struct libcrun_container_status_s;
-typedef struct libcrun_container_status_s libcrun_container_status_t;
+ഘടന libcrun_container_status_s;
+തരനിർവചനം ഘടന libcrun_container_status_s libcrun_container_status_t;
 
-typedef struct libcrun_container_s libcrun_container_t;
-typedef struct libcrun_context_s libcrun_context_t;
+തരനിർവചനം ഘടന libcrun_container_s libcrun_container_t;
+തരനിർവചനം ഘടന libcrun_context_s libcrun_context_t;
 
-struct container_entrypoint_s;
-struct cgroup_info_s
+ഘടന container_entrypoint_s;
+ഘടന cgroup_info_s
 {
   bool v1;
   bool v2;
@@ -125,88 +125,88 @@ struct cgroup_info_s
   bool systemd_user;
 };
 
-struct seccomp_info_s
+ഘടന seccomp_info_s
 {
   bool enabled;
-  char **actions;
-  char **operators;
-  char **archs;
+  അക്ഷരം **actions;
+  അക്ഷരം **operators;
+  അക്ഷരം **archs;
 };
 
-struct apparmor_info_s
-{
-  bool enabled;
-};
-
-struct selinux_info_s
+ഘടന apparmor_info_s
 {
   bool enabled;
 };
 
-struct idmap_info_s
+ഘടന selinux_info_s
 {
   bool enabled;
 };
 
-struct intel_rdt_s
+ഘടന idmap_info_s
 {
   bool enabled;
 };
 
-struct net_devices_s
+ഘടന intel_rdt_s
 {
   bool enabled;
 };
 
-struct mount_ext_info_s
+ഘടന net_devices_s
 {
-  struct idmap_info_s idmap;
+  bool enabled;
 };
 
-struct memory_policy_info_s
+ഘടന mount_ext_info_s
 {
-  char **mode;
-  char **flags;
+  ഘടന idmap_info_s idmap;
 };
 
-struct linux_info_s
+ഘടന memory_policy_info_s
 {
-  char **namespaces;
-  char **capabilities;
-  struct cgroup_info_s cgroup;
-  struct seccomp_info_s seccomp;
-  struct apparmor_info_s apparmor;
-  struct selinux_info_s selinux;
-  struct mount_ext_info_s mount_ext;
-  struct intel_rdt_s intel_rdt;
-  struct net_devices_s net_devices;
-  struct memory_policy_info_s memory_policy;
+  അക്ഷരം **mode;
+  അക്ഷരം **flags;
 };
 
-struct annotations_info_s
+ഘടന linux_info_s
 {
-  char *io_github_seccomp_libseccomp_version;
+  അക്ഷരം **namespaces;
+  അക്ഷരം **capabilities;
+  ഘടന cgroup_info_s cgroup;
+  ഘടന seccomp_info_s seccomp;
+  ഘടന apparmor_info_s apparmor;
+  ഘടന selinux_info_s selinux;
+  ഘടന mount_ext_info_s mount_ext;
+  ഘടന intel_rdt_s intel_rdt;
+  ഘടന net_devices_s net_devices;
+  ഘടന memory_policy_info_s memory_policy;
+};
+
+ഘടന annotations_info_s
+{
+  അക്ഷരം *io_github_seccomp_libseccomp_version;
   bool run_oci_crun_checkpoint_enabled;
-  char *run_oci_crun_commit;
-  char *run_oci_crun_version;
+  അക്ഷരം *run_oci_crun_commit;
+  അക്ഷരം *run_oci_crun_version;
   bool run_oci_crun_wasm;
 };
 
-struct features_info_s
+ഘടന features_info_s
 {
-  char *oci_version_min;
-  char *oci_version_max;
-  char **hooks;
-  char **mount_options;
-  struct linux_info_s linux;
-  struct annotations_info_s annotations;
-  char **potentially_unsafe_annotations;
+  അക്ഷരം *oci_version_min;
+  അക്ഷരം *oci_version_max;
+  അക്ഷരം **hooks;
+  അക്ഷരം **mount_options;
+  ഘടന linux_info_s linux;
+  ഘടന annotations_info_s annotations;
+  അക്ഷരം **potentially_unsafe_annotations;
 };
 
-struct libcrun_checkpoint_restore_s
+ഘടന libcrun_checkpoint_restore_s
 {
-  char *image_path;
-  char *work_path;
+  അക്ഷരം *image_path;
+  അക്ഷരം *work_path;
   bool leave_running;
   bool tcp_established;
   bool tcp_close;
@@ -214,19 +214,19 @@ struct libcrun_checkpoint_restore_s
   bool ext_unix_sk;
   bool detach;
   bool file_locks;
-  const char *console_socket;
-  char *parent_path;
+  സ്ഥിരം അക്ഷരം *console_socket;
+  അക്ഷരം *parent_path;
   bool pre_dump;
-  int manage_cgroups_mode;
-  int network_lock_method;
-  char *lsm_profile;
-  char *lsm_mount_context;
+  പൂർണ്ണസംഖ്യ manage_cgroups_mode;
+  പൂർണ്ണസംഖ്യ network_lock_method;
+  അക്ഷരം *lsm_profile;
+  അക്ഷരം *lsm_mount_context;
 };
-typedef struct libcrun_checkpoint_restore_s libcrun_checkpoint_restore_t;
+തരനിർവചനം ഘടന libcrun_checkpoint_restore_s libcrun_checkpoint_restore_t;
 
 /* Public checkpoint/restore options.  Mirror of the definition in
    <libcrun.h>; keep the two in sync.  */
-enum libcrun_cr_cgroups_mode
+എണ്ണൽ libcrun_cr_cgroups_mode
 {
   LIBCRUN_CR_CG_MODE_DEFAULT = 0, /* soft, matching runc */
   LIBCRUN_CR_CG_MODE_SOFT,
@@ -235,7 +235,7 @@ enum libcrun_cr_cgroups_mode
   LIBCRUN_CR_CG_MODE_STRICT,
 };
 
-enum libcrun_cr_network_lock_method
+എണ്ണൽ libcrun_cr_network_lock_method
 {
   LIBCRUN_CR_NETWORK_LOCK_DEFAULT = 0, /* iptables */
   LIBCRUN_CR_NETWORK_LOCK_IPTABLES,
@@ -243,16 +243,16 @@ enum libcrun_cr_network_lock_method
   LIBCRUN_CR_NETWORK_LOCK_SKIP,
 };
 
-struct libcrun_checkpoint_restore_options_s
+ഘടന libcrun_checkpoint_restore_options_s
 {
   size_t struct_size;
 
-  const char *image_path;
-  const char *work_path;
-  const char *parent_path;
-  const char *console_socket;
-  const char *lsm_profile;
-  const char *lsm_mount_context;
+  സ്ഥിരം അക്ഷരം *image_path;
+  സ്ഥിരം അക്ഷരം *work_path;
+  സ്ഥിരം അക്ഷരം *parent_path;
+  സ്ഥിരം അക്ഷരം *console_socket;
+  സ്ഥിരം അക്ഷരം *lsm_profile;
+  സ്ഥിരം അക്ഷരം *lsm_mount_context;
 
   bool leave_running;
   bool tcp_established;
@@ -263,186 +263,186 @@ struct libcrun_checkpoint_restore_options_s
   bool pre_dump;
   bool detach;
 
-  int manage_cgroups_mode; /* enum libcrun_cr_cgroups_mode */
-  int network_lock_method; /* enum libcrun_cr_network_lock_method */
+  പൂർണ്ണസംഖ്യ manage_cgroups_mode; /* enum libcrun_cr_cgroups_mode */
+  പൂർണ്ണസംഖ്യ network_lock_method; /* enum libcrun_cr_network_lock_method */
 };
 
-LIBCRUN_PUBLIC libcrun_container_t *libcrun_container_load_from_file (const char *path, libcrun_error_t *err);
+LIBCRUN_PUBLIC libcrun_container_t *libcrun_container_load_from_file (സ്ഥിരം അക്ഷരം *path, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC libcrun_container_t *libcrun_container_load_from_memory (const char *json, libcrun_error_t *err);
+LIBCRUN_PUBLIC libcrun_container_t *libcrun_container_load_from_memory (സ്ഥിരം അക്ഷരം *json, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC void libcrun_container_free (libcrun_container_t *);
+LIBCRUN_PUBLIC ശൂന്യം libcrun_container_free (libcrun_container_t *);
 
 /* Return the configuration of CONTAINER as a JSON string owned by CONTAINER.
    The document is generated on demand and cached, so the first call mutates
    CONTAINER and must not race with other users of the same handle.  */
-LIBCRUN_PUBLIC const char *libcrun_container_get_config_json (libcrun_container_t *container, libcrun_error_t *err);
-LIBCRUN_PUBLIC const char *libcrun_container_get_annotation (libcrun_container_t *container, const char *key);
+LIBCRUN_PUBLIC സ്ഥിരം അക്ഷരം *libcrun_container_get_config_json (libcrun_container_t *container, libcrun_error_t *err);
+LIBCRUN_PUBLIC സ്ഥിരം അക്ഷരം *libcrun_container_get_annotation (libcrun_container_t *container, സ്ഥിരം അക്ഷരം *താക്കോൽ);
 LIBCRUN_PUBLIC size_t libcrun_container_get_annotations_len (libcrun_container_t *container);
-LIBCRUN_PUBLIC int libcrun_container_get_annotation_at (libcrun_container_t *container, size_t index,
-                                                        const char **key, const char **value);
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_get_annotation_at (libcrun_container_t *container, size_t index,
+                                                        സ്ഥിരം അക്ഷരം **താക്കോൽ, സ്ഥിരം അക്ഷരം **മൂല്യം);
 LIBCRUN_PUBLIC uid_t libcrun_container_get_uid (libcrun_container_t *container);
 LIBCRUN_PUBLIC gid_t libcrun_container_get_gid (libcrun_container_t *container);
 
-LIBCRUN_PUBLIC libcrun_context_t *libcrun_context_new (const char *id, const char *state_root, libcrun_error_t *err);
-LIBCRUN_PUBLIC void libcrun_context_free (libcrun_context_t *ctx);
+LIBCRUN_PUBLIC libcrun_context_t *libcrun_context_new (സ്ഥിരം അക്ഷരം *id, സ്ഥിരം അക്ഷരം *state_വേര്, libcrun_error_t *err);
+LIBCRUN_PUBLIC ശൂന്യം libcrun_context_free (libcrun_context_t *ctx);
 
-LIBCRUN_PUBLIC void libcrun_context_set_id (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC void libcrun_context_set_state_root (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC const char *libcrun_context_get_state_root (libcrun_context_t *ctx);
-LIBCRUN_PUBLIC void libcrun_context_set_bundle (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC void libcrun_context_set_console_socket (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC void libcrun_context_set_pid_file (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC const char *libcrun_context_get_pid_file (libcrun_context_t *ctx);
-LIBCRUN_PUBLIC void libcrun_context_set_notify_socket (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC void libcrun_context_set_handler (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC void libcrun_context_set_preserve_fds (libcrun_context_t *ctx, int preserve_fds);
-LIBCRUN_PUBLIC int libcrun_context_get_preserve_fds (libcrun_context_t *ctx);
-LIBCRUN_PUBLIC void libcrun_context_set_listen_fds (libcrun_context_t *ctx, int listen_fds);
-LIBCRUN_PUBLIC void libcrun_context_set_args (libcrun_context_t *ctx, int argc, char **argv);
-LIBCRUN_PUBLIC void libcrun_context_set_systemd_cgroup (libcrun_context_t *ctx, bool value);
-LIBCRUN_PUBLIC void libcrun_context_set_detach (libcrun_context_t *ctx, bool value);
-LIBCRUN_PUBLIC void libcrun_context_set_no_new_keyring (libcrun_context_t *ctx, bool value);
-LIBCRUN_PUBLIC void libcrun_context_set_no_pivot (libcrun_context_t *ctx, bool value);
-LIBCRUN_PUBLIC void libcrun_context_set_force_no_cgroup (libcrun_context_t *ctx, bool value);
-LIBCRUN_PUBLIC void libcrun_context_set_output_handler (libcrun_context_t *ctx, crun_output_handler handler, void *arg);
+LIBCRUN_PUBLIC ശൂന്യം libcrun_context_set_id (libcrun_context_t *ctx, സ്ഥിരം അക്ഷരം *മൂല്യം);
+LIBCRUN_PUBLIC ശൂന്യം libcrun_context_set_state_വേര് (libcrun_context_t *ctx, സ്ഥിരം അക്ഷരം *മൂല്യം);
+LIBCRUN_PUBLIC സ്ഥിരം അക്ഷരം *libcrun_context_get_state_വേര് (libcrun_context_t *ctx);
+LIBCRUN_PUBLIC ശൂന്യം libcrun_context_set_bundle (libcrun_context_t *ctx, സ്ഥിരം അക്ഷരം *മൂല്യം);
+LIBCRUN_PUBLIC ശൂന്യം libcrun_context_set_console_socket (libcrun_context_t *ctx, സ്ഥിരം അക്ഷരം *മൂല്യം);
+LIBCRUN_PUBLIC ശൂന്യം libcrun_context_set_pid_file (libcrun_context_t *ctx, സ്ഥിരം അക്ഷരം *മൂല്യം);
+LIBCRUN_PUBLIC സ്ഥിരം അക്ഷരം *libcrun_context_get_pid_file (libcrun_context_t *ctx);
+LIBCRUN_PUBLIC ശൂന്യം libcrun_context_set_notify_socket (libcrun_context_t *ctx, സ്ഥിരം അക്ഷരം *മൂല്യം);
+LIBCRUN_PUBLIC ശൂന്യം libcrun_context_set_handler (libcrun_context_t *ctx, സ്ഥിരം അക്ഷരം *മൂല്യം);
+LIBCRUN_PUBLIC ശൂന്യം libcrun_context_set_preserve_fds (libcrun_context_t *ctx, പൂർണ്ണസംഖ്യ preserve_fds);
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_context_get_preserve_fds (libcrun_context_t *ctx);
+LIBCRUN_PUBLIC ശൂന്യം libcrun_context_set_listen_fds (libcrun_context_t *ctx, പൂർണ്ണസംഖ്യ listen_fds);
+LIBCRUN_PUBLIC ശൂന്യം libcrun_context_set_args (libcrun_context_t *ctx, പൂർണ്ണസംഖ്യ argc, അക്ഷരം **argv);
+LIBCRUN_PUBLIC ശൂന്യം libcrun_context_set_systemd_cgroup (libcrun_context_t *ctx, bool മൂല്യം);
+LIBCRUN_PUBLIC ശൂന്യം libcrun_context_set_detach (libcrun_context_t *ctx, bool മൂല്യം);
+LIBCRUN_PUBLIC ശൂന്യം libcrun_context_set_no_new_keyring (libcrun_context_t *ctx, bool മൂല്യം);
+LIBCRUN_PUBLIC ശൂന്യം libcrun_context_set_no_pivot (libcrun_context_t *ctx, bool മൂല്യം);
+LIBCRUN_PUBLIC ശൂന്യം libcrun_context_set_force_no_cgroup (libcrun_context_t *ctx, bool മൂല്യം);
+LIBCRUN_PUBLIC ശൂന്യം libcrun_context_set_output_handler (libcrun_context_t *ctx, crun_output_handler handler, ശൂന്യം *arg);
 
-LIBCRUN_PUBLIC int libcrun_context_init_logging (libcrun_context_t *ctx, const char *log, libcrun_error_t *err);
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_context_init_logging (libcrun_context_t *ctx, സ്ഥിരം അക്ഷരം *log, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_run (libcrun_context_t *context, libcrun_container_t *container,
-                                          unsigned int options, libcrun_error_t *error);
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_run (libcrun_context_t *context, libcrun_container_t *container,
+                                          unsigned പൂർണ്ണസംഖ്യ options, libcrun_error_t *error);
 
-LIBCRUN_PUBLIC int libcrun_container_delete (libcrun_context_t *context, const char *id, bool force,
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_delete (libcrun_context_t *context, സ്ഥിരം അക്ഷരം *id, bool force,
                                              libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_kill (libcrun_context_t *context, const char *id, const char *signal,
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_kill (libcrun_context_t *context, സ്ഥിരം അക്ഷരം *id, സ്ഥിരം അക്ഷരം *സൂചന,
                                            libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_killall (libcrun_context_t *context, const char *id, const char *signal,
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_killall (libcrun_context_t *context, സ്ഥിരം അക്ഷരം *id, സ്ഥിരം അക്ഷരം *സൂചന,
                                               libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_create (libcrun_context_t *context, libcrun_container_t *container,
-                                             unsigned int options, libcrun_error_t *err);
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_create (libcrun_context_t *context, libcrun_container_t *container,
+                                             unsigned പൂർണ്ണസംഖ്യ options, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_start (libcrun_context_t *context, const char *id, libcrun_error_t *err);
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_start (libcrun_context_t *context, സ്ഥിരം അക്ഷരം *id, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_state (libcrun_context_t *context, const char *id, FILE *out,
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_state (libcrun_context_t *context, സ്ഥിരം അക്ഷരം *id, FILE *out,
                                             libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_state_json (libcrun_context_t *context, const char *id, char **out,
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_state_json (libcrun_context_t *context, സ്ഥിരം അക്ഷരം *id, അക്ഷരം **out,
                                                  libcrun_error_t *err);
 
-int libcrun_container_notify_handler (struct container_entrypoint_s *args,
-                                      enum handler_configure_phase phase,
-                                      libcrun_container_t *container, const char *rootfs,
+പൂർണ്ണസംഖ്യ libcrun_container_notify_handler (ഘടന container_entrypoint_s *args,
+                                      എണ്ണൽ handler_configure_phase phase,
+                                      libcrun_container_t *container, സ്ഥിരം അക്ഷരം *rootfs,
                                       libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_get_container_state_string (const char *id, libcrun_container_status_t *status,
-                                                       const char *state_root, const char **container_status,
-                                                       int *running, libcrun_error_t *err);
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_get_container_state_string (സ്ഥിരം അക്ഷരം *id, libcrun_container_status_t *status,
+                                                       സ്ഥിരം അക്ഷരം *state_വേര്, സ്ഥിരം അക്ഷരം **container_status,
+                                                       പൂർണ്ണസംഖ്യ *running, libcrun_error_t *err);
 
-struct libcrun_container_exec_options_s
+ഘടന libcrun_container_exec_options_s
 {
   size_t struct_size;
   runtime_spec_schema_config_schema_process *process;
-  const char *path;
-  const char *cgroup;
+  സ്ഥിരം അക്ഷരം *path;
+  സ്ഥിരം അക്ഷരം *cgroup;
   bool merge_env;
 };
 
-LIBCRUN_PUBLIC int libcrun_close_inherited_fds (libcrun_context_t *context, libcrun_error_t *err);
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_close_inherited_fds (libcrun_context_t *context, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_load_process_from_file (const char *path,
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_load_process_from_file (സ്ഥിരം അക്ഷരം *path,
                                                    runtime_spec_schema_config_schema_process **process,
                                                    libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_exec_with_options (libcrun_context_t *context, const char *id,
-                                                        struct libcrun_container_exec_options_s *opts,
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_exec_with_options (libcrun_context_t *context, സ്ഥിരം അക്ഷരം *id,
+                                                        ഘടന libcrun_container_exec_options_s *opts,
                                                         libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_exec (libcrun_context_t *context, const char *id,
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_exec (libcrun_context_t *context, സ്ഥിരം അക്ഷരം *id,
                                            runtime_spec_schema_config_schema_process *process, libcrun_error_t *err);
 
-struct libcrun_exec_options_s
+ഘടന libcrun_exec_options_s
 {
   size_t struct_size;
-  const char *process_json; /* OCI Process JSON */
-  const char *cgroup;
+  സ്ഥിരം അക്ഷരം *process_json; /* OCI Process JSON */
+  സ്ഥിരം അക്ഷരം *cgroup;
   bool merge_env;
 };
 
-LIBCRUN_PUBLIC int libcrun_container_exec_json (libcrun_context_t *context, const char *id, const char *process_json,
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_exec_json (libcrun_context_t *context, സ്ഥിരം അക്ഷരം *id, സ്ഥിരം അക്ഷരം *process_json,
                                                 libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_exec_with_options_json (libcrun_context_t *context, const char *id,
-                                                             const struct libcrun_exec_options_s *opts,
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_exec_with_options_json (libcrun_context_t *context, സ്ഥിരം അക്ഷരം *id,
+                                                             സ്ഥിരം ഘടന libcrun_exec_options_s *opts,
                                                              libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_exec_process_file (libcrun_context_t *context, const char *id, const char *path,
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_exec_process_file (libcrun_context_t *context, സ്ഥിരം അക്ഷരം *id, സ്ഥിരം അക്ഷരം *path,
                                                         libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_update (libcrun_context_t *context, const char *id, const char *content,
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_update (libcrun_context_t *context, സ്ഥിരം അക്ഷരം *id, സ്ഥിരം അക്ഷരം *content,
                                              size_t len, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_update_from_file (libcrun_context_t *context, const char *id, const char *file,
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_update_from_file (libcrun_context_t *context, സ്ഥിരം അക്ഷരം *id, സ്ഥിരം അക്ഷരം *file,
                                                        libcrun_error_t *err);
 
-struct libcrun_update_value_s
+ഘടന libcrun_update_മൂല്യം_s
 {
-  const char *section;
-  const char *name;
+  സ്ഥിരം അക്ഷരം *section;
+  സ്ഥിരം അക്ഷരം *name;
   bool numeric;
-  const char *value;
+  സ്ഥിരം അക്ഷരം *മൂല്യം;
 };
 
-LIBCRUN_PUBLIC int libcrun_container_update_from_values (libcrun_context_t *context, const char *id,
-                                                         struct libcrun_update_value_s *values, size_t len,
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_update_from_മൂല്യങ്ങൾ (libcrun_context_t *context, സ്ഥിരം അക്ഷരം *id,
+                                                         ഘടന libcrun_update_മൂല്യം_s *മൂല്യങ്ങൾ, size_t len,
                                                          libcrun_error_t *err);
 
-struct libcrun_intel_rdt_update
+ഘടന libcrun_intel_rdt_update
 {
-  const char *l3_cache_schema;
-  const char *mem_bw_schema;
-  char *const *schemata;
+  സ്ഥിരം അക്ഷരം *l3_cache_schema;
+  സ്ഥിരം അക്ഷരം *mem_bw_schema;
+  അക്ഷരം *സ്ഥിരം *schemata;
 };
 
-LIBCRUN_PUBLIC int libcrun_container_update_intel_rdt (libcrun_context_t *context, const char *id,
-                                                       struct libcrun_intel_rdt_update *update, libcrun_error_t *err);
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_update_intel_rdt (libcrun_context_t *context, സ്ഥിരം അക്ഷരം *id,
+                                                       ഘടന libcrun_intel_rdt_update *update, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_get_features (libcrun_context_t *context, struct features_info_s **info,
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_get_features (libcrun_context_t *context, ഘടന features_info_s **info,
                                                    libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_get_features_json (libcrun_context_t *context, char **out, libcrun_error_t *err);
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_get_features_json (libcrun_context_t *context, അക്ഷരം **out, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_pause (libcrun_context_t *context, const char *id, libcrun_error_t *err);
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_pause (libcrun_context_t *context, സ്ഥിരം അക്ഷരം *id, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_unpause (libcrun_context_t *context, const char *id, libcrun_error_t *err);
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_unpause (libcrun_context_t *context, സ്ഥിരം അക്ഷരം *id, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_checkpoint (libcrun_context_t *context, const char *id,
-                                                 struct libcrun_checkpoint_restore_options_s *cr_options,
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_checkpoint (libcrun_context_t *context, സ്ഥിരം അക്ഷരം *id,
+                                                 ഘടന libcrun_checkpoint_restore_options_s *cr_options,
                                                  libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_restore (libcrun_context_t *context, const char *id,
-                                              struct libcrun_checkpoint_restore_options_s *cr_options,
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_restore (libcrun_context_t *context, സ്ഥിരം അക്ഷരം *id,
+                                              ഘടന libcrun_checkpoint_restore_options_s *cr_options,
                                               libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_read_pids (libcrun_context_t *context, const char *id, bool recurse, pid_t **pids, libcrun_error_t *err);
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_read_pids (libcrun_context_t *context, സ്ഥിരം അക്ഷരം *id, bool recurse, pid_t **pids, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_write_json_containers_list (libcrun_context_t *context, FILE *out, libcrun_error_t *err);
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_write_json_containers_list (libcrun_context_t *context, FILE *out, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_list_json (libcrun_context_t *context, char **out, libcrun_error_t *err);
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_list_json (libcrun_context_t *context, അക്ഷരം **out, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_add_mounts_from_file (libcrun_context_t *context, const char *id, const char *file,
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_add_mounts_from_file (libcrun_context_t *context, സ്ഥിരം അക്ഷരം *id, സ്ഥിരം അക്ഷരം *file,
                                                            libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_remove_mounts_from_file (libcrun_context_t *context, const char *id, const char *file,
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_container_remove_mounts_from_file (libcrun_context_t *context, സ്ഥിരം അക്ഷരം *id, സ്ഥിരം അക്ഷരം *file,
                                                               libcrun_error_t *err);
 
 // Not part of the public API, just a method in container.c we need to access from linux.c
-void get_root_in_the_userns (runtime_spec_schema_config_schema *def, uid_t host_uid, gid_t host_gid,
+ശൂന്യം get_വേര്_in_the_userns (runtime_spec_schema_config_schema *def, uid_t host_uid, gid_t host_gid,
                              uid_t *uid, gid_t *gid);
 
-static inline void
+സ്ഥിതം വരിയിൽ ശൂന്യം
 cleanup_containerp (libcrun_container_t **c)
 {
   libcrun_container_t *container = *c;
@@ -451,69 +451,69 @@ cleanup_containerp (libcrun_container_t **c)
 
 #define cleanup_container __attribute__ ((cleanup (cleanup_containerp)))
 
-static inline void
-cleanup_struct_features_free (struct features_info_s **info)
+സ്ഥിതം വരിയിൽ ശൂന്യം
+cleanup_struct_features_free (ഘടന features_info_s **info)
 {
   size_t i;
-  struct features_info_s *ptr;
-  if (info == NULL || *info == NULL)
-    return;
+  ഘടന features_info_s *ptr;
+  എങ്കിൽ (info == ശൂന്യ || *info == ശൂന്യ)
+    തിരികെ;
 
   ptr = *info;
 
   // Free oci_version_min if it is not NULL
-  if (ptr->oci_version_min != NULL)
+  എങ്കിൽ (ptr->oci_version_min != ശൂന്യ)
     {
-      free (ptr->oci_version_min);
-      ptr->oci_version_min = NULL; // Set to NULL after freeing
+      സ്വതന്ത്രം (ptr->oci_version_min);
+      ptr->oci_version_min = ശൂന്യ; // Set to NULL after freeing
     }
 
   // Free oci_version_max if it is not NULL
-  if (ptr->oci_version_max != NULL)
+  എങ്കിൽ (ptr->oci_version_max != ശൂന്യ)
     {
-      free (ptr->oci_version_max);
-      ptr->oci_version_max = NULL; // Set to NULL after freeing
+      സ്വതന്ത്രം (ptr->oci_version_max);
+      ptr->oci_version_max = ശൂന്യ; // Set to NULL after freeing
     }
-  if (ptr->hooks != NULL)
+  എങ്കിൽ (ptr->hooks != ശൂന്യ)
     {
-      for (i = 0; ptr->hooks[i] != NULL; i++)
-        free (ptr->hooks[i]);
-      free (ptr->hooks);
+      വേണ്ടി (i = 0; ptr->hooks[i] != ശൂന്യ; i++)
+        സ്വതന്ത്രം (ptr->hooks[i]);
+      സ്വതന്ത്രം (ptr->hooks);
     }
-  if (ptr->mount_options != NULL)
+  എങ്കിൽ (ptr->mount_options != ശൂന്യ)
     {
-      for (i = 0; ptr->mount_options[i] != NULL; i++)
-        free (ptr->mount_options[i]);
-      free (ptr->mount_options);
+      വേണ്ടി (i = 0; ptr->mount_options[i] != ശൂന്യ; i++)
+        സ്വതന്ത്രം (ptr->mount_options[i]);
+      സ്വതന്ത്രം (ptr->mount_options);
     }
-  if (ptr->linux.namespaces != NULL)
+  എങ്കിൽ (ptr->linux.namespaces != ശൂന്യ)
     {
-      for (i = 0; ptr->linux.namespaces[i] != NULL; i++)
-        free (ptr->linux.namespaces[i]);
-      free (ptr->linux.namespaces);
-    }
-
-  if (ptr->linux.capabilities != NULL)
-    {
-      for (size_t i = 0; ptr->linux.capabilities[i] != NULL; i++)
-        free (ptr->linux.capabilities[i]);
-      free (ptr->linux.capabilities);
-    }
-  if (ptr->linux.seccomp.actions != NULL)
-    {
-      for (i = 0; ptr->linux.seccomp.actions[i] != NULL; i++)
-        free (ptr->linux.seccomp.actions[i]);
-      free (ptr->linux.seccomp.actions);
-    }
-  if (ptr->linux.seccomp.operators != NULL)
-    {
-      for (i = 0; ptr->linux.seccomp.operators[i] != NULL; i++)
-        free (ptr->linux.seccomp.operators[i]);
-      free (ptr->linux.seccomp.operators);
+      വേണ്ടി (i = 0; ptr->linux.namespaces[i] != ശൂന്യ; i++)
+        സ്വതന്ത്രം (ptr->linux.namespaces[i]);
+      സ്വതന്ത്രം (ptr->linux.namespaces);
     }
 
-  free (ptr);
-  *info = NULL;
+  എങ്കിൽ (ptr->linux.capabilities != ശൂന്യ)
+    {
+      വേണ്ടി (size_t i = 0; ptr->linux.capabilities[i] != ശൂന്യ; i++)
+        സ്വതന്ത്രം (ptr->linux.capabilities[i]);
+      സ്വതന്ത്രം (ptr->linux.capabilities);
+    }
+  എങ്കിൽ (ptr->linux.seccomp.actions != ശൂന്യ)
+    {
+      വേണ്ടി (i = 0; ptr->linux.seccomp.actions[i] != ശൂന്യ; i++)
+        സ്വതന്ത്രം (ptr->linux.seccomp.actions[i]);
+      സ്വതന്ത്രം (ptr->linux.seccomp.actions);
+    }
+  എങ്കിൽ (ptr->linux.seccomp.operators != ശൂന്യ)
+    {
+      വേണ്ടി (i = 0; ptr->linux.seccomp.operators[i] != ശൂന്യ; i++)
+        സ്വതന്ത്രം (ptr->linux.seccomp.operators[i]);
+      സ്വതന്ത്രം (ptr->linux.seccomp.operators);
+    }
+
+  സ്വതന്ത്രം (ptr);
+  *info = ശൂന്യ;
 }
 
 #define cleanup_struct_features __attribute__ ((cleanup (cleanup_struct_features_free)))

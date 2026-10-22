@@ -23,89 +23,89 @@
    non-public headers).  The binary is a pure consumer of the public
    <libcrun.h> API; everything here is either libc or a trivial inline.  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
+#അന്തര്ഭാവ <stdlib.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <string.h>
+#അന്തര്ഭാവ <unistd.h>
 
 #ifdef __GNUC__
 #  define LIKELY(x) __builtin_expect ((x), 1)
 #  define UNLIKELY(x) __builtin_expect ((x), 0)
 #  define arg_unused __attribute__ ((unused))
-#else
+#അല്ലെങ്കിൽ
 #  define LIKELY(x) (x)
 #  define UNLIKELY(x) (x)
 #  define arg_unused
 #endif
 
 #define OOM()                            \
-  do                                     \
+  ചെയ്യുക                                     \
     {                                    \
       fprintf (stderr, "out of memory"); \
       _exit (EXIT_FAILURE);              \
-  } while (0)
+  } ആകുമ്പോൾ (0)
 
 #define crun_make_error libcrun_make_error
 
-__attribute__ ((malloc)) static inline void *
+__attribute__ ((malloc)) സ്ഥിതം വരിയിൽ ശൂന്യം *
 xmalloc (size_t size)
 {
-  void *res = malloc (size);
-  if (UNLIKELY (res == NULL))
+  ശൂന്യം *res = malloc (size);
+  എങ്കിൽ (UNLIKELY (res == ശൂന്യ))
     OOM ();
-  return res;
+  തിരികെ res;
 }
 
-__attribute__ ((malloc)) static inline void *
+__attribute__ ((malloc)) സ്ഥിതം വരിയിൽ ശൂന്യം *
 xmalloc0 (size_t size)
 {
-  void *res = calloc (1, size);
-  if (UNLIKELY (res == NULL))
+  ശൂന്യം *res = calloc (1, size);
+  എങ്കിൽ (UNLIKELY (res == ശൂന്യ))
     OOM ();
-  return res;
+  തിരികെ res;
 }
 
-__attribute__ ((malloc)) static inline void *
-xrealloc (void *ptr, size_t size)
+__attribute__ ((malloc)) സ്ഥിതം വരിയിൽ ശൂന്യം *
+xrealloc (ശൂന്യം *ptr, size_t size)
 {
-  void *res = realloc (ptr, size);
-  if (UNLIKELY (res == NULL))
+  ശൂന്യം *res = realloc (ptr, size);
+  എങ്കിൽ (UNLIKELY (res == ശൂന്യ))
     OOM ();
-  return res;
+  തിരികെ res;
 }
 
-static inline char *
-xstrdup (const char *str)
+സ്ഥിതം വരിയിൽ അക്ഷരം *
+xstrdup (സ്ഥിരം അക്ഷരം *str)
 {
-  char *ret;
-  if (str == NULL)
-    return NULL;
+  അക്ഷരം *ret;
+  എങ്കിൽ (str == ശൂന്യ)
+    തിരികെ ശൂന്യ;
   ret = strdup (str);
-  if (UNLIKELY (ret == NULL))
+  എങ്കിൽ (UNLIKELY (ret == ശൂന്യ))
     OOM ();
-  return ret;
+  തിരികെ ret;
 }
 
-static inline void
-cleanup_freep (void *p)
+സ്ഥിതം വരിയിൽ ശൂന്യം
+cleanup_freep (ശൂന്യം *p)
 {
-  void **pp = (void **) p;
-  free (*pp);
+  ശൂന്യം **pp = (ശൂന്യം **) p;
+  സ്വതന്ത്രം (*pp);
 }
 
-static inline void
+സ്ഥിതം വരിയിൽ ശൂന്യം
 cleanup_filep (FILE **f)
 {
   FILE *file = *f;
-  if (file)
-    (void) fclose (file);
+  എങ്കിൽ (file)
+    (ശൂന്യം) fclose (file);
 }
 
-static inline void
-cleanup_closep (void *p)
+സ്ഥിതം വരിയിൽ ശൂന്യം
+cleanup_closep (ശൂന്യം *p)
 {
-  int *pp = (int *) p;
-  if (*pp >= 0)
+  പൂർണ്ണസംഖ്യ *pp = (പൂർണ്ണസംഖ്യ *) p;
+  എങ്കിൽ (*pp >= 0)
     close (*pp);
 }
 
@@ -115,19 +115,19 @@ cleanup_closep (void *p)
 
 /* Relies on <libcrun.h> (included before this header via crun.h) for the
    opaque libcrun_context_t and libcrun_context_free.  */
-static inline void
+സ്ഥിതം വരിയിൽ ശൂന്യം
 cleanup_libcrun_contextp (libcrun_context_t **p)
 {
-  if (*p)
+  എങ്കിൽ (*p)
     libcrun_context_free (*p);
 }
 
 #define cleanup_context __attribute__ ((cleanup (cleanup_libcrun_contextp)))
 
-static inline void
+സ്ഥിതം വരിയിൽ ശൂന്യം
 cleanup_libcrun_containerp (libcrun_container_t **p)
 {
-  if (*p)
+  എങ്കിൽ (*p)
     libcrun_container_free (*p);
 }
 

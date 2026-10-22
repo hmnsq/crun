@@ -1,37 +1,37 @@
 #ifndef BLAKE3_H
 #define BLAKE3_H
 
-#include <stddef.h>
-#include <stdint.h>
+#അന്തര്ഭാവ <stddef.h>
+#അന്തര്ഭാവ <stdint.h>
 
-#if !defined(BLAKE3_API)
-# if defined(_WIN32) || defined(__CYGWIN__)
-#   if defined(BLAKE3_DLL)
-#     if defined(BLAKE3_DLL_EXPORTS)
+#എങ്കിൽ !defined(BLAKE3_API)
+# എങ്കിൽ defined(_WIN32) || defined(__CYGWIN__)
+#   എങ്കിൽ defined(BLAKE3_DLL)
+#     എങ്കിൽ defined(BLAKE3_DLL_EXPORTS)
 #       define BLAKE3_API __declspec(dllexport)
-#     else
+#     അല്ലെങ്കിൽ
 #       define BLAKE3_API __declspec(dllimport)
 #     endif
 #     define BLAKE3_PRIVATE
-#   else
+#   അല്ലെങ്കിൽ
 #     define BLAKE3_API
 #     define BLAKE3_PRIVATE
 #   endif
 # elif __GNUC__ >= 4
 #   define BLAKE3_API __attribute__((visibility("default")))
 #   define BLAKE3_PRIVATE __attribute__((visibility("hidden")))
-# else
+# അല്ലെങ്കിൽ
 #   define BLAKE3_API
 #   define BLAKE3_PRIVATE
 # endif
 #endif
 
 #ifdef __cplusplus
-extern "C" {
+ബാഹ്യ "C" {
 #endif
 
 #define BLAKE3_VERSION_STRING "1.5.0"
-#define BLAKE3_KEY_LEN 32
+#define BLAKE3_താക്കോൽ_LEN 32
 #define BLAKE3_OUT_LEN 32
 #define BLAKE3_BLOCK_LEN 64
 #define BLAKE3_CHUNK_LEN 1024
@@ -39,7 +39,7 @@ extern "C" {
 
 // This struct is a private implementation detail. It has to be here because
 // it's part of blake3_hasher below.
-typedef struct {
+തരനിർവചനം ഘടന {
   uint32_t cv[8];
   uint64_t chunk_counter;
   uint8_t buf[BLAKE3_BLOCK_LEN];
@@ -48,32 +48,32 @@ typedef struct {
   uint8_t flags;
 } blake3_chunk_state;
 
-typedef struct {
-  uint32_t key[8];
+തരനിർവചനം ഘടന {
+  uint32_t താക്കോൽ[8];
   blake3_chunk_state chunk;
-  uint8_t cv_stack_len;
+  uint8_t cv_അട്ടി_len;
   // The stack size is MAX_DEPTH + 1 because we do lazy merging. For example,
   // with 7 chunks, we have 3 entries in the stack. Adding an 8th chunk
   // requires a 4th entry, rather than merging everything down to 1, because we
   // don't know whether more input is coming. This is different from how the
   // reference implementation does things.
-  uint8_t cv_stack[(BLAKE3_MAX_DEPTH + 1) * BLAKE3_OUT_LEN];
+  uint8_t cv_അട്ടി[(BLAKE3_MAX_DEPTH + 1) * BLAKE3_OUT_LEN];
 } blake3_hasher;
 
-BLAKE3_API const char *blake3_version(void);
-BLAKE3_API void blake3_hasher_init(blake3_hasher *self);
-BLAKE3_API void blake3_hasher_init_keyed(blake3_hasher *self,
-                                         const uint8_t key[BLAKE3_KEY_LEN]);
-BLAKE3_API void blake3_hasher_init_derive_key(blake3_hasher *self, const char *context);
-BLAKE3_API void blake3_hasher_init_derive_key_raw(blake3_hasher *self, const void *context,
+BLAKE3_API സ്ഥിരം അക്ഷരം *blake3_version(ശൂന്യം);
+BLAKE3_API ശൂന്യം blake3_hasher_init(blake3_hasher *self);
+BLAKE3_API ശൂന്യം blake3_hasher_init_keyed(blake3_hasher *self,
+                                         സ്ഥിരം uint8_t താക്കോൽ[BLAKE3_താക്കോൽ_LEN]);
+BLAKE3_API ശൂന്യം blake3_hasher_init_derive_താക്കോൽ(blake3_hasher *self, സ്ഥിരം അക്ഷരം *context);
+BLAKE3_API ശൂന്യം blake3_hasher_init_derive_താക്കോൽ_raw(blake3_hasher *self, സ്ഥിരം ശൂന്യം *context,
                                                   size_t context_len);
-BLAKE3_API void blake3_hasher_update(blake3_hasher *self, const void *input,
-                                     size_t input_len);
-BLAKE3_API void blake3_hasher_finalize(const blake3_hasher *self, uint8_t *out,
+BLAKE3_API ശൂന്യം blake3_hasher_update(blake3_hasher *self, സ്ഥിരം ശൂന്യം *നിവേശം,
+                                     size_t നിവേശം_len);
+BLAKE3_API ശൂന്യം blake3_hasher_finalize(സ്ഥിരം blake3_hasher *self, uint8_t *out,
                                        size_t out_len);
-BLAKE3_API void blake3_hasher_finalize_seek(const blake3_hasher *self, uint64_t seek,
+BLAKE3_API ശൂന്യം blake3_hasher_finalize_seek(സ്ഥിരം blake3_hasher *self, uint64_t seek,
                                             uint8_t *out, size_t out_len);
-BLAKE3_API void blake3_hasher_reset(blake3_hasher *self);
+BLAKE3_API ശൂന്യം blake3_hasher_reset(blake3_hasher *self);
 
 #ifdef __cplusplus
 }

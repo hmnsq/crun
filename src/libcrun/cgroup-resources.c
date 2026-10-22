@@ -18,27 +18,27 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "cgroup.h"
-#include "cgroup-internal.h"
-#include "cgroup-systemd.h"
-#include "cgroup-utils.h"
-#include "cgroup-resources.h"
-#include "ebpf.h"
-#include "utils.h"
-#include "status.h"
-#include <string.h>
-#include <sys/types.h>
-#include <sys/vfs.h>
-#include <inttypes.h>
-#include <time.h>
+#അന്തര്ഭാവ <config.h>
+#അന്തര്ഭാവ "cgroup.h"
+#അന്തര്ഭാവ "cgroup-internal.h"
+#അന്തര്ഭാവ "cgroup-systemd.h"
+#അന്തര്ഭാവ "cgroup-utils.h"
+#അന്തര്ഭാവ "cgroup-resources.h"
+#അന്തര്ഭാവ "ebpf.h"
+#അന്തര്ഭാവ "utils.h"
+#അന്തര്ഭാവ "status.h"
+#അന്തര്ഭാവ <string.h>
+#അന്തര്ഭാവ <sys/types.h>
+#അന്തര്ഭാവ <sys/vfs.h>
+#അന്തര്ഭാവ <inttypes.h>
+#അന്തര്ഭാവ <time.h>
 
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <libgen.h>
+#അന്തര്ഭാവ <sys/stat.h>
+#അന്തര്ഭാവ <sys/types.h>
+#അന്തര്ഭാവ <fcntl.h>
+#അന്തര്ഭാവ <libgen.h>
 
-struct default_dev_s default_devices[] = {
+ഘടന default_dev_s default_devices[] = {
   { 'c', -1, -1, "m" },
   { 'b', -1, -1, "m" },
   { 'c', 1, 3, "rwm" },
@@ -51,545 +51,545 @@ struct default_dev_s default_devices[] = {
   { 'c', 136, -1, "rwm" },
   { 'c', 5, 2, "rwm" },
   { 'c', 10, 200, "rwm" },
-  { 0, 0, 0, NULL }
+  { 0, 0, 0, ശൂന്യ }
 };
 
-struct default_dev_s *
+ഘടന default_dev_s *
 get_default_devices ()
 {
-  return default_devices;
+  തിരികെ default_devices;
 }
 
-static int
-write_cgroup_file_or_alias (int dirfd, const char *name, const char *alias, const void *data, size_t len, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+write_cgroup_file_or_alias (പൂർണ്ണസംഖ്യ dirfd, സ്ഥിരം അക്ഷരം *name, സ്ഥിരം അക്ഷരം *alias, സ്ഥിരം ശൂന്യം *data, size_t len, libcrun_error_t *err)
 {
-  int ret;
+  പൂർണ്ണസംഖ്യ ret;
 
   ret = write_cgroup_file (dirfd, name, data, len, err);
-  if (UNLIKELY (alias != NULL && ret < 0 && crun_error_get_errno (err) == ENOENT))
+  എങ്കിൽ (UNLIKELY (alias != ശൂന്യ && ret < 0 && crun_error_get_errno (err) == ENOENT))
     {
       crun_error_release (err);
       ret = write_cgroup_file (dirfd, alias, data, len, err);
     }
-  return ret;
+  തിരികെ ret;
 }
 
-static inline int
-openat_with_alias (int dirfd, const char *name, const char *alias, const char **used_name, int flags, libcrun_error_t *err)
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ
+openat_with_alias (പൂർണ്ണസംഖ്യ dirfd, സ്ഥിരം അക്ഷരം *name, സ്ഥിരം അക്ഷരം *alias, സ്ഥിരം അക്ഷരം **used_name, പൂർണ്ണസംഖ്യ flags, libcrun_error_t *err)
 {
-  int ret;
+  പൂർണ്ണസംഖ്യ ret;
 
   *used_name = name;
 
   ret = openat (dirfd, name, flags);
-  if (UNLIKELY (ret < 0 && alias != NULL && errno == ENOENT))
+  എങ്കിൽ (UNLIKELY (ret < 0 && alias != ശൂന്യ && errno == ENOENT))
     {
       *used_name = alias;
       ret = openat (dirfd, alias, flags);
     }
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "open `%s`", name);
-  return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ crun_make_error (err, errno, "open `%s`", name);
+  തിരികെ ret;
 }
 
-static int
-is_rwm (const char *str, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+is_rwm (സ്ഥിരം അക്ഷരം *str, libcrun_error_t *err)
 {
-  const char *it;
+  സ്ഥിരം അക്ഷരം *it;
   bool r = false;
   bool w = false;
   bool m = false;
 
-  if (str == NULL)
+  എങ്കിൽ (str == ശൂന്യ)
     str = "";
 
-  for (it = str; *it; it++)
-    switch (*it)
+  വേണ്ടി (it = str; *it; it++)
+    തിരഞ്ഞെടുപ്പ് (*it)
       {
-      case 'r':
+      അവസ്ഥ 'r':
         r = true;
-        break;
+        നിർത്തുക;
 
-      case 'w':
+      അവസ്ഥ 'w':
         w = true;
-        break;
+        നിർത്തുക;
 
-      case 'm':
+      അവസ്ഥ 'm':
         m = true;
-        break;
+        നിർത്തുക;
 
-      default:
-        return crun_make_error (err, 0, "invalid mode specified `%s`", str);
+      സ്ഥിരസ്ഥിതി:
+        തിരികെ crun_make_error (err, 0, "invalid mode specified `%s`", str);
       }
 
-  return r && w && m ? 1 : 0;
+  തിരികെ r && w && m ? 1 : 0;
 }
 
-static int
-check_cgroup_v2_controller_available_wrapper (int ret, int cgroup_dirfd, const char *name, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+check_cgroup_v2_controller_available_wrapper (പൂർണ്ണസംഖ്യ ret, പൂർണ്ണസംഖ്യ cgroup_dirfd, സ്ഥിരം അക്ഷരം *name, libcrun_error_t *err)
 {
-  if (ret == 0 || err == NULL)
-    return 0;
+  എങ്കിൽ (ret == 0 || err == ശൂന്യ)
+    തിരികെ 0;
 
   errno = crun_error_get_errno (err);
 
   /* If the file is not found, try to give a more meaningful error message.  */
-  if (errno == ENOENT || errno == EPERM || errno == EACCES)
+  എങ്കിൽ (errno == ENOENT || errno == EPERM || errno == EACCES)
     {
-      cleanup_free char *controllers = NULL;
-      libcrun_error_t tmp_err = NULL;
-      cleanup_free char *key = NULL;
-      char *saveptr = NULL;
+      cleanup_free അക്ഷരം *controllers = ശൂന്യ;
+      libcrun_error_t tmp_err = ശൂന്യ;
+      cleanup_free അക്ഷരം *താക്കോൽ = ശൂന്യ;
+      അക്ഷരം *saveptr = ശൂന്യ;
       bool found = false;
-      const char *token;
-      char *it;
+      സ്ഥിരം അക്ഷരം *token;
+      അക്ഷരം *it;
 
       /* Check if the specified controller is enabled.  */
-      key = xstrdup (name);
+      താക്കോൽ = xstrdup (name);
 
-      it = strchr (key, '.');
-      if (it == NULL)
+      it = strchr (താക്കോൽ, '.');
+      എങ്കിൽ (it == ശൂന്യ)
         {
           crun_error_release (err);
-          return crun_make_error (err, 0, "the specified key has not the form CONTROLLER.VALUE `%s`", name);
+          തിരികെ crun_make_error (err, 0, "the specified key has not the form CONTROLLER.VALUE `%s`", name);
         }
       *it = '\0';
 
       /* cgroup. files are not part of a controller.  Return the original error.  */
-      if (strcmp (key, "cgroup") == 0)
-        return ret;
+      എങ്കിൽ (strcmp (താക്കോൽ, "cgroup") == 0)
+        തിരികെ ret;
 
       /* If the cgroup.controllers file cannot be read, return the original error.  */
-      if (read_all_file_at (cgroup_dirfd, "cgroup.controllers", &controllers, NULL, &tmp_err) < 0)
+      എങ്കിൽ (read_all_file_at (cgroup_dirfd, "cgroup.controllers", &controllers, ശൂന്യ, &tmp_err) < 0)
         {
           crun_error_release (&tmp_err);
-          return ret;
+          തിരികെ ret;
         }
-      for (token = strtok_r (controllers, " \n", &saveptr); token; token = strtok_r (NULL, " \n", &saveptr))
+      വേണ്ടി (token = strtok_r (controllers, " \n", &saveptr); token; token = strtok_r (ശൂന്യ, " \n", &saveptr))
         {
-          if (strcmp (token, key) == 0)
+          എങ്കിൽ (strcmp (token, താക്കോൽ) == 0)
             {
               found = true;
-              break;
+              നിർത്തുക;
             }
         }
-      if (! found)
+      എങ്കിൽ (! found)
         {
-          cleanup_free char *absolute_path = NULL;
-          libcrun_error_t tmp_err = NULL;
+          cleanup_free അക്ഷരം *absolute_path = ശൂന്യ;
+          libcrun_error_t tmp_err = ശൂന്യ;
 
           crun_error_release (err);
           ret = get_realpath_to_file (cgroup_dirfd, "cgroup.controllers", &absolute_path, &tmp_err);
-          if (LIKELY (ret >= 0))
-            ret = crun_make_error (err, 0, "controller `%s` is not available under %s", key, absolute_path);
-          else
+          എങ്കിൽ (LIKELY (ret >= 0))
+            ret = crun_make_error (err, 0, "controller `%s` is not available under %s", താക്കോൽ, absolute_path);
+          അല്ലെങ്കിൽ
             {
               crun_error_release (&tmp_err);
-              ret = crun_make_error (err, 0, "the requested cgroup controller `%s` is not available", key);
+              ret = crun_make_error (err, 0, "the requested cgroup controller `%s` is not available", താക്കോൽ);
             }
         }
     }
-  return ret;
+  തിരികെ ret;
 }
 
-static int
-write_file_and_check_controllers_at (bool cgroup2, int dirfd, const char *name, const char *name_alias,
-                                     const void *data, size_t len, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+write_file_and_check_controllers_at (bool cgroup2, പൂർണ്ണസംഖ്യ dirfd, സ്ഥിരം അക്ഷരം *name, സ്ഥിരം അക്ഷരം *name_alias,
+                                     സ്ഥിരം ശൂന്യം *data, size_t len, libcrun_error_t *err)
 {
-  int ret;
+  പൂർണ്ണസംഖ്യ ret;
 
   ret = write_cgroup_file_or_alias (dirfd, name, name_alias, data, len, err);
-  if (cgroup2)
-    return check_cgroup_v2_controller_available_wrapper (ret, dirfd, name, err);
-  return ret;
+  എങ്കിൽ (cgroup2)
+    തിരികെ check_cgroup_v2_controller_available_wrapper (ret, dirfd, name, err);
+  തിരികെ ret;
 }
 
-static int
-open_file_and_check_controllers_at (bool cgroup2, int dirfd, const char *name, int flags, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+open_file_and_check_controllers_at (bool cgroup2, പൂർണ്ണസംഖ്യ dirfd, സ്ഥിരം അക്ഷരം *name, പൂർണ്ണസംഖ്യ flags, libcrun_error_t *err)
 {
-  int ret;
+  പൂർണ്ണസംഖ്യ ret;
 
   ret = openat (dirfd, name, flags);
-  if (UNLIKELY (ret < 0))
+  എങ്കിൽ (UNLIKELY (ret < 0))
     {
       ret = crun_make_error (err, errno, "open `%s`", name);
-      if (cgroup2)
-        return check_cgroup_v2_controller_available_wrapper (ret, dirfd, name, err);
+      എങ്കിൽ (cgroup2)
+        തിരികെ check_cgroup_v2_controller_available_wrapper (ret, dirfd, name, err);
     }
-  return ret;
+  തിരികെ ret;
 }
 
 /* The parser generates different structs but they are really all the same.  */
-typedef runtime_spec_schema_defs_linux_block_io_device_throttle throttling_s;
+തരനിർവചനം runtime_spec_schema_defs_linux_block_io_device_throttle throttling_s;
 
-static int
-write_blkio_v1_resources_throttling (int dirfd, const char *name, throttling_s **throttling, size_t throttling_len,
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+write_blkio_v1_resources_throttling (പൂർണ്ണസംഖ്യ dirfd, സ്ഥിരം അക്ഷരം *name, throttling_s **throttling, size_t throttling_len,
                                      libcrun_error_t *err)
 {
-  char fmt_buf[128];
+  അക്ഷരം fmt_buf[128];
   size_t i;
-  cleanup_close int fd = -1;
+  cleanup_close പൂർണ്ണസംഖ്യ fd = -1;
 
-  if (throttling == NULL)
-    return 0;
+  എങ്കിൽ (throttling == ശൂന്യ)
+    തിരികെ 0;
 
   fd = openat (dirfd, name, O_WRONLY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s`", name);
+  എങ്കിൽ (UNLIKELY (fd < 0))
+    തിരികെ crun_make_error (err, errno, "open `%s`", name);
 
-  for (i = 0; i < throttling_len; i++)
+  വേണ്ടി (i = 0; i < throttling_len; i++)
     {
-      int ret;
-      int len;
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64 ":%" PRIu64 " %" PRIu64 "\n", throttling[i]->major, throttling[i]->minor,
+      പൂർണ്ണസംഖ്യ ret;
+      പൂർണ്ണസംഖ്യ len;
+      len = snprintf (fmt_buf, വലുപ്പം (fmt_buf), "%" PRIu64 ":%" PRIu64 " %" PRIu64 "\n", throttling[i]->major, throttling[i]->minor,
                       throttling[i]->rate);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (fmt_buf)))
+        തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
 
-      ret = TEMP_FAILURE_RETRY (write (fd, fmt_buf, len));
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "write `%s`", name);
+      ret = TEMP_FAILURE_RETRY (ലിഖ (fd, fmt_buf, len));
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ crun_make_error (err, errno, "write `%s`", name);
     }
-  return 0;
+  തിരികെ 0;
 }
 
-static int
-write_blkio_v2_resources_throttling (int fd, const char *name, throttling_s **throttling, size_t throttling_len,
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+write_blkio_v2_resources_throttling (പൂർണ്ണസംഖ്യ fd, സ്ഥിരം അക്ഷരം *name, throttling_s **throttling, size_t throttling_len,
                                      libcrun_error_t *err)
 {
-  char fmt_buf[128];
+  അക്ഷരം fmt_buf[128];
   size_t i;
 
-  if (throttling == NULL)
-    return 0;
+  എങ്കിൽ (throttling == ശൂന്യ)
+    തിരികെ 0;
 
-  for (i = 0; i < throttling_len; i++)
+  വേണ്ടി (i = 0; i < throttling_len; i++)
     {
-      int ret;
-      int len;
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64 ":%" PRIu64 " %s=%" PRIu64 "\n", throttling[i]->major, throttling[i]->minor,
+      പൂർണ്ണസംഖ്യ ret;
+      പൂർണ്ണസംഖ്യ len;
+      len = snprintf (fmt_buf, വലുപ്പം (fmt_buf), "%" PRIu64 ":%" PRIu64 " %s=%" PRIu64 "\n", throttling[i]->major, throttling[i]->minor,
                       name, throttling[i]->rate);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (fmt_buf)))
+        തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
 
-      ret = TEMP_FAILURE_RETRY (write (fd, fmt_buf, len));
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "write `%s`", name);
+      ret = TEMP_FAILURE_RETRY (ലിഖ (fd, fmt_buf, len));
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ crun_make_error (err, errno, "write `%s`", name);
     }
-  return 0;
+  തിരികെ 0;
 }
 
-static int
-write_blkio_resources (int dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_block_io *blkio,
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+write_blkio_resources (പൂർണ്ണസംഖ്യ dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_block_io *blkio,
                        libcrun_error_t *err)
 {
-  char fmt_buf[128];
-  int len;
-  int ret;
+  അക്ഷരം fmt_buf[128];
+  പൂർണ്ണസംഖ്യ len;
+  പൂർണ്ണസംഖ്യ ret;
 
-  if (blkio->weight)
+  എങ്കിൽ (blkio->weight)
     {
       uint32_t val = blkio->weight;
 
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu32, val);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
-      if (! cgroup2)
+      len = snprintf (fmt_buf, വലുപ്പം (fmt_buf), "%" PRIu32, val);
+      എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (fmt_buf)))
+        തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
+      എങ്കിൽ (! cgroup2)
         {
           ret = write_cgroup_file_or_alias (dirfd, "blkio.weight", "blkio.bfq.weight", fmt_buf, len, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          എങ്കിൽ (UNLIKELY (ret < 0))
+            തിരികെ ret;
         }
-      else
+      അല്ലെങ്കിൽ
         {
           ret = write_cgroup_file (dirfd, "io.bfq.weight", fmt_buf, len, err);
-          if (UNLIKELY (ret < 0))
+          എങ്കിൽ (UNLIKELY (ret < 0))
             {
-              if (crun_error_get_errno (err) == ENOENT)
+              എങ്കിൽ (crun_error_get_errno (err) == ENOENT)
                 {
                   crun_error_release (err);
 
                   /* convert linearly from [10-1000] to [1-10000] */
                   val = 1 + (val - 10) * 9999 / 990;
 
-                  len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu32, val);
-                  if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-                    return crun_make_error (err, 0, "internal error: static buffer too small");
+                  len = snprintf (fmt_buf, വലുപ്പം (fmt_buf), "%" PRIu32, val);
+                  എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (fmt_buf)))
+                    തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
 
                   ret = write_cgroup_file (dirfd, "io.weight", fmt_buf, len, err);
                 }
 
-              if (UNLIKELY (ret < 0))
-                return ret;
+              എങ്കിൽ (UNLIKELY (ret < 0))
+                തിരികെ ret;
             }
         }
     }
-  if (blkio->leaf_weight)
+  എങ്കിൽ (blkio->leaf_weight)
     {
-      if (cgroup2)
-        return crun_make_error (err, 0, "cannot set leaf_weight with cgroupv2");
+      എങ്കിൽ (cgroup2)
+        തിരികെ crun_make_error (err, 0, "cannot set leaf_weight with cgroupv2");
 
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%d", blkio->leaf_weight);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, വലുപ്പം (fmt_buf), "%d", blkio->leaf_weight);
+      എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (fmt_buf)))
+        തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
 
       ret = write_cgroup_file (dirfd, "blkio.leaf_weight", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
-  if (blkio->weight_device_len)
+  എങ്കിൽ (blkio->weight_device_len)
     {
-      if (cgroup2)
+      എങ്കിൽ (cgroup2)
         {
-          cleanup_close int wfd = -1;
+          cleanup_close പൂർണ്ണസംഖ്യ wfd = -1;
           size_t i;
 
           wfd = openat (dirfd, "io.bfq.weight", O_WRONLY | O_CLOEXEC);
-          if (UNLIKELY (wfd < 0))
-            return crun_make_error (err, errno, "open `io.bfq.weight`");
-          for (i = 0; i < blkio->weight_device_len; i++)
+          എങ്കിൽ (UNLIKELY (wfd < 0))
+            തിരികെ crun_make_error (err, errno, "open `io.bfq.weight`");
+          വേണ്ടി (i = 0; i < blkio->weight_device_len; i++)
             {
               uint32_t w = blkio->weight_device[i]->weight;
 
-              len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64 ":%" PRIu64 " %i\n", blkio->weight_device[i]->major,
+              len = snprintf (fmt_buf, വലുപ്പം (fmt_buf), "%" PRIu64 ":%" PRIu64 " %i\n", blkio->weight_device[i]->major,
                               blkio->weight_device[i]->minor, w);
-              if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-                return crun_make_error (err, 0, "internal error: static buffer too small");
+              എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (fmt_buf)))
+                തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
 
-              ret = TEMP_FAILURE_RETRY (write (wfd, fmt_buf, len));
-              if (UNLIKELY (ret < 0))
-                return crun_make_error (err, errno, "write `io.bfq.weight`");
+              ret = TEMP_FAILURE_RETRY (ലിഖ (wfd, fmt_buf, len));
+              എങ്കിൽ (UNLIKELY (ret < 0))
+                തിരികെ crun_make_error (err, errno, "write `io.bfq.weight`");
 
               /* Ignore blkio->weight_device[i]->leaf_weight.  */
             }
         }
-      else
+      അല്ലെങ്കിൽ
         {
-          const char *leaf_weight_device_file_name = NULL;
-          const char *weight_device_file_name = NULL;
-          cleanup_close int w_leafdevice_fd = -1;
-          cleanup_close int w_device_fd = -1;
+          സ്ഥിരം അക്ഷരം *leaf_weight_device_file_name = ശൂന്യ;
+          സ്ഥിരം അക്ഷരം *weight_device_file_name = ശൂന്യ;
+          cleanup_close പൂർണ്ണസംഖ്യ w_leafdevice_fd = -1;
+          cleanup_close പൂർണ്ണസംഖ്യ w_device_fd = -1;
           size_t i;
 
           w_device_fd = openat_with_alias (dirfd, "blkio.weight_device", "blkio.bfq.weight_device",
                                            &weight_device_file_name, O_WRONLY | O_CLOEXEC, err);
-          if (UNLIKELY (w_device_fd < 0))
-            return w_device_fd;
+          എങ്കിൽ (UNLIKELY (w_device_fd < 0))
+            തിരികെ w_device_fd;
 
           w_leafdevice_fd = openat_with_alias (dirfd, "blkio.leaf_weight_device", "blkio.bfq.leaf_weight_device",
                                                &leaf_weight_device_file_name, O_WRONLY | O_CLOEXEC, err);
-          if (UNLIKELY (w_leafdevice_fd < 0))
+          എങ്കിൽ (UNLIKELY (w_leafdevice_fd < 0))
             {
               /* If the .leaf_weight_device file is missing, just ignore it.  */
               crun_error_release (err);
             }
 
-          for (i = 0; i < blkio->weight_device_len; i++)
+          വേണ്ടി (i = 0; i < blkio->weight_device_len; i++)
             {
-              len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64 ":%" PRIu64 " %" PRIu16 "\n", blkio->weight_device[i]->major,
+              len = snprintf (fmt_buf, വലുപ്പം (fmt_buf), "%" PRIu64 ":%" PRIu64 " %" PRIu16 "\n", blkio->weight_device[i]->major,
                               blkio->weight_device[i]->minor, blkio->weight_device[i]->weight);
-              if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-                return crun_make_error (err, 0, "internal error: static buffer too small");
+              എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (fmt_buf)))
+                തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
 
-              ret = TEMP_FAILURE_RETRY (write (w_device_fd, fmt_buf, len));
-              if (UNLIKELY (ret < 0))
-                return crun_make_error (err, errno, "write `%s`", weight_device_file_name);
+              ret = TEMP_FAILURE_RETRY (ലിഖ (w_device_fd, fmt_buf, len));
+              എങ്കിൽ (UNLIKELY (ret < 0))
+                തിരികെ crun_make_error (err, errno, "write `%s`", weight_device_file_name);
 
-              if (w_leafdevice_fd >= 0)
+              എങ്കിൽ (w_leafdevice_fd >= 0)
                 {
-                  len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64 ":%" PRIu64 " %" PRIu16 "\n", blkio->weight_device[i]->major,
+                  len = snprintf (fmt_buf, വലുപ്പം (fmt_buf), "%" PRIu64 ":%" PRIu64 " %" PRIu16 "\n", blkio->weight_device[i]->major,
                                   blkio->weight_device[i]->minor, blkio->weight_device[i]->leaf_weight);
-                  if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-                    return crun_make_error (err, 0, "internal error: static buffer too small");
+                  എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (fmt_buf)))
+                    തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
 
-                  ret = TEMP_FAILURE_RETRY (write (w_leafdevice_fd, fmt_buf, len));
-                  if (UNLIKELY (ret < 0))
-                    return crun_make_error (err, errno, "write `%s`", leaf_weight_device_file_name);
+                  ret = TEMP_FAILURE_RETRY (ലിഖ (w_leafdevice_fd, fmt_buf, len));
+                  എങ്കിൽ (UNLIKELY (ret < 0))
+                    തിരികെ crun_make_error (err, errno, "write `%s`", leaf_weight_device_file_name);
                 }
             }
         }
     }
-  if (cgroup2)
+  എങ്കിൽ (cgroup2)
     {
-      cleanup_close int wfd = -1;
-      const char *name = "io.max";
+      cleanup_close പൂർണ്ണസംഖ്യ wfd = -1;
+      സ്ഥിരം അക്ഷരം *name = "io.max";
 
       wfd = openat (dirfd, name, O_WRONLY | O_CLOEXEC);
-      if (UNLIKELY (wfd < 0))
+      എങ്കിൽ (UNLIKELY (wfd < 0))
         {
           ret = crun_make_error (err, errno, "open `%s`", name);
-          return check_cgroup_v2_controller_available_wrapper (ret, dirfd, name, err);
+          തിരികെ check_cgroup_v2_controller_available_wrapper (ret, dirfd, name, err);
         }
 
       ret = write_blkio_v2_resources_throttling (wfd, "rbps", (throttling_s **) blkio->throttle_read_bps_device,
                                                  blkio->throttle_read_bps_device_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
 
       ret = write_blkio_v2_resources_throttling (wfd, "wbps", (throttling_s **) blkio->throttle_write_bps_device,
                                                  blkio->throttle_write_bps_device_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
 
       ret = write_blkio_v2_resources_throttling (wfd, "riops", (throttling_s **) blkio->throttle_read_iops_device,
                                                  blkio->throttle_read_iops_device_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
 
       ret = write_blkio_v2_resources_throttling (wfd, "wiops", (throttling_s **) blkio->throttle_write_iops_device,
                                                  blkio->throttle_write_iops_device_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
-  else
+  അല്ലെങ്കിൽ
     {
       ret = write_blkio_v1_resources_throttling (dirfd, "blkio.throttle.read_bps_device",
                                                  (throttling_s **) blkio->throttle_read_bps_device,
                                                  blkio->throttle_read_bps_device_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
 
       ret = write_blkio_v1_resources_throttling (dirfd, "blkio.throttle.write_bps_device",
                                                  (throttling_s **) blkio->throttle_write_bps_device,
                                                  blkio->throttle_write_bps_device_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
 
       ret = write_blkio_v1_resources_throttling (dirfd, "blkio.throttle.read_iops_device",
                                                  (throttling_s **) blkio->throttle_read_iops_device,
                                                  blkio->throttle_read_iops_device_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
 
       ret = write_blkio_v1_resources_throttling (dirfd, "blkio.throttle.write_iops_device",
                                                  (throttling_s **) blkio->throttle_write_iops_device,
                                                  blkio->throttle_write_iops_device_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
-  return 0;
+  തിരികെ 0;
 }
 
-static int
-write_network_resources (int dirfd_netclass, int dirfd_netprio, runtime_spec_schema_config_linux_resources_network *net,
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+write_network_resources (പൂർണ്ണസംഖ്യ dirfd_netclass, പൂർണ്ണസംഖ്യ dirfd_netprio, runtime_spec_schema_config_linux_resources_network *net,
                          libcrun_error_t *err)
 {
-  char fmt_buf[128];
-  int len;
-  int ret;
-  if (net->class_id)
+  അക്ഷരം fmt_buf[128];
+  പൂർണ്ണസംഖ്യ len;
+  പൂർണ്ണസംഖ്യ ret;
+  എങ്കിൽ (net->class_id)
     {
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu32, net->class_id);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, വലുപ്പം (fmt_buf), "%" PRIu32, net->class_id);
+      എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (fmt_buf)))
+        തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
 
       ret = write_cgroup_file (dirfd_netclass, "net_cls.classid", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
-  if (net->priorities_len)
+  എങ്കിൽ (net->priorities_len)
     {
       size_t i;
-      cleanup_close int fd = -1;
+      cleanup_close പൂർണ്ണസംഖ്യ fd = -1;
       fd = openat (dirfd_netprio, "net_prio.ifpriomap", O_WRONLY | O_CLOEXEC);
-      if (UNLIKELY (fd < 0))
-        return crun_make_error (err, errno, "open `net_prio.ifpriomap`");
+      എങ്കിൽ (UNLIKELY (fd < 0))
+        തിരികെ crun_make_error (err, errno, "open `net_prio.ifpriomap`");
 
-      for (i = 0; i < net->priorities_len; i++)
+      വേണ്ടി (i = 0; i < net->priorities_len; i++)
         {
-          len = snprintf (fmt_buf, sizeof (fmt_buf), "%s %" PRIu32 "\n", net->priorities[i]->name,
+          len = snprintf (fmt_buf, വലുപ്പം (fmt_buf), "%s %" PRIu32 "\n", net->priorities[i]->name,
                           net->priorities[i]->priority);
-          if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-            return crun_make_error (err, 0, "internal error: static buffer too small");
+          എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (fmt_buf)))
+            തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
 
-          ret = TEMP_FAILURE_RETRY (write (fd, fmt_buf, len));
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "write `net_prio.ifpriomap`");
+          ret = TEMP_FAILURE_RETRY (ലിഖ (fd, fmt_buf, len));
+          എങ്കിൽ (UNLIKELY (ret < 0))
+            തിരികെ crun_make_error (err, errno, "write `net_prio.ifpriomap`");
         }
     }
 
-  return 0;
+  തിരികെ 0;
 }
 
-static int
-write_hugetlb_resources (int dirfd, bool cgroup2,
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+write_hugetlb_resources (പൂർണ്ണസംഖ്യ dirfd, bool cgroup2,
                          runtime_spec_schema_config_linux_resources_hugepage_limits_element **htlb, size_t htlb_len,
                          libcrun_error_t *err)
 {
-  const char *suffix = cgroup2 ? "max" : "limit_in_bytes";
+  സ്ഥിരം അക്ഷരം *suffix = cgroup2 ? "max" : "limit_in_bytes";
   bool skip_rsvd = false;
-  char fmt_buf[128];
+  അക്ഷരം fmt_buf[128];
   size_t i;
-  for (i = 0; i < htlb_len; i++)
+  വേണ്ടി (i = 0; i < htlb_len; i++)
     {
-      cleanup_free char *filename = NULL;
-      cleanup_free char *rsvd_filename = NULL;
-      int len;
-      int ret;
+      cleanup_free അക്ഷരം *filename = ശൂന്യ;
+      cleanup_free അക്ഷരം *rsvd_filename = ശൂന്യ;
+      പൂർണ്ണസംഖ്യ len;
+      പൂർണ്ണസംഖ്യ ret;
 
       xasprintf (&filename, "hugetlb.%s.%s", htlb[i]->page_size, suffix);
 
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, htlb[i]->limit);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
-      ret = write_file_and_check_controllers_at (cgroup2, dirfd, filename, NULL, fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      len = snprintf (fmt_buf, വലുപ്പം (fmt_buf), "%" PRIu64, htlb[i]->limit);
+      എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (fmt_buf)))
+        തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
+      ret = write_file_and_check_controllers_at (cgroup2, dirfd, filename, ശൂന്യ, fmt_buf, len, err);
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
 
-      if (skip_rsvd)
-        continue;
+      എങ്കിൽ (skip_rsvd)
+        തുടരുക;
 
       /* Reservation accounting (Linux >= 5.7) is used when available.  */
       xasprintf (&rsvd_filename, "hugetlb.%s.rsvd.%s", htlb[i]->page_size, suffix);
       ret = write_cgroup_file (dirfd, rsvd_filename, fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
+      എങ്കിൽ (UNLIKELY (ret < 0))
         {
-          if (crun_error_get_errno (err) != ENOENT)
-            return ret;
+          എങ്കിൽ (crun_error_get_errno (err) != ENOENT)
+            തിരികെ ret;
           crun_error_release (err);
           skip_rsvd = true;
         }
     }
-  return 0;
+  തിരികെ 0;
 }
 
-static int
-write_devices_resources_v1 (int dirfd, runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+write_devices_resources_v1 (പൂർണ്ണസംഖ്യ dirfd, runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
                             libcrun_error_t *err)
 {
   size_t i;
-  int len;
-  int ret;
+  പൂർണ്ണസംഖ്യ len;
+  പൂർണ്ണസംഖ്യ ret;
 
-  for (i = 0; i < devs_len; i++)
+  വേണ്ടി (i = 0; i < devs_len; i++)
     {
       /* It is plenty of room for "TYPE MAJOR:MINOR ACCESS", where type is one char, and ACCESS is at most 3.   */
 #define FMT_BUF_LEN 64
-      char fmt_buf[FMT_BUF_LEN];
-      const char *file = devs[i]->allow ? "devices.allow" : "devices.deny";
+      അക്ഷരം fmt_buf[FMT_BUF_LEN];
+      സ്ഥിരം അക്ഷരം *file = devs[i]->allow ? "devices.allow" : "devices.deny";
 
-      if (devs[i]->type == NULL || devs[i]->type[0] == 'a')
+      എങ്കിൽ (devs[i]->type == ശൂന്യ || devs[i]->type[0] == 'a')
         {
           strcpy (fmt_buf, "a");
           len = 1;
         }
-      else
+      അല്ലെങ്കിൽ
         {
-          char fmt_buf_major[16];
-          char fmt_buf_minor[16];
+          അക്ഷരം fmt_buf_major[16];
+          അക്ഷരം fmt_buf_minor[16];
 
 #define FMT_DEV(x, b)                                                                   \
-  do                                                                                    \
+  ചെയ്യുക                                                                                    \
     {                                                                                   \
-      if (x##_present)                                                                  \
+      എങ്കിൽ (x##_present)                                                                  \
         {                                                                               \
-          len = snprintf (b, sizeof (b), "%" PRIi64, x);                                \
-          if (UNLIKELY (len >= (int) sizeof (b)))                                       \
-            return crun_make_error (err, 0, "internal error: static buffer too small"); \
+          len = snprintf (b, വലുപ്പം (b), "%" PRIi64, x);                                \
+          എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (b)))                                       \
+            തിരികെ crun_make_error (err, 0, "internal error: static buffer too small"); \
         }                                                                               \
-      else                                                                              \
+      അല്ലെങ്കിൽ                                                                              \
         strcpy (b, "*");                                                                \
-  } while (0)
+  } ആകുമ്പോൾ (0)
 
           FMT_DEV (devs[i]->major, fmt_buf_major);
           FMT_DEV (devs[i]->minor, fmt_buf_minor);
@@ -599,283 +599,283 @@ write_devices_resources_v1 (int dirfd, runtime_spec_schema_defs_linux_device_cgr
              specified.  Printing a NULL pointer with %s is undefined.  */
           len = snprintf (fmt_buf, FMT_BUF_LEN, "%s %s:%s %s", devs[i]->type, fmt_buf_major, fmt_buf_minor,
                           devs[i]->access ? devs[i]->access : "");
-          if (UNLIKELY (len >= FMT_BUF_LEN))
-            return crun_make_error (err, 0, "internal error: static buffer too small");
+          എങ്കിൽ (UNLIKELY (len >= FMT_BUF_LEN))
+            തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
         }
       ret = write_cgroup_file (dirfd, file, fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
 
-  for (i = 0; default_devices[i].type; i++)
+  വേണ്ടി (i = 0; default_devices[i].type; i++)
     {
-      char fmt_buf_major[16];
-      char fmt_buf_minor[16];
-      char device[64];
-      int len;
+      അക്ഷരം fmt_buf_major[16];
+      അക്ഷരം fmt_buf_minor[16];
+      അക്ഷരം device[64];
+      പൂർണ്ണസംഖ്യ len;
 
 #define FMT_DEV(x, b)                                                                   \
-  do                                                                                    \
+  ചെയ്യുക                                                                                    \
     {                                                                                   \
-      if (x != -1)                                                                      \
+      എങ്കിൽ (x != -1)                                                                      \
         {                                                                               \
-          len = snprintf (b, sizeof (b), "%d", x);                                      \
-          if (UNLIKELY (len >= (int) sizeof (b)))                                       \
-            return crun_make_error (err, 0, "internal error: static buffer too small"); \
+          len = snprintf (b, വലുപ്പം (b), "%d", x);                                      \
+          എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (b)))                                       \
+            തിരികെ crun_make_error (err, 0, "internal error: static buffer too small"); \
         }                                                                               \
-      else                                                                              \
+      അല്ലെങ്കിൽ                                                                              \
         strcpy (b, "*");                                                                \
-  } while (0)
+  } ആകുമ്പോൾ (0)
 
       FMT_DEV (default_devices[i].major, fmt_buf_major);
       FMT_DEV (default_devices[i].minor, fmt_buf_minor);
 
 #undef FMT_DEV
 
-      len = snprintf (device, sizeof (device), "%c %s:%s %s", default_devices[i].type, fmt_buf_major, fmt_buf_minor,
+      len = snprintf (device, വലുപ്പം (device), "%c %s:%s %s", default_devices[i].type, fmt_buf_major, fmt_buf_minor,
                       default_devices[i].access);
-      if (UNLIKELY (len >= (int) sizeof (device)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (device)))
+        തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
 
       ret = write_cgroup_file (dirfd, "devices.allow", device, strlen (device), err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
 
-  return 0;
+  തിരികെ 0;
 }
 
-struct bpf_program *
+ഘടന bpf_program *
 create_dev_bpf (runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
                 libcrun_error_t *err)
 {
-  int i;
-  struct bpf_program *program;
+  പൂർണ്ണസംഖ്യ i;
+  ഘടന bpf_program *program;
 
   program = bpf_program_new (2048);
 
   program = bpf_program_init_dev (program, err);
-  if (UNLIKELY (program == NULL))
-    return NULL;
+  എങ്കിൽ (UNLIKELY (program == ശൂന്യ))
+    തിരികെ ശൂന്യ;
 
-  for (i = (sizeof (default_devices) / sizeof (default_devices[0])) - 1; i >= 0; i--)
+  വേണ്ടി (i = (വലുപ്പം (default_devices) / വലുപ്പം (default_devices[0])) - 1; i >= 0; i--)
     {
       program = bpf_program_append_dev (program, default_devices[i].access, default_devices[i].type,
                                         default_devices[i].major, default_devices[i].minor, true, err);
-      if (UNLIKELY (program == NULL))
-        return NULL;
+      എങ്കിൽ (UNLIKELY (program == ശൂന്യ))
+        തിരികെ ശൂന്യ;
     }
-  for (i = devs_len - 1; i >= 0; i--)
+  വേണ്ടി (i = devs_len - 1; i >= 0; i--)
     {
-      char type = 'a';
-      int minor = -1, major = -1;
-      if (devs[i]->type != NULL)
+      അക്ഷരം type = 'a';
+      പൂർണ്ണസംഖ്യ minor = -1, major = -1;
+      എങ്കിൽ (devs[i]->type != ശൂന്യ)
         type = devs[i]->type[0];
 
-      if (devs[i]->major_present)
+      എങ്കിൽ (devs[i]->major_present)
         major = devs[i]->major;
-      if (devs[i]->minor_present)
+      എങ്കിൽ (devs[i]->minor_present)
         minor = devs[i]->minor;
 
       program = bpf_program_append_dev (program, devs[i]->access, type, major, minor, devs[i]->allow, err);
-      if (UNLIKELY (program == NULL))
-        return NULL;
+      എങ്കിൽ (UNLIKELY (program == ശൂന്യ))
+        തിരികെ ശൂന്യ;
     }
 
   program = bpf_program_complete_dev (program, err);
-  if (UNLIKELY (program == NULL))
-    return NULL;
+  എങ്കിൽ (UNLIKELY (program == ശൂന്യ))
+    തിരികെ ശൂന്യ;
 
-  return program;
+  തിരികെ program;
 }
 
-static int
-write_devices_resources_v2_internal (int dirfd, runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+write_devices_resources_v2_internal (പൂർണ്ണസംഖ്യ dirfd, runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
                                      libcrun_error_t *err)
 {
-  cleanup_free struct bpf_program *program = NULL;
+  cleanup_free ഘടന bpf_program *program = ശൂന്യ;
 
   program = create_dev_bpf (devs, devs_len, err);
-  if (UNLIKELY (program == NULL))
-    return -1;
+  എങ്കിൽ (UNLIKELY (program == ശൂന്യ))
+    തിരികെ -1;
 
-  return libcrun_ebpf_load (program, dirfd, NULL, err);
+  തിരികെ libcrun_ebpf_load (program, dirfd, ശൂന്യ, err);
 }
 
-static int
-write_devices_resources_v2 (int dirfd, runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+write_devices_resources_v2 (പൂർണ്ണസംഖ്യ dirfd, runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
                             libcrun_error_t *err)
 {
-  int ret;
+  പൂർണ്ണസംഖ്യ ret;
   size_t i;
   bool can_skip = true;
 
   ret = write_devices_resources_v2_internal (dirfd, devs, devs_len, err);
-  if (LIKELY (ret == 0))
-    return 0;
+  എങ്കിൽ (LIKELY (ret == 0))
+    തിരികെ 0;
 
   /* If writing the resources ebpf failed, check if it is fine to ignore the error.  */
-  for (i = 0; i < devs_len; i++)
+  വേണ്ടി (i = 0; i < devs_len; i++)
     {
-      if (devs[i]->allow_present && ! devs[i]->allow)
+      എങ്കിൽ (devs[i]->allow_present && ! devs[i]->allow)
         {
           can_skip = false;
-          break;
+          നിർത്തുക;
         }
     }
 
-  if (! can_skip)
+  എങ്കിൽ (! can_skip)
     {
-      libcrun_error_t tmp_err = NULL;
-      int rootless;
+      libcrun_error_t tmp_err = ശൂന്യ;
+      പൂർണ്ണസംഖ്യ rootless;
 
       rootless = is_rootless (&tmp_err);
-      if (UNLIKELY (rootless < 0))
+      എങ്കിൽ (UNLIKELY (rootless < 0))
         {
           crun_error_release (err);
           *err = tmp_err;
-          return ret;
+          തിരികെ ret;
         }
-      if (rootless)
+      എങ്കിൽ (rootless)
         can_skip = true;
     }
 
-  if (can_skip)
+  എങ്കിൽ (can_skip)
     {
       crun_error_release (err);
       ret = 0;
     }
 
-  return ret;
+  തിരികെ ret;
 }
 
-static int
-write_devices_resources (int dirfd, bool cgroup2, runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+write_devices_resources (പൂർണ്ണസംഖ്യ dirfd, bool cgroup2, runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
                          libcrun_error_t *err)
 {
-  int ret;
+  പൂർണ്ണസംഖ്യ ret;
 
-  if (cgroup2)
+  എങ്കിൽ (cgroup2)
     ret = write_devices_resources_v2 (dirfd, devs, devs_len, err);
-  else
+  അല്ലെങ്കിൽ
     ret = write_devices_resources_v1 (dirfd, devs, devs_len, err);
-  if (UNLIKELY (ret < 0))
+  എങ്കിൽ (UNLIKELY (ret < 0))
     {
-      libcrun_error_t tmp_err = NULL;
-      int rootless;
+      libcrun_error_t tmp_err = ശൂന്യ;
+      പൂർണ്ണസംഖ്യ rootless;
 
       rootless = is_rootless (&tmp_err);
-      if (UNLIKELY (rootless < 0))
+      എങ്കിൽ (UNLIKELY (rootless < 0))
         {
           crun_error_release (&tmp_err);
-          return ret;
+          തിരികെ ret;
         }
 
-      if (rootless)
+      എങ്കിൽ (rootless)
         {
           crun_error_release (err);
           ret = 0;
         }
     }
-  return ret;
+  തിരികെ ret;
 }
 
 /* use for cgroupv2 files with .min, .max, .low, or .high suffix */
-static int
-cg_itoa (char *buf, size_t size, int64_t value, bool use_max, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+cg_itoa (അക്ഷരം *buf, size_t size, int64_t മൂല്യം, bool use_max, libcrun_error_t *err)
 {
-  int len;
+  പൂർണ്ണസംഖ്യ len;
 
-  if (use_max && value < 0)
+  എങ്കിൽ (use_max && മൂല്യം < 0)
     len = snprintf (buf, size, "max");
-  else
-    len = snprintf (buf, size, "%" PRIi64, value);
+  അല്ലെങ്കിൽ
+    len = snprintf (buf, size, "%" PRIi64, മൂല്യം);
 
-  if (UNLIKELY (len >= (int) size))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) size))
+    തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
 
-  return len;
+  തിരികെ len;
 }
 
-static int
-write_memory (int dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_memory *memory, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+write_memory (പൂർണ്ണസംഖ്യ dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_memory *memory, libcrun_error_t *err)
 {
-  char limit_buf[32];
-  int limit_buf_len;
+  അക്ഷരം limit_buf[32];
+  പൂർണ്ണസംഖ്യ limit_buf_len;
 
-  if (! memory->limit_present)
-    return 0;
+  എങ്കിൽ (! memory->limit_present)
+    തിരികെ 0;
 
-  limit_buf_len = cg_itoa (limit_buf, sizeof (limit_buf), memory->limit, cgroup2, err);
-  if (UNLIKELY (limit_buf_len < 0))
-    return limit_buf_len;
+  limit_buf_len = cg_itoa (limit_buf, വലുപ്പം (limit_buf), memory->limit, cgroup2, err);
+  എങ്കിൽ (UNLIKELY (limit_buf_len < 0))
+    തിരികെ limit_buf_len;
 
-  return write_cgroup_file (dirfd, cgroup2 ? "memory.max" : "memory.limit_in_bytes", limit_buf, limit_buf_len, err);
+  തിരികെ write_cgroup_file (dirfd, cgroup2 ? "memory.max" : "memory.limit_in_bytes", limit_buf, limit_buf_len, err);
 }
 
-static int
-write_memory_swap (int dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_memory *memory,
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+write_memory_swap (പൂർണ്ണസംഖ്യ dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_memory *memory,
                    libcrun_error_t *err)
 {
-  int ret;
+  പൂർണ്ണസംഖ്യ ret;
   int64_t swap;
-  char swap_buf[32];
-  int len;
-  const char *fname = cgroup2 ? "memory.swap.max" : "memory.memsw.limit_in_bytes";
+  അക്ഷരം swap_buf[32];
+  പൂർണ്ണസംഖ്യ len;
+  സ്ഥിരം അക്ഷരം *fname = cgroup2 ? "memory.swap.max" : "memory.memsw.limit_in_bytes";
 
-  if (! memory->swap_present)
-    return 0;
+  എങ്കിൽ (! memory->swap_present)
+    തിരികെ 0;
 
   swap = memory->swap;
   // Cgroupv2 apply limit must check if swap > 0, since `0` and `-1` are special case
   // 0: This means process will not be able to use any swap space.
   // -1: This means that the process can use as much swap as it needs.
-  if (cgroup2 && memory->swap > 0)
+  എങ്കിൽ (cgroup2 && memory->swap > 0)
     {
-      if (! memory->limit_present)
-        return crun_make_error (err, 0, "cannot set swap limit without the memory limit");
-      if (memory->swap < memory->limit)
-        return crun_make_error (err, 0, "cannot set memory+swap limit less than the memory limit");
+      എങ്കിൽ (! memory->limit_present)
+        തിരികെ crun_make_error (err, 0, "cannot set swap limit without the memory limit");
+      എങ്കിൽ (memory->swap < memory->limit)
+        തിരികെ crun_make_error (err, 0, "cannot set memory+swap limit less than the memory limit");
 
       swap -= memory->limit;
     }
 
-  len = cg_itoa (swap_buf, sizeof (swap_buf), swap, cgroup2, err);
-  if (UNLIKELY (len < 0))
-    return len;
+  len = cg_itoa (swap_buf, വലുപ്പം (swap_buf), swap, cgroup2, err);
+  എങ്കിൽ (UNLIKELY (len < 0))
+    തിരികെ len;
 
   ret = write_cgroup_file (dirfd, fname, swap_buf, len, err);
-  if (ret >= 0)
-    return ret;
+  എങ്കിൽ (ret >= 0)
+    തിരികെ ret;
 
   /* If swap is not enabled, ignore the error.  */
-  if (crun_error_get_errno (err) == ENOENT)
+  എങ്കിൽ (crun_error_get_errno (err) == ENOENT)
     {
       crun_error_release (err);
-      return 0;
+      തിരികെ 0;
     }
 
-  return ret;
+  തിരികെ ret;
 }
 
-static int
-write_memory_resources (int dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_memory *memory,
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+write_memory_resources (പൂർണ്ണസംഖ്യ dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_memory *memory,
                         libcrun_error_t *err)
 {
-  int len;
-  int ret;
-  char fmt_buf[32];
+  പൂർണ്ണസംഖ്യ len;
+  പൂർണ്ണസംഖ്യ ret;
+  അക്ഷരം fmt_buf[32];
   bool memory_limits_written = false;
 
-  if (memory->limit_present)
+  എങ്കിൽ (memory->limit_present)
     {
       ret = write_memory (dirfd, cgroup2, memory, err);
-      if (ret >= 0)
+      എങ്കിൽ (ret >= 0)
         memory_limits_written = true;
-      else
+      അല്ലെങ്കിൽ
         {
-          if (cgroup2 || crun_error_get_errno (err) != EINVAL)
-            return ret;
+          എങ്കിൽ (cgroup2 || crun_error_get_errno (err) != EINVAL)
+            തിരികെ ret;
 
           /*
             If we get an EINVAL error on cgroup v1 we reverse
@@ -888,158 +888,158 @@ write_memory_resources (int dirfd, bool cgroup2, runtime_spec_schema_config_linu
     }
 
   ret = write_memory_swap (dirfd, cgroup2, memory, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
-  if (memory->limit_present && ! memory_limits_written)
+  എങ്കിൽ (memory->limit_present && ! memory_limits_written)
     {
       ret = write_memory (dirfd, cgroup2, memory, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
 
-  if (memory->kernel_present)
+  എങ്കിൽ (memory->kernel_present)
     {
-      if (cgroup2)
-        return crun_make_error (err, 0, "cannot set kernel memory with cgroupv2");
+      എങ്കിൽ (cgroup2)
+        തിരികെ crun_make_error (err, 0, "cannot set kernel memory with cgroupv2");
 
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, memory->kernel);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, വലുപ്പം (fmt_buf), "%" PRIu64, memory->kernel);
+      എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (fmt_buf)))
+        തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
       ret = write_cgroup_file (dirfd, "memory.kmem.limit_in_bytes", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
 
   // allows users set use_hierarchy as 0 when defined as false in spec.
   // if use_hierarchy is not defined in spec value defaults to 1 (True).
   // Note: users can only toggle use_hierarchy if the parent cgroup has use_hierarchy configured as 0.
-  if (memory->use_hierarchy_present)
+  എങ്കിൽ (memory->use_hierarchy_present)
     {
-      if (cgroup2)
-        return crun_make_error (err, 0, "cannot set useHierarchy memory with cgroupv2");
+      എങ്കിൽ (cgroup2)
+        തിരികെ crun_make_error (err, 0, "cannot set useHierarchy memory with cgroupv2");
 
       ret = write_cgroup_file (dirfd, "memory.use_hierarchy", (memory->use_hierarchy) ? "1" : "0", 1, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
 
-  if (memory->reservation_present)
+  എങ്കിൽ (memory->reservation_present)
     {
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, memory->reservation);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, വലുപ്പം (fmt_buf), "%" PRIu64, memory->reservation);
+      എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (fmt_buf)))
+        തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
       ret = write_file_and_check_controllers_at (cgroup2, dirfd, cgroup2 ? "memory.low" : "memory.soft_limit_in_bytes",
-                                                 NULL, fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+                                                 ശൂന്യ, fmt_buf, len, err);
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
-  if (memory->disable_oom_killer)
+  എങ്കിൽ (memory->disable_oom_killer)
     {
-      if (cgroup2)
-        return crun_make_error (err, 0, "cannot disable OOM killer with cgroupv2");
+      എങ്കിൽ (cgroup2)
+        തിരികെ crun_make_error (err, 0, "cannot disable OOM killer with cgroupv2");
 
       ret = write_cgroup_file (dirfd, "memory.oom_control", "1", 1, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
-  if (memory->kernel_tcp_present)
+  എങ്കിൽ (memory->kernel_tcp_present)
     {
-      if (cgroup2)
-        return crun_make_error (err, 0, "cannot set kernel TCP with cgroupv2");
+      എങ്കിൽ (cgroup2)
+        തിരികെ crun_make_error (err, 0, "cannot set kernel TCP with cgroupv2");
 
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, memory->kernel_tcp);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, വലുപ്പം (fmt_buf), "%" PRIu64, memory->kernel_tcp);
+      എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (fmt_buf)))
+        തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
       ret = write_cgroup_file (dirfd, "memory.kmem.tcp.limit_in_bytes", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
-  if (memory->swappiness_present)
+  എങ്കിൽ (memory->swappiness_present)
     {
-      if (cgroup2)
-        return crun_make_error (err, 0, "cannot set memory swappiness with cgroupv2");
+      എങ്കിൽ (cgroup2)
+        തിരികെ crun_make_error (err, 0, "cannot set memory swappiness with cgroupv2");
 
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, memory->swappiness);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, വലുപ്പം (fmt_buf), "%" PRIu64, memory->swappiness);
+      എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (fmt_buf)))
+        തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
       ret = write_cgroup_file (dirfd, "memory.swappiness", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
 
-  return 0;
+  തിരികെ 0;
 }
 
-int
-write_cpu_idle (int cpu_dirfd, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err)
+പൂർണ്ണസംഖ്യ
+write_cpu_idle (പൂർണ്ണസംഖ്യ cpu_dirfd, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err)
 {
-  char fmt_buf[32];
-  int len;
+  അക്ഷരം fmt_buf[32];
+  പൂർണ്ണസംഖ്യ len;
 
-  if (! cpu->idle_present)
-    return 0;
+  എങ്കിൽ (! cpu->idle_present)
+    തിരികെ 0;
 
-  len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIi64, cpu->idle);
-  if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
-  return write_cgroup_file (cpu_dirfd, "cpu.idle", fmt_buf, len, err);
+  len = snprintf (fmt_buf, വലുപ്പം (fmt_buf), "%" PRIi64, cpu->idle);
+  എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (fmt_buf)))
+    തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
+  തിരികെ write_cgroup_file (cpu_dirfd, "cpu.idle", fmt_buf, len, err);
 }
 
-int
-write_cpu_burst (int cpu_dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu,
+പൂർണ്ണസംഖ്യ
+write_cpu_burst (പൂർണ്ണസംഖ്യ cpu_dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu,
                  libcrun_error_t *err)
 {
-  char fmt_buf[32];
-  int len;
+  അക്ഷരം fmt_buf[32];
+  പൂർണ്ണസംഖ്യ len;
 
-  if (! cpu->burst_present)
-    return 0;
+  എങ്കിൽ (! cpu->burst_present)
+    തിരികെ 0;
 
-  len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIi64, cpu->burst);
-  if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
-  return write_cgroup_file (cpu_dirfd, cgroup2 ? "cpu.max.burst" : "cpu.cfs_burst_us", fmt_buf, len, err);
+  len = snprintf (fmt_buf, വലുപ്പം (fmt_buf), "%" PRIi64, cpu->burst);
+  എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (fmt_buf)))
+    തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
+  തിരികെ write_cgroup_file (cpu_dirfd, cgroup2 ? "cpu.max.burst" : "cpu.cfs_burst_us", fmt_buf, len, err);
 }
 
-static int
-write_pids_resources (int dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_pids *pids,
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+write_pids_resources (പൂർണ്ണസംഖ്യ dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_pids *pids,
                       libcrun_error_t *err)
 {
-  if (pids->limit)
+  എങ്കിൽ (pids->limit)
     {
-      char fmt_buf[32];
-      int len;
-      int ret;
+      അക്ഷരം fmt_buf[32];
+      പൂർണ്ണസംഖ്യ len;
+      പൂർണ്ണസംഖ്യ ret;
 
-      len = cg_itoa (fmt_buf, sizeof (fmt_buf), pids->limit, true, err);
-      if (UNLIKELY (len < 0))
-        return len;
+      len = cg_itoa (fmt_buf, വലുപ്പം (fmt_buf), pids->limit, true, err);
+      എങ്കിൽ (UNLIKELY (len < 0))
+        തിരികെ len;
 
-      ret = write_file_and_check_controllers_at (cgroup2, dirfd, "pids.max", NULL, fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = write_file_and_check_controllers_at (cgroup2, dirfd, "pids.max", ശൂന്യ, fmt_buf, len, err);
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
 
-  return 0;
+  തിരികെ 0;
 }
 
-static int
-write_cpu_resources (int dirfd_cpu, bool cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu,
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+write_cpu_resources (പൂർണ്ണസംഖ്യ dirfd_cpu, bool cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu,
                      libcrun_error_t *err)
 {
-  int len, period_len = 0;
-  int ret;
-  char fmt_buf[64];
+  പൂർണ്ണസംഖ്യ len, period_len = 0;
+  പൂർണ്ണസംഖ്യ ret;
+  അക്ഷരം fmt_buf[64];
   int64_t period = -1;
   int64_t quota = -1;
-  cleanup_free char *period_str = NULL;
+  cleanup_free അക്ഷരം *period_str = ശൂന്യ;
 
-  if (cpu->shares)
+  എങ്കിൽ (cpu->shares)
     {
       uint32_t val = cpu->shares;
 
-      if (cgroup2)
+      എങ്കിൽ (cgroup2)
         {
           val = convert_shares_to_weight (val);
 
@@ -1047,34 +1047,34 @@ write_cpu_resources (int dirfd_cpu, bool cgroup2, runtime_spec_schema_config_lin
              it means the cgroup is not idle (this is what systemd does, too),
              so reset cpu.idle unless it is also being set.  The file might
              not exist on older kernels, so ignore errors.  */
-          if (! cpu->idle_present)
+          എങ്കിൽ (! cpu->idle_present)
             {
               ret = write_cgroup_file (dirfd_cpu, "cpu.idle", "0", 1, err);
-              if (UNLIKELY (ret < 0))
+              എങ്കിൽ (UNLIKELY (ret < 0))
                 crun_error_release (err);
             }
         }
 
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%u", val);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, വലുപ്പം (fmt_buf), "%u", val);
+      എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (fmt_buf)))
+        തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
 
       ret = write_file_and_check_controllers_at (cgroup2, dirfd_cpu, cgroup2 ? "cpu.weight" : "cpu.shares",
-                                                 NULL, fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+                                                 ശൂന്യ, fmt_buf, len, err);
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
-  if (cpu->period)
+  എങ്കിൽ (cpu->period)
     {
-      if (cgroup2)
+      എങ്കിൽ (cgroup2)
         period = cpu->period;
-      else
+      അല്ലെങ്കിൽ
         {
-          len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, cpu->period);
-          if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-            return crun_make_error (err, 0, "internal error: static buffer too small");
+          len = snprintf (fmt_buf, വലുപ്പം (fmt_buf), "%" PRIu64, cpu->period);
+          എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (fmt_buf)))
+            തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
           ret = write_cgroup_file (dirfd_cpu, "cpu.cfs_period_us", fmt_buf, len, err);
-          if (UNLIKELY (ret < 0))
+          എങ്കിൽ (UNLIKELY (ret < 0))
             {
               /*
                 Sometimes when the period to be set is smaller than the current one,
@@ -1082,8 +1082,8 @@ write_cpu_resources (int dirfd_cpu, bool cgroup2, runtime_spec_schema_config_lin
                 the parent cgroup quota limit. If this happens and the quota is going
                 to be set, ignore the error for now and retry after setting the quota.
                */
-              if (! cpu->quota || crun_error_get_errno (err) != EINVAL)
-                return ret;
+              എങ്കിൽ (! cpu->quota || crun_error_get_errno (err) != EINVAL)
+                തിരികെ ret;
 
               crun_error_release (err);
               period_str = xstrdup (fmt_buf);
@@ -1091,456 +1091,456 @@ write_cpu_resources (int dirfd_cpu, bool cgroup2, runtime_spec_schema_config_lin
             }
         }
     }
-  if (cpu->quota)
+  എങ്കിൽ (cpu->quota)
     {
-      if (cgroup2)
+      എങ്കിൽ (cgroup2)
         quota = cpu->quota;
-      else
+      അല്ലെങ്കിൽ
         {
-          len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIi64, cpu->quota);
-          if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-            return crun_make_error (err, 0, "internal error: static buffer too small");
+          len = snprintf (fmt_buf, വലുപ്പം (fmt_buf), "%" PRIi64, cpu->quota);
+          എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (fmt_buf)))
+            തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
           ret = write_cgroup_file (dirfd_cpu, "cpu.cfs_quota_us", fmt_buf, len, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
-          if (period_str != NULL)
+          എങ്കിൽ (UNLIKELY (ret < 0))
+            തിരികെ ret;
+          എങ്കിൽ (period_str != ശൂന്യ)
             {
               ret = write_cgroup_file (dirfd_cpu, "cpu.cfs_period_us", period_str, period_len, err);
-              if (UNLIKELY (ret < 0))
-                return ret;
+              എങ്കിൽ (UNLIKELY (ret < 0))
+                തിരികെ ret;
             }
         }
     }
-  if (cpu->realtime_period)
+  എങ്കിൽ (cpu->realtime_period)
     {
-      if (cgroup2)
-        return crun_make_error (err, 0, "realtime period not supported on cgroupv2");
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, cpu->realtime_period);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      എങ്കിൽ (cgroup2)
+        തിരികെ crun_make_error (err, 0, "realtime period not supported on cgroupv2");
+      len = snprintf (fmt_buf, വലുപ്പം (fmt_buf), "%" PRIu64, cpu->realtime_period);
+      എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (fmt_buf)))
+        തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
       ret = write_cgroup_file (dirfd_cpu, "cpu.rt_period_us", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
-  if (cpu->realtime_runtime)
+  എങ്കിൽ (cpu->realtime_runtime)
     {
-      if (cgroup2)
-        return crun_make_error (err, 0, "realtime runtime not supported on cgroupv2");
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, cpu->realtime_runtime);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      എങ്കിൽ (cgroup2)
+        തിരികെ crun_make_error (err, 0, "realtime runtime not supported on cgroupv2");
+      len = snprintf (fmt_buf, വലുപ്പം (fmt_buf), "%" PRIu64, cpu->realtime_runtime);
+      എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (fmt_buf)))
+        തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
       ret = write_cgroup_file (dirfd_cpu, "cpu.rt_runtime_us", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
   ret = write_cpu_idle (dirfd_cpu, cpu, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
-  if (cgroup2 && (quota > 0 || period > 0))
+  എങ്കിൽ (cgroup2 && (quota > 0 || period > 0))
     {
-      if (period < 0)
+      എങ്കിൽ (period < 0)
         period = 100000;
-      if (quota < 0)
-        len = snprintf (fmt_buf, sizeof (fmt_buf), "max %" PRIi64, period);
-      else
-        len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIi64 " %" PRIi64, quota, period);
+      എങ്കിൽ (quota < 0)
+        len = snprintf (fmt_buf, വലുപ്പം (fmt_buf), "max %" PRIi64, period);
+      അല്ലെങ്കിൽ
+        len = snprintf (fmt_buf, വലുപ്പം (fmt_buf), "%" PRIi64 " %" PRIi64, quota, period);
 
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (fmt_buf)))
+        തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
 
-      ret = write_file_and_check_controllers_at (cgroup2, dirfd_cpu, "cpu.max", NULL, fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = write_file_and_check_controllers_at (cgroup2, dirfd_cpu, "cpu.max", ശൂന്യ, fmt_buf, len, err);
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
 
-  return write_cpu_burst (dirfd_cpu, cgroup2, cpu, err);
+  തിരികെ write_cpu_burst (dirfd_cpu, cgroup2, cpu, err);
 }
 
-int
-write_cpuset_resources (int dirfd_cpuset, int cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu,
+പൂർണ്ണസംഖ്യ
+write_cpuset_resources (പൂർണ്ണസംഖ്യ dirfd_cpuset, പൂർണ്ണസംഖ്യ cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu,
                         libcrun_error_t *err)
 {
-  int ret;
+  പൂർണ്ണസംഖ്യ ret;
 
-  if (cpu == NULL)
-    return 0;
+  എങ്കിൽ (cpu == ശൂന്യ)
+    തിരികെ 0;
 
-  if (cpu->cpus)
+  എങ്കിൽ (cpu->cpus)
     {
       ret = write_file_and_check_controllers_at (cgroup2, dirfd_cpuset, "cpuset.cpus", "cpus",
                                                  cpu->cpus, strlen (cpu->cpus), err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
-  if (cpu->mems)
+  എങ്കിൽ (cpu->mems)
     {
       ret = write_file_and_check_controllers_at (cgroup2, dirfd_cpuset, "cpuset.mems", "mems", cpu->mems, strlen (cpu->mems),
                                                  err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
-  return 0;
+  തിരികെ 0;
 }
 
-static int
-open_cgroup_subsystem (const char *subsystem, const char *path, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+open_cgroup_subsystem (സ്ഥിരം അക്ഷരം *subsystem, സ്ഥിരം അക്ഷരം *path, libcrun_error_t *err)
 {
-  cleanup_free char *full_path = NULL;
-  int ret, dirfd;
+  cleanup_free അക്ഷരം *full_path = ശൂന്യ;
+  പൂർണ്ണസംഖ്യ ret, dirfd;
 
-  ret = append_paths (&full_path, err, CGROUP_ROOT, subsystem, path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&full_path, err, CGROUP_വേര്, subsystem, path, ശൂന്യ);
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
   dirfd = open (full_path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", full_path);
+  എങ്കിൽ (UNLIKELY (dirfd < 0))
+    തിരികെ crun_make_error (err, errno, "open `%s`", full_path);
 
-  return dirfd;
+  തിരികെ dirfd;
 }
 
-int
-update_cgroup_v1_resources (runtime_spec_schema_config_linux_resources *resources, const char *path, libcrun_error_t *err)
+പൂർണ്ണസംഖ്യ
+update_cgroup_v1_resources (runtime_spec_schema_config_linux_resources *resources, സ്ഥിരം അക്ഷരം *path, libcrun_error_t *err)
 {
-  int ret;
+  പൂർണ്ണസംഖ്യ ret;
 
-  if (resources->block_io)
+  എങ്കിൽ (resources->block_io)
     {
-      cleanup_close int dirfd_blkio = -1;
+      cleanup_close പൂർണ്ണസംഖ്യ dirfd_blkio = -1;
       runtime_spec_schema_config_linux_resources_block_io *blkio = resources->block_io;
 
       dirfd_blkio = open_cgroup_subsystem ("blkio", path, err);
-      if (UNLIKELY (dirfd_blkio < 0))
-        return dirfd_blkio;
+      എങ്കിൽ (UNLIKELY (dirfd_blkio < 0))
+        തിരികെ dirfd_blkio;
 
       ret = write_blkio_resources (dirfd_blkio, false, blkio, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
 
-  if (resources->network)
+  എങ്കിൽ (resources->network)
     {
-      cleanup_close int dirfd_netclass = -1;
-      cleanup_close int dirfd_netprio = -1;
+      cleanup_close പൂർണ്ണസംഖ്യ dirfd_netclass = -1;
+      cleanup_close പൂർണ്ണസംഖ്യ dirfd_netprio = -1;
       runtime_spec_schema_config_linux_resources_network *network = resources->network;
 
       dirfd_netclass = open_cgroup_subsystem ("net_cls", path, err);
-      if (UNLIKELY (dirfd_netclass < 0))
-        return dirfd_netclass;
+      എങ്കിൽ (UNLIKELY (dirfd_netclass < 0))
+        തിരികെ dirfd_netclass;
 
       dirfd_netprio = open_cgroup_subsystem ("net_prio", path, err);
-      if (UNLIKELY (dirfd_netprio < 0))
-        return dirfd_netprio;
+      എങ്കിൽ (UNLIKELY (dirfd_netprio < 0))
+        തിരികെ dirfd_netprio;
 
       ret = write_network_resources (dirfd_netclass, dirfd_netprio, network, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
 
-  if (resources->hugepage_limits_len)
+  എങ്കിൽ (resources->hugepage_limits_len)
     {
-      cleanup_close int dirfd_htlb = -1;
+      cleanup_close പൂർണ്ണസംഖ്യ dirfd_htlb = -1;
 
       dirfd_htlb = open_cgroup_subsystem ("hugetlb", path, err);
-      if (UNLIKELY (dirfd_htlb < 0))
-        return dirfd_htlb;
+      എങ്കിൽ (UNLIKELY (dirfd_htlb < 0))
+        തിരികെ dirfd_htlb;
 
       ret = write_hugetlb_resources (dirfd_htlb, false, resources->hugepage_limits, resources->hugepage_limits_len,
                                      err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
 
-  if (resources->devices_len)
+  എങ്കിൽ (resources->devices_len)
     {
-      cleanup_close int dirfd_devs = -1;
+      cleanup_close പൂർണ്ണസംഖ്യ dirfd_devs = -1;
 
       dirfd_devs = open_cgroup_subsystem ("devices", path, err);
-      if (UNLIKELY (dirfd_devs < 0))
-        return dirfd_devs;
+      എങ്കിൽ (UNLIKELY (dirfd_devs < 0))
+        തിരികെ dirfd_devs;
 
       ret = write_devices_resources (dirfd_devs, false, resources->devices, resources->devices_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
 
-  if (resources->memory)
+  എങ്കിൽ (resources->memory)
     {
-      cleanup_close int dirfd_mem = -1;
+      cleanup_close പൂർണ്ണസംഖ്യ dirfd_mem = -1;
 
       dirfd_mem = open_cgroup_subsystem ("memory", path, err);
-      if (UNLIKELY (dirfd_mem < 0))
-        return dirfd_mem;
+      എങ്കിൽ (UNLIKELY (dirfd_mem < 0))
+        തിരികെ dirfd_mem;
 
       ret = write_memory_resources (dirfd_mem, false, resources->memory, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
 
-  if (resources->pids)
+  എങ്കിൽ (resources->pids)
     {
-      cleanup_close int dirfd_pid = -1;
+      cleanup_close പൂർണ്ണസംഖ്യ dirfd_pid = -1;
 
       dirfd_pid = open_cgroup_subsystem ("pids", path, err);
-      if (UNLIKELY (dirfd_pid < 0))
-        return dirfd_pid;
+      എങ്കിൽ (UNLIKELY (dirfd_pid < 0))
+        തിരികെ dirfd_pid;
 
       ret = write_pids_resources (dirfd_pid, false, resources->pids, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
 
-  if (resources->cpu)
+  എങ്കിൽ (resources->cpu)
     {
-      cleanup_close int dirfd_cpu = -1;
-      cleanup_close int dirfd_cpuset = -1;
+      cleanup_close പൂർണ്ണസംഖ്യ dirfd_cpu = -1;
+      cleanup_close പൂർണ്ണസംഖ്യ dirfd_cpuset = -1;
 
       dirfd_cpu = open_cgroup_subsystem ("cpu", path, err);
-      if (UNLIKELY (dirfd_cpu < 0))
-        return dirfd_cpu;
+      എങ്കിൽ (UNLIKELY (dirfd_cpu < 0))
+        തിരികെ dirfd_cpu;
 
       ret = write_cpu_resources (dirfd_cpu, false, resources->cpu, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
 
-      if (resources->cpu->cpus == NULL && resources->cpu->mems == NULL)
-        return 0;
+      എങ്കിൽ (resources->cpu->cpus == ശൂന്യ && resources->cpu->mems == ശൂന്യ)
+        തിരികെ 0;
 
       dirfd_cpuset = open_cgroup_subsystem ("cpuset", path, err);
-      if (UNLIKELY (dirfd_cpuset < 0))
-        return dirfd_cpuset;
+      എങ്കിൽ (UNLIKELY (dirfd_cpuset < 0))
+        തിരികെ dirfd_cpuset;
 
       ret = write_cpuset_resources (dirfd_cpuset, false, resources->cpu, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
 
-  if (resources->unified && resources->unified->len > 0)
-    return crun_make_error (err, 0, "invalid configuration: cannot use unified on cgroup v1");
+  എങ്കിൽ (resources->unified && resources->unified->len > 0)
+    തിരികെ crun_make_error (err, 0, "invalid configuration: cannot use unified on cgroup v1");
 
-  return 0;
+  തിരികെ 0;
 }
 
-static int
-write_unified_resources (int cgroup_dirfd, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+write_unified_resources (പൂർണ്ണസംഖ്യ cgroup_dirfd, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
 {
   size_t i;
-  int ret;
+  പൂർണ്ണസംഖ്യ ret;
 
-  for (i = 0; i < resources->unified->len; i++)
+  വേണ്ടി (i = 0; i < resources->unified->len; i++)
     {
-      cleanup_close int fd = -1;
-      cleanup_free char *value = NULL;
-      char *saveptr = NULL;
-      char *line;
+      cleanup_close പൂർണ്ണസംഖ്യ fd = -1;
+      cleanup_free അക്ഷരം *മൂല്യം = ശൂന്യ;
+      അക്ഷരം *saveptr = ശൂന്യ;
+      അക്ഷരം *വരി;
 
-      if (strchr (resources->unified->keys[i], '/'))
-        return crun_make_error (err, 0, "key `%s` must be a file name without any slash", resources->unified->keys[i]);
+      എങ്കിൽ (strchr (resources->unified->താക്കോലുകൾ[i], '/'))
+        തിരികെ crun_make_error (err, 0, "key `%s` must be a file name without any slash", resources->unified->താക്കോലുകൾ[i]);
 
-      if (is_empty_string (resources->unified->values[i]))
-        continue;
+      എങ്കിൽ (is_empty_string (resources->unified->മൂല്യങ്ങൾ[i]))
+        തുടരുക;
 
-      value = xstrdup (resources->unified->values[i]);
+      മൂല്യം = xstrdup (resources->unified->മൂല്യങ്ങൾ[i]);
 
-      fd = open_file_and_check_controllers_at (true, cgroup_dirfd, resources->unified->keys[i], O_WRONLY, err);
-      if (UNLIKELY (fd < 0))
-        return fd;
+      fd = open_file_and_check_controllers_at (true, cgroup_dirfd, resources->unified->താക്കോലുകൾ[i], O_WRONLY, err);
+      എങ്കിൽ (UNLIKELY (fd < 0))
+        തിരികെ fd;
 
-      for (line = strtok_r (value, "\n", &saveptr); line; line = strtok_r (NULL, "\n", &saveptr))
+      വേണ്ടി (വരി = strtok_r (മൂല്യം, "\n", &saveptr); വരി; വരി = strtok_r (ശൂന്യ, "\n", &saveptr))
         {
-          ret = TEMP_FAILURE_RETRY (write (fd, line, strlen (line)));
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "write to `%s`", resources->unified->keys[i]);
+          ret = TEMP_FAILURE_RETRY (ലിഖ (fd, വരി, strlen (വരി)));
+          എങ്കിൽ (UNLIKELY (ret < 0))
+            തിരികെ crun_make_error (err, errno, "write to `%s`", resources->unified->താക്കോലുകൾ[i]);
         }
     }
 
-  return 0;
+  തിരികെ 0;
 }
 
-static int
-update_cgroup_v2_resources (runtime_spec_schema_config_linux_resources *resources, const char *path, bool need_bpf_dev, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+update_cgroup_v2_resources (runtime_spec_schema_config_linux_resources *resources, സ്ഥിരം അക്ഷരം *path, bool need_bpf_dev, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
-  cleanup_close int cgroup_dirfd = -1;
-  int ret;
+  cleanup_free അക്ഷരം *cgroup_path = ശൂന്യ;
+  cleanup_close പൂർണ്ണസംഖ്യ cgroup_dirfd = -1;
+  പൂർണ്ണസംഖ്യ ret;
 
-  if (resources->network)
-    return crun_make_error (err, 0, "network limits not supported on cgroupv2");
+  എങ്കിൽ (resources->network)
+    തിരികെ crun_make_error (err, 0, "network limits not supported on cgroupv2");
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_path, err, CGROUP_വേര്, path, ശൂന്യ);
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
   cgroup_dirfd = open (cgroup_path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (cgroup_dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", cgroup_path);
+  എങ്കിൽ (UNLIKELY (cgroup_dirfd < 0))
+    തിരികെ crun_make_error (err, errno, "open `%s`", cgroup_path);
 
-  if (need_bpf_dev && resources->devices_len)
+  എങ്കിൽ (need_bpf_dev && resources->devices_len)
     {
       ret = write_devices_resources (cgroup_dirfd, true, resources->devices, resources->devices_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
 
-  if (resources->memory)
+  എങ്കിൽ (resources->memory)
     {
       ret = write_memory_resources (cgroup_dirfd, true, resources->memory, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
-  if (resources->pids)
+  എങ്കിൽ (resources->pids)
     {
       ret = write_pids_resources (cgroup_dirfd, true, resources->pids, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
-  if (resources->cpu)
+  എങ്കിൽ (resources->cpu)
     {
       ret = write_cpu_resources (cgroup_dirfd, true, resources->cpu, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
 
       ret = write_cpuset_resources (cgroup_dirfd, true, resources->cpu, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
-  if (resources->block_io)
+  എങ്കിൽ (resources->block_io)
     {
       ret = write_blkio_resources (cgroup_dirfd, true, resources->block_io, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
 
-  if (resources->hugepage_limits_len)
+  എങ്കിൽ (resources->hugepage_limits_len)
     {
       ret = write_hugetlb_resources (cgroup_dirfd, true, resources->hugepage_limits, resources->hugepage_limits_len,
                                      err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
 
   /* Write unified resources if any.  They have higher precedence and override any previous setting.  */
-  if (resources->unified)
+  എങ്കിൽ (resources->unified)
     {
       ret = write_unified_resources (cgroup_dirfd, resources, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
 
-  return 0;
+  തിരികെ 0;
 }
 
 /* With checkBeforeUpdate, refuse to set the memory limit lower than the
    current usage.  This must be done before any of the resources is updated,
    including by the cgroup manager (e.g. the systemd unit properties).  */
-int
-check_memory_before_update (const char *path, runtime_spec_schema_config_linux_resources *resources,
+പൂർണ്ണസംഖ്യ
+check_memory_before_update (സ്ഥിരം അക്ഷരം *path, runtime_spec_schema_config_linux_resources *resources,
                             libcrun_error_t *err)
 {
   runtime_spec_schema_config_linux_resources_memory *memory = resources->memory;
-  cleanup_free char *swap_current = NULL;
-  cleanup_free char *cgroup_path = NULL;
-  cleanup_free char *current = NULL;
-  cleanup_close int dirfd = -1;
+  cleanup_free അക്ഷരം *swap_current = ശൂന്യ;
+  cleanup_free അക്ഷരം *cgroup_path = ശൂന്യ;
+  cleanup_free അക്ഷരം *current = ശൂന്യ;
+  cleanup_close പൂർണ്ണസംഖ്യ dirfd = -1;
   uint64_t limit = 0;
   uint64_t val, val_swap;
-  int cgroup_mode;
-  int ret;
+  പൂർണ്ണസംഖ്യ cgroup_mode;
+  പൂർണ്ണസംഖ്യ ret;
 
-  if (path == NULL || memory == NULL || ! (memory->check_before_update_present && memory->check_before_update))
-    return 0;
+  എങ്കിൽ (path == ശൂന്യ || memory == ശൂന്യ || ! (memory->check_before_update_present && memory->check_before_update))
+    തിരികെ 0;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  എങ്കിൽ (UNLIKELY (cgroup_mode < 0))
+    തിരികെ cgroup_mode;
 
-  if (cgroup_mode != CGROUP_MODE_UNIFIED)
-    return 0;
+  എങ്കിൽ (cgroup_mode != CGROUP_MODE_UNIFIED)
+    തിരികെ 0;
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_path, err, CGROUP_വേര്, path, ശൂന്യ);
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
   dirfd = open (cgroup_path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", cgroup_path);
+  എങ്കിൽ (UNLIKELY (dirfd < 0))
+    തിരികെ crun_make_error (err, errno, "open `%s`", cgroup_path);
 
-  ret = read_all_file_at (dirfd, "memory.current", &current, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file_at (dirfd, "memory.current", &current, ശൂന്യ, err);
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
-  ret = read_all_file_at (dirfd, "memory.swap.current", &swap_current, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file_at (dirfd, "memory.swap.current", &swap_current, ശൂന്യ, err);
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
   errno = 0;
-  val = strtoll (current, NULL, 10);
-  if (UNLIKELY (errno))
-    return crun_make_error (err, errno, "parse memory.current");
+  val = strtoll (current, ശൂന്യ, 10);
+  എങ്കിൽ (UNLIKELY (errno))
+    തിരികെ crun_make_error (err, errno, "parse memory.current");
 
-  val_swap = strtoll (swap_current, NULL, 10);
-  if (UNLIKELY (errno))
-    return crun_make_error (err, errno, "parse memory.swap.current");
+  val_swap = strtoll (swap_current, ശൂന്യ, 10);
+  എങ്കിൽ (UNLIKELY (errno))
+    തിരികെ crun_make_error (err, errno, "parse memory.swap.current");
 
-  if (memory->limit_present && memory->limit >= 0)
+  എങ്കിൽ (memory->limit_present && memory->limit >= 0)
     limit = memory->limit;
-  if (memory->swap_present && memory->swap >= 0)
+  എങ്കിൽ (memory->swap_present && memory->swap >= 0)
     limit += memory->swap;
 
-  if (limit <= val + val_swap)
-    return crun_make_error (err, 0, "cannot set the memory limit lower than its current usage");
+  എങ്കിൽ (limit <= val + val_swap)
+    തിരികെ crun_make_error (err, 0, "cannot set the memory limit lower than its current usage");
 
-  return 0;
+  തിരികെ 0;
 }
 
-int
-update_cgroup_resources (const char *path,
-                         const char *state_root,
+പൂർണ്ണസംഖ്യ
+update_cgroup_resources (സ്ഥിരം അക്ഷരം *path,
+                         സ്ഥിരം അക്ഷരം *state_വേര്,
                          runtime_spec_schema_config_linux_resources *resources,
                          bool need_bpf_dev,
                          libcrun_error_t *err)
 {
-  int cgroup_mode;
+  പൂർണ്ണസംഖ്യ cgroup_mode;
 
-  (void) state_root;
+  (ശൂന്യം) state_വേര്;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  എങ്കിൽ (UNLIKELY (cgroup_mode < 0))
+    തിരികെ cgroup_mode;
 
-  if (path == NULL)
+  എങ്കിൽ (path == ശൂന്യ)
     {
       size_t i;
 
-      if (resources->block_io || resources->network || resources->hugepage_limits_len || resources->memory
+      എങ്കിൽ (resources->block_io || resources->network || resources->hugepage_limits_len || resources->memory
           || resources->pids || resources->cpu)
-        return crun_make_error (err, 0, "cannot set limits without cgroups");
+        തിരികെ crun_make_error (err, 0, "cannot set limits without cgroups");
 
-      for (i = 0; i < resources->devices_len; i++)
+      വേണ്ടി (i = 0; i < resources->devices_len; i++)
         {
-          int rwm;
+          പൂർണ്ണസംഖ്യ rwm;
 
           rwm = is_rwm (resources->devices[i]->access, err);
-          if (UNLIKELY (rwm < 0))
-            return rwm;
+          എങ്കിൽ (UNLIKELY (rwm < 0))
+            തിരികെ rwm;
 
-          if (rwm == 0)
-            return crun_make_error (err, 0, "cannot set limits without cgroups");
+          എങ്കിൽ (rwm == 0)
+            തിരികെ crun_make_error (err, 0, "cannot set limits without cgroups");
         }
 
-      return 0;
+      തിരികെ 0;
     }
-  switch (cgroup_mode)
+  തിരഞ്ഞെടുപ്പ് (cgroup_mode)
     {
-    case CGROUP_MODE_UNIFIED:
-      return update_cgroup_v2_resources (resources, path, need_bpf_dev, err);
+    അവസ്ഥ CGROUP_MODE_UNIFIED:
+      തിരികെ update_cgroup_v2_resources (resources, path, need_bpf_dev, err);
 
-    case CGROUP_MODE_LEGACY:
-    case CGROUP_MODE_HYBRID:
-      return update_cgroup_v1_resources (resources, path, err);
+    അവസ്ഥ CGROUP_MODE_LEGACY:
+    അവസ്ഥ CGROUP_MODE_HYBRID:
+      തിരികെ update_cgroup_v1_resources (resources, path, err);
 
-    default:
-      return crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_mode);
+    സ്ഥിരസ്ഥിതി:
+      തിരികെ crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_mode);
     }
 }

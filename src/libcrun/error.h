@@ -17,117 +17,117 @@
  */
 #ifndef ERROR_H
 #define ERROR_H
-#include <config.h>
+#അന്തര്ഭാവ <config.h>
 #ifdef HAVE_ERROR_H
 #  include <error.h>
-#else
+#അല്ലെങ്കിൽ
 #  define error(status, errno, fmt, ...)                      \
-    do                                                        \
+    ചെയ്യുക                                                        \
       {                                                       \
-        if (errno == 0)                                       \
+        എങ്കിൽ (errno == 0)                                       \
           fprintf (stderr, "crun: " fmt "\n", ##__VA_ARGS__); \
-        else                                                  \
+        അല്ലെങ്കിൽ                                                  \
           {                                                   \
             fprintf (stderr, "crun: " fmt, ##__VA_ARGS__);    \
             fprintf (stderr, ": %s\n", strerror (errno));     \
           }                                                   \
-        if (status)                                           \
+        എങ്കിൽ (status)                                           \
           exit (status);                                      \
-    } while (0)
+    } ആകുമ്പോൾ (0)
 #endif
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <syslog.h>
-#include <unistd.h>
+#അന്തര്ഭാവ <stdlib.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <stdbool.h>
+#അന്തര്ഭാവ <syslog.h>
+#അന്തര്ഭാവ <unistd.h>
 
-struct libcrun_error_s
+ഘടന libcrun_error_s
 {
-  int status;
-  char *msg;
+  പൂർണ്ണസംഖ്യ status;
+  അക്ഷരം *സന്ദേശം;
 };
-typedef struct libcrun_error_s *libcrun_error_t;
+തരനിർവചനം ഘടന libcrun_error_s *libcrun_error_t;
 
 /* Coverage support: flush coverage data before _exit() in forked processes */
 #ifdef HAVE_COVERAGE
-extern void __gcov_dump (void);
+ബാഹ്യ ശൂന്യം __gcov_dump (ശൂന്യം);
 #  define GCOV_DUMP() __gcov_dump ()
-#else
+#അല്ലെങ്കിൽ
 #  define GCOV_DUMP()
 #endif
 
 /* Use this instead of _exit() to ensure coverage data is flushed */
 #define _safe_exit(status) \
-  do                       \
+  ചെയ്യുക                       \
     {                      \
       GCOV_DUMP ();        \
       _exit (status);      \
-  } while (0)
+  } ആകുമ്പോൾ (0)
 
 #define OOM()                            \
-  do                                     \
+  ചെയ്യുക                                     \
     {                                    \
       fprintf (stderr, "out of memory"); \
       _safe_exit (EXIT_FAILURE);         \
-  } while (0)
+  } ആകുമ്പോൾ (0)
 
-typedef void (*crun_output_handler) (int errno_, const char *msg, int verbosity, void *arg);
+തരനിർവചനം ശൂന്യം (*crun_output_handler) (പൂർണ്ണസംഖ്യ errno_, സ്ഥിരം അക്ഷരം *സന്ദേശം, പൂർണ്ണസംഖ്യ verbosity, ശൂന്യം *arg);
 
-void crun_set_output_handler (crun_output_handler handler, void *arg);
+ശൂന്യം crun_set_output_handler (crun_output_handler handler, ശൂന്യം *arg);
 
-void log_write_to_journald (int errno_, const char *msg, int verbosity, void *arg);
+ശൂന്യം log_write_to_journald (പൂർണ്ണസംഖ്യ errno_, സ്ഥിരം അക്ഷരം *സന്ദേശം, പൂർണ്ണസംഖ്യ verbosity, ശൂന്യം *arg);
 
-void log_write_to_syslog (int errno_, const char *msg, int verbosity, void *arg);
+ശൂന്യം log_write_to_syslog (പൂർണ്ണസംഖ്യ errno_, സ്ഥിരം അക്ഷരം *സന്ദേശം, പൂർണ്ണസംഖ്യ verbosity, ശൂന്യം *arg);
 
-void log_write_to_stream (int errno_, const char *msg, int verbosity, void *arg);
+ശൂന്യം log_write_to_stream (പൂർണ്ണസംഖ്യ errno_, സ്ഥിരം അക്ഷരം *സന്ദേശം, പൂർണ്ണസംഖ്യ verbosity, ശൂന്യം *arg);
 
-void log_write_to_stderr (int errno_, const char *msg, int verbosity, void *arg);
+ശൂന്യം log_write_to_stderr (പൂർണ്ണസംഖ്യ errno_, സ്ഥിരം അക്ഷരം *സന്ദേശം, പൂർണ്ണസംഖ്യ verbosity, ശൂന്യം *arg);
 
-int crun_error_wrap (libcrun_error_t *err, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
+പൂർണ്ണസംഖ്യ crun_error_wrap (libcrun_error_t *err, സ്ഥിരം അക്ഷരം *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 
-int crun_error_get_errno (libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ crun_error_get_errno (libcrun_error_t *err);
 
-int crun_error_release (libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ crun_error_release (libcrun_error_t *err);
 
-void crun_error_write_warning_and_release (FILE *out, libcrun_error_t **err);
+ശൂന്യം crun_error_write_warning_and_release (FILE *out, libcrun_error_t **err);
 
-LIBCRUN_PUBLIC void libcrun_debug (const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
+LIBCRUN_PUBLIC ശൂന്യം libcrun_debug (സ്ഥിരം അക്ഷരം *സന്ദേശം, ...) __attribute__ ((format (printf, 1, 2)));
 
-LIBCRUN_PUBLIC void libcrun_warning (const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
+LIBCRUN_PUBLIC ശൂന്യം libcrun_warning (സ്ഥിരം അക്ഷരം *സന്ദേശം, ...) __attribute__ ((format (printf, 1, 2)));
 
-LIBCRUN_PUBLIC void libcrun_error (int errno_, const char *msg, ...) __attribute__ ((format (printf, 2, 3)));
+LIBCRUN_PUBLIC ശൂന്യം libcrun_error (പൂർണ്ണസംഖ്യ errno_, സ്ഥിരം അക്ഷരം *സന്ദേശം, ...) __attribute__ ((format (printf, 2, 3)));
 
-LIBCRUN_PUBLIC int libcrun_make_error (libcrun_error_t *err, int status, const char *msg, ...) __attribute__ ((format (printf, 3, 4)));
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_make_error (libcrun_error_t *err, പൂർണ്ണസംഖ്യ status, സ്ഥിരം അക്ഷരം *സന്ദേശം, ...) __attribute__ ((format (printf, 3, 4)));
 
 #define crun_make_error libcrun_make_error
 
-LIBCRUN_PUBLIC void libcrun_error_write_warning_and_release (FILE *out, libcrun_error_t **err);
+LIBCRUN_PUBLIC ശൂന്യം libcrun_error_write_warning_and_release (FILE *out, libcrun_error_t **err);
 
-LIBCRUN_PUBLIC void libcrun_error_report_and_release (libcrun_error_t *err);
+LIBCRUN_PUBLIC ശൂന്യം libcrun_error_report_and_release (libcrun_error_t *err);
 
-LIBCRUN_PUBLIC void libcrun_fail_with_error (int errno_, const char *msg, ...) __attribute__ ((noreturn)) __attribute__ ((format (printf, 2, 3)));
+LIBCRUN_PUBLIC ശൂന്യം libcrun_fail_with_error (പൂർണ്ണസംഖ്യ errno_, സ്ഥിരം അക്ഷരം *സന്ദേശം, ...) __attribute__ ((noreturn)) __attribute__ ((format (printf, 2, 3)));
 
-LIBCRUN_PUBLIC int libcrun_set_log_format (const char *format, libcrun_error_t *err);
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_set_log_format (സ്ഥിരം അക്ഷരം *format, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_init_logging (crun_output_handler *output_handler, void **output_handler_arg, const char *id,
-                                         const char *log, libcrun_error_t *err);
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_init_logging (crun_output_handler *output_handler, ശൂന്യം **output_handler_arg, സ്ഥിരം അക്ഷരം *id,
+                                         സ്ഥിരം അക്ഷരം *log, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_error_release (libcrun_error_t *err);
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_error_release (libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_error_get_status (libcrun_error_t err);
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_error_get_status (libcrun_error_t err);
 
-LIBCRUN_PUBLIC const char *libcrun_error_get_message (libcrun_error_t err);
+LIBCRUN_PUBLIC സ്ഥിരം അക്ഷരം *libcrun_error_get_message (libcrun_error_t err);
 
-int json_gen_error_to_crun_error (int gen_status, libcrun_error_t *err);
+പൂർണ്ണസംഖ്യ json_gen_error_to_crun_error (പൂർണ്ണസംഖ്യ gen_status, libcrun_error_t *err);
 
-enum
+എണ്ണൽ
 {
   LIBCRUN_VERBOSITY_ERROR = 0,
   LIBCRUN_VERBOSITY_WARNING,
   LIBCRUN_VERBOSITY_DEBUG,
 };
 
-LIBCRUN_PUBLIC void libcrun_set_verbosity (int verbosity);
-LIBCRUN_PUBLIC int libcrun_get_verbosity ();
+LIBCRUN_PUBLIC ശൂന്യം libcrun_set_verbosity (പൂർണ്ണസംഖ്യ verbosity);
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_get_verbosity ();
 
 #endif

@@ -18,8 +18,8 @@
 #ifndef START_H
 #define START_H
 
-#include "crun.h"
+#അന്തര്ഭാവ "crun.h"
 
-int crun_command_start (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+പൂർണ്ണസംഖ്യ crun_command_start (ഘടന crun_global_arguments *global_args, പൂർണ്ണസംഖ്യ argc, അക്ഷരം **argv, libcrun_error_t *error);
 
 #endif

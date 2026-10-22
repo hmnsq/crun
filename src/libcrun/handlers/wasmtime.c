@@ -17,21 +17,21 @@
  */
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "../custom-handler.h"
-#include "../container.h"
-#include "../utils.h"
-#include "../linux.h"
-#include "handler-utils.h"
-#include <unistd.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <sched.h>
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
+#അന്തര്ഭാവ <config.h>
+#അന്തര്ഭാവ "../custom-handler.h"
+#അന്തര്ഭാവ "../container.h"
+#അന്തര്ഭാവ "../utils.h"
+#അന്തര്ഭാവ "../linux.h"
+#അന്തര്ഭാവ "handler-utils.h"
+#അന്തര്ഭാവ <unistd.h>
+#അന്തര്ഭാവ <sys/stat.h>
+#അന്തര്ഭാവ <errno.h>
+#അന്തര്ഭാവ <sys/types.h>
+#അന്തര്ഭാവ <fcntl.h>
+#അന്തര്ഭാവ <sched.h>
+#അന്തര്ഭാവ <assert.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <stdlib.h>
 
 #ifdef HAVE_DLOPEN
 #  include <dlfcn.h>
@@ -43,62 +43,62 @@
 #  include <wasmtime.h>
 #endif
 
-#if HAVE_DLOPEN && HAVE_WASMTIME
-static int
-libwasmtime_exec (void *cookie, libcrun_container_t *container arg_unused,
-                  const char *pathname, char *const argv[])
+#എങ്കിൽ HAVE_DLOPEN && HAVE_WASMTIME
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+libwasmtime_exec (ശൂന്യം *cookie, libcrun_container_t *container arg_unused,
+                  സ്ഥിരം അക്ഷരം *pathname, അക്ഷരം *സ്ഥിരം argv[])
 {
   size_t args_size = 0;
-  char *const *arg;
+  അക്ഷരം *സ്ഥിരം *arg;
   wasm_byte_vec_t error_message;
   wasm_byte_vec_t wasm_bytes;
   wasm_engine_t *(*wasm_engine_new) ();
-  wasmtime_error_t *(*wasmtime_wat2wasm) (const char *wat, size_t wat_len, wasm_byte_vec_t *out);
-  void (*wasm_engine_delete) (wasm_engine_t *);
-  void (*wasm_byte_vec_delete) (wasm_byte_vec_t *);
-  void (*wasm_byte_vec_new_uninitialized) (wasm_byte_vec_t *, size_t);
-  wasi_config_t *(*wasi_config_new) (const char *);
-  wasmtime_store_t *(*wasmtime_store_new) (wasm_engine_t *engine, void *data, void (*finalizer) (void *));
+  wasmtime_error_t *(*wasmtime_wat2wasm) (സ്ഥിരം അക്ഷരം *wat, size_t wat_len, wasm_byte_vec_t *out);
+  ശൂന്യം (*wasm_engine_delete) (wasm_engine_t *);
+  ശൂന്യം (*wasm_byte_vec_delete) (wasm_byte_vec_t *);
+  ശൂന്യം (*wasm_byte_vec_new_uninitialized) (wasm_byte_vec_t *, size_t);
+  wasi_config_t *(*wasi_config_new) (സ്ഥിരം അക്ഷരം *);
+  wasmtime_store_t *(*wasmtime_store_new) (wasm_engine_t *engine, ശൂന്യം *data, ശൂന്യം (*finalizer) (ശൂന്യം *));
   wasmtime_context_t *(*wasmtime_store_context) (wasmtime_store_t *store);
   wasmtime_linker_t *(*wasmtime_linker_new) (wasm_engine_t *engine);
   wasmtime_error_t *(*wasmtime_linker_define_wasi) (wasmtime_linker_t *linker);
   wasmtime_error_t *(*wasmtime_module_new) (
       wasm_engine_t *engine,
-      const uint8_t *wasm,
+      സ്ഥിരം uint8_t *wasm,
       size_t wasm_len,
       wasmtime_module_t **ret);
-  void (*wasi_config_inherit_argv) (wasi_config_t *config);
-  void (*wasi_config_inherit_env) (wasi_config_t *config);
-  void (*wasi_config_set_argv) (wasi_config_t *config, int argc, const char *argv[]);
-  void (*wasi_config_inherit_stdin) (wasi_config_t *config);
-  void (*wasi_config_inherit_stdout) (wasi_config_t *config);
-  void (*wasi_config_inherit_stderr) (wasi_config_t *config);
+  ശൂന്യം (*wasi_config_inherit_argv) (wasi_config_t *config);
+  ശൂന്യം (*wasi_config_inherit_env) (wasi_config_t *config);
+  ശൂന്യം (*wasi_config_set_argv) (wasi_config_t *config, പൂർണ്ണസംഖ്യ argc, സ്ഥിരം അക്ഷരം *argv[]);
+  ശൂന്യം (*wasi_config_inherit_stdin) (wasi_config_t *config);
+  ശൂന്യം (*wasi_config_inherit_stdout) (wasi_config_t *config);
+  ശൂന്യം (*wasi_config_inherit_stderr) (wasi_config_t *config);
   wasmtime_error_t *(*wasmtime_context_set_wasi) (wasmtime_context_t *context, wasi_config_t *wasi);
   wasmtime_error_t *(*wasmtime_linker_module) (
       wasmtime_linker_t *linker,
       wasmtime_context_t *store,
-      const char *name,
+      സ്ഥിരം അക്ഷരം *name,
       size_t name_len,
-      const wasmtime_module_t *module);
+      സ്ഥിരം wasmtime_module_t *module);
   wasmtime_error_t *(*wasmtime_linker_get_default) (
-      const wasmtime_linker_t *linker,
+      സ്ഥിരം wasmtime_linker_t *linker,
       wasmtime_context_t *store,
-      const char *name,
+      സ്ഥിരം അക്ഷരം *name,
       size_t name_len,
       wasmtime_func_t *func);
   wasmtime_error_t *(*wasmtime_func_call) (
       wasmtime_context_t *store,
-      const wasmtime_func_t *func,
-      const wasmtime_val_t *args,
+      സ്ഥിരം wasmtime_func_t *func,
+      സ്ഥിരം wasmtime_val_t *args,
       size_t nargs,
       wasmtime_val_t *results,
       size_t nresults,
       wasm_trap_t **trap);
-  void (*wasmtime_module_delete) (wasmtime_module_t *m);
-  void (*wasmtime_store_delete) (wasmtime_store_t *store);
-  void (*wasmtime_error_message) (const wasmtime_error_t *error, wasm_name_t *message);
-  void (*wasmtime_error_delete) (wasmtime_error_t *error);
-  bool (*wasi_config_preopen_dir) (wasi_config_t *config, const char *path, const char *guest_path);
+  ശൂന്യം (*wasmtime_module_delete) (wasmtime_module_t *m);
+  ശൂന്യം (*wasmtime_store_delete) (wasmtime_store_t *store);
+  ശൂന്യം (*wasmtime_error_message) (സ്ഥിരം wasmtime_error_t *error, wasm_name_t *message);
+  ശൂന്യം (*wasmtime_error_delete) (wasmtime_error_t *error);
+  bool (*wasi_config_preopen_dir) (wasi_config_t *config, സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *guest_path);
 
   wasmtime_wat2wasm = dlsym (cookie, "wasmtime_wat2wasm");
   wasm_engine_new = dlsym (cookie, "wasm_engine_new");
@@ -127,122 +127,122 @@ libwasmtime_exec (void *cookie, libcrun_container_t *container arg_unused,
   wasmtime_error_message = dlsym (cookie, "wasmtime_error_message");
   wasi_config_preopen_dir = dlsym (cookie, "wasi_config_preopen_dir");
 
-  if (wasm_engine_new == NULL || wasm_engine_delete == NULL || wasm_byte_vec_delete == NULL
-      || wasm_byte_vec_new_uninitialized == NULL || wasi_config_new == NULL || wasmtime_store_new == NULL
-      || wasmtime_store_context == NULL || wasmtime_linker_new == NULL || wasmtime_linker_define_wasi == NULL
-      || wasmtime_module_new == NULL || wasi_config_inherit_argv == NULL || wasi_config_inherit_stdout == NULL
-      || wasi_config_inherit_stdin == NULL || wasi_config_inherit_stderr == NULL
-      || wasi_config_inherit_env == NULL || wasmtime_context_set_wasi == NULL
-      || wasmtime_linker_module == NULL || wasmtime_linker_get_default == NULL || wasmtime_func_call == NULL
-      || wasmtime_module_delete == NULL || wasmtime_store_delete == NULL || wasi_config_set_argv == NULL
-      || wasmtime_error_delete == NULL || wasmtime_error_message == NULL || wasi_config_preopen_dir == NULL
-      || wasmtime_wat2wasm == NULL)
+  എങ്കിൽ (wasm_engine_new == ശൂന്യ || wasm_engine_delete == ശൂന്യ || wasm_byte_vec_delete == ശൂന്യ
+      || wasm_byte_vec_new_uninitialized == ശൂന്യ || wasi_config_new == ശൂന്യ || wasmtime_store_new == ശൂന്യ
+      || wasmtime_store_context == ശൂന്യ || wasmtime_linker_new == ശൂന്യ || wasmtime_linker_define_wasi == ശൂന്യ
+      || wasmtime_module_new == ശൂന്യ || wasi_config_inherit_argv == ശൂന്യ || wasi_config_inherit_stdout == ശൂന്യ
+      || wasi_config_inherit_stdin == ശൂന്യ || wasi_config_inherit_stderr == ശൂന്യ
+      || wasi_config_inherit_env == ശൂന്യ || wasmtime_context_set_wasi == ശൂന്യ
+      || wasmtime_linker_module == ശൂന്യ || wasmtime_linker_get_default == ശൂന്യ || wasmtime_func_call == ശൂന്യ
+      || wasmtime_module_delete == ശൂന്യ || wasmtime_store_delete == ശൂന്യ || wasi_config_set_argv == ശൂന്യ
+      || wasmtime_error_delete == ശൂന്യ || wasmtime_error_message == ശൂന്യ || wasi_config_preopen_dir == ശൂന്യ
+      || wasmtime_wat2wasm == ശൂന്യ)
     error (EXIT_FAILURE, 0, "could not find symbol in `libwasmtime.so`");
 
   // Set up wasmtime context
   wasm_engine_t *engine = wasm_engine_new ();
-  assert (engine != NULL);
-  wasmtime_store_t *store = wasmtime_store_new (engine, NULL, NULL);
-  assert (store != NULL);
+  പ്രതിജ്ഞാ (engine != ശൂന്യ);
+  wasmtime_store_t *store = wasmtime_store_new (engine, ശൂന്യ, ശൂന്യ);
+  പ്രതിജ്ഞാ (store != ശൂന്യ);
   wasmtime_context_t *context = wasmtime_store_context (store);
 
   // Link with wasi functions defined
   wasmtime_linker_t *linker = wasmtime_linker_new (engine);
   wasmtime_error_t *err = wasmtime_linker_define_wasi (linker);
-  if (err != NULL)
+  എങ്കിൽ (err != ശൂന്യ)
     {
       wasmtime_error_message (err, &error_message);
       wasmtime_error_delete (err);
-      error (EXIT_FAILURE, 0, "failed to link wasi: %.*s", (int) error_message.size, error_message.data);
+      error (EXIT_FAILURE, 0, "failed to link wasi: %.*s", (പൂർണ്ണസംഖ്യ) error_message.size, error_message.data);
     }
 
   wasm_byte_vec_t wasm;
   // Load and parse container entrypoint
   FILE *file = fopen (pathname, "rbe");
-  if (! file)
+  എങ്കിൽ (! file)
     error (EXIT_FAILURE, 0, "error loading entrypoint");
   fseek (file, 0L, SEEK_END);
   size_t file_size = ftell (file);
   wasm_byte_vec_new_uninitialized (&wasm, file_size);
   fseek (file, 0L, SEEK_SET);
-  if (fread (wasm.data, file_size, 1, file) != 1)
+  എങ്കിൽ (fread (wasm.data, file_size, 1, file) != 1)
     error (EXIT_FAILURE, 0, "error load");
   fclose (file);
 
   // If entrypoint contains a webassembly text format
   // compile it on the fly and convert to equivalent
   // binary format.
-  if (has_suffix (pathname, "wat") > 0)
+  എങ്കിൽ (has_suffix (pathname, "wat") > 0)
     {
-      wasmtime_error_t *err = wasmtime_wat2wasm ((char *) &wasm_bytes, file_size, &wasm);
-      if (err != NULL)
+      wasmtime_error_t *err = wasmtime_wat2wasm ((അക്ഷരം *) &wasm_bytes, file_size, &wasm);
+      എങ്കിൽ (err != ശൂന്യ)
         {
           wasmtime_error_message (err, &error_message);
           wasmtime_error_delete (err);
-          error (EXIT_FAILURE, 0, "failed while compiling wat to wasm binary : %.*s", (int) error_message.size, error_message.data);
+          error (EXIT_FAILURE, 0, "failed while compiling wat to wasm binary : %.*s", (പൂർണ്ണസംഖ്യ) error_message.size, error_message.data);
         }
       wasm = wasm_bytes;
     }
 
   // Compile wasm modules
-  wasmtime_module_t *module = NULL;
+  wasmtime_module_t *module = ശൂന്യ;
   err = wasmtime_module_new (engine, (uint8_t *) wasm.data, wasm.size, &module);
-  if (! module)
+  എങ്കിൽ (! module)
     {
       wasmtime_error_message (err, &error_message);
       wasmtime_error_delete (err);
-      error (EXIT_FAILURE, 0, "failed to compile module: %.*s", (int) error_message.size, error_message.data);
+      error (EXIT_FAILURE, 0, "failed to compile module: %.*s", (പൂർണ്ണസംഖ്യ) error_message.size, error_message.data);
     }
   wasm_byte_vec_delete (&wasm);
 
   // Init WASI program
   wasi_config_t *wasi_config = wasi_config_new ("crun_wasi_program");
-  assert (wasi_config);
+  പ്രതിജ്ഞാ (wasi_config);
 
   // Calculate argc for `wasi_config_set_argv`
-  for (arg = argv; *arg != NULL; ++arg)
+  വേണ്ടി (arg = argv; *arg != ശൂന്യ; ++arg)
     args_size++;
 
-  wasi_config_set_argv (wasi_config, args_size, (const char **) argv);
+  wasi_config_set_argv (wasi_config, args_size, (സ്ഥിരം അക്ഷരം **) argv);
   wasi_config_inherit_env (wasi_config);
   wasi_config_inherit_stdin (wasi_config);
   wasi_config_inherit_stdout (wasi_config);
   wasi_config_inherit_stderr (wasi_config);
   wasi_config_preopen_dir (wasi_config, ".", ".");
-  wasm_trap_t *trap = NULL;
+  wasm_trap_t *trap = ശൂന്യ;
   err = wasmtime_context_set_wasi (context, wasi_config);
-  if (err != NULL)
+  എങ്കിൽ (err != ശൂന്യ)
     {
       wasmtime_error_message (err, &error_message);
       wasmtime_error_delete (err);
-      error (EXIT_FAILURE, 0, "failed to instantiate WASI: %.*s", (int) error_message.size, error_message.data);
+      error (EXIT_FAILURE, 0, "failed to instantiate WASI: %.*s", (പൂർണ്ണസംഖ്യ) error_message.size, error_message.data);
     }
 
   // Init module
   err = wasmtime_linker_module (linker, context, "", 0, module);
-  if (err != NULL)
+  എങ്കിൽ (err != ശൂന്യ)
     {
       wasmtime_error_message (err, &error_message);
       wasmtime_error_delete (err);
-      error (EXIT_FAILURE, 0, "failed to instantiate module: %.*s", (int) error_message.size, error_message.data);
+      error (EXIT_FAILURE, 0, "failed to instantiate module: %.*s", (പൂർണ്ണസംഖ്യ) error_message.size, error_message.data);
     }
 
   // Actually run our .wasm
   wasmtime_func_t func;
   err = wasmtime_linker_get_default (linker, context, "", 0, &func);
-  if (err != NULL)
+  എങ്കിൽ (err != ശൂന്യ)
     {
       wasmtime_error_message (err, &error_message);
       wasmtime_error_delete (err);
-      error (EXIT_FAILURE, 0, "failed to locate default export for module %.*s", (int) error_message.size, error_message.data);
+      error (EXIT_FAILURE, 0, "failed to locate default export for module %.*s", (പൂർണ്ണസംഖ്യ) error_message.size, error_message.data);
     }
 
-  err = wasmtime_func_call (context, &func, NULL, 0, NULL, 0, &trap);
-  if (err != NULL || trap != NULL)
+  err = wasmtime_func_call (context, &func, ശൂന്യ, 0, ശൂന്യ, 0, &trap);
+  എങ്കിൽ (err != ശൂന്യ || trap != ശൂന്യ)
     {
       wasmtime_error_message (err, &error_message);
       wasmtime_error_delete (err);
-      error (EXIT_FAILURE, 0, "error calling default export: %.*s", (int) error_message.size, error_message.data);
+      error (EXIT_FAILURE, 0, "error calling default export: %.*s", (പൂർണ്ണസംഖ്യ) error_message.size, error_message.data);
     }
 
   // Clean everything
@@ -253,44 +253,44 @@ libwasmtime_exec (void *cookie, libcrun_container_t *container arg_unused,
   exit (EXIT_SUCCESS);
 }
 
-static int
-libwasmtime_load (void **cookie, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+libwasmtime_load (ശൂന്യം **cookie, libcrun_error_t *err)
 {
-  void *handle;
+  ശൂന്യം *handle;
 
   handle = dlopen ("libwasmtime.so", RTLD_NOW);
-  if (handle == NULL)
-    return crun_make_error (err, 0, "could not load `libwasmtime.so`: %s", dlerror ());
+  എങ്കിൽ (handle == ശൂന്യ)
+    തിരികെ crun_make_error (err, 0, "could not load `libwasmtime.so`: %s", dlerror ());
   *cookie = handle;
 
-  return 0;
+  തിരികെ 0;
 }
 
-static int
-libwasmtime_unload (void *cookie, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+libwasmtime_unload (ശൂന്യം *cookie, libcrun_error_t *err)
 {
-  int r;
+  പൂർണ്ണസംഖ്യ r;
 
-  if (cookie)
+  എങ്കിൽ (cookie)
     {
       r = dlclose (cookie);
-      if (UNLIKELY (r < 0))
-        return crun_make_error (err, 0, "could not unload handle: %s", dlerror ());
+      എങ്കിൽ (UNLIKELY (r < 0))
+        തിരികെ crun_make_error (err, 0, "could not unload handle: %s", dlerror ());
     }
-  return 0;
+  തിരികെ 0;
 }
 
-static int
+സ്ഥിതം പൂർണ്ണസംഖ്യ
 libwasmtime_can_handle_container (libcrun_container_t *container, libcrun_error_t *err)
 {
-  return wasm_can_handle_container (container, err);
+  തിരികെ wasm_can_handle_container (container, err);
 }
 
-struct custom_handler_s handler_wasmtime = {
+ഘടന custom_handler_s handler_wasmtime = {
   .name = "wasmtime",
   .alias = "wasm",
   .feature_string = "WASM:wasmtime",
-  .supports_open_tree_namespace = false,
+  .supports_open_വൃക്ഷം_namespace = false,
   .load = libwasmtime_load,
   .unload = libwasmtime_unload,
   .run_func = libwasmtime_exec,

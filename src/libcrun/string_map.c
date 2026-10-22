@@ -18,154 +18,154 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include <stdlib.h>
-#include <errno.h>
-#include "string_map.h"
-#include "utils.h"
+#അന്തര്ഭാവ <config.h>
+#അന്തര്ഭാവ <stdlib.h>
+#അന്തര്ഭാവ <errno.h>
+#അന്തര്ഭാവ "string_map.h"
+#അന്തര്ഭാവ "utils.h"
 
-#include <ocispec/runtime_spec_schema_config_schema.h>
+#അന്തര്ഭാവ <ocispec/runtime_spec_schema_config_schema.h>
 
-struct kv_s
+ഘടന kv_s
 {
-  char *key;
-  char *value;
+  അക്ഷരം *താക്കോൽ;
+  അക്ഷരം *മൂല്യം;
 };
 
-struct string_map_s
+ഘടന string_map_s
 {
   size_t len;
-  struct kv_s *kvs;
+  ഘടന kv_s *kvs;
 
 #ifdef HAVE_HSEARCH_R
-  struct hsearch_data htab;
+  ഘടന hsearch_data htab;
   bool htab_initialized;
 #endif
 
   bool sorted;
 };
 
-static int
-compare_kv (const void *a, const void *b)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+compare_kv (സ്ഥിരം ശൂന്യം *a, സ്ഥിരം ശൂന്യം *b)
 {
-  return strcmp (((struct kv_s *) a)->key, ((struct kv_s *) b)->key);
+  തിരികെ strcmp (((ഘടന kv_s *) a)->താക്കോൽ, ((ഘടന kv_s *) b)->താക്കോൽ);
 }
 
-const char *
-find_string_map_value (string_map *map, const char *name)
+സ്ഥിരം അക്ഷരം *
+find_string_map_മൂല്യം (string_map *map, സ്ഥിരം അക്ഷരം *name)
 
 {
-  struct kv_s *r, key;
+  ഘടന kv_s *r, താക്കോൽ;
 
-  if (map == NULL || map->len == 0)
-    return NULL;
+  എങ്കിൽ (map == ശൂന്യ || map->len == 0)
+    തിരികെ ശൂന്യ;
 
 #ifdef HAVE_HSEARCH_R
   ENTRY e, *ep;
 
   /* Do not bother with hash tables for small maps.  */
-  if (map->len < 8)
-    goto fallback;
+  എങ്കിൽ (map->len < 8)
+    പോകുക fallback;
 
-  if (! map->htab_initialized)
+  എങ്കിൽ (! map->htab_initialized)
     {
       size_t i;
 
-      if (hcreate_r (map->len, &map->htab) == 0)
-        goto fallback;
+      എങ്കിൽ (hcreate_r (map->len, &map->htab) == 0)
+        പോകുക fallback;
 
-      for (i = 0; i < map->len; i++)
+      വേണ്ടി (i = 0; i < map->len; i++)
         {
-          e.key = (char *) map->kvs[i].key;
-          e.data = map->kvs[i].value;
-          if (hsearch_r (e, ENTER, &ep, &map->htab) == 0)
+          e.താക്കോൽ = (അക്ഷരം *) map->kvs[i].താക്കോൽ;
+          e.data = map->kvs[i].മൂല്യം;
+          എങ്കിൽ (hsearch_r (e, ENTER, &ep, &map->htab) == 0)
             {
               hdestroy_r (&map->htab);
-              goto fallback;
+              പോകുക fallback;
             }
         }
       map->htab_initialized = true;
     }
 
-  e.key = (char *) name;
-  if (hsearch_r (e, FIND, &ep, &map->htab) == 0)
-    return NULL;
+  e.താക്കോൽ = (അക്ഷരം *) name;
+  എങ്കിൽ (hsearch_r (e, FIND, &ep, &map->htab) == 0)
+    തിരികെ ശൂന്യ;
 
-  return ep->data;
+  തിരികെ ep->data;
 
 fallback:
 #endif
 
-  if (! map->sorted)
+  എങ്കിൽ (! map->sorted)
     {
-      qsort (map->kvs, map->len, sizeof (struct kv_s), compare_kv);
+      qsort (map->kvs, map->len, വലുപ്പം (ഘടന kv_s), compare_kv);
       map->sorted = true;
     }
 
-  key.key = (char *) name;
+  താക്കോൽ.താക്കോൽ = (അക്ഷരം *) name;
 
-  r = bsearch (&key, map->kvs, map->len, sizeof (struct kv_s), compare_kv);
-  return r ? r->value : NULL;
+  r = bsearch (&താക്കോൽ, map->kvs, map->len, വലുപ്പം (ഘടന kv_s), compare_kv);
+  തിരികെ r ? r->മൂല്യം : ശൂന്യ;
 }
 
 string_map *
 make_string_map_from_json (json_map_string_string *jmap)
 {
-  struct string_map_s *new_map = xmalloc0 (sizeof (struct string_map_s));
+  ഘടന string_map_s *new_map = xmalloc0 (വലുപ്പം (ഘടന string_map_s));
   size_t i;
 
-  if (jmap == NULL)
-    return new_map;
+  എങ്കിൽ (jmap == ശൂന്യ)
+    തിരികെ new_map;
 
   new_map->len = jmap->len;
-  new_map->kvs = xmalloc0 (sizeof (struct kv_s) * (jmap->len + 1));
+  new_map->kvs = xmalloc0 (വലുപ്പം (ഘടന kv_s) * (jmap->len + 1));
 
-  for (i = 0; i < jmap->len; i++)
+  വേണ്ടി (i = 0; i < jmap->len; i++)
     {
-      new_map->kvs[i].key = xstrdup (jmap->keys[i]);
-      new_map->kvs[i].value = xstrdup (jmap->values[i]);
+      new_map->kvs[i].താക്കോൽ = xstrdup (jmap->താക്കോലുകൾ[i]);
+      new_map->kvs[i].മൂല്യം = xstrdup (jmap->മൂല്യങ്ങൾ[i]);
     }
 
-  return new_map;
+  തിരികെ new_map;
 }
 
-int
-string_map_get_at (string_map *map, size_t index, const char **name, const char **value)
+പൂർണ്ണസംഖ്യ
+string_map_get_at (string_map *map, size_t index, സ്ഥിരം അക്ഷരം **name, സ്ഥിരം അക്ഷരം **മൂല്യം)
 {
-  if (map == NULL || index >= map->len)
+  എങ്കിൽ (map == ശൂന്യ || index >= map->len)
     {
       errno = ERANGE;
-      return -1;
+      തിരികെ -1;
     }
 
-  *name = map->kvs[index].key;
-  *value = map->kvs[index].value;
+  *name = map->kvs[index].താക്കോൽ;
+  *മൂല്യം = map->kvs[index].മൂല്യം;
 
-  return 0;
+  തിരികെ 0;
 }
 
-void
+ശൂന്യം
 free_string_map (string_map *map)
 {
   size_t i;
 
-  if (map == NULL)
-    return;
+  എങ്കിൽ (map == ശൂന്യ)
+    തിരികെ;
 
-  if (map->htab_initialized)
+  എങ്കിൽ (map->htab_initialized)
     hdestroy_r (&map->htab);
 
-  for (i = 0; i < map->len; i++)
+  വേണ്ടി (i = 0; i < map->len; i++)
     {
-      free (map->kvs[i].key);
-      free (map->kvs[i].value);
+      സ്വതന്ത്രം (map->kvs[i].താക്കോൽ);
+      സ്വതന്ത്രം (map->kvs[i].മൂല്യം);
     }
-  free (map->kvs);
-  free (map);
+  സ്വതന്ത്രം (map->kvs);
+  സ്വതന്ത്രം (map);
 }
 
 size_t
 string_map_size (string_map *map)
 {
-  return map->len;
+  തിരികെ map->len;
 }

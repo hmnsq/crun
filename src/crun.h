@@ -18,30 +18,30 @@
 #ifndef CRUN_CLI_H
 #define CRUN_CLI_H
 
-#include <stdbool.h>
-#include <libcrun/libcrun.h>
-#include "crun_utils.h"
+#അന്തര്ഭാവ <stdbool.h>
+#അന്തര്ഭാവ <libcrun/libcrun.h>
+#അന്തര്ഭാവ "crun_utils.h"
 
-struct crun_global_arguments
+ഘടന crun_global_arguments
 {
-  char *root;
-  char *log;
-  char *log_format;
-  const char *handler;
+  അക്ഷരം *വേര്;
+  അക്ഷരം *log;
+  അക്ഷരം *log_format;
+  സ്ഥിരം അക്ഷരം *handler;
 
-  int argc;
-  int verbosity;
-  char **argv;
+  പൂർണ്ണസംഖ്യ argc;
+  പൂർണ്ണസംഖ്യ verbosity;
+  അക്ഷരം **argv;
 
   bool command;
   bool option_systemd_cgroup;
   bool option_force_no_cgroup;
 };
 
-char *argp_mandatory_argument (char *arg, struct argp_state *state);
-int parse_id_or_fail (const char *str, char **endptr, const char *kind);
-int init_libcrun_context (libcrun_context_t *con, const char *id, struct crun_global_arguments *glob,
+അക്ഷരം *argp_mandatory_argument (അക്ഷരം *arg, ഘടന argp_state *state);
+പൂർണ്ണസംഖ്യ parse_id_or_fail (സ്ഥിരം അക്ഷരം *str, അക്ഷരം **endptr, സ്ഥിരം അക്ഷരം *kind);
+പൂർണ്ണസംഖ്യ init_libcrun_context (libcrun_context_t *con, സ്ഥിരം അക്ഷരം *id, ഘടന crun_global_arguments *glob,
                           libcrun_error_t *err);
-libcrun_context_t *new_libcrun_context (struct crun_global_arguments *glob);
-void crun_assert_n_args (int n, int min, int max);
+libcrun_context_t *new_libcrun_context (ഘടന crun_global_arguments *glob);
+ശൂന്യം crun_assert_n_args (പൂർണ്ണസംഖ്യ n, പൂർണ്ണസംഖ്യ min, പൂർണ്ണസംഖ്യ max);
 #endif

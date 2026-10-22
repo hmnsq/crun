@@ -16,40 +16,40 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <limits.h>
+#അന്തര്ഭാവ <config.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <stdlib.h>
+#അന്തര്ഭാവ <argp.h>
+#അന്തര്ഭാവ <string.h>
+#അന്തര്ഭാവ <unistd.h>
+#അന്തര്ഭാവ <errno.h>
+#അന്തര്ഭാവ <limits.h>
 
-#include "crun.h"
+#അന്തര്ഭാവ "crun.h"
 
-static char doc[] = "OCI runtime";
+സ്ഥിതം അക്ഷരം doc[] = "OCI runtime";
 
-struct exec_options_s
+ഘടന exec_options_s
 {
   bool tty;
   bool detach;
   bool no_new_privs;
-  int preserve_fds;
-  const char *process;
-  const char *console_socket;
-  const char *pid_file;
-  char *process_label;
-  char *apparmor;
-  char *cwd;
-  char *user;
-  char **env;
-  char **cap;
+  പൂർണ്ണസംഖ്യ preserve_fds;
+  സ്ഥിരം അക്ഷരം *process;
+  സ്ഥിരം അക്ഷരം *console_socket;
+  സ്ഥിരം അക്ഷരം *pid_file;
+  അക്ഷരം *process_label;
+  അക്ഷരം *apparmor;
+  അക്ഷരം *cwd;
+  അക്ഷരം *user;
+  അക്ഷരം **env;
+  അക്ഷരം **cap;
   size_t cap_size;
   size_t env_size;
-  char *cgroup;
+  അക്ഷരം *cgroup;
 };
 
-enum
+എണ്ണൽ
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -61,9 +61,9 @@ enum
   OPTION_CGROUP,
 };
 
-static struct exec_options_s exec_options;
+സ്ഥിതം ഘടന exec_options_s exec_options;
 
-static struct argp_option options[]
+സ്ഥിതം ഘടന argp_option options[]
     = { { "console-socket", OPTION_CONSOLE_SOCKET, "SOCKET", 0,
           "path to a socket that will receive the ptmx end of the tty", 0 },
         { "tty", 't', "TTY", OPTION_ARG_OPTIONAL, "allocate a pseudo-TTY", 0 },
@@ -83,127 +83,127 @@ static struct argp_option options[]
             0,
         } };
 
-static char args_doc[] = "exec CONTAINER cmd";
+സ്ഥിതം അക്ഷരം args_doc[] = "exec CONTAINER cmd";
 
-static void
-append_to_string_array (char ***arr, size_t *size, const char *arg)
+സ്ഥിതം ശൂന്യം
+append_to_string_array (അക്ഷരം ***arr, size_t *size, സ്ഥിരം അക്ഷരം *arg)
 {
-  *arr = xrealloc (*arr, (*size + 2) * sizeof (**arr));
-  (*arr)[*size + 1] = NULL;
+  *arr = xrealloc (*arr, (*size + 2) * വലുപ്പം (**arr));
+  (*arr)[*size + 1] = ശൂന്യ;
   (*arr)[*size] = xstrdup (arg);
   (*size)++;
 }
 
-static void
-append_env (const char *arg)
+സ്ഥിതം ശൂന്യം
+append_env (സ്ഥിരം അക്ഷരം *arg)
 {
   append_to_string_array (&exec_options.env, &exec_options.env_size, arg);
 }
 
-static void
-append_cap (const char *arg)
+സ്ഥിതം ശൂന്യം
+append_cap (സ്ഥിരം അക്ഷരം *arg)
 {
   append_to_string_array (&exec_options.cap, &exec_options.cap_size, arg);
 }
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+സ്ഥിതം error_t
+parse_opt (പൂർണ്ണസംഖ്യ താക്കോൽ, അക്ഷരം *arg, ഘടന argp_state *state)
 {
-  switch (key)
+  തിരഞ്ഞെടുപ്പ് (താക്കോൽ)
     {
-    case OPTION_CONSOLE_SOCKET:
+    അവസ്ഥ OPTION_CONSOLE_SOCKET:
       exec_options.console_socket = arg;
-      break;
+      നിർത്തുക;
 
-    case OPTION_PID_FILE:
+    അവസ്ഥ OPTION_PID_FILE:
       exec_options.pid_file = arg;
-      break;
+      നിർത്തുക;
 
-    case OPTION_NO_NEW_PRIVS:
+    അവസ്ഥ OPTION_NO_NEW_PRIVS:
       exec_options.no_new_privs = true;
-      break;
+      നിർത്തുക;
 
-    case OPTION_PROCESS_LABEL:
+    അവസ്ഥ OPTION_PROCESS_LABEL:
       exec_options.process_label = argp_mandatory_argument (arg, state);
-      break;
+      നിർത്തുക;
 
-    case OPTION_APPARMOR:
+    അവസ്ഥ OPTION_APPARMOR:
       exec_options.apparmor = argp_mandatory_argument (arg, state);
-      break;
+      നിർത്തുക;
 
-    case OPTION_PRESERVE_FDS:
-      exec_options.preserve_fds = parse_id_or_fail (argp_mandatory_argument (arg, state), NULL, "preserve-fds");
-      break;
+    അവസ്ഥ OPTION_PRESERVE_FDS:
+      exec_options.preserve_fds = parse_id_or_fail (argp_mandatory_argument (arg, state), ശൂന്യ, "preserve-fds");
+      നിർത്തുക;
 
-    case OPTION_CGROUP:
+    അവസ്ഥ OPTION_CGROUP:
       exec_options.cgroup = argp_mandatory_argument (arg, state);
-      break;
+      നിർത്തുക;
 
-    case 'd':
+    അവസ്ഥ 'd':
       exec_options.detach = true;
-      break;
+      നിർത്തുക;
 
-    case 'p':
+    അവസ്ഥ 'p':
       exec_options.process = arg;
-      break;
+      നിർത്തുക;
 
-    case 't':
-      exec_options.tty = arg == NULL || (strcmp (arg, "false") != 0 && strcmp (arg, "no") != 0);
-      break;
+    അവസ്ഥ 't':
+      exec_options.tty = arg == ശൂന്യ || (strcmp (arg, "false") != 0 && strcmp (arg, "no") != 0);
+      നിർത്തുക;
 
-    case 'u':
+    അവസ്ഥ 'u':
       exec_options.user = arg;
-      break;
+      നിർത്തുക;
 
-    case 'e':
+    അവസ്ഥ 'e':
       append_env (arg);
-      break;
+      നിർത്തുക;
 
-    case 'c':
+    അവസ്ഥ 'c':
       append_cap (arg);
-      break;
+      നിർത്തുക;
 
-    case OPTION_CWD:
+    അവസ്ഥ OPTION_CWD:
       exec_options.cwd = xstrdup (arg);
-      break;
+      നിർത്തുക;
 
-    case ARGP_KEY_NO_ARGS:
+    അവസ്ഥ ARGP_താക്കോൽ_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    സ്ഥിരസ്ഥിതി:
+      തിരികെ ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  തിരികെ 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+സ്ഥിതം ഘടന argp run_argp = { options, parse_opt, args_doc, doc, ശൂന്യ, ശൂന്യ, ശൂന്യ };
 
 /* Minimal growable string buffer used to assemble the OCI Process JSON.  The
    binary is a pure consumer of the public API, so it builds the process as a
    JSON string rather than reaching for the internal ocispec types.  */
-struct strbuf
+ഘടന strbuf
 {
-  char *buf;
+  അക്ഷരം *buf;
   size_t len;
   size_t cap;
 };
 
-static void
-sb_ensure (struct strbuf *sb, size_t extra)
+സ്ഥിതം ശൂന്യം
+sb_ensure (ഘടന strbuf *sb, size_t extra)
 {
-  if (sb->len + extra + 1 > sb->cap)
+  എങ്കിൽ (sb->len + extra + 1 > sb->cap)
     {
       size_t ncap = sb->cap ? sb->cap : 256;
-      while (ncap < sb->len + extra + 1)
+      ആകുമ്പോൾ (ncap < sb->len + extra + 1)
         ncap *= 2;
       sb->buf = xrealloc (sb->buf, ncap);
       sb->cap = ncap;
     }
 }
 
-static void
-sb_puts (struct strbuf *sb, const char *s)
+സ്ഥിതം ശൂന്യം
+sb_puts (ഘടന strbuf *sb, സ്ഥിരം അക്ഷരം *s)
 {
   size_t l = strlen (s);
   sb_ensure (sb, l);
@@ -212,8 +212,8 @@ sb_puts (struct strbuf *sb, const char *s)
   sb->buf[sb->len] = '\0';
 }
 
-static void
-sb_putc (struct strbuf *sb, char c)
+സ്ഥിതം ശൂന്യം
+sb_putc (ഘടന strbuf *sb, അക്ഷരം c)
 {
   sb_ensure (sb, 1);
   sb->buf[sb->len++] = c;
@@ -221,58 +221,58 @@ sb_putc (struct strbuf *sb, char c)
 }
 
 /* Append S as a quoted, escaped JSON string.  */
-static void
-sb_put_json_string (struct strbuf *sb, const char *s)
+സ്ഥിതം ശൂന്യം
+sb_put_json_string (ഘടന strbuf *sb, സ്ഥിരം അക്ഷരം *s)
 {
   sb_putc (sb, '"');
-  for (; *s; s++)
+  വേണ്ടി (; *s; s++)
     {
-      unsigned char c = (unsigned char) *s;
-      switch (c)
+      unsigned അക്ഷരം c = (unsigned അക്ഷരം) *s;
+      തിരഞ്ഞെടുപ്പ് (c)
         {
-        case '"':
+        അവസ്ഥ '"':
           sb_puts (sb, "\\\"");
-          break;
-        case '\\':
+          നിർത്തുക;
+        അവസ്ഥ '\\':
           sb_puts (sb, "\\\\");
-          break;
-        case '\b':
+          നിർത്തുക;
+        അവസ്ഥ '\b':
           sb_puts (sb, "\\b");
-          break;
-        case '\f':
+          നിർത്തുക;
+        അവസ്ഥ '\f':
           sb_puts (sb, "\\f");
-          break;
-        case '\n':
+          നിർത്തുക;
+        അവസ്ഥ '\n':
           sb_puts (sb, "\\n");
-          break;
-        case '\r':
+          നിർത്തുക;
+        അവസ്ഥ '\r':
           sb_puts (sb, "\\r");
-          break;
-        case '\t':
+          നിർത്തുക;
+        അവസ്ഥ '\t':
           sb_puts (sb, "\\t");
-          break;
-        default:
-          if (c < 0x20)
+          നിർത്തുക;
+        സ്ഥിരസ്ഥിതി:
+          എങ്കിൽ (c < 0x20)
             {
-              char tmp[8];
-              snprintf (tmp, sizeof (tmp), "\\u%04x", c);
+              അക്ഷരം tmp[8];
+              snprintf (tmp, വലുപ്പം (tmp), "\\u%04x", c);
               sb_puts (sb, tmp);
             }
-          else
+          അല്ലെങ്കിൽ
             sb_putc (sb, c);
         }
     }
   sb_putc (sb, '"');
 }
 
-static void
-sb_put_json_string_array (struct strbuf *sb, char **arr, size_t len)
+സ്ഥിതം ശൂന്യം
+sb_put_json_string_array (ഘടന strbuf *sb, അക്ഷരം **arr, size_t len)
 {
   size_t i;
   sb_putc (sb, '[');
-  for (i = 0; i < len; i++)
+  വേണ്ടി (i = 0; i < len; i++)
     {
-      if (i)
+      എങ്കിൽ (i)
         sb_putc (sb, ',');
       sb_put_json_string (sb, arr[i]);
     }
@@ -281,48 +281,48 @@ sb_put_json_string_array (struct strbuf *sb, char **arr, size_t len)
 
 /* Read the whole file at PATH into a NUL-terminated string.  A PATH of `-`
    reads from stdin.  */
-static char *
-read_file_to_string (const char *path, libcrun_error_t *err)
+സ്ഥിതം അക്ഷരം *
+read_file_to_string (സ്ഥിരം അക്ഷരം *path, libcrun_error_t *err)
 {
-  cleanup_file FILE *f = NULL;
-  struct strbuf sb = { 0 };
-  char chunk[4096];
+  cleanup_file FILE *f = ശൂന്യ;
+  ഘടന strbuf sb = { 0 };
+  അക്ഷരം chunk[4096];
   size_t n;
 
-  if (strcmp (path, "-") == 0)
+  എങ്കിൽ (strcmp (path, "-") == 0)
     path = "/dev/stdin";
 
   f = fopen (path, "re");
-  if (f == NULL)
+  എങ്കിൽ (f == ശൂന്യ)
     {
       libcrun_make_error (err, errno, "cannot open `%s`", path);
-      return NULL;
+      തിരികെ ശൂന്യ;
     }
 
-  while ((n = fread (chunk, 1, sizeof (chunk), f)) > 0)
+  ആകുമ്പോൾ ((n = fread (chunk, 1, വലുപ്പം (chunk), f)) > 0)
     {
       sb_ensure (&sb, n);
       memcpy (sb.buf + sb.len, chunk, n);
       sb.len += n;
       sb.buf[sb.len] = '\0';
     }
-  if (ferror (f))
+  എങ്കിൽ (ferror (f))
     {
-      free (sb.buf);
+      സ്വതന്ത്രം (sb.buf);
       libcrun_make_error (err, errno, "cannot read `%s`", path);
-      return NULL;
+      തിരികെ ശൂന്യ;
     }
 
-  if (sb.buf == NULL)
+  എങ്കിൽ (sb.buf == ശൂന്യ)
     sb.buf = xstrdup ("");
-  return sb.buf;
+  തിരികെ sb.buf;
 }
 
 /* Build the OCI Process JSON from the CLI options.  */
-static char *
-build_process_json (struct crun_global_arguments *global_args arg_unused, char **args, size_t args_len)
+സ്ഥിതം അക്ഷരം *
+build_process_json (ഘടന crun_global_arguments *global_args arg_unused, അക്ഷരം **args, size_t args_len)
 {
-  struct strbuf sb = { 0 };
+  ഘടന strbuf sb = { 0 };
 
   sb_putc (&sb, '{');
 
@@ -337,52 +337,52 @@ build_process_json (struct crun_global_arguments *global_args arg_unused, char *
   sb_puts (&sb, ",\"terminal\":");
   sb_puts (&sb, exec_options.tty ? "true" : "false");
 
-  if (exec_options.env_size > 0)
+  എങ്കിൽ (exec_options.env_size > 0)
     {
       sb_puts (&sb, ",\"env\":");
       sb_put_json_string_array (&sb, exec_options.env, exec_options.env_size);
     }
 
-  if (exec_options.user)
+  എങ്കിൽ (exec_options.user)
     {
-      char *endptr = NULL;
-      char *gidstr;
-      int uid, gid = 0;
-      char tmp[32];
+      അക്ഷരം *endptr = ശൂന്യ;
+      അക്ഷരം *gidstr;
+      പൂർണ്ണസംഖ്യ uid, gid = 0;
+      അക്ഷരം tmp[32];
 
       uid = parse_id_or_fail (exec_options.user, &endptr, "UID");
-      if (*endptr == ':')
+      എങ്കിൽ (*endptr == ':')
         {
           gidstr = endptr + 1;
           gid = parse_id_or_fail (gidstr, &endptr, "GID");
-          if (*endptr != '\0')
+          എങ്കിൽ (*endptr != '\0')
             libcrun_fail_with_error (0, "invalid USERSPEC specified");
         }
-      else if (*endptr != '\0')
+      അല്ലെങ്കിൽ എങ്കിൽ (*endptr != '\0')
         libcrun_fail_with_error (0, "invalid USERSPEC specified");
 
       sb_puts (&sb, ",\"user\":{\"uid\":");
-      snprintf (tmp, sizeof (tmp), "%d", uid);
+      snprintf (tmp, വലുപ്പം (tmp), "%d", uid);
       sb_puts (&sb, tmp);
       sb_puts (&sb, ",\"gid\":");
-      snprintf (tmp, sizeof (tmp), "%d", gid);
+      snprintf (tmp, വലുപ്പം (tmp), "%d", gid);
       sb_puts (&sb, tmp);
       sb_putc (&sb, '}');
     }
 
-  if (exec_options.process_label != NULL)
+  എങ്കിൽ (exec_options.process_label != ശൂന്യ)
     {
       sb_puts (&sb, ",\"selinuxLabel\":");
       sb_put_json_string (&sb, exec_options.process_label);
     }
 
-  if (exec_options.apparmor != NULL)
+  എങ്കിൽ (exec_options.apparmor != ശൂന്യ)
     {
       sb_puts (&sb, ",\"apparmorProfile\":");
       sb_put_json_string (&sb, exec_options.apparmor);
     }
 
-  if (exec_options.cap_size > 0)
+  എങ്കിൽ (exec_options.cap_size > 0)
     {
       sb_puts (&sb, ",\"capabilities\":{");
       sb_puts (&sb, "\"effective\":");
@@ -397,24 +397,24 @@ build_process_json (struct crun_global_arguments *global_args arg_unused, char *
     }
 
   /* noNewPrivileges remains at the config default unless explicitly requested.  */
-  if (exec_options.no_new_privs)
+  എങ്കിൽ (exec_options.no_new_privs)
     sb_puts (&sb, ",\"noNewPrivileges\":true");
 
   sb_putc (&sb, '}');
 
-  return sb.buf;
+  തിരികെ sb.buf;
 }
 
-int
-crun_command_exec (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+പൂർണ്ണസംഖ്യ
+crun_command_exec (ഘടന crun_global_arguments *global_args, പൂർണ്ണസംഖ്യ argc, അക്ഷരം **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret = 0;
-  cleanup_context libcrun_context_t *crun_context = NULL;
-  cleanup_free char *process_json = NULL;
-  struct libcrun_exec_options_s exec_opts;
+  പൂർണ്ണസംഖ്യ first_arg = 0, ret = 0;
+  cleanup_context libcrun_context_t *crun_context = ശൂന്യ;
+  cleanup_free അക്ഷരം *process_json = ശൂന്യ;
+  ഘടന libcrun_exec_options_s exec_opts;
 
-  memset (&exec_opts, 0, sizeof (exec_opts));
-  exec_opts.struct_size = sizeof (exec_opts);
+  memset (&exec_opts, 0, വലുപ്പം (exec_opts));
+  exec_opts.struct_size = വലുപ്പം (exec_opts);
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &exec_options);
   crun_assert_n_args (argc - first_arg, exec_options.process ? 1 : 2, -1);
@@ -423,33 +423,33 @@ crun_command_exec (struct crun_global_arguments *global_args, int argc, char **a
 
   libcrun_context_set_preserve_fds (crun_context, exec_options.preserve_fds);
 
-  if (getenv ("LISTEN_FDS"))
+  എങ്കിൽ (getenv ("LISTEN_FDS"))
     {
-      int listen_fds = strtoll (getenv ("LISTEN_FDS"), NULL, 10);
+      പൂർണ്ണസംഖ്യ listen_fds = strtoll (getenv ("LISTEN_FDS"), ശൂന്യ, 10);
       libcrun_context_set_listen_fds (crun_context, listen_fds);
       libcrun_context_set_preserve_fds (crun_context, exec_options.preserve_fds + listen_fds);
     }
 
   /* The process file may be passed as /dev/fd/N, so read it before
      closing the file descriptors.  */
-  if (exec_options.process)
+  എങ്കിൽ (exec_options.process)
     {
       process_json = read_file_to_string (exec_options.process, err);
-      if (process_json == NULL)
-        return -1;
+      എങ്കിൽ (process_json == ശൂന്യ)
+        തിരികെ -1;
       exec_opts.merge_env = false;
     }
-  else
+  അല്ലെങ്കിൽ
     {
-      cleanup_free char **args = NULL;
+      cleanup_free അക്ഷരം **args = ശൂന്യ;
       size_t args_len = argc - first_arg - 1;
       size_t i;
 
       /* argv[first_arg] is the container id, the command follows it.  */
-      args = xmalloc0 ((args_len + 1) * sizeof (*args));
-      for (i = 0; i < args_len; i++)
+      args = xmalloc0 ((args_len + 1) * വലുപ്പം (*args));
+      വേണ്ടി (i = 0; i < args_len; i++)
         args[i] = argv[first_arg + i + 1];
-      args[i] = NULL;
+      args[i] = ശൂന്യ;
 
       process_json = build_process_json (global_args, args, args_len);
       exec_opts.merge_env = true;
@@ -458,12 +458,12 @@ crun_command_exec (struct crun_global_arguments *global_args, int argc, char **a
   /* Close the file descriptors inherited from the caller, so they do
      not leak into the container.  */
   ret = libcrun_close_inherited_fds (crun_context, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
   libcrun_context_set_detach (crun_context, exec_options.detach);
   libcrun_context_set_console_socket (crun_context, exec_options.console_socket);
@@ -472,5 +472,5 @@ crun_command_exec (struct crun_global_arguments *global_args, int argc, char **a
   exec_opts.process_json = process_json;
   exec_opts.cgroup = exec_options.cgroup;
 
-  return libcrun_container_exec_with_options_json (crun_context, argv[first_arg], &exec_opts, err);
+  തിരികെ libcrun_container_exec_with_options_json (crun_context, argv[first_arg], &exec_opts, err);
 }

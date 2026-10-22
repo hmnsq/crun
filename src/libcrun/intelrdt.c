@@ -18,16 +18,16 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "linux.h"
-#include "utils.h"
-#include "intelrdt.h"
-#include <string.h>
-#include <sched.h>
-#include <fcntl.h>
-#include <sys/vfs.h>
-#include <unistd.h>
-#include <errno.h>
+#അന്തര്ഭാവ <config.h>
+#അന്തര്ഭാവ "linux.h"
+#അന്തര്ഭാവ "utils.h"
+#അന്തര്ഭാവ "intelrdt.h"
+#അന്തര്ഭാവ <string.h>
+#അന്തര്ഭാവ <sched.h>
+#അന്തര്ഭാവ <fcntl.h>
+#അന്തര്ഭാവ <sys/vfs.h>
+#അന്തര്ഭാവ <unistd.h>
+#അന്തര്ഭാവ <errno.h>
 
 #define INTEL_RDT_MOUNT_POINT "/sys/fs/resctrl"
 #define SCHEMATA_FILE "schemata"
@@ -35,95 +35,95 @@
 #define MON_GROUPS "mon_groups"
 #define RDTGROUP_SUPER_MAGIC 0x7655821
 
-static int
+സ്ഥിതം പൂർണ്ണസംഖ്യ
 is_rdt_mounted (libcrun_error_t *err)
 {
-  struct statfs sfs;
-  int ret;
+  ഘടന statfs sfs;
+  പൂർണ്ണസംഖ്യ ret;
 
   ret = statfs (INTEL_RDT_MOUNT_POINT, &sfs);
-  if (ret < 0)
-    return crun_make_error (err, errno, "statfs `%s`", INTEL_RDT_MOUNT_POINT);
+  എങ്കിൽ (ret < 0)
+    തിരികെ crun_make_error (err, errno, "statfs `%s`", INTEL_RDT_MOUNT_POINT);
 
-  return sfs.f_type == RDTGROUP_SUPER_MAGIC;
+  തിരികെ sfs.f_type == RDTGROUP_SUPER_MAGIC;
 }
 
-int
-get_rdt_value (char **out, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata)
+പൂർണ്ണസംഖ്യ
+get_rdt_മൂല്യം (അക്ഷരം **out, സ്ഥിരം അക്ഷരം *l3_cache_schema, സ്ഥിരം അക്ഷരം *mem_bw_schema, അക്ഷരം *സ്ഥിരം *schemata)
 {
-  cleanup_free char *schemata_joined = NULL;
+  cleanup_free അക്ഷരം *schemata_joined = ശൂന്യ;
   size_t schemata_size = 0;
 
-  while (schemata && schemata[schemata_size])
+  ആകുമ്പോൾ (schemata && schemata[schemata_size])
     schemata_size++;
 
-  if (schemata_size > 0)
+  എങ്കിൽ (schemata_size > 0)
     schemata_joined = str_join_array (0, schemata_size, schemata, "\n");
 
-  return xasprintf (out, "%s%s%s%s%s\n", l3_cache_schema ?: "",
+  തിരികെ xasprintf (out, "%s%s%s%s%s\n", l3_cache_schema ?: "",
                     (l3_cache_schema && mem_bw_schema) ? "\n" : "", mem_bw_schema ?: "",
                     ((l3_cache_schema || mem_bw_schema) && schemata_joined) ? "\n" : "", schemata_joined ?: "");
 }
 
-struct key_value
+ഘടന താക്കോൽ_മൂല്യം
 {
-  int key;
-  int value;
+  പൂർണ്ണസംഖ്യ താക്കോൽ;
+  പൂർണ്ണസംഖ്യ മൂല്യം;
 };
 
-static int
-kv_cmp (const void *p1, const void *p2)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+kv_cmp (സ്ഥിരം ശൂന്യം *p1, സ്ഥിരം ശൂന്യം *p2)
 {
-  const struct key_value *kv1 = p1;
-  const struct key_value *kv2 = p2;
+  സ്ഥിരം ഘടന താക്കോൽ_മൂല്യം *kv1 = p1;
+  സ്ഥിരം ഘടന താക്കോൽ_മൂല്യം *kv2 = p2;
 
   /* Not a subtraction: the keys are parsed out of the configuration, so two
      of them far enough apart make the difference overflow.  */
-  if (kv1->key < kv2->key)
-    return -1;
-  if (kv1->key > kv2->key)
-    return 1;
-  return 0;
+  എങ്കിൽ (kv1->താക്കോൽ < kv2->താക്കോൽ)
+    തിരികെ -1;
+  എങ്കിൽ (kv1->താക്കോൽ > kv2->താക്കോൽ)
+    തിരികെ 1;
+  തിരികെ 0;
 }
 
-static int
-count_parts (const char *str)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+എണ്ണം_parts (സ്ഥിരം അക്ഷരം *str)
 {
-  const char *it;
-  int ret = 0;
+  സ്ഥിരം അക്ഷരം *it;
+  പൂർണ്ണസംഖ്യ ret = 0;
 
-  for (it = str; *it; it++)
+  വേണ്ടി (it = str; *it; it++)
     {
-      if (*it == ';' || *(it + 1) == '\0')
+      എങ്കിൽ (*it == ';' || *(it + 1) == '\0')
         ret++;
     }
-  return ret;
+  തിരികെ ret;
 }
 
-static int
-read_kv (const char *value, struct key_value *out)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+read_kv (സ്ഥിരം അക്ഷരം *മൂല്യം, ഘടന താക്കോൽ_മൂല്യം *out)
 {
-  char *endptr;
+  അക്ഷരം *endptr;
 
-  out->key = strtoll (value, &endptr, 10);
-  if (*endptr != '=')
-    return 1;
+  out->താക്കോൽ = strtoll (മൂല്യം, &endptr, 10);
+  എങ്കിൽ (*endptr != '=')
+    തിരികെ 1;
 
   endptr++;
-  out->value = strtoll (endptr, NULL, 16);
-  return 0;
+  out->മൂല്യം = strtoll (endptr, ശൂന്യ, 16);
+  തിരികെ 0;
 }
 
-int
-compare_rdt_configurations (const char *a, const char *b)
+പൂർണ്ണസംഖ്യ
+compare_rdt_configurations (സ്ഥിരം അക്ഷരം *a, സ്ഥിരം അക്ഷരം *b)
 {
-  cleanup_free struct key_value *kv = NULL;
+  cleanup_free ഘടന താക്കോൽ_മൂല്യം *kv = ശൂന്യ;
   size_t i, n_parts_a = 0, n_parts_b = 0;
-  cleanup_free char *a_copy = NULL;
-  cleanup_free char *b_copy = NULL;
-  const char *it;
-  char *end;
-  int ret;
+  cleanup_free അക്ഷരം *a_copy = ശൂന്യ;
+  cleanup_free അക്ഷരം *b_copy = ശൂന്യ;
+  സ്ഥിരം അക്ഷരം *it;
+  അക്ഷരം *end;
+  പൂർണ്ണസംഖ്യ ret;
 
   it = strchr (a, ':');
   a = it ? it + 1 : a;
@@ -131,317 +131,317 @@ compare_rdt_configurations (const char *a, const char *b)
   it = strchr (b, ':');
   b = it ? it + 1 : b;
 
-  n_parts_a = count_parts (a);
-  n_parts_b = count_parts (b);
+  n_parts_a = എണ്ണം_parts (a);
+  n_parts_b = എണ്ണം_parts (b);
 
-  if (n_parts_a != n_parts_b)
-    return 1;
+  എങ്കിൽ (n_parts_a != n_parts_b)
+    തിരികെ 1;
 
-  kv = xmalloc (sizeof (struct key_value) * (n_parts_a + 1));
+  kv = xmalloc (വലുപ്പം (ഘടന താക്കോൽ_മൂല്യം) * (n_parts_a + 1));
 
   end = a_copy = xstrdup (a);
   i = 0;
-  while ((it = strsep (&end, ";")))
+  ആകുമ്പോൾ ((it = strsep (&end, ";")))
     {
-      if (it[0] == '\0')
-        break;
+      എങ്കിൽ (it[0] == '\0')
+        നിർത്തുക;
       ret = read_kv (it, &(kv[i]));
-      if (ret)
-        return 1;
+      എങ്കിൽ (ret)
+        തിരികെ 1;
       i++;
     }
 
-  qsort (kv, i, sizeof (struct key_value), kv_cmp);
+  qsort (kv, i, വലുപ്പം (ഘടന താക്കോൽ_മൂല്യം), kv_cmp);
 
   end = b_copy = xstrdup (b);
-  while ((it = strsep (&end, ";")))
+  ആകുമ്പോൾ ((it = strsep (&end, ";")))
     {
-      struct key_value key;
-      struct key_value *res;
+      ഘടന താക്കോൽ_മൂല്യം താക്കോൽ;
+      ഘടന താക്കോൽ_മൂല്യം *res;
 
-      if (it[0] == '\0')
-        break;
+      എങ്കിൽ (it[0] == '\0')
+        നിർത്തുക;
 
-      ret = read_kv (it, &key);
-      if (ret)
-        return 1;
+      ret = read_kv (it, &താക്കോൽ);
+      എങ്കിൽ (ret)
+        തിരികെ 1;
 
-      res = bsearch (&key, kv, n_parts_a, sizeof (struct key_value), kv_cmp);
-      if (res == NULL || res->value != key.value)
-        return 1;
+      res = bsearch (&താക്കോൽ, kv, n_parts_a, വലുപ്പം (ഘടന താക്കോൽ_മൂല്യം), kv_cmp);
+      എങ്കിൽ (res == ശൂന്യ || res->മൂല്യം != താക്കോൽ.മൂല്യം)
+        തിരികെ 1;
     }
 
-  return 0;
+  തിരികെ 0;
 }
 
-static bool
-is_default_clos (const char *name)
+സ്ഥിതം bool
+is_default_clos (സ്ഥിരം അക്ഷരം *name)
 {
-  return strcmp (name, "/") == 0;
+  തിരികെ strcmp (name, "/") == 0;
 }
 
-static int
-get_resctrl_path (char **path, const char *file, const char *name, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+get_resctrl_path (അക്ഷരം **path, സ്ഥിരം അക്ഷരം *file, സ്ഥിരം അക്ഷരം *name, libcrun_error_t *err)
 {
-  return append_paths (path, err, INTEL_RDT_MOUNT_POINT, name, file, NULL);
+  തിരികെ append_paths (path, err, INTEL_RDT_MOUNT_POINT, name, file, ശൂന്യ);
 }
 
-static int
-validate_rdt_configuration (const char *name, const char *l3_cache_schema, const char *mem_bw_schema, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+validate_rdt_configuration (സ്ഥിരം അക്ഷരം *name, സ്ഥിരം അക്ഷരം *l3_cache_schema, സ്ഥിരം അക്ഷരം *mem_bw_schema, libcrun_error_t *err)
 {
-  cleanup_free char *existing_content = NULL;
-  cleanup_free char *path = NULL;
-  char *it, *end;
-  int ret;
+  cleanup_free അക്ഷരം *existing_content = ശൂന്യ;
+  cleanup_free അക്ഷരം *path = ശൂന്യ;
+  അക്ഷരം *it, *end;
+  പൂർണ്ണസംഖ്യ ret;
 
   ret = get_resctrl_path (&path, SCHEMATA_FILE, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
-  ret = read_all_file (path, &existing_content, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file (path, &existing_content, ശൂന്യ, err);
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
   end = existing_content;
-  while ((it = strsep (&end, "\n")))
+  ആകുമ്പോൾ ((it = strsep (&end, "\n")))
     {
       ret = 0;
 
-      if (mem_bw_schema && has_prefix (it, "MB:"))
+      എങ്കിൽ (mem_bw_schema && has_prefix (it, "MB:"))
         ret = compare_rdt_configurations (it, mem_bw_schema);
 
-      if (l3_cache_schema && has_prefix (it, "L3:"))
+      എങ്കിൽ (l3_cache_schema && has_prefix (it, "L3:"))
         ret = compare_rdt_configurations (it, l3_cache_schema);
 
-      if (ret)
-        return crun_make_error (err, 0, "the resctl group `%s` has a different configuration", name);
+      എങ്കിൽ (ret)
+        തിരികെ crun_make_error (err, 0, "the resctl group `%s` has a different configuration", name);
     }
 
-  return 0;
+  തിരികെ 0;
 }
 
-static int
-write_intelrdt_string (int fd, const char *file, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+write_intelrdt_string (പൂർണ്ണസംഖ്യ fd, സ്ഥിരം അക്ഷരം *file, സ്ഥിരം അക്ഷരം *l3_cache_schema, സ്ഥിരം അക്ഷരം *mem_bw_schema, അക്ഷരം *സ്ഥിരം *schemata, libcrun_error_t *err)
 {
-  cleanup_free char *formatted = NULL;
-  int len, ret;
+  cleanup_free അക്ഷരം *formatted = ശൂന്യ;
+  പൂർണ്ണസംഖ്യ len, ret;
 
-  len = get_rdt_value (&formatted, l3_cache_schema, mem_bw_schema, schemata);
-  if (len < 0)
-    return crun_make_error (err, errno, "internal error get_rdt_value");
+  len = get_rdt_മൂല്യം (&formatted, l3_cache_schema, mem_bw_schema, schemata);
+  എങ്കിൽ (len < 0)
+    തിരികെ crun_make_error (err, errno, "internal error get_rdt_value");
 
-  ret = write (fd, formatted, len);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "write `%s`", file);
+  ret = ലിഖ (fd, formatted, len);
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ crun_make_error (err, errno, "write `%s`", file);
 
-  return 0;
+  തിരികെ 0;
 }
 
 /* filter any line in the l3_cache_schema that starts with MB:.  */
-char *
-intelrdt_clean_l3_cache_schema (const char *l3_cache_schema)
+അക്ഷരം *
+intelrdt_clean_l3_cache_schema (സ്ഥിരം അക്ഷരം *l3_cache_schema)
 {
   size_t i, j, len = strlen (l3_cache_schema);
-  char *ret;
+  അക്ഷരം *ret;
 
   ret = xmalloc (len + 1);
 
-  for (i = 0, j = 0; i < len; i++)
+  വേണ്ടി (i = 0, j = 0; i < len; i++)
     {
-      if (l3_cache_schema[i] == 'M' && l3_cache_schema[i + 1] == 'B' && l3_cache_schema[i + 2] == ':')
+      എങ്കിൽ (l3_cache_schema[i] == 'M' && l3_cache_schema[i + 1] == 'B' && l3_cache_schema[i + 2] == ':')
         {
           i += 3;
-          while (l3_cache_schema[i] != '\n' && l3_cache_schema[i] != '\0')
+          ആകുമ്പോൾ (l3_cache_schema[i] != '\n' && l3_cache_schema[i] != '\0')
             i++;
-          continue;
+          തുടരുക;
         }
       ret[j++] = l3_cache_schema[i];
     }
   ret[j] = '\0';
-  return ret;
+  തിരികെ ret;
 }
 
-int
-resctl_create (const char *name, bool explicit_clos_id, bool *created, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err)
+പൂർണ്ണസംഖ്യ
+resctl_create (സ്ഥിരം അക്ഷരം *name, bool explicit_clos_id, bool *created, സ്ഥിരം അക്ഷരം *l3_cache_schema, സ്ഥിരം അക്ഷരം *mem_bw_schema, അക്ഷരം *സ്ഥിരം *schemata, libcrun_error_t *err)
 {
-  cleanup_free char *cleaned_l3_cache_schema = NULL;
-  cleanup_free char *path = NULL;
-  int exist;
-  int ret;
+  cleanup_free അക്ഷരം *cleaned_l3_cache_schema = ശൂന്യ;
+  cleanup_free അക്ഷരം *path = ശൂന്യ;
+  പൂർണ്ണസംഖ്യ exist;
+  പൂർണ്ണസംഖ്യ ret;
 
   *created = false;
 
   ret = is_rdt_mounted (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
-  if (ret == 0)
-    return crun_make_error (err, 0, "the resctl file system is not mounted");
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
+  എങ്കിൽ (ret == 0)
+    തിരികെ crun_make_error (err, 0, "the resctl file system is not mounted");
 
-  ret = get_resctrl_path (&path, NULL, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_resctrl_path (&path, ശൂന്യ, name, err);
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
   exist = crun_path_exists (path, err);
-  if (UNLIKELY (exist < 0))
-    return exist;
+  എങ്കിൽ (UNLIKELY (exist < 0))
+    തിരികെ exist;
 
-  if (l3_cache_schema && strstr (l3_cache_schema, "MB:"))
+  എങ്കിൽ (l3_cache_schema && strstr (l3_cache_schema, "MB:"))
     l3_cache_schema = cleaned_l3_cache_schema = intelrdt_clean_l3_cache_schema (l3_cache_schema);
 
   /* If the closID was specified and both l3cache and bwSchema are unset, and schemata is empty,
      the group must exist.  */
-  if (explicit_clos_id && is_empty_string (l3_cache_schema) && is_empty_string (mem_bw_schema) && (schemata == NULL))
+  എങ്കിൽ (explicit_clos_id && is_empty_string (l3_cache_schema) && is_empty_string (mem_bw_schema) && (schemata == ശൂന്യ))
     {
-      if (exist || is_default_clos (name))
-        return 0;
+      എങ്കിൽ (exist || is_default_clos (name))
+        തിരികെ 0;
 
-      return crun_make_error (err, 0, "the resctl group `%s` does not exist", name);
+      തിരികെ crun_make_error (err, 0, "the resctl group `%s` does not exist", name);
     }
 
   /* If the closID exists then it must match the specified configuration.  */
-  if (exist && (l3_cache_schema != NULL || mem_bw_schema != NULL))
-    return validate_rdt_configuration (name, l3_cache_schema, mem_bw_schema, err);
+  എങ്കിൽ (exist && (l3_cache_schema != ശൂന്യ || mem_bw_schema != ശൂന്യ))
+    തിരികെ validate_rdt_configuration (name, l3_cache_schema, mem_bw_schema, err);
 
-  if (is_default_clos (name))
-    return 0;
+  എങ്കിൽ (is_default_clos (name))
+    തിരികെ 0;
 
   /* At this point, assume it was created.  */
   ret = crun_ensure_directory (path, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
   *created = true;
 
-  return 0;
+  തിരികെ 0;
 }
 
-int
-resctl_move_task_to (const char *name, const char *monitoring_name, pid_t pid, libcrun_error_t *err)
+പൂർണ്ണസംഖ്യ
+resctl_move_task_to (സ്ഥിരം അക്ഷരം *name, സ്ഥിരം അക്ഷരം *monitoring_name, pid_t pid, libcrun_error_t *err)
 {
-  cleanup_free char *monitoring_path = NULL;
-  cleanup_free char *path = NULL;
-  char pid_str[32];
-  int len;
-  int ret;
+  cleanup_free അക്ഷരം *monitoring_path = ശൂന്യ;
+  cleanup_free അക്ഷരം *path = ശൂന്യ;
+  അക്ഷരം pid_str[32];
+  പൂർണ്ണസംഖ്യ len;
+  പൂർണ്ണസംഖ്യ ret;
 
   ret = get_resctrl_path (&path, TASKS_FILE, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
-  len = snprintf (pid_str, sizeof (pid_str), "%d", pid);
-  if (UNLIKELY (len >= (int) sizeof (pid_str)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  len = snprintf (pid_str, വലുപ്പം (pid_str), "%d", pid);
+  എങ്കിൽ (UNLIKELY (len >= (പൂർണ്ണസംഖ്യ) വലുപ്പം (pid_str)))
+    തിരികെ crun_make_error (err, 0, "internal error: static buffer too small");
 
   ret = write_file (path, pid_str, len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
-  if (monitoring_name)
+  എങ്കിൽ (monitoring_name)
     {
-      ret = append_paths (&monitoring_path, err, INTEL_RDT_MOUNT_POINT, name, MON_GROUPS, monitoring_name, TASKS_FILE, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&monitoring_path, err, INTEL_RDT_MOUNT_POINT, name, MON_GROUPS, monitoring_name, TASKS_FILE, ശൂന്യ);
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
 
       ret = write_file (monitoring_path, pid_str, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      എങ്കിൽ (UNLIKELY (ret < 0))
+        തിരികെ ret;
     }
 
-  return 0;
+  തിരികെ 0;
 }
 
-int
-resctl_update (const char *name, const char *l3_cache_schema, const char *mem_bw_schema,
-               char *const *schemata, libcrun_error_t *err)
+പൂർണ്ണസംഖ്യ
+resctl_update (സ്ഥിരം അക്ഷരം *name, സ്ഥിരം അക്ഷരം *l3_cache_schema, സ്ഥിരം അക്ഷരം *mem_bw_schema,
+               അക്ഷരം *സ്ഥിരം *schemata, libcrun_error_t *err)
 {
-  const char *actual_l3_cache_schema = l3_cache_schema;
-  cleanup_free char *cleaned_l3_cache_schema = NULL;
-  cleanup_free char *path = NULL;
-  cleanup_close int fd = -1;
-  int ret;
+  സ്ഥിരം അക്ഷരം *actual_l3_cache_schema = l3_cache_schema;
+  cleanup_free അക്ഷരം *cleaned_l3_cache_schema = ശൂന്യ;
+  cleanup_free അക്ഷരം *path = ശൂന്യ;
+  cleanup_close പൂർണ്ണസംഖ്യ fd = -1;
+  പൂർണ്ണസംഖ്യ ret;
 
   /* Nothing to do.  */
-  if (l3_cache_schema == NULL && mem_bw_schema == NULL && schemata == NULL)
-    return 0;
+  എങ്കിൽ (l3_cache_schema == ശൂന്യ && mem_bw_schema == ശൂന്യ && schemata == ശൂന്യ)
+    തിരികെ 0;
 
   ret = get_resctrl_path (&path, SCHEMATA_FILE, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
-  if (l3_cache_schema && strstr (l3_cache_schema, "MB:"))
+  എങ്കിൽ (l3_cache_schema && strstr (l3_cache_schema, "MB:"))
     {
       cleaned_l3_cache_schema = intelrdt_clean_l3_cache_schema (l3_cache_schema);
       actual_l3_cache_schema = cleaned_l3_cache_schema;
     }
 
   fd = open (path, O_WRONLY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s` for writing", path);
+  എങ്കിൽ (UNLIKELY (fd < 0))
+    തിരികെ crun_make_error (err, errno, "open `%s` for writing", path);
 
-  return write_intelrdt_string (fd, path, actual_l3_cache_schema, mem_bw_schema, schemata, err);
+  തിരികെ write_intelrdt_string (fd, path, actual_l3_cache_schema, mem_bw_schema, schemata, err);
 }
 
-static int
-resctl_get_monitoring_path (const char *resctrl_group_name, const char *container_id, char **monitoring_path, libcrun_error_t *err)
+സ്ഥിതം പൂർണ്ണസംഖ്യ
+resctl_get_monitoring_path (സ്ഥിരം അക്ഷരം *resctrl_group_name, സ്ഥിരം അക്ഷരം *container_id, അക്ഷരം **monitoring_path, libcrun_error_t *err)
 {
-  int ret;
+  പൂർണ്ണസംഖ്യ ret;
 
-  ret = append_paths (monitoring_path, err, INTEL_RDT_MOUNT_POINT, resctrl_group_name, MON_GROUPS, container_id, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (monitoring_path, err, INTEL_RDT_MOUNT_POINT, resctrl_group_name, MON_GROUPS, container_id, ശൂന്യ);
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
-  return 0;
+  തിരികെ 0;
 }
 
-int
-resctl_destroy_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err)
+പൂർണ്ണസംഖ്യ
+resctl_destroy_monitoring_group (സ്ഥിരം അക്ഷരം *resctrl_group_name, സ്ഥിരം അക്ഷരം *container_id, libcrun_error_t *err)
 {
-  cleanup_free char *monitoring_path = NULL;
-  int ret;
+  cleanup_free അക്ഷരം *monitoring_path = ശൂന്യ;
+  പൂർണ്ണസംഖ്യ ret;
 
   ret = resctl_get_monitoring_path (resctrl_group_name, container_id, &monitoring_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
   ret = rmdir (monitoring_path);
-  if (UNLIKELY (ret < 0 && errno != ENOENT))
-    return crun_make_error (err, errno, "rmdir `%s`", monitoring_path);
+  എങ്കിൽ (UNLIKELY (ret < 0 && errno != ENOENT))
+    തിരികെ crun_make_error (err, errno, "rmdir `%s`", monitoring_path);
 
-  return 0;
+  തിരികെ 0;
 }
 
-int
-resctl_destroy (const char *name, libcrun_error_t *err)
+പൂർണ്ണസംഖ്യ
+resctl_destroy (സ്ഥിരം അക്ഷരം *name, libcrun_error_t *err)
 {
-  cleanup_free char *path = NULL;
-  int ret;
+  cleanup_free അക്ഷരം *path = ശൂന്യ;
+  പൂർണ്ണസംഖ്യ ret;
 
-  if (is_default_clos (name))
-    return 0;
+  എങ്കിൽ (is_default_clos (name))
+    തിരികെ 0;
 
-  ret = get_resctrl_path (&path, NULL, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_resctrl_path (&path, ശൂന്യ, name, err);
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
   ret = rmdir (path);
-  if (UNLIKELY (ret < 0 && errno != ENOENT))
-    return crun_make_error (err, errno, "rmdir `%s`", path);
+  എങ്കിൽ (UNLIKELY (ret < 0 && errno != ENOENT))
+    തിരികെ crun_make_error (err, errno, "rmdir `%s`", path);
 
-  return 0;
+  തിരികെ 0;
 }
 
-int
-resctl_create_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err)
+പൂർണ്ണസംഖ്യ
+resctl_create_monitoring_group (സ്ഥിരം അക്ഷരം *resctrl_group_name, സ്ഥിരം അക്ഷരം *container_id, libcrun_error_t *err)
 {
-  cleanup_free char *monitoring_path = NULL;
-  int ret;
+  cleanup_free അക്ഷരം *monitoring_path = ശൂന്യ;
+  പൂർണ്ണസംഖ്യ ret;
 
   ret = resctl_get_monitoring_path (resctrl_group_name, container_id, &monitoring_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
   ret = crun_ensure_directory (monitoring_path, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  എങ്കിൽ (UNLIKELY (ret < 0))
+    തിരികെ ret;
 
-  return 0;
+  തിരികെ 0;
 }

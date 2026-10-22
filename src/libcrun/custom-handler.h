@@ -19,84 +19,84 @@
 #ifndef CUSTOM_HANDLER_H
 #define CUSTOM_HANDLER_H
 
-#include "container.h"
-#include "utils.h"
-#include <stdio.h>
+#അന്തര്ഭാവ "container.h"
+#അന്തര്ഭാവ "utils.h"
+#അന്തര്ഭാവ <stdio.h>
 
-struct custom_handler_s
+ഘടന custom_handler_s
 {
-  const char *name;
-  const char *feature_string;
+  സ്ഥിരം അക്ഷരം *name;
+  സ്ഥിരം അക്ഷരം *feature_string;
 
-  const char *alias;
+  സ്ഥിരം അക്ഷരം *alias;
 
-  const bool supports_open_tree_namespace;
+  സ്ഥിരം bool supports_open_വൃക്ഷം_namespace;
 
-  int (*load) (void **cookie, libcrun_error_t *err);
-  int (*unload) (void *cookie, libcrun_error_t *err);
+  പൂർണ്ണസംഖ്യ (*load) (ശൂന്യം **cookie, libcrun_error_t *err);
+  പൂർണ്ണസംഖ്യ (*unload) (ശൂന്യം *cookie, libcrun_error_t *err);
 
-  int (*run_func) (void *cookie, libcrun_container_t *container,
-                   const char *pathname, char *const argv[]);
+  പൂർണ്ണസംഖ്യ (*run_func) (ശൂന്യം *cookie, libcrun_container_t *container,
+                   സ്ഥിരം അക്ഷരം *pathname, അക്ഷരം *സ്ഥിരം argv[]);
 
-  int (*exec_func) (void *cookie, libcrun_container_t *container,
-                    const char *pathname, char *const argv[]);
+  പൂർണ്ണസംഖ്യ (*exec_func) (ശൂന്യം *cookie, libcrun_container_t *container,
+                    സ്ഥിരം അക്ഷരം *pathname, അക്ഷരം *സ്ഥിരം argv[]);
 
-  int (*configure_container) (void *cookie, enum handler_configure_phase phase,
+  പൂർണ്ണസംഖ്യ (*configure_container) (ശൂന്യം *cookie, എണ്ണൽ handler_configure_phase phase,
                               libcrun_context_t *context, libcrun_container_t *container,
-                              const char *rootfs, libcrun_error_t *err);
+                              സ്ഥിരം അക്ഷരം *rootfs, libcrun_error_t *err);
 
-  int (*can_handle_container) (libcrun_container_t *container, libcrun_error_t *err);
+  പൂർണ്ണസംഖ്യ (*can_handle_container) (libcrun_container_t *container, libcrun_error_t *err);
 
-  int (*modify_oci_configuration) (void *cookie, libcrun_context_t *context,
+  പൂർണ്ണസംഖ്യ (*modify_oci_configuration) (ശൂന്യം *cookie, libcrun_context_t *context,
                                    runtime_spec_schema_config_schema *def,
                                    libcrun_error_t *err);
 
-  int (*close_fds) (void *cookie, libcrun_container_t *container,
-                    int preserve_fds, libcrun_error_t *err);
+  പൂർണ്ണസംഖ്യ (*close_fds) (ശൂന്യം *cookie, libcrun_container_t *container,
+                    പൂർണ്ണസംഖ്യ preserve_fds, libcrun_error_t *err);
 };
 
-struct custom_handler_manager_s;
+ഘടന custom_handler_manager_s;
 
-LIBCRUN_PUBLIC struct custom_handler_manager_s *libcrun_handler_manager_create (libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_handler_manager_load_directory (struct custom_handler_manager_s *manager, const char *path, libcrun_error_t *err);
-LIBCRUN_PUBLIC void handler_manager_free (struct custom_handler_manager_s *manager);
+LIBCRUN_PUBLIC ഘടന custom_handler_manager_s *libcrun_handler_manager_create (libcrun_error_t *err);
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_handler_manager_load_directory (ഘടന custom_handler_manager_s *manager, സ്ഥിരം അക്ഷരം *path, libcrun_error_t *err);
+LIBCRUN_PUBLIC ശൂന്യം handler_manager_free (ഘടന custom_handler_manager_s *manager);
 
-LIBCRUN_PUBLIC struct custom_handler_s *handler_by_name (struct custom_handler_manager_s *manager, const char *name);
-LIBCRUN_PUBLIC void libcrun_handler_manager_print_feature_tags (struct custom_handler_manager_s *manager, FILE *out);
-LIBCRUN_PUBLIC char **libcrun_context_get_handler_feature_tags (libcrun_context_t *ctx, libcrun_error_t *err);
+LIBCRUN_PUBLIC ഘടന custom_handler_s *handler_by_name (ഘടന custom_handler_manager_s *manager, സ്ഥിരം അക്ഷരം *name);
+LIBCRUN_PUBLIC ശൂന്യം libcrun_handler_manager_print_feature_tags (ഘടന custom_handler_manager_s *manager, FILE *out);
+LIBCRUN_PUBLIC അക്ഷരം **libcrun_context_get_handler_feature_tags (libcrun_context_t *ctx, libcrun_error_t *err);
 
-struct custom_handler_instance_s
+ഘടന custom_handler_instance_s
 {
-  struct custom_handler_s *vtable;
-  void *cookie;
+  ഘടന custom_handler_s *vtable;
+  ശൂന്യം *cookie;
 };
 
-LIBCRUN_PUBLIC int libcrun_configure_handler (struct custom_handler_manager_s *manager,
+LIBCRUN_PUBLIC പൂർണ്ണസംഖ്യ libcrun_configure_handler (ഘടന custom_handler_manager_s *manager,
                                               libcrun_context_t *context,
                                               libcrun_container_t *container,
-                                              struct custom_handler_instance_s **out,
+                                              ഘടന custom_handler_instance_s **out,
                                               libcrun_error_t *err);
 
-typedef struct custom_handler_s *(*run_oci_get_handler_cb) ();
+തരനിർവചനം ഘടന custom_handler_s *(*run_oci_get_handler_cb) ();
 
 #define cleanup_custom_handler_instance __attribute__ ((cleanup (cleanup_custom_handler_instancep)))
 
-static inline void
-cleanup_custom_handler_instancep (struct custom_handler_instance_s **p)
+സ്ഥിതം വരിയിൽ ശൂന്യം
+cleanup_custom_handler_instancep (ഘടന custom_handler_instance_s **p)
 {
-  struct custom_handler_instance_s *handler = (struct custom_handler_instance_s *) *p;
-  if (handler)
+  ഘടന custom_handler_instance_s *handler = (ഘടന custom_handler_instance_s *) *p;
+  എങ്കിൽ (handler)
     {
-      if (handler->vtable)
+      എങ്കിൽ (handler->vtable)
         {
-          libcrun_error_t tmp_err = NULL;
-          int tmp_ret;
+          libcrun_error_t tmp_err = ശൂന്യ;
+          പൂർണ്ണസംഖ്യ tmp_ret;
 
           tmp_ret = handler->vtable->unload (handler->cookie, &tmp_err);
-          if (UNLIKELY (tmp_ret < 0))
+          എങ്കിൽ (UNLIKELY (tmp_ret < 0))
             crun_error_release (&tmp_err);
         }
-      free (handler);
+      സ്വതന്ത്രം (handler);
     }
 }
 
