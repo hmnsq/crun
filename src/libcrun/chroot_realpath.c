@@ -24,22 +24,22 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+#ضمن <config.h>
 #endif
 
-#include <sys/types.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
-#include <strings.h>
-#include <limits.h>				/* for PATH_MAX */
-#include <sys/param.h>			/* for MAXPATHLEN */
-#include <errno.h>
+#ضمن <sys/types.h>
+#ضمن <unistd.h>
+#ضمن <stdio.h>
+#ضمن <string.h>
+#ضمن <strings.h>
+#ضمن <limits.h>				/* for PATH_MAX */
+#ضمن <sys/param.h>			/* for MAXPATHLEN */
+#ضمن <errno.h>
 #ifndef __set_errno
 #define __set_errno(val) ((errno) = (val))
 #endif
 
-#include <sys/stat.h>			/* for S_IFLNK */
+#ضمن <sys/stat.h>			/* for S_IFLNK */
 
 #ifndef PATH_MAX
 #define PATH_MAX _POSIX_PATH_MAX
@@ -57,35 +57,35 @@
 
    On failure NULL is returned and errno is set to either ENAMETOOLONG or
    ELOOP, or to any error readlink(2) can report except ENOENT and EINVAL. */
-char *chroot_realpath(const char *chroot, const char *path, char resolved_path[])
+حرف *chroot_realpath(ثابت حرف *chroot, ثابت حرف *path, حرف resolved_path[])
 {
-	char copy_path[PATH_MAX];
-	char link_path[PATH_MAX];
-	char got_path[PATH_MAX];
-	char *got_path_root = got_path;
-	char *new_path = got_path;
-	char *max_path;
-	int readlinks = 0;
-	int n;
-	int chroot_len;
-	int last_component;
+	حرف copy_path[PATH_MAX];
+	حرف link_path[PATH_MAX];
+	حرف got_path[PATH_MAX];
+	حرف *got_path_root = got_path;
+	حرف *new_path = got_path;
+	حرف *max_path;
+	صحيح readlinks = 0;
+	صحيح n;
+	صحيح chroot_len;
+	صحيح last_component;
 
 	/* Trivial case. */
-	if (chroot == NULL || *chroot == '\0' ||
+	ܐܢ (chroot == عدم || *chroot == '\0' ||
 	    (*chroot == '/' && chroot[1] == '\0')) {
-		if (strlen(path) >= PATH_MAX) {
+		ܐܢ (strlen(path) >= PATH_MAX) {
 			__set_errno(ENAMETOOLONG);
-			return NULL;
+			ܦܢܐ عدم;
 		}
 		strcpy(resolved_path, path);
-		return resolved_path;
+		ܦܢܐ resolved_path;
 	}
 
 	chroot_len = strlen(chroot);
 
-	if (chroot_len + strlen(path) >= PATH_MAX - 3) {
+	ܐܢ (chroot_len + strlen(path) >= PATH_MAX - 3) {
 		__set_errno(ENAMETOOLONG);
-		return NULL;
+		ܦܢܐ عدم;
 	}
 
 	/* Make a copy of the source path since we may need to modify it. */
@@ -101,35 +101,35 @@ char *chroot_realpath(const char *chroot, const char *path, char resolved_path[]
 	*new_path++ = '/';
 
 	/* Expand each slash-separated pathname component. */
-	while (*path != '\0') {
+	ܟܡܐ (*path != '\0') {
 		/* Ignore stray "/". */
-		if (*path == '/') {
+		ܐܢ (*path == '/') {
 			path++;
-			continue;
+			استمر;
 		}
-		if (*path == '.') {
+		ܐܢ (*path == '.') {
 			/* Ignore ".". */
-			if (path[1] == '\0' || path[1] == '/') {
+			ܐܢ (path[1] == '\0' || path[1] == '/') {
 				path++;
-				continue;
+				استمر;
 			}
-			if (path[1] == '.') {
-				if (path[2] == '\0' || path[2] == '/') {
+			ܐܢ (path[1] == '.') {
+				ܐܢ (path[2] == '\0' || path[2] == '/') {
 					path += 2;
 					/* Ignore ".." at root. */
-					if (new_path == got_path_root + 1)
-						continue;
+					ܐܢ (new_path == got_path_root + 1)
+						استمر;
 					/* Handle ".." by backing up. */
-					while ((--new_path)[-1] != '/');
-					continue;
+					ܟܡܐ ((--new_path)[-1] != '/');
+					استمر;
 				}
 			}
 		}
 		/* Safely copy the next pathname component. */
-		while (*path != '\0' && *path != '/') {
-			if (path > max_path || new_path >= got_path + PATH_MAX - 1) {
+		ܟܡܐ (*path != '\0' && *path != '/') {
+			ܐܢ (path > max_path || new_path >= got_path + PATH_MAX - 1) {
 				__set_errno(ENAMETOOLONG);
-				return NULL;
+				ܦܢܐ عدم;
 			}
 			*new_path++ = *path++;
 		}
@@ -138,45 +138,45 @@ char *chroot_realpath(const char *chroot, const char *path, char resolved_path[]
 
 #ifdef S_IFLNK
 		/* Protect against infinite loops. */
-		if (readlinks++ > MAX_READLINKS) {
+		ܐܢ (readlinks++ > MAX_READLINKS) {
 			__set_errno(ELOOP);
-			return NULL;
+			ܦܢܐ عدم;
 		}
 		/* See if latest pathname component is a symlink. */
 		*new_path = '\0';
 		n = readlink(got_path, link_path, PATH_MAX - 1);
-		if (n < 0) {
+		ܐܢ (n < 0) {
 			/* If a component doesn't exist, then return what we could translate. */
-			if (errno == ENOENT) {
-				int ret = snprintf (resolved_path, PATH_MAX, "%s%s%s", got_path, path[0] == '/' || path[0] == '\0' ? "" : "/", path);
-				if (ret >= PATH_MAX) {
+			ܐܢ (errno == ENOENT) {
+				صحيح ret = snprintf (resolved_path, PATH_MAX, "%s%s%s", got_path, path[0] == '/' || path[0] == '\0' ? "" : "/", path);
+				ܐܢ (ret >= PATH_MAX) {
 					__set_errno(ENAMETOOLONG);
-					return NULL;
+					ܦܢܐ عدم;
 				}
-				return resolved_path;
+				ܦܢܐ resolved_path;
 			}
 			/* EINVAL means the file exists but isn't a symlink. */
-			if (errno != EINVAL)
-				return NULL;
-		} else {
+			ܐܢ (errno != EINVAL)
+				ܦܢܐ عدم;
+		} ܐܚܪܢܐ {
 			/* Note: readlink doesn't add the null byte. */
 			link_path[n] = '\0';
-			if (*link_path == '/') {
+			ܐܢ (*link_path == '/') {
 				/* Start over for an absolute symlink. */
 				new_path = got_path_root;
 				*new_path++ = '/';
 			}
-			else {
+			ܐܚܪܢܐ {
 				/* Otherwise back up over this component, keeping the
 				   separator, so that the expanded symlink is not
 				   concatenated to the parent directory name. */
-				while (*(--new_path) != '/');
+				ܟܡܐ (*(--new_path) != '/');
 				new_path++;
 			}
 			/* Safe sex check. */
-			if (strlen(path) + n >= PATH_MAX - 2) {
+			ܐܢ (strlen(path) + n >= PATH_MAX - 2) {
 				__set_errno(ENAMETOOLONG);
-				return NULL;
+				ܦܢܐ عدم;
 			}
 			/* Insert symlink contents into path. */
 			strcat(link_path, path);
@@ -184,19 +184,19 @@ char *chroot_realpath(const char *chroot, const char *path, char resolved_path[]
 			path = copy_path;
 		}
 #endif							/* S_IFLNK */
-		if (!last_component) {
-			if (new_path >= got_path + PATH_MAX - 1) {
+		ܐܢ (!last_component) {
+			ܐܢ (new_path >= got_path + PATH_MAX - 1) {
 				__set_errno(ENAMETOOLONG);
-				return NULL;
+				ܦܢܐ عدم;
 			}
 			*new_path++ = '/';
 		}
 	}
 	/* Delete trailing slash but don't whomp a lone slash. */
-	if (new_path != got_path + 1 && new_path[-1] == '/')
+	ܐܢ (new_path != got_path + 1 && new_path[-1] == '/')
 		new_path--;
 	/* Make sure it's null terminated. */
 	*new_path = '\0';
 	strcpy(resolved_path, got_path);
-	return resolved_path;
+	ܦܢܐ resolved_path;
 }

@@ -18,8 +18,8 @@
 #ifndef UNPAUSE_H
 #define UNPAUSE_H
 
-#include "crun.h"
+#ضمن "crun.h"
 
-int crun_command_unpause (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+صحيح crun_command_unpause (بنية crun_global_arguments *global_args, صحيح argc, حرف **argv, libcrun_error_t *error);
 
 #endif

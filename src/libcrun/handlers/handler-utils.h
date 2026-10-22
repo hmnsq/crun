@@ -18,9 +18,9 @@
 #ifndef HANDLER_UTILS_H
 #define HANDLER_UTILS_H
 
-#include "../container.h"
-#include <unistd.h>
+#ضمن "../container.h"
+#ضمن <unistd.h>
 
-int wasm_can_handle_container (libcrun_container_t *container, libcrun_error_t *err);
+صحيح wasm_can_handle_container (libcrun_container_t *container, libcrun_error_t *err);
 
 #endif

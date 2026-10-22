@@ -17,10 +17,10 @@
  */
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "../custom-handler.h"
-#include "../linux.h"
-#include <sys/stat.h>
+#ضمن <config.h>
+#ضمن "../custom-handler.h"
+#ضمن "../linux.h"
+#ضمن <sys/stat.h>
 
 #ifdef HAVE_DLOPEN
 #  include <dlfcn.h>
@@ -30,18 +30,18 @@
 
 #endif
 
-#if HAVE_DLOPEN && HAVE_SPIN
-static int
-spin_exec (void *cookie arg_unused, libcrun_container_t *container arg_unused,
-           const char *pathname arg_unused, char *const argv[] arg_unused)
+#ܐܢ HAVE_DLOPEN && HAVE_SPIN
+ساكن صحيح
+spin_exec (فراغ *cookie arg_unused, libcrun_container_t *container arg_unused,
+           ثابت حرف *pathname arg_unused, حرف *ثابت argv[] arg_unused)
 {
   // wasmtime fails to determine default config path if $HOME is not set
-  char *newenviron[] = { "HOME=/root", NULL };
-  char *newargv[] = { "/bin/spin", "up", "--listen", "0.0.0.0:80", NULL };
+  حرف *newenviron[] = { "HOME=/root", عدم };
+  حرف *newargv[] = { "/bin/spin", "up", "--listen", "0.0.0.0:80", عدم };
 
   // spin up needs a /tmp folder
-  int dir_result = mkdir ("/tmp", 0777);
-  if (dir_result != 0 && errno != EEXIST)
+  صحيح dir_result = mkdir ("/tmp", 0777);
+  ܐܢ (dir_result != 0 && errno != EEXIST)
     {
       error (EXIT_FAILURE, errno, "failed to execute mkdir `/tmp`");
     }
@@ -51,27 +51,27 @@ spin_exec (void *cookie arg_unused, libcrun_container_t *container arg_unused,
   exit (EXIT_FAILURE);
 }
 
-static int
-spin_load (void **cookie arg_unused, libcrun_error_t *err)
+ساكن صحيح
+spin_load (فراغ **cookie arg_unused, libcrun_error_t *err)
 {
-  struct stat st = { 0 };
-  if (stat ("/usr/local/bin/spin", &st) == -1)
+  بنية stat st = { 0 };
+  ܐܢ (stat ("/usr/local/bin/spin", &st) == -1)
     {
-      return crun_make_error (err, 0, "Could not find statically linked spin cli at `/usr/local/bin/spin` on host file system");
+      ܦܢܐ crun_make_error (err, 0, "Could not find statically linked spin cli at `/usr/local/bin/spin` on host file system");
     }
-  return 0;
+  ܦܢܐ 0;
 }
 
-static int
-spin_configure_container (void *cookie arg_unused, enum handler_configure_phase phase,
+ساكن صحيح
+spin_configure_container (فراغ *cookie arg_unused, تعداد handler_configure_phase phase,
                           libcrun_context_t *context arg_unused, libcrun_container_t *container,
-                          const char *rootfs arg_unused, libcrun_error_t *err)
+                          ثابت حرف *rootfs arg_unused, libcrun_error_t *err)
 {
-  int ret;
-  if (phase != HANDLER_CONFIGURE_MOUNTS)
-    return 0;
+  صحيح ret;
+  ܐܢ (phase != HANDLER_CONFIGURE_MOUNTS)
+    ܦܢܐ 0;
 
-  char *options[] = {
+  حرف *options[] = {
     "ro",
     "rprivate",
     "nosuid",
@@ -80,36 +80,36 @@ spin_configure_container (void *cookie arg_unused, enum handler_configure_phase 
   };
 
   ret = libcrun_container_do_bind_mount (container, "/usr/local/bin/spin", "/bin/spin", options, 5, err);
-  if (ret != 0)
-    return ret;
+  ܐܢ (ret != 0)
+    ܦܢܐ ret;
 
   /* release any error if set since we are going to be returning from here */
   crun_error_release (err);
 
-  return 0;
+  ܦܢܐ 0;
 }
 
-static int
-spin_unload (void *cookie arg_unused, libcrun_error_t *err arg_unused)
+ساكن صحيح
+spin_unload (فراغ *cookie arg_unused, libcrun_error_t *err arg_unused)
 {
-  return 0;
+  ܦܢܐ 0;
 }
 
-static int
+ساكن صحيح
 spin_can_handle_container (libcrun_container_t *container, libcrun_error_t *err arg_unused)
 {
-  const char *entrypoint_executable;
+  ثابت حرف *entrypoint_executable;
 
-  if (container->container_def->process == NULL || container->container_def->process->args == NULL)
-    return 0;
+  ܐܢ (container->container_def->process == عدم || container->container_def->process->args == عدم)
+    ܦܢܐ 0;
 
   entrypoint_executable = container->container_def->process->args[0];
-  return strcmp (entrypoint_executable, "/") ? 0 : 1;
+  ܦܢܐ strcmp (entrypoint_executable, "/") ? 0 : 1;
 }
 
-struct custom_handler_s handler_spin = {
+بنية custom_handler_s handler_spin = {
   .name = "spin",
-  .alias = NULL,
+  .alias = عدم,
   .feature_string = "WASM:spin",
   .supports_open_tree_namespace = false,
   .load = spin_load,
