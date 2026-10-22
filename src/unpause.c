@@ -16,62 +16,62 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <regex.h>
+#ضمن <config.h>
+#ضمن <stdio.h>
+#ضمن <stdlib.h>
+#ضمن <argp.h>
+#ضمن <string.h>
+#ضمن <unistd.h>
+#ضمن <errno.h>
+#ضمن <regex.h>
 
-#include "crun.h"
+#ضمن "crun.h"
 
-static char doc[] = "OCI runtime";
+ساكن حرف doc[] = "OCI runtime";
 
-struct unpause_options_s
+بنية unpause_options_s
 {
 };
 
-static struct unpause_options_s unpause_options;
+ساكن بنية unpause_options_s unpause_options;
 
-static struct argp_option options[] = { {
+ساكن بنية argp_option options[] = { {
     0,
 } };
 
-static char args_doc[] = "resume CONTAINER";
+ساكن حرف دلیلاں_doc[] = "resume CONTAINER";
 
-static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+ساكن error_t
+parse_opt (صحيح کلید, حرف *arg arg_بن_ورتیا, بنية argp_state *state arg_بن_ورتیا)
 {
-  switch (key)
+  بدل (کلید)
     {
-    case ARGP_KEY_NO_ARGS:
+    حالة ARGP_کلید_NO_دلیلاں:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    افتراضي:
+      أرجع ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  أرجع 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+ساكن بنية argp لگاتار_argp = { options, parse_opt, دلیلاں_doc, doc, عدم, عدم, عدم };
 
-int
-crun_command_unpause (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+صحيح
+crun_command_unpause (بنية crun_global_arguments *global_دلیلاں, صحيح argc, حرف **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
-  cleanup_context libcrun_context_t *crun_context = NULL;
+  صحيح پہلا_arg = 0, ret;
+  cleanup_context libcrun_context_t *crun_context = عدم;
 
-  argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &unpause_options);
-  crun_assert_n_args (argc - first_arg, 1, 2);
+  argp_parse (&لگاتار_argp, argc, argv, ARGP_وچ_ترتیب, &پہلا_arg, &unpause_options);
+  crun_assert_n_دلیلاں (argc - پہلا_arg, 1, 2);
 
-  crun_context = new_libcrun_context (global_args);
+  crun_context = new_libcrun_context (global_دلیلاں);
 
-  ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = init_libcrun_context (crun_context, argv[پہلا_arg], global_دلیلاں, err);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  return libcrun_container_unpause (crun_context, argv[first_arg], err);
+  أرجع libcrun_container_unpause (crun_context, argv[پہلا_arg], err);
 }

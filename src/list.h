@@ -15,11 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef LIST_H
-#define LIST_H
+#جے_بنا_تعریف LIST_H
+#تعریف_کرو LIST_H
 
-#include "crun.h"
+#ضمن "crun.h"
 
-int crun_command_list (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+صحيح crun_command_list (بنية crun_global_arguments *global_دلیلاں, صحيح argc, حرف **argv, libcrun_error_t *error);
 
-#endif
+#جے_انت

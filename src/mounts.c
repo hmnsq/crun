@@ -16,57 +16,57 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#ضمن <config.h>
+#ضمن <stdio.h>
+#ضمن <stdlib.h>
+#ضمن <argp.h>
+#ضمن <string.h>
+#ضمن <unistd.h>
+#ضمن <errno.h>
 
-#include "crun.h"
+#ضمن "crun.h"
 
-static char doc[] = "OCI runtime";
+ساكن حرف doc[] = "OCI runtime";
 
-static struct argp_option options[] = {
+ساكن بنية argp_option options[] = {
   0,
 };
 
-static char args_doc[] = "mounts [add|remove] CONTAINER FILE";
+ساكن حرف دلیلاں_doc[] = "mounts [add|remove] CONTAINER FILE";
 
-static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+ساكن error_t
+parse_opt (صحيح کلید, حرف *arg arg_بن_ورتیا, بنية argp_state *state arg_بن_ورتیا)
 {
-  switch (key)
+  بدل (کلید)
     {
-    default:
-      return ARGP_ERR_UNKNOWN;
+    افتراضي:
+      أرجع ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  أرجع 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+ساكن بنية argp لگاتار_argp = { options, parse_opt, دلیلاں_doc, doc, عدم, عدم, عدم };
 
-int
-crun_command_mounts (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+صحيح
+crun_command_mounts (بنية crun_global_arguments *global_دلیلاں, صحيح argc, حرف **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
-  cleanup_context libcrun_context_t *crun_context = NULL;
+  صحيح پہلا_arg = 0, ret;
+  cleanup_context libcrun_context_t *crun_context = عدم;
 
-  argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, NULL);
-  crun_assert_n_args (argc - first_arg, 3, 3);
+  argp_parse (&لگاتار_argp, argc, argv, ARGP_وچ_ترتیب, &پہلا_arg, عدم);
+  crun_assert_n_دلیلاں (argc - پہلا_arg, 3, 3);
 
-  crun_context = new_libcrun_context (global_args);
+  crun_context = new_libcrun_context (global_دلیلاں);
 
-  ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = init_libcrun_context (crun_context, argv[پہلا_arg], global_دلیلاں, err);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  if (strcmp (argv[first_arg], "add") == 0)
-    return libcrun_container_add_mounts_from_file (crun_context, argv[first_arg + 1], argv[first_arg + 2], err);
-  else if (strcmp (argv[first_arg], "remove") == 0)
-    return libcrun_container_remove_mounts_from_file (crun_context, argv[first_arg + 1], argv[first_arg + 2], err);
+  إذا (strcmp (argv[پہلا_arg], "add") == 0)
+    أرجع libcrun_container_جوڑو_mounts_from_file (crun_context, argv[پہلا_arg + 1], argv[پہلا_arg + 2], err);
+  وإلا إذا (strcmp (argv[پہلا_arg], "remove") == 0)
+    أرجع libcrun_container_remove_mounts_from_file (crun_context, argv[پہلا_arg + 1], argv[پہلا_arg + 2], err);
 
-  return crun_make_error (err, 0, "unknown command %s", argv[first_arg]);
+  أرجع crun_make_error (err, 0, "unknown command %s", argv[پہلا_arg]);
 }

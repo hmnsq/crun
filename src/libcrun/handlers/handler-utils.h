@@ -15,12 +15,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef HANDLER_UTILS_H
-#define HANDLER_UTILS_H
+#جے_بنا_تعریف HANDLER_UTILS_H
+#تعریف_کرو HANDLER_UTILS_H
 
-#include "../container.h"
-#include <unistd.h>
+#ضمن "../container.h"
+#ضمن <unistd.h>
 
-int wasm_can_handle_container (libcrun_container_t *container, libcrun_error_t *err);
+صحيح wasm_can_handle_container (libcrun_container_t *container, libcrun_error_t *err);
 
-#endif
+#جے_انت

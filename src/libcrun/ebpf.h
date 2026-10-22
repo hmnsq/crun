@@ -15,34 +15,34 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef EBPF_H
-#define EBPF_H
+#جے_بنا_تعریف EBPF_H
+#تعریف_کرو EBPF_H
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include "error.h"
-#include <errno.h>
-#include <argp.h>
-#include <ocispec/runtime_spec_schema_config_schema.h>
-#include "container.h"
+#ضمن <config.h>
+#ضمن <stdio.h>
+#ضمن <stdlib.h>
+#ضمن "error.h"
+#ضمن <errno.h>
+#ضمن <argp.h>
+#ضمن <ocispec/runtime_spec_schema_config_schema.h>
+#ضمن "container.h"
 
-#define SYS_FS_BPF "/sys/fs/bpf"
-#define CRUN_BPF_DIR SYS_FS_BPF "/crun"
+#تعریف_کرو SYS_FS_BPF "/sys/fs/bpf"
+#تعریف_کرو CRUN_BPF_DIR SYS_FS_BPF "/crun"
 
-struct bpf_program;
+بنية bpf_پروگرام;
 
-struct bpf_program *bpf_program_new (size_t size);
-struct bpf_program *bpf_program_append (struct bpf_program *p, void *data, size_t size);
+بنية bpf_پروگرام *bpf_پروگرام_new (size_t ناپ);
+بنية bpf_پروگرام *bpf_پروگرام_append (بنية bpf_پروگرام *p, فراغ *انکڑے, size_t ناپ);
 
-struct bpf_program *bpf_program_init_dev (struct bpf_program *program, libcrun_error_t *err);
-struct bpf_program *bpf_program_append_dev (struct bpf_program *program, const char *access, char type, int major,
-                                            int minor, bool accept, libcrun_error_t *err);
-struct bpf_program *bpf_program_complete_dev (struct bpf_program *program, libcrun_error_t *err);
+بنية bpf_پروگرام *bpf_پروگرام_init_dev (بنية bpf_پروگرام *پروگرام, libcrun_error_t *err);
+بنية bpf_پروگرام *bpf_پروگرام_append_dev (بنية bpf_پروگرام *پروگرام, ثابت حرف *access, حرف type, صحيح major,
+                                            صحيح minor, bool accept, libcrun_error_t *err);
+بنية bpf_پروگرام *bpf_پروگرام_complete_dev (بنية bpf_پروگرام *پروگرام, libcrun_error_t *err);
 
-int libcrun_ebpf_load (struct bpf_program *program, int dirfd, const char *pin, libcrun_error_t *err);
-int libcrun_ebpf_read_program (struct bpf_program **program, const char *path, libcrun_error_t *err);
-int libcrun_ebpf_query_cgroup_progs (const char *cgroup_path, uint32_t **progs_out, size_t *n_progs_out, libcrun_error_t *err);
-bool libcrun_ebpf_cmp_programs (struct bpf_program *program1, struct bpf_program *program2);
+صحيح libcrun_ebpf_لدو (بنية bpf_پروگرام *پروگرام, صحيح dirfd, ثابت حرف *pin, libcrun_error_t *err);
+صحيح libcrun_ebpf_read_پروگرام (بنية bpf_پروگرام **پروگرام, ثابت حرف *رستہ, libcrun_error_t *err);
+صحيح libcrun_ebpf_query_cgroup_progs (ثابت حرف *cgroup_رستہ, uint32_t **progs_باہرلا, size_t *n_progs_باہرلا, libcrun_error_t *err);
+bool libcrun_ebpf_cmp_programs (بنية bpf_پروگرام *program1, بنية bpf_پروگرام *program2);
 
-#endif
+#جے_انت

@@ -15,122 +15,122 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CRUN_UTILS_H
-#define CRUN_UTILS_H
+#جے_بنا_تعریف CRUN_UTILS_H
+#تعریف_کرو CRUN_UTILS_H
 
 /* Self-contained helpers for the crun binary so that it does not have to
    include the internal libcrun/utils.h (which pulls in the internal,
    non-public headers).  The binary is a pure consumer of the public
    <libcrun.h> API; everything here is either libc or a trivial inline.  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
+#ضمن <stdlib.h>
+#ضمن <stdio.h>
+#ضمن <string.h>
+#ضمن <unistd.h>
 
-#ifdef __GNUC__
+#جے_تعریف_شدہ __GNUC__
 #  define LIKELY(x) __builtin_expect ((x), 1)
 #  define UNLIKELY(x) __builtin_expect ((x), 0)
-#  define arg_unused __attribute__ ((unused))
-#else
+#  define arg_بن_ورتیا __attribute__ ((بن_ورتیا))
+#وإلا
 #  define LIKELY(x) (x)
 #  define UNLIKELY(x) (x)
-#  define arg_unused
-#endif
+#  define arg_بن_ورتیا
+#جے_انت
 
-#define OOM()                            \
-  do                                     \
+#تعریف_کرو OOM()                            \
+  افعل                                     \
     {                                    \
       fprintf (stderr, "out of memory"); \
       _exit (EXIT_FAILURE);              \
-  } while (0)
+  } طالما (0)
 
-#define crun_make_error libcrun_make_error
+#تعریف_کرو crun_make_error libcrun_make_error
 
-__attribute__ ((malloc)) static inline void *
-xmalloc (size_t size)
+__attribute__ ((حافظہ_دیو)) ساكن مضمن فراغ *
+xmalloc (size_t ناپ)
 {
-  void *res = malloc (size);
-  if (UNLIKELY (res == NULL))
+  فراغ *res = حافظہ_دیو (ناپ);
+  إذا (UNLIKELY (res == عدم))
     OOM ();
-  return res;
+  أرجع res;
 }
 
-__attribute__ ((malloc)) static inline void *
-xmalloc0 (size_t size)
+__attribute__ ((حافظہ_دیو)) ساكن مضمن فراغ *
+xmalloc0 (size_t ناپ)
 {
-  void *res = calloc (1, size);
-  if (UNLIKELY (res == NULL))
+  فراغ *res = صفر_حافظہ_دیو (1, ناپ);
+  إذا (UNLIKELY (res == عدم))
     OOM ();
-  return res;
+  أرجع res;
 }
 
-__attribute__ ((malloc)) static inline void *
-xrealloc (void *ptr, size_t size)
+__attribute__ ((حافظہ_دیو)) ساكن مضمن فراغ *
+xrealloc (فراغ *ptr, size_t ناپ)
 {
-  void *res = realloc (ptr, size);
-  if (UNLIKELY (res == NULL))
+  فراغ *res = realloc (ptr, ناپ);
+  إذا (UNLIKELY (res == عدم))
     OOM ();
-  return res;
+  أرجع res;
 }
 
-static inline char *
-xstrdup (const char *str)
+ساكن مضمن حرف *
+xstrdup (ثابت حرف *str)
 {
-  char *ret;
-  if (str == NULL)
-    return NULL;
+  حرف *ret;
+  إذا (str == عدم)
+    أرجع عدم;
   ret = strdup (str);
-  if (UNLIKELY (ret == NULL))
+  إذا (UNLIKELY (ret == عدم))
     OOM ();
-  return ret;
+  أرجع ret;
 }
 
-static inline void
-cleanup_freep (void *p)
+ساكن مضمن فراغ
+cleanup_freep (فراغ *p)
 {
-  void **pp = (void **) p;
-  free (*pp);
+  فراغ **pp = (فراغ **) p;
+  حرر (*pp);
 }
 
-static inline void
+ساكن مضمن فراغ
 cleanup_filep (FILE **f)
 {
   FILE *file = *f;
-  if (file)
-    (void) fclose (file);
+  إذا (file)
+    (فراغ) fclose (file);
 }
 
-static inline void
-cleanup_closep (void *p)
+ساكن مضمن فراغ
+cleanup_closep (فراغ *p)
 {
-  int *pp = (int *) p;
-  if (*pp >= 0)
+  صحيح *pp = (صحيح *) p;
+  إذا (*pp >= 0)
     close (*pp);
 }
 
-#define cleanup_free __attribute__ ((cleanup (cleanup_freep)))
-#define cleanup_file __attribute__ ((cleanup (cleanup_filep)))
-#define cleanup_close __attribute__ ((cleanup (cleanup_closep)))
+#تعریف_کرو cleanup_free __attribute__ ((cleanup (cleanup_freep)))
+#تعریف_کرو cleanup_file __attribute__ ((cleanup (cleanup_filep)))
+#تعریف_کرو cleanup_close __attribute__ ((cleanup (cleanup_closep)))
 
 /* Relies on <libcrun.h> (included before this header via crun.h) for the
    opaque libcrun_context_t and libcrun_context_free.  */
-static inline void
+ساكن مضمن فراغ
 cleanup_libcrun_contextp (libcrun_context_t **p)
 {
-  if (*p)
+  إذا (*p)
     libcrun_context_free (*p);
 }
 
-#define cleanup_context __attribute__ ((cleanup (cleanup_libcrun_contextp)))
+#تعریف_کرو cleanup_context __attribute__ ((cleanup (cleanup_libcrun_contextp)))
 
-static inline void
+ساكن مضمن فراغ
 cleanup_libcrun_containerp (libcrun_container_t **p)
 {
-  if (*p)
+  إذا (*p)
     libcrun_container_free (*p);
 }
 
-#define cleanup_container __attribute__ ((cleanup (cleanup_libcrun_containerp)))
+#تعریف_کرو cleanup_container __attribute__ ((cleanup (cleanup_libcrun_containerp)))
 
-#endif
+#جے_انت

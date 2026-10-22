@@ -15,27 +15,27 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SECCOMP_NOTIFY_H
-#define SECCOMP_NOTIFY_H
+#جے_بنا_تعریف SECCOMP_NOTIFY_H
+#تعریف_کرو SECCOMP_NOTIFY_H
 
-#include <config.h>
-#include "error.h"
+#ضمن <config.h>
+#ضمن "error.h"
 
-#if ! (HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES)
+#إذا ! (HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES)
 #  define SECCOMP_NOTIFY_SKIP_TYPEDEF
-#endif
-#include "seccomp_notify_plugin.h"
+#جے_انت
+#ضمن "seccomp_notify_plugin.h"
 
-struct seccomp_notify_context_s;
+بنية seccomp_notify_context_s;
 
-LIBCRUN_PUBLIC int libcrun_load_seccomp_notify_plugins (struct seccomp_notify_context_s **out, const char *plugins,
-                                                        struct libcrun_load_seccomp_notify_conf_s *conf,
+LIBCRUN_عوامی صحيح libcrun_لدو_seccomp_notify_plugins (بنية seccomp_notify_context_s **باہرلا, ثابت حرف *plugins,
+                                                        بنية libcrun_لدو_seccomp_notify_conf_s *conf,
                                                         libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, int seccomp_fd,
+LIBCRUN_عوامی صحيح libcrun_seccomp_notify_plugins (بنية seccomp_notify_context_s *ctx, صحيح seccomp_fd,
                                                    libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_free_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, libcrun_error_t *err);
+LIBCRUN_عوامی صحيح libcrun_free_seccomp_notify_plugins (بنية seccomp_notify_context_s *ctx, libcrun_error_t *err);
 
-#define cleanup_seccomp_notify_context __attribute__ ((cleanup (cleanup_seccomp_notify_pluginsp)))
-void cleanup_seccomp_notify_pluginsp (void *p);
+#تعریف_کرو cleanup_seccomp_notify_context __attribute__ ((cleanup (cleanup_seccomp_notify_pluginsp)))
+فراغ cleanup_seccomp_notify_pluginsp (فراغ *p);
 
-#endif
+#جے_انت

@@ -16,13 +16,13 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_DEVICE_H
-#define NET_DEVICE_H
+#جے_بنا_تعریف NET_DEVICE_H
+#تعریف_کرو NET_DEVICE_H
 
-#include <config.h>
-#include <ocispec/runtime_spec_schema_config_schema.h>
-#include "error.h"
+#ضمن <config.h>
+#ضمن <ocispec/runtime_spec_schema_config_schema.h>
+#ضمن "error.h"
 
-int move_network_device (const char *ifname, const char *newifname, int netns_fd, libcrun_error_t *err);
+صحيح move_جال_device (ثابت حرف *ifname, ثابت حرف *newifname, صحيح netns_fd, libcrun_error_t *err);
 
-#endif
+#جے_انت

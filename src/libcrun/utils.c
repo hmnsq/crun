@@ -16,2147 +16,2147 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
-#include <config.h>
-#include "utils.h"
-#include "ring_buffer.h"
-#include <stdarg.h>
-#include <inttypes.h>
-#include <unistd.h>
-#include <string.h>
-#include <libgen.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/un.h>
-#include <sys/socket.h>
-#include <sys/signalfd.h>
-#include <sys/epoll.h>
-#include <sys/syscall.h>
-#include <sys/wait.h>
-#include <pwd.h>
-#include <grp.h>
-#include <time.h>
-#include <sys/time.h>
-#include <sys/xattr.h>
-#include <sys/sysmacros.h>
-#include <sys/vfs.h>
-#include <linux/magic.h>
-#include <limits.h>
-#include <sys/mman.h>
-#ifdef HAVE_LINUX_OPENAT2_H
+#تعریف_کرو GNU_سروت
+#ضمن <config.h>
+#ضمن "utils.h"
+#ضمن "ring_buffer.h"
+#ضمن <stdarg.h>
+#ضمن <inttypes.h>
+#ضمن <unistd.h>
+#ضمن <string.h>
+#ضمن <libgen.h>
+#ضمن <fcntl.h>
+#ضمن <sys/stat.h>
+#ضمن <sys/types.h>
+#ضمن <sys/un.h>
+#ضمن <sys/socket.h>
+#ضمن <sys/signalfd.h>
+#ضمن <sys/epoll.h>
+#ضمن <sys/syscall.h>
+#ضمن <sys/wait.h>
+#ضمن <pwd.h>
+#ضمن <grp.h>
+#ضمن <time.h>
+#ضمن <sys/time.h>
+#ضمن <sys/xattr.h>
+#ضمن <sys/sysmacros.h>
+#ضمن <sys/vfs.h>
+#ضمن <linux/magic.h>
+#ضمن <limits.h>
+#ضمن <sys/mman.h>
+#جے_تعریف_شدہ HAVE_LINUX_OPENAT2_H
 #  include <linux/openat2.h>
-#endif
-#if HAVE_STDATOMIC_H
+#جے_انت
+#إذا HAVE_STDATOMIC_H
 #  include <stdatomic.h>
-#else
-#  define atomic_long volatile long
-#  define atomic_int volatile int
-#endif
-#include "syscalls.h"
+#وإلا
+#  define atomic_long متطاير لما
+#  define atomic_int متطاير صحيح
+#جے_انت
+#ضمن "syscalls.h"
 
-#ifndef CLOSE_RANGE_CLOEXEC
+#جے_بنا_تعریف CLOSE_RANGE_CLOEXEC
 #  define CLOSE_RANGE_CLOEXEC (1U << 2)
-#endif
-#ifndef RESOLVE_IN_ROOT
-#  define RESOLVE_IN_ROOT 0x10
-#endif
-#ifndef __NR_close_range
+#جے_انت
+#جے_بنا_تعریف RESOLVE_وچ_جڑ
+#  define RESOLVE_وچ_جڑ 0x10
+#جے_انت
+#جے_بنا_تعریف __NR_close_range
 #  define __NR_close_range 436
-#endif
-#ifndef __NR_openat2
+#جے_انت
+#جے_بنا_تعریف __NR_openat2
 #  define __NR_openat2 437
-#endif
-#ifndef PROC_USER_INIT_INO
+#جے_انت
+#جے_بنا_تعریف PROC_USER_INIT_INO
 #  define PROC_USER_INIT_INO ((ino_t) 0xEFFFFFFD)
-#endif
+#جے_انت
 
-#define MAX_READLINKS 32
-#define MAX_OPENAT2_EAGAIN_RETRIES 128
+#تعریف_کرو MAX_READLINKS 32
+#تعریف_کرو MAX_OPENAT2_EAGAIN_RETRIES 128
 
-int
-crun_path_exists (const char *path, libcrun_error_t *err)
+صحيح
+crun_رستہ_exists (ثابت حرف *رستہ, libcrun_error_t *err)
 {
-  int ret = access (path, F_OK);
-  if (ret < 0)
+  صحيح ret = access (رستہ, F_OK);
+  إذا (ret < 0)
     {
-      if (errno == ENOENT)
-        return 0;
-      return crun_make_error (err, errno, "access `%s`", path);
+      إذا (errno == ENOENT)
+        أرجع 0;
+      أرجع crun_make_error (err, errno, "access `%s`", رستہ);
     }
-  return 1;
+  أرجع 1;
 }
 
-int
-xasprintf (char **str, const char *fmt, ...)
+صحيح
+xasprintf (حرف **str, ثابت حرف *fmt, ...)
 {
-  int ret;
-  va_list args_list;
+  صحيح ret;
+  va_list دلیلاں_list;
 
-  va_start (args_list, fmt);
+  va_شروع (دلیلاں_list, fmt);
 
-  ret = vasprintf (str, fmt, args_list);
-  if (UNLIKELY (ret < 0))
+  ret = vasprintf (str, fmt, دلیلاں_list);
+  إذا (UNLIKELY (ret < 0))
     OOM ();
 
-  va_end (args_list);
-  return ret;
+  va_سرا (دلیلاں_list);
+  أرجع ret;
 }
 
-int
-write_file_at_with_flags (int dirfd, int flags, mode_t mode, const char *name, const void *data, size_t len, libcrun_error_t *err)
+صحيح
+write_file_at_with_flags (صحيح dirfd, صحيح flags, mode_t منوال, ثابت حرف *name, ثابت فراغ *انکڑے, size_t len, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
-  int ret = 0;
+  cleanup_close صحيح fd = -1;
+  صحيح ret = 0;
 
-  fd = openat (dirfd, name, O_CLOEXEC | O_WRONLY | flags, mode);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s` for writing", name);
+  fd = openat (dirfd, name, O_CLOEXEC | O_WRONLY | flags, منوال);
+  إذا (UNLIKELY (fd < 0))
+    أرجع crun_make_error (err, errno, "open `%s` for writing", name);
 
-  ret = safe_write (fd, name, data, len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = محفوظ_write (fd, name, انکڑے, len, err);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  return (len > INT_MAX) ? INT_MAX : (int) len;
+  أرجع (len > ودھ_توں_ودھ_عدد) ? ودھ_توں_ودھ_عدد : (صحيح) len;
 }
 
-int
+صحيح
 detach_process ()
 {
   pid_t pid;
-  if (setsid () < 0)
-    return -1;
+  إذا (setsid () < 0)
+    أرجع -1;
   pid = fork ();
-  if (pid < 0)
-    return -1;
-  if (pid != 0)
-    _safe_exit (EXIT_SUCCESS);
-  return 0;
+  إذا (pid < 0)
+    أرجع -1;
+  إذا (pid != 0)
+    محفوظ_exit (EXIT_SUCCESS);
+  أرجع 0;
 }
 
-int
-get_file_type_fd (int fd, mode_t *mode)
+صحيح
+get_file_type_fd (صحيح fd, mode_t *منوال)
 {
-  struct stat st;
-  int ret;
+  بنية stat st;
+  صحيح ret;
 
-#ifdef HAVE_STATX
-  struct statx stx = {
+#جے_تعریف_شدہ HAVE_STATX
+  بنية statx stx = {
     0,
   };
 
-  ret = statx (fd, "", AT_EMPTY_PATH | AT_STATX_DONT_SYNC, STATX_TYPE, &stx);
-  if (UNLIKELY (ret < 0))
+  ret = statx (fd, "", AT_خالی_تھاواں_رستہ | AT_STATX_DONT_SYNC, STATX_TYPE, &stx);
+  إذا (UNLIKELY (ret < 0))
     {
-      if (errno == ENOSYS || errno == EINVAL)
-        goto fallback;
+      إذا (errno == ENOSYS || errno == EINVAL)
+        اذهب fallback;
 
-      return ret;
+      أرجع ret;
     }
-  *mode = stx.stx_mode;
-  return ret;
+  *منوال = stx.stx_mode;
+  أرجع ret;
 
 fallback:
-#endif
+#جے_انت
   ret = fstat (fd, &st);
-  *mode = st.st_mode;
-  return ret;
+  *منوال = st.st_mode;
+  أرجع ret;
 }
 
-int
-get_file_type_at (int dirfd, mode_t *mode, bool nofollow, const char *path)
+صحيح
+get_file_type_at (صحيح dirfd, mode_t *منوال, bool nofollow, ثابت حرف *رستہ)
 {
-  int empty_path = path == NULL ? AT_EMPTY_PATH : 0;
-  struct stat st;
-  int ret;
+  صحيح خالی_تھاواں_رستہ = رستہ == عدم ? AT_خالی_تھاواں_رستہ : 0;
+  بنية stat st;
+  صحيح ret;
 
-#ifdef HAVE_STATX
-  struct statx stx = {
+#جے_تعریف_شدہ HAVE_STATX
+  بنية statx stx = {
     0,
   };
 
-  ret = statx (dirfd, path ?: "", empty_path | (nofollow ? AT_SYMLINK_NOFOLLOW : 0) | AT_STATX_DONT_SYNC, STATX_TYPE, &stx);
-  if (UNLIKELY (ret < 0))
+  ret = statx (dirfd, رستہ ?: "", خالی_تھاواں_رستہ | (nofollow ? AT_SYMLINK_NOFOLLOW : 0) | AT_STATX_DONT_SYNC, STATX_TYPE, &stx);
+  إذا (UNLIKELY (ret < 0))
     {
-      if (errno == ENOSYS || errno == EINVAL)
-        goto fallback;
+      إذا (errno == ENOSYS || errno == EINVAL)
+        اذهب fallback;
 
-      return ret;
+      أرجع ret;
     }
-  *mode = stx.stx_mode;
-  return ret;
+  *منوال = stx.stx_mode;
+  أرجع ret;
 
 fallback:
-#endif
-  ret = fstatat (dirfd, path ?: "", &st, empty_path | (nofollow ? AT_SYMLINK_NOFOLLOW : 0));
-  *mode = st.st_mode;
-  return ret;
+#جے_انت
+  ret = fstatat (dirfd, رستہ ?: "", &st, خالی_تھاواں_رستہ | (nofollow ? AT_SYMLINK_NOFOLLOW : 0));
+  *منوال = st.st_mode;
+  أرجع ret;
 }
 
-int
-get_file_type (mode_t *mode, bool nofollow, const char *path)
+صحيح
+get_file_type (mode_t *منوال, bool nofollow, ثابت حرف *رستہ)
 {
-  return get_file_type_at (AT_FDCWD, mode, nofollow, path);
+  أرجع get_file_type_at (AT_FDCWD, منوال, nofollow, رستہ);
 }
 
-int
-create_file_if_missing_at (int dirfd, const char *file, mode_t mode, libcrun_error_t *err)
+صحيح
+create_file_if_missing_at (صحيح dirfd, ثابت حرف *file, mode_t منوال, libcrun_error_t *err)
 {
-  cleanup_close int fd_write = openat (dirfd, file, O_CLOEXEC | O_CREAT | O_WRONLY | O_NOFOLLOW | O_NONBLOCK, mode);
-  if (fd_write < 0)
+  cleanup_close صحيح fd_write = openat (dirfd, file, O_CLOEXEC | O_CREAT | O_WRONLY | O_NOFOLLOW | O_NONBLOCK, منوال);
+  إذا (fd_write < 0)
     {
-      int saved_errno = errno;
-      mode_t tmp_mode;
-      int ret;
+      صحيح saved_errno = errno;
+      mode_t tmp_منوال;
+      صحيح ret;
 
       /* On errors, check if the file already exists.  */
-      ret = get_file_type_at (dirfd, &tmp_mode, true, file);
-      if (ret == 0 && S_ISREG (tmp_mode))
-        return 0;
+      ret = get_file_type_at (dirfd, &tmp_منوال, true, file);
+      إذا (ret == 0 && S_ISREG (tmp_منوال))
+        أرجع 0;
 
-      return crun_make_error (err, saved_errno, "create file `%s`", file);
+      أرجع crun_make_error (err, saved_errno, "create file `%s`", file);
     }
-  return 0;
+  أرجع 0;
 }
 
-static int
-ensure_directory_internal_at (int dirfd, char *path, size_t len, int mode, libcrun_error_t *err)
+ساكن صحيح
+ensure_directory_اندرونی_at (صحيح dirfd, حرف *رستہ, size_t len, صحيح منوال, libcrun_error_t *err)
 {
-  char *it = path + len;
-  int ret = 0;
-  bool parent_created = false;
+  حرف *it = رستہ + len;
+  صحيح ret = 0;
+  bool ماپا_created = false;
 
-  for (;;)
+  لكل (;;)
     {
-      ret = mkdirat (dirfd, path, mode);
-      if (ret == 0 || errno == EEXIST)
-        return 0;
+      ret = mkdirat (dirfd, رستہ, منوال);
+      إذا (ret == 0 || errno == EEXIST)
+        أرجع 0;
 
-      int saved_errno = errno;
-      if (parent_created || errno != ENOENT)
+      صحيح saved_errno = errno;
+      إذا (ماپا_created || errno != ENOENT)
         {
-          libcrun_error_t tmp_err = NULL;
+          libcrun_error_t tmp_err = عدم;
 
           /* On errors check if the directory already exists.  */
-          ret = crun_dir_p (path, false, &tmp_err);
-          if (ret > 0)
-            return 0;
-          if (ret < 0)
+          ret = crun_dir_p (رستہ, false, &tmp_err);
+          إذا (ret > 0)
+            أرجع 0;
+          إذا (ret < 0)
             crun_error_release (&tmp_err);
 
-          return crun_make_error (err, saved_errno, "create directory `%s`", path);
+          أرجع crun_make_error (err, saved_errno, "create directory `%s`", رستہ);
         }
 
-      while (it > path && *it != '/')
+      طالما (it > رستہ && *it != '/')
         {
           it--;
           len--;
         }
-      if (it == path)
-        return 0;
+      إذا (it == رستہ)
+        أرجع 0;
 
       *it = '\0';
-      ret = ensure_directory_internal_at (dirfd, path, len - 1, mode, err);
+      ret = ensure_directory_اندرونی_at (dirfd, رستہ, len - 1, منوال, err);
       *it = '/';
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
 
-      parent_created = true;
+      ماپا_created = true;
     }
-  return ret;
+  أرجع ret;
 }
 
-int
-crun_ensure_directory_at (int dirfd, const char *path, int mode, bool nofollow, libcrun_error_t *err)
+صحيح
+crun_ensure_directory_at (صحيح dirfd, ثابت حرف *رستہ, صحيح منوال, bool nofollow, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_free char *tmp = xstrdup (path);
-  ret = ensure_directory_internal_at (dirfd, tmp, strlen (tmp), mode, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  صحيح ret;
+  cleanup_free حرف *tmp = xstrdup (رستہ);
+  ret = ensure_directory_اندرونی_at (dirfd, tmp, لڑی_لمبائی (tmp), منوال, err);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  ret = crun_dir_p_at (dirfd, path, nofollow, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = crun_dir_p_at (dirfd, رستہ, nofollow, err);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  if (ret == 0)
-    return crun_make_error (err, ENOTDIR, "the path `%s` is not a directory", path);
+  إذا (ret == 0)
+    أرجع crun_make_error (err, ENOTDIR, "the path `%s` is not a directory", رستہ);
 
-  return 0;
+  أرجع 0;
 }
 
-static int
-check_fd_is_path (const char *path, int fd, const char *fdname, libcrun_error_t *err)
+ساكن صحيح
+check_fd_is_رستہ (ثابت حرف *رستہ, صحيح fd, ثابت حرف *fdname, libcrun_error_t *err)
 {
-  proc_fd_path_t fdpath;
-  size_t path_len = strlen (path);
-  char link[PATH_MAX];
-  int ret;
+  proc_fd_رستہ_t fdpath;
+  size_t رستہ_len = لڑی_لمبائی (رستہ);
+  حرف link[PATH_MAX];
+  صحيح ret;
 
-  get_proc_self_fd_path (fdpath, fd);
-  ret = TEMP_FAILURE_RETRY (readlink (fdpath, link, sizeof (link)));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "readlink `%s`", fdname);
+  get_proc_self_fd_رستہ (fdpath, fd);
+  ret = عارضی_FAILURE_RETRY (readlink (fdpath, link, حجم (link)));
+  إذا (UNLIKELY (ret < 0))
+    أرجع crun_make_error (err, errno, "readlink `%s`", fdname);
 
-  if (((size_t) ret) != path_len || memcmp (link, path, path_len))
-    return crun_make_error (err, 0, "target `%s` does not point to the directory `%s`", fdname, path);
+  إذا (((size_t) ret) != رستہ_len || memcmp (link, رستہ, رستہ_len))
+    أرجع crun_make_error (err, 0, "target `%s` does not point to the directory `%s`", fdname, رستہ);
 
-  return 0;
+  أرجع 0;
 }
 
-static int
-check_fd_under_path (const char *rootfs, size_t rootfslen, int fd, const char *fdname, libcrun_error_t *err)
+ساكن صحيح
+check_fd_under_رستہ (ثابت حرف *rootfs, size_t rootfslen, صحيح fd, ثابت حرف *fdname, libcrun_error_t *err)
 {
-  proc_fd_path_t fdpath;
-  char link[PATH_MAX];
-  int ret;
+  proc_fd_رستہ_t fdpath;
+  حرف link[PATH_MAX];
+  صحيح ret;
 
   /* Every path is under "/", there is nothing to verify.  The check below
      would reject any path since it expects a '/' right after the rootfs.  */
-  if (rootfslen == 0 || (rootfslen == 1 && rootfs[0] == '/'))
-    return 0;
+  إذا (rootfslen == 0 || (rootfslen == 1 && rootfs[0] == '/'))
+    أرجع 0;
 
-  get_proc_self_fd_path (fdpath, fd);
-  ret = TEMP_FAILURE_RETRY (readlink (fdpath, link, sizeof (link)));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "readlink `%s`", fdname);
+  get_proc_self_fd_رستہ (fdpath, fd);
+  ret = عارضی_FAILURE_RETRY (readlink (fdpath, link, حجم (link)));
+  إذا (UNLIKELY (ret < 0))
+    أرجع crun_make_error (err, errno, "readlink `%s`", fdname);
 
-  if (((size_t) ret) <= rootfslen || memcmp (link, rootfs, rootfslen) != 0 || link[rootfslen] != '/')
-    return crun_make_error (err, 0, "target `%s` not under the directory `%s`", fdname, rootfs);
+  إذا (((size_t) ret) <= rootfslen || memcmp (link, rootfs, rootfslen) != 0 || link[rootfslen] != '/')
+    أرجع crun_make_error (err, 0, "target `%s` not under the directory `%s`", fdname, rootfs);
 
-  return 0;
+  أرجع 0;
 }
 
 /* Check if *oldfd is a valid fd and close it.  Then store newfd into *oldfd.  */
-static void
-close_and_replace (int *oldfd, int newfd)
+ساكن فراغ
+close_and_replace (صحيح *oldfd, صحيح newfd)
 {
-  if (*oldfd >= 0)
-    TEMP_FAILURE_RETRY (close (*oldfd));
+  إذا (*oldfd >= 0)
+    عارضی_FAILURE_RETRY (close (*oldfd));
 
   *oldfd = newfd;
 }
 
 /* Defined in chroot_realpath.c  */
-char *chroot_realpath (const char *chroot, const char *path, char resolved_path[]);
+حرف *chroot_realpath (ثابت حرف *chroot, ثابت حرف *رستہ, حرف resolved_رستہ[]);
 
 /* DIRFD must be a file descriptor for ROOTFS itself: PATH is resolved
    against ROOTFS and the result is then opened relatively to DIRFD.  */
-static int
-safe_openat_fallback (int dirfd, const char *rootfs, const char *path, int flags,
-                      int mode, libcrun_error_t *err)
+ساكن صحيح
+محفوظ_openat_fallback (صحيح dirfd, ثابت حرف *rootfs, ثابت حرف *رستہ, صحيح flags,
+                      صحيح منوال, libcrun_error_t *err)
 {
-  cleanup_free char *parent_path = NULL;
-  const char *last_component = NULL;
-  const char *orig_path = path;
-  const char *path_in_chroot;
-  cleanup_close int fd = -1;
-  char resolved[PATH_MAX];
-  char buffer[PATH_MAX];
-  size_t rootfs_len = safe_strlen (rootfs);
-  int ret;
+  cleanup_free حرف *ماپا_رستہ = عدم;
+  ثابت حرف *آخری_component = عدم;
+  ثابت حرف *orig_رستہ = رستہ;
+  ثابت حرف *رستہ_وچ_chroot;
+  cleanup_close صحيح fd = -1;
+  حرف resolved[PATH_MAX];
+  حرف بفر[PATH_MAX];
+  size_t rootfs_len = محفوظ_strlen (rootfs);
+  صحيح ret;
 
   /* chroot_realpath resolves the last component as well, so when O_NOFOLLOW
      is requested resolve only the parent directory and let openat(2) deal
      with the last component, otherwise a symlink would be followed even
      though the caller asked not to.  */
-  if (flags & O_NOFOLLOW)
+  إذا (flags & O_NOFOLLOW)
     {
-      char *sep;
+      حرف *sep;
 
-      parent_path = xstrdup (path);
-      sep = strrchr (parent_path, '/');
-      if (sep == NULL)
+      ماپا_رستہ = xstrdup (رستہ);
+      sep = strrchr (ماپا_رستہ, '/');
+      إذا (sep == عدم)
         {
           /* No parent directory, the entire path is the last component.  */
-          last_component = path;
-          parent_path[0] = '\0';
+          آخری_component = رستہ;
+          ماپا_رستہ[0] = '\0';
         }
-      else if (sep[1] != '\0')
+      وإلا إذا (sep[1] != '\0')
         {
           *sep = '\0';
-          last_component = path + (sep - parent_path) + 1;
+          آخری_component = رستہ + (sep - ماپا_رستہ) + 1;
         }
       /* A trailing '/' forces the symlink to be resolved anyway, so in that
          case keep resolving the entire path.  */
 
-      if (last_component)
-        path = parent_path;
+      إذا (آخری_component)
+        رستہ = ماپا_رستہ;
     }
 
-  path_in_chroot = chroot_realpath (rootfs, path, buffer);
-  if (path_in_chroot == NULL)
-    return crun_make_error (err, errno, "cannot resolve `%s` under rootfs", orig_path);
+  رستہ_وچ_chroot = chroot_realpath (rootfs, رستہ, بفر);
+  إذا (رستہ_وچ_chroot == عدم)
+    أرجع crun_make_error (err, errno, "cannot resolve `%s` under rootfs", orig_رستہ);
 
   /* When rootfs is "/" or not set, chroot_realpath returns the path
      unchanged, so drop the prefix only when it is really there.  */
-  if (rootfs_len > 0 && strncmp (path_in_chroot, rootfs, rootfs_len) == 0)
-    path_in_chroot += rootfs_len;
-  path_in_chroot = consume_slashes (path_in_chroot);
+  إذا (rootfs_len > 0 && لڑی_مقابلہ (رستہ_وچ_chroot, rootfs, rootfs_len) == 0)
+    رستہ_وچ_chroot += rootfs_len;
+  رستہ_وچ_chroot = consume_slashes (رستہ_وچ_chroot);
 
-  if (last_component)
+  إذا (آخری_component)
     {
-      ret = snprintf (resolved, sizeof (resolved), "%s%s%s", path_in_chroot,
-                      path_in_chroot[0] == '\0' ? "" : "/", last_component);
-      if (UNLIKELY (ret >= (int) sizeof (resolved)))
-        return crun_make_error (err, ENAMETOOLONG, "resolve `%s` under rootfs", orig_path);
+      ret = snprintf (resolved, حجم (resolved), "%s%s%s", رستہ_وچ_chroot,
+                      رستہ_وچ_chroot[0] == '\0' ? "" : "/", آخری_component);
+      إذا (UNLIKELY (ret >= (صحيح) حجم (resolved)))
+        أرجع crun_make_error (err, ENAMETOOLONG, "resolve `%s` under rootfs", orig_رستہ);
 
-      path_in_chroot = resolved;
+      رستہ_وچ_chroot = resolved;
     }
 
   /* If the path is empty we are at the root, dup the dirfd itself.  */
-  if (path_in_chroot[0] == '\0')
+  إذا (رستہ_وچ_chroot[0] == '\0')
     {
       ret = dup (dirfd);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "dup `%s`", rootfs_len ? rootfs : "/");
-      return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع crun_make_error (err, errno, "dup `%s`", rootfs_len ? rootfs : "/");
+      أرجع ret;
     }
 
-  ret = openat (dirfd, path_in_chroot, flags, mode);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "open `%s`", orig_path);
+  ret = openat (dirfd, رستہ_وچ_chroot, flags, منوال);
+  إذا (UNLIKELY (ret < 0))
+    أرجع crun_make_error (err, errno, "open `%s`", orig_رستہ);
 
   fd = ret;
 
-  ret = check_fd_under_path (rootfs, rootfs_len, fd, orig_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = check_fd_under_رستہ (rootfs, rootfs_len, fd, orig_رستہ, err);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
   ret = fd;
   fd = -1;
-  return ret;
+  أرجع ret;
 }
 
-int
-safe_openat (int dirfd, const char *rootfs, const char *path, int flags, int mode,
+صحيح
+محفوظ_openat (صحيح dirfd, ثابت حرف *rootfs, ثابت حرف *رستہ, صحيح flags, صحيح منوال,
              libcrun_error_t *err)
 {
-  static bool openat2_supported = true;
-  int retries = MAX_OPENAT2_EAGAIN_RETRIES;
-  int ret;
+  ساكن bool openat2_supported = true;
+  صحيح retries = MAX_OPENAT2_EAGAIN_RETRIES;
+  صحيح ret;
 
-  if (is_empty_string (path))
+  إذا (is_خالی_تھاواں_string (رستہ))
     {
-      cleanup_close int fd = -1;
+      cleanup_close صحيح fd = -1;
 
       /* A container without a rootfs of its own uses the host root.  */
-      if (is_empty_string (rootfs))
+      إذا (is_خالی_تھاواں_string (rootfs))
         rootfs = "/";
 
-      fd = open (rootfs, flags, mode);
-      if (UNLIKELY (fd < 0))
-        return crun_make_error (err, errno, "open `%s`", rootfs);
+      fd = open (rootfs, flags, منوال);
+      إذا (UNLIKELY (fd < 0))
+        أرجع crun_make_error (err, errno, "open `%s`", rootfs);
 
       /* Skip the readlink-based check when opening the root
          directory itself (rootfs="/", path="").  After pivot_root,
          "/" can only refer to the container root so the readlink
          verification is redundant, and after setns the /proc-based
          readlink may not be reachable by path yet.  */
-      if (rootfs[0] != '/' || rootfs[1] != '\0')
+      إذا (rootfs[0] != '/' || rootfs[1] != '\0')
         {
-          ret = check_fd_is_path (rootfs, fd, path, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = check_fd_is_رستہ (rootfs, fd, رستہ, err);
+          إذا (UNLIKELY (ret < 0))
+            أرجع ret;
         }
 
       ret = fd;
       fd = -1;
-      return ret;
+      أرجع ret;
     }
 
-  if (openat2_supported)
+  إذا (openat2_supported)
     {
     repeat:
-      ret = syscall_openat2 (dirfd, path, flags, mode, RESOLVE_IN_ROOT);
-      if (UNLIKELY (ret < 0))
+      ret = syscall_openat2 (dirfd, رستہ, flags, منوال, RESOLVE_وچ_جڑ);
+      إذا (UNLIKELY (ret < 0))
         {
-          if (errno == EINTR)
-            goto repeat;
+          إذا (errno == EINTR)
+            اذهب repeat;
           /* With RESOLVE_IN_ROOT the kernel returns EAGAIN when a rename or a
              mount happened anywhere on the system while a ".." component was
              being resolved.  Any process can cause that, so give up after a
              bounded number of attempts instead of retrying forever.  */
-          if (errno == EAGAIN && retries-- > 0)
-            goto repeat;
-          if (errno == ENOSYS)
+          إذا (errno == EAGAIN && retries-- > 0)
+            اذهب repeat;
+          إذا (errno == ENOSYS)
             openat2_supported = false;
-          if (errno == ENOSYS || errno == EINVAL || errno == EPERM)
-            return safe_openat_fallback (dirfd, rootfs, path, flags, mode, err);
+          إذا (errno == ENOSYS || errno == EINVAL || errno == EPERM)
+            أرجع محفوظ_openat_fallback (dirfd, rootfs, رستہ, flags, منوال, err);
 
-          return crun_make_error (err, errno, "openat2 `%s`", path);
+          أرجع crun_make_error (err, errno, "openat2 `%s`", رستہ);
         }
 
-      return ret;
+      أرجع ret;
     }
 
-  return safe_openat_fallback (dirfd, rootfs, path, flags, mode, err);
+  أرجع محفوظ_openat_fallback (dirfd, rootfs, رستہ, flags, منوال, err);
 }
 
 ssize_t
-safe_readlinkat (int dfd, const char *name, char **buffer, ssize_t hint, libcrun_error_t *err)
+محفوظ_readlinkat (صحيح dfd, ثابت حرف *name, حرف **بفر, ssize_t hint, libcrun_error_t *err)
 {
   /* Add 1 to make room for the NUL terminator.  */
-  ssize_t buf_size = hint > 0 ? hint + 1 : 512;
-  cleanup_free char *tmp_buf = NULL;
-  ssize_t size;
+  ssize_t buf_ناپ = hint > 0 ? hint + 1 : 512;
+  cleanup_free حرف *tmp_buf = عدم;
+  ssize_t ناپ;
 
-  do
+  افعل
     {
-      if (tmp_buf != NULL)
-        buf_size += 256;
+      إذا (tmp_buf != عدم)
+        buf_ناپ += 256;
 
-      tmp_buf = xrealloc (tmp_buf, buf_size);
+      tmp_buf = xrealloc (tmp_buf, buf_ناپ);
 
-      size = readlinkat (dfd, name, tmp_buf, buf_size);
-      if (UNLIKELY (size < 0))
-        return crun_make_error (err, errno, "readlink `%s`", name);
-  } while (size == buf_size);
+      ناپ = readlinkat (dfd, name, tmp_buf, buf_ناپ);
+      إذا (UNLIKELY (ناپ < 0))
+        أرجع crun_make_error (err, errno, "readlink `%s`", name);
+  } طالما (ناپ == buf_ناپ);
 
   /* Always NUL terminate the buffer.  */
-  tmp_buf[size] = '\0';
+  tmp_buf[ناپ] = '\0';
 
   /* Move ownership to BUFFER.  */
-  *buffer = tmp_buf;
-  tmp_buf = NULL;
+  *بفر = tmp_buf;
+  tmp_buf = عدم;
 
-  return size;
+  أرجع ناپ;
 }
 
-static int crun_safe_ensure_at (bool do_open, bool dir, bool follow_symlinks, int dirfd, const char *dirpath,
-                                const char *path, int mode, int max_readlinks, libcrun_error_t *err);
+ساكن صحيح crun_محفوظ_ensure_at (bool do_open, bool dir, bool follow_symlinks, صحيح dirfd, ثابت حرف *dirpath,
+                                ثابت حرف *رستہ, صحيح منوال, صحيح max_readlinks, libcrun_error_t *err);
 
 /* CUR is a symlink in the directory CWD, NPATH is the path up to and
    including CUR, and REST is what follows CUR in the path, or NULL.
    Restart the lookup with the symlink target in place of CUR, so that
    anything missing on the way to the target is created.  */
-static int
-crun_safe_ensure_follow_symlink (bool do_open, bool dir, bool follow_symlinks, int dirfd, const char *dirpath, int cwd,
-                                 const char *npath, const char *cur, const char *rest,
-                                 int mode, int max_readlinks, libcrun_error_t *err)
+ساكن صحيح
+crun_محفوظ_ensure_follow_symlink (bool do_open, bool dir, bool follow_symlinks, صحيح dirfd, ثابت حرف *dirpath, صحيح cwd,
+                                 ثابت حرف *npath, ثابت حرف *cur, ثابت حرف *rest,
+                                 صحيح منوال, صحيح max_readlinks, libcrun_error_t *err)
 {
-  cleanup_free char *target = NULL;
-  cleanup_free char *new_path = NULL;
+  cleanup_free حرف *نشانہ = عدم;
+  cleanup_free حرف *new_رستہ = عدم;
   ssize_t ret;
 
-  ret = safe_readlinkat (cwd, cur, &target, 0, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = محفوظ_readlinkat (cwd, cur, &نشانہ, 0, err);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
   /* A relative target is relative to the directory containing the symlink,
      which is the path before CUR.  */
-  xasprintf (&new_path, "%.*s%s%s%s", target[0] == '/' ? 0 : (int) (cur - npath), npath, target,
+  xasprintf (&new_رستہ, "%.*s%s%s%s", نشانہ[0] == '/' ? 0 : (صحيح) (cur - npath), npath, نشانہ,
              rest ? "/" : "", rest ? rest : "");
 
-  return crun_safe_ensure_at (do_open, dir, follow_symlinks, dirfd, dirpath, new_path, mode, max_readlinks - 1, err);
+  أرجع crun_محفوظ_ensure_at (do_open, dir, follow_symlinks, dirfd, dirpath, new_رستہ, منوال, max_readlinks - 1, err);
 }
 
-static int
-crun_safe_ensure_at (bool do_open, bool dir, bool follow_symlinks, int dirfd, const char *dirpath,
-                     const char *path, int mode, int max_readlinks, libcrun_error_t *err)
+ساكن صحيح
+crun_محفوظ_ensure_at (bool do_open, bool dir, bool follow_symlinks, صحيح dirfd, ثابت حرف *dirpath,
+                     ثابت حرف *رستہ, صحيح منوال, صحيح max_readlinks, libcrun_error_t *err)
 {
-  cleanup_close int wd_cleanup = -1;
-  cleanup_free char *npath = NULL;
-  bool last_component = false;
-  size_t depth = 0;
-  char *cur;
-  char *it;
-  int cwd;
-  int ret;
+  cleanup_close صحيح wd_cleanup = -1;
+  cleanup_free حرف *npath = عدم;
+  bool آخری_component = false;
+  size_t ڈونگھائی = 0;
+  حرف *cur;
+  حرف *it;
+  صحيح cwd;
+  صحيح ret;
 
-  if (max_readlinks <= 0)
-    return crun_make_error (err, ELOOP, "resolve path `%s`", path);
+  إذا (max_readlinks <= 0)
+    أرجع crun_make_error (err, ELOOP, "resolve path `%s`", رستہ);
 
-  path = consume_slashes (path);
+  رستہ = consume_slashes (رستہ);
 
   /* Empty path, nothing to do.  */
-  if (*path == '\0')
+  إذا (*رستہ == '\0')
     {
-      if (do_open)
-        return open (dirpath, O_CLOEXEC | O_PATH, 0);
-      return 0;
+      إذا (do_open)
+        أرجع open (dirpath, O_CLOEXEC | O_رستہ, 0);
+      أرجع 0;
     }
 
-  npath = xstrdup (path);
+  npath = xstrdup (رستہ);
 
   cwd = dirfd;
   cur = npath;
   it = strchr (npath, '/');
-  while (cur)
+  طالما (cur)
     {
-      if (it)
+      إذا (it)
         *it = '\0';
-      else
-        last_component = true;
+      وإلا
+        آخری_component = true;
 
-      if (cur[0] == '\0')
-        break;
+      إذا (cur[0] == '\0')
+        اكسر;
 
-      if (strcmp (cur, ".") == 0)
-        goto next;
-      else if (strcmp (cur, ".."))
-        depth++;
-      else
+      إذا (strcmp (cur, ".") == 0)
+        اذهب اگلا;
+      وإلا إذا (strcmp (cur, ".."))
+        ڈونگھائی++;
+      وإلا
         {
-          if (depth)
-            depth--;
-          else
+          إذا (ڈونگھائی)
+            ڈونگھائی--;
+          وإلا
             {
               /* Start from the root.  */
               close_and_reset (&wd_cleanup);
               cwd = dirfd;
-              goto next;
+              اذهب اگلا;
             }
         }
 
-      if (last_component && ! dir)
+      إذا (آخری_component && ! dir)
         {
           ret = openat (cwd, cur, O_CLOEXEC | O_CREAT | O_WRONLY | O_NOFOLLOW | O_NONBLOCK, 0700);
-          if (UNLIKELY (ret < 0))
+          إذا (UNLIKELY (ret < 0))
             {
               /* If the last component is a symlink, repeat the lookup with the resolved path.
                  That lookup is confined to DIRFD, so its result is final: an openat without
                  O_NOFOLLOW would follow the symlink from the process root instead.  */
-              if (errno == ELOOP)
-                return crun_safe_ensure_follow_symlink (do_open, dir, follow_symlinks, dirfd, dirpath, cwd, npath, cur, NULL,
-                                                        mode, max_readlinks, err);
+              إذا (errno == ELOOP)
+                أرجع crun_محفوظ_ensure_follow_symlink (do_open, dir, follow_symlinks, dirfd, dirpath, cwd, npath, cur, عدم,
+                                                        منوال, max_readlinks, err);
 
               /* If the previous openat fails, attempt to open the file in O_PATH mode.  */
-              ret = openat (cwd, cur, O_CLOEXEC | O_PATH | O_NOFOLLOW, 0);
-              if (ret < 0)
-                return crun_make_error (err, errno, "open `%s/%s`", dirpath, npath);
+              ret = openat (cwd, cur, O_CLOEXEC | O_رستہ | O_NOFOLLOW, 0);
+              إذا (ret < 0)
+                أرجع crun_make_error (err, errno, "open `%s/%s`", dirpath, npath);
             }
 
-          if (do_open)
-            return ret;
+          إذا (do_open)
+            أرجع ret;
 
           close_and_replace (&wd_cleanup, ret);
-          return 0;
+          أرجع 0;
         }
 
-      ret = mkdirat (cwd, cur, mode);
-      if (ret < 0)
+      ret = mkdirat (cwd, cur, منوال);
+      إذا (ret < 0)
         {
           mode_t st_mode;
 
-          if (errno != EEXIST)
-            return crun_make_error (err, errno, "mkdir `/%s`", npath);
+          إذا (errno != EEXIST)
+            أرجع crun_make_error (err, errno, "mkdir `/%s`", npath);
 
           /* If asked to, follow a symlink here, so that a dangling one gets
              its target created, and the lookup of a relative target or a ".."
              after it starts from the right directory.  This is done for mount
              targets, not for the working directory, where both crun and runc
              have always failed with a dangling symlink.  */
-          if (follow_symlinks && get_file_type_at (cwd, &st_mode, true, cur) == 0 && S_ISLNK (st_mode))
-            return crun_safe_ensure_follow_symlink (do_open, dir, follow_symlinks, dirfd, dirpath, cwd, npath, cur,
-                                                    it ? it + 1 : NULL, mode, max_readlinks, err);
+          إذا (follow_symlinks && get_file_type_at (cwd, &st_mode, true, cur) == 0 && S_ISLNK (st_mode))
+            أرجع crun_محفوظ_ensure_follow_symlink (do_open, dir, follow_symlinks, dirfd, dirpath, cwd, npath, cur,
+                                                    it ? it + 1 : عدم, منوال, max_readlinks, err);
         }
 
       /* The type of an existing component is not known yet, so open it with
          O_PATH: a FIFO must not block and a device must not be opened.  */
-      cwd = safe_openat (dirfd, dirpath, npath, O_PATH | O_CLOEXEC, 0, err);
-      if (UNLIKELY (cwd < 0))
-        return crun_error_wrap (err, "creating `/%s`", path);
+      cwd = محفوظ_openat (dirfd, dirpath, npath, O_رستہ | O_CLOEXEC, 0, err);
+      إذا (UNLIKELY (cwd < 0))
+        أرجع crun_error_wrap (err, "creating `/%s`", رستہ);
 
-      if (! last_component)
+      إذا (! آخری_component)
         {
           mode_t st_mode;
 
-          ret = get_file_type_at (cwd, &st_mode, true, NULL);
-          if (UNLIKELY (ret < 0))
+          ret = get_file_type_at (cwd, &st_mode, true, عدم);
+          إذا (UNLIKELY (ret < 0))
             {
-              int saved_errno = errno;
+              صحيح saved_errno = errno;
 
               close (cwd);
-              return crun_make_error (err, saved_errno, "stat `%s`", npath);
+              أرجع crun_make_error (err, saved_errno, "stat `%s`", npath);
             }
-          if ((st_mode & S_IFMT) != S_IFDIR)
+          إذا ((st_mode & S_IFMT) != S_IFDIR)
             {
               close (cwd);
-              return crun_make_error (err, ENOTDIR, "error creating directory `%s` since `%s` exists and it is not a directory", path, npath);
+              أرجع crun_make_error (err, ENOTDIR, "error creating directory `%s` since `%s` exists and it is not a directory", رستہ, npath);
             }
         }
 
       close_and_replace (&wd_cleanup, cwd);
 
-    next:
-      if (it == NULL)
-        break;
+    اگلا:
+      إذا (it == عدم)
+        اكسر;
 
       cur = consume_slashes (it + 1);
       *it = '/';
       it = strchr (cur, '/');
     }
 
-  if (do_open)
+  إذا (do_open)
     {
-      if (cwd == dirfd)
+      إذا (cwd == dirfd)
         {
           ret = dup (dirfd);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "dup `%s`", dirpath);
-          return ret;
+          إذا (UNLIKELY (ret < 0))
+            أرجع crun_make_error (err, errno, "dup `%s`", dirpath);
+          أرجع ret;
         }
 
       wd_cleanup = -1;
-      return cwd;
+      أرجع cwd;
     }
 
-  return 0;
+  أرجع 0;
 }
 
-int
-crun_safe_create_and_open_ref_at (bool dir, int dirfd, const char *dirpath, const char *path, int mode, libcrun_error_t *err)
+صحيح
+crun_محفوظ_create_and_open_ref_at (bool dir, صحيح dirfd, ثابت حرف *dirpath, ثابت حرف *رستہ, صحيح منوال, libcrun_error_t *err)
 {
-  int ret;
+  صحيح ret;
 
   /* If the file/dir already exists, just open it.  */
-  ret = safe_openat (dirfd, dirpath, path, O_PATH | O_CLOEXEC, 0, err);
-  if (LIKELY (ret >= 0))
-    return ret;
+  ret = محفوظ_openat (dirfd, dirpath, رستہ, O_رستہ | O_CLOEXEC, 0, err);
+  إذا (LIKELY (ret >= 0))
+    أرجع ret;
 
   crun_error_release (err);
-  return crun_safe_ensure_at (true, dir, true, dirfd, dirpath, path, mode, MAX_READLINKS, err);
+  أرجع crun_محفوظ_ensure_at (true, dir, true, dirfd, dirpath, رستہ, منوال, MAX_READLINKS, err);
 }
 
-int
-crun_safe_ensure_directory_at (int dirfd, const char *dirpath, const char *path, int mode,
+صحيح
+crun_محفوظ_ensure_directory_at (صحيح dirfd, ثابت حرف *dirpath, ثابت حرف *رستہ, صحيح منوال,
                                libcrun_error_t *err)
 {
-  return crun_safe_ensure_at (false, true, false, dirfd, dirpath, path, mode, MAX_READLINKS, err);
+  أرجع crun_محفوظ_ensure_at (false, true, false, dirfd, dirpath, رستہ, منوال, MAX_READLINKS, err);
 }
 
-int
-crun_safe_ensure_file_at (int dirfd, const char *dirpath, const char *path, int mode,
+صحيح
+crun_محفوظ_ensure_file_at (صحيح dirfd, ثابت حرف *dirpath, ثابت حرف *رستہ, صحيح منوال,
                           libcrun_error_t *err)
 {
-  return crun_safe_ensure_at (false, false, false, dirfd, dirpath, path, mode, MAX_READLINKS, err);
+  أرجع crun_محفوظ_ensure_at (false, false, false, dirfd, dirpath, رستہ, منوال, MAX_READLINKS, err);
 }
 
-int
-crun_ensure_directory (const char *path, int mode, bool nofollow, libcrun_error_t *err)
+صحيح
+crun_ensure_directory (ثابت حرف *رستہ, صحيح منوال, bool nofollow, libcrun_error_t *err)
 {
-  return crun_ensure_directory_at (AT_FDCWD, path, mode, nofollow, err);
+  أرجع crun_ensure_directory_at (AT_FDCWD, رستہ, منوال, nofollow, err);
 }
 
-static int
-get_file_size (int fd, off_t *size)
+ساكن صحيح
+get_file_ناپ (صحيح fd, off_t *ناپ)
 {
-  struct stat st;
-  int ret;
-#ifdef HAVE_STATX
-  struct statx stx = {
+  بنية stat st;
+  صحيح ret;
+#جے_تعریف_شدہ HAVE_STATX
+  بنية statx stx = {
     0,
   };
 
-  ret = statx (fd, "", AT_EMPTY_PATH | AT_SYMLINK_NOFOLLOW | AT_STATX_DONT_SYNC, STATX_SIZE, &stx);
-  if (UNLIKELY (ret < 0))
+  ret = statx (fd, "", AT_خالی_تھاواں_رستہ | AT_SYMLINK_NOFOLLOW | AT_STATX_DONT_SYNC, STATX_ناپ, &stx);
+  إذا (UNLIKELY (ret < 0))
     {
-      if (errno == ENOSYS || errno == EINVAL)
-        goto fallback;
-      return ret;
+      إذا (errno == ENOSYS || errno == EINVAL)
+        اذهب fallback;
+      أرجع ret;
     }
-  *size = stx.stx_size;
+  *ناپ = stx.stx_size;
 
-  return ret;
+  أرجع ret;
 
 fallback:
-#endif
+#جے_انت
   ret = fstat (fd, &st);
-  *size = st.st_size;
-  return ret;
+  *ناپ = st.st_size;
+  أرجع ret;
 }
 
-int
-crun_dir_p_at (int dirfd, const char *path, bool nofollow, libcrun_error_t *err)
+صحيح
+crun_dir_p_at (صحيح dirfd, ثابت حرف *رستہ, bool nofollow, libcrun_error_t *err)
 {
-  mode_t mode;
-  int ret;
+  mode_t منوال;
+  صحيح ret;
 
-  ret = get_file_type_at (dirfd, &mode, nofollow, path);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "stat `%s`", path);
+  ret = get_file_type_at (dirfd, &منوال, nofollow, رستہ);
+  إذا (UNLIKELY (ret < 0))
+    أرجع crun_make_error (err, errno, "stat `%s`", رستہ);
 
-  return S_ISDIR (mode) ? 1 : 0;
+  أرجع S_ISDIR (منوال) ? 1 : 0;
 }
 
-int
-crun_dir_p (const char *path, bool nofollow, libcrun_error_t *err)
+صحيح
+crun_dir_p (ثابت حرف *رستہ, bool nofollow, libcrun_error_t *err)
 {
-  return crun_dir_p_at (AT_FDCWD, path, nofollow, err);
+  أرجع crun_dir_p_at (AT_FDCWD, رستہ, nofollow, err);
 }
 
 /* Detect the user namespace from the mapping in /proc/self/uid_map.  It cannot
    tell apart the initial user namespace from a user namespace with a full
    identity mapping, so it is used only as a fallback.  */
-static int
-check_running_in_user_namespace_uid_map (libcrun_error_t *err)
+ساكن صحيح
+check_running_وچ_user_namespace_uid_map (libcrun_error_t *err)
 {
-  cleanup_free char *buffer = NULL;
+  cleanup_free حرف *بفر = عدم;
   size_t len;
-  int ret;
+  صحيح ret;
 
-  ret = read_all_file ("/proc/self/uid_map", &buffer, &len, err);
-  if (UNLIKELY (ret < 0))
+  ret = read_all_file ("/proc/self/uid_map", &بفر, &len, err);
+  إذا (UNLIKELY (ret < 0))
     {
       /* If the file does not exist, then the kernel does not support user namespaces and we for sure aren't in one.  */
-      if (crun_error_get_errno (err) == ENOENT)
+      إذا (crun_error_get_errno (err) == ENOENT)
         {
           crun_error_release (err);
-          return 0;
+          أرجع 0;
         }
-      return ret;
+      أرجع ret;
     }
 
-  return strstr (buffer, "4294967295") ? 0 : 1;
+  أرجع لڑی_کھوج (بفر, "4294967295") ? 0 : 1;
 }
 
 /* OpenVZ exposes /proc/vz both on the host and inside containers, while
    /proc/bc is only exposed on the host.  This follows systemd's OpenVZ
    detection.  */
-static bool
-running_in_openvz ()
+ساكن bool
+running_وچ_openvz ()
 {
-  if (access ("/proc/vz", F_OK) < 0)
-    return false;
+  إذا (access ("/proc/vz", F_OK) < 0)
+    أرجع false;
 
-  return access ("/proc/bc", F_OK) < 0 && errno == ENOENT;
+  أرجع access ("/proc/bc", F_OK) < 0 && errno == ENOENT;
 }
 
-int
-check_running_in_user_namespace (libcrun_error_t *err)
+صحيح
+check_running_وچ_user_namespace (libcrun_error_t *err)
 {
-  static atomic_int run_in_userns = -1;
-  struct stat st;
-  int ret;
+  ساكن atomic_int لگاتار_وچ_userns = -1;
+  بنية stat st;
+  صحيح ret;
 
-  ret = run_in_userns;
-  if (ret >= 0)
-    return ret;
+  ret = لگاتار_وچ_userns;
+  إذا (ret >= 0)
+    أرجع ret;
 
   ret = stat ("/proc/self/ns/user", &st);
-  if (ret == 0)
+  إذا (ret == 0)
     {
       /* The inode is definitive when it matches.  OpenVZ virtualizes the
          namespace inode numbers exposed through procfs, so a mismatch must fall
          back to the uid_map detection there.  */
-      if (st.st_ino == PROC_USER_INIT_INO)
+      إذا (st.st_ino == PROC_USER_INIT_INO)
         {
-          run_in_userns = 0;
-          return run_in_userns;
+          لگاتار_وچ_userns = 0;
+          أرجع لگاتار_وچ_userns;
         }
 
-      if (! running_in_openvz ())
+      إذا (! running_وچ_openvz ())
         {
-          run_in_userns = 1;
-          return run_in_userns;
+          لگاتار_وچ_userns = 1;
+          أرجع لگاتار_وچ_userns;
         }
     }
-  else if (UNLIKELY (errno != ENOENT))
-    return crun_make_error (err, errno, "stat `/proc/self/ns/user`");
+  وإلا إذا (UNLIKELY (errno != ENOENT))
+    أرجع crun_make_error (err, errno, "stat `/proc/self/ns/user`");
 
   /* Kernels older than 3.8 do not expose the user namespace here even though
      they can still support user namespaces, so the uid_map is all we have.  */
-  ret = check_running_in_user_namespace_uid_map (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = check_running_وچ_user_namespace_uid_map (err);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  run_in_userns = ret;
-  return run_in_userns;
+  لگاتار_وچ_userns = ret;
+  أرجع لگاتار_وچ_userns;
 }
 
-static size_t
-get_page_size ()
+ساكن size_t
+get_ورقہ_ناپ ()
 {
-  static atomic_long cached_pagesize = 0;
+  ساكن atomic_long cached_pagesize = 0;
   atomic_long pagesize = cached_pagesize;
-  if (pagesize == 0)
+  إذا (pagesize == 0)
     {
-      pagesize = (long) sysconf (_SC_PAGESIZE);
+      pagesize = (لما) sysconf (_SC_PAGESIZE);
       cached_pagesize = pagesize;
     }
-  return (size_t) pagesize;
+  أرجع (size_t) pagesize;
 }
 
-static int selinux_enabled = -1;
-static int apparmor_enabled = -1;
+ساكن صحيح selinux_enabled = -1;
+ساكن صحيح apparmor_enabled = -1;
 
-int
+صحيح
 libcrun_initialize_selinux (libcrun_container_t *container, libcrun_error_t *err)
 {
-  cleanup_free char *out = NULL;
-  cleanup_close int fd = -1;
+  cleanup_free حرف *باہرلا = عدم;
+  cleanup_close صحيح fd = -1;
   size_t len;
-  int ret;
+  صحيح ret;
 
-  if (selinux_enabled >= 0)
-    return selinux_enabled;
+  إذا (selinux_enabled >= 0)
+    أرجع selinux_enabled;
 
   fd = libcrun_open_proc_file (container, "mounts", O_RDONLY, err);
-  if (UNLIKELY (fd < 0))
-    return fd;
+  إذا (UNLIKELY (fd < 0))
+    أرجع fd;
 
-  ret = read_all_fd_with_size_hint (fd, "mounts", &out, &len, get_page_size (), err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_fd_with_ناپ_hint (fd, "mounts", &باہرلا, &len, get_ورقہ_ناپ (), err);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  selinux_enabled = strstr (out, "selinux") ? 1 : 0;
+  selinux_enabled = لڑی_کھوج (باہرلا, "selinux") ? 1 : 0;
 
-  return selinux_enabled;
+  أرجع selinux_enabled;
 }
 
-int
+صحيح
 libcrun_initialize_apparmor (libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
-  int size;
-  char buf[1];
+  cleanup_close صحيح fd = -1;
+  صحيح ناپ;
+  حرف buf[1];
 
-  if (apparmor_enabled >= 0)
-    return apparmor_enabled;
+  إذا (apparmor_enabled >= 0)
+    أرجع apparmor_enabled;
 
   fd = open ("/sys/module/apparmor/parameters/enabled", O_RDONLY | O_CLOEXEC);
-  if (fd == -1)
+  إذا (fd == -1)
     {
-      if (errno == ENOENT)
+      إذا (errno == ENOENT)
         {
           apparmor_enabled = 0;
-          return 0;
+          أرجع 0;
         }
 
-      return crun_make_error (err, errno, "open `/sys/module/apparmor/parameters/enabled`");
+      أرجع crun_make_error (err, errno, "open `/sys/module/apparmor/parameters/enabled`");
     }
 
-  size = TEMP_FAILURE_RETRY (read (fd, buf, sizeof (buf)));
+  ناپ = عارضی_FAILURE_RETRY (اقرأ (fd, buf, حجم (buf)));
 
-  apparmor_enabled = size > 0 && buf[0] == 'Y' ? 1 : 0;
+  apparmor_enabled = ناپ > 0 && buf[0] == 'Y' ? 1 : 0;
 
-  return apparmor_enabled;
+  أرجع apparmor_enabled;
 }
 
-static int
+ساكن صحيح
 libcrun_is_selinux_enabled (libcrun_error_t *err)
 {
-  if (selinux_enabled < 0)
-    return crun_make_error (err, 0, "SELinux is not initialized correctly");
-  return selinux_enabled;
+  إذا (selinux_enabled < 0)
+    أرجع crun_make_error (err, 0, "SELinux is not initialized correctly");
+  أرجع selinux_enabled;
 }
 
-int
-add_selinux_mount_label (char **retlabel, const char *data, const char *label, const char *context_type, libcrun_error_t *err)
+صحيح
+جوڑو_selinux_mount_label (حرف **retlabel, ثابت حرف *انکڑے, ثابت حرف *label, ثابت حرف *context_type, libcrun_error_t *err)
 {
-  int ret;
+  صحيح ret;
 
   ret = libcrun_is_selinux_enabled (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  if (label && ret)
+  إذا (label && ret)
     {
-      if (data && *data)
-        xasprintf (retlabel, "%s,%s=\"%s\"", data, context_type, label);
-      else
+      إذا (انکڑے && *انکڑے)
+        xasprintf (retlabel, "%s,%s=\"%s\"", انکڑے, context_type, label);
+      وإلا
         xasprintf (retlabel, "%s=\"%s\"", context_type, label);
-      return 0;
+      أرجع 0;
     }
-  *retlabel = xstrdup (data);
-  return 0;
+  *retlabel = xstrdup (انکڑے);
+  أرجع 0;
 }
 
-static const char *
-lsm_attr_path (libcrun_container_t *container, const char *lsm, const char *fname, libcrun_error_t *err)
+ساكن ثابت حرف *
+lsm_attr_رستہ (libcrun_container_t *container, ثابت حرف *lsm, ثابت حرف *fname, libcrun_error_t *err)
 {
-  cleanup_close int attr_dirfd = -1;
-  cleanup_close int lsm_dirfd = -1;
-  char *attr_path = NULL;
+  cleanup_close صحيح attr_dirfd = -1;
+  cleanup_close صحيح lsm_dirfd = -1;
+  حرف *attr_رستہ = عدم;
 
-  attr_dirfd = libcrun_open_proc_file (container, "thread-self/attr", O_DIRECTORY | O_PATH, err);
-  if (UNLIKELY (attr_dirfd < 0))
-    return NULL;
+  attr_dirfd = libcrun_open_proc_file (container, "thread-self/attr", O_DIRECTORY | O_رستہ, err);
+  إذا (UNLIKELY (attr_dirfd < 0))
+    أرجع عدم;
 
   // Check for newer scoped interface in /proc/thread-self/attr/<lsm>
-  if (lsm != NULL)
+  إذا (lsm != عدم)
     {
-      lsm_dirfd = openat (attr_dirfd, lsm, O_DIRECTORY | O_PATH | O_CLOEXEC);
+      lsm_dirfd = openat (attr_dirfd, lsm, O_DIRECTORY | O_رستہ | O_CLOEXEC);
 
-      if (UNLIKELY (lsm_dirfd < 0 && errno != ENOENT))
+      إذا (UNLIKELY (lsm_dirfd < 0 && errno != ENOENT))
         {
           crun_make_error (err, errno, "open `/proc/thread-self/attr/%s`", lsm);
-          return NULL;
+          أرجع عدم;
         }
     }
   // Use scoped interface if available, fall back to unscoped
-  xasprintf (&attr_path, "thread-self/attr/%s%s%s", lsm_dirfd >= 0 ? lsm : "", lsm_dirfd >= 0 ? "/" : "", fname);
+  xasprintf (&attr_رستہ, "thread-self/attr/%s%s%s", lsm_dirfd >= 0 ? lsm : "", lsm_dirfd >= 0 ? "/" : "", fname);
 
-  return attr_path;
+  أرجع attr_رستہ;
 }
 
-static int
-check_proc_super_magic (int fd, const char *path, libcrun_error_t *err)
+ساكن صحيح
+check_proc_super_magic (صحيح fd, ثابت حرف *رستہ, libcrun_error_t *err)
 {
-  struct statfs sfs;
+  بنية statfs sfs;
 
-  int ret = fstatfs (fd, &sfs);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "statfs `%s`", path);
+  صحيح ret = fstatfs (fd, &sfs);
+  إذا (UNLIKELY (ret < 0))
+    أرجع crun_make_error (err, errno, "statfs `%s`", رستہ);
 
-  if (sfs.f_type != PROC_SUPER_MAGIC)
-    return crun_make_error (err, 0, "the file `%s` is not on a `procfs` file system", path);
+  إذا (sfs.f_type != PROC_SUPER_MAGIC)
+    أرجع crun_make_error (err, 0, "the file `%s` is not on a `procfs` file system", رستہ);
 
-  return 0;
+  أرجع 0;
 }
 
-static int
-set_security_attr (libcrun_container_t *container, const char *lsm, const char *fname, const char *data, libcrun_error_t *err)
+ساكن صحيح
+سیٹ_security_attr (libcrun_container_t *container, ثابت حرف *lsm, ثابت حرف *fname, ثابت حرف *انکڑے, libcrun_error_t *err)
 {
-  int ret;
+  صحيح ret;
 
-  cleanup_free const char *attr_path = lsm_attr_path (container, lsm, fname, err);
-  cleanup_close int fd = -1;
+  cleanup_free ثابت حرف *attr_رستہ = lsm_attr_رستہ (container, lsm, fname, err);
+  cleanup_close صحيح fd = -1;
 
-  if (UNLIKELY (attr_path == NULL))
-    return -1;
+  إذا (UNLIKELY (attr_رستہ == عدم))
+    أرجع -1;
 
-  fd = libcrun_open_proc_file (container, attr_path, O_WRONLY | O_CLOEXEC, err);
-  if (UNLIKELY (fd < 0))
-    return fd;
+  fd = libcrun_open_proc_file (container, attr_رستہ, O_WRONLY | O_CLOEXEC, err);
+  إذا (UNLIKELY (fd < 0))
+    أرجع fd;
 
-  ret = check_proc_super_magic (fd, attr_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = check_proc_super_magic (fd, attr_رستہ, err);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
   // Write out data
-  ret = TEMP_FAILURE_RETRY (write (fd, data, strlen (data)));
-  if (UNLIKELY (ret < 0))
+  ret = عارضی_FAILURE_RETRY (اكتب (fd, انکڑے, لڑی_لمبائی (انکڑے)));
+  إذا (UNLIKELY (ret < 0))
     {
       /* ENOENT from the write is AppArmor telling the profile is unknown.
          The data is "<op> <profile>".  */
-      if (errno == ENOENT && lsm != NULL && strcmp (lsm, "apparmor") == 0)
+      إذا (errno == ENOENT && lsm != عدم && strcmp (lsm, "apparmor") == 0)
         {
-          const char *profile = strchr (data, ' ');
+          ثابت حرف *profile = strchr (انکڑے, ' ');
 
-          return crun_make_error (err, 0, "apply apparmor profile `%s`: profile not loaded", profile ? profile + 1 : data);
+          أرجع crun_make_error (err, 0, "apply apparmor profile `%s`: profile not loaded", profile ? profile + 1 : انکڑے);
         }
-      return crun_make_error (err, errno, "write to file `%s`", attr_path);
+      أرجع crun_make_error (err, errno, "write to file `%s`", attr_رستہ);
     }
 
-  return 0;
+  أرجع 0;
 }
 
-int
-set_selinux_label (libcrun_container_t *container, const char *label, bool now, libcrun_error_t *err)
+صحيح
+سیٹ_selinux_label (libcrun_container_t *container, ثابت حرف *label, bool now, libcrun_error_t *err)
 {
-  int ret;
+  صحيح ret;
 
   ret = libcrun_is_selinux_enabled (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  if (ret)
-    return set_security_attr (container, NULL, now ? "current" : "exec", label, err);
-  return 0;
+  إذا (ret)
+    أرجع سیٹ_security_attr (container, عدم, now ? "current" : "exec", label, err);
+  أرجع 0;
 }
 
-static int
+ساكن صحيح
 libcrun_is_apparmor_enabled (libcrun_error_t *err)
 {
-  if (apparmor_enabled < 0)
-    return crun_make_error (err, 0, "AppArmor is not initialized correctly");
-  return apparmor_enabled;
+  إذا (apparmor_enabled < 0)
+    أرجع crun_make_error (err, 0, "AppArmor is not initialized correctly");
+  أرجع apparmor_enabled;
 }
 
-static int
+ساكن صحيح
 is_current_process_confined (libcrun_container_t *container, libcrun_error_t *err)
 {
-#define UNCONFINED "unconfined"
-#define UNCONFINED_LEN (ssize_t) (sizeof (UNCONFINED) - 1)
-  cleanup_free const char *attr_path = lsm_attr_path (container, "apparmor", "current", err);
-  cleanup_close int fd = -1;
+#تعریف_کرو UNCONFINED "unconfined"
+#تعریف_کرو UNCONFINED_LEN (ssize_t) (حجم (UNCONFINED) - 1)
+  cleanup_free ثابت حرف *attr_رستہ = lsm_attr_رستہ (container, "apparmor", "current", err);
+  cleanup_close صحيح fd = -1;
   /* Only the "unconfined" token plus one delimiter byte are inspected.  */
-  char buf[UNCONFINED_LEN + 1];
+  حرف buf[UNCONFINED_LEN + 1];
 
-  if (UNLIKELY (attr_path == NULL))
-    return -1;
+  إذا (UNLIKELY (attr_رستہ == عدم))
+    أرجع -1;
 
-  fd = libcrun_open_proc_file (container, attr_path, O_RDONLY | O_CLOEXEC, err);
-  if (UNLIKELY (fd < 0))
-    return fd;
+  fd = libcrun_open_proc_file (container, attr_رستہ, O_RDONLY | O_CLOEXEC, err);
+  إذا (UNLIKELY (fd < 0))
+    أرجع fd;
 
-  if (UNLIKELY (check_proc_super_magic (fd, attr_path, err)))
-    return -1;
+  إذا (UNLIKELY (check_proc_super_magic (fd, attr_رستہ, err)))
+    أرجع -1;
 
-  ssize_t bytes_read = TEMP_FAILURE_RETRY (read (fd, buf, sizeof (buf)));
-  if (UNLIKELY (bytes_read < 0))
-    return crun_make_error (err, errno, "read from `%s`", attr_path);
+  ssize_t بائٹاں_read = عارضی_FAILURE_RETRY (اقرأ (fd, buf, حجم (buf)));
+  إذا (UNLIKELY (بائٹاں_read < 0))
+    أرجع crun_make_error (err, errno, "read from `%s`", attr_رستہ);
 
   /* The process is unconfined only when the attribute is exactly the token
      "unconfined", optionally followed by a delimiter.  Anything shorter (a
      short read), or a longer profile name such as "unconfined_foo", means the
      process is confined.  When in doubt default to confined, which is the safe
      assumption for the caller.  */
-  if (bytes_read < UNCONFINED_LEN || memcmp (buf, UNCONFINED, UNCONFINED_LEN) != 0)
-    return 1;
-  if (bytes_read == UNCONFINED_LEN || buf[UNCONFINED_LEN] == '\n' || buf[UNCONFINED_LEN] == ' ')
-    return 0;
-  return 1;
-#undef UNCONFINED
-#undef UNCONFINED_LEN
+  إذا (بائٹاں_read < UNCONFINED_LEN || memcmp (buf, UNCONFINED, UNCONFINED_LEN) != 0)
+    أرجع 1;
+  إذا (بائٹاں_read == UNCONFINED_LEN || buf[UNCONFINED_LEN] == '\n' || buf[UNCONFINED_LEN] == ' ')
+    أرجع 0;
+  أرجع 1;
+#تعریف_رد UNCONFINED
+#تعریف_رد UNCONFINED_LEN
 }
 
-int
-set_apparmor_profile (libcrun_container_t *container, const char *profile, bool no_new_privileges, bool now, libcrun_error_t *err)
+صحيح
+سیٹ_apparmor_profile (libcrun_container_t *container, ثابت حرف *profile, bool no_new_privileges, bool now, libcrun_error_t *err)
 {
-  int ret;
+  صحيح ret;
 
   ret = libcrun_is_apparmor_enabled (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  if (ret)
+  إذا (ret)
     {
-      cleanup_free char *buf = NULL;
+      cleanup_free حرف *buf = عدم;
       ret = is_current_process_confined (container, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
       // if confined only way for apparmor to allow change of profile with NNP is with stacking
       xasprintf (&buf, "%s %s", no_new_privileges && ret ? "stack" : now ? "changeprofile"
                                                                          : "exec",
                  profile);
 
-      return set_security_attr (container, "apparmor", now ? "current" : "exec", buf, err);
+      أرجع سیٹ_security_attr (container, "apparmor", now ? "current" : "exec", buf, err);
     }
-  return 0;
+  أرجع 0;
 }
 
-static int
-read_all_fd_internal (int fd, const char *description, char **out, size_t *len, size_t size_hint, size_t max_size, libcrun_error_t *err)
+ساكن صحيح
+read_all_fd_اندرونی (صحيح fd, ثابت حرف *description, حرف **باہرلا, size_t *len, size_t ناپ_hint, size_t max_ناپ, libcrun_error_t *err)
 {
-  cleanup_free char *buf = NULL;
+  cleanup_free حرف *buf = عدم;
   size_t nread, allocated;
   size_t pagesize = 0;
-  off_t size = 0;
-  int ret;
+  off_t ناپ = 0;
+  صحيح ret;
 
-  if (size_hint)
-    allocated = size_hint;
-  else
+  إذا (ناپ_hint)
+    allocated = ناپ_hint;
+  وإلا
     {
-      ret = get_file_size (fd, &size);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "stat `%s`", description);
+      ret = get_file_ناپ (fd, &ناپ);
+      إذا (UNLIKELY (ret < 0))
+        أرجع crun_make_error (err, errno, "stat `%s`", description);
 
-      if (max_size && (size_t) size > max_size)
-        return crun_make_error (err, EFBIG, "`%s` is bigger than %zu bytes", description, max_size);
+      إذا (max_ناپ && (size_t) ناپ > max_ناپ)
+        أرجع crun_make_error (err, EFBIG, "`%s` is bigger than %zu bytes", description, max_ناپ);
 
-      allocated = size == 0 ? 1023 : size;
+      allocated = ناپ == 0 ? 1023 : ناپ;
     }
 
   /* NUL terminate the buffer.  */
   buf = xmalloc (allocated + 1);
   nread = 0;
-  while ((size && nread < (size_t) size) || size == 0)
+  طالما ((ناپ && nread < (size_t) ناپ) || ناپ == 0)
     {
-      ret = TEMP_FAILURE_RETRY (read (fd, buf + nread, allocated - nread));
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "read from file `%s`", description);
+      ret = عارضی_FAILURE_RETRY (اقرأ (fd, buf + nread, allocated - nread));
+      إذا (UNLIKELY (ret < 0))
+        أرجع crun_make_error (err, errno, "read from file `%s`", description);
 
-      if (ret == 0)
-        break;
+      إذا (ret == 0)
+        اكسر;
 
       nread += ret;
 
-      if (max_size && nread > max_size)
-        return crun_make_error (err, EFBIG, "`%s` is bigger than %zu bytes", description, max_size);
+      إذا (max_ناپ && nread > max_ناپ)
+        أرجع crun_make_error (err, EFBIG, "`%s` is bigger than %zu bytes", description, max_ناپ);
 
-      if (nread == allocated)
+      إذا (nread == allocated)
         {
-          if (size)
-            break;
+          إذا (ناپ)
+            اكسر;
 
-          if (pagesize == 0)
-            pagesize = get_page_size ();
+          إذا (pagesize == 0)
+            pagesize = get_ورقہ_ناپ ();
 
           allocated += pagesize;
 
           buf = xrealloc (buf, allocated + 1);
         }
     }
-  if (nread + 1 < allocated)
+  إذا (nread + 1 < allocated)
     {
       /* shrink the buffer to the used size if it was allocated a bigger block.  */
-      char *tmp = realloc (buf, nread + 1);
-      if (tmp)
+      حرف *tmp = realloc (buf, nread + 1);
+      إذا (tmp)
         buf = tmp;
     }
 
   buf[nread] = '\0';
-  *out = buf;
-  buf = NULL;
-  if (len)
+  *باہرلا = buf;
+  buf = عدم;
+  إذا (len)
     *len = nread;
-  return 0;
+  أرجع 0;
 }
 
-int
-read_all_fd_with_size_hint (int fd, const char *description, char **out, size_t *len, size_t size_hint, libcrun_error_t *err)
+صحيح
+read_all_fd_with_ناپ_hint (صحيح fd, ثابت حرف *description, حرف **باہرلا, size_t *len, size_t ناپ_hint, libcrun_error_t *err)
 {
-  return read_all_fd_internal (fd, description, out, len, size_hint, 0, err);
+  أرجع read_all_fd_اندرونی (fd, description, باہرلا, len, ناپ_hint, 0, err);
 }
 
-int
-read_all_fd_with_max_size (int fd, const char *description, char **out, size_t *len, size_t max_size, libcrun_error_t *err)
+صحيح
+read_all_fd_with_max_ناپ (صحيح fd, ثابت حرف *description, حرف **باہرلا, size_t *len, size_t max_ناپ, libcrun_error_t *err)
 {
-  return read_all_fd_internal (fd, description, out, len, 0, max_size, err);
+  أرجع read_all_fd_اندرونی (fd, description, باہرلا, len, 0, max_ناپ, err);
 }
 
-int
-read_all_file_at (int dirfd, const char *path, char **out, size_t *len, libcrun_error_t *err)
+صحيح
+read_all_file_at (صحيح dirfd, ثابت حرف *رستہ, حرف **باہرلا, size_t *len, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
+  cleanup_close صحيح fd = -1;
 
-  fd = TEMP_FAILURE_RETRY (openat (dirfd, path, O_RDONLY | O_CLOEXEC));
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s`", path);
+  fd = عارضی_FAILURE_RETRY (openat (dirfd, رستہ, O_RDONLY | O_CLOEXEC));
+  إذا (UNLIKELY (fd < 0))
+    أرجع crun_make_error (err, errno, "open `%s`", رستہ);
 
-  return read_all_fd (fd, path, out, len, err);
+  أرجع read_all_fd (fd, رستہ, باہرلا, len, err);
 }
 
-int
-read_all_file (const char *path, char **out, size_t *len, libcrun_error_t *err)
+صحيح
+read_all_file (ثابت حرف *رستہ, حرف **باہرلا, size_t *len, libcrun_error_t *err)
 {
-  if (strcmp (path, "-") == 0)
-    path = "/dev/stdin";
+  إذا (strcmp (رستہ, "-") == 0)
+    رستہ = "/dev/stdin";
 
-  return read_all_file_at (AT_FDCWD, path, out, len, err);
+  أرجع read_all_file_at (AT_FDCWD, رستہ, باہرلا, len, err);
 }
 
-int
-get_realpath_to_file (int dirfd, const char *path_name, char **absolute_path, libcrun_error_t *err)
+صحيح
+get_realpath_منزل_file (صحيح dirfd, ثابت حرف *رستہ_name, حرف **absolute_رستہ, libcrun_error_t *err)
 {
-  cleanup_close int targetfd = -1;
+  cleanup_close صحيح targetfd = -1;
 
-  targetfd = TEMP_FAILURE_RETRY (openat (dirfd, path_name, O_RDONLY | O_CLOEXEC));
-  if (UNLIKELY (targetfd < 0))
-    return crun_make_error (err, errno, "open `%s`", path_name);
-  else
+  targetfd = عارضی_FAILURE_RETRY (openat (dirfd, رستہ_name, O_RDONLY | O_CLOEXEC));
+  إذا (UNLIKELY (targetfd < 0))
+    أرجع crun_make_error (err, errno, "open `%s`", رستہ_name);
+  وإلا
     {
       ssize_t len;
-      proc_fd_path_t target_fd_path;
+      proc_fd_رستہ_t نشانہ_fd_رستہ;
 
-      get_proc_self_fd_path (target_fd_path, targetfd);
-      len = safe_readlinkat (AT_FDCWD, target_fd_path, absolute_path, 0, err);
-      if (UNLIKELY (len < 0))
-        return crun_error_wrap (err, "error unable to provide absolute path to file `%s`", path_name);
+      get_proc_self_fd_رستہ (نشانہ_fd_رستہ, targetfd);
+      len = محفوظ_readlinkat (AT_FDCWD, نشانہ_fd_رستہ, absolute_رستہ, 0, err);
+      إذا (UNLIKELY (len < 0))
+        أرجع crun_error_wrap (err, "error unable to provide absolute path to file `%s`", رستہ_name);
     }
 
-  return 0;
+  أرجع 0;
 }
 
-int
-open_unix_domain_client_socket (const char *path, int dgram, libcrun_error_t *err)
+صحيح
+open_unix_domain_client_socket (ثابت حرف *رستہ, صحيح dgram, libcrun_error_t *err)
 {
-  struct sockaddr_un addr = {};
-  int ret;
-  proc_fd_path_t name_buf;
-  cleanup_close int destfd = -1;
-  cleanup_close int fd = -1;
+  بنية sockaddr_un addr = {};
+  صحيح ret;
+  proc_fd_رستہ_t name_buf;
+  cleanup_close صحيح destfd = -1;
+  cleanup_close صحيح fd = -1;
 
-  libcrun_debug ("Opening UNIX domain socket: %s", path);
+  libcrun_debug ("Opening UNIX domain socket: %s", رستہ);
 
-  fd = socket (AF_UNIX, dgram ? SOCK_DGRAM : SOCK_STREAM, 0);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "create UNIX socket");
+  fd = socket (AF_UNIX, dgram ? SOCK_DGRAM : SOCK_دھارا, 0);
+  إذا (UNLIKELY (fd < 0))
+    أرجع crun_make_error (err, errno, "create UNIX socket");
 
-  if (strlen (path) >= sizeof (addr.sun_path))
+  إذا (لڑی_لمبائی (رستہ) >= حجم (addr.sun_رستہ))
     {
-      destfd = open (path, O_PATH | O_CLOEXEC);
-      if (UNLIKELY (destfd < 0))
-        return crun_make_error (err, errno, "open `%s`", path);
+      destfd = open (رستہ, O_رستہ | O_CLOEXEC);
+      إذا (UNLIKELY (destfd < 0))
+        أرجع crun_make_error (err, errno, "open `%s`", رستہ);
 
-      get_proc_self_fd_path (name_buf, destfd);
+      get_proc_self_fd_رستہ (name_buf, destfd);
 
-      path = name_buf;
+      رستہ = name_buf;
     }
 
-  size_t path_len = strlen (path);
-  if (path_len >= sizeof (addr.sun_path))
-    return crun_make_error (err, ENAMETOOLONG, "socket path too long: `%s`", path);
+  size_t رستہ_len = لڑی_لمبائی (رستہ);
+  إذا (رستہ_len >= حجم (addr.sun_رستہ))
+    أرجع crun_make_error (err, ENAMETOOLONG, "socket path too long: `%s`", رستہ);
 
-  memcpy (addr.sun_path, path, path_len + 1);
+  حافظہ_نقل (addr.sun_رستہ, رستہ, رستہ_len + 1);
   addr.sun_family = AF_UNIX;
-  ret = connect (fd, (struct sockaddr *) &addr, sizeof (addr));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "connect socket to `%s`", path);
+  ret = connect (fd, (بنية sockaddr *) &addr, حجم (addr));
+  إذا (UNLIKELY (ret < 0))
+    أرجع crun_make_error (err, errno, "connect socket to `%s`", رستہ);
 
   ret = fd;
   fd = -1;
 
-  return ret;
+  أرجع ret;
 }
 
-int
-open_unix_domain_socket (const char *path, int dgram, libcrun_error_t *err)
+صحيح
+open_unix_domain_socket (ثابت حرف *رستہ, صحيح dgram, libcrun_error_t *err)
 {
-  struct sockaddr_un addr = {};
-  proc_fd_path_t name_buf;
-  int ret;
-  cleanup_close int dirfd = -1;
-  cleanup_close int fd = socket (AF_UNIX, dgram ? SOCK_DGRAM : SOCK_STREAM, 0);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "create UNIX socket");
+  بنية sockaddr_un addr = {};
+  proc_fd_رستہ_t name_buf;
+  صحيح ret;
+  cleanup_close صحيح dirfd = -1;
+  cleanup_close صحيح fd = socket (AF_UNIX, dgram ? SOCK_DGRAM : SOCK_دھارا, 0);
+  إذا (UNLIKELY (fd < 0))
+    أرجع crun_make_error (err, errno, "create UNIX socket");
 
-  if (strlen (path) >= sizeof (addr.sun_path))
+  إذا (لڑی_لمبائی (رستہ) >= حجم (addr.sun_رستہ))
     {
-      cleanup_free char *dpath = xstrdup (path);
-      cleanup_free char *bpath = xstrdup (path);
-      const char *parent_dir = dirname (dpath);
-      const char *base = basename (bpath);
-      int n;
+      cleanup_free حرف *dpath = xstrdup (رستہ);
+      cleanup_free حرف *bpath = xstrdup (رستہ);
+      ثابت حرف *ماپا_dir = dirname (dpath);
+      ثابت حرف *ادھار = basename (bpath);
+      صحيح n;
 
-      dirfd = open (parent_dir, O_PATH | O_DIRECTORY | O_CLOEXEC);
-      if (UNLIKELY (dirfd < 0))
-        return crun_make_error (err, errno, "open directory `%s`", parent_dir);
+      dirfd = open (ماپا_dir, O_رستہ | O_DIRECTORY | O_CLOEXEC);
+      إذا (UNLIKELY (dirfd < 0))
+        أرجع crun_make_error (err, errno, "open directory `%s`", ماپا_dir);
 
-      get_proc_self_fd_path (name_buf, dirfd);
+      get_proc_self_fd_رستہ (name_buf, dirfd);
 
-      n = snprintf (addr.sun_path, sizeof (addr.sun_path), "%s/%s", name_buf, base);
-      if (n < 0 || (size_t) n >= sizeof (addr.sun_path))
-        return crun_make_error (err, ENAMETOOLONG, "socket path too long: `%s`", path);
+      n = snprintf (addr.sun_رستہ, حجم (addr.sun_رستہ), "%s/%s", name_buf, ادھار);
+      إذا (n < 0 || (size_t) n >= حجم (addr.sun_رستہ))
+        أرجع crun_make_error (err, ENAMETOOLONG, "socket path too long: `%s`", رستہ);
     }
-  else
+  وإلا
     {
-      size_t path_len = strlen (path);
-      memcpy (addr.sun_path, path, path_len + 1);
+      size_t رستہ_len = لڑی_لمبائی (رستہ);
+      حافظہ_نقل (addr.sun_رستہ, رستہ, رستہ_len + 1);
     }
 
   addr.sun_family = AF_UNIX;
-  ret = bind (fd, (struct sockaddr *) &addr, sizeof (addr));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "bind socket to `%s`", path);
+  ret = bind (fd, (بنية sockaddr *) &addr, حجم (addr));
+  إذا (UNLIKELY (ret < 0))
+    أرجع crun_make_error (err, errno, "bind socket to `%s`", رستہ);
 
-  if (! dgram)
+  إذا (! dgram)
     {
       ret = listen (fd, 1);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "listen on socket");
+      إذا (UNLIKELY (ret < 0))
+        أرجع crun_make_error (err, errno, "listen on socket");
     }
 
   ret = fd;
   fd = -1;
 
-  return ret;
+  أرجع ret;
 }
 
-int
-send_fd_to_socket (int server, int fd, libcrun_error_t *err)
+صحيح
+send_fd_منزل_socket (صحيح server, صحيح fd, libcrun_error_t *err)
 {
-  return send_fd_to_socket_with_payload (server, fd, NULL, 0, err);
+  أرجع send_fd_منزل_socket_with_payload (server, fd, عدم, 0, err);
 }
 
-int
-send_fd_to_socket_with_payload (int server, int fd, const char *payload, size_t payload_len, libcrun_error_t *err)
+صحيح
+send_fd_منزل_socket_with_payload (صحيح server, صحيح fd, ثابت حرف *payload, size_t payload_len, libcrun_error_t *err)
 {
-  int ret;
-  struct cmsghdr *cmsg = NULL;
-  struct iovec iov[2];
-  struct msghdr msg = {};
-  char ctrl_buf[CMSG_SPACE (1 + sizeof (int))] = {};
-  char data[1];
+  صحيح ret;
+  بنية cmsghdr *cmsg = عدم;
+  بنية iovec iov[2];
+  بنية msghdr پیغام = {};
+  حرف ctrl_buf[CMSG_SPACE (1 + حجم (صحيح))] = {};
+  حرف انکڑے[1];
 
-  data[0] = ' ';
-  iov[0].iov_base = data;
-  iov[0].iov_len = sizeof (data);
+  انکڑے[0] = ' ';
+  iov[0].iov_base = انکڑے;
+  iov[0].iov_len = حجم (انکڑے);
 
-  if (payload_len > 0)
+  إذا (payload_len > 0)
     {
-      iov[0].iov_base = (void *) payload;
+      iov[0].iov_base = (فراغ *) payload;
       iov[0].iov_len = payload_len;
     }
 
-  msg.msg_name = NULL;
-  msg.msg_namelen = 0;
-  msg.msg_iov = iov;
-  msg.msg_iovlen = 1;
-  msg.msg_controllen = CMSG_SPACE (sizeof (int));
-  msg.msg_control = ctrl_buf;
+  پیغام.پیغام_name = عدم;
+  پیغام.پیغام_namelen = 0;
+  پیغام.پیغام_iov = iov;
+  پیغام.پیغام_iovlen = 1;
+  پیغام.پیغام_controllen = CMSG_SPACE (حجم (صحيح));
+  پیغام.پیغام_control = ctrl_buf;
 
-  cmsg = CMSG_FIRSTHDR (&msg);
+  cmsg = CMSG_FIRSTHDR (&پیغام);
   cmsg->cmsg_level = SOL_SOCKET;
   cmsg->cmsg_type = SCM_RIGHTS;
-  cmsg->cmsg_len = CMSG_LEN (sizeof (int));
+  cmsg->cmsg_len = CMSG_LEN (حجم (صحيح));
 
-  *((int *) CMSG_DATA (cmsg)) = fd;
+  *((صحيح *) CMSG_انکڑے (cmsg)) = fd;
 
-  ret = TEMP_FAILURE_RETRY (sendmsg (server, &msg, 0));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "sendmsg");
-  return 0;
+  ret = عارضی_FAILURE_RETRY (sendmsg (server, &پیغام, 0));
+  إذا (UNLIKELY (ret < 0))
+    أرجع crun_make_error (err, errno, "sendmsg");
+  أرجع 0;
 }
 
-int
-receive_fd_from_socket_with_payload (int from, char *payload, size_t payload_len, libcrun_error_t *err)
+صحيح
+receive_fd_from_socket_with_payload (صحيح from, حرف *payload, size_t payload_len, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
-  int ret;
-  struct iovec iov[1];
-  struct msghdr msg = {};
-  char ctrl_buf[CMSG_SPACE (sizeof (int))] = {};
-  char data[1];
-  struct cmsghdr *cmsg;
+  cleanup_close صحيح fd = -1;
+  صحيح ret;
+  بنية iovec iov[1];
+  بنية msghdr پیغام = {};
+  حرف ctrl_buf[CMSG_SPACE (حجم (صحيح))] = {};
+  حرف انکڑے[1];
+  بنية cmsghdr *cmsg;
 
-  data[0] = ' ';
-  iov[0].iov_base = data;
-  iov[0].iov_len = sizeof (data);
+  انکڑے[0] = ' ';
+  iov[0].iov_base = انکڑے;
+  iov[0].iov_len = حجم (انکڑے);
 
-  if (payload_len > 0)
+  إذا (payload_len > 0)
     {
-      iov[0].iov_base = (void *) payload;
+      iov[0].iov_base = (فراغ *) payload;
       iov[0].iov_len = payload_len;
     }
 
-  msg.msg_name = NULL;
-  msg.msg_namelen = 0;
-  msg.msg_iov = iov;
-  msg.msg_iovlen = 1;
-  msg.msg_controllen = CMSG_SPACE (sizeof (int));
-  msg.msg_control = ctrl_buf;
+  پیغام.پیغام_name = عدم;
+  پیغام.پیغام_namelen = 0;
+  پیغام.پیغام_iov = iov;
+  پیغام.پیغام_iovlen = 1;
+  پیغام.پیغام_controllen = CMSG_SPACE (حجم (صحيح));
+  پیغام.پیغام_control = ctrl_buf;
 
-  ret = TEMP_FAILURE_RETRY (recvmsg (from, &msg, 0));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "recvmsg");
-  if (UNLIKELY (ret == 0))
-    return crun_make_error (err, 0, "read FD: connection closed");
+  ret = عارضی_FAILURE_RETRY (recvmsg (from, &پیغام, 0));
+  إذا (UNLIKELY (ret < 0))
+    أرجع crun_make_error (err, errno, "recvmsg");
+  إذا (UNLIKELY (ret == 0))
+    أرجع crun_make_error (err, 0, "read FD: connection closed");
 
-  cmsg = CMSG_FIRSTHDR (&msg);
-  if (cmsg == NULL)
-    return crun_make_error (err, 0, "no msg received");
-  memcpy (&fd, CMSG_DATA (cmsg), sizeof (fd));
+  cmsg = CMSG_FIRSTHDR (&پیغام);
+  إذا (cmsg == عدم)
+    أرجع crun_make_error (err, 0, "no msg received");
+  حافظہ_نقل (&fd, CMSG_انکڑے (cmsg), حجم (fd));
 
   ret = fd;
   fd = -1;
-  return ret;
+  أرجع ret;
 }
 
-int
-receive_fd_from_socket (int from, libcrun_error_t *err)
+صحيح
+receive_fd_from_socket (صحيح from, libcrun_error_t *err)
 {
-  return receive_fd_from_socket_with_payload (from, NULL, 0, err);
+  أرجع receive_fd_from_socket_with_payload (from, عدم, 0, err);
 }
 
-int
-create_socket_pair (int *pair, libcrun_error_t *err)
+صحيح
+create_socket_pair (صحيح *pair, libcrun_error_t *err)
 {
-  int ret = socketpair (AF_UNIX, SOCK_SEQPACKET, 0, pair);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "socketpair");
-  return 0;
+  صحيح ret = socketpair (AF_UNIX, SOCK_SEQPACKET, 0, pair);
+  إذا (UNLIKELY (ret < 0))
+    أرجع crun_make_error (err, errno, "socketpair");
+  أرجع 0;
 }
 
-int
-create_signalfd (sigset_t *mask, libcrun_error_t *err)
+صحيح
+create_signalfd (sigset_t *نقاب, libcrun_error_t *err)
 {
-  int ret = signalfd (-1, mask, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "signalfd");
-  return ret;
+  صحيح ret = signalfd (-1, نقاب, 0);
+  إذا (UNLIKELY (ret < 0))
+    أرجع crun_make_error (err, errno, "signalfd");
+  أرجع ret;
 }
 
-static int
-epoll_helper_toggle (int epollfd, int fd, int events, libcrun_error_t *err)
+ساكن صحيح
+epoll_helper_toggle (صحيح epollfd, صحيح fd, صحيح events, libcrun_error_t *err)
 {
-  struct epoll_event ev = {};
-  bool add = events != 0;
-  int ret;
+  بنية epoll_event ev = {};
+  bool جوڑو = events != 0;
+  صحيح ret;
 
   ev.events = events;
-  ev.data.fd = fd;
-  ret = epoll_ctl (epollfd, add ? EPOLL_CTL_ADD : EPOLL_CTL_DEL, fd, &ev);
+  ev.انکڑے.fd = fd;
+  ret = epoll_ctl (epollfd, جوڑو ? EPOLL_CTL_جوڑو : EPOLL_CTL_DEL, fd, &ev);
   /* The fd is already registered, possibly with a different mask.  */
-  if (UNLIKELY (ret < 0 && errno == EEXIST))
+  إذا (UNLIKELY (ret < 0 && errno == EEXIST))
     ret = epoll_ctl (epollfd, EPOLL_CTL_MOD, fd, &ev);
-  if (UNLIKELY (ret < 0))
+  إذا (UNLIKELY (ret < 0))
     {
       /* ENOENT: not registered.  EPERM: the fd is not supported by epoll,
          such as a regular file or /dev/null, and is always ready.  */
-      if (errno == ENOENT || errno == EPERM)
-        return 0;
-      return crun_make_error (err, errno, "epoll_ctl `%s` `%d`", add ? "add" : "del", fd);
+      إذا (errno == ENOENT || errno == EPERM)
+        أرجع 0;
+      أرجع crun_make_error (err, errno, "epoll_ctl `%s` `%d`", جوڑو ? "add" : "del", fd);
     }
-  return 0;
+  أرجع 0;
 }
 
-int
-epoll_helper (int *in_fds, int *in_levelfds, int *out_fds, int *out_levelfds, libcrun_error_t *err)
+صحيح
+epoll_helper (صحيح *وچ_fds, صحيح *وچ_levelfds, صحيح *باہرلا_fds, صحيح *باہرلا_levelfds, libcrun_error_t *err)
 {
-  struct epoll_event ev;
-  cleanup_close int epollfd = -1;
-  int ret;
+  بنية epoll_event ev;
+  cleanup_close صحيح epollfd = -1;
+  صحيح ret;
 
-  int *it;
+  صحيح *it;
   epollfd = epoll_create1 (0);
-  if (UNLIKELY (epollfd < 0))
-    return crun_make_error (err, errno, "epoll_create1");
+  إذا (UNLIKELY (epollfd < 0))
+    أرجع crun_make_error (err, errno, "epoll_create1");
 
-#define ADD_FDS(FDS, EVENTS)                                            \
-  for (it = FDS; *it >= 0; it++)                                        \
+#تعریف_کرو جوڑو_FDS(FDS, EVENTS)                                            \
+  لكل (it = FDS; *it >= 0; it++)                                        \
     {                                                                   \
       ev.events = EVENTS;                                               \
-      ev.data.fd = *it;                                                 \
-      ret = epoll_ctl (epollfd, EPOLL_CTL_ADD, *it, &ev);               \
-      if (UNLIKELY (ret < 0))                                           \
-        return crun_make_error (err, errno, "epoll_ctl add `%d`", *it); \
+      ev.انکڑے.fd = *it;                                                 \
+      ret = epoll_ctl (epollfd, EPOLL_CTL_جوڑو, *it, &ev);               \
+      إذا (UNLIKELY (ret < 0))                                           \
+        أرجع crun_make_error (err, errno, "epoll_ctl add `%d`", *it); \
     }
 
-  if (in_fds)
-    ADD_FDS (in_fds, EPOLLIN);
-  if (in_levelfds)
-    ADD_FDS (in_levelfds, EPOLLIN | EPOLLET);
-  if (out_fds)
-    ADD_FDS (out_fds, EPOLLOUT);
-  if (out_levelfds)
-    ADD_FDS (out_levelfds, EPOLLOUT | EPOLLET);
+  إذا (وچ_fds)
+    جوڑو_FDS (وچ_fds, EPOLLIN);
+  إذا (وچ_levelfds)
+    جوڑو_FDS (وچ_levelfds, EPOLLIN | EPOLLET);
+  إذا (باہرلا_fds)
+    جوڑو_FDS (باہرلا_fds, EPOLLOUT);
+  إذا (باہرلا_levelfds)
+    جوڑو_FDS (باہرلا_levelfds, EPOLLOUT | EPOLLET);
 
   ret = epollfd;
   epollfd = -1;
-  return ret;
+  أرجع ret;
 }
 
-int
-copy_from_fd_to_fd (int src, int dst, int consume, libcrun_error_t *err)
+صحيح
+copy_from_fd_منزل_fd (صحيح src, صحيح dst, صحيح consume, libcrun_error_t *err)
 {
-  int ret;
+  صحيح ret;
   ssize_t nread;
-  size_t pagesize = get_page_size ();
-#ifdef HAVE_COPY_FILE_RANGE
+  size_t pagesize = get_ورقہ_ناپ ();
+#جے_تعریف_شدہ HAVE_COPY_FILE_RANGE
   bool can_copy_file_range = true;
-#endif
-  do
+#جے_انت
+  افعل
     {
-      cleanup_free char *buffer = NULL;
-      ssize_t remaining;
+      cleanup_free حرف *بفر = عدم;
+      ssize_t بچیا;
 
-#ifdef HAVE_COPY_FILE_RANGE
-      if (can_copy_file_range)
+#جے_تعریف_شدہ HAVE_COPY_FILE_RANGE
+      إذا (can_copy_file_range)
         {
-          nread = copy_file_range (src, NULL, dst, NULL, pagesize, 0);
-          if (nread < 0 && (errno == EINVAL || errno == EXDEV))
+          nread = copy_file_range (src, عدم, dst, عدم, pagesize, 0);
+          إذا (nread < 0 && (errno == EINVAL || errno == EXDEV))
             {
               can_copy_file_range = false;
-              goto fallback;
+              اذهب fallback;
             }
-          if (consume && nread < 0 && errno == EAGAIN)
-            return 0;
-          if (nread < 0 && errno == EIO)
-            return 0;
-          if (UNLIKELY (nread < 0))
-            return crun_make_error (err, errno, "copy_file_range");
-          continue;
+          إذا (consume && nread < 0 && errno == EAGAIN)
+            أرجع 0;
+          إذا (nread < 0 && errno == EIO)
+            أرجع 0;
+          إذا (UNLIKELY (nread < 0))
+            أرجع crun_make_error (err, errno, "copy_file_range");
+          استمر;
         }
     fallback:
-#endif
+#جے_انت
 
-      buffer = xmalloc (pagesize);
-      nread = TEMP_FAILURE_RETRY (read (src, buffer, pagesize));
-      if (consume && nread < 0 && errno == EAGAIN)
-        return 0;
-      if (nread < 0 && errno == EIO)
-        return 0;
-      if (UNLIKELY (nread < 0))
-        return crun_make_error (err, errno, "read");
+      بفر = xmalloc (pagesize);
+      nread = عارضی_FAILURE_RETRY (اقرأ (src, بفر, pagesize));
+      إذا (consume && nread < 0 && errno == EAGAIN)
+        أرجع 0;
+      إذا (nread < 0 && errno == EIO)
+        أرجع 0;
+      إذا (UNLIKELY (nread < 0))
+        أرجع crun_make_error (err, errno, "read");
 
-      remaining = nread;
-      while (remaining)
+      بچیا = nread;
+      طالما (بچیا)
         {
-          ret = TEMP_FAILURE_RETRY (write (dst, buffer + nread - remaining, remaining));
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "write");
-          remaining -= ret;
+          ret = عارضی_FAILURE_RETRY (اكتب (dst, بفر + nread - بچیا, بچیا));
+          إذا (UNLIKELY (ret < 0))
+            أرجع crun_make_error (err, errno, "write");
+          بچیا -= ret;
         }
-  } while (consume && nread);
+  } طالما (consume && nread);
 
-  return 0;
+  أرجع 0;
 }
 
-int
-run_process (char **args, libcrun_error_t *err)
+صحيح
+لگاتار_process (حرف **دلیلاں, libcrun_error_t *err)
 {
   pid_t pid = fork ();
-  if (UNLIKELY (pid < 0))
-    return crun_make_error (err, errno, "fork");
-  if (pid)
+  إذا (UNLIKELY (pid < 0))
+    أرجع crun_make_error (err, errno, "fork");
+  إذا (pid)
     {
-      int r, status;
-      r = TEMP_FAILURE_RETRY (waitpid (pid, &status, 0));
-      if (r < 0)
-        return crun_make_error (err, errno, "waitpid");
-      if (WIFEXITED (status) || WIFSIGNALED (status))
-        return WEXITSTATUS (status);
+      صحيح r, حالت;
+      r = عارضی_FAILURE_RETRY (waitpid (pid, &حالت, 0));
+      إذا (r < 0)
+        أرجع crun_make_error (err, errno, "waitpid");
+      إذا (WIFEXITED (حالت) || WIFSIGNALED (حالت))
+        أرجع WEXITSTATUS (حالت);
     }
 
-  execvp (args[0], args);
-  _safe_exit (EXIT_FAILURE);
+  execvp (دلیلاں[0], دلیلاں);
+  محفوظ_exit (EXIT_FAILURE);
 }
 
-#ifndef HAVE_FGETPWENT_R
-static unsigned
-atou (char **s)
+#جے_بنا_تعریف HAVE_FGETPWENT_R
+ساكن بنانشانی
+atou (حرف **s)
 {
-  unsigned x;
-  for (x = 0; **s >= '0' && **s <= '9'; ++*s)
+  بنانشانی x;
+  لكل (x = 0; **s >= '0' && **s <= '9'; ++*s)
     x = 10 * x + (**s - '0');
-  return x;
+  أرجع x;
 }
 
-int
-fgetpwent_r (FILE *f, struct passwd *pw, char *line, size_t size, struct passwd **res)
+صحيح
+fgetpwent_r (FILE *f, بنية passwd *pw, حرف *سطر, size_t ناپ, بنية passwd **res)
 {
-  char *s;
-  int rv = 0;
-  for (;;)
+  حرف *s;
+  صحيح rv = 0;
+  لكل (;;)
     {
-      line[size - 1] = '\xff';
-      if ((fgets (line, size, f) == NULL) || ferror (f) || line[size - 1] != '\xff')
+      سطر[ناپ - 1] = '\xff';
+      إذا ((fgets (سطر, ناپ, f) == عدم) || ferror (f) || سطر[ناپ - 1] != '\xff')
         {
-          rv = (line[size - 1] != '\xff') ? ERANGE : ENOENT;
-          line = 0;
+          rv = (سطر[ناپ - 1] != '\xff') ? ERANGE : ENOENT;
+          سطر = 0;
           pw = 0;
-          break;
+          اكسر;
         }
-      line[strcspn (line, "\n")] = 0;
+      سطر[strcspn (سطر, "\n")] = 0;
 
-      s = line;
+      s = سطر;
       pw->pw_name = s++;
-      if (! (s = strchr (s, ':')))
-        continue;
+      إذا (! (s = strchr (s, ':')))
+        استمر;
 
       *s++ = 0;
       pw->pw_passwd = s;
-      if (! (s = strchr (s, ':')))
-        continue;
+      إذا (! (s = strchr (s, ':')))
+        استمر;
 
       *s++ = 0;
       pw->pw_uid = atou (&s);
-      if (*s != ':')
-        continue;
+      إذا (*s != ':')
+        استمر;
 
       *s++ = 0;
       pw->pw_gid = atou (&s);
-      if (*s != ':')
-        continue;
+      إذا (*s != ':')
+        استمر;
 
       *s++ = 0;
       pw->pw_gecos = s;
-      if (! (s = strchr (s, ':')))
-        continue;
+      إذا (! (s = strchr (s, ':')))
+        استمر;
 
       *s++ = 0;
       pw->pw_dir = s;
-      if (! (s = strchr (s, ':')))
-        continue;
+      إذا (! (s = strchr (s, ':')))
+        استمر;
 
       *s++ = 0;
       pw->pw_shell = s;
-      break;
+      اكسر;
     }
   *res = pw;
-  if (rv)
+  إذا (rv)
     errno = rv;
-  return rv;
+  أرجع rv;
 }
-#endif
+#جے_انت
 
-int
-set_home_env (uid_t id)
+صحيح
+سیٹ_home_env (uid_t id)
 {
-  struct passwd pwd;
-  cleanup_free char *buf = NULL;
-  long buf_size;
-  cleanup_file FILE *stream = NULL;
+  بنية passwd pwd;
+  cleanup_free حرف *buf = عدم;
+  لما buf_ناپ;
+  cleanup_file FILE *دھارا = عدم;
 
-  buf_size = sysconf (_SC_GETPW_R_SIZE_MAX);
-  if (buf_size < 0)
-    buf_size = 1024;
+  buf_ناپ = sysconf (_SC_GETPW_R_SIZE_MAX);
+  إذا (buf_ناپ < 0)
+    buf_ناپ = 1024;
 
-  buf = xmalloc (buf_size);
+  buf = xmalloc (buf_ناپ);
 
-  stream = fopen ("/etc/passwd", "re");
-  if (stream == NULL)
-    return -1;
+  دھارا = fopen ("/etc/passwd", "re");
+  إذا (دھارا == عدم)
+    أرجع -1;
 
-  for (;;)
+  لكل (;;)
     {
-      struct passwd *ret_pw = NULL;
+      بنية passwd *ret_pw = عدم;
 
-      int ret = fgetpwent_r (stream, &pwd, buf, buf_size, &ret_pw);
-      if (UNLIKELY (ret != 0))
+      صحيح ret = fgetpwent_r (دھارا, &pwd, buf, buf_ناپ, &ret_pw);
+      إذا (UNLIKELY (ret != 0))
         {
-          if (ret == EINTR)
-            continue;
+          إذا (ret == EINTR)
+            استمر;
 
-          if (ret != ERANGE)
+          إذا (ret != ERANGE)
             {
               /* Let callers handle the error if the user was not found. */
               errno = ret;
-              return -1;
+              أرجع -1;
             }
 
-          buf_size *= 2;
-          buf = xrealloc (buf, buf_size);
-          continue;
+          buf_ناپ *= 2;
+          buf = xrealloc (buf, buf_ناپ);
+          استمر;
         }
 
-      if (ret_pw && ret_pw->pw_uid == id)
+      إذا (ret_pw && ret_pw->pw_uid == id)
         {
-          if (UNLIKELY (setenv ("HOME", ret_pw->pw_dir, 1) < 0))
+          إذا (UNLIKELY (setenv ("HOME", ret_pw->pw_dir, 1) < 0))
             OOM ();
-          else
-            return 0;
+          وإلا
+            أرجع 0;
         }
     }
 }
 
 /*if subuid or subgid exist, take the first range for the user */
-static int
-getsubidrange (uid_t id, int is_uid, uint32_t *from, uint32_t *len)
+ساكن صحيح
+getsubidrange (uid_t id, صحيح is_uid, uint32_t *from, uint32_t *len)
 {
-  cleanup_file FILE *input = NULL;
-  cleanup_free char *lineptr = NULL;
+  cleanup_file FILE *داخلہ = عدم;
+  cleanup_free حرف *lineptr = عدم;
   size_t lenlineptr = 0, len_name;
-  long buf_size;
-  cleanup_free char *buf = NULL;
-  const char *name;
-  struct passwd pwd;
+  لما buf_ناپ;
+  cleanup_free حرف *buf = عدم;
+  ثابت حرف *name;
+  بنية passwd pwd;
 
-  buf_size = sysconf (_SC_GETPW_R_SIZE_MAX);
-  if (buf_size < 0)
-    buf_size = 1024;
+  buf_ناپ = sysconf (_SC_GETPW_R_SIZE_MAX);
+  إذا (buf_ناپ < 0)
+    buf_ناپ = 1024;
 
-  buf = xmalloc (buf_size);
-  for (;;)
+  buf = xmalloc (buf_ناپ);
+  لكل (;;)
     {
-      int ret;
-      struct passwd *ret_pw = NULL;
+      صحيح ret;
+      بنية passwd *ret_pw = عدم;
 
-      ret = getpwuid_r (id, &pwd, buf, buf_size, &ret_pw);
-      if (LIKELY (ret == 0))
+      ret = getpwuid_r (id, &pwd, buf, buf_ناپ, &ret_pw);
+      إذا (LIKELY (ret == 0))
         {
-          if (ret_pw)
+          إذا (ret_pw)
             {
               name = ret_pw->pw_name;
-              break;
+              اكسر;
             }
-          return -1;
+          أرجع -1;
         }
 
-      if (ret != ERANGE)
-        return -1;
+      إذا (ret != ERANGE)
+        أرجع -1;
 
-      buf_size *= 2;
-      buf = xrealloc (buf, buf_size);
+      buf_ناپ *= 2;
+      buf = xrealloc (buf, buf_ناپ);
     }
 
-  len_name = strlen (name);
+  len_name = لڑی_لمبائی (name);
 
-  input = fopen (is_uid ? "/etc/subuid" : "/etc/subgid", "re");
-  if (input == NULL)
-    return -1;
+  داخلہ = fopen (is_uid ? "/etc/subuid" : "/etc/subgid", "re");
+  إذا (داخلہ == عدم)
+    أرجع -1;
 
-  for (;;)
+  لكل (;;)
     {
-      char *endptr;
-      ssize_t read = getline (&lineptr, &lenlineptr, input);
-      if (read < 0)
-        return -1;
+      حرف *endptr;
+      ssize_t اقرأ = getline (&lineptr, &lenlineptr, داخلہ);
+      إذا (اقرأ < 0)
+        أرجع -1;
 
-      if (read < (ssize_t) (len_name + 2))
-        continue;
+      إذا (اقرأ < (ssize_t) (len_name + 2))
+        استمر;
 
-      if (memcmp (lineptr, name, len_name) || lineptr[len_name] != ':')
-        continue;
+      إذا (memcmp (lineptr, name, len_name) || lineptr[len_name] != ':')
+        استمر;
 
       *from = strtoull (&lineptr[len_name + 1], &endptr, 10);
 
-      if (endptr >= &lineptr[read])
-        return -1;
+      إذا (endptr >= &lineptr[اقرأ])
+        أرجع -1;
 
       *len = strtoull (&endptr[1], &endptr, 10);
 
-      return 0;
+      أرجع 0;
     }
 }
 
-#define MIN(x, y) ((x) < (y) ? (x) : (y))
+#تعریف_کرو MIN(x, y) ((x) < (y) ? (x) : (y))
 
-int
-format_default_id_mapping (char **out, uid_t container_id, uid_t host_uid, uid_t host_id, int is_uid, libcrun_error_t *err)
+صحيح
+format_default_id_mapping (حرف **باہرلا, uid_t container_id, uid_t host_uid, uid_t host_id, صحيح is_uid, libcrun_error_t *err)
 {
-  uint32_t from = 0, available = 0;
-  cleanup_free char *buffer = NULL;
-  int written = 0;
-  int ret, remaining;
+  uint32_t from = 0, دستیاب = 0;
+  cleanup_free حرف *بفر = عدم;
+  صحيح written = 0;
+  صحيح ret, بچیا;
 
-  *out = NULL;
+  *باہرلا = عدم;
 
-  if (getsubidrange (host_uid, is_uid, &from, &available) < 0)
-    return 0;
+  إذا (getsubidrange (host_uid, is_uid, &from, &دستیاب) < 0)
+    أرجع 0;
 
   /* More than enough space for all the mappings.  */
-  remaining = 15 * 5 * 3;
-  buffer = xmalloc (remaining + 1);
+  بچیا = 15 * 5 * 3;
+  بفر = xmalloc (بچیا + 1);
 
-  if (container_id > 0)
+  إذا (container_id > 0)
     {
-      uint32_t used = MIN (container_id, available);
-      ret = snprintf (buffer + written, remaining, "%d %" PRIu32 " %" PRIu32 "\n", 0, from, used);
-      if (UNLIKELY (ret >= remaining))
-        return crun_make_error (err, 0, "internal error: allocated buffer too small");
+      uint32_t ورتیا = MIN (container_id, دستیاب);
+      ret = snprintf (بفر + written, بچیا, "%d %" PRIu32 " %" PRIu32 "\n", 0, from, ورتیا);
+      إذا (UNLIKELY (ret >= بچیا))
+        أرجع crun_make_error (err, 0, "internal error: allocated buffer too small");
 
       written += ret;
-      remaining -= ret;
+      بچیا -= ret;
 
-      from += used;
-      available -= used;
+      from += ورتیا;
+      دستیاب -= ورتیا;
     }
 
   /* Host ID -> Container ID.  */
-  ret = snprintf (buffer + written, remaining, "%d %d 1\n", container_id, host_id);
-  if (UNLIKELY (ret >= remaining))
-    return crun_make_error (err, 0, "internal error: allocated buffer too small");
+  ret = snprintf (بفر + written, بچیا, "%d %d 1\n", container_id, host_id);
+  إذا (UNLIKELY (ret >= بچیا))
+    أرجع crun_make_error (err, 0, "internal error: allocated buffer too small");
   written += ret;
-  remaining -= ret;
+  بچیا -= ret;
 
   /* Last mapping: use any id that is left.  */
-  if (available)
+  إذا (دستیاب)
     {
-      ret = snprintf (buffer + written, remaining, "%d %" PRIu32 " %" PRIu32 "\n", container_id + 1, from, available);
-      if (UNLIKELY (ret >= remaining))
-        return crun_make_error (err, 0, "internal error: allocated buffer too small");
+      ret = snprintf (بفر + written, بچیا, "%d %" PRIu32 " %" PRIu32 "\n", container_id + 1, from, دستیاب);
+      إذا (UNLIKELY (ret >= بچیا))
+        أرجع crun_make_error (err, 0, "internal error: allocated buffer too small");
       written += ret;
-      remaining -= ret;
+      بچیا -= ret;
     }
 
-  *out = buffer;
-  buffer = NULL;
-  return written;
+  *باہرلا = بفر;
+  بفر = عدم;
+  أرجع written;
 }
 
-static int
-unset_cloexec_flag (int fd)
+ساكن صحيح
+unset_cloexec_flag (صحيح fd)
 {
-  int flags = fcntl (fd, F_GETFD);
-  if (flags == -1)
-    return -1;
+  صحيح flags = fcntl (fd, F_GETFD);
+  إذا (flags == -1)
+    أرجع -1;
 
   flags &= ~FD_CLOEXEC;
 
-  return fcntl (fd, F_SETFD, flags);
+  أرجع fcntl (fd, F_SETFD, flags);
 }
 
-static void __attribute__ ((__noreturn__))
-run_process_child (char *path, char **args, const char *cwd, char **envp, int pipe_r,
-                   int pipe_w, int out_fd, int err_fd, bool can_ignore_chdir_errors)
+ساكن فراغ __attribute__ ((__noreturn__))
+لگاتار_process_بچہ (حرف *رستہ, حرف **دلیلاں, ثابت حرف *cwd, حرف **envp, صحيح pipe_r,
+                   صحيح pipe_w, صحيح باہرلا_fd, صحيح err_fd, bool can_ignore_chdir_errors)
 {
-  char *tmp_args[] = { path, NULL };
-  libcrun_error_t err = NULL;
-  int dev_null_fd = -1;
-  int ret;
+  حرف *tmp_دلیلاں[] = { رستہ, عدم };
+  libcrun_error_t err = عدم;
+  صحيح dev_null_fd = -1;
+  صحيح ret;
 
-  ret = mark_or_close_fds_ge_than (NULL, 3, false, &err);
-  if (UNLIKELY (ret < 0))
-    libcrun_fail_with_error ((err)->status, "%s", (err)->msg);
+  ret = mark_or_close_fds_ge_than (عدم, 3, false, &err);
+  إذا (UNLIKELY (ret < 0))
+    libcrun_fail_with_error ((err)->حالت, "%s", (err)->پیغام);
 
-  if (out_fd < 0 || err_fd < 0)
+  إذا (باہرلا_fd < 0 || err_fd < 0)
     {
       dev_null_fd = open ("/dev/null", O_WRONLY | O_CLOEXEC);
-      if (UNLIKELY (dev_null_fd < 0))
-        _safe_exit (EXIT_FAILURE);
+      إذا (UNLIKELY (dev_null_fd < 0))
+        محفوظ_exit (EXIT_FAILURE);
     }
 
-  TEMP_FAILURE_RETRY (close (pipe_w));
+  عارضی_FAILURE_RETRY (close (pipe_w));
   dup2 (pipe_r, 0);
-  TEMP_FAILURE_RETRY (close (pipe_r));
+  عارضی_FAILURE_RETRY (close (pipe_r));
 
-  dup2 (out_fd >= 0 ? out_fd : dev_null_fd, 1);
+  dup2 (باہرلا_fd >= 0 ? باہرلا_fd : dev_null_fd, 1);
   dup2 (err_fd >= 0 ? err_fd : dev_null_fd, 2);
 
-  if (out_fd >= 0)
+  إذا (باہرلا_fd >= 0)
     unset_cloexec_flag (1);
-  if (err_fd >= 0)
+  إذا (err_fd >= 0)
     unset_cloexec_flag (2);
 
-  if (dev_null_fd >= 0)
-    TEMP_FAILURE_RETRY (close (dev_null_fd));
-  if (out_fd >= 0)
-    TEMP_FAILURE_RETRY (close (out_fd));
-  if (err_fd >= 0)
-    TEMP_FAILURE_RETRY (close (err_fd));
+  إذا (dev_null_fd >= 0)
+    عارضی_FAILURE_RETRY (close (dev_null_fd));
+  إذا (باہرلا_fd >= 0)
+    عارضی_FAILURE_RETRY (close (باہرلا_fd));
+  إذا (err_fd >= 0)
+    عارضی_FAILURE_RETRY (close (err_fd));
 
-  if (args == NULL)
-    args = tmp_args;
+  إذا (دلیلاں == عدم)
+    دلیلاں = tmp_دلیلاں;
 
-  if (cwd && chdir (cwd) < 0)
+  إذا (cwd && chdir (cwd) < 0)
     {
-      if (! can_ignore_chdir_errors || (errno != EACCES && errno != EPERM))
-        _safe_exit (EXIT_FAILURE);
+      إذا (! can_ignore_chdir_errors || (errno != EACCES && errno != EPERM))
+        محفوظ_exit (EXIT_FAILURE);
     }
 
-  execvpe (path, args, envp);
-  _safe_exit (EXIT_FAILURE);
+  execvpe (رستہ, دلیلاں, envp);
+  محفوظ_exit (EXIT_FAILURE);
 }
 
 /* It changes the signals mask for the current process.  */
-int
-run_process_with_stdin_timeout_envp (char *path, char **args, const char *cwd, int timeout,
-                                     char **envp, char *stdin, size_t stdin_len, int out_fd,
-                                     int err_fd, bool can_ignore_chdir_errors, libcrun_error_t *err)
+صحيح
+لگاتار_process_with_stdin_timeout_envp (حرف *رستہ, حرف **دلیلاں, ثابت حرف *cwd, صحيح timeout,
+                                     حرف **envp, حرف *stdin, size_t stdin_len, صحيح باہرلا_fd,
+                                     صحيح err_fd, bool can_ignore_chdir_errors, libcrun_error_t *err)
 {
-  int stdin_pipe[2];
+  صحيح stdin_pipe[2];
   pid_t pid;
-  int ret;
-  cleanup_close int pipe_r = -1;
-  cleanup_close int pipe_w = -1;
-  sigset_t oldmask, mask;
-  int r, status;
+  صحيح ret;
+  cleanup_close صحيح pipe_r = -1;
+  cleanup_close صحيح pipe_w = -1;
+  sigset_t oldmask, نقاب;
+  صحيح r, حالت;
 
-  sigemptyset (&mask);
+  sigemptyset (&نقاب);
 
   ret = pipe2 (stdin_pipe, O_CLOEXEC);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "pipe");
+  إذا (UNLIKELY (ret < 0))
+    أرجع crun_make_error (err, errno, "pipe");
   pipe_r = stdin_pipe[0];
   pipe_w = stdin_pipe[1];
 
-  if (timeout > 0)
+  إذا (timeout > 0)
     {
-      sigaddset (&mask, SIGCHLD);
-      ret = sigprocmask (SIG_BLOCK, &mask, &oldmask);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "sigprocmask");
+      sigaddset (&نقاب, SIGCHLD);
+      ret = sigprocmask (SIG_بلاک, &نقاب, &oldmask);
+      إذا (UNLIKELY (ret < 0))
+        أرجع crun_make_error (err, errno, "sigprocmask");
     }
 
   pid = fork ();
-  if (UNLIKELY (pid < 0))
+  إذا (UNLIKELY (pid < 0))
     {
       ret = crun_make_error (err, errno, "fork");
-      goto restore_sig_mask_and_exit;
+      اذهب restore_sig_نقاب_and_exit;
     }
 
-  if (pid == 0)
+  إذا (pid == 0)
     {
       /* run_process_child doesn't return.  */
-      run_process_child (path, args, cwd, envp, pipe_r, pipe_w, out_fd, err_fd, can_ignore_chdir_errors);
+      لگاتار_process_بچہ (رستہ, دلیلاں, cwd, envp, pipe_r, pipe_w, باہرلا_fd, err_fd, can_ignore_chdir_errors);
     }
 
   close_and_reset (&pipe_r);
 
-  ret = TEMP_FAILURE_RETRY (write (pipe_w, stdin, stdin_len));
-  if (UNLIKELY (ret < 0))
+  ret = عارضی_FAILURE_RETRY (اكتب (pipe_w, stdin, stdin_len));
+  إذا (UNLIKELY (ret < 0))
     {
       /* Ignore EPIPE as the container process could have already
          been terminated.  */
-      if (errno != EPIPE)
+      إذا (errno != EPIPE)
         {
           ret = crun_make_error (err, errno, "write to pipe");
-          goto restore_sig_mask_and_exit;
+          اذهب restore_sig_نقاب_and_exit;
         }
     }
 
   close_and_reset (&pipe_w);
 
-  if (timeout)
+  إذا (timeout)
     {
-      time_t start = time (NULL);
+      time_t شروع = ویلا (عدم);
       time_t now;
-      for (now = start; now - start < timeout; now = time (NULL))
+      لكل (now = شروع; now - شروع < timeout; now = ویلا (عدم))
         {
           siginfo_t info;
-          int elapsed = now - start;
-          struct timespec ts_timeout = { .tv_sec = timeout - elapsed, .tv_nsec = 0 };
+          صحيح elapsed = now - شروع;
+          بنية timespec ts_timeout = { .tv_sec = timeout - elapsed, .tv_nsec = 0 };
 
-          ret = sigtimedwait (&mask, &info, &ts_timeout);
-          if (UNLIKELY (ret < 0 && errno != EAGAIN))
+          ret = sigtimedwait (&نقاب, &info, &ts_timeout);
+          إذا (UNLIKELY (ret < 0 && errno != EAGAIN))
             {
               ret = crun_make_error (err, errno, "sigtimedwait");
-              goto restore_sig_mask_and_exit;
+              اذهب restore_sig_نقاب_and_exit;
             }
 
-          if (info.si_signo == SIGCHLD && info.si_pid == pid)
-            goto read_waitpid;
+          إذا (info.si_signo == SIGCHLD && info.si_pid == pid)
+            اذهب read_waitpid;
 
-          if (ret < 0 && errno == EAGAIN)
-            goto timeout;
+          إذا (ret < 0 && errno == EAGAIN)
+            اذهب timeout;
         }
     timeout:
       kill (pid, SIGKILL);
 
-      ret = crun_make_error (err, 0, "timeout expired for `%s`", path);
-      goto restore_sig_mask_and_exit;
+      ret = crun_make_error (err, 0, "timeout expired for `%s`", رستہ);
+      اذهب restore_sig_نقاب_and_exit;
     }
 
 read_waitpid:
-  r = waitpid_ignore_stopped (pid, &status, 0);
-  if (r < 0)
+  r = waitpid_ignore_stopped (pid, &حالت, 0);
+  إذا (r < 0)
     ret = crun_make_error (err, errno, "waitpid");
-  else
-    ret = get_process_exit_status (status);
+  وإلا
+    ret = get_process_exit_حالت (حالت);
 
   /* Prevent to cleanup the pid again.  */
   pid = 0;
 
-restore_sig_mask_and_exit:
-  if (timeout > 0)
+restore_sig_نقاب_and_exit:
+  إذا (timeout > 0)
     {
       /* Cleanup the zombie process.  */
-      if (pid > 0)
+      إذا (pid > 0)
         {
           kill (pid, SIGKILL);
-          TEMP_FAILURE_RETRY (waitpid (pid, &status, 0));
+          عارضی_FAILURE_RETRY (waitpid (pid, &حالت, 0));
         }
-      r = sigprocmask (SIG_UNBLOCK, &oldmask, NULL);
-      if (UNLIKELY (r < 0 && ret >= 0))
+      r = sigprocmask (SIG_UNBLOCK, &oldmask, عدم);
+      إذا (UNLIKELY (r < 0 && ret >= 0))
         ret = crun_make_error (err, errno, "restoring signal mask with sigprocmask");
     }
-  return ret;
+  أرجع ret;
 }
 
-int
-mark_or_close_fds_ge_than (libcrun_container_t *container, int n, bool close_now, libcrun_error_t *err)
+صحيح
+mark_or_close_fds_ge_than (libcrun_container_t *container, صحيح n, bool close_now, libcrun_error_t *err)
 {
-  cleanup_close int cfd = -1;
-  cleanup_dir DIR *dir = NULL;
-  int ret;
-  int fd;
-  struct dirent *next;
+  cleanup_close صحيح cfd = -1;
+  cleanup_dir DIR *dir = عدم;
+  صحيح ret;
+  صحيح fd;
+  بنية dirent *اگلا;
 
-#ifdef ENABLE_GCOV
+#جے_تعریف_شدہ ENABLE_GCOV
   /* Flush gcov data before closing all fds.  Any code coverage after this point will be lost.  */
-  if (close_now)
+  إذا (close_now)
     GCOV_DUMP ();
-#endif
+#جے_انت
 
   ret = syscall_close_range (n, UINT_MAX, close_now ? 0 : CLOSE_RANGE_CLOEXEC);
-  if (ret == 0)
+  إذا (ret == 0)
     {
-      if (close_now && container && container->proc_fd >= n)
+      إذا (close_now && container && container->proc_fd >= n)
         container->proc_fd = -1;
-      return 0;
+      أرجع 0;
     }
-  if (ret < 0 && errno != EINVAL && errno != ENOSYS && errno != EPERM)
-    return crun_make_error (err, errno, "close_range from `%d`", n);
+  إذا (ret < 0 && errno != EINVAL && errno != ENOSYS && errno != EPERM)
+    أرجع crun_make_error (err, errno, "close_range from `%d`", n);
 
   cfd = libcrun_open_proc_file (container, "self/fd", O_DIRECTORY | O_RDONLY, err);
-  if (UNLIKELY (cfd < 0))
-    return cfd;
+  إذا (UNLIKELY (cfd < 0))
+    أرجع cfd;
 
   ret = check_proc_super_magic (cfd, "self/fd", err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
   dir = fdopendir (cfd);
-  if (UNLIKELY (dir == NULL))
-    return crun_make_error (err, errno, "fdopendir `self/fd`");
+  إذا (UNLIKELY (dir == عدم))
+    أرجع crun_make_error (err, errno, "fdopendir `self/fd`");
 
   /* Now it is owned by dir.  */
   cfd = -1;
 
   fd = dirfd (dir);
-  for (next = readdir (dir); next; next = readdir (dir))
+  لكل (اگلا = readdir (dir); اگلا; اگلا = readdir (dir))
     {
-      int val;
-      const char *name = next->d_name;
-      if (name[0] == '.')
-        continue;
+      صحيح val;
+      ثابت حرف *name = اگلا->d_name;
+      إذا (name[0] == '.')
+        استمر;
 
-      val = strtoll (name, NULL, 10);
-      if (val < n || val == fd)
-        continue;
+      val = strtoll (name, عدم, 10);
+      إذا (val < n || val == fd)
+        استمر;
 
-      if (close_now)
+      إذا (close_now)
         {
           ret = close (val);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "close fd `%d`", val);
+          إذا (UNLIKELY (ret < 0))
+            أرجع crun_make_error (err, errno, "close fd `%d`", val);
 
-          if (container && val == container->proc_fd)
+          إذا (container && val == container->proc_fd)
             container->proc_fd = -1;
         }
-      else
+      وإلا
         {
           ret = fcntl (val, F_SETFD, FD_CLOEXEC);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "cannot set CLOEXEC for fd `%d`", val);
+          إذا (UNLIKELY (ret < 0))
+            أرجع crun_make_error (err, errno, "cannot set CLOEXEC for fd `%d`", val);
         }
     }
-  return 0;
+  أرجع 0;
 }
 
-void
-get_current_timestamp (char *out, size_t len)
+فراغ
+get_current_timestamp (حرف *باہرلا, size_t len)
 {
-  struct timeval tv;
-  struct tm now;
-  char timestamp[64];
+  بنية timeval tv;
+  بنية tm now;
+  حرف timestamp[64];
 
-  gettimeofday (&tv, NULL);
+  gettimeofday (&tv, عدم);
   gmtime_r (&tv.tv_sec, &now);
-  strftime (timestamp, sizeof (timestamp), "%Y-%m-%dT%H:%M:%S", &now);
+  strftime (timestamp, حجم (timestamp), "%Y-%m-%dT%H:%M:%S", &now);
 
-  (void) snprintf (out, len, "%s.%06lldZ", timestamp, (long long int) tv.tv_usec);
-  out[len - 1] = '\0';
+  (فراغ) snprintf (باہرلا, len, "%s.%06lldZ", timestamp, (لما لما صحيح) tv.tv_usec);
+  باہرلا[len - 1] = '\0';
 }
 
-int
-set_blocking_fd (int fd, bool blocking, libcrun_error_t *err)
+صحيح
+سیٹ_blocking_fd (صحيح fd, bool blocking, libcrun_error_t *err)
 {
-  int ret, flags = fcntl (fd, F_GETFL, 0);
-  if (UNLIKELY (flags < 0))
-    return crun_make_error (err, errno, "fcntl");
+  صحيح ret, flags = fcntl (fd, F_GETFL, 0);
+  إذا (UNLIKELY (flags < 0))
+    أرجع crun_make_error (err, errno, "fcntl");
 
   ret = fcntl (fd, F_SETFL, blocking ? flags & ~O_NONBLOCK : flags | O_NONBLOCK);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fcntl");
-  return 0;
+  إذا (UNLIKELY (ret < 0))
+    أرجع crun_make_error (err, errno, "fcntl");
+  أرجع 0;
 }
 
-int
-parse_json_file (json_object **out, const char *jsondata, struct parser_context *ctx arg_unused, libcrun_error_t *err)
+صحيح
+parse_json_file (json_object **باہرلا, ثابت حرف *jsondata, بنية parser_context *ctx arg_بن_ورتیا, libcrun_error_t *err)
 {
-  struct json_tokener *tok;
-  enum json_tokener_error jerr;
+  بنية json_tokener *tok;
+  تعداد json_tokener_error jerr;
 
-  *err = NULL;
+  *err = عدم;
 
-  if (UNLIKELY (jsondata == NULL))
-    return crun_make_error (err, 0, "JSON data is NULL");
+  إذا (UNLIKELY (jsondata == عدم))
+    أرجع crun_make_error (err, 0, "JSON data is NULL");
 
   tok = json_tokener_new ();
-  if (UNLIKELY (tok == NULL))
-    return crun_make_error (err, 0, "cannot allocate JSON tokener");
+  إذا (UNLIKELY (tok == عدم))
+    أرجع crun_make_error (err, 0, "cannot allocate JSON tokener");
 
-  json_tokener_set_flags (tok, JSON_TOKENER_VALIDATE_UTF8);
+  json_tokener_سیٹ_flags (tok, JSON_TOKENER_VALIDATE_UTF8);
 
-  *out = json_tokener_parse_ex (tok, jsondata, (int) strlen (jsondata));
+  *باہرلا = json_tokener_parse_ex (tok, jsondata, (صحيح) لڑی_لمبائی (jsondata));
   jerr = json_tokener_get_error (tok);
-  if (*out == NULL || jerr != json_tokener_success)
+  إذا (*باہرلا == عدم || jerr != json_tokener_success)
     {
-      int saved_pos = (int) tok->char_offset;
+      صحيح saved_pos = (صحيح) tok->char_وتھ;
 
       json_tokener_free (tok);
-      if (*out)
+      إذا (*باہرلا)
         {
-          json_object_put (*out);
-          *out = NULL;
+          json_object_put (*باہرلا);
+          *باہرلا = عدم;
         }
-      return crun_make_error (err, 0, "cannot parse the data: %s at position %d",
+      أرجع crun_make_error (err, 0, "cannot parse the data: %s at position %d",
                               json_tokener_error_desc (jerr), saved_pos);
     }
 
   json_tokener_free (tok);
-  return 0;
+  أرجع 0;
 }
 
-#define CHECK_ACCESS_NOT_EXECUTABLE 1
-#define CHECK_ACCESS_NOT_REGULAR 2
+#تعریف_کرو CHECK_ACCESS_NOT_EXECUTABLE 1
+#تعریف_کرو CHECK_ACCESS_NOT_REGULAR 2
 
 /* check that the specified path exists and it is executable.
    Return
@@ -2165,67 +2165,67 @@ parse_json_file (json_object **out, const char *jsondata, struct parser_context 
    - CHECK_ACCESS_NOT_REGULAR if it not a regular file
    - -errno for any other generic error
  */
-static int
-check_access (const char *path)
+ساكن صحيح
+check_access (ثابت حرف *رستہ)
 {
-  int ret;
-  mode_t mode;
+  صحيح ret;
+  mode_t منوال;
 
-#ifdef HAVE_EACCESS
-#  define ACCESS(path, mode) (eaccess (path, mode))
-#else
-#  define ACCESS(path, mode) (access (path, mode))
-#endif
+#جے_تعریف_شدہ HAVE_EACCESS
+#  define ACCESS(رستہ, منوال) (eaccess (رستہ, منوال))
+#وإلا
+#  define ACCESS(رستہ, منوال) (access (رستہ, منوال))
+#جے_انت
 
-  ret = ACCESS (path, X_OK);
-  if (ret < 0)
+  ret = ACCESS (رستہ, X_OK);
+  إذا (ret < 0)
     {
       /* If the file is not executable, check if it exists.  */
-      if (errno == EACCES)
+      إذا (errno == EACCES)
         {
-          int saved_errno = errno;
-          ret = ACCESS (path, F_OK);
+          صحيح saved_errno = errno;
+          ret = ACCESS (رستہ, F_OK);
           errno = saved_errno;
 
-          if (ret == 0)
-            return CHECK_ACCESS_NOT_EXECUTABLE;
+          إذا (ret == 0)
+            أرجع CHECK_ACCESS_NOT_EXECUTABLE;
         }
-      return -errno;
+      أرجع -errno;
     }
 
-  ret = get_file_type (&mode, false, path);
-  if (UNLIKELY (ret < 0))
-    return -errno;
+  ret = get_file_type (&منوال, false, رستہ);
+  إذا (UNLIKELY (ret < 0))
+    أرجع -errno;
 
-  if (! S_ISREG (mode))
-    return CHECK_ACCESS_NOT_REGULAR;
+  إذا (! S_ISREG (منوال))
+    أرجع CHECK_ACCESS_NOT_REGULAR;
 
   /* It exists, is executable and is a regular file.  */
-  return 0;
+  أرجع 0;
 }
 
-int
-find_executable (char **out, const char *executable_path, const char *cwd, libcrun_error_t *err)
+صحيح
+لبھو_executable (حرف **باہرلا, ثابت حرف *executable_رستہ, ثابت حرف *cwd, libcrun_error_t *err)
 {
-  cleanup_free char *cwd_executable_path = NULL;
-  cleanup_free char *tmp = NULL;
-  int last_error = -ENOENT;
-  char *it, *end;
-  int ret;
+  cleanup_free حرف *cwd_executable_رستہ = عدم;
+  cleanup_free حرف *tmp = عدم;
+  صحيح آخری_error = -ENOENT;
+  حرف *it, *سرا;
+  صحيح ret;
 
-  *out = NULL;
+  *باہرلا = عدم;
 
-  if (executable_path == NULL || executable_path[0] == '\0')
-    return crun_make_error (err, ENOENT, "cannot find `` in $PATH");
+  إذا (executable_رستہ == عدم || executable_رستہ[0] == '\0')
+    أرجع crun_make_error (err, ENOENT, "cannot find `` in $PATH");
 
-  if (executable_path[0] != '/' && strchr (executable_path, '/'))
+  إذا (executable_رستہ[0] != '/' && strchr (executable_رستہ, '/'))
     {
-      cleanup_free char *cwd_allocated = NULL;
+      cleanup_free حرف *cwd_allocated = عدم;
 
-      if (cwd == NULL)
+      إذا (cwd == عدم)
         {
-          cwd_allocated = getcwd (NULL, 0);
-          if (cwd_allocated == NULL)
+          cwd_allocated = getcwd (عدم, 0);
+          إذا (cwd_allocated == عدم)
             OOM ();
 
           cwd = cwd_allocated;
@@ -2233,950 +2233,950 @@ find_executable (char **out, const char *executable_path, const char *cwd, libcr
 
       /* Make sure the path starts with a '/' so it will hit the check
          for absolute paths.  */
-      ret = append_paths (&cwd_executable_path, err, "/", cwd, executable_path, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      executable_path = cwd_executable_path;
+      ret = append_paths (&cwd_executable_رستہ, err, "/", cwd, executable_رستہ, عدم);
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
+      executable_رستہ = cwd_executable_رستہ;
     }
 
   /* Absolute path.  It doesn't need to lookup $PATH.  */
-  if (executable_path[0] == '/')
+  إذا (executable_رستہ[0] == '/')
     {
-      ret = check_access (executable_path);
-      if (LIKELY (ret == 0))
+      ret = check_access (executable_رستہ);
+      إذا (LIKELY (ret == 0))
         {
-          *out = xstrdup (executable_path);
-          return 0;
+          *باہرلا = xstrdup (executable_رستہ);
+          أرجع 0;
         }
-      last_error = ret;
-      goto fail;
+      آخری_error = ret;
+      اذهب fail;
     }
 
-  end = tmp = xstrdup (getenv ("PATH"));
+  سرا = tmp = xstrdup (getenv ("PATH"));
 
-  while ((it = strsep (&end, ":")))
+  طالما ((it = strsep (&سرا, ":")))
     {
-      cleanup_free char *path = NULL;
+      cleanup_free حرف *رستہ = عدم;
 
-      if (it == end)
+      إذا (it == سرا)
         it = ".";
 
-      ret = append_paths (&path, err, it, executable_path, NULL);
-      if (UNLIKELY (ret < 0))
+      ret = append_paths (&رستہ, err, it, executable_رستہ, عدم);
+      إذا (UNLIKELY (ret < 0))
         {
           crun_error_release (err);
-          continue;
+          استمر;
         }
 
-      ret = check_access (path);
-      if (ret == 0)
+      ret = check_access (رستہ);
+      إذا (ret == 0)
         {
           /* Change owner.  */
-          *out = path;
-          path = NULL;
-          return 0;
+          *باہرلا = رستہ;
+          رستہ = عدم;
+          أرجع 0;
         }
 
-      if (ret == -ENOENT)
-        continue;
+      إذا (ret == -ENOENT)
+        استمر;
 
-      last_error = ret;
+      آخری_error = ret;
     }
 
 fail:
-  switch (last_error)
+  بدل (آخری_error)
     {
-    case CHECK_ACCESS_NOT_EXECUTABLE:
-      return crun_make_error (err, EPERM, "the path `%s` exists but it is not executable", executable_path);
+    حالة CHECK_ACCESS_NOT_EXECUTABLE:
+      أرجع crun_make_error (err, EPERM, "the path `%s` exists but it is not executable", executable_رستہ);
 
-    case CHECK_ACCESS_NOT_REGULAR:
-      return crun_make_error (err, EPERM, "the path `%s` is not a regular file", executable_path);
+    حالة CHECK_ACCESS_NOT_REGULAR:
+      أرجع crun_make_error (err, EPERM, "the path `%s` is not a regular file", executable_رستہ);
 
-    default:
-      errno = -last_error;
-      if (errno == ENOENT)
-        return crun_make_error (err, errno, "executable file `%s` not found%s", executable_path, executable_path[0] == '/' ? "" : " in $PATH");
-      return crun_make_error (err, errno, "open `%s`", executable_path);
+    افتراضي:
+      errno = -آخری_error;
+      إذا (errno == ENOENT)
+        أرجع crun_make_error (err, errno, "executable file `%s` not found%s", executable_رستہ, executable_رستہ[0] == '/' ? "" : " in $PATH");
+      أرجع crun_make_error (err, errno, "open `%s`", executable_رستہ);
     }
 }
 
-#ifdef HAVE_FGETXATTR
+#جے_تعریف_شدہ HAVE_FGETXATTR
 
-static ssize_t
-safe_read_xattr (char **ret, int sfd, const char *srcname, const char *name, size_t initial_size, libcrun_error_t *err)
+ساكن ssize_t
+محفوظ_read_xattr (حرف **ret, صحيح sfd, ثابت حرف *srcname, ثابت حرف *name, size_t initial_ناپ, libcrun_error_t *err)
 {
-  cleanup_free char *buffer = NULL;
-  ssize_t current_size;
+  cleanup_free حرف *بفر = عدم;
+  ssize_t current_ناپ;
   ssize_t s;
 
-  current_size = (ssize_t) initial_size;
-  buffer = xmalloc (current_size + 1);
+  current_ناپ = (ssize_t) initial_ناپ;
+  بفر = xmalloc (current_ناپ + 1);
 
-  while (1)
+  طالما (1)
     {
-      s = fgetxattr (sfd, name, buffer, current_size);
-      if (UNLIKELY (s < 0))
-        return crun_make_error (err, errno, "get xattr `%s` from `%s`", name, srcname);
+      s = fgetxattr (sfd, name, بفر, current_ناپ);
+      إذا (UNLIKELY (s < 0))
+        أرجع crun_make_error (err, errno, "get xattr `%s` from `%s`", name, srcname);
 
-      if (s < current_size)
-        break;
+      إذا (s < current_ناپ)
+        اكسر;
 
-      current_size *= 2;
-      buffer = xrealloc (buffer, current_size + 1);
+      current_ناپ *= 2;
+      بفر = xrealloc (بفر, current_ناپ + 1);
     }
 
-  if (s <= 0)
-    return s;
+  إذا (s <= 0)
+    أرجع s;
 
-  buffer[s] = '\0';
+  بفر[s] = '\0';
 
   /* Change owner.  */
-  *ret = buffer;
-  buffer = NULL;
+  *ret = بفر;
+  بفر = عدم;
 
-  return s;
+  أرجع s;
 }
 
-static ssize_t
-copy_xattr (int sfd, int dfd, const char *srcname, const char *destname, libcrun_error_t *err)
+ساكن ssize_t
+copy_xattr (صحيح sfd, صحيح dfd, ثابت حرف *srcname, ثابت حرف *destname, libcrun_error_t *err)
 {
-  cleanup_free char *buf = NULL;
+  cleanup_free حرف *buf = عدم;
   ssize_t xattr_len;
-  char *it;
+  حرف *it;
 
-  xattr_len = flistxattr (sfd, NULL, 0);
-  if (UNLIKELY (xattr_len < 0))
+  xattr_len = flistxattr (sfd, عدم, 0);
+  إذا (UNLIKELY (xattr_len < 0))
     {
-      if (errno == ENOTSUP)
-        return 0;
+      إذا (errno == ENOTSUP)
+        أرجع 0;
 
-      return crun_make_error (err, errno, "flistxattr `%s`", srcname);
+      أرجع crun_make_error (err, errno, "flistxattr `%s`", srcname);
     }
 
-  if (xattr_len == 0)
-    return 0;
+  إذا (xattr_len == 0)
+    أرجع 0;
 
   buf = xmalloc (xattr_len + 1);
 
   xattr_len = flistxattr (sfd, buf, xattr_len + 1);
-  if (UNLIKELY (xattr_len < 0))
-    return crun_make_error (err, errno, "flistxattr `%s`", srcname);
+  إذا (UNLIKELY (xattr_len < 0))
+    أرجع crun_make_error (err, errno, "flistxattr `%s`", srcname);
 
-  for (it = buf; it - buf < xattr_len; it += strlen (it) + 1)
+  لكل (it = buf; it - buf < xattr_len; it += لڑی_لمبائی (it) + 1)
     {
-      cleanup_free char *v = NULL;
+      cleanup_free حرف *v = عدم;
       ssize_t s;
 
-      s = safe_read_xattr (&v, sfd, srcname, it, 256, err);
-      if (UNLIKELY (s < 0))
-        return s;
+      s = محفوظ_read_xattr (&v, sfd, srcname, it, 256, err);
+      إذا (UNLIKELY (s < 0))
+        أرجع s;
 
       s = fsetxattr (dfd, it, v, s, 0);
-      if (UNLIKELY (s < 0))
+      إذا (UNLIKELY (s < 0))
         {
-          if (errno == EINVAL || errno == EOPNOTSUPP)
-            continue;
+          إذا (errno == EINVAL || errno == EOPNOTSUPP)
+            استمر;
 
-          return crun_make_error (err, errno, "fsetxattr `%s` to `%s`", it, destname);
+          أرجع crun_make_error (err, errno, "fsetxattr `%s` to `%s`", it, destname);
         }
     }
 
-  return 0;
+  أرجع 0;
 }
 
-#endif
+#جے_انت
 
-static int
-copy_rec_stat_file_at (int dfd, const char *path, mode_t *mode, off_t *size, dev_t *rdev, uid_t *uid, gid_t *gid)
+ساكن صحيح
+copy_rec_stat_file_at (صحيح dfd, ثابت حرف *رستہ, mode_t *منوال, off_t *ناپ, dev_t *rdev, uid_t *uid, gid_t *gid)
 {
-  struct stat st;
-  int ret;
+  بنية stat st;
+  صحيح ret;
 
-#ifdef HAVE_STATX
-  struct statx stx = {
+#جے_تعریف_شدہ HAVE_STATX
+  بنية statx stx = {
     0,
   };
 
-  ret = statx (dfd, path, AT_SYMLINK_NOFOLLOW | AT_STATX_DONT_SYNC,
-               STATX_TYPE | STATX_MODE | STATX_SIZE | STATX_UID | STATX_GID, &stx);
-  if (UNLIKELY (ret < 0))
+  ret = statx (dfd, رستہ, AT_SYMLINK_NOFOLLOW | AT_STATX_DONT_SYNC,
+               STATX_TYPE | STATX_منوال | STATX_ناپ | STATX_UID | STATX_GID, &stx);
+  إذا (UNLIKELY (ret < 0))
     {
-      if (errno == ENOSYS || errno == EINVAL)
-        goto fallback;
+      إذا (errno == ENOSYS || errno == EINVAL)
+        اذهب fallback;
 
-      return ret;
+      أرجع ret;
     }
 
-  *mode = stx.stx_mode;
-  *size = stx.stx_size;
+  *منوال = stx.stx_mode;
+  *ناپ = stx.stx_size;
   *rdev = makedev (stx.stx_rdev_major, stx.stx_rdev_minor);
   *uid = stx.stx_uid;
   *gid = stx.stx_gid;
 
-  return ret;
+  أرجع ret;
 
 fallback:
-#endif
-  ret = fstatat (dfd, path, &st, AT_SYMLINK_NOFOLLOW);
+#جے_انت
+  ret = fstatat (dfd, رستہ, &st, AT_SYMLINK_NOFOLLOW);
 
-  *mode = st.st_mode;
-  *size = st.st_size;
+  *منوال = st.st_mode;
+  *ناپ = st.st_size;
   *rdev = st.st_rdev;
   *uid = st.st_uid;
   *gid = st.st_gid;
 
-  return ret;
+  أرجع ret;
 }
 
-int
-copy_recursive_fd_to_fd (int srcdirfd, int dfd, const char *srcname, const char *destname, libcrun_error_t *err)
+صحيح
+copy_recursive_fd_منزل_fd (صحيح srcdirfd, صحيح dfd, ثابت حرف *srcname, ثابت حرف *destname, libcrun_error_t *err)
 {
-  cleanup_close int destdirfd = dfd;
-  cleanup_dir DIR *dsrcfd = NULL;
-  struct dirent *de;
+  cleanup_close صحيح destdirfd = dfd;
+  cleanup_dir DIR *dsrcfd = عدم;
+  بنية dirent *de;
 
   dsrcfd = fdopendir (srcdirfd);
-  if (UNLIKELY (dsrcfd == NULL))
+  إذا (UNLIKELY (dsrcfd == عدم))
     {
-      TEMP_FAILURE_RETRY (close (srcdirfd));
-      return crun_make_error (err, errno, "open directory `%s`", destname);
+      عارضی_FAILURE_RETRY (close (srcdirfd));
+      أرجع crun_make_error (err, errno, "open directory `%s`", destname);
     }
 
-  for (de = readdir (dsrcfd); de; de = readdir (dsrcfd))
+  لكل (de = readdir (dsrcfd); de; de = readdir (dsrcfd))
     {
-      cleanup_close int srcfd = -1;
-      cleanup_close int destfd = -1;
-      cleanup_free char *target_buf = NULL;
-      int ret;
-      mode_t mode;
+      cleanup_close صحيح srcfd = -1;
+      cleanup_close صحيح destfd = -1;
+      cleanup_free حرف *نشانہ_buf = عدم;
+      صحيح ret;
+      mode_t منوال;
       off_t st_size;
       dev_t rdev;
       uid_t uid;
       gid_t gid;
 
-      if (strcmp (de->d_name, ".") == 0 || strcmp (de->d_name, "..") == 0)
-        continue;
+      إذا (strcmp (de->d_name, ".") == 0 || strcmp (de->d_name, "..") == 0)
+        استمر;
 
-      ret = copy_rec_stat_file_at (dirfd (dsrcfd), de->d_name, &mode, &st_size, &rdev, &uid, &gid);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "stat `%s/%s`", srcname, de->d_name);
+      ret = copy_rec_stat_file_at (dirfd (dsrcfd), de->d_name, &منوال, &st_size, &rdev, &uid, &gid);
+      إذا (UNLIKELY (ret < 0))
+        أرجع crun_make_error (err, errno, "stat `%s/%s`", srcname, de->d_name);
 
-      switch (mode & S_IFMT)
+      بدل (منوال & S_IFMT)
         {
-        case S_IFREG:
+        حالة S_IFREG:
           srcfd = openat (dirfd (dsrcfd), de->d_name, O_NONBLOCK | O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
-          if (UNLIKELY (srcfd < 0))
-            return crun_make_error (err, errno, "open `%s/%s`", srcname, de->d_name);
+          إذا (UNLIKELY (srcfd < 0))
+            أرجع crun_make_error (err, errno, "open `%s/%s`", srcname, de->d_name);
 
           destfd = openat (destdirfd, de->d_name, O_RDWR | O_CREAT | O_CLOEXEC | O_NOFOLLOW, 0777);
-          if (UNLIKELY (destfd < 0))
-            return crun_make_error (err, errno, "open `%s/%s`", destname, de->d_name);
+          إذا (UNLIKELY (destfd < 0))
+            أرجع crun_make_error (err, errno, "open `%s/%s`", destname, de->d_name);
 
-          ret = copy_from_fd_to_fd (srcfd, destfd, 1, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = copy_from_fd_منزل_fd (srcfd, destfd, 1, err);
+          إذا (UNLIKELY (ret < 0))
+            أرجع ret;
 
-#ifdef HAVE_FGETXATTR
-          ret = (int) copy_xattr (srcfd, destfd, de->d_name, de->d_name, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
-#endif
+#جے_تعریف_شدہ HAVE_FGETXATTR
+          ret = (صحيح) copy_xattr (srcfd, destfd, de->d_name, de->d_name, err);
+          إذا (UNLIKELY (ret < 0))
+            أرجع ret;
+#جے_انت
 
-          TEMP_FAILURE_RETRY (close (destfd));
+          عارضی_FAILURE_RETRY (close (destfd));
           destfd = -1;
-          break;
+          اكسر;
 
-        case S_IFDIR:
-          ret = mkdirat (destdirfd, de->d_name, mode);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "mkdir `%s/%s`", destname, de->d_name);
+        حالة S_IFDIR:
+          ret = mkdirat (destdirfd, de->d_name, منوال);
+          إذا (UNLIKELY (ret < 0))
+            أرجع crun_make_error (err, errno, "mkdir `%s/%s`", destname, de->d_name);
 
           srcfd = openat (dirfd (dsrcfd), de->d_name, O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
-          if (UNLIKELY (srcfd < 0))
-            return crun_make_error (err, errno, "open directory `%s/%s`", srcname, de->d_name);
+          إذا (UNLIKELY (srcfd < 0))
+            أرجع crun_make_error (err, errno, "open directory `%s/%s`", srcname, de->d_name);
 
           destfd = openat (destdirfd, de->d_name, O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
-          if (UNLIKELY (destfd < 0))
-            return crun_make_error (err, errno, "open directory `%s/%s`", srcname, de->d_name);
+          إذا (UNLIKELY (destfd < 0))
+            أرجع crun_make_error (err, errno, "open directory `%s/%s`", srcname, de->d_name);
 
-#ifdef HAVE_FGETXATTR
-          ret = (int) copy_xattr (srcfd, destfd, de->d_name, de->d_name, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
-#endif
+#جے_تعریف_شدہ HAVE_FGETXATTR
+          ret = (صحيح) copy_xattr (srcfd, destfd, de->d_name, de->d_name, err);
+          إذا (UNLIKELY (ret < 0))
+            أرجع ret;
+#جے_انت
 
           // copy_recursive_fd_to_fd closes srcfd and destfd
-          ret = copy_recursive_fd_to_fd (srcfd, destfd, de->d_name, de->d_name, err);
+          ret = copy_recursive_fd_منزل_fd (srcfd, destfd, de->d_name, de->d_name, err);
           srcfd = destfd = -1;
-          if (UNLIKELY (ret < 0))
-            return ret;
-          break;
+          إذا (UNLIKELY (ret < 0))
+            أرجع ret;
+          اكسر;
 
-        case S_IFLNK:
-          ret = safe_readlinkat (dirfd (dsrcfd), de->d_name, &target_buf, st_size, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+        حالة S_IFLNK:
+          ret = محفوظ_readlinkat (dirfd (dsrcfd), de->d_name, &نشانہ_buf, st_size, err);
+          إذا (UNLIKELY (ret < 0))
+            أرجع ret;
 
-          ret = symlinkat (target_buf, destdirfd, de->d_name);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "symlinkat `%s/%s`", destname, de->d_name);
-          break;
+          ret = symlinkat (نشانہ_buf, destdirfd, de->d_name);
+          إذا (UNLIKELY (ret < 0))
+            أرجع crun_make_error (err, errno, "symlinkat `%s/%s`", destname, de->d_name);
+          اكسر;
 
-        case S_IFBLK:
-        case S_IFCHR:
-        case S_IFIFO:
-        case S_IFSOCK:
-          ret = mknodat (destdirfd, de->d_name, mode, rdev);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "mknodat `%s/%s`", destname, de->d_name);
-          break;
+        حالة S_IFBLK:
+        حالة S_IFCHR:
+        حالة S_IFIFO:
+        حالة S_IFSOCK:
+          ret = mknodat (destdirfd, de->d_name, منوال, rdev);
+          إذا (UNLIKELY (ret < 0))
+            أرجع crun_make_error (err, errno, "mknodat `%s/%s`", destname, de->d_name);
+          اكسر;
         }
 
       ret = fchownat (destdirfd, de->d_name, uid, gid, AT_SYMLINK_NOFOLLOW);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "fchownat `%s/%s`", destname, de->d_name);
+      إذا (UNLIKELY (ret < 0))
+        أرجع crun_make_error (err, errno, "fchownat `%s/%s`", destname, de->d_name);
 
       /*
        * ALLPERMS is not defined by POSIX
        */
-#ifndef ALLPERMS
+#جے_بنا_تعریف ALLPERMS
 #  define ALLPERMS (S_ISUID | S_ISGID | S_ISVTX | S_IRWXU | S_IRWXG | S_IRWXO)
-#endif
+#جے_انت
 
-      ret = fchmodat (destdirfd, de->d_name, mode & ALLPERMS, AT_SYMLINK_NOFOLLOW);
-      if (UNLIKELY (ret < 0))
+      ret = fchmodat (destdirfd, de->d_name, منوال & ALLPERMS, AT_SYMLINK_NOFOLLOW);
+      إذا (UNLIKELY (ret < 0))
         {
           /* If the operation fails with ENOTSUP we are dealing with a symlink, so ignore it.  */
-          if (errno == ENOTSUP)
-            continue;
+          إذا (errno == ENOTSUP)
+            استمر;
 
-          return crun_make_error (err, errno, "fchmodat `%s/%s`", destname, de->d_name);
+          أرجع crun_make_error (err, errno, "fchmodat `%s/%s`", destname, de->d_name);
         }
     }
 
-  return 0;
+  أرجع 0;
 }
 
-const char *
-find_annotation (libcrun_container_t *container, const char *name)
+ثابت حرف *
+لبھو_annotation (libcrun_container_t *container, ثابت حرف *name)
 {
-  if (container->container_def->annotations == NULL)
-    return NULL;
+  إذا (container->container_def->annotations == عدم)
+    أرجع عدم;
 
-  return find_string_map_value (container->annotations, name);
+  أرجع لبھو_string_map_قدر (container->annotations, name);
 }
 
-int
-safe_write (int fd, const char *fname, const void *buf, size_t count, libcrun_error_t *err)
+صحيح
+محفوظ_write (صحيح fd, ثابت حرف *fname, ثابت فراغ *buf, size_t گنتی, libcrun_error_t *err)
 {
   size_t written = 0;
-  while (written < count)
+  طالما (written < گنتی)
     {
-      ssize_t w = write (fd, (const char *) buf + written, count - written);
-      if (UNLIKELY (w < 0))
+      ssize_t w = اكتب (fd, (ثابت حرف *) buf + written, گنتی - written);
+      إذا (UNLIKELY (w < 0))
         {
-          if (errno == EINTR || errno == EAGAIN)
-            continue;
-          return crun_make_error (err, errno, "write to `%s`", fname);
+          إذا (errno == EINTR || errno == EAGAIN)
+            استمر;
+          أرجع crun_make_error (err, errno, "write to `%s`", fname);
         }
       written += w;
     }
-  return 0;
+  أرجع 0;
 }
 
-#define MAX_PARTS 32
+#تعریف_کرو MAX_PARTS 32
 
-int
-append_paths (char **out, libcrun_error_t *err, ...)
+صحيح
+append_paths (حرف **باہرلا, libcrun_error_t *err, ...)
 {
-  const char *parts[MAX_PARTS];
+  ثابت حرف *parts[MAX_PARTS];
   size_t sizes[MAX_PARTS];
-  size_t total_len = 0;
+  size_t کل_len = 0;
   size_t n_parts = 0;
   size_t copied = 0;
   va_list ap;
   size_t i;
 
-  va_start (ap, err);
-  for (;;)
+  va_شروع (ap, err);
+  لكل (;;)
     {
-      const char *part;
-      size_t size;
+      ثابت حرف *part;
+      size_t ناپ;
 
-      part = va_arg (ap, const char *);
-      if (part == NULL)
-        break;
+      part = va_arg (ap, ثابت حرف *);
+      إذا (part == عدم)
+        اكسر;
 
-      if (n_parts == MAX_PARTS)
+      إذا (n_parts == MAX_PARTS)
         {
-          va_end (ap);
-          return crun_make_error (err, EINVAL, "too many paths specified");
+          va_سرا (ap);
+          أرجع crun_make_error (err, EINVAL, "too many paths specified");
         }
 
-      if (n_parts == 0)
+      إذا (n_parts == 0)
         {
           /* For the first component allow only one '/'.  */
-          while (part[0] == '/' && part[1] == '/')
+          طالما (part[0] == '/' && part[1] == '/')
             part++;
         }
-      else
+      وإلا
         {
           /* And drop any initial '/' for other components.  */
-          while (part[0] == '/')
+          طالما (part[0] == '/')
             part++;
         }
 
-      size = strlen (part);
-      if (size == 0)
-        continue;
+      ناپ = لڑی_لمبائی (part);
+      إذا (ناپ == 0)
+        استمر;
 
-      while (size > 1 && part[size - 1] == '/')
-        size--;
+      طالما (ناپ > 1 && part[ناپ - 1] == '/')
+        ناپ--;
 
       parts[n_parts] = part;
-      sizes[n_parts] = size;
+      sizes[n_parts] = ناپ;
 
       n_parts++;
     }
-  va_end (ap);
+  va_سرا (ap);
 
-  total_len = n_parts + 1;
-  for (i = 0; i < n_parts; i++)
-    total_len += sizes[i];
+  کل_len = n_parts + 1;
+  لكل (i = 0; i < n_parts; i++)
+    کل_len += sizes[i];
 
-  *out = xmalloc (total_len);
+  *باہرلا = xmalloc (کل_len);
 
   copied = 0;
-  for (i = 0; i < n_parts; i++)
+  لكل (i = 0; i < n_parts; i++)
     {
       bool has_trailing_slash;
 
-      has_trailing_slash = copied > 0 && (*out)[copied - 1] == '/';
-      if (i > 0 && ! has_trailing_slash)
+      has_trailing_slash = copied > 0 && (*باہرلا)[copied - 1] == '/';
+      إذا (i > 0 && ! has_trailing_slash)
         {
-          (*out)[copied] = '/';
+          (*باہرلا)[copied] = '/';
           copied += 1;
         }
 
-      memcpy (*out + copied, parts[i], sizes[i]);
+      حافظہ_نقل (*باہرلا + copied, parts[i], sizes[i]);
       copied += sizes[i];
     }
-  (*out)[copied] = '\0';
-  return 0;
+  (*باہرلا)[copied] = '\0';
+  أرجع 0;
 }
 
-#if __has_attribute(__nonstring__)
+#إذا __has_attribute(__nonstring__)
 #  define __nonstring __attribute__ ((__nonstring__))
-#else
+#وإلا
 #  define __nonstring
-#endif
+#جے_انت
 
 /* Adapted from mailutils 0.6.91 (distributed under LGPL 2.0+)  */
-static int
-b64_input (char c)
+ساكن صحيح
+b64_داخلہ (حرف c)
 {
-  const char table[64] __nonstring = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-  int i;
+  ثابت حرف جدول[64] __nonstring = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  صحيح i;
 
-  for (i = 0; i < 64; i++)
+  لكل (i = 0; i < 64; i++)
     {
-      if (table[i] == c)
-        return i;
+      إذا (جدول[i] == c)
+        أرجع i;
     }
-  return -1;
+  أرجع -1;
 }
 
-int
-base64_decode (const char *iptr, size_t isize, char *optr, size_t osize, size_t *nbytes)
+صحيح
+base64_decode (ثابت حرف *iptr, size_t isize, حرف *optr, size_t osize, size_t *nbytes)
 {
-  int i = 0, tmp = 0, pad = 0;
+  صحيح i = 0, tmp = 0, pad = 0;
   size_t consumed = 0;
-  unsigned char data[4];
+  بنانشانی حرف انکڑے[4];
 
   *nbytes = 0;
-  while (consumed < isize && (*nbytes) + 3 < osize)
+  طالما (consumed < isize && (*nbytes) + 3 < osize)
     {
-      while ((i < 4) && (consumed < isize))
+      طالما ((i < 4) && (consumed < isize))
         {
-          tmp = b64_input (*iptr++);
+          tmp = b64_داخلہ (*iptr++);
           consumed++;
-          if (tmp != -1)
+          إذا (tmp != -1)
             {
-              if (UNLIKELY (pad > 0))
-                return -1;
-              data[i++] = tmp;
+              إذا (UNLIKELY (pad > 0))
+                أرجع -1;
+              انکڑے[i++] = tmp;
             }
-          else if (*(iptr - 1) == '=')
+          وإلا إذا (*(iptr - 1) == '=')
             {
-              data[i++] = '\0';
+              انکڑے[i++] = '\0';
               pad++;
             }
         }
 
       /* I have an entire block of data 32 bits get the output data.  */
-      if (i == 4)
+      إذا (i == 4)
         {
-          if (UNLIKELY (pad > 2))
-            return -1;
-          *optr++ = (data[0] << 2) | ((data[1] & 0x30) >> 4);
-          *optr++ = ((data[1] & 0xf) << 4) | ((data[2] & 0x3c) >> 2);
-          *optr++ = ((data[2] & 0x3) << 6) | data[3];
+          إذا (UNLIKELY (pad > 2))
+            أرجع -1;
+          *optr++ = (انکڑے[0] << 2) | ((انکڑے[1] & 0x30) >> 4);
+          *optr++ = ((انکڑے[1] & 0xf) << 4) | ((انکڑے[2] & 0x3c) >> 2);
+          *optr++ = ((انکڑے[2] & 0x3) << 6) | انکڑے[3];
           (*nbytes) += 3 - pad;
         }
-      else
+      وإلا
         {
           /* I did not get all the data.  */
           consumed -= i;
-          return consumed;
+          أرجع consumed;
         }
       i = 0;
     }
-  return consumed;
+  أرجع consumed;
 }
 
-char *
+حرف *
 get_user_name (uid_t uid)
 {
-  struct passwd pd;
-  struct passwd *temp_result_ptr;
-  char pwdbuffer[200];
-  if (! getpwuid_r (uid, &pd, pwdbuffer, sizeof (pwdbuffer), &temp_result_ptr))
-    return xstrdup (pd.pw_name);
-  return xstrdup ("");
+  بنية passwd pd;
+  بنية passwd *عارضی_نتیجہ_ptr;
+  حرف pwdbuffer[200];
+  إذا (! getpwuid_r (uid, &pd, pwdbuffer, حجم (pwdbuffer), &عارضی_نتیجہ_ptr))
+    أرجع xstrdup (pd.pw_name);
+  أرجع xstrdup ("");
 }
 
 /* Convert a sysctl key to its /proc/sys path according to sysctl.d(5).
    If the first separator is '/', remaining slashes and dots are left intact.
    If the first separator is '.', dots and slashes are interchanged.  */
-char *
-libcrun_sysctl_key_to_proc_path (const char *key)
+حرف *
+libcrun_sysctl_کلید_منزل_proc_رستہ (ثابت حرف *کلید)
 {
-  const char *sep;
-  char *ret, *it;
+  ثابت حرف *sep;
+  حرف *ret, *it;
 
-  sep = strpbrk (key, "./");
+  sep = strpbrk (کلید, "./");
 
   /* No separator at all, or the key is already in the path form.  */
-  if (sep == NULL || *sep == '/')
-    return xstrdup (key);
+  إذا (sep == عدم || *sep == '/')
+    أرجع xstrdup (کلید);
 
-  ret = xstrdup (key);
-  for (it = ret; *it; it++)
+  ret = xstrdup (کلید);
+  لكل (it = ret; *it; it++)
     {
-      if (*it == '.')
+      إذا (*it == '.')
         *it = '/';
-      else if (*it == '/')
+      وإلا إذا (*it == '/')
         *it = '.';
     }
 
-  return ret;
+  أرجع ret;
 }
 
-int
-has_suffix (const char *str, const char *suffix)
+صحيح
+has_suffix (ثابت حرف *str, ثابت حرف *suffix)
 {
-  if (! str || ! suffix)
-    return 0;
-  size_t lenstr = strlen (str);
-  size_t lensuffix = strlen (suffix);
-  if (lensuffix > lenstr)
-    return 0;
-  return memcmp (str + lenstr - lensuffix, suffix, lensuffix) == 0;
+  إذا (! str || ! suffix)
+    أرجع 0;
+  size_t lenstr = لڑی_لمبائی (str);
+  size_t lensuffix = لڑی_لمبائی (suffix);
+  إذا (lensuffix > lenstr)
+    أرجع 0;
+  أرجع memcmp (str + lenstr - lensuffix, suffix, lensuffix) == 0;
 }
 
-char *
-str_join_array (int offset, size_t size, char *const array[], const char *joint)
+حرف *
+str_join_array (صحيح وتھ, size_t ناپ, حرف *ثابت array[], ثابت حرف *joint)
 {
   size_t jlen;
-  cleanup_free size_t *lens = NULL;
-  size_t i, total_size = (size - 1) * (jlen = strlen (joint)) + 1;
-  char *result, *p;
+  cleanup_free size_t *lens = عدم;
+  size_t i, کل_ناپ = (ناپ - 1) * (jlen = لڑی_لمبائی (joint)) + 1;
+  حرف *نتیجہ, *p;
 
-  lens = xmalloc (size * sizeof (*lens));
+  lens = xmalloc (ناپ * حجم (*lens));
 
-  for (i = 0; i < size; ++i)
+  لكل (i = 0; i < ناپ; ++i)
     {
-      total_size += (lens[i] = strlen (array[i]));
+      کل_ناپ += (lens[i] = لڑی_لمبائی (array[i]));
     }
-  p = result = xmalloc (total_size);
-  for (i = offset; i < size; ++i)
+  p = نتیجہ = xmalloc (کل_ناپ);
+  لكل (i = وتھ; i < ناپ; ++i)
     {
-      memcpy (p, array[i], lens[i]);
+      حافظہ_نقل (p, array[i], lens[i]);
       p += lens[i];
-      if (i < size - 1)
+      إذا (i < ناپ - 1)
         {
-          memcpy (p, joint, jlen);
+          حافظہ_نقل (p, joint, jlen);
           p += jlen;
         }
     }
   *p = '\0';
-  return result;
+  أرجع نتیجہ;
 }
 
-int
-libcrun_mmap (struct libcrun_mmap_s **ret, void *addr, size_t length,
-              int prot, int flags, int fd, off_t offset,
+صحيح
+libcrun_mmap (بنية libcrun_mmap_s **ret, فراغ *addr, size_t لمائی,
+              صحيح prot, صحيح flags, صحيح fd, off_t وتھ,
               libcrun_error_t *err)
 {
-  struct libcrun_mmap_s *mmap_s = NULL;
+  بنية libcrun_mmap_s *mmap_s = عدم;
 
-  void *mapped = mmap (addr, length, prot, flags, fd, offset);
-  if (mapped == MAP_FAILED)
-    return crun_make_error (err, errno, "mmap");
+  فراغ *mapped = mmap (addr, لمائی, prot, flags, fd, وتھ);
+  إذا (mapped == MAP_FAILED)
+    أرجع crun_make_error (err, errno, "mmap");
 
-  mmap_s = xmalloc (sizeof (struct libcrun_mmap_s));
+  mmap_s = xmalloc (حجم (بنية libcrun_mmap_s));
   mmap_s->addr = mapped;
-  mmap_s->length = length;
+  mmap_s->لمائی = لمائی;
 
   *ret = mmap_s;
 
-  return 0;
+  أرجع 0;
 }
 
-int
-libcrun_munmap (struct libcrun_mmap_s *mmap, libcrun_error_t *err)
+صحيح
+libcrun_munmap (بنية libcrun_mmap_s *mmap, libcrun_error_t *err)
 {
-  int ret;
+  صحيح ret;
 
-  ret = munmap (mmap->addr, mmap->length);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "munmap");
+  ret = munmap (mmap->addr, mmap->لمائی);
+  إذا (UNLIKELY (ret < 0))
+    أرجع crun_make_error (err, errno, "munmap");
 
-  free (mmap);
+  حرر (mmap);
 
-  return 0;
+  أرجع 0;
 }
 
-static long
-read_file_as_long_or_default (const char *path, long def_value)
+ساكن لما
+read_file_as_long_or_default (ثابت حرف *رستہ, لما def_قدر)
 {
-  cleanup_free char *content = NULL;
-  libcrun_error_t tmp_err = NULL;
-  char *endptr;
-  long val;
-  int ret;
+  cleanup_free حرف *content = عدم;
+  libcrun_error_t tmp_err = عدم;
+  حرف *endptr;
+  لما val;
+  صحيح ret;
 
-  ret = read_all_file (path, &content, NULL, &tmp_err);
-  if (UNLIKELY (ret < 0))
+  ret = read_all_file (رستہ, &content, عدم, &tmp_err);
+  إذا (UNLIKELY (ret < 0))
     {
       crun_error_release (&tmp_err);
-      return def_value;
+      أرجع def_قدر;
     }
 
   errno = 0;
   val = strtol (content, &endptr, 10);
-  if (UNLIKELY (errno))
-    return def_value;
-  if (endptr == content || (*endptr && *endptr != '\n'))
-    return def_value;
-  return val;
+  إذا (UNLIKELY (errno))
+    أرجع def_قدر;
+  إذا (endptr == content || (*endptr && *endptr != '\n'))
+    أرجع def_قدر;
+  أرجع val;
 }
 
-#define DEFAULT_OVERFLOW_ID 65534
+#تعریف_کرو DEFAULT_حد_توں_ودھ_ID 65534
 
 uid_t
-get_overflow_uid (void)
+get_حد_توں_ودھ_uid (فراغ)
 {
-  static atomic_long cached_uid = -1;
+  ساكن atomic_long cached_uid = -1;
   atomic_long uid = cached_uid;
-  if (uid == -1)
+  إذا (uid == -1)
     {
-      uid = read_file_as_long_or_default ("/proc/sys/kernel/overflowuid", DEFAULT_OVERFLOW_ID);
+      uid = read_file_as_long_or_default ("/proc/sys/kernel/overflowuid", DEFAULT_حد_توں_ودھ_ID);
       cached_uid = uid;
     }
-  return uid;
+  أرجع uid;
 }
 
 gid_t
-get_overflow_gid (void)
+get_حد_توں_ودھ_gid (فراغ)
 {
-  static atomic_long cached_gid = -1;
+  ساكن atomic_long cached_gid = -1;
   atomic_long gid = cached_gid;
-  if (gid == -1)
+  إذا (gid == -1)
     {
-      gid = read_file_as_long_or_default ("/proc/sys/kernel/overflowgid", DEFAULT_OVERFLOW_ID);
+      gid = read_file_as_long_or_default ("/proc/sys/kernel/overflowgid", DEFAULT_حد_توں_ودھ_ID);
       cached_gid = gid;
     }
-  return gid;
+  أرجع gid;
 }
 
-void
-consume_trailing_slashes (char *path)
+فراغ
+consume_trailing_slashes (حرف *رستہ)
 {
-  if (! path || path[0] == '\0')
-    return;
+  إذا (! رستہ || رستہ[0] == '\0')
+    أرجع;
 
-  char *last = path + strlen (path);
+  حرف *آخری = رستہ + لڑی_لمبائی (رستہ);
 
-  while (last > path && *(last - 1) == '/')
-    last--;
+  طالما (آخری > رستہ && *(آخری - 1) == '/')
+    آخری--;
 
-  *last = '\0';
+  *آخری = '\0';
 }
 
-char **
-read_dir_entries (const char *path, libcrun_error_t *err)
+حرف **
+read_dir_entries (ثابت حرف *رستہ, libcrun_error_t *err)
 {
-  cleanup_dir DIR *dir = NULL;
+  cleanup_dir DIR *dir = عدم;
   size_t n_entries = 0;
-  size_t entries_size = 16;
-  char **entries = NULL;
-  struct dirent *de;
+  size_t entries_ناپ = 16;
+  حرف **entries = عدم;
+  بنية dirent *de;
 
-  dir = opendir (path);
-  if (UNLIKELY (dir == NULL))
+  dir = opendir (رستہ);
+  إذا (UNLIKELY (dir == عدم))
     {
-      crun_make_error (err, errno, "opendir `%s`", path);
-      return NULL;
+      crun_make_error (err, errno, "opendir `%s`", رستہ);
+      أرجع عدم;
     }
 
-  entries = xmalloc (entries_size * sizeof (char *));
-  while ((de = readdir (dir)))
+  entries = xmalloc (entries_ناپ * حجم (حرف *));
+  طالما ((de = readdir (dir)))
     {
-      if (strcmp (de->d_name, ".") == 0 || strcmp (de->d_name, "..") == 0)
-        continue;
-      if (n_entries == entries_size)
+      إذا (strcmp (de->d_name, ".") == 0 || strcmp (de->d_name, "..") == 0)
+        استمر;
+      إذا (n_entries == entries_ناپ)
         {
-          entries_size *= 2;
-          entries = xrealloc (entries, entries_size * sizeof (char *));
+          entries_ناپ *= 2;
+          entries = xrealloc (entries, entries_ناپ * حجم (حرف *));
         }
       entries[n_entries++] = xstrdup (de->d_name);
     }
-  entries = xrealloc (entries, (n_entries + 1) * sizeof (char *));
-  entries[n_entries] = NULL;
+  entries = xrealloc (entries, (n_entries + 1) * حجم (حرف *));
+  entries[n_entries] = عدم;
 
-  return entries;
+  أرجع entries;
 }
 
-int
-cpuset_string_to_bitmask (const char *str, char **out, size_t *out_size, libcrun_error_t *err)
+صحيح
+cpuset_string_منزل_bitmask (ثابت حرف *str, حرف **باہرلا, size_t *باہرلا_ناپ, libcrun_error_t *err)
 {
-  cleanup_free char *mask = NULL;
-  size_t mask_size = 0;
-  const char *p = str;
-  char *endptr;
+  cleanup_free حرف *نقاب = عدم;
+  size_t نقاب_ناپ = 0;
+  ثابت حرف *p = str;
+  حرف *endptr;
 
-  while (*p)
+  طالما (*p)
     {
-      long long start_range, end_range;
+      لما لما شروع_range, سرا_range;
 
-      if (*p < '0' || *p > '9')
-        goto invalid_input;
+      إذا (*p < '0' || *p > '9')
+        اذهب invalid_داخلہ;
 
-      start_range = strtoll (p, &endptr, 10);
-      if (start_range < 0)
-        goto invalid_input;
+      شروع_range = strtoll (p, &endptr, 10);
+      إذا (شروع_range < 0)
+        اذهب invalid_داخلہ;
 
       p = endptr;
 
-      if (*p != '-')
-        end_range = start_range;
-      else
+      إذا (*p != '-')
+        سرا_range = شروع_range;
+      وإلا
         {
           p++;
 
-          if (*p < '0' || *p > '9')
-            goto invalid_input;
+          إذا (*p < '0' || *p > '9')
+            اذهب invalid_داخلہ;
 
-          end_range = strtoll (p, &endptr, 10);
+          سرا_range = strtoll (p, &endptr, 10);
 
-          if (end_range < start_range)
-            goto invalid_input;
+          إذا (سرا_range < شروع_range)
+            اذهب invalid_داخلہ;
 
           p = endptr;
         }
 
       /* Just set some limit.  */
-      if (end_range > (1 << 20))
-        goto invalid_input;
+      إذا (سرا_range > (1 << 20))
+        اذهب invalid_داخلہ;
 
-      if (end_range >= (long long) (mask_size * CHAR_BIT))
+      إذا (سرا_range >= (لما لما) (نقاب_ناپ * CHAR_BIT))
         {
-          size_t new_mask_size = (end_range / CHAR_BIT) + 1;
-          mask = xrealloc (mask, new_mask_size);
-          memset (mask + mask_size, 0, new_mask_size - mask_size);
-          mask_size = new_mask_size;
+          size_t new_نقاب_ناپ = (سرا_range / CHAR_BIT) + 1;
+          نقاب = xrealloc (نقاب, new_نقاب_ناپ);
+          memset (نقاب + نقاب_ناپ, 0, new_نقاب_ناپ - نقاب_ناپ);
+          نقاب_ناپ = new_نقاب_ناپ;
         }
 
-      for (long long i = start_range; i <= end_range; i++)
-        mask[i / CHAR_BIT] |= (1 << (i % CHAR_BIT));
+      لكل (لما لما i = شروع_range; i <= سرا_range; i++)
+        نقاب[i / CHAR_BIT] |= (1 << (i % CHAR_BIT));
 
-      if (*p == ',')
+      إذا (*p == ',')
         p++;
-      else if (*p)
-        goto invalid_input;
+      وإلا إذا (*p)
+        اذهب invalid_داخلہ;
     }
 
-  *out = mask;
-  mask = NULL;
-  *out_size = mask_size;
+  *باہرلا = نقاب;
+  نقاب = عدم;
+  *باہرلا_ناپ = نقاب_ناپ;
 
-  return 0;
+  أرجع 0;
 
-invalid_input:
-  return crun_make_error (err, 0, "cannot parse input `%s`", str);
+invalid_داخلہ:
+  أرجع crun_make_error (err, 0, "cannot parse input `%s`", str);
 }
 
-struct channel_fd_pair
+بنية channel_fd_pair
 {
-  struct ring_buffer *rb;
+  بنية ring_بفر *rb;
 
-  int in_fd;
-  int out_fd;
+  صحيح وچ_fd;
+  صحيح باہرلا_fd;
 
-  int infd_epoll_events;
-  int outfd_epoll_events;
+  صحيح infd_epoll_events;
+  صحيح outfd_epoll_events;
 };
 
-struct channel_fd_pair *
-channel_fd_pair_new (int in_fd, int out_fd, size_t size)
+بنية channel_fd_pair *
+channel_fd_pair_new (صحيح وچ_fd, صحيح باہرلا_fd, size_t ناپ)
 {
-  struct channel_fd_pair *channel = xmalloc (sizeof (struct channel_fd_pair));
-  channel->in_fd = in_fd;
-  channel->out_fd = out_fd;
+  بنية channel_fd_pair *channel = xmalloc (حجم (بنية channel_fd_pair));
+  channel->وچ_fd = وچ_fd;
+  channel->باہرلا_fd = باہرلا_fd;
   channel->infd_epoll_events = -1;
   channel->outfd_epoll_events = -1;
-  channel->rb = ring_buffer_make (size);
-  return channel;
+  channel->rb = ring_بفر_make (ناپ);
+  أرجع channel;
 }
 
-void
-channel_fd_pair_free (struct channel_fd_pair *channel)
+فراغ
+channel_fd_pair_free (بنية channel_fd_pair *channel)
 {
-  if (channel == NULL)
-    return;
+  إذا (channel == عدم)
+    أرجع;
 
-  ring_buffer_free (channel->rb);
-  free (channel);
+  ring_بفر_free (channel->rb);
+  حرر (channel);
 }
 
-int
-channel_fd_pair_process (struct channel_fd_pair *channel, int epollfd, libcrun_error_t *err)
+صحيح
+channel_fd_pair_process (بنية channel_fd_pair *channel, صحيح epollfd, libcrun_error_t *err)
 {
-  bool is_input_eagain = false, is_output_eagain = false, repeat;
-  int ret, i;
+  bool is_داخلہ_eagain = false, is_output_eagain = false, repeat;
+  صحيح ret, i;
 
   /* This function is called from an epoll loop.  Use a hard limit to avoid infinite loops
      and prevent other events from being processed.  */
-  for (i = 0, repeat = true; i < 1000 && repeat; i++)
+  لكل (i = 0, repeat = true; i < 1000 && repeat; i++)
     {
       repeat = false;
-      if (ring_buffer_get_space_available (channel->rb) > 0)
+      إذا (ring_بفر_get_space_دستیاب (channel->rb) > 0)
         {
-          ret = ring_buffer_read (channel->rb, channel->in_fd, &is_input_eagain, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
-          if (ret > 0)
+          ret = ring_بفر_read (channel->rb, channel->وچ_fd, &is_داخلہ_eagain, err);
+          إذا (UNLIKELY (ret < 0))
+            أرجع ret;
+          إذا (ret > 0)
             repeat = true;
         }
-      if (ring_buffer_get_data_available (channel->rb) > 0)
+      إذا (ring_بفر_get_انکڑے_دستیاب (channel->rb) > 0)
         {
-          ret = ring_buffer_write (channel->rb, channel->out_fd, &is_output_eagain, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
-          if (ret > 0)
+          ret = ring_بفر_write (channel->rb, channel->باہرلا_fd, &is_output_eagain, err);
+          إذا (UNLIKELY (ret < 0))
+            أرجع ret;
+          إذا (ret > 0)
             repeat = true;
         }
     }
 
-  if (epollfd >= 0)
+  إذا (epollfd >= 0)
     {
-      size_t available = ring_buffer_get_space_available (channel->rb);
-      size_t used = ring_buffer_get_data_available (channel->rb);
-      int events;
+      size_t دستیاب = ring_بفر_get_space_دستیاب (channel->rb);
+      size_t ورتیا = ring_بفر_get_انکڑے_دستیاب (channel->rb);
+      صحيح events;
 
       /* If there is space available in the buffer and the output is not
          blocked, we want to read more.  When the output got EAGAIN, stop
          reading until the output fd becomes writable again to avoid a
          busy loop when the consumer is not draining the pipe.  */
-      events = (available > 0 && ! is_output_eagain) ? (EPOLLIN | (is_input_eagain ? EPOLLET : 0)) : 0;
-      if (events != channel->infd_epoll_events)
+      events = (دستیاب > 0 && ! is_output_eagain) ? (EPOLLIN | (is_داخلہ_eagain ? EPOLLET : 0)) : 0;
+      إذا (events != channel->infd_epoll_events)
         {
-          ret = epoll_helper_toggle (epollfd, channel->in_fd, events, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = epoll_helper_toggle (epollfd, channel->وچ_fd, events, err);
+          إذا (UNLIKELY (ret < 0))
+            أرجع ret;
           channel->infd_epoll_events = events;
         }
 
       /* If there is data available in the buffer, we want to write as soon as
          it is possible.  */
-      events = (used > 0) ? (EPOLLOUT | (is_output_eagain ? EPOLLET : 0)) : 0;
-      if (events != channel->outfd_epoll_events)
+      events = (ورتیا > 0) ? (EPOLLOUT | (is_output_eagain ? EPOLLET : 0)) : 0;
+      إذا (events != channel->outfd_epoll_events)
         {
-          ret = epoll_helper_toggle (epollfd, channel->out_fd, events, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = epoll_helper_toggle (epollfd, channel->باہرلا_fd, events, err);
+          إذا (UNLIKELY (ret < 0))
+            أرجع ret;
           channel->outfd_epoll_events = events;
         }
     }
-  return 0;
+  أرجع 0;
 }
 
-static int
+ساكن صحيح
 open_proc (libcrun_error_t *err)
 {
-  int fd;
+  صحيح fd;
 
-#ifdef HAVE_NEW_MOUNT_API
-  cleanup_close int fsfd = -1;
-  int ret;
+#جے_تعریف_شدہ HAVE_NEW_MOUNT_API
+  cleanup_close صحيح fsfd = -1;
+  صحيح ret;
 
   fsfd = syscall_fsopen ("proc", FSOPEN_CLOEXEC);
-  if (fsfd >= 0)
+  إذا (fsfd >= 0)
     {
-      ret = syscall_fsconfig (fsfd, FSCONFIG_CMD_CREATE, NULL, NULL, 0);
-      if (ret >= 0)
+      ret = syscall_fsconfig (fsfd, FSCONFIG_CMD_CREATE, عدم, عدم, 0);
+      إذا (ret >= 0)
         {
           fd = syscall_fsmount (fsfd, FSMOUNT_CLOEXEC, 0);
-          if (fd >= 0)
-            return fd;
+          إذا (fd >= 0)
+            أرجع fd;
         }
     }
-#endif
+#جے_انت
 
-  fd = open ("/proc", O_PATH | O_DIRECTORY | O_CLOEXEC);
-  if (fd < 0)
-    return crun_make_error (err, errno, "open `/proc`");
-  return fd;
+  fd = open ("/proc", O_رستہ | O_DIRECTORY | O_CLOEXEC);
+  إذا (fd < 0)
+    أرجع crun_make_error (err, errno, "open `/proc`");
+  أرجع fd;
 }
 
-int
+صحيح
 libcrun_get_cached_proc_fd (libcrun_container_t *container, libcrun_error_t *err)
 {
-  if (! container)
-    return open_proc (err);
+  إذا (! container)
+    أرجع open_proc (err);
 
-  if (container->proc_fd < 0)
+  إذا (container->proc_fd < 0)
     container->proc_fd = open_proc (err);
 
-  return container->proc_fd;
+  أرجع container->proc_fd;
 }
 
-int
-libcrun_open_proc_file (libcrun_container_t *container, const char *path, int flags, libcrun_error_t *err)
+صحيح
+libcrun_open_proc_file (libcrun_container_t *container, ثابت حرف *رستہ, صحيح flags, libcrun_error_t *err)
 {
-  int proc_fd, fd, saved_errno;
+  صحيح proc_fd, fd, saved_errno;
 
   proc_fd = libcrun_get_cached_proc_fd (container, err);
-  if (proc_fd < 0)
-    return proc_fd;
+  إذا (proc_fd < 0)
+    أرجع proc_fd;
 
-  fd = TEMP_FAILURE_RETRY (openat (proc_fd, path, flags | O_CLOEXEC));
+  fd = عارضی_FAILURE_RETRY (openat (proc_fd, رستہ, flags | O_CLOEXEC));
   saved_errno = errno;
   /* requires closing if not cached */
-  if (! container)
-    TEMP_FAILURE_RETRY (close (proc_fd));
+  إذا (! container)
+    عارضی_FAILURE_RETRY (close (proc_fd));
 
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, saved_errno, "openat `/proc/%s`", path);
+  إذا (UNLIKELY (fd < 0))
+    أرجع crun_make_error (err, saved_errno, "openat `/proc/%s`", رستہ);
 
-  return fd;
+  أرجع fd;
 }
 
-int
-libcrun_open_proc_pid_file (libcrun_container_t *container, pid_t pid, const char *path, int flags, libcrun_error_t *err)
+صحيح
+libcrun_open_proc_pid_file (libcrun_container_t *container, pid_t pid, ثابت حرف *رستہ, صحيح flags, libcrun_error_t *err)
 {
-  cleanup_free char *full_path = NULL;
-  xasprintf (&full_path, "%d/%s", pid, path);
-  return libcrun_open_proc_file (container, full_path, flags, err);
+  cleanup_free حرف *بھریا_رستہ = عدم;
+  xasprintf (&بھریا_رستہ, "%d/%s", pid, رستہ);
+  أرجع libcrun_open_proc_file (container, بھریا_رستہ, flags, err);
 }

@@ -16,29 +16,29 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#تعریف_کرو GNU_سروت
 
-#include <config.h>
-#include "cgroup.h"
-#include "cgroup-internal.h"
-#include "cgroup-systemd.h"
-#include "cgroup-utils.h"
-#include "cgroup-resources.h"
-#include "ebpf.h"
-#include "utils.h"
-#include "status.h"
-#include <string.h>
-#include <sys/types.h>
-#include <sys/vfs.h>
-#include <inttypes.h>
-#include <time.h>
+#ضمن <config.h>
+#ضمن "cgroup.h"
+#ضمن "cgroup-internal.h"
+#ضمن "cgroup-systemd.h"
+#ضمن "cgroup-utils.h"
+#ضمن "cgroup-resources.h"
+#ضمن "ebpf.h"
+#ضمن "utils.h"
+#ضمن "status.h"
+#ضمن <string.h>
+#ضمن <sys/types.h>
+#ضمن <sys/vfs.h>
+#ضمن <inttypes.h>
+#ضمن <time.h>
 
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <libgen.h>
+#ضمن <sys/stat.h>
+#ضمن <sys/types.h>
+#ضمن <fcntl.h>
+#ضمن <libgen.h>
 
-struct default_dev_s default_devices[] = {
+بنية default_dev_s default_devices[] = {
   { 'c', -1, -1, "m" },
   { 'b', -1, -1, "m" },
   { 'c', 1, 3, "rwm" },
@@ -51,831 +51,831 @@ struct default_dev_s default_devices[] = {
   { 'c', 136, -1, "rwm" },
   { 'c', 5, 2, "rwm" },
   { 'c', 10, 200, "rwm" },
-  { 0, 0, 0, NULL }
+  { 0, 0, 0, عدم }
 };
 
-struct default_dev_s *
+بنية default_dev_s *
 get_default_devices ()
 {
-  return default_devices;
+  أرجع default_devices;
 }
 
-static int
-write_cgroup_file_or_alias (int dirfd, const char *name, const char *alias, const void *data, size_t len, libcrun_error_t *err)
+ساكن صحيح
+write_cgroup_file_or_alias (صحيح dirfd, ثابت حرف *name, ثابت حرف *alias, ثابت فراغ *انکڑے, size_t len, libcrun_error_t *err)
 {
-  int ret;
+  صحيح ret;
 
-  ret = write_cgroup_file (dirfd, name, data, len, err);
-  if (UNLIKELY (alias != NULL && ret < 0 && crun_error_get_errno (err) == ENOENT))
+  ret = write_cgroup_file (dirfd, name, انکڑے, len, err);
+  إذا (UNLIKELY (alias != عدم && ret < 0 && crun_error_get_errno (err) == ENOENT))
     {
       crun_error_release (err);
-      ret = write_cgroup_file (dirfd, alias, data, len, err);
+      ret = write_cgroup_file (dirfd, alias, انکڑے, len, err);
     }
-  return ret;
+  أرجع ret;
 }
 
-static inline int
-openat_with_alias (int dirfd, const char *name, const char *alias, const char **used_name, int flags, libcrun_error_t *err)
+ساكن مضمن صحيح
+openat_with_alias (صحيح dirfd, ثابت حرف *name, ثابت حرف *alias, ثابت حرف **ورتیا_name, صحيح flags, libcrun_error_t *err)
 {
-  int ret;
+  صحيح ret;
 
-  *used_name = name;
+  *ورتیا_name = name;
 
   ret = openat (dirfd, name, flags);
-  if (UNLIKELY (ret < 0 && alias != NULL && errno == ENOENT))
+  إذا (UNLIKELY (ret < 0 && alias != عدم && errno == ENOENT))
     {
-      *used_name = alias;
+      *ورتیا_name = alias;
       ret = openat (dirfd, alias, flags);
     }
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "open `%s`", name);
-  return ret;
+  إذا (UNLIKELY (ret < 0))
+    أرجع crun_make_error (err, errno, "open `%s`", name);
+  أرجع ret;
 }
 
-static int
-is_rwm (const char *str, libcrun_error_t *err)
+ساكن صحيح
+is_rwm (ثابت حرف *str, libcrun_error_t *err)
 {
-  const char *it;
+  ثابت حرف *it;
   bool r = false;
   bool w = false;
   bool m = false;
 
-  if (str == NULL)
+  إذا (str == عدم)
     str = "";
 
-  for (it = str; *it; it++)
-    switch (*it)
+  لكل (it = str; *it; it++)
+    بدل (*it)
       {
-      case 'r':
+      حالة 'r':
         r = true;
-        break;
+        اكسر;
 
-      case 'w':
+      حالة 'w':
         w = true;
-        break;
+        اكسر;
 
-      case 'm':
+      حالة 'm':
         m = true;
-        break;
+        اكسر;
 
-      default:
-        return crun_make_error (err, 0, "invalid mode specified `%s`", str);
+      افتراضي:
+        أرجع crun_make_error (err, 0, "invalid mode specified `%s`", str);
       }
 
-  return r && w && m ? 1 : 0;
+  أرجع r && w && m ? 1 : 0;
 }
 
-static int
-check_cgroup_v2_controller_available_wrapper (int ret, int cgroup_dirfd, const char *name, libcrun_error_t *err)
+ساكن صحيح
+check_cgroup_v2_controller_دستیاب_wrapper (صحيح ret, صحيح cgroup_dirfd, ثابت حرف *name, libcrun_error_t *err)
 {
-  if (ret == 0 || err == NULL)
-    return 0;
+  إذا (ret == 0 || err == عدم)
+    أرجع 0;
 
   errno = crun_error_get_errno (err);
 
   /* If the file is not found, try to give a more meaningful error message.  */
-  if (errno == ENOENT || errno == EPERM || errno == EACCES)
+  إذا (errno == ENOENT || errno == EPERM || errno == EACCES)
     {
-      cleanup_free char *controllers = NULL;
-      libcrun_error_t tmp_err = NULL;
-      cleanup_free char *key = NULL;
-      char *saveptr = NULL;
-      bool found = false;
-      const char *token;
-      char *it;
+      cleanup_free حرف *controllers = عدم;
+      libcrun_error_t tmp_err = عدم;
+      cleanup_free حرف *کلید = عدم;
+      حرف *saveptr = عدم;
+      bool لبھیا = false;
+      ثابت حرف *token;
+      حرف *it;
 
       /* Check if the specified controller is enabled.  */
-      key = xstrdup (name);
+      کلید = xstrdup (name);
 
-      it = strchr (key, '.');
-      if (it == NULL)
+      it = strchr (کلید, '.');
+      إذا (it == عدم)
         {
           crun_error_release (err);
-          return crun_make_error (err, 0, "the specified key has not the form CONTROLLER.VALUE `%s`", name);
+          أرجع crun_make_error (err, 0, "the specified key has not the form CONTROLLER.VALUE `%s`", name);
         }
       *it = '\0';
 
       /* cgroup. files are not part of a controller.  Return the original error.  */
-      if (strcmp (key, "cgroup") == 0)
-        return ret;
+      إذا (strcmp (کلید, "cgroup") == 0)
+        أرجع ret;
 
       /* If the cgroup.controllers file cannot be read, return the original error.  */
-      if (read_all_file_at (cgroup_dirfd, "cgroup.controllers", &controllers, NULL, &tmp_err) < 0)
+      إذا (read_all_file_at (cgroup_dirfd, "cgroup.controllers", &controllers, عدم, &tmp_err) < 0)
         {
           crun_error_release (&tmp_err);
-          return ret;
+          أرجع ret;
         }
-      for (token = strtok_r (controllers, " \n", &saveptr); token; token = strtok_r (NULL, " \n", &saveptr))
+      لكل (token = strtok_r (controllers, " \n", &saveptr); token; token = strtok_r (عدم, " \n", &saveptr))
         {
-          if (strcmp (token, key) == 0)
+          إذا (strcmp (token, کلید) == 0)
             {
-              found = true;
-              break;
+              لبھیا = true;
+              اكسر;
             }
         }
-      if (! found)
+      إذا (! لبھیا)
         {
-          cleanup_free char *absolute_path = NULL;
-          libcrun_error_t tmp_err = NULL;
+          cleanup_free حرف *absolute_رستہ = عدم;
+          libcrun_error_t tmp_err = عدم;
 
           crun_error_release (err);
-          ret = get_realpath_to_file (cgroup_dirfd, "cgroup.controllers", &absolute_path, &tmp_err);
-          if (LIKELY (ret >= 0))
-            ret = crun_make_error (err, 0, "controller `%s` is not available under %s", key, absolute_path);
-          else
+          ret = get_realpath_منزل_file (cgroup_dirfd, "cgroup.controllers", &absolute_رستہ, &tmp_err);
+          إذا (LIKELY (ret >= 0))
+            ret = crun_make_error (err, 0, "controller `%s` is not available under %s", کلید, absolute_رستہ);
+          وإلا
             {
               crun_error_release (&tmp_err);
-              ret = crun_make_error (err, 0, "the requested cgroup controller `%s` is not available", key);
+              ret = crun_make_error (err, 0, "the requested cgroup controller `%s` is not available", کلید);
             }
         }
     }
-  return ret;
+  أرجع ret;
 }
 
-static int
-write_file_and_check_controllers_at (bool cgroup2, int dirfd, const char *name, const char *name_alias,
-                                     const void *data, size_t len, libcrun_error_t *err)
+ساكن صحيح
+write_file_and_check_controllers_at (bool cgroup2, صحيح dirfd, ثابت حرف *name, ثابت حرف *name_alias,
+                                     ثابت فراغ *انکڑے, size_t len, libcrun_error_t *err)
 {
-  int ret;
+  صحيح ret;
 
-  ret = write_cgroup_file_or_alias (dirfd, name, name_alias, data, len, err);
-  if (cgroup2)
-    return check_cgroup_v2_controller_available_wrapper (ret, dirfd, name, err);
-  return ret;
+  ret = write_cgroup_file_or_alias (dirfd, name, name_alias, انکڑے, len, err);
+  إذا (cgroup2)
+    أرجع check_cgroup_v2_controller_دستیاب_wrapper (ret, dirfd, name, err);
+  أرجع ret;
 }
 
-static int
-open_file_and_check_controllers_at (bool cgroup2, int dirfd, const char *name, int flags, libcrun_error_t *err)
+ساكن صحيح
+open_file_and_check_controllers_at (bool cgroup2, صحيح dirfd, ثابت حرف *name, صحيح flags, libcrun_error_t *err)
 {
-  int ret;
+  صحيح ret;
 
   ret = openat (dirfd, name, flags);
-  if (UNLIKELY (ret < 0))
+  إذا (UNLIKELY (ret < 0))
     {
       ret = crun_make_error (err, errno, "open `%s`", name);
-      if (cgroup2)
-        return check_cgroup_v2_controller_available_wrapper (ret, dirfd, name, err);
+      إذا (cgroup2)
+        أرجع check_cgroup_v2_controller_دستیاب_wrapper (ret, dirfd, name, err);
     }
-  return ret;
+  أرجع ret;
 }
 
 /* The parser generates different structs but they are really all the same.  */
-typedef runtime_spec_schema_defs_linux_block_io_device_throttle throttling_s;
+تعريفنوع runtime_spec_schema_defs_linux_بلاک_io_device_throttle throttling_s;
 
-static int
-write_blkio_v1_resources_throttling (int dirfd, const char *name, throttling_s **throttling, size_t throttling_len,
+ساكن صحيح
+write_blkio_v1_resources_throttling (صحيح dirfd, ثابت حرف *name, throttling_s **throttling, size_t throttling_len,
                                      libcrun_error_t *err)
 {
-  char fmt_buf[128];
+  حرف fmt_buf[128];
   size_t i;
-  cleanup_close int fd = -1;
+  cleanup_close صحيح fd = -1;
 
-  if (throttling == NULL)
-    return 0;
+  إذا (throttling == عدم)
+    أرجع 0;
 
   fd = openat (dirfd, name, O_WRONLY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s`", name);
+  إذا (UNLIKELY (fd < 0))
+    أرجع crun_make_error (err, errno, "open `%s`", name);
 
-  for (i = 0; i < throttling_len; i++)
+  لكل (i = 0; i < throttling_len; i++)
     {
-      int ret;
-      int len;
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64 ":%" PRIu64 " %" PRIu64 "\n", throttling[i]->major, throttling[i]->minor,
-                      throttling[i]->rate);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      صحيح ret;
+      صحيح len;
+      len = snprintf (fmt_buf, حجم (fmt_buf), "%" PRIu64 ":%" PRIu64 " %" PRIu64 "\n", throttling[i]->major, throttling[i]->minor,
+                      throttling[i]->شرح);
+      إذا (UNLIKELY (len >= (صحيح) حجم (fmt_buf)))
+        أرجع crun_make_error (err, 0, "internal error: static buffer too small");
 
-      ret = TEMP_FAILURE_RETRY (write (fd, fmt_buf, len));
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "write `%s`", name);
+      ret = عارضی_FAILURE_RETRY (اكتب (fd, fmt_buf, len));
+      إذا (UNLIKELY (ret < 0))
+        أرجع crun_make_error (err, errno, "write `%s`", name);
     }
-  return 0;
+  أرجع 0;
 }
 
-static int
-write_blkio_v2_resources_throttling (int fd, const char *name, throttling_s **throttling, size_t throttling_len,
+ساكن صحيح
+write_blkio_v2_resources_throttling (صحيح fd, ثابت حرف *name, throttling_s **throttling, size_t throttling_len,
                                      libcrun_error_t *err)
 {
-  char fmt_buf[128];
+  حرف fmt_buf[128];
   size_t i;
 
-  if (throttling == NULL)
-    return 0;
+  إذا (throttling == عدم)
+    أرجع 0;
 
-  for (i = 0; i < throttling_len; i++)
+  لكل (i = 0; i < throttling_len; i++)
     {
-      int ret;
-      int len;
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64 ":%" PRIu64 " %s=%" PRIu64 "\n", throttling[i]->major, throttling[i]->minor,
-                      name, throttling[i]->rate);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      صحيح ret;
+      صحيح len;
+      len = snprintf (fmt_buf, حجم (fmt_buf), "%" PRIu64 ":%" PRIu64 " %s=%" PRIu64 "\n", throttling[i]->major, throttling[i]->minor,
+                      name, throttling[i]->شرح);
+      إذا (UNLIKELY (len >= (صحيح) حجم (fmt_buf)))
+        أرجع crun_make_error (err, 0, "internal error: static buffer too small");
 
-      ret = TEMP_FAILURE_RETRY (write (fd, fmt_buf, len));
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "write `%s`", name);
+      ret = عارضی_FAILURE_RETRY (اكتب (fd, fmt_buf, len));
+      إذا (UNLIKELY (ret < 0))
+        أرجع crun_make_error (err, errno, "write `%s`", name);
     }
-  return 0;
+  أرجع 0;
 }
 
-static int
-write_blkio_resources (int dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_block_io *blkio,
+ساكن صحيح
+write_blkio_resources (صحيح dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_بلاک_io *blkio,
                        libcrun_error_t *err)
 {
-  char fmt_buf[128];
-  int len;
-  int ret;
+  حرف fmt_buf[128];
+  صحيح len;
+  صحيح ret;
 
-  if (blkio->weight)
+  إذا (blkio->بھار)
     {
-      uint32_t val = blkio->weight;
+      uint32_t val = blkio->بھار;
 
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu32, val);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
-      if (! cgroup2)
+      len = snprintf (fmt_buf, حجم (fmt_buf), "%" PRIu32, val);
+      إذا (UNLIKELY (len >= (صحيح) حجم (fmt_buf)))
+        أرجع crun_make_error (err, 0, "internal error: static buffer too small");
+      إذا (! cgroup2)
         {
           ret = write_cgroup_file_or_alias (dirfd, "blkio.weight", "blkio.bfq.weight", fmt_buf, len, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          إذا (UNLIKELY (ret < 0))
+            أرجع ret;
         }
-      else
+      وإلا
         {
           ret = write_cgroup_file (dirfd, "io.bfq.weight", fmt_buf, len, err);
-          if (UNLIKELY (ret < 0))
+          إذا (UNLIKELY (ret < 0))
             {
-              if (crun_error_get_errno (err) == ENOENT)
+              إذا (crun_error_get_errno (err) == ENOENT)
                 {
                   crun_error_release (err);
 
                   /* convert linearly from [10-1000] to [1-10000] */
                   val = 1 + (val - 10) * 9999 / 990;
 
-                  len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu32, val);
-                  if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-                    return crun_make_error (err, 0, "internal error: static buffer too small");
+                  len = snprintf (fmt_buf, حجم (fmt_buf), "%" PRIu32, val);
+                  إذا (UNLIKELY (len >= (صحيح) حجم (fmt_buf)))
+                    أرجع crun_make_error (err, 0, "internal error: static buffer too small");
 
                   ret = write_cgroup_file (dirfd, "io.weight", fmt_buf, len, err);
                 }
 
-              if (UNLIKELY (ret < 0))
-                return ret;
+              إذا (UNLIKELY (ret < 0))
+                أرجع ret;
             }
         }
     }
-  if (blkio->leaf_weight)
+  إذا (blkio->پتی_بھار)
     {
-      if (cgroup2)
-        return crun_make_error (err, 0, "cannot set leaf_weight with cgroupv2");
+      إذا (cgroup2)
+        أرجع crun_make_error (err, 0, "cannot set leaf_weight with cgroupv2");
 
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%d", blkio->leaf_weight);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, حجم (fmt_buf), "%d", blkio->پتی_بھار);
+      إذا (UNLIKELY (len >= (صحيح) حجم (fmt_buf)))
+        أرجع crun_make_error (err, 0, "internal error: static buffer too small");
 
       ret = write_cgroup_file (dirfd, "blkio.leaf_weight", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
-  if (blkio->weight_device_len)
+  إذا (blkio->بھار_device_len)
     {
-      if (cgroup2)
+      إذا (cgroup2)
         {
-          cleanup_close int wfd = -1;
+          cleanup_close صحيح wfd = -1;
           size_t i;
 
           wfd = openat (dirfd, "io.bfq.weight", O_WRONLY | O_CLOEXEC);
-          if (UNLIKELY (wfd < 0))
-            return crun_make_error (err, errno, "open `io.bfq.weight`");
-          for (i = 0; i < blkio->weight_device_len; i++)
+          إذا (UNLIKELY (wfd < 0))
+            أرجع crun_make_error (err, errno, "open `io.bfq.weight`");
+          لكل (i = 0; i < blkio->بھار_device_len; i++)
             {
-              uint32_t w = blkio->weight_device[i]->weight;
+              uint32_t w = blkio->بھار_device[i]->بھار;
 
-              len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64 ":%" PRIu64 " %i\n", blkio->weight_device[i]->major,
-                              blkio->weight_device[i]->minor, w);
-              if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-                return crun_make_error (err, 0, "internal error: static buffer too small");
+              len = snprintf (fmt_buf, حجم (fmt_buf), "%" PRIu64 ":%" PRIu64 " %i\n", blkio->بھار_device[i]->major,
+                              blkio->بھار_device[i]->minor, w);
+              إذا (UNLIKELY (len >= (صحيح) حجم (fmt_buf)))
+                أرجع crun_make_error (err, 0, "internal error: static buffer too small");
 
-              ret = TEMP_FAILURE_RETRY (write (wfd, fmt_buf, len));
-              if (UNLIKELY (ret < 0))
-                return crun_make_error (err, errno, "write `io.bfq.weight`");
+              ret = عارضی_FAILURE_RETRY (اكتب (wfd, fmt_buf, len));
+              إذا (UNLIKELY (ret < 0))
+                أرجع crun_make_error (err, errno, "write `io.bfq.weight`");
 
               /* Ignore blkio->weight_device[i]->leaf_weight.  */
             }
         }
-      else
+      وإلا
         {
-          const char *leaf_weight_device_file_name = NULL;
-          const char *weight_device_file_name = NULL;
-          cleanup_close int w_leafdevice_fd = -1;
-          cleanup_close int w_device_fd = -1;
+          ثابت حرف *پتی_بھار_device_file_name = عدم;
+          ثابت حرف *بھار_device_file_name = عدم;
+          cleanup_close صحيح w_leafdevice_fd = -1;
+          cleanup_close صحيح w_device_fd = -1;
           size_t i;
 
           w_device_fd = openat_with_alias (dirfd, "blkio.weight_device", "blkio.bfq.weight_device",
-                                           &weight_device_file_name, O_WRONLY | O_CLOEXEC, err);
-          if (UNLIKELY (w_device_fd < 0))
-            return w_device_fd;
+                                           &بھار_device_file_name, O_WRONLY | O_CLOEXEC, err);
+          إذا (UNLIKELY (w_device_fd < 0))
+            أرجع w_device_fd;
 
           w_leafdevice_fd = openat_with_alias (dirfd, "blkio.leaf_weight_device", "blkio.bfq.leaf_weight_device",
-                                               &leaf_weight_device_file_name, O_WRONLY | O_CLOEXEC, err);
-          if (UNLIKELY (w_leafdevice_fd < 0))
+                                               &پتی_بھار_device_file_name, O_WRONLY | O_CLOEXEC, err);
+          إذا (UNLIKELY (w_leafdevice_fd < 0))
             {
               /* If the .leaf_weight_device file is missing, just ignore it.  */
               crun_error_release (err);
             }
 
-          for (i = 0; i < blkio->weight_device_len; i++)
+          لكل (i = 0; i < blkio->بھار_device_len; i++)
             {
-              len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64 ":%" PRIu64 " %" PRIu16 "\n", blkio->weight_device[i]->major,
-                              blkio->weight_device[i]->minor, blkio->weight_device[i]->weight);
-              if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-                return crun_make_error (err, 0, "internal error: static buffer too small");
+              len = snprintf (fmt_buf, حجم (fmt_buf), "%" PRIu64 ":%" PRIu64 " %" PRIu16 "\n", blkio->بھار_device[i]->major,
+                              blkio->بھار_device[i]->minor, blkio->بھار_device[i]->بھار);
+              إذا (UNLIKELY (len >= (صحيح) حجم (fmt_buf)))
+                أرجع crun_make_error (err, 0, "internal error: static buffer too small");
 
-              ret = TEMP_FAILURE_RETRY (write (w_device_fd, fmt_buf, len));
-              if (UNLIKELY (ret < 0))
-                return crun_make_error (err, errno, "write `%s`", weight_device_file_name);
+              ret = عارضی_FAILURE_RETRY (اكتب (w_device_fd, fmt_buf, len));
+              إذا (UNLIKELY (ret < 0))
+                أرجع crun_make_error (err, errno, "write `%s`", بھار_device_file_name);
 
-              if (w_leafdevice_fd >= 0)
+              إذا (w_leafdevice_fd >= 0)
                 {
-                  len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64 ":%" PRIu64 " %" PRIu16 "\n", blkio->weight_device[i]->major,
-                                  blkio->weight_device[i]->minor, blkio->weight_device[i]->leaf_weight);
-                  if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-                    return crun_make_error (err, 0, "internal error: static buffer too small");
+                  len = snprintf (fmt_buf, حجم (fmt_buf), "%" PRIu64 ":%" PRIu64 " %" PRIu16 "\n", blkio->بھار_device[i]->major,
+                                  blkio->بھار_device[i]->minor, blkio->بھار_device[i]->پتی_بھار);
+                  إذا (UNLIKELY (len >= (صحيح) حجم (fmt_buf)))
+                    أرجع crun_make_error (err, 0, "internal error: static buffer too small");
 
-                  ret = TEMP_FAILURE_RETRY (write (w_leafdevice_fd, fmt_buf, len));
-                  if (UNLIKELY (ret < 0))
-                    return crun_make_error (err, errno, "write `%s`", leaf_weight_device_file_name);
+                  ret = عارضی_FAILURE_RETRY (اكتب (w_leafdevice_fd, fmt_buf, len));
+                  إذا (UNLIKELY (ret < 0))
+                    أرجع crun_make_error (err, errno, "write `%s`", پتی_بھار_device_file_name);
                 }
             }
         }
     }
-  if (cgroup2)
+  إذا (cgroup2)
     {
-      cleanup_close int wfd = -1;
-      const char *name = "io.max";
+      cleanup_close صحيح wfd = -1;
+      ثابت حرف *name = "io.max";
 
       wfd = openat (dirfd, name, O_WRONLY | O_CLOEXEC);
-      if (UNLIKELY (wfd < 0))
+      إذا (UNLIKELY (wfd < 0))
         {
           ret = crun_make_error (err, errno, "open `%s`", name);
-          return check_cgroup_v2_controller_available_wrapper (ret, dirfd, name, err);
+          أرجع check_cgroup_v2_controller_دستیاب_wrapper (ret, dirfd, name, err);
         }
 
       ret = write_blkio_v2_resources_throttling (wfd, "rbps", (throttling_s **) blkio->throttle_read_bps_device,
                                                  blkio->throttle_read_bps_device_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
 
       ret = write_blkio_v2_resources_throttling (wfd, "wbps", (throttling_s **) blkio->throttle_write_bps_device,
                                                  blkio->throttle_write_bps_device_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
 
       ret = write_blkio_v2_resources_throttling (wfd, "riops", (throttling_s **) blkio->throttle_read_iops_device,
                                                  blkio->throttle_read_iops_device_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
 
       ret = write_blkio_v2_resources_throttling (wfd, "wiops", (throttling_s **) blkio->throttle_write_iops_device,
                                                  blkio->throttle_write_iops_device_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
-  else
+  وإلا
     {
       ret = write_blkio_v1_resources_throttling (dirfd, "blkio.throttle.read_bps_device",
                                                  (throttling_s **) blkio->throttle_read_bps_device,
                                                  blkio->throttle_read_bps_device_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
 
       ret = write_blkio_v1_resources_throttling (dirfd, "blkio.throttle.write_bps_device",
                                                  (throttling_s **) blkio->throttle_write_bps_device,
                                                  blkio->throttle_write_bps_device_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
 
       ret = write_blkio_v1_resources_throttling (dirfd, "blkio.throttle.read_iops_device",
                                                  (throttling_s **) blkio->throttle_read_iops_device,
                                                  blkio->throttle_read_iops_device_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
 
       ret = write_blkio_v1_resources_throttling (dirfd, "blkio.throttle.write_iops_device",
                                                  (throttling_s **) blkio->throttle_write_iops_device,
                                                  blkio->throttle_write_iops_device_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
-  return 0;
+  أرجع 0;
 }
 
-static int
-write_network_resources (int dirfd_netclass, int dirfd_netprio, runtime_spec_schema_config_linux_resources_network *net,
+ساكن صحيح
+write_جال_resources (صحيح dirfd_netclass, صحيح dirfd_netprio, runtime_spec_schema_config_linux_resources_جال *net,
                          libcrun_error_t *err)
 {
-  char fmt_buf[128];
-  int len;
-  int ret;
-  if (net->class_id)
+  حرف fmt_buf[128];
+  صحيح len;
+  صحيح ret;
+  إذا (net->class_id)
     {
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu32, net->class_id);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, حجم (fmt_buf), "%" PRIu32, net->class_id);
+      إذا (UNLIKELY (len >= (صحيح) حجم (fmt_buf)))
+        أرجع crun_make_error (err, 0, "internal error: static buffer too small");
 
       ret = write_cgroup_file (dirfd_netclass, "net_cls.classid", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
-  if (net->priorities_len)
+  إذا (net->priorities_len)
     {
       size_t i;
-      cleanup_close int fd = -1;
+      cleanup_close صحيح fd = -1;
       fd = openat (dirfd_netprio, "net_prio.ifpriomap", O_WRONLY | O_CLOEXEC);
-      if (UNLIKELY (fd < 0))
-        return crun_make_error (err, errno, "open `net_prio.ifpriomap`");
+      إذا (UNLIKELY (fd < 0))
+        أرجع crun_make_error (err, errno, "open `net_prio.ifpriomap`");
 
-      for (i = 0; i < net->priorities_len; i++)
+      لكل (i = 0; i < net->priorities_len; i++)
         {
-          len = snprintf (fmt_buf, sizeof (fmt_buf), "%s %" PRIu32 "\n", net->priorities[i]->name,
-                          net->priorities[i]->priority);
-          if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-            return crun_make_error (err, 0, "internal error: static buffer too small");
+          len = snprintf (fmt_buf, حجم (fmt_buf), "%s %" PRIu32 "\n", net->priorities[i]->name,
+                          net->priorities[i]->ترجیح);
+          إذا (UNLIKELY (len >= (صحيح) حجم (fmt_buf)))
+            أرجع crun_make_error (err, 0, "internal error: static buffer too small");
 
-          ret = TEMP_FAILURE_RETRY (write (fd, fmt_buf, len));
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "write `net_prio.ifpriomap`");
+          ret = عارضی_FAILURE_RETRY (اكتب (fd, fmt_buf, len));
+          إذا (UNLIKELY (ret < 0))
+            أرجع crun_make_error (err, errno, "write `net_prio.ifpriomap`");
         }
     }
 
-  return 0;
+  أرجع 0;
 }
 
-static int
-write_hugetlb_resources (int dirfd, bool cgroup2,
+ساكن صحيح
+write_hugetlb_resources (صحيح dirfd, bool cgroup2,
                          runtime_spec_schema_config_linux_resources_hugepage_limits_element **htlb, size_t htlb_len,
                          libcrun_error_t *err)
 {
-  const char *suffix = cgroup2 ? "max" : "limit_in_bytes";
+  ثابت حرف *suffix = cgroup2 ? "max" : "limit_in_bytes";
   bool skip_rsvd = false;
-  char fmt_buf[128];
+  حرف fmt_buf[128];
   size_t i;
-  for (i = 0; i < htlb_len; i++)
+  لكل (i = 0; i < htlb_len; i++)
     {
-      cleanup_free char *filename = NULL;
-      cleanup_free char *rsvd_filename = NULL;
-      int len;
-      int ret;
+      cleanup_free حرف *filename = عدم;
+      cleanup_free حرف *rsvd_filename = عدم;
+      صحيح len;
+      صحيح ret;
 
-      xasprintf (&filename, "hugetlb.%s.%s", htlb[i]->page_size, suffix);
+      xasprintf (&filename, "hugetlb.%s.%s", htlb[i]->ورقہ_ناپ, suffix);
 
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, htlb[i]->limit);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
-      ret = write_file_and_check_controllers_at (cgroup2, dirfd, filename, NULL, fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      len = snprintf (fmt_buf, حجم (fmt_buf), "%" PRIu64, htlb[i]->حد_بندی);
+      إذا (UNLIKELY (len >= (صحيح) حجم (fmt_buf)))
+        أرجع crun_make_error (err, 0, "internal error: static buffer too small");
+      ret = write_file_and_check_controllers_at (cgroup2, dirfd, filename, عدم, fmt_buf, len, err);
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
 
-      if (skip_rsvd)
-        continue;
+      إذا (skip_rsvd)
+        استمر;
 
       /* Reservation accounting (Linux >= 5.7) is used when available.  */
-      xasprintf (&rsvd_filename, "hugetlb.%s.rsvd.%s", htlb[i]->page_size, suffix);
+      xasprintf (&rsvd_filename, "hugetlb.%s.rsvd.%s", htlb[i]->ورقہ_ناپ, suffix);
       ret = write_cgroup_file (dirfd, rsvd_filename, fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
+      إذا (UNLIKELY (ret < 0))
         {
-          if (crun_error_get_errno (err) != ENOENT)
-            return ret;
+          إذا (crun_error_get_errno (err) != ENOENT)
+            أرجع ret;
           crun_error_release (err);
           skip_rsvd = true;
         }
     }
-  return 0;
+  أرجع 0;
 }
 
-static int
-write_devices_resources_v1 (int dirfd, runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
+ساكن صحيح
+write_devices_resources_v1 (صحيح dirfd, runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
                             libcrun_error_t *err)
 {
   size_t i;
-  int len;
-  int ret;
+  صحيح len;
+  صحيح ret;
 
-  for (i = 0; i < devs_len; i++)
+  لكل (i = 0; i < devs_len; i++)
     {
       /* It is plenty of room for "TYPE MAJOR:MINOR ACCESS", where type is one char, and ACCESS is at most 3.   */
-#define FMT_BUF_LEN 64
-      char fmt_buf[FMT_BUF_LEN];
-      const char *file = devs[i]->allow ? "devices.allow" : "devices.deny";
+#تعریف_کرو FMT_BUF_LEN 64
+      حرف fmt_buf[FMT_BUF_LEN];
+      ثابت حرف *file = devs[i]->allow ? "devices.allow" : "devices.deny";
 
-      if (devs[i]->type == NULL || devs[i]->type[0] == 'a')
+      إذا (devs[i]->type == عدم || devs[i]->type[0] == 'a')
         {
           strcpy (fmt_buf, "a");
           len = 1;
         }
-      else
+      وإلا
         {
-          char fmt_buf_major[16];
-          char fmt_buf_minor[16];
+          حرف fmt_buf_major[16];
+          حرف fmt_buf_minor[16];
 
-#define FMT_DEV(x, b)                                                                   \
-  do                                                                                    \
+#تعریف_کرو FMT_DEV(x, b)                                                                   \
+  افعل                                                                                    \
     {                                                                                   \
-      if (x##_present)                                                                  \
+      إذا (x##_present)                                                                  \
         {                                                                               \
-          len = snprintf (b, sizeof (b), "%" PRIi64, x);                                \
-          if (UNLIKELY (len >= (int) sizeof (b)))                                       \
-            return crun_make_error (err, 0, "internal error: static buffer too small"); \
+          len = snprintf (b, حجم (b), "%" PRIi64, x);                                \
+          إذا (UNLIKELY (len >= (صحيح) حجم (b)))                                       \
+            أرجع crun_make_error (err, 0, "internal error: static buffer too small"); \
         }                                                                               \
-      else                                                                              \
+      وإلا                                                                              \
         strcpy (b, "*");                                                                \
-  } while (0)
+  } طالما (0)
 
           FMT_DEV (devs[i]->major, fmt_buf_major);
           FMT_DEV (devs[i]->minor, fmt_buf_minor);
-#undef FMT_DEV
+#تعریف_رد FMT_DEV
 
           /* `access` is optional, and libocispec leaves it NULL when it is not
              specified.  Printing a NULL pointer with %s is undefined.  */
           len = snprintf (fmt_buf, FMT_BUF_LEN, "%s %s:%s %s", devs[i]->type, fmt_buf_major, fmt_buf_minor,
                           devs[i]->access ? devs[i]->access : "");
-          if (UNLIKELY (len >= FMT_BUF_LEN))
-            return crun_make_error (err, 0, "internal error: static buffer too small");
+          إذا (UNLIKELY (len >= FMT_BUF_LEN))
+            أرجع crun_make_error (err, 0, "internal error: static buffer too small");
         }
       ret = write_cgroup_file (dirfd, file, fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
 
-  for (i = 0; default_devices[i].type; i++)
+  لكل (i = 0; default_devices[i].type; i++)
     {
-      char fmt_buf_major[16];
-      char fmt_buf_minor[16];
-      char device[64];
-      int len;
+      حرف fmt_buf_major[16];
+      حرف fmt_buf_minor[16];
+      حرف device[64];
+      صحيح len;
 
-#define FMT_DEV(x, b)                                                                   \
-  do                                                                                    \
+#تعریف_کرو FMT_DEV(x, b)                                                                   \
+  افعل                                                                                    \
     {                                                                                   \
-      if (x != -1)                                                                      \
+      إذا (x != -1)                                                                      \
         {                                                                               \
-          len = snprintf (b, sizeof (b), "%d", x);                                      \
-          if (UNLIKELY (len >= (int) sizeof (b)))                                       \
-            return crun_make_error (err, 0, "internal error: static buffer too small"); \
+          len = snprintf (b, حجم (b), "%d", x);                                      \
+          إذا (UNLIKELY (len >= (صحيح) حجم (b)))                                       \
+            أرجع crun_make_error (err, 0, "internal error: static buffer too small"); \
         }                                                                               \
-      else                                                                              \
+      وإلا                                                                              \
         strcpy (b, "*");                                                                \
-  } while (0)
+  } طالما (0)
 
       FMT_DEV (default_devices[i].major, fmt_buf_major);
       FMT_DEV (default_devices[i].minor, fmt_buf_minor);
 
-#undef FMT_DEV
+#تعریف_رد FMT_DEV
 
-      len = snprintf (device, sizeof (device), "%c %s:%s %s", default_devices[i].type, fmt_buf_major, fmt_buf_minor,
+      len = snprintf (device, حجم (device), "%c %s:%s %s", default_devices[i].type, fmt_buf_major, fmt_buf_minor,
                       default_devices[i].access);
-      if (UNLIKELY (len >= (int) sizeof (device)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      إذا (UNLIKELY (len >= (صحيح) حجم (device)))
+        أرجع crun_make_error (err, 0, "internal error: static buffer too small");
 
-      ret = write_cgroup_file (dirfd, "devices.allow", device, strlen (device), err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = write_cgroup_file (dirfd, "devices.allow", device, لڑی_لمبائی (device), err);
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
 
-  return 0;
+  أرجع 0;
 }
 
-struct bpf_program *
+بنية bpf_پروگرام *
 create_dev_bpf (runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
                 libcrun_error_t *err)
 {
-  int i;
-  struct bpf_program *program;
+  صحيح i;
+  بنية bpf_پروگرام *پروگرام;
 
-  program = bpf_program_new (2048);
+  پروگرام = bpf_پروگرام_new (2048);
 
-  program = bpf_program_init_dev (program, err);
-  if (UNLIKELY (program == NULL))
-    return NULL;
+  پروگرام = bpf_پروگرام_init_dev (پروگرام, err);
+  إذا (UNLIKELY (پروگرام == عدم))
+    أرجع عدم;
 
-  for (i = (sizeof (default_devices) / sizeof (default_devices[0])) - 1; i >= 0; i--)
+  لكل (i = (حجم (default_devices) / حجم (default_devices[0])) - 1; i >= 0; i--)
     {
-      program = bpf_program_append_dev (program, default_devices[i].access, default_devices[i].type,
+      پروگرام = bpf_پروگرام_append_dev (پروگرام, default_devices[i].access, default_devices[i].type,
                                         default_devices[i].major, default_devices[i].minor, true, err);
-      if (UNLIKELY (program == NULL))
-        return NULL;
+      إذا (UNLIKELY (پروگرام == عدم))
+        أرجع عدم;
     }
-  for (i = devs_len - 1; i >= 0; i--)
+  لكل (i = devs_len - 1; i >= 0; i--)
     {
-      char type = 'a';
-      int minor = -1, major = -1;
-      if (devs[i]->type != NULL)
+      حرف type = 'a';
+      صحيح minor = -1, major = -1;
+      إذا (devs[i]->type != عدم)
         type = devs[i]->type[0];
 
-      if (devs[i]->major_present)
+      إذا (devs[i]->major_present)
         major = devs[i]->major;
-      if (devs[i]->minor_present)
+      إذا (devs[i]->minor_present)
         minor = devs[i]->minor;
 
-      program = bpf_program_append_dev (program, devs[i]->access, type, major, minor, devs[i]->allow, err);
-      if (UNLIKELY (program == NULL))
-        return NULL;
+      پروگرام = bpf_پروگرام_append_dev (پروگرام, devs[i]->access, type, major, minor, devs[i]->allow, err);
+      إذا (UNLIKELY (پروگرام == عدم))
+        أرجع عدم;
     }
 
-  program = bpf_program_complete_dev (program, err);
-  if (UNLIKELY (program == NULL))
-    return NULL;
+  پروگرام = bpf_پروگرام_complete_dev (پروگرام, err);
+  إذا (UNLIKELY (پروگرام == عدم))
+    أرجع عدم;
 
-  return program;
+  أرجع پروگرام;
 }
 
-static int
-write_devices_resources_v2_internal (int dirfd, runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
+ساكن صحيح
+write_devices_resources_v2_اندرونی (صحيح dirfd, runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
                                      libcrun_error_t *err)
 {
-  cleanup_free struct bpf_program *program = NULL;
+  cleanup_free بنية bpf_پروگرام *پروگرام = عدم;
 
-  program = create_dev_bpf (devs, devs_len, err);
-  if (UNLIKELY (program == NULL))
-    return -1;
+  پروگرام = create_dev_bpf (devs, devs_len, err);
+  إذا (UNLIKELY (پروگرام == عدم))
+    أرجع -1;
 
-  return libcrun_ebpf_load (program, dirfd, NULL, err);
+  أرجع libcrun_ebpf_لدو (پروگرام, dirfd, عدم, err);
 }
 
-static int
-write_devices_resources_v2 (int dirfd, runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
+ساكن صحيح
+write_devices_resources_v2 (صحيح dirfd, runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
                             libcrun_error_t *err)
 {
-  int ret;
+  صحيح ret;
   size_t i;
   bool can_skip = true;
 
-  ret = write_devices_resources_v2_internal (dirfd, devs, devs_len, err);
-  if (LIKELY (ret == 0))
-    return 0;
+  ret = write_devices_resources_v2_اندرونی (dirfd, devs, devs_len, err);
+  إذا (LIKELY (ret == 0))
+    أرجع 0;
 
   /* If writing the resources ebpf failed, check if it is fine to ignore the error.  */
-  for (i = 0; i < devs_len; i++)
+  لكل (i = 0; i < devs_len; i++)
     {
-      if (devs[i]->allow_present && ! devs[i]->allow)
+      إذا (devs[i]->allow_present && ! devs[i]->allow)
         {
           can_skip = false;
-          break;
+          اكسر;
         }
     }
 
-  if (! can_skip)
+  إذا (! can_skip)
     {
-      libcrun_error_t tmp_err = NULL;
-      int rootless;
+      libcrun_error_t tmp_err = عدم;
+      صحيح rootless;
 
       rootless = is_rootless (&tmp_err);
-      if (UNLIKELY (rootless < 0))
+      إذا (UNLIKELY (rootless < 0))
         {
           crun_error_release (err);
           *err = tmp_err;
-          return ret;
+          أرجع ret;
         }
-      if (rootless)
+      إذا (rootless)
         can_skip = true;
     }
 
-  if (can_skip)
+  إذا (can_skip)
     {
       crun_error_release (err);
       ret = 0;
     }
 
-  return ret;
+  أرجع ret;
 }
 
-static int
-write_devices_resources (int dirfd, bool cgroup2, runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
+ساكن صحيح
+write_devices_resources (صحيح dirfd, bool cgroup2, runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
                          libcrun_error_t *err)
 {
-  int ret;
+  صحيح ret;
 
-  if (cgroup2)
+  إذا (cgroup2)
     ret = write_devices_resources_v2 (dirfd, devs, devs_len, err);
-  else
+  وإلا
     ret = write_devices_resources_v1 (dirfd, devs, devs_len, err);
-  if (UNLIKELY (ret < 0))
+  إذا (UNLIKELY (ret < 0))
     {
-      libcrun_error_t tmp_err = NULL;
-      int rootless;
+      libcrun_error_t tmp_err = عدم;
+      صحيح rootless;
 
       rootless = is_rootless (&tmp_err);
-      if (UNLIKELY (rootless < 0))
+      إذا (UNLIKELY (rootless < 0))
         {
           crun_error_release (&tmp_err);
-          return ret;
+          أرجع ret;
         }
 
-      if (rootless)
+      إذا (rootless)
         {
           crun_error_release (err);
           ret = 0;
         }
     }
-  return ret;
+  أرجع ret;
 }
 
 /* use for cgroupv2 files with .min, .max, .low, or .high suffix */
-static int
-cg_itoa (char *buf, size_t size, int64_t value, bool use_max, libcrun_error_t *err)
+ساكن صحيح
+cg_itoa (حرف *buf, size_t ناپ, int64_t قدر, bool use_max, libcrun_error_t *err)
 {
-  int len;
+  صحيح len;
 
-  if (use_max && value < 0)
-    len = snprintf (buf, size, "max");
-  else
-    len = snprintf (buf, size, "%" PRIi64, value);
+  إذا (use_max && قدر < 0)
+    len = snprintf (buf, ناپ, "max");
+  وإلا
+    len = snprintf (buf, ناپ, "%" PRIi64, قدر);
 
-  if (UNLIKELY (len >= (int) size))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  إذا (UNLIKELY (len >= (صحيح) ناپ))
+    أرجع crun_make_error (err, 0, "internal error: static buffer too small");
 
-  return len;
+  أرجع len;
 }
 
-static int
-write_memory (int dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_memory *memory, libcrun_error_t *err)
+ساكن صحيح
+write_حافظہ (صحيح dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_حافظہ *حافظہ, libcrun_error_t *err)
 {
-  char limit_buf[32];
-  int limit_buf_len;
+  حرف حد_بندی_buf[32];
+  صحيح حد_بندی_buf_len;
 
-  if (! memory->limit_present)
-    return 0;
+  إذا (! حافظہ->حد_بندی_present)
+    أرجع 0;
 
-  limit_buf_len = cg_itoa (limit_buf, sizeof (limit_buf), memory->limit, cgroup2, err);
-  if (UNLIKELY (limit_buf_len < 0))
-    return limit_buf_len;
+  حد_بندی_buf_len = cg_itoa (حد_بندی_buf, حجم (حد_بندی_buf), حافظہ->حد_بندی, cgroup2, err);
+  إذا (UNLIKELY (حد_بندی_buf_len < 0))
+    أرجع حد_بندی_buf_len;
 
-  return write_cgroup_file (dirfd, cgroup2 ? "memory.max" : "memory.limit_in_bytes", limit_buf, limit_buf_len, err);
+  أرجع write_cgroup_file (dirfd, cgroup2 ? "memory.max" : "memory.limit_in_bytes", حد_بندی_buf, حد_بندی_buf_len, err);
 }
 
-static int
-write_memory_swap (int dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_memory *memory,
+ساكن صحيح
+write_حافظہ_وٹاندرا (صحيح dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_حافظہ *حافظہ,
                    libcrun_error_t *err)
 {
-  int ret;
-  int64_t swap;
-  char swap_buf[32];
-  int len;
-  const char *fname = cgroup2 ? "memory.swap.max" : "memory.memsw.limit_in_bytes";
+  صحيح ret;
+  int64_t وٹاندرا;
+  حرف وٹاندرا_buf[32];
+  صحيح len;
+  ثابت حرف *fname = cgroup2 ? "memory.swap.max" : "memory.memsw.limit_in_bytes";
 
-  if (! memory->swap_present)
-    return 0;
+  إذا (! حافظہ->وٹاندرا_present)
+    أرجع 0;
 
-  swap = memory->swap;
+  وٹاندرا = حافظہ->وٹاندرا;
   // Cgroupv2 apply limit must check if swap > 0, since `0` and `-1` are special case
   // 0: This means process will not be able to use any swap space.
   // -1: This means that the process can use as much swap as it needs.
-  if (cgroup2 && memory->swap > 0)
+  إذا (cgroup2 && حافظہ->وٹاندرا > 0)
     {
-      if (! memory->limit_present)
-        return crun_make_error (err, 0, "cannot set swap limit without the memory limit");
-      if (memory->swap < memory->limit)
-        return crun_make_error (err, 0, "cannot set memory+swap limit less than the memory limit");
+      إذا (! حافظہ->حد_بندی_present)
+        أرجع crun_make_error (err, 0, "cannot set swap limit without the memory limit");
+      إذا (حافظہ->وٹاندرا < حافظہ->حد_بندی)
+        أرجع crun_make_error (err, 0, "cannot set memory+swap limit less than the memory limit");
 
-      swap -= memory->limit;
+      وٹاندرا -= حافظہ->حد_بندی;
     }
 
-  len = cg_itoa (swap_buf, sizeof (swap_buf), swap, cgroup2, err);
-  if (UNLIKELY (len < 0))
-    return len;
+  len = cg_itoa (وٹاندرا_buf, حجم (وٹاندرا_buf), وٹاندرا, cgroup2, err);
+  إذا (UNLIKELY (len < 0))
+    أرجع len;
 
-  ret = write_cgroup_file (dirfd, fname, swap_buf, len, err);
-  if (ret >= 0)
-    return ret;
+  ret = write_cgroup_file (dirfd, fname, وٹاندرا_buf, len, err);
+  إذا (ret >= 0)
+    أرجع ret;
 
   /* If swap is not enabled, ignore the error.  */
-  if (crun_error_get_errno (err) == ENOENT)
+  إذا (crun_error_get_errno (err) == ENOENT)
     {
       crun_error_release (err);
-      return 0;
+      أرجع 0;
     }
 
-  return ret;
+  أرجع ret;
 }
 
-static int
-write_memory_resources (int dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_memory *memory,
+ساكن صحيح
+write_حافظہ_resources (صحيح dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_حافظہ *حافظہ,
                         libcrun_error_t *err)
 {
-  int len;
-  int ret;
-  char fmt_buf[32];
-  bool memory_limits_written = false;
+  صحيح len;
+  صحيح ret;
+  حرف fmt_buf[32];
+  bool حافظہ_limits_written = false;
 
-  if (memory->limit_present)
+  إذا (حافظہ->حد_بندی_present)
     {
-      ret = write_memory (dirfd, cgroup2, memory, err);
-      if (ret >= 0)
-        memory_limits_written = true;
-      else
+      ret = write_حافظہ (dirfd, cgroup2, حافظہ, err);
+      إذا (ret >= 0)
+        حافظہ_limits_written = true;
+      وإلا
         {
-          if (cgroup2 || crun_error_get_errno (err) != EINVAL)
-            return ret;
+          إذا (cgroup2 || crun_error_get_errno (err) != EINVAL)
+            أرجع ret;
 
           /*
             If we get an EINVAL error on cgroup v1 we reverse
@@ -887,194 +887,194 @@ write_memory_resources (int dirfd, bool cgroup2, runtime_spec_schema_config_linu
         }
     }
 
-  ret = write_memory_swap (dirfd, cgroup2, memory, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = write_حافظہ_وٹاندرا (dirfd, cgroup2, حافظہ, err);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  if (memory->limit_present && ! memory_limits_written)
+  إذا (حافظہ->حد_بندی_present && ! حافظہ_limits_written)
     {
-      ret = write_memory (dirfd, cgroup2, memory, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = write_حافظہ (dirfd, cgroup2, حافظہ, err);
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
 
-  if (memory->kernel_present)
+  إذا (حافظہ->kernel_present)
     {
-      if (cgroup2)
-        return crun_make_error (err, 0, "cannot set kernel memory with cgroupv2");
+      إذا (cgroup2)
+        أرجع crun_make_error (err, 0, "cannot set kernel memory with cgroupv2");
 
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, memory->kernel);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, حجم (fmt_buf), "%" PRIu64, حافظہ->kernel);
+      إذا (UNLIKELY (len >= (صحيح) حجم (fmt_buf)))
+        أرجع crun_make_error (err, 0, "internal error: static buffer too small");
       ret = write_cgroup_file (dirfd, "memory.kmem.limit_in_bytes", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
 
   // allows users set use_hierarchy as 0 when defined as false in spec.
   // if use_hierarchy is not defined in spec value defaults to 1 (True).
   // Note: users can only toggle use_hierarchy if the parent cgroup has use_hierarchy configured as 0.
-  if (memory->use_hierarchy_present)
+  إذا (حافظہ->use_hierarchy_present)
     {
-      if (cgroup2)
-        return crun_make_error (err, 0, "cannot set useHierarchy memory with cgroupv2");
+      إذا (cgroup2)
+        أرجع crun_make_error (err, 0, "cannot set useHierarchy memory with cgroupv2");
 
-      ret = write_cgroup_file (dirfd, "memory.use_hierarchy", (memory->use_hierarchy) ? "1" : "0", 1, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = write_cgroup_file (dirfd, "memory.use_hierarchy", (حافظہ->use_hierarchy) ? "1" : "0", 1, err);
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
 
-  if (memory->reservation_present)
+  إذا (حافظہ->reservation_present)
     {
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, memory->reservation);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, حجم (fmt_buf), "%" PRIu64, حافظہ->reservation);
+      إذا (UNLIKELY (len >= (صحيح) حجم (fmt_buf)))
+        أرجع crun_make_error (err, 0, "internal error: static buffer too small");
       ret = write_file_and_check_controllers_at (cgroup2, dirfd, cgroup2 ? "memory.low" : "memory.soft_limit_in_bytes",
-                                                 NULL, fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+                                                 عدم, fmt_buf, len, err);
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
-  if (memory->disable_oom_killer)
+  إذا (حافظہ->disable_oom_killer)
     {
-      if (cgroup2)
-        return crun_make_error (err, 0, "cannot disable OOM killer with cgroupv2");
+      إذا (cgroup2)
+        أرجع crun_make_error (err, 0, "cannot disable OOM killer with cgroupv2");
 
       ret = write_cgroup_file (dirfd, "memory.oom_control", "1", 1, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
-  if (memory->kernel_tcp_present)
+  إذا (حافظہ->kernel_tcp_present)
     {
-      if (cgroup2)
-        return crun_make_error (err, 0, "cannot set kernel TCP with cgroupv2");
+      إذا (cgroup2)
+        أرجع crun_make_error (err, 0, "cannot set kernel TCP with cgroupv2");
 
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, memory->kernel_tcp);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, حجم (fmt_buf), "%" PRIu64, حافظہ->kernel_tcp);
+      إذا (UNLIKELY (len >= (صحيح) حجم (fmt_buf)))
+        أرجع crun_make_error (err, 0, "internal error: static buffer too small");
       ret = write_cgroup_file (dirfd, "memory.kmem.tcp.limit_in_bytes", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
-  if (memory->swappiness_present)
+  إذا (حافظہ->swappiness_present)
     {
-      if (cgroup2)
-        return crun_make_error (err, 0, "cannot set memory swappiness with cgroupv2");
+      إذا (cgroup2)
+        أرجع crun_make_error (err, 0, "cannot set memory swappiness with cgroupv2");
 
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, memory->swappiness);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, حجم (fmt_buf), "%" PRIu64, حافظہ->swappiness);
+      إذا (UNLIKELY (len >= (صحيح) حجم (fmt_buf)))
+        أرجع crun_make_error (err, 0, "internal error: static buffer too small");
       ret = write_cgroup_file (dirfd, "memory.swappiness", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
 
-  return 0;
+  أرجع 0;
 }
 
-int
-write_cpu_idle (int cpu_dirfd, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err)
+صحيح
+write_cpu_idle (صحيح cpu_dirfd, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err)
 {
-  char fmt_buf[32];
-  int len;
+  حرف fmt_buf[32];
+  صحيح len;
 
-  if (! cpu->idle_present)
-    return 0;
+  إذا (! cpu->idle_present)
+    أرجع 0;
 
-  len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIi64, cpu->idle);
-  if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
-  return write_cgroup_file (cpu_dirfd, "cpu.idle", fmt_buf, len, err);
+  len = snprintf (fmt_buf, حجم (fmt_buf), "%" PRIi64, cpu->idle);
+  إذا (UNLIKELY (len >= (صحيح) حجم (fmt_buf)))
+    أرجع crun_make_error (err, 0, "internal error: static buffer too small");
+  أرجع write_cgroup_file (cpu_dirfd, "cpu.idle", fmt_buf, len, err);
 }
 
-int
-write_cpu_burst (int cpu_dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu,
+صحيح
+write_cpu_مدت (صحيح cpu_dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu,
                  libcrun_error_t *err)
 {
-  char fmt_buf[32];
-  int len;
+  حرف fmt_buf[32];
+  صحيح len;
 
-  if (! cpu->burst_present)
-    return 0;
+  إذا (! cpu->مدت_present)
+    أرجع 0;
 
-  len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIi64, cpu->burst);
-  if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
-  return write_cgroup_file (cpu_dirfd, cgroup2 ? "cpu.max.burst" : "cpu.cfs_burst_us", fmt_buf, len, err);
+  len = snprintf (fmt_buf, حجم (fmt_buf), "%" PRIi64, cpu->مدت);
+  إذا (UNLIKELY (len >= (صحيح) حجم (fmt_buf)))
+    أرجع crun_make_error (err, 0, "internal error: static buffer too small");
+  أرجع write_cgroup_file (cpu_dirfd, cgroup2 ? "cpu.max.burst" : "cpu.cfs_burst_us", fmt_buf, len, err);
 }
 
-static int
-write_pids_resources (int dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_pids *pids,
+ساكن صحيح
+write_pids_resources (صحيح dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_pids *pids,
                       libcrun_error_t *err)
 {
-  if (pids->limit)
+  إذا (pids->حد_بندی)
     {
-      char fmt_buf[32];
-      int len;
-      int ret;
+      حرف fmt_buf[32];
+      صحيح len;
+      صحيح ret;
 
-      len = cg_itoa (fmt_buf, sizeof (fmt_buf), pids->limit, true, err);
-      if (UNLIKELY (len < 0))
-        return len;
+      len = cg_itoa (fmt_buf, حجم (fmt_buf), pids->حد_بندی, true, err);
+      إذا (UNLIKELY (len < 0))
+        أرجع len;
 
-      ret = write_file_and_check_controllers_at (cgroup2, dirfd, "pids.max", NULL, fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = write_file_and_check_controllers_at (cgroup2, dirfd, "pids.max", عدم, fmt_buf, len, err);
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
 
-  return 0;
+  أرجع 0;
 }
 
-static int
-write_cpu_resources (int dirfd_cpu, bool cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu,
+ساكن صحيح
+write_cpu_resources (صحيح dirfd_cpu, bool cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu,
                      libcrun_error_t *err)
 {
-  int len, period_len = 0;
-  int ret;
-  char fmt_buf[64];
+  صحيح len, period_len = 0;
+  صحيح ret;
+  حرف fmt_buf[64];
   int64_t period = -1;
   int64_t quota = -1;
-  cleanup_free char *period_str = NULL;
+  cleanup_free حرف *period_str = عدم;
 
-  if (cpu->shares)
+  إذا (cpu->shares)
     {
       uint32_t val = cpu->shares;
 
-      if (cgroup2)
+      إذا (cgroup2)
         {
-          val = convert_shares_to_weight (val);
+          val = convert_shares_منزل_بھار (val);
 
           /* The weight cannot be changed while cpu.idle is set, and setting
              it means the cgroup is not idle (this is what systemd does, too),
              so reset cpu.idle unless it is also being set.  The file might
              not exist on older kernels, so ignore errors.  */
-          if (! cpu->idle_present)
+          إذا (! cpu->idle_present)
             {
               ret = write_cgroup_file (dirfd_cpu, "cpu.idle", "0", 1, err);
-              if (UNLIKELY (ret < 0))
+              إذا (UNLIKELY (ret < 0))
                 crun_error_release (err);
             }
         }
 
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%u", val);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, حجم (fmt_buf), "%u", val);
+      إذا (UNLIKELY (len >= (صحيح) حجم (fmt_buf)))
+        أرجع crun_make_error (err, 0, "internal error: static buffer too small");
 
       ret = write_file_and_check_controllers_at (cgroup2, dirfd_cpu, cgroup2 ? "cpu.weight" : "cpu.shares",
-                                                 NULL, fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+                                                 عدم, fmt_buf, len, err);
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
-  if (cpu->period)
+  إذا (cpu->period)
     {
-      if (cgroup2)
+      إذا (cgroup2)
         period = cpu->period;
-      else
+      وإلا
         {
-          len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, cpu->period);
-          if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-            return crun_make_error (err, 0, "internal error: static buffer too small");
+          len = snprintf (fmt_buf, حجم (fmt_buf), "%" PRIu64, cpu->period);
+          إذا (UNLIKELY (len >= (صحيح) حجم (fmt_buf)))
+            أرجع crun_make_error (err, 0, "internal error: static buffer too small");
           ret = write_cgroup_file (dirfd_cpu, "cpu.cfs_period_us", fmt_buf, len, err);
-          if (UNLIKELY (ret < 0))
+          إذا (UNLIKELY (ret < 0))
             {
               /*
                 Sometimes when the period to be set is smaller than the current one,
@@ -1082,8 +1082,8 @@ write_cpu_resources (int dirfd_cpu, bool cgroup2, runtime_spec_schema_config_lin
                 the parent cgroup quota limit. If this happens and the quota is going
                 to be set, ignore the error for now and retry after setting the quota.
                */
-              if (! cpu->quota || crun_error_get_errno (err) != EINVAL)
-                return ret;
+              إذا (! cpu->quota || crun_error_get_errno (err) != EINVAL)
+                أرجع ret;
 
               crun_error_release (err);
               period_str = xstrdup (fmt_buf);
@@ -1091,456 +1091,456 @@ write_cpu_resources (int dirfd_cpu, bool cgroup2, runtime_spec_schema_config_lin
             }
         }
     }
-  if (cpu->quota)
+  إذا (cpu->quota)
     {
-      if (cgroup2)
+      إذا (cgroup2)
         quota = cpu->quota;
-      else
+      وإلا
         {
-          len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIi64, cpu->quota);
-          if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-            return crun_make_error (err, 0, "internal error: static buffer too small");
+          len = snprintf (fmt_buf, حجم (fmt_buf), "%" PRIi64, cpu->quota);
+          إذا (UNLIKELY (len >= (صحيح) حجم (fmt_buf)))
+            أرجع crun_make_error (err, 0, "internal error: static buffer too small");
           ret = write_cgroup_file (dirfd_cpu, "cpu.cfs_quota_us", fmt_buf, len, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
-          if (period_str != NULL)
+          إذا (UNLIKELY (ret < 0))
+            أرجع ret;
+          إذا (period_str != عدم)
             {
               ret = write_cgroup_file (dirfd_cpu, "cpu.cfs_period_us", period_str, period_len, err);
-              if (UNLIKELY (ret < 0))
-                return ret;
+              إذا (UNLIKELY (ret < 0))
+                أرجع ret;
             }
         }
     }
-  if (cpu->realtime_period)
+  إذا (cpu->realtime_period)
     {
-      if (cgroup2)
-        return crun_make_error (err, 0, "realtime period not supported on cgroupv2");
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, cpu->realtime_period);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      إذا (cgroup2)
+        أرجع crun_make_error (err, 0, "realtime period not supported on cgroupv2");
+      len = snprintf (fmt_buf, حجم (fmt_buf), "%" PRIu64, cpu->realtime_period);
+      إذا (UNLIKELY (len >= (صحيح) حجم (fmt_buf)))
+        أرجع crun_make_error (err, 0, "internal error: static buffer too small");
       ret = write_cgroup_file (dirfd_cpu, "cpu.rt_period_us", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
-  if (cpu->realtime_runtime)
+  إذا (cpu->realtime_runtime)
     {
-      if (cgroup2)
-        return crun_make_error (err, 0, "realtime runtime not supported on cgroupv2");
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, cpu->realtime_runtime);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      إذا (cgroup2)
+        أرجع crun_make_error (err, 0, "realtime runtime not supported on cgroupv2");
+      len = snprintf (fmt_buf, حجم (fmt_buf), "%" PRIu64, cpu->realtime_runtime);
+      إذا (UNLIKELY (len >= (صحيح) حجم (fmt_buf)))
+        أرجع crun_make_error (err, 0, "internal error: static buffer too small");
       ret = write_cgroup_file (dirfd_cpu, "cpu.rt_runtime_us", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
   ret = write_cpu_idle (dirfd_cpu, cpu, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  if (cgroup2 && (quota > 0 || period > 0))
+  إذا (cgroup2 && (quota > 0 || period > 0))
     {
-      if (period < 0)
+      إذا (period < 0)
         period = 100000;
-      if (quota < 0)
-        len = snprintf (fmt_buf, sizeof (fmt_buf), "max %" PRIi64, period);
-      else
-        len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIi64 " %" PRIi64, quota, period);
+      إذا (quota < 0)
+        len = snprintf (fmt_buf, حجم (fmt_buf), "max %" PRIi64, period);
+      وإلا
+        len = snprintf (fmt_buf, حجم (fmt_buf), "%" PRIi64 " %" PRIi64, quota, period);
 
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      إذا (UNLIKELY (len >= (صحيح) حجم (fmt_buf)))
+        أرجع crun_make_error (err, 0, "internal error: static buffer too small");
 
-      ret = write_file_and_check_controllers_at (cgroup2, dirfd_cpu, "cpu.max", NULL, fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = write_file_and_check_controllers_at (cgroup2, dirfd_cpu, "cpu.max", عدم, fmt_buf, len, err);
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
 
-  return write_cpu_burst (dirfd_cpu, cgroup2, cpu, err);
+  أرجع write_cpu_مدت (dirfd_cpu, cgroup2, cpu, err);
 }
 
-int
-write_cpuset_resources (int dirfd_cpuset, int cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu,
+صحيح
+write_cpuset_resources (صحيح dirfd_cpuset, صحيح cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu,
                         libcrun_error_t *err)
 {
-  int ret;
+  صحيح ret;
 
-  if (cpu == NULL)
-    return 0;
+  إذا (cpu == عدم)
+    أرجع 0;
 
-  if (cpu->cpus)
+  إذا (cpu->cpus)
     {
       ret = write_file_and_check_controllers_at (cgroup2, dirfd_cpuset, "cpuset.cpus", "cpus",
-                                                 cpu->cpus, strlen (cpu->cpus), err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+                                                 cpu->cpus, لڑی_لمبائی (cpu->cpus), err);
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
-  if (cpu->mems)
+  إذا (cpu->mems)
     {
-      ret = write_file_and_check_controllers_at (cgroup2, dirfd_cpuset, "cpuset.mems", "mems", cpu->mems, strlen (cpu->mems),
+      ret = write_file_and_check_controllers_at (cgroup2, dirfd_cpuset, "cpuset.mems", "mems", cpu->mems, لڑی_لمبائی (cpu->mems),
                                                  err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
-  return 0;
+  أرجع 0;
 }
 
-static int
-open_cgroup_subsystem (const char *subsystem, const char *path, libcrun_error_t *err)
+ساكن صحيح
+open_cgroup_subsystem (ثابت حرف *subsystem, ثابت حرف *رستہ, libcrun_error_t *err)
 {
-  cleanup_free char *full_path = NULL;
-  int ret, dirfd;
+  cleanup_free حرف *بھریا_رستہ = عدم;
+  صحيح ret, dirfd;
 
-  ret = append_paths (&full_path, err, CGROUP_ROOT, subsystem, path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&بھریا_رستہ, err, CGROUP_جڑ, subsystem, رستہ, عدم);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  dirfd = open (full_path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", full_path);
+  dirfd = open (بھریا_رستہ, O_DIRECTORY | O_رستہ | O_CLOEXEC);
+  إذا (UNLIKELY (dirfd < 0))
+    أرجع crun_make_error (err, errno, "open `%s`", بھریا_رستہ);
 
-  return dirfd;
+  أرجع dirfd;
 }
 
-int
-update_cgroup_v1_resources (runtime_spec_schema_config_linux_resources *resources, const char *path, libcrun_error_t *err)
+صحيح
+update_cgroup_v1_resources (runtime_spec_schema_config_linux_resources *resources, ثابت حرف *رستہ, libcrun_error_t *err)
 {
-  int ret;
+  صحيح ret;
 
-  if (resources->block_io)
+  إذا (resources->بلاک_io)
     {
-      cleanup_close int dirfd_blkio = -1;
-      runtime_spec_schema_config_linux_resources_block_io *blkio = resources->block_io;
+      cleanup_close صحيح dirfd_blkio = -1;
+      runtime_spec_schema_config_linux_resources_بلاک_io *blkio = resources->بلاک_io;
 
-      dirfd_blkio = open_cgroup_subsystem ("blkio", path, err);
-      if (UNLIKELY (dirfd_blkio < 0))
-        return dirfd_blkio;
+      dirfd_blkio = open_cgroup_subsystem ("blkio", رستہ, err);
+      إذا (UNLIKELY (dirfd_blkio < 0))
+        أرجع dirfd_blkio;
 
       ret = write_blkio_resources (dirfd_blkio, false, blkio, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
 
-  if (resources->network)
+  إذا (resources->جال)
     {
-      cleanup_close int dirfd_netclass = -1;
-      cleanup_close int dirfd_netprio = -1;
-      runtime_spec_schema_config_linux_resources_network *network = resources->network;
+      cleanup_close صحيح dirfd_netclass = -1;
+      cleanup_close صحيح dirfd_netprio = -1;
+      runtime_spec_schema_config_linux_resources_جال *جال = resources->جال;
 
-      dirfd_netclass = open_cgroup_subsystem ("net_cls", path, err);
-      if (UNLIKELY (dirfd_netclass < 0))
-        return dirfd_netclass;
+      dirfd_netclass = open_cgroup_subsystem ("net_cls", رستہ, err);
+      إذا (UNLIKELY (dirfd_netclass < 0))
+        أرجع dirfd_netclass;
 
-      dirfd_netprio = open_cgroup_subsystem ("net_prio", path, err);
-      if (UNLIKELY (dirfd_netprio < 0))
-        return dirfd_netprio;
+      dirfd_netprio = open_cgroup_subsystem ("net_prio", رستہ, err);
+      إذا (UNLIKELY (dirfd_netprio < 0))
+        أرجع dirfd_netprio;
 
-      ret = write_network_resources (dirfd_netclass, dirfd_netprio, network, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = write_جال_resources (dirfd_netclass, dirfd_netprio, جال, err);
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
 
-  if (resources->hugepage_limits_len)
+  إذا (resources->hugepage_limits_len)
     {
-      cleanup_close int dirfd_htlb = -1;
+      cleanup_close صحيح dirfd_htlb = -1;
 
-      dirfd_htlb = open_cgroup_subsystem ("hugetlb", path, err);
-      if (UNLIKELY (dirfd_htlb < 0))
-        return dirfd_htlb;
+      dirfd_htlb = open_cgroup_subsystem ("hugetlb", رستہ, err);
+      إذا (UNLIKELY (dirfd_htlb < 0))
+        أرجع dirfd_htlb;
 
       ret = write_hugetlb_resources (dirfd_htlb, false, resources->hugepage_limits, resources->hugepage_limits_len,
                                      err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
 
-  if (resources->devices_len)
+  إذا (resources->devices_len)
     {
-      cleanup_close int dirfd_devs = -1;
+      cleanup_close صحيح dirfd_devs = -1;
 
-      dirfd_devs = open_cgroup_subsystem ("devices", path, err);
-      if (UNLIKELY (dirfd_devs < 0))
-        return dirfd_devs;
+      dirfd_devs = open_cgroup_subsystem ("devices", رستہ, err);
+      إذا (UNLIKELY (dirfd_devs < 0))
+        أرجع dirfd_devs;
 
       ret = write_devices_resources (dirfd_devs, false, resources->devices, resources->devices_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
 
-  if (resources->memory)
+  إذا (resources->حافظہ)
     {
-      cleanup_close int dirfd_mem = -1;
+      cleanup_close صحيح dirfd_mem = -1;
 
-      dirfd_mem = open_cgroup_subsystem ("memory", path, err);
-      if (UNLIKELY (dirfd_mem < 0))
-        return dirfd_mem;
+      dirfd_mem = open_cgroup_subsystem ("memory", رستہ, err);
+      إذا (UNLIKELY (dirfd_mem < 0))
+        أرجع dirfd_mem;
 
-      ret = write_memory_resources (dirfd_mem, false, resources->memory, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = write_حافظہ_resources (dirfd_mem, false, resources->حافظہ, err);
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
 
-  if (resources->pids)
+  إذا (resources->pids)
     {
-      cleanup_close int dirfd_pid = -1;
+      cleanup_close صحيح dirfd_pid = -1;
 
-      dirfd_pid = open_cgroup_subsystem ("pids", path, err);
-      if (UNLIKELY (dirfd_pid < 0))
-        return dirfd_pid;
+      dirfd_pid = open_cgroup_subsystem ("pids", رستہ, err);
+      إذا (UNLIKELY (dirfd_pid < 0))
+        أرجع dirfd_pid;
 
       ret = write_pids_resources (dirfd_pid, false, resources->pids, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
 
-  if (resources->cpu)
+  إذا (resources->cpu)
     {
-      cleanup_close int dirfd_cpu = -1;
-      cleanup_close int dirfd_cpuset = -1;
+      cleanup_close صحيح dirfd_cpu = -1;
+      cleanup_close صحيح dirfd_cpuset = -1;
 
-      dirfd_cpu = open_cgroup_subsystem ("cpu", path, err);
-      if (UNLIKELY (dirfd_cpu < 0))
-        return dirfd_cpu;
+      dirfd_cpu = open_cgroup_subsystem ("cpu", رستہ, err);
+      إذا (UNLIKELY (dirfd_cpu < 0))
+        أرجع dirfd_cpu;
 
       ret = write_cpu_resources (dirfd_cpu, false, resources->cpu, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
 
-      if (resources->cpu->cpus == NULL && resources->cpu->mems == NULL)
-        return 0;
+      إذا (resources->cpu->cpus == عدم && resources->cpu->mems == عدم)
+        أرجع 0;
 
-      dirfd_cpuset = open_cgroup_subsystem ("cpuset", path, err);
-      if (UNLIKELY (dirfd_cpuset < 0))
-        return dirfd_cpuset;
+      dirfd_cpuset = open_cgroup_subsystem ("cpuset", رستہ, err);
+      إذا (UNLIKELY (dirfd_cpuset < 0))
+        أرجع dirfd_cpuset;
 
       ret = write_cpuset_resources (dirfd_cpuset, false, resources->cpu, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
 
-  if (resources->unified && resources->unified->len > 0)
-    return crun_make_error (err, 0, "invalid configuration: cannot use unified on cgroup v1");
+  إذا (resources->unified && resources->unified->len > 0)
+    أرجع crun_make_error (err, 0, "invalid configuration: cannot use unified on cgroup v1");
 
-  return 0;
+  أرجع 0;
 }
 
-static int
-write_unified_resources (int cgroup_dirfd, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
+ساكن صحيح
+write_unified_resources (صحيح cgroup_dirfd, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
 {
   size_t i;
-  int ret;
+  صحيح ret;
 
-  for (i = 0; i < resources->unified->len; i++)
+  لكل (i = 0; i < resources->unified->len; i++)
     {
-      cleanup_close int fd = -1;
-      cleanup_free char *value = NULL;
-      char *saveptr = NULL;
-      char *line;
+      cleanup_close صحيح fd = -1;
+      cleanup_free حرف *قدر = عدم;
+      حرف *saveptr = عدم;
+      حرف *سطر;
 
-      if (strchr (resources->unified->keys[i], '/'))
-        return crun_make_error (err, 0, "key `%s` must be a file name without any slash", resources->unified->keys[i]);
+      إذا (strchr (resources->unified->کلیدیں[i], '/'))
+        أرجع crun_make_error (err, 0, "key `%s` must be a file name without any slash", resources->unified->کلیدیں[i]);
 
-      if (is_empty_string (resources->unified->values[i]))
-        continue;
+      إذا (is_خالی_تھاواں_string (resources->unified->اقدار[i]))
+        استمر;
 
-      value = xstrdup (resources->unified->values[i]);
+      قدر = xstrdup (resources->unified->اقدار[i]);
 
-      fd = open_file_and_check_controllers_at (true, cgroup_dirfd, resources->unified->keys[i], O_WRONLY, err);
-      if (UNLIKELY (fd < 0))
-        return fd;
+      fd = open_file_and_check_controllers_at (true, cgroup_dirfd, resources->unified->کلیدیں[i], O_WRONLY, err);
+      إذا (UNLIKELY (fd < 0))
+        أرجع fd;
 
-      for (line = strtok_r (value, "\n", &saveptr); line; line = strtok_r (NULL, "\n", &saveptr))
+      لكل (سطر = strtok_r (قدر, "\n", &saveptr); سطر; سطر = strtok_r (عدم, "\n", &saveptr))
         {
-          ret = TEMP_FAILURE_RETRY (write (fd, line, strlen (line)));
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "write to `%s`", resources->unified->keys[i]);
+          ret = عارضی_FAILURE_RETRY (اكتب (fd, سطر, لڑی_لمبائی (سطر)));
+          إذا (UNLIKELY (ret < 0))
+            أرجع crun_make_error (err, errno, "write to `%s`", resources->unified->کلیدیں[i]);
         }
     }
 
-  return 0;
+  أرجع 0;
 }
 
-static int
-update_cgroup_v2_resources (runtime_spec_schema_config_linux_resources *resources, const char *path, bool need_bpf_dev, libcrun_error_t *err)
+ساكن صحيح
+update_cgroup_v2_resources (runtime_spec_schema_config_linux_resources *resources, ثابت حرف *رستہ, bool need_bpf_dev, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
-  cleanup_close int cgroup_dirfd = -1;
-  int ret;
+  cleanup_free حرف *cgroup_رستہ = عدم;
+  cleanup_close صحيح cgroup_dirfd = -1;
+  صحيح ret;
 
-  if (resources->network)
-    return crun_make_error (err, 0, "network limits not supported on cgroupv2");
+  إذا (resources->جال)
+    أرجع crun_make_error (err, 0, "network limits not supported on cgroupv2");
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_رستہ, err, CGROUP_جڑ, رستہ, عدم);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  cgroup_dirfd = open (cgroup_path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (cgroup_dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", cgroup_path);
+  cgroup_dirfd = open (cgroup_رستہ, O_DIRECTORY | O_رستہ | O_CLOEXEC);
+  إذا (UNLIKELY (cgroup_dirfd < 0))
+    أرجع crun_make_error (err, errno, "open `%s`", cgroup_رستہ);
 
-  if (need_bpf_dev && resources->devices_len)
+  إذا (need_bpf_dev && resources->devices_len)
     {
       ret = write_devices_resources (cgroup_dirfd, true, resources->devices, resources->devices_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
 
-  if (resources->memory)
+  إذا (resources->حافظہ)
     {
-      ret = write_memory_resources (cgroup_dirfd, true, resources->memory, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = write_حافظہ_resources (cgroup_dirfd, true, resources->حافظہ, err);
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
-  if (resources->pids)
+  إذا (resources->pids)
     {
       ret = write_pids_resources (cgroup_dirfd, true, resources->pids, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
-  if (resources->cpu)
+  إذا (resources->cpu)
     {
       ret = write_cpu_resources (cgroup_dirfd, true, resources->cpu, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
 
       ret = write_cpuset_resources (cgroup_dirfd, true, resources->cpu, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
-  if (resources->block_io)
+  إذا (resources->بلاک_io)
     {
-      ret = write_blkio_resources (cgroup_dirfd, true, resources->block_io, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = write_blkio_resources (cgroup_dirfd, true, resources->بلاک_io, err);
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
 
-  if (resources->hugepage_limits_len)
+  إذا (resources->hugepage_limits_len)
     {
       ret = write_hugetlb_resources (cgroup_dirfd, true, resources->hugepage_limits, resources->hugepage_limits_len,
                                      err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
 
   /* Write unified resources if any.  They have higher precedence and override any previous setting.  */
-  if (resources->unified)
+  إذا (resources->unified)
     {
       ret = write_unified_resources (cgroup_dirfd, resources, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
 
-  return 0;
+  أرجع 0;
 }
 
 /* With checkBeforeUpdate, refuse to set the memory limit lower than the
    current usage.  This must be done before any of the resources is updated,
    including by the cgroup manager (e.g. the systemd unit properties).  */
-int
-check_memory_before_update (const char *path, runtime_spec_schema_config_linux_resources *resources,
+صحيح
+check_حافظہ_before_update (ثابت حرف *رستہ, runtime_spec_schema_config_linux_resources *resources,
                             libcrun_error_t *err)
 {
-  runtime_spec_schema_config_linux_resources_memory *memory = resources->memory;
-  cleanup_free char *swap_current = NULL;
-  cleanup_free char *cgroup_path = NULL;
-  cleanup_free char *current = NULL;
-  cleanup_close int dirfd = -1;
-  uint64_t limit = 0;
-  uint64_t val, val_swap;
-  int cgroup_mode;
-  int ret;
+  runtime_spec_schema_config_linux_resources_حافظہ *حافظہ = resources->حافظہ;
+  cleanup_free حرف *وٹاندرا_current = عدم;
+  cleanup_free حرف *cgroup_رستہ = عدم;
+  cleanup_free حرف *current = عدم;
+  cleanup_close صحيح dirfd = -1;
+  uint64_t حد_بندی = 0;
+  uint64_t val, val_وٹاندرا;
+  صحيح cgroup_منوال;
+  صحيح ret;
 
-  if (path == NULL || memory == NULL || ! (memory->check_before_update_present && memory->check_before_update))
-    return 0;
+  إذا (رستہ == عدم || حافظہ == عدم || ! (حافظہ->check_before_update_present && حافظہ->check_before_update))
+    أرجع 0;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_منوال = libcrun_get_cgroup_منوال (err);
+  إذا (UNLIKELY (cgroup_منوال < 0))
+    أرجع cgroup_منوال;
 
-  if (cgroup_mode != CGROUP_MODE_UNIFIED)
-    return 0;
+  إذا (cgroup_منوال != CGROUP_منوال_UNIFIED)
+    أرجع 0;
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_رستہ, err, CGROUP_جڑ, رستہ, عدم);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  dirfd = open (cgroup_path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", cgroup_path);
+  dirfd = open (cgroup_رستہ, O_DIRECTORY | O_رستہ | O_CLOEXEC);
+  إذا (UNLIKELY (dirfd < 0))
+    أرجع crun_make_error (err, errno, "open `%s`", cgroup_رستہ);
 
-  ret = read_all_file_at (dirfd, "memory.current", &current, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file_at (dirfd, "memory.current", &current, عدم, err);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  ret = read_all_file_at (dirfd, "memory.swap.current", &swap_current, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file_at (dirfd, "memory.swap.current", &وٹاندرا_current, عدم, err);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
   errno = 0;
-  val = strtoll (current, NULL, 10);
-  if (UNLIKELY (errno))
-    return crun_make_error (err, errno, "parse memory.current");
+  val = strtoll (current, عدم, 10);
+  إذا (UNLIKELY (errno))
+    أرجع crun_make_error (err, errno, "parse memory.current");
 
-  val_swap = strtoll (swap_current, NULL, 10);
-  if (UNLIKELY (errno))
-    return crun_make_error (err, errno, "parse memory.swap.current");
+  val_وٹاندرا = strtoll (وٹاندرا_current, عدم, 10);
+  إذا (UNLIKELY (errno))
+    أرجع crun_make_error (err, errno, "parse memory.swap.current");
 
-  if (memory->limit_present && memory->limit >= 0)
-    limit = memory->limit;
-  if (memory->swap_present && memory->swap >= 0)
-    limit += memory->swap;
+  إذا (حافظہ->حد_بندی_present && حافظہ->حد_بندی >= 0)
+    حد_بندی = حافظہ->حد_بندی;
+  إذا (حافظہ->وٹاندرا_present && حافظہ->وٹاندرا >= 0)
+    حد_بندی += حافظہ->وٹاندرا;
 
-  if (limit <= val + val_swap)
-    return crun_make_error (err, 0, "cannot set the memory limit lower than its current usage");
+  إذا (حد_بندی <= val + val_وٹاندرا)
+    أرجع crun_make_error (err, 0, "cannot set the memory limit lower than its current usage");
 
-  return 0;
+  أرجع 0;
 }
 
-int
-update_cgroup_resources (const char *path,
-                         const char *state_root,
+صحيح
+update_cgroup_resources (ثابت حرف *رستہ,
+                         ثابت حرف *state_جڑ,
                          runtime_spec_schema_config_linux_resources *resources,
                          bool need_bpf_dev,
                          libcrun_error_t *err)
 {
-  int cgroup_mode;
+  صحيح cgroup_منوال;
 
-  (void) state_root;
+  (فراغ) state_جڑ;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_منوال = libcrun_get_cgroup_منوال (err);
+  إذا (UNLIKELY (cgroup_منوال < 0))
+    أرجع cgroup_منوال;
 
-  if (path == NULL)
+  إذا (رستہ == عدم)
     {
       size_t i;
 
-      if (resources->block_io || resources->network || resources->hugepage_limits_len || resources->memory
+      إذا (resources->بلاک_io || resources->جال || resources->hugepage_limits_len || resources->حافظہ
           || resources->pids || resources->cpu)
-        return crun_make_error (err, 0, "cannot set limits without cgroups");
+        أرجع crun_make_error (err, 0, "cannot set limits without cgroups");
 
-      for (i = 0; i < resources->devices_len; i++)
+      لكل (i = 0; i < resources->devices_len; i++)
         {
-          int rwm;
+          صحيح rwm;
 
           rwm = is_rwm (resources->devices[i]->access, err);
-          if (UNLIKELY (rwm < 0))
-            return rwm;
+          إذا (UNLIKELY (rwm < 0))
+            أرجع rwm;
 
-          if (rwm == 0)
-            return crun_make_error (err, 0, "cannot set limits without cgroups");
+          إذا (rwm == 0)
+            أرجع crun_make_error (err, 0, "cannot set limits without cgroups");
         }
 
-      return 0;
+      أرجع 0;
     }
-  switch (cgroup_mode)
+  بدل (cgroup_منوال)
     {
-    case CGROUP_MODE_UNIFIED:
-      return update_cgroup_v2_resources (resources, path, need_bpf_dev, err);
+    حالة CGROUP_منوال_UNIFIED:
+      أرجع update_cgroup_v2_resources (resources, رستہ, need_bpf_dev, err);
 
-    case CGROUP_MODE_LEGACY:
-    case CGROUP_MODE_HYBRID:
-      return update_cgroup_v1_resources (resources, path, err);
+    حالة CGROUP_منوال_LEGACY:
+    حالة CGROUP_منوال_HYBRID:
+      أرجع update_cgroup_v1_resources (resources, رستہ, err);
 
-    default:
-      return crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_mode);
+    افتراضي:
+      أرجع crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_منوال);
     }
 }

@@ -15,32 +15,32 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE
+#تعریف_کرو GNU_سروت
 
-#include <config.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <errno.h>
-#include "spec.h"
-#include "utils.h"
-#include "cgroup.h"
-#include "cgroup-utils.h"
+#ضمن <config.h>
+#ضمن <stdbool.h>
+#ضمن <stdio.h>
+#ضمن <errno.h>
+#ضمن "spec.h"
+#ضمن "utils.h"
+#ضمن "cgroup.h"
+#ضمن "cgroup-utils.h"
 
-static const char spec_file[] = "\
+ساكن ثابت حرف spec_file[] = "\
 {\n\
-	\"ociVersion\": \"1.0.0\",\n\
+	\"oci_نسخہ\": \"1.0.0\",\n\
 	\"process\": {\n\
 		\"terminal\": true,\n\
 		\"user\": {\n\
 			\"uid\": 0,\n\
 			\"gid\": 0\n\
 		},\n\
-		\"args\": [\n\
+		\"دلیلاں\": [\n\
 			\"sh\"\n\
 		],\n\
 		\"env\": [\n\
-			\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\",\n\
-			\"TERM=xterm\"\n\
+			\"رستہ_3=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\",\n\
+			\"رکن=xterm\"\n\
 		],\n\
 		\"cwd\": \"/\",\n\
 		\"capabilities\": {\n\
@@ -76,8 +76,8 @@ static const char spec_file[] = "\
 		],\n\
 		\"noNewPrivileges\": true\n\
 	},\n\
-	\"root\": {\n\
-		\"path\": \"rootfs\",\n\
+	\"جڑ\": {\n\
+		\"رستہ\": \"rootfs\",\n\
 		\"readonly\": true\n\
 	},\n\
 	\"hostname\": \"crun\",\n\
@@ -85,48 +85,48 @@ static const char spec_file[] = "\
 		{\n\
 			\"destination\": \"/proc\",\n\
 			\"type\": \"proc\",\n\
-			\"source\": \"proc\"\n\
+			\"سروت\": \"proc\"\n\
 		},\n\
 		{\n\
 			\"destination\": \"/dev\",\n\
 			\"type\": \"tmpfs\",\n\
-			\"source\": \"tmpfs\",\n\
+			\"سروت\": \"tmpfs\",\n\
 			\"options\": [\n\
 				\"nosuid\",\n\
 				\"strictatime\",\n\
-				\"mode=755\",\n\
-				\"size=65536k\"\n\
+				\"منوال=755\",\n\
+				\"ناپ=65536k\"\n\
 			]\n\
 		},\n\
 		{\n\
 			\"destination\": \"/dev/pts\",\n\
 			\"type\": \"devpts\",\n\
-			\"source\": \"devpts\",\n\
+			\"سروت\": \"devpts\",\n\
 			\"options\": [\n\
 				\"nosuid\",\n\
 				\"noexec\",\n\
 				\"newinstance\",\n\
 				\"ptmxmode=0666\",\n\
-				\"mode=0620\"\
+				\"منوال=0620\"\
 %s\
 			]\n\
 		},\n\
 		{\n\
 			\"destination\": \"/dev/shm\",\n\
 			\"type\": \"tmpfs\",\n\
-			\"source\": \"shm\",\n\
+			\"سروت\": \"shm\",\n\
 			\"options\": [\n\
 				\"nosuid\",\n\
 				\"noexec\",\n\
 				\"nodev\",\n\
-				\"mode=1777\",\n\
-				\"size=65536k\"\n\
+				\"منوال=1777\",\n\
+				\"ناپ=65536k\"\n\
 			]\n\
 		},\n\
 		{\n\
 			\"destination\": \"/dev/mqueue\",\n\
 			\"type\": \"mqueue\",\n\
-			\"source\": \"mqueue\",\n\
+			\"سروت\": \"mqueue\",\n\
 			\"options\": [\n\
 				\"nosuid\",\n\
 				\"noexec\",\n\
@@ -136,7 +136,7 @@ static const char spec_file[] = "\
 		{\n\
 			\"destination\": \"/sys\",\n\
 			\"type\": \"sysfs\",\n\
-			\"source\": \"sysfs\",\n\
+			\"سروت\": \"sysfs\",\n\
 			\"options\": [\n\
 				\"nosuid\",\n\
 				\"noexec\",\n\
@@ -147,7 +147,7 @@ static const char spec_file[] = "\
 		{\n\
 			\"destination\": \"/sys/fs/cgroup\",\n\
 			\"type\": \"cgroup\",\n\
-			\"source\": \"cgroup\",\n\
+			\"سروت\": \"cgroup\",\n\
 			\"options\": [\n\
 				\"nosuid\",\n\
 				\"noexec\",\n\
@@ -171,7 +171,7 @@ static const char spec_file[] = "\
 				\"type\": \"pid\"\n\
 			},\n\
 			{\n\
-				\"type\": \"network\"\n\
+				\"type\": \"جال\"\n\
 			},\n\
 			{\n\
 				\"type\": \"ipc\"\n\
@@ -189,7 +189,7 @@ static const char spec_file[] = "\
 			\"/proc/acpi\",\n\
 			\"/proc/asound\",\n\
 			\"/proc/kcore\",\n\
-			\"/proc/keys\",\n\
+			\"/proc/کلیدیں\",\n\
 			\"/proc/latency_stats\",\n\
 			\"/proc/timer_list\",\n\
 			\"/proc/timer_stats\",\n\
@@ -207,59 +207,59 @@ static const char spec_file[] = "\
 	}\n\
 }\n";
 
-static const char *spec_pts_tty_group = ",\n\
+ساكن ثابت حرف *spec_pts_tty_گروہ = ",\n\
 				\"gid=5\"\n";
 
-static const char *spec_user = "\
+ساكن ثابت حرف *spec_user = "\
 			{\n\
 				\"type\": \"user\"\n\
 			},\n";
 
-static const char *spec_cgroupns = "\
+ساكن ثابت حرف *spec_cgroupns = "\
 			{\n\
 				\"type\": \"cgroup\"\n\
 			},\n";
 
-int
-libcrun_container_spec (bool root, FILE *out, libcrun_error_t *err)
+صحيح
+libcrun_container_spec (bool جڑ, FILE *باہرلا, libcrun_error_t *err)
 {
-  int ret;
-  int cgroup_mode;
+  صحيح ret;
+  صحيح cgroup_منوال;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_منوال = libcrun_get_cgroup_منوال (err);
+  إذا (UNLIKELY (cgroup_منوال < 0))
+    أرجع cgroup_منوال;
 
-  ret = fprintf (out, spec_file,
-                 root ? spec_pts_tty_group : "\n",
-                 root ? "" : spec_user,
-                 cgroup_mode == CGROUP_MODE_UNIFIED ? spec_cgroupns : "");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fprintf failed");
+  ret = fprintf (باہرلا, spec_file,
+                 جڑ ? spec_pts_tty_گروہ : "\n",
+                 جڑ ? "" : spec_user,
+                 cgroup_منوال == CGROUP_منوال_UNIFIED ? spec_cgroupns : "");
+  إذا (UNLIKELY (ret < 0))
+    أرجع crun_make_error (err, errno, "fprintf failed");
 
-  return ret;
+  أرجع ret;
 }
 
-int
-libcrun_container_spec_json (bool root, char **out, libcrun_error_t *err)
+صحيح
+libcrun_container_spec_json (bool جڑ, حرف **باہرلا, libcrun_error_t *err)
 {
-  char *buffer = NULL;
+  حرف *بفر = عدم;
   size_t len = 0;
   FILE *f;
-  int ret;
+  صحيح ret;
 
-  f = open_memstream (&buffer, &len);
-  if (f == NULL)
-    return crun_make_error (err, errno, "open_memstream");
+  f = open_memstream (&بفر, &len);
+  إذا (f == عدم)
+    أرجع crun_make_error (err, errno, "open_memstream");
 
-  ret = libcrun_container_spec (root, f, err);
+  ret = libcrun_container_spec (جڑ, f, err);
   fclose (f);
-  if (UNLIKELY (ret < 0))
+  إذا (UNLIKELY (ret < 0))
     {
-      free (buffer);
-      return ret;
+      حرر (بفر);
+      أرجع ret;
     }
 
-  *out = buffer;
-  return 0;
+  *باہرلا = بفر;
+  أرجع 0;
 }

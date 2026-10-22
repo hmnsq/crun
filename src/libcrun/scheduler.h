@@ -15,17 +15,17 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SCHEDULER_H
-#define SCHEDULER_H
-#include <config.h>
-#include "error.h"
-#include "container.h"
-#include "status.h"
+#جے_بنا_تعریف SCHEDULER_H
+#تعریف_کرو SCHEDULER_H
+#ضمن <config.h>
+#ضمن "error.h"
+#ضمن "container.h"
+#ضمن "status.h"
 
-int libcrun_set_scheduler (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err);
+صحيح libcrun_سیٹ_scheduler (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err);
 
-int libcrun_set_cpu_affinity_from_string (pid_t pid, const char *str, libcrun_error_t *err);
+صحيح libcrun_سیٹ_cpu_affinity_from_string (pid_t pid, ثابت حرف *str, libcrun_error_t *err);
 
-int libcrun_reset_cpu_affinity_mask (pid_t pid, libcrun_error_t *err);
+صحيح libcrun_reset_cpu_affinity_نقاب (pid_t pid, libcrun_error_t *err);
 
-#endif
+#جے_انت
