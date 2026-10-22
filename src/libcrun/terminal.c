@@ -36,51 +36,51 @@
 
 struct terminal_status_s
 {
-  int fd;
+  ціле fd;
   struct termios termios;
 };
 
-int
+ціле
 libcrun_new_terminal (char **pty, libcrun_error_t *err)
 {
   char buf[64];
-  int ret;
-  cleanup_close int fd = open ("/dev/ptmx", O_RDWR | O_NOCTTY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `/dev/ptmx`");
+  ціле ret;
+  cleanup_close ціле fd = open ("/dev/ptmx", O_RDWR | O_NOCTTY | O_CLOEXEC);
+  якщо (UNLIKELY (fd < 0))
+    повернути crun_make_error (err, errno, "open `/dev/ptmx`");
 
   ret = ptsname_r (fd, buf, sizeof (buf));
-  if (UNLIKELY (ret != 0))
-    return crun_make_error (err, errno, "ptsname");
+  якщо (UNLIKELY (ret != 0))
+    повернути crun_make_error (err, errno, "ptsname");
 
   ret = unlockpt (fd);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "unlockpt");
+  якщо (UNLIKELY (ret < 0))
+    повернути crun_make_error (err, errno, "unlockpt");
 
   *pty = xstrdup (buf);
 
   ret = fd;
   fd = -1;
 
-  return ret;
+  повернути ret;
 }
 
-int
-libcrun_set_raw (int fd, void **current_status, libcrun_error_t *err)
+ціле
+libcrun_set_raw (ціле fd, void **current_status, libcrun_error_t *err)
 {
-  int ret;
+  ціле ret;
   struct termios termios;
 
   ret = tcgetattr (fd, &termios);
-  if (UNLIKELY (ret < 0))
+  якщо (UNLIKELY (ret < 0))
     {
       /* Nothing to do if FD is not a terminal.  */
-      if (errno == ENOTTY)
-        return 0;
-      return crun_make_error (err, errno, "tcgetattr");
+      якщо (errno == ENOTTY)
+        повернути 0;
+      повернути crun_make_error (err, errno, "tcgetattr");
     }
 
-  if (current_status)
+  якщо (current_status)
     {
       struct terminal_status_s *s = xmalloc (sizeof (*s));
       s->fd = fd;
@@ -92,94 +92,94 @@ libcrun_set_raw (int fd, void **current_status, libcrun_error_t *err)
   termios.c_iflag = 0;
 
   ret = tcsetattr (fd, TCSANOW, &termios);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "tcsetattr");
+  якщо (UNLIKELY (ret < 0))
+    повернути crun_make_error (err, errno, "tcsetattr");
 
-  return 0;
+  повернути 0;
 }
 
 /* Do not translate "\n" to "\r\n" on output, so that what the container
    writes to the terminal reaches our stdout unchanged.  */
-int
-libcrun_clear_onlcr (int fd, libcrun_error_t *err)
+ціле
+libcrun_clear_onlcr (ціле fd, libcrun_error_t *err)
 {
-  int ret;
+  ціле ret;
   struct termios termios;
 
   ret = tcgetattr (fd, &termios);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "tcgetattr");
+  якщо (UNLIKELY (ret < 0))
+    повернути crun_make_error (err, errno, "tcgetattr");
 
   termios.c_oflag &= ~ONLCR;
 
   ret = tcsetattr (fd, TCSANOW, &termios);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "tcsetattr");
+  якщо (UNLIKELY (ret < 0))
+    повернути crun_make_error (err, errno, "tcsetattr");
 
-  return 0;
+  повернути 0;
 }
 
-int
-libcrun_set_stdio (int ptmx_fd, char *pty, libcrun_error_t *err)
+ціле
+libcrun_set_stdio (ціле ptmx_fd, char *pty, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
-  int ret, i;
+  cleanup_close ціле fd = -1;
+  ціле ret, i;
 
   /* Open the slave directly from the master.  The path is resolved in the
      container mount namespace, and could point anywhere.  */
   fd = ioctl (ptmx_fd, TIOCGPTPEER, O_RDWR | O_CLOEXEC);
-  if (fd < 0 && (errno == EINVAL || errno == ENOTTY))
+  якщо (fd < 0 && (errno == EINVAL || errno == ENOTTY))
     {
       /* TIOCGPTPEER requires Linux 4.13.  */
       fd = open (pty, O_RDWR | O_CLOEXEC);
     }
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s`", pty);
+  якщо (UNLIKELY (fd < 0))
+    повернути crun_make_error (err, errno, "open `%s`", pty);
 
-  for (i = 0; i < 3; i++)
+  для (i = 0; i < 3; i++)
     {
       ret = dup3 (fd, i, 0);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "dup terminal");
+      якщо (UNLIKELY (ret < 0))
+        повернути crun_make_error (err, errno, "dup terminal");
     }
 
   ret = ioctl (0, TIOCSCTTY, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "ioctl TIOCSCTTY");
+  якщо (UNLIKELY (ret < 0))
+    повернути crun_make_error (err, errno, "ioctl TIOCSCTTY");
 
-  return 0;
+  повернути 0;
 }
 
 void
 cleanup_terminalp (void *p)
 {
   struct terminal_status_s **s = (struct terminal_status_s **) p;
-  if (*s)
+  якщо (*s)
     {
       tcsetattr ((*s)->fd, TCSANOW, &(*s)->termios);
       free (*s);
     }
 }
 
-int
-libcrun_terminal_setup_size (int fd, unsigned short rows, unsigned short cols, libcrun_error_t *err)
+ціле
+libcrun_terminal_setup_size (ціле fd, unsigned short rows, unsigned short cols, libcrun_error_t *err)
 {
   struct winsize ws = { .ws_row = rows, .ws_col = cols };
-  int ret;
+  ціле ret;
 
-  if (ws.ws_row == 0 || ws.ws_col == 0)
+  якщо (ws.ws_row == 0 || ws.ws_col == 0)
     {
       ret = ioctl (0, TIOCGWINSZ, &ws);
-      if (UNLIKELY (ret < 0))
+      якщо (UNLIKELY (ret < 0))
         {
-          if (errno == ENOTTY)
-            return 0;
-          return crun_make_error (err, errno, "ioctl TIOCGWINSZ");
+          якщо (errno == ENOTTY)
+            повернути 0;
+          повернути crun_make_error (err, errno, "ioctl TIOCGWINSZ");
         }
     }
 
   ret = ioctl (fd, TIOCSWINSZ, &ws);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "ioctl TIOCSWINSZ");
-  return 0;
+  якщо (UNLIKELY (ret < 0))
+    повернути crun_make_error (err, errno, "ioctl TIOCSWINSZ");
+  повернути 0;
 }

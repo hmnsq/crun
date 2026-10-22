@@ -35,43 +35,43 @@
 #define MON_GROUPS "mon_groups"
 #define RDTGROUP_SUPER_MAGIC 0x7655821
 
-static int
+static ціле
 is_rdt_mounted (libcrun_error_t *err)
 {
   struct statfs sfs;
-  int ret;
+  ціле ret;
 
   ret = statfs (INTEL_RDT_MOUNT_POINT, &sfs);
-  if (ret < 0)
-    return crun_make_error (err, errno, "statfs `%s`", INTEL_RDT_MOUNT_POINT);
+  якщо (ret < 0)
+    повернути crun_make_error (err, errno, "statfs `%s`", INTEL_RDT_MOUNT_POINT);
 
-  return sfs.f_type == RDTGROUP_SUPER_MAGIC;
+  повернути sfs.f_type == RDTGROUP_SUPER_MAGIC;
 }
 
-int
+ціле
 get_rdt_value (char **out, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata)
 {
   cleanup_free char *schemata_joined = NULL;
   size_t schemata_size = 0;
 
-  while (schemata && schemata[schemata_size])
+  поки (schemata && schemata[schemata_size])
     schemata_size++;
 
-  if (schemata_size > 0)
+  якщо (schemata_size > 0)
     schemata_joined = str_join_array (0, schemata_size, schemata, "\n");
 
-  return xasprintf (out, "%s%s%s%s%s\n", l3_cache_schema ?: "",
+  повернути xasprintf (out, "%s%s%s%s%s\n", l3_cache_schema ?: "",
                     (l3_cache_schema && mem_bw_schema) ? "\n" : "", mem_bw_schema ?: "",
                     ((l3_cache_schema || mem_bw_schema) && schemata_joined) ? "\n" : "", schemata_joined ?: "");
 }
 
 struct key_value
 {
-  int key;
-  int value;
+  ціле key;
+  ціле value;
 };
 
-static int
+static ціле
 kv_cmp (const void *p1, const void *p2)
 {
   const struct key_value *kv1 = p1;
@@ -79,42 +79,42 @@ kv_cmp (const void *p1, const void *p2)
 
   /* Not a subtraction: the keys are parsed out of the configuration, so two
      of them far enough apart make the difference overflow.  */
-  if (kv1->key < kv2->key)
-    return -1;
-  if (kv1->key > kv2->key)
-    return 1;
-  return 0;
+  якщо (kv1->key < kv2->key)
+    повернути -1;
+  якщо (kv1->key > kv2->key)
+    повернути 1;
+  повернути 0;
 }
 
-static int
+static ціле
 count_parts (const char *str)
 {
   const char *it;
-  int ret = 0;
+  ціле ret = 0;
 
-  for (it = str; *it; it++)
+  для (it = str; *it; it++)
     {
-      if (*it == ';' || *(it + 1) == '\0')
+      якщо (*it == ';' || *(it + 1) == '\0')
         ret++;
     }
-  return ret;
+  повернути ret;
 }
 
-static int
+static ціле
 read_kv (const char *value, struct key_value *out)
 {
   char *endptr;
 
   out->key = strtoll (value, &endptr, 10);
-  if (*endptr != '=')
-    return 1;
+  якщо (*endptr != '=')
+    повернути 1;
 
   endptr++;
   out->value = strtoll (endptr, NULL, 16);
-  return 0;
+  повернути 0;
 }
 
-int
+ціле
 compare_rdt_configurations (const char *a, const char *b)
 {
   cleanup_free struct key_value *kv = NULL;
@@ -123,7 +123,7 @@ compare_rdt_configurations (const char *a, const char *b)
   cleanup_free char *b_copy = NULL;
   const char *it;
   char *end;
-  int ret;
+  ціле ret;
 
   it = strchr (a, ':');
   a = it ? it + 1 : a;
@@ -134,107 +134,107 @@ compare_rdt_configurations (const char *a, const char *b)
   n_parts_a = count_parts (a);
   n_parts_b = count_parts (b);
 
-  if (n_parts_a != n_parts_b)
-    return 1;
+  якщо (n_parts_a != n_parts_b)
+    повернути 1;
 
   kv = xmalloc (sizeof (struct key_value) * (n_parts_a + 1));
 
   end = a_copy = xstrdup (a);
   i = 0;
-  while ((it = strsep (&end, ";")))
+  поки ((it = strsep (&end, ";")))
     {
-      if (it[0] == '\0')
+      якщо (it[0] == '\0')
         break;
       ret = read_kv (it, &(kv[i]));
-      if (ret)
-        return 1;
+      якщо (ret)
+        повернути 1;
       i++;
     }
 
   qsort (kv, i, sizeof (struct key_value), kv_cmp);
 
   end = b_copy = xstrdup (b);
-  while ((it = strsep (&end, ";")))
+  поки ((it = strsep (&end, ";")))
     {
       struct key_value key;
       struct key_value *res;
 
-      if (it[0] == '\0')
+      якщо (it[0] == '\0')
         break;
 
       ret = read_kv (it, &key);
-      if (ret)
-        return 1;
+      якщо (ret)
+        повернути 1;
 
       res = bsearch (&key, kv, n_parts_a, sizeof (struct key_value), kv_cmp);
-      if (res == NULL || res->value != key.value)
-        return 1;
+      якщо (res == NULL || res->value != key.value)
+        повернути 1;
     }
 
-  return 0;
+  повернути 0;
 }
 
 static bool
 is_default_clos (const char *name)
 {
-  return strcmp (name, "/") == 0;
+  повернути strcmp (name, "/") == 0;
 }
 
-static int
+static ціле
 get_resctrl_path (char **path, const char *file, const char *name, libcrun_error_t *err)
 {
-  return append_paths (path, err, INTEL_RDT_MOUNT_POINT, name, file, NULL);
+  повернути append_paths (path, err, INTEL_RDT_MOUNT_POINT, name, file, NULL);
 }
 
-static int
+static ціле
 validate_rdt_configuration (const char *name, const char *l3_cache_schema, const char *mem_bw_schema, libcrun_error_t *err)
 {
   cleanup_free char *existing_content = NULL;
   cleanup_free char *path = NULL;
   char *it, *end;
-  int ret;
+  ціле ret;
 
   ret = get_resctrl_path (&path, SCHEMATA_FILE, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
   ret = read_all_file (path, &existing_content, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
   end = existing_content;
-  while ((it = strsep (&end, "\n")))
+  поки ((it = strsep (&end, "\n")))
     {
       ret = 0;
 
-      if (mem_bw_schema && has_prefix (it, "MB:"))
+      якщо (mem_bw_schema && has_prefix (it, "MB:"))
         ret = compare_rdt_configurations (it, mem_bw_schema);
 
-      if (l3_cache_schema && has_prefix (it, "L3:"))
+      якщо (l3_cache_schema && has_prefix (it, "L3:"))
         ret = compare_rdt_configurations (it, l3_cache_schema);
 
-      if (ret)
-        return crun_make_error (err, 0, "the resctl group `%s` has a different configuration", name);
+      якщо (ret)
+        повернути crun_make_error (err, 0, "the resctl group `%s` has a different configuration", name);
     }
 
-  return 0;
+  повернути 0;
 }
 
-static int
-write_intelrdt_string (int fd, const char *file, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err)
+static ціле
+write_intelrdt_string (ціле fd, const char *file, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err)
 {
   cleanup_free char *formatted = NULL;
-  int len, ret;
+  ціле len, ret;
 
   len = get_rdt_value (&formatted, l3_cache_schema, mem_bw_schema, schemata);
-  if (len < 0)
-    return crun_make_error (err, errno, "internal error get_rdt_value");
+  якщо (len < 0)
+    повернути crun_make_error (err, errno, "internal error get_rdt_value");
 
   ret = write (fd, formatted, len);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "write `%s`", file);
+  якщо (UNLIKELY (ret < 0))
+    повернути crun_make_error (err, errno, "write `%s`", file);
 
-  return 0;
+  повернути 0;
 }
 
 /* filter any line in the l3_cache_schema that starts with MB:.  */
@@ -246,202 +246,202 @@ intelrdt_clean_l3_cache_schema (const char *l3_cache_schema)
 
   ret = xmalloc (len + 1);
 
-  for (i = 0, j = 0; i < len; i++)
+  для (i = 0, j = 0; i < len; i++)
     {
-      if (l3_cache_schema[i] == 'M' && l3_cache_schema[i + 1] == 'B' && l3_cache_schema[i + 2] == ':')
+      якщо (l3_cache_schema[i] == 'M' && l3_cache_schema[i + 1] == 'B' && l3_cache_schema[i + 2] == ':')
         {
           i += 3;
-          while (l3_cache_schema[i] != '\n' && l3_cache_schema[i] != '\0')
+          поки (l3_cache_schema[i] != '\n' && l3_cache_schema[i] != '\0')
             i++;
           continue;
         }
       ret[j++] = l3_cache_schema[i];
     }
   ret[j] = '\0';
-  return ret;
+  повернути ret;
 }
 
-int
+ціле
 resctl_create (const char *name, bool explicit_clos_id, bool *created, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err)
 {
   cleanup_free char *cleaned_l3_cache_schema = NULL;
   cleanup_free char *path = NULL;
-  int exist;
-  int ret;
+  ціле exist;
+  ціле ret;
 
   *created = false;
 
   ret = is_rdt_mounted (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
-  if (ret == 0)
-    return crun_make_error (err, 0, "the resctl file system is not mounted");
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
+  якщо (ret == 0)
+    повернути crun_make_error (err, 0, "the resctl file system is not mounted");
 
   ret = get_resctrl_path (&path, NULL, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
   exist = crun_path_exists (path, err);
-  if (UNLIKELY (exist < 0))
-    return exist;
+  якщо (UNLIKELY (exist < 0))
+    повернути exist;
 
-  if (l3_cache_schema && strstr (l3_cache_schema, "MB:"))
+  якщо (l3_cache_schema && strstr (l3_cache_schema, "MB:"))
     l3_cache_schema = cleaned_l3_cache_schema = intelrdt_clean_l3_cache_schema (l3_cache_schema);
 
   /* If the closID was specified and both l3cache and bwSchema are unset, and schemata is empty,
      the group must exist.  */
-  if (explicit_clos_id && is_empty_string (l3_cache_schema) && is_empty_string (mem_bw_schema) && (schemata == NULL))
+  якщо (explicit_clos_id && is_empty_string (l3_cache_schema) && is_empty_string (mem_bw_schema) && (schemata == NULL))
     {
-      if (exist || is_default_clos (name))
-        return 0;
+      якщо (exist || is_default_clos (name))
+        повернути 0;
 
-      return crun_make_error (err, 0, "the resctl group `%s` does not exist", name);
+      повернути crun_make_error (err, 0, "the resctl group `%s` does not exist", name);
     }
 
   /* If the closID exists then it must match the specified configuration.  */
-  if (exist && (l3_cache_schema != NULL || mem_bw_schema != NULL))
-    return validate_rdt_configuration (name, l3_cache_schema, mem_bw_schema, err);
+  якщо (exist && (l3_cache_schema != NULL || mem_bw_schema != NULL))
+    повернути validate_rdt_configuration (name, l3_cache_schema, mem_bw_schema, err);
 
-  if (is_default_clos (name))
-    return 0;
+  якщо (is_default_clos (name))
+    повернути 0;
 
   /* At this point, assume it was created.  */
   ret = crun_ensure_directory (path, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
   *created = true;
 
-  return 0;
+  повернути 0;
 }
 
-int
+ціле
 resctl_move_task_to (const char *name, const char *monitoring_name, pid_t pid, libcrun_error_t *err)
 {
   cleanup_free char *monitoring_path = NULL;
   cleanup_free char *path = NULL;
   char pid_str[32];
-  int len;
-  int ret;
+  ціле len;
+  ціле ret;
 
   ret = get_resctrl_path (&path, TASKS_FILE, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
   len = snprintf (pid_str, sizeof (pid_str), "%d", pid);
-  if (UNLIKELY (len >= (int) sizeof (pid_str)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  якщо (UNLIKELY (len >= (ціле) sizeof (pid_str)))
+    повернути crun_make_error (err, 0, "internal error: static buffer too small");
 
   ret = write_file (path, pid_str, len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
-  if (monitoring_name)
+  якщо (monitoring_name)
     {
       ret = append_paths (&monitoring_path, err, INTEL_RDT_MOUNT_POINT, name, MON_GROUPS, monitoring_name, TASKS_FILE, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      якщо (UNLIKELY (ret < 0))
+        повернути ret;
 
       ret = write_file (monitoring_path, pid_str, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      якщо (UNLIKELY (ret < 0))
+        повернути ret;
     }
 
-  return 0;
+  повернути 0;
 }
 
-int
+ціле
 resctl_update (const char *name, const char *l3_cache_schema, const char *mem_bw_schema,
                char *const *schemata, libcrun_error_t *err)
 {
   const char *actual_l3_cache_schema = l3_cache_schema;
   cleanup_free char *cleaned_l3_cache_schema = NULL;
   cleanup_free char *path = NULL;
-  cleanup_close int fd = -1;
-  int ret;
+  cleanup_close ціле fd = -1;
+  ціле ret;
 
   /* Nothing to do.  */
-  if (l3_cache_schema == NULL && mem_bw_schema == NULL && schemata == NULL)
-    return 0;
+  якщо (l3_cache_schema == NULL && mem_bw_schema == NULL && schemata == NULL)
+    повернути 0;
 
   ret = get_resctrl_path (&path, SCHEMATA_FILE, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
-  if (l3_cache_schema && strstr (l3_cache_schema, "MB:"))
+  якщо (l3_cache_schema && strstr (l3_cache_schema, "MB:"))
     {
       cleaned_l3_cache_schema = intelrdt_clean_l3_cache_schema (l3_cache_schema);
       actual_l3_cache_schema = cleaned_l3_cache_schema;
     }
 
   fd = open (path, O_WRONLY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s` for writing", path);
+  якщо (UNLIKELY (fd < 0))
+    повернути crun_make_error (err, errno, "open `%s` for writing", path);
 
-  return write_intelrdt_string (fd, path, actual_l3_cache_schema, mem_bw_schema, schemata, err);
+  повернути write_intelrdt_string (fd, path, actual_l3_cache_schema, mem_bw_schema, schemata, err);
 }
 
-static int
+static ціле
 resctl_get_monitoring_path (const char *resctrl_group_name, const char *container_id, char **monitoring_path, libcrun_error_t *err)
 {
-  int ret;
+  ціле ret;
 
   ret = append_paths (monitoring_path, err, INTEL_RDT_MOUNT_POINT, resctrl_group_name, MON_GROUPS, container_id, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
-  return 0;
+  повернути 0;
 }
 
-int
+ціле
 resctl_destroy_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err)
 {
   cleanup_free char *monitoring_path = NULL;
-  int ret;
+  ціле ret;
 
   ret = resctl_get_monitoring_path (resctrl_group_name, container_id, &monitoring_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
   ret = rmdir (monitoring_path);
-  if (UNLIKELY (ret < 0 && errno != ENOENT))
-    return crun_make_error (err, errno, "rmdir `%s`", monitoring_path);
+  якщо (UNLIKELY (ret < 0 && errno != ENOENT))
+    повернути crun_make_error (err, errno, "rmdir `%s`", monitoring_path);
 
-  return 0;
+  повернути 0;
 }
 
-int
+ціле
 resctl_destroy (const char *name, libcrun_error_t *err)
 {
   cleanup_free char *path = NULL;
-  int ret;
+  ціле ret;
 
-  if (is_default_clos (name))
-    return 0;
+  якщо (is_default_clos (name))
+    повернути 0;
 
   ret = get_resctrl_path (&path, NULL, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
   ret = rmdir (path);
-  if (UNLIKELY (ret < 0 && errno != ENOENT))
-    return crun_make_error (err, errno, "rmdir `%s`", path);
+  якщо (UNLIKELY (ret < 0 && errno != ENOENT))
+    повернути crun_make_error (err, errno, "rmdir `%s`", path);
 
-  return 0;
+  повернути 0;
 }
 
-int
+ціле
 resctl_create_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err)
 {
   cleanup_free char *monitoring_path = NULL;
-  int ret;
+  ціле ret;
 
   ret = resctl_get_monitoring_path (resctrl_group_name, container_id, &monitoring_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
   ret = crun_ensure_directory (monitoring_path, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
-  return 0;
+  повернути 0;
 }

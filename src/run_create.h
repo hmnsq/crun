@@ -20,10 +20,10 @@
 
 #include "crun.h"
 
-typedef int (*container_run_create_func_t) (libcrun_context_t *, libcrun_container_t *, unsigned int, libcrun_error_t *);
-typedef unsigned int (*get_options_func_t) ();
+typedef ціле (*container_run_create_func_t) (libcrun_context_t *, libcrun_container_t *, unsigned ціле, libcrun_error_t *);
+typedef unsigned ціле (*get_options_func_t) ();
 
-int crun_run_create_internal (struct crun_global_arguments *global_args, int argc, char **argv,
+ціле crun_run_create_internal (struct crun_global_arguments *global_args, ціле argc, char **argv,
                               container_run_create_func_t container_run_create_func, get_options_func_t get_options_func,
                               libcrun_context_t *crun_context, struct argp *run_argp, const char **config_file,
                               const char **bundle, libcrun_error_t *err);

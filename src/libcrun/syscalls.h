@@ -28,7 +28,7 @@
 #ifdef HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H
 #  include <linux/mount.h>
 #endif
-#if defined HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H || defined HAVE_FSCONFIG_CMD_CREATE_SYS_MOUNT_H
+#якщо defined HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H || defined HAVE_FSCONFIG_CMD_CREATE_SYS_MOUNT_H
 #  define HAVE_NEW_MOUNT_API
 #endif
 
@@ -154,67 +154,67 @@ struct _clone3_args
 };
 
 /* Mount API syscall wrappers */
-static inline int
-syscall_fsopen (const char *fs_name, unsigned int flags)
+static inline ціле
+syscall_fsopen (const char *fs_name, unsigned ціле flags)
 {
-#if defined __NR_fsopen
-  return (int) syscall (__NR_fsopen, fs_name, flags);
-#else
+#якщо defined __NR_fsopen
+  повернути (ціле) syscall (__NR_fsopen, fs_name, flags);
+#інакше
   (void) fs_name;
   (void) flags;
   errno = ENOSYS;
-  return -1;
+  повернути -1;
 #endif
 }
 
-static inline int
-syscall_fsmount (int fsfd, unsigned int flags, unsigned int attr_flags)
+static inline ціле
+syscall_fsmount (ціле fsfd, unsigned ціле flags, unsigned ціле attr_flags)
 {
-#if defined __NR_fsmount
-  return (int) syscall (__NR_fsmount, fsfd, flags, attr_flags);
-#else
+#якщо defined __NR_fsmount
+  повернути (ціле) syscall (__NR_fsmount, fsfd, flags, attr_flags);
+#інакше
   (void) fsfd;
   (void) flags;
   (void) attr_flags;
   errno = ENOSYS;
-  return -1;
+  повернути -1;
 #endif
 }
 
-static inline int
-syscall_fsconfig (int fsfd, unsigned int cmd, const char *key, const void *val, int aux)
+static inline ціле
+syscall_fsconfig (ціле fsfd, unsigned ціле cmd, const char *key, const void *val, ціле aux)
 {
-#if defined __NR_fsconfig
-  return (int) syscall (__NR_fsconfig, fsfd, cmd, key, val, aux);
-#else
+#якщо defined __NR_fsconfig
+  повернути (ціле) syscall (__NR_fsconfig, fsfd, cmd, key, val, aux);
+#інакше
   (void) fsfd;
   (void) cmd;
   (void) key;
   (void) val;
   (void) aux;
   errno = ENOSYS;
-  return -1;
+  повернути -1;
 #endif
 }
 
 /* File descriptor management syscalls */
-static inline int
-syscall_close_range (unsigned int fd, unsigned int max_fd, unsigned int flags)
+static inline ціле
+syscall_close_range (unsigned ціле fd, unsigned ціле max_fd, unsigned ціле flags)
 {
 #ifdef __NR_close_range
-  return (int) syscall (__NR_close_range, fd, max_fd, flags);
-#else
+  повернути (ціле) syscall (__NR_close_range, fd, max_fd, flags);
+#інакше
   (void) fd;
   (void) max_fd;
   (void) flags;
   errno = ENOSYS;
-  return -1;
+  повернути -1;
 #endif
 }
 
 /* Secure file operation syscalls */
-static inline int
-syscall_openat2 (int dirfd, const char *path, uint64_t flags, uint64_t mode, uint64_t resolve)
+static inline ціле
+syscall_openat2 (ціле dirfd, const char *path, uint64_t flags, uint64_t mode, uint64_t resolve)
 {
 #ifdef __NR_openat2
   struct openat2_open_how how = {
@@ -222,87 +222,87 @@ syscall_openat2 (int dirfd, const char *path, uint64_t flags, uint64_t mode, uin
     .mode = mode,
     .resolve = resolve,
   };
-  return (int) syscall (__NR_openat2, dirfd, path, &how, sizeof (how), 0);
-#else
+  повернути (ціле) syscall (__NR_openat2, dirfd, path, &how, sizeof (how), 0);
+#інакше
   (void) dirfd;
   (void) path;
   (void) flags;
   (void) mode;
   (void) resolve;
   errno = ENOSYS;
-  return -1;
+  повернути -1;
 #endif
 }
 
 /* Process management syscalls */
-static inline int
+static inline ціле
 syscall_clone3 (struct _clone3_args *args)
 {
 #ifdef __NR_clone3
-  return (int) syscall (__NR_clone3, args, sizeof (*args));
-#else
+  повернути (ціле) syscall (__NR_clone3, args, sizeof (*args));
+#інакше
   (void) args;
   errno = ENOSYS;
-  return -1;
+  повернути -1;
 #endif
 }
 
-static inline int
+static inline ціле
 syscall_getcwd (char *path, size_t len)
 {
 #ifdef __NR_getcwd
-  return (int) syscall (__NR_getcwd, path, len);
-#else
+  повернути (ціле) syscall (__NR_getcwd, path, len);
+#інакше
   (void) path;
   (void) len;
   errno = ENOSYS;
-  return -1;
+  повернути -1;
 #endif
 }
 
 /* Mount management syscalls */
-static inline int
-syscall_move_mount (int from_dfd, const char *from_pathname, int to_dfd, const char *to_pathname, unsigned int flags)
+static inline ціле
+syscall_move_mount (ціле from_dfd, const char *from_pathname, ціле to_dfd, const char *to_pathname, unsigned ціле flags)
 {
-#if defined __NR_move_mount
-  return (int) syscall (__NR_move_mount, from_dfd, from_pathname, to_dfd, to_pathname, flags);
-#else
+#якщо defined __NR_move_mount
+  повернути (ціле) syscall (__NR_move_mount, from_dfd, from_pathname, to_dfd, to_pathname, flags);
+#інакше
   (void) from_dfd;
   (void) from_pathname;
   (void) to_dfd;
   (void) to_pathname;
   (void) flags;
   errno = ENOSYS;
-  return -1;
+  повернути -1;
 #endif
 }
 
-static inline int
-syscall_open_tree (int dfd, const char *pathname, unsigned int flags)
+static inline ціле
+syscall_open_tree (ціле dfd, const char *pathname, unsigned ціле flags)
 {
-#if defined __NR_open_tree
-  return (int) syscall (__NR_open_tree, dfd, pathname, flags);
-#else
+#якщо defined __NR_open_tree
+  повернути (ціле) syscall (__NR_open_tree, dfd, pathname, flags);
+#інакше
   (void) dfd;
   (void) pathname;
   (void) flags;
   errno = ENOSYS;
-  return -1;
+  повернути -1;
 #endif
 }
 
-static inline int
-syscall_mount_setattr (int dfd, const char *path, unsigned int flags, struct mount_attr_s *attr)
+static inline ціле
+syscall_mount_setattr (ціле dfd, const char *path, unsigned ціле flags, struct mount_attr_s *attr)
 {
 #ifdef __NR_mount_setattr
-  return (int) syscall (__NR_mount_setattr, dfd, path, flags, attr, sizeof (*attr));
-#else
+  повернути (ціле) syscall (__NR_mount_setattr, dfd, path, flags, attr, sizeof (*attr));
+#інакше
   (void) dfd;
   (void) path;
   (void) flags;
   (void) attr;
   errno = ENOSYS;
-  return -1;
+  повернути -1;
 #endif
 }
 

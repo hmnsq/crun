@@ -42,23 +42,23 @@ make_cgroup_path (const char *path, const char *id)
 {
   char *ret;
 
-  if (path == NULL)
+  якщо (path == NULL)
     xasprintf (&ret, "/%s", id);
-  else if (path[0] == '/')
+  інакше якщо (path[0] == '/')
     ret = xstrdup (path);
-  else
+  інакше
     xasprintf (&ret, "/%s", path);
 
-  return ret;
+  повернути ret;
 }
 
-static int
-libcrun_precreate_cgroup_cgroupfs (struct libcrun_cgroup_args *args, int *dirfd, libcrun_error_t *err)
+static ціле
+libcrun_precreate_cgroup_cgroupfs (struct libcrun_cgroup_args *args, ціле *dirfd, libcrun_error_t *err)
 {
   cleanup_free char *sub_path = make_cgroup_path (args->cgroup_path, args->id);
   cleanup_free char *cgroup_path = NULL;
   cleanup_free char *parent_path = NULL;
-  int ret;
+  ціле ret;
 
   /* No need to check the mode since this feature is supported only on cgroup v2, and
      libcrun_cgroup_preenter already performs this check.  */
@@ -68,128 +68,128 @@ libcrun_precreate_cgroup_cgroupfs (struct libcrun_cgroup_args *args, int *dirfd,
   /* The container process is created directly in the cgroup, so check it
      now: once it is there, it is too late.  */
   ret = libcrun_cgroup_ensure_not_frozen (sub_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
   ret = append_paths (&cgroup_path, err, CGROUP_ROOT, sub_path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
   parent_path = xstrdup (cgroup_path);
   ret = crun_ensure_directory (dirname (parent_path), 0755, true, err);
-  if (UNLIKELY (ret < 0))
+  якщо (UNLIKELY (ret < 0))
     {
       libcrun_error_release (err);
-      return 0;
+      повернути 0;
     }
 
   /* Remember the cgroup created here, so it can be removed if the container
      creation fails before there is a status for it.  A pre-existing cgroup is
      left alone.  */
-  if (mkdir (cgroup_path, 0755) == 0)
+  якщо (mkdir (cgroup_path, 0755) == 0)
     args->precreated_path = xstrdup (cgroup_path);
-  else if (errno != EEXIST)
-    return 0;
+  інакше якщо (errno != EEXIST)
+    повернути 0;
 
   ret = enable_controllers (sub_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
   *dirfd = open (cgroup_path, O_CLOEXEC | O_NOFOLLOW | O_DIRECTORY | O_PATH);
-  if (UNLIKELY (*dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", cgroup_path);
+  якщо (UNLIKELY (*dirfd < 0))
+    повернути crun_make_error (err, errno, "open `%s`", cgroup_path);
 
-  return 0;
+  повернути 0;
 }
 
-static int
+static ціле
 make_new_sibling_cgroup (char **out, const char *id, libcrun_error_t *err)
 {
   cleanup_free char *current_cgroup = NULL;
   char *dir;
-  int ret;
+  ціле ret;
 
   ret = libcrun_get_cgroup_process (0, &current_cgroup, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
   dir = dirname (current_cgroup);
 
   append_paths (out, err, dir, id, NULL);
-  return 0;
+  повернути 0;
 }
 
-static int
+static ціле
 libcrun_cgroup_enter_cgroupfs (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status *out, libcrun_error_t *err)
 {
   pid_t pid = args->pid;
-  int cgroup_mode;
-  int ret;
+  ціле cgroup_mode;
+  ціле ret;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  якщо (UNLIKELY (cgroup_mode < 0))
+    повернути cgroup_mode;
 
   out->path = make_cgroup_path (args->cgroup_path, args->id);
 
   /* If the cgroup was already joined via CLONE_INTO_CGROUP, the controllers
      were already enabled by precreate_cgroup.  */
-  if (args->joined)
-    return 0;
+  якщо (args->joined)
+    повернути 0;
 
-  if (cgroup_mode == CGROUP_MODE_UNIFIED)
+  якщо (cgroup_mode == CGROUP_MODE_UNIFIED)
     {
       ret = enable_controllers (out->path, err);
-      if (UNLIKELY (ret < 0))
+      якщо (UNLIKELY (ret < 0))
         {
           /* If the generated path cannot be used attempt to create the new cgroup
              as a sibling of the current one.  */
-          if (args->cgroup_path == NULL)
+          якщо (args->cgroup_path == NULL)
             {
               libcrun_error_t tmp_err = NULL;
-              int tmp_ret;
+              ціле tmp_ret;
 
               free (out->path);
               out->path = NULL;
 
               tmp_ret = make_new_sibling_cgroup (&out->path, args->id, &tmp_err);
-              if (UNLIKELY (tmp_ret < 0))
+              якщо (UNLIKELY (tmp_ret < 0))
                 {
                   crun_error_release (&tmp_err);
-                  return ret;
+                  повернути ret;
                 }
 
               crun_error_release (err);
               ret = enable_controllers (out->path, err);
             }
-          if (UNLIKELY (ret < 0))
-            return ret;
+          якщо (UNLIKELY (ret < 0))
+            повернути ret;
         }
     }
 
   ret = libcrun_cgroup_ensure_not_frozen (out->path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
-  return enter_cgroup (cgroup_mode, pid, 0, out->path, true, err);
+  повернути enter_cgroup (cgroup_mode, pid, 0, out->path, true, err);
 }
 
-static int
+static ціле
 libcrun_destroy_cgroup_cgroupfs (struct libcrun_cgroup_status *cgroup_status,
                                  libcrun_error_t *err)
 {
-  int mode;
-  int ret;
+  ціле mode;
+  ціле ret;
 
   mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (mode < 0))
-    return mode;
+  якщо (UNLIKELY (mode < 0))
+    повернути mode;
 
   ret = cgroup_killall_path (cgroup_status->path, SIGKILL, err);
-  if (UNLIKELY (ret < 0))
+  якщо (UNLIKELY (ret < 0))
     crun_error_release (err);
 
-  return destroy_cgroup_path (cgroup_status->path, mode, err);
+  повернути destroy_cgroup_path (cgroup_status->path, mode, err);
 }
 
 struct libcrun_cgroup_manager cgroup_manager_cgroupfs = {

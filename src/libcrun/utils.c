@@ -47,11 +47,11 @@
 #ifdef HAVE_LINUX_OPENAT2_H
 #  include <linux/openat2.h>
 #endif
-#if HAVE_STDATOMIC_H
+#якщо HAVE_STDATOMIC_H
 #  include <stdatomic.h>
-#else
+#інакше
 #  define atomic_long volatile long
-#  define atomic_int volatile int
+#  define atomic_int volatile ціле
 #endif
 #include "syscalls.h"
 
@@ -74,71 +74,71 @@
 #define MAX_READLINKS 32
 #define MAX_OPENAT2_EAGAIN_RETRIES 128
 
-int
+ціле
 crun_path_exists (const char *path, libcrun_error_t *err)
 {
-  int ret = access (path, F_OK);
-  if (ret < 0)
+  ціле ret = access (path, F_OK);
+  якщо (ret < 0)
     {
-      if (errno == ENOENT)
-        return 0;
-      return crun_make_error (err, errno, "access `%s`", path);
+      якщо (errno == ENOENT)
+        повернути 0;
+      повернути crun_make_error (err, errno, "access `%s`", path);
     }
-  return 1;
+  повернути 1;
 }
 
-int
+ціле
 xasprintf (char **str, const char *fmt, ...)
 {
-  int ret;
+  ціле ret;
   va_list args_list;
 
   va_start (args_list, fmt);
 
   ret = vasprintf (str, fmt, args_list);
-  if (UNLIKELY (ret < 0))
+  якщо (UNLIKELY (ret < 0))
     OOM ();
 
   va_end (args_list);
-  return ret;
+  повернути ret;
 }
 
-int
-write_file_at_with_flags (int dirfd, int flags, mode_t mode, const char *name, const void *data, size_t len, libcrun_error_t *err)
+ціле
+write_file_at_with_flags (ціле dirfd, ціле flags, mode_t mode, const char *name, const void *data, size_t len, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
-  int ret = 0;
+  cleanup_close ціле fd = -1;
+  ціле ret = 0;
 
   fd = openat (dirfd, name, O_CLOEXEC | O_WRONLY | flags, mode);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s` for writing", name);
+  якщо (UNLIKELY (fd < 0))
+    повернути crun_make_error (err, errno, "open `%s` for writing", name);
 
   ret = safe_write (fd, name, data, len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
-  return (len > INT_MAX) ? INT_MAX : (int) len;
+  повернути (len > INT_MAX) ? INT_MAX : (ціле) len;
 }
 
-int
+ціле
 detach_process ()
 {
   pid_t pid;
-  if (setsid () < 0)
-    return -1;
+  якщо (setsid () < 0)
+    повернути -1;
   pid = fork ();
-  if (pid < 0)
-    return -1;
-  if (pid != 0)
+  якщо (pid < 0)
+    повернути -1;
+  якщо (pid != 0)
     _safe_exit (EXIT_SUCCESS);
-  return 0;
+  повернути 0;
 }
 
-int
-get_file_type_fd (int fd, mode_t *mode)
+ціле
+get_file_type_fd (ціле fd, mode_t *mode)
 {
   struct stat st;
-  int ret;
+  ціле ret;
 
 #ifdef HAVE_STATX
   struct statx stx = {
@@ -146,29 +146,29 @@ get_file_type_fd (int fd, mode_t *mode)
   };
 
   ret = statx (fd, "", AT_EMPTY_PATH | AT_STATX_DONT_SYNC, STATX_TYPE, &stx);
-  if (UNLIKELY (ret < 0))
+  якщо (UNLIKELY (ret < 0))
     {
-      if (errno == ENOSYS || errno == EINVAL)
+      якщо (errno == ENOSYS || errno == EINVAL)
         goto fallback;
 
-      return ret;
+      повернути ret;
     }
   *mode = stx.stx_mode;
-  return ret;
+  повернути ret;
 
 fallback:
 #endif
   ret = fstat (fd, &st);
   *mode = st.st_mode;
-  return ret;
+  повернути ret;
 }
 
-int
-get_file_type_at (int dirfd, mode_t *mode, bool nofollow, const char *path)
+ціле
+get_file_type_at (ціле dirfd, mode_t *mode, bool nofollow, const char *path)
 {
-  int empty_path = path == NULL ? AT_EMPTY_PATH : 0;
+  ціле empty_path = path == NULL ? AT_EMPTY_PATH : 0;
   struct stat st;
-  int ret;
+  ціле ret;
 
 #ifdef HAVE_STATX
   struct statx stx = {
@@ -176,162 +176,162 @@ get_file_type_at (int dirfd, mode_t *mode, bool nofollow, const char *path)
   };
 
   ret = statx (dirfd, path ?: "", empty_path | (nofollow ? AT_SYMLINK_NOFOLLOW : 0) | AT_STATX_DONT_SYNC, STATX_TYPE, &stx);
-  if (UNLIKELY (ret < 0))
+  якщо (UNLIKELY (ret < 0))
     {
-      if (errno == ENOSYS || errno == EINVAL)
+      якщо (errno == ENOSYS || errno == EINVAL)
         goto fallback;
 
-      return ret;
+      повернути ret;
     }
   *mode = stx.stx_mode;
-  return ret;
+  повернути ret;
 
 fallback:
 #endif
   ret = fstatat (dirfd, path ?: "", &st, empty_path | (nofollow ? AT_SYMLINK_NOFOLLOW : 0));
   *mode = st.st_mode;
-  return ret;
+  повернути ret;
 }
 
-int
+ціле
 get_file_type (mode_t *mode, bool nofollow, const char *path)
 {
-  return get_file_type_at (AT_FDCWD, mode, nofollow, path);
+  повернути get_file_type_at (AT_FDCWD, mode, nofollow, path);
 }
 
-int
-create_file_if_missing_at (int dirfd, const char *file, mode_t mode, libcrun_error_t *err)
+ціле
+create_file_if_missing_at (ціле dirfd, const char *file, mode_t mode, libcrun_error_t *err)
 {
-  cleanup_close int fd_write = openat (dirfd, file, O_CLOEXEC | O_CREAT | O_WRONLY | O_NOFOLLOW | O_NONBLOCK, mode);
-  if (fd_write < 0)
+  cleanup_close ціле fd_write = openat (dirfd, file, O_CLOEXEC | O_CREAT | O_WRONLY | O_NOFOLLOW | O_NONBLOCK, mode);
+  якщо (fd_write < 0)
     {
-      int saved_errno = errno;
+      ціле saved_errno = errno;
       mode_t tmp_mode;
-      int ret;
+      ціле ret;
 
       /* On errors, check if the file already exists.  */
       ret = get_file_type_at (dirfd, &tmp_mode, true, file);
-      if (ret == 0 && S_ISREG (tmp_mode))
-        return 0;
+      якщо (ret == 0 && S_ISREG (tmp_mode))
+        повернути 0;
 
-      return crun_make_error (err, saved_errno, "create file `%s`", file);
+      повернути crun_make_error (err, saved_errno, "create file `%s`", file);
     }
-  return 0;
+  повернути 0;
 }
 
-static int
-ensure_directory_internal_at (int dirfd, char *path, size_t len, int mode, libcrun_error_t *err)
+static ціле
+ensure_directory_internal_at (ціле dirfd, char *path, size_t len, ціле mode, libcrun_error_t *err)
 {
   char *it = path + len;
-  int ret = 0;
+  ціле ret = 0;
   bool parent_created = false;
 
-  for (;;)
+  для (;;)
     {
       ret = mkdirat (dirfd, path, mode);
-      if (ret == 0 || errno == EEXIST)
-        return 0;
+      якщо (ret == 0 || errno == EEXIST)
+        повернути 0;
 
-      int saved_errno = errno;
-      if (parent_created || errno != ENOENT)
+      ціле saved_errno = errno;
+      якщо (parent_created || errno != ENOENT)
         {
           libcrun_error_t tmp_err = NULL;
 
           /* On errors check if the directory already exists.  */
           ret = crun_dir_p (path, false, &tmp_err);
-          if (ret > 0)
-            return 0;
-          if (ret < 0)
+          якщо (ret > 0)
+            повернути 0;
+          якщо (ret < 0)
             crun_error_release (&tmp_err);
 
-          return crun_make_error (err, saved_errno, "create directory `%s`", path);
+          повернути crun_make_error (err, saved_errno, "create directory `%s`", path);
         }
 
-      while (it > path && *it != '/')
+      поки (it > path && *it != '/')
         {
           it--;
           len--;
         }
-      if (it == path)
-        return 0;
+      якщо (it == path)
+        повернути 0;
 
       *it = '\0';
       ret = ensure_directory_internal_at (dirfd, path, len - 1, mode, err);
       *it = '/';
-      if (UNLIKELY (ret < 0))
-        return ret;
+      якщо (UNLIKELY (ret < 0))
+        повернути ret;
 
       parent_created = true;
     }
-  return ret;
+  повернути ret;
 }
 
-int
-crun_ensure_directory_at (int dirfd, const char *path, int mode, bool nofollow, libcrun_error_t *err)
+ціле
+crun_ensure_directory_at (ціле dirfd, const char *path, ціле mode, bool nofollow, libcrun_error_t *err)
 {
-  int ret;
+  ціле ret;
   cleanup_free char *tmp = xstrdup (path);
   ret = ensure_directory_internal_at (dirfd, tmp, strlen (tmp), mode, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
   ret = crun_dir_p_at (dirfd, path, nofollow, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
-  if (ret == 0)
-    return crun_make_error (err, ENOTDIR, "the path `%s` is not a directory", path);
+  якщо (ret == 0)
+    повернути crun_make_error (err, ENOTDIR, "the path `%s` is not a directory", path);
 
-  return 0;
+  повернути 0;
 }
 
-static int
-check_fd_is_path (const char *path, int fd, const char *fdname, libcrun_error_t *err)
+static ціле
+check_fd_is_path (const char *path, ціле fd, const char *fdname, libcrun_error_t *err)
 {
   proc_fd_path_t fdpath;
   size_t path_len = strlen (path);
   char link[PATH_MAX];
-  int ret;
+  ціле ret;
 
   get_proc_self_fd_path (fdpath, fd);
   ret = TEMP_FAILURE_RETRY (readlink (fdpath, link, sizeof (link)));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "readlink `%s`", fdname);
+  якщо (UNLIKELY (ret < 0))
+    повернути crun_make_error (err, errno, "readlink `%s`", fdname);
 
-  if (((size_t) ret) != path_len || memcmp (link, path, path_len))
-    return crun_make_error (err, 0, "target `%s` does not point to the directory `%s`", fdname, path);
+  якщо (((size_t) ret) != path_len || memcmp (link, path, path_len))
+    повернути crun_make_error (err, 0, "target `%s` does not point to the directory `%s`", fdname, path);
 
-  return 0;
+  повернути 0;
 }
 
-static int
-check_fd_under_path (const char *rootfs, size_t rootfslen, int fd, const char *fdname, libcrun_error_t *err)
+static ціле
+check_fd_under_path (const char *rootfs, size_t rootfslen, ціле fd, const char *fdname, libcrun_error_t *err)
 {
   proc_fd_path_t fdpath;
   char link[PATH_MAX];
-  int ret;
+  ціле ret;
 
   /* Every path is under "/", there is nothing to verify.  The check below
      would reject any path since it expects a '/' right after the rootfs.  */
-  if (rootfslen == 0 || (rootfslen == 1 && rootfs[0] == '/'))
-    return 0;
+  якщо (rootfslen == 0 || (rootfslen == 1 && rootfs[0] == '/'))
+    повернути 0;
 
   get_proc_self_fd_path (fdpath, fd);
   ret = TEMP_FAILURE_RETRY (readlink (fdpath, link, sizeof (link)));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "readlink `%s`", fdname);
+  якщо (UNLIKELY (ret < 0))
+    повернути crun_make_error (err, errno, "readlink `%s`", fdname);
 
-  if (((size_t) ret) <= rootfslen || memcmp (link, rootfs, rootfslen) != 0 || link[rootfslen] != '/')
-    return crun_make_error (err, 0, "target `%s` not under the directory `%s`", fdname, rootfs);
+  якщо (((size_t) ret) <= rootfslen || memcmp (link, rootfs, rootfslen) != 0 || link[rootfslen] != '/')
+    повернути crun_make_error (err, 0, "target `%s` not under the directory `%s`", fdname, rootfs);
 
-  return 0;
+  повернути 0;
 }
 
 /* Check if *oldfd is a valid fd and close it.  Then store newfd into *oldfd.  */
 static void
-close_and_replace (int *oldfd, int newfd)
+close_and_replace (ціле *oldfd, ціле newfd)
 {
-  if (*oldfd >= 0)
+  якщо (*oldfd >= 0)
     TEMP_FAILURE_RETRY (close (*oldfd));
 
   *oldfd = newfd;
@@ -342,37 +342,37 @@ char *chroot_realpath (const char *chroot, const char *path, char resolved_path[
 
 /* DIRFD must be a file descriptor for ROOTFS itself: PATH is resolved
    against ROOTFS and the result is then opened relatively to DIRFD.  */
-static int
-safe_openat_fallback (int dirfd, const char *rootfs, const char *path, int flags,
-                      int mode, libcrun_error_t *err)
+static ціле
+safe_openat_fallback (ціле dirfd, const char *rootfs, const char *path, ціле flags,
+                      ціле mode, libcrun_error_t *err)
 {
   cleanup_free char *parent_path = NULL;
   const char *last_component = NULL;
   const char *orig_path = path;
   const char *path_in_chroot;
-  cleanup_close int fd = -1;
+  cleanup_close ціле fd = -1;
   char resolved[PATH_MAX];
   char buffer[PATH_MAX];
   size_t rootfs_len = safe_strlen (rootfs);
-  int ret;
+  ціле ret;
 
   /* chroot_realpath resolves the last component as well, so when O_NOFOLLOW
      is requested resolve only the parent directory and let openat(2) deal
      with the last component, otherwise a symlink would be followed even
      though the caller asked not to.  */
-  if (flags & O_NOFOLLOW)
+  якщо (flags & O_NOFOLLOW)
     {
       char *sep;
 
       parent_path = xstrdup (path);
       sep = strrchr (parent_path, '/');
-      if (sep == NULL)
+      якщо (sep == NULL)
         {
           /* No parent directory, the entire path is the last component.  */
           last_component = path;
           parent_path[0] = '\0';
         }
-      else if (sep[1] != '\0')
+      інакше якщо (sep[1] != '\0')
         {
           *sep = '\0';
           last_component = path + (sep - parent_path) + 1;
@@ -380,121 +380,121 @@ safe_openat_fallback (int dirfd, const char *rootfs, const char *path, int flags
       /* A trailing '/' forces the symlink to be resolved anyway, so in that
          case keep resolving the entire path.  */
 
-      if (last_component)
+      якщо (last_component)
         path = parent_path;
     }
 
   path_in_chroot = chroot_realpath (rootfs, path, buffer);
-  if (path_in_chroot == NULL)
-    return crun_make_error (err, errno, "cannot resolve `%s` under rootfs", orig_path);
+  якщо (path_in_chroot == NULL)
+    повернути crun_make_error (err, errno, "cannot resolve `%s` under rootfs", orig_path);
 
   /* When rootfs is "/" or not set, chroot_realpath returns the path
      unchanged, so drop the prefix only when it is really there.  */
-  if (rootfs_len > 0 && strncmp (path_in_chroot, rootfs, rootfs_len) == 0)
+  якщо (rootfs_len > 0 && strncmp (path_in_chroot, rootfs, rootfs_len) == 0)
     path_in_chroot += rootfs_len;
   path_in_chroot = consume_slashes (path_in_chroot);
 
-  if (last_component)
+  якщо (last_component)
     {
       ret = snprintf (resolved, sizeof (resolved), "%s%s%s", path_in_chroot,
                       path_in_chroot[0] == '\0' ? "" : "/", last_component);
-      if (UNLIKELY (ret >= (int) sizeof (resolved)))
-        return crun_make_error (err, ENAMETOOLONG, "resolve `%s` under rootfs", orig_path);
+      якщо (UNLIKELY (ret >= (ціле) sizeof (resolved)))
+        повернути crun_make_error (err, ENAMETOOLONG, "resolve `%s` under rootfs", orig_path);
 
       path_in_chroot = resolved;
     }
 
   /* If the path is empty we are at the root, dup the dirfd itself.  */
-  if (path_in_chroot[0] == '\0')
+  якщо (path_in_chroot[0] == '\0')
     {
       ret = dup (dirfd);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "dup `%s`", rootfs_len ? rootfs : "/");
-      return ret;
+      якщо (UNLIKELY (ret < 0))
+        повернути crun_make_error (err, errno, "dup `%s`", rootfs_len ? rootfs : "/");
+      повернути ret;
     }
 
   ret = openat (dirfd, path_in_chroot, flags, mode);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "open `%s`", orig_path);
+  якщо (UNLIKELY (ret < 0))
+    повернути crun_make_error (err, errno, "open `%s`", orig_path);
 
   fd = ret;
 
   ret = check_fd_under_path (rootfs, rootfs_len, fd, orig_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
   ret = fd;
   fd = -1;
-  return ret;
+  повернути ret;
 }
 
-int
-safe_openat (int dirfd, const char *rootfs, const char *path, int flags, int mode,
+ціле
+safe_openat (ціле dirfd, const char *rootfs, const char *path, ціле flags, ціле mode,
              libcrun_error_t *err)
 {
   static bool openat2_supported = true;
-  int retries = MAX_OPENAT2_EAGAIN_RETRIES;
-  int ret;
+  ціле retries = MAX_OPENAT2_EAGAIN_RETRIES;
+  ціле ret;
 
-  if (is_empty_string (path))
+  якщо (is_empty_string (path))
     {
-      cleanup_close int fd = -1;
+      cleanup_close ціле fd = -1;
 
       /* A container without a rootfs of its own uses the host root.  */
-      if (is_empty_string (rootfs))
+      якщо (is_empty_string (rootfs))
         rootfs = "/";
 
       fd = open (rootfs, flags, mode);
-      if (UNLIKELY (fd < 0))
-        return crun_make_error (err, errno, "open `%s`", rootfs);
+      якщо (UNLIKELY (fd < 0))
+        повернути crun_make_error (err, errno, "open `%s`", rootfs);
 
       /* Skip the readlink-based check when opening the root
          directory itself (rootfs="/", path="").  After pivot_root,
          "/" can only refer to the container root so the readlink
          verification is redundant, and after setns the /proc-based
          readlink may not be reachable by path yet.  */
-      if (rootfs[0] != '/' || rootfs[1] != '\0')
+      якщо (rootfs[0] != '/' || rootfs[1] != '\0')
         {
           ret = check_fd_is_path (rootfs, fd, path, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          якщо (UNLIKELY (ret < 0))
+            повернути ret;
         }
 
       ret = fd;
       fd = -1;
-      return ret;
+      повернути ret;
     }
 
-  if (openat2_supported)
+  якщо (openat2_supported)
     {
     repeat:
       ret = syscall_openat2 (dirfd, path, flags, mode, RESOLVE_IN_ROOT);
-      if (UNLIKELY (ret < 0))
+      якщо (UNLIKELY (ret < 0))
         {
-          if (errno == EINTR)
+          якщо (errno == EINTR)
             goto repeat;
           /* With RESOLVE_IN_ROOT the kernel returns EAGAIN when a rename or a
              mount happened anywhere on the system while a ".." component was
              being resolved.  Any process can cause that, so give up after a
              bounded number of attempts instead of retrying forever.  */
-          if (errno == EAGAIN && retries-- > 0)
+          якщо (errno == EAGAIN && retries-- > 0)
             goto repeat;
-          if (errno == ENOSYS)
+          якщо (errno == ENOSYS)
             openat2_supported = false;
-          if (errno == ENOSYS || errno == EINVAL || errno == EPERM)
-            return safe_openat_fallback (dirfd, rootfs, path, flags, mode, err);
+          якщо (errno == ENOSYS || errno == EINVAL || errno == EPERM)
+            повернути safe_openat_fallback (dirfd, rootfs, path, flags, mode, err);
 
-          return crun_make_error (err, errno, "openat2 `%s`", path);
+          повернути crun_make_error (err, errno, "openat2 `%s`", path);
         }
 
-      return ret;
+      повернути ret;
     }
 
-  return safe_openat_fallback (dirfd, rootfs, path, flags, mode, err);
+  повернути safe_openat_fallback (dirfd, rootfs, path, flags, mode, err);
 }
 
 ssize_t
-safe_readlinkat (int dfd, const char *name, char **buffer, ssize_t hint, libcrun_error_t *err)
+safe_readlinkat (ціле dfd, const char *name, char **buffer, ssize_t hint, libcrun_error_t *err)
 {
   /* Add 1 to make room for the NUL terminator.  */
   ssize_t buf_size = hint > 0 ? hint + 1 : 512;
@@ -503,15 +503,15 @@ safe_readlinkat (int dfd, const char *name, char **buffer, ssize_t hint, libcrun
 
   do
     {
-      if (tmp_buf != NULL)
+      якщо (tmp_buf != NULL)
         buf_size += 256;
 
       tmp_buf = xrealloc (tmp_buf, buf_size);
 
       size = readlinkat (dfd, name, tmp_buf, buf_size);
-      if (UNLIKELY (size < 0))
-        return crun_make_error (err, errno, "readlink `%s`", name);
-  } while (size == buf_size);
+      якщо (UNLIKELY (size < 0))
+        повернути crun_make_error (err, errno, "readlink `%s`", name);
+  } поки (size == buf_size);
 
   /* Always NUL terminate the buffer.  */
   tmp_buf[size] = '\0';
@@ -520,61 +520,61 @@ safe_readlinkat (int dfd, const char *name, char **buffer, ssize_t hint, libcrun
   *buffer = tmp_buf;
   tmp_buf = NULL;
 
-  return size;
+  повернути size;
 }
 
-static int crun_safe_ensure_at (bool do_open, bool dir, bool follow_symlinks, int dirfd, const char *dirpath,
-                                const char *path, int mode, int max_readlinks, libcrun_error_t *err);
+static ціле crun_safe_ensure_at (bool do_open, bool dir, bool follow_symlinks, ціле dirfd, const char *dirpath,
+                                const char *path, ціле mode, ціле max_readlinks, libcrun_error_t *err);
 
 /* CUR is a symlink in the directory CWD, NPATH is the path up to and
    including CUR, and REST is what follows CUR in the path, or NULL.
    Restart the lookup with the symlink target in place of CUR, so that
    anything missing on the way to the target is created.  */
-static int
-crun_safe_ensure_follow_symlink (bool do_open, bool dir, bool follow_symlinks, int dirfd, const char *dirpath, int cwd,
+static ціле
+crun_safe_ensure_follow_symlink (bool do_open, bool dir, bool follow_symlinks, ціле dirfd, const char *dirpath, ціле cwd,
                                  const char *npath, const char *cur, const char *rest,
-                                 int mode, int max_readlinks, libcrun_error_t *err)
+                                 ціле mode, ціле max_readlinks, libcrun_error_t *err)
 {
   cleanup_free char *target = NULL;
   cleanup_free char *new_path = NULL;
   ssize_t ret;
 
   ret = safe_readlinkat (cwd, cur, &target, 0, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
   /* A relative target is relative to the directory containing the symlink,
      which is the path before CUR.  */
-  xasprintf (&new_path, "%.*s%s%s%s", target[0] == '/' ? 0 : (int) (cur - npath), npath, target,
+  xasprintf (&new_path, "%.*s%s%s%s", target[0] == '/' ? 0 : (ціле) (cur - npath), npath, target,
              rest ? "/" : "", rest ? rest : "");
 
-  return crun_safe_ensure_at (do_open, dir, follow_symlinks, dirfd, dirpath, new_path, mode, max_readlinks - 1, err);
+  повернути crun_safe_ensure_at (do_open, dir, follow_symlinks, dirfd, dirpath, new_path, mode, max_readlinks - 1, err);
 }
 
-static int
-crun_safe_ensure_at (bool do_open, bool dir, bool follow_symlinks, int dirfd, const char *dirpath,
-                     const char *path, int mode, int max_readlinks, libcrun_error_t *err)
+static ціле
+crun_safe_ensure_at (bool do_open, bool dir, bool follow_symlinks, ціле dirfd, const char *dirpath,
+                     const char *path, ціле mode, ціле max_readlinks, libcrun_error_t *err)
 {
-  cleanup_close int wd_cleanup = -1;
+  cleanup_close ціле wd_cleanup = -1;
   cleanup_free char *npath = NULL;
   bool last_component = false;
   size_t depth = 0;
   char *cur;
   char *it;
-  int cwd;
-  int ret;
+  ціле cwd;
+  ціле ret;
 
-  if (max_readlinks <= 0)
-    return crun_make_error (err, ELOOP, "resolve path `%s`", path);
+  якщо (max_readlinks <= 0)
+    повернути crun_make_error (err, ELOOP, "resolve path `%s`", path);
 
   path = consume_slashes (path);
 
   /* Empty path, nothing to do.  */
-  if (*path == '\0')
+  якщо (*path == '\0')
     {
-      if (do_open)
-        return open (dirpath, O_CLOEXEC | O_PATH, 0);
-      return 0;
+      якщо (do_open)
+        повернути open (dirpath, O_CLOEXEC | O_PATH, 0);
+      повернути 0;
     }
 
   npath = xstrdup (path);
@@ -582,25 +582,25 @@ crun_safe_ensure_at (bool do_open, bool dir, bool follow_symlinks, int dirfd, co
   cwd = dirfd;
   cur = npath;
   it = strchr (npath, '/');
-  while (cur)
+  поки (cur)
     {
-      if (it)
+      якщо (it)
         *it = '\0';
-      else
+      інакше
         last_component = true;
 
-      if (cur[0] == '\0')
+      якщо (cur[0] == '\0')
         break;
 
-      if (strcmp (cur, ".") == 0)
+      якщо (strcmp (cur, ".") == 0)
         goto next;
-      else if (strcmp (cur, ".."))
+      інакше якщо (strcmp (cur, ".."))
         depth++;
-      else
+      інакше
         {
-          if (depth)
+          якщо (depth)
             depth--;
-          else
+          інакше
             {
               /* Start from the root.  */
               close_and_reset (&wd_cleanup);
@@ -609,78 +609,78 @@ crun_safe_ensure_at (bool do_open, bool dir, bool follow_symlinks, int dirfd, co
             }
         }
 
-      if (last_component && ! dir)
+      якщо (last_component && ! dir)
         {
           ret = openat (cwd, cur, O_CLOEXEC | O_CREAT | O_WRONLY | O_NOFOLLOW | O_NONBLOCK, 0700);
-          if (UNLIKELY (ret < 0))
+          якщо (UNLIKELY (ret < 0))
             {
               /* If the last component is a symlink, repeat the lookup with the resolved path.
                  That lookup is confined to DIRFD, so its result is final: an openat without
                  O_NOFOLLOW would follow the symlink from the process root instead.  */
-              if (errno == ELOOP)
-                return crun_safe_ensure_follow_symlink (do_open, dir, follow_symlinks, dirfd, dirpath, cwd, npath, cur, NULL,
+              якщо (errno == ELOOP)
+                повернути crun_safe_ensure_follow_symlink (do_open, dir, follow_symlinks, dirfd, dirpath, cwd, npath, cur, NULL,
                                                         mode, max_readlinks, err);
 
               /* If the previous openat fails, attempt to open the file in O_PATH mode.  */
               ret = openat (cwd, cur, O_CLOEXEC | O_PATH | O_NOFOLLOW, 0);
-              if (ret < 0)
-                return crun_make_error (err, errno, "open `%s/%s`", dirpath, npath);
+              якщо (ret < 0)
+                повернути crun_make_error (err, errno, "open `%s/%s`", dirpath, npath);
             }
 
-          if (do_open)
-            return ret;
+          якщо (do_open)
+            повернути ret;
 
           close_and_replace (&wd_cleanup, ret);
-          return 0;
+          повернути 0;
         }
 
       ret = mkdirat (cwd, cur, mode);
-      if (ret < 0)
+      якщо (ret < 0)
         {
           mode_t st_mode;
 
-          if (errno != EEXIST)
-            return crun_make_error (err, errno, "mkdir `/%s`", npath);
+          якщо (errno != EEXIST)
+            повернути crun_make_error (err, errno, "mkdir `/%s`", npath);
 
           /* If asked to, follow a symlink here, so that a dangling one gets
              its target created, and the lookup of a relative target or a ".."
              after it starts from the right directory.  This is done for mount
              targets, not for the working directory, where both crun and runc
              have always failed with a dangling symlink.  */
-          if (follow_symlinks && get_file_type_at (cwd, &st_mode, true, cur) == 0 && S_ISLNK (st_mode))
-            return crun_safe_ensure_follow_symlink (do_open, dir, follow_symlinks, dirfd, dirpath, cwd, npath, cur,
+          якщо (follow_symlinks && get_file_type_at (cwd, &st_mode, true, cur) == 0 && S_ISLNK (st_mode))
+            повернути crun_safe_ensure_follow_symlink (do_open, dir, follow_symlinks, dirfd, dirpath, cwd, npath, cur,
                                                     it ? it + 1 : NULL, mode, max_readlinks, err);
         }
 
       /* The type of an existing component is not known yet, so open it with
          O_PATH: a FIFO must not block and a device must not be opened.  */
       cwd = safe_openat (dirfd, dirpath, npath, O_PATH | O_CLOEXEC, 0, err);
-      if (UNLIKELY (cwd < 0))
-        return crun_error_wrap (err, "creating `/%s`", path);
+      якщо (UNLIKELY (cwd < 0))
+        повернути crun_error_wrap (err, "creating `/%s`", path);
 
-      if (! last_component)
+      якщо (! last_component)
         {
           mode_t st_mode;
 
           ret = get_file_type_at (cwd, &st_mode, true, NULL);
-          if (UNLIKELY (ret < 0))
+          якщо (UNLIKELY (ret < 0))
             {
-              int saved_errno = errno;
+              ціле saved_errno = errno;
 
               close (cwd);
-              return crun_make_error (err, saved_errno, "stat `%s`", npath);
+              повернути crun_make_error (err, saved_errno, "stat `%s`", npath);
             }
-          if ((st_mode & S_IFMT) != S_IFDIR)
+          якщо ((st_mode & S_IFMT) != S_IFDIR)
             {
               close (cwd);
-              return crun_make_error (err, ENOTDIR, "error creating directory `%s` since `%s` exists and it is not a directory", path, npath);
+              повернути crun_make_error (err, ENOTDIR, "error creating directory `%s` since `%s` exists and it is not a directory", path, npath);
             }
         }
 
       close_and_replace (&wd_cleanup, cwd);
 
     next:
-      if (it == NULL)
+      якщо (it == NULL)
         break;
 
       cur = consume_slashes (it + 1);
@@ -688,127 +688,127 @@ crun_safe_ensure_at (bool do_open, bool dir, bool follow_symlinks, int dirfd, co
       it = strchr (cur, '/');
     }
 
-  if (do_open)
+  якщо (do_open)
     {
-      if (cwd == dirfd)
+      якщо (cwd == dirfd)
         {
           ret = dup (dirfd);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "dup `%s`", dirpath);
-          return ret;
+          якщо (UNLIKELY (ret < 0))
+            повернути crun_make_error (err, errno, "dup `%s`", dirpath);
+          повернути ret;
         }
 
       wd_cleanup = -1;
-      return cwd;
+      повернути cwd;
     }
 
-  return 0;
+  повернути 0;
 }
 
-int
-crun_safe_create_and_open_ref_at (bool dir, int dirfd, const char *dirpath, const char *path, int mode, libcrun_error_t *err)
+ціле
+crun_safe_create_and_open_ref_at (bool dir, ціле dirfd, const char *dirpath, const char *path, ціле mode, libcrun_error_t *err)
 {
-  int ret;
+  ціле ret;
 
   /* If the file/dir already exists, just open it.  */
   ret = safe_openat (dirfd, dirpath, path, O_PATH | O_CLOEXEC, 0, err);
-  if (LIKELY (ret >= 0))
-    return ret;
+  якщо (LIKELY (ret >= 0))
+    повернути ret;
 
   crun_error_release (err);
-  return crun_safe_ensure_at (true, dir, true, dirfd, dirpath, path, mode, MAX_READLINKS, err);
+  повернути crun_safe_ensure_at (true, dir, true, dirfd, dirpath, path, mode, MAX_READLINKS, err);
 }
 
-int
-crun_safe_ensure_directory_at (int dirfd, const char *dirpath, const char *path, int mode,
+ціле
+crun_safe_ensure_directory_at (ціле dirfd, const char *dirpath, const char *path, ціле mode,
                                libcrun_error_t *err)
 {
-  return crun_safe_ensure_at (false, true, false, dirfd, dirpath, path, mode, MAX_READLINKS, err);
+  повернути crun_safe_ensure_at (false, true, false, dirfd, dirpath, path, mode, MAX_READLINKS, err);
 }
 
-int
-crun_safe_ensure_file_at (int dirfd, const char *dirpath, const char *path, int mode,
+ціле
+crun_safe_ensure_file_at (ціле dirfd, const char *dirpath, const char *path, ціле mode,
                           libcrun_error_t *err)
 {
-  return crun_safe_ensure_at (false, false, false, dirfd, dirpath, path, mode, MAX_READLINKS, err);
+  повернути crun_safe_ensure_at (false, false, false, dirfd, dirpath, path, mode, MAX_READLINKS, err);
 }
 
-int
-crun_ensure_directory (const char *path, int mode, bool nofollow, libcrun_error_t *err)
+ціле
+crun_ensure_directory (const char *path, ціле mode, bool nofollow, libcrun_error_t *err)
 {
-  return crun_ensure_directory_at (AT_FDCWD, path, mode, nofollow, err);
+  повернути crun_ensure_directory_at (AT_FDCWD, path, mode, nofollow, err);
 }
 
-static int
-get_file_size (int fd, off_t *size)
+static ціле
+get_file_size (ціле fd, off_t *size)
 {
   struct stat st;
-  int ret;
+  ціле ret;
 #ifdef HAVE_STATX
   struct statx stx = {
     0,
   };
 
   ret = statx (fd, "", AT_EMPTY_PATH | AT_SYMLINK_NOFOLLOW | AT_STATX_DONT_SYNC, STATX_SIZE, &stx);
-  if (UNLIKELY (ret < 0))
+  якщо (UNLIKELY (ret < 0))
     {
-      if (errno == ENOSYS || errno == EINVAL)
+      якщо (errno == ENOSYS || errno == EINVAL)
         goto fallback;
-      return ret;
+      повернути ret;
     }
   *size = stx.stx_size;
 
-  return ret;
+  повернути ret;
 
 fallback:
 #endif
   ret = fstat (fd, &st);
   *size = st.st_size;
-  return ret;
+  повернути ret;
 }
 
-int
-crun_dir_p_at (int dirfd, const char *path, bool nofollow, libcrun_error_t *err)
+ціле
+crun_dir_p_at (ціле dirfd, const char *path, bool nofollow, libcrun_error_t *err)
 {
   mode_t mode;
-  int ret;
+  ціле ret;
 
   ret = get_file_type_at (dirfd, &mode, nofollow, path);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "stat `%s`", path);
+  якщо (UNLIKELY (ret < 0))
+    повернути crun_make_error (err, errno, "stat `%s`", path);
 
-  return S_ISDIR (mode) ? 1 : 0;
+  повернути S_ISDIR (mode) ? 1 : 0;
 }
 
-int
+ціле
 crun_dir_p (const char *path, bool nofollow, libcrun_error_t *err)
 {
-  return crun_dir_p_at (AT_FDCWD, path, nofollow, err);
+  повернути crun_dir_p_at (AT_FDCWD, path, nofollow, err);
 }
 
 /* Detect the user namespace from the mapping in /proc/self/uid_map.  It cannot
    tell apart the initial user namespace from a user namespace with a full
    identity mapping, so it is used only as a fallback.  */
-static int
+static ціле
 check_running_in_user_namespace_uid_map (libcrun_error_t *err)
 {
   cleanup_free char *buffer = NULL;
   size_t len;
-  int ret;
+  ціле ret;
 
   ret = read_all_file ("/proc/self/uid_map", &buffer, &len, err);
-  if (UNLIKELY (ret < 0))
+  якщо (UNLIKELY (ret < 0))
     {
       /* If the file does not exist, then the kernel does not support user namespaces and we for sure aren't in one.  */
-      if (crun_error_get_errno (err) == ENOENT)
+      якщо (crun_error_get_errno (err) == ENOENT)
         {
           crun_error_release (err);
-          return 0;
+          повернути 0;
         }
-      return ret;
+      повернути ret;
     }
 
-  return strstr (buffer, "4294967295") ? 0 : 1;
+  повернути strstr (buffer, "4294967295") ? 0 : 1;
 }
 
 /* OpenVZ exposes /proc/vz both on the host and inside containers, while
@@ -817,52 +817,52 @@ check_running_in_user_namespace_uid_map (libcrun_error_t *err)
 static bool
 running_in_openvz ()
 {
-  if (access ("/proc/vz", F_OK) < 0)
-    return false;
+  якщо (access ("/proc/vz", F_OK) < 0)
+    повернути false;
 
-  return access ("/proc/bc", F_OK) < 0 && errno == ENOENT;
+  повернути access ("/proc/bc", F_OK) < 0 && errno == ENOENT;
 }
 
-int
+ціле
 check_running_in_user_namespace (libcrun_error_t *err)
 {
   static atomic_int run_in_userns = -1;
   struct stat st;
-  int ret;
+  ціле ret;
 
   ret = run_in_userns;
-  if (ret >= 0)
-    return ret;
+  якщо (ret >= 0)
+    повернути ret;
 
   ret = stat ("/proc/self/ns/user", &st);
-  if (ret == 0)
+  якщо (ret == 0)
     {
       /* The inode is definitive when it matches.  OpenVZ virtualizes the
          namespace inode numbers exposed through procfs, so a mismatch must fall
          back to the uid_map detection there.  */
-      if (st.st_ino == PROC_USER_INIT_INO)
+      якщо (st.st_ino == PROC_USER_INIT_INO)
         {
           run_in_userns = 0;
-          return run_in_userns;
+          повернути run_in_userns;
         }
 
-      if (! running_in_openvz ())
+      якщо (! running_in_openvz ())
         {
           run_in_userns = 1;
-          return run_in_userns;
+          повернути run_in_userns;
         }
     }
-  else if (UNLIKELY (errno != ENOENT))
-    return crun_make_error (err, errno, "stat `/proc/self/ns/user`");
+  інакше якщо (UNLIKELY (errno != ENOENT))
+    повернути crun_make_error (err, errno, "stat `/proc/self/ns/user`");
 
   /* Kernels older than 3.8 do not expose the user namespace here even though
      they can still support user namespaces, so the uid_map is all we have.  */
   ret = check_running_in_user_namespace_uid_map (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
   run_in_userns = ret;
-  return run_in_userns;
+  повернути run_in_userns;
 }
 
 static size_t
@@ -870,283 +870,283 @@ get_page_size ()
 {
   static atomic_long cached_pagesize = 0;
   atomic_long pagesize = cached_pagesize;
-  if (pagesize == 0)
+  якщо (pagesize == 0)
     {
       pagesize = (long) sysconf (_SC_PAGESIZE);
       cached_pagesize = pagesize;
     }
-  return (size_t) pagesize;
+  повернути (size_t) pagesize;
 }
 
-static int selinux_enabled = -1;
-static int apparmor_enabled = -1;
+static ціле selinux_enabled = -1;
+static ціле apparmor_enabled = -1;
 
-int
+ціле
 libcrun_initialize_selinux (libcrun_container_t *container, libcrun_error_t *err)
 {
   cleanup_free char *out = NULL;
-  cleanup_close int fd = -1;
+  cleanup_close ціле fd = -1;
   size_t len;
-  int ret;
+  ціле ret;
 
-  if (selinux_enabled >= 0)
-    return selinux_enabled;
+  якщо (selinux_enabled >= 0)
+    повернути selinux_enabled;
 
   fd = libcrun_open_proc_file (container, "mounts", O_RDONLY, err);
-  if (UNLIKELY (fd < 0))
-    return fd;
+  якщо (UNLIKELY (fd < 0))
+    повернути fd;
 
   ret = read_all_fd_with_size_hint (fd, "mounts", &out, &len, get_page_size (), err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
   selinux_enabled = strstr (out, "selinux") ? 1 : 0;
 
-  return selinux_enabled;
+  повернути selinux_enabled;
 }
 
-int
+ціле
 libcrun_initialize_apparmor (libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
-  int size;
+  cleanup_close ціле fd = -1;
+  ціле size;
   char buf[1];
 
-  if (apparmor_enabled >= 0)
-    return apparmor_enabled;
+  якщо (apparmor_enabled >= 0)
+    повернути apparmor_enabled;
 
   fd = open ("/sys/module/apparmor/parameters/enabled", O_RDONLY | O_CLOEXEC);
-  if (fd == -1)
+  якщо (fd == -1)
     {
-      if (errno == ENOENT)
+      якщо (errno == ENOENT)
         {
           apparmor_enabled = 0;
-          return 0;
+          повернути 0;
         }
 
-      return crun_make_error (err, errno, "open `/sys/module/apparmor/parameters/enabled`");
+      повернути crun_make_error (err, errno, "open `/sys/module/apparmor/parameters/enabled`");
     }
 
   size = TEMP_FAILURE_RETRY (read (fd, buf, sizeof (buf)));
 
   apparmor_enabled = size > 0 && buf[0] == 'Y' ? 1 : 0;
 
-  return apparmor_enabled;
+  повернути apparmor_enabled;
 }
 
-static int
+static ціле
 libcrun_is_selinux_enabled (libcrun_error_t *err)
 {
-  if (selinux_enabled < 0)
-    return crun_make_error (err, 0, "SELinux is not initialized correctly");
-  return selinux_enabled;
+  якщо (selinux_enabled < 0)
+    повернути crun_make_error (err, 0, "SELinux is not initialized correctly");
+  повернути selinux_enabled;
 }
 
-int
+ціле
 add_selinux_mount_label (char **retlabel, const char *data, const char *label, const char *context_type, libcrun_error_t *err)
 {
-  int ret;
+  ціле ret;
 
   ret = libcrun_is_selinux_enabled (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
-  if (label && ret)
+  якщо (label && ret)
     {
-      if (data && *data)
+      якщо (data && *data)
         xasprintf (retlabel, "%s,%s=\"%s\"", data, context_type, label);
-      else
+      інакше
         xasprintf (retlabel, "%s=\"%s\"", context_type, label);
-      return 0;
+      повернути 0;
     }
   *retlabel = xstrdup (data);
-  return 0;
+  повернути 0;
 }
 
 static const char *
 lsm_attr_path (libcrun_container_t *container, const char *lsm, const char *fname, libcrun_error_t *err)
 {
-  cleanup_close int attr_dirfd = -1;
-  cleanup_close int lsm_dirfd = -1;
+  cleanup_close ціле attr_dirfd = -1;
+  cleanup_close ціле lsm_dirfd = -1;
   char *attr_path = NULL;
 
   attr_dirfd = libcrun_open_proc_file (container, "thread-self/attr", O_DIRECTORY | O_PATH, err);
-  if (UNLIKELY (attr_dirfd < 0))
-    return NULL;
+  якщо (UNLIKELY (attr_dirfd < 0))
+    повернути NULL;
 
   // Check for newer scoped interface in /proc/thread-self/attr/<lsm>
-  if (lsm != NULL)
+  якщо (lsm != NULL)
     {
       lsm_dirfd = openat (attr_dirfd, lsm, O_DIRECTORY | O_PATH | O_CLOEXEC);
 
-      if (UNLIKELY (lsm_dirfd < 0 && errno != ENOENT))
+      якщо (UNLIKELY (lsm_dirfd < 0 && errno != ENOENT))
         {
           crun_make_error (err, errno, "open `/proc/thread-self/attr/%s`", lsm);
-          return NULL;
+          повернути NULL;
         }
     }
   // Use scoped interface if available, fall back to unscoped
   xasprintf (&attr_path, "thread-self/attr/%s%s%s", lsm_dirfd >= 0 ? lsm : "", lsm_dirfd >= 0 ? "/" : "", fname);
 
-  return attr_path;
+  повернути attr_path;
 }
 
-static int
-check_proc_super_magic (int fd, const char *path, libcrun_error_t *err)
+static ціле
+check_proc_super_magic (ціле fd, const char *path, libcrun_error_t *err)
 {
   struct statfs sfs;
 
-  int ret = fstatfs (fd, &sfs);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "statfs `%s`", path);
+  ціле ret = fstatfs (fd, &sfs);
+  якщо (UNLIKELY (ret < 0))
+    повернути crun_make_error (err, errno, "statfs `%s`", path);
 
-  if (sfs.f_type != PROC_SUPER_MAGIC)
-    return crun_make_error (err, 0, "the file `%s` is not on a `procfs` file system", path);
+  якщо (sfs.f_type != PROC_SUPER_MAGIC)
+    повернути crun_make_error (err, 0, "the file `%s` is not on a `procfs` file system", path);
 
-  return 0;
+  повернути 0;
 }
 
-static int
+static ціле
 set_security_attr (libcrun_container_t *container, const char *lsm, const char *fname, const char *data, libcrun_error_t *err)
 {
-  int ret;
+  ціле ret;
 
   cleanup_free const char *attr_path = lsm_attr_path (container, lsm, fname, err);
-  cleanup_close int fd = -1;
+  cleanup_close ціле fd = -1;
 
-  if (UNLIKELY (attr_path == NULL))
-    return -1;
+  якщо (UNLIKELY (attr_path == NULL))
+    повернути -1;
 
   fd = libcrun_open_proc_file (container, attr_path, O_WRONLY | O_CLOEXEC, err);
-  if (UNLIKELY (fd < 0))
-    return fd;
+  якщо (UNLIKELY (fd < 0))
+    повернути fd;
 
   ret = check_proc_super_magic (fd, attr_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
   // Write out data
   ret = TEMP_FAILURE_RETRY (write (fd, data, strlen (data)));
-  if (UNLIKELY (ret < 0))
+  якщо (UNLIKELY (ret < 0))
     {
       /* ENOENT from the write is AppArmor telling the profile is unknown.
          The data is "<op> <profile>".  */
-      if (errno == ENOENT && lsm != NULL && strcmp (lsm, "apparmor") == 0)
+      якщо (errno == ENOENT && lsm != NULL && strcmp (lsm, "apparmor") == 0)
         {
           const char *profile = strchr (data, ' ');
 
-          return crun_make_error (err, 0, "apply apparmor profile `%s`: profile not loaded", profile ? profile + 1 : data);
+          повернути crun_make_error (err, 0, "apply apparmor profile `%s`: profile not loaded", profile ? profile + 1 : data);
         }
-      return crun_make_error (err, errno, "write to file `%s`", attr_path);
+      повернути crun_make_error (err, errno, "write to file `%s`", attr_path);
     }
 
-  return 0;
+  повернути 0;
 }
 
-int
+ціле
 set_selinux_label (libcrun_container_t *container, const char *label, bool now, libcrun_error_t *err)
 {
-  int ret;
+  ціле ret;
 
   ret = libcrun_is_selinux_enabled (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
-  if (ret)
-    return set_security_attr (container, NULL, now ? "current" : "exec", label, err);
-  return 0;
+  якщо (ret)
+    повернути set_security_attr (container, NULL, now ? "current" : "exec", label, err);
+  повернути 0;
 }
 
-static int
+static ціле
 libcrun_is_apparmor_enabled (libcrun_error_t *err)
 {
-  if (apparmor_enabled < 0)
-    return crun_make_error (err, 0, "AppArmor is not initialized correctly");
-  return apparmor_enabled;
+  якщо (apparmor_enabled < 0)
+    повернути crun_make_error (err, 0, "AppArmor is not initialized correctly");
+  повернути apparmor_enabled;
 }
 
-static int
+static ціле
 is_current_process_confined (libcrun_container_t *container, libcrun_error_t *err)
 {
 #define UNCONFINED "unconfined"
 #define UNCONFINED_LEN (ssize_t) (sizeof (UNCONFINED) - 1)
   cleanup_free const char *attr_path = lsm_attr_path (container, "apparmor", "current", err);
-  cleanup_close int fd = -1;
+  cleanup_close ціле fd = -1;
   /* Only the "unconfined" token plus one delimiter byte are inspected.  */
   char buf[UNCONFINED_LEN + 1];
 
-  if (UNLIKELY (attr_path == NULL))
-    return -1;
+  якщо (UNLIKELY (attr_path == NULL))
+    повернути -1;
 
   fd = libcrun_open_proc_file (container, attr_path, O_RDONLY | O_CLOEXEC, err);
-  if (UNLIKELY (fd < 0))
-    return fd;
+  якщо (UNLIKELY (fd < 0))
+    повернути fd;
 
-  if (UNLIKELY (check_proc_super_magic (fd, attr_path, err)))
-    return -1;
+  якщо (UNLIKELY (check_proc_super_magic (fd, attr_path, err)))
+    повернути -1;
 
   ssize_t bytes_read = TEMP_FAILURE_RETRY (read (fd, buf, sizeof (buf)));
-  if (UNLIKELY (bytes_read < 0))
-    return crun_make_error (err, errno, "read from `%s`", attr_path);
+  якщо (UNLIKELY (bytes_read < 0))
+    повернути crun_make_error (err, errno, "read from `%s`", attr_path);
 
   /* The process is unconfined only when the attribute is exactly the token
      "unconfined", optionally followed by a delimiter.  Anything shorter (a
      short read), or a longer profile name such as "unconfined_foo", means the
      process is confined.  When in doubt default to confined, which is the safe
      assumption for the caller.  */
-  if (bytes_read < UNCONFINED_LEN || memcmp (buf, UNCONFINED, UNCONFINED_LEN) != 0)
-    return 1;
-  if (bytes_read == UNCONFINED_LEN || buf[UNCONFINED_LEN] == '\n' || buf[UNCONFINED_LEN] == ' ')
-    return 0;
-  return 1;
+  якщо (bytes_read < UNCONFINED_LEN || memcmp (buf, UNCONFINED, UNCONFINED_LEN) != 0)
+    повернути 1;
+  якщо (bytes_read == UNCONFINED_LEN || buf[UNCONFINED_LEN] == '\n' || buf[UNCONFINED_LEN] == ' ')
+    повернути 0;
+  повернути 1;
 #undef UNCONFINED
 #undef UNCONFINED_LEN
 }
 
-int
+ціле
 set_apparmor_profile (libcrun_container_t *container, const char *profile, bool no_new_privileges, bool now, libcrun_error_t *err)
 {
-  int ret;
+  ціле ret;
 
   ret = libcrun_is_apparmor_enabled (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
-  if (ret)
+  якщо (ret)
     {
       cleanup_free char *buf = NULL;
       ret = is_current_process_confined (container, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      якщо (UNLIKELY (ret < 0))
+        повернути ret;
       // if confined only way for apparmor to allow change of profile with NNP is with stacking
       xasprintf (&buf, "%s %s", no_new_privileges && ret ? "stack" : now ? "changeprofile"
                                                                          : "exec",
                  profile);
 
-      return set_security_attr (container, "apparmor", now ? "current" : "exec", buf, err);
+      повернути set_security_attr (container, "apparmor", now ? "current" : "exec", buf, err);
     }
-  return 0;
+  повернути 0;
 }
 
-static int
-read_all_fd_internal (int fd, const char *description, char **out, size_t *len, size_t size_hint, size_t max_size, libcrun_error_t *err)
+static ціле
+read_all_fd_internal (ціле fd, const char *description, char **out, size_t *len, size_t size_hint, size_t max_size, libcrun_error_t *err)
 {
   cleanup_free char *buf = NULL;
   size_t nread, allocated;
   size_t pagesize = 0;
   off_t size = 0;
-  int ret;
+  ціле ret;
 
-  if (size_hint)
+  якщо (size_hint)
     allocated = size_hint;
-  else
+  інакше
     {
       ret = get_file_size (fd, &size);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "stat `%s`", description);
+      якщо (UNLIKELY (ret < 0))
+        повернути crun_make_error (err, errno, "stat `%s`", description);
 
-      if (max_size && (size_t) size > max_size)
-        return crun_make_error (err, EFBIG, "`%s` is bigger than %zu bytes", description, max_size);
+      якщо (max_size && (size_t) size > max_size)
+        повернути crun_make_error (err, EFBIG, "`%s` is bigger than %zu bytes", description, max_size);
 
       allocated = size == 0 ? 1023 : size;
     }
@@ -1154,26 +1154,26 @@ read_all_fd_internal (int fd, const char *description, char **out, size_t *len, 
   /* NUL terminate the buffer.  */
   buf = xmalloc (allocated + 1);
   nread = 0;
-  while ((size && nread < (size_t) size) || size == 0)
+  поки ((size && nread < (size_t) size) || size == 0)
     {
       ret = TEMP_FAILURE_RETRY (read (fd, buf + nread, allocated - nread));
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "read from file `%s`", description);
+      якщо (UNLIKELY (ret < 0))
+        повернути crun_make_error (err, errno, "read from file `%s`", description);
 
-      if (ret == 0)
+      якщо (ret == 0)
         break;
 
       nread += ret;
 
-      if (max_size && nread > max_size)
-        return crun_make_error (err, EFBIG, "`%s` is bigger than %zu bytes", description, max_size);
+      якщо (max_size && nread > max_size)
+        повернути crun_make_error (err, EFBIG, "`%s` is bigger than %zu bytes", description, max_size);
 
-      if (nread == allocated)
+      якщо (nread == allocated)
         {
-          if (size)
+          якщо (size)
             break;
 
-          if (pagesize == 0)
+          якщо (pagesize == 0)
             pagesize = get_page_size ();
 
           allocated += pagesize;
@@ -1181,97 +1181,97 @@ read_all_fd_internal (int fd, const char *description, char **out, size_t *len, 
           buf = xrealloc (buf, allocated + 1);
         }
     }
-  if (nread + 1 < allocated)
+  якщо (nread + 1 < allocated)
     {
       /* shrink the buffer to the used size if it was allocated a bigger block.  */
       char *tmp = realloc (buf, nread + 1);
-      if (tmp)
+      якщо (tmp)
         buf = tmp;
     }
 
   buf[nread] = '\0';
   *out = buf;
   buf = NULL;
-  if (len)
+  якщо (len)
     *len = nread;
-  return 0;
+  повернути 0;
 }
 
-int
-read_all_fd_with_size_hint (int fd, const char *description, char **out, size_t *len, size_t size_hint, libcrun_error_t *err)
+ціле
+read_all_fd_with_size_hint (ціле fd, const char *description, char **out, size_t *len, size_t size_hint, libcrun_error_t *err)
 {
-  return read_all_fd_internal (fd, description, out, len, size_hint, 0, err);
+  повернути read_all_fd_internal (fd, description, out, len, size_hint, 0, err);
 }
 
-int
-read_all_fd_with_max_size (int fd, const char *description, char **out, size_t *len, size_t max_size, libcrun_error_t *err)
+ціле
+read_all_fd_with_max_size (ціле fd, const char *description, char **out, size_t *len, size_t max_size, libcrun_error_t *err)
 {
-  return read_all_fd_internal (fd, description, out, len, 0, max_size, err);
+  повернути read_all_fd_internal (fd, description, out, len, 0, max_size, err);
 }
 
-int
-read_all_file_at (int dirfd, const char *path, char **out, size_t *len, libcrun_error_t *err)
+ціле
+read_all_file_at (ціле dirfd, const char *path, char **out, size_t *len, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
+  cleanup_close ціле fd = -1;
 
   fd = TEMP_FAILURE_RETRY (openat (dirfd, path, O_RDONLY | O_CLOEXEC));
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s`", path);
+  якщо (UNLIKELY (fd < 0))
+    повернути crun_make_error (err, errno, "open `%s`", path);
 
-  return read_all_fd (fd, path, out, len, err);
+  повернути read_all_fd (fd, path, out, len, err);
 }
 
-int
+ціле
 read_all_file (const char *path, char **out, size_t *len, libcrun_error_t *err)
 {
-  if (strcmp (path, "-") == 0)
+  якщо (strcmp (path, "-") == 0)
     path = "/dev/stdin";
 
-  return read_all_file_at (AT_FDCWD, path, out, len, err);
+  повернути read_all_file_at (AT_FDCWD, path, out, len, err);
 }
 
-int
-get_realpath_to_file (int dirfd, const char *path_name, char **absolute_path, libcrun_error_t *err)
+ціле
+get_realpath_to_file (ціле dirfd, const char *path_name, char **absolute_path, libcrun_error_t *err)
 {
-  cleanup_close int targetfd = -1;
+  cleanup_close ціле targetfd = -1;
 
   targetfd = TEMP_FAILURE_RETRY (openat (dirfd, path_name, O_RDONLY | O_CLOEXEC));
-  if (UNLIKELY (targetfd < 0))
-    return crun_make_error (err, errno, "open `%s`", path_name);
-  else
+  якщо (UNLIKELY (targetfd < 0))
+    повернути crun_make_error (err, errno, "open `%s`", path_name);
+  інакше
     {
       ssize_t len;
       proc_fd_path_t target_fd_path;
 
       get_proc_self_fd_path (target_fd_path, targetfd);
       len = safe_readlinkat (AT_FDCWD, target_fd_path, absolute_path, 0, err);
-      if (UNLIKELY (len < 0))
-        return crun_error_wrap (err, "error unable to provide absolute path to file `%s`", path_name);
+      якщо (UNLIKELY (len < 0))
+        повернути crun_error_wrap (err, "error unable to provide absolute path to file `%s`", path_name);
     }
 
-  return 0;
+  повернути 0;
 }
 
-int
-open_unix_domain_client_socket (const char *path, int dgram, libcrun_error_t *err)
+ціле
+open_unix_domain_client_socket (const char *path, ціле dgram, libcrun_error_t *err)
 {
   struct sockaddr_un addr = {};
-  int ret;
+  ціле ret;
   proc_fd_path_t name_buf;
-  cleanup_close int destfd = -1;
-  cleanup_close int fd = -1;
+  cleanup_close ціле destfd = -1;
+  cleanup_close ціле fd = -1;
 
   libcrun_debug ("Opening UNIX domain socket: %s", path);
 
   fd = socket (AF_UNIX, dgram ? SOCK_DGRAM : SOCK_STREAM, 0);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "create UNIX socket");
+  якщо (UNLIKELY (fd < 0))
+    повернути crun_make_error (err, errno, "create UNIX socket");
 
-  if (strlen (path) >= sizeof (addr.sun_path))
+  якщо (strlen (path) >= sizeof (addr.sun_path))
     {
       destfd = open (path, O_PATH | O_CLOEXEC);
-      if (UNLIKELY (destfd < 0))
-        return crun_make_error (err, errno, "open `%s`", path);
+      якщо (UNLIKELY (destfd < 0))
+        повернути crun_make_error (err, errno, "open `%s`", path);
 
       get_proc_self_fd_path (name_buf, destfd);
 
@@ -1279,51 +1279,51 @@ open_unix_domain_client_socket (const char *path, int dgram, libcrun_error_t *er
     }
 
   size_t path_len = strlen (path);
-  if (path_len >= sizeof (addr.sun_path))
-    return crun_make_error (err, ENAMETOOLONG, "socket path too long: `%s`", path);
+  якщо (path_len >= sizeof (addr.sun_path))
+    повернути crun_make_error (err, ENAMETOOLONG, "socket path too long: `%s`", path);
 
   memcpy (addr.sun_path, path, path_len + 1);
   addr.sun_family = AF_UNIX;
   ret = connect (fd, (struct sockaddr *) &addr, sizeof (addr));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "connect socket to `%s`", path);
+  якщо (UNLIKELY (ret < 0))
+    повернути crun_make_error (err, errno, "connect socket to `%s`", path);
 
   ret = fd;
   fd = -1;
 
-  return ret;
+  повернути ret;
 }
 
-int
-open_unix_domain_socket (const char *path, int dgram, libcrun_error_t *err)
+ціле
+open_unix_domain_socket (const char *path, ціле dgram, libcrun_error_t *err)
 {
   struct sockaddr_un addr = {};
   proc_fd_path_t name_buf;
-  int ret;
-  cleanup_close int dirfd = -1;
-  cleanup_close int fd = socket (AF_UNIX, dgram ? SOCK_DGRAM : SOCK_STREAM, 0);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "create UNIX socket");
+  ціле ret;
+  cleanup_close ціле dirfd = -1;
+  cleanup_close ціле fd = socket (AF_UNIX, dgram ? SOCK_DGRAM : SOCK_STREAM, 0);
+  якщо (UNLIKELY (fd < 0))
+    повернути crun_make_error (err, errno, "create UNIX socket");
 
-  if (strlen (path) >= sizeof (addr.sun_path))
+  якщо (strlen (path) >= sizeof (addr.sun_path))
     {
       cleanup_free char *dpath = xstrdup (path);
       cleanup_free char *bpath = xstrdup (path);
       const char *parent_dir = dirname (dpath);
       const char *base = basename (bpath);
-      int n;
+      ціле n;
 
       dirfd = open (parent_dir, O_PATH | O_DIRECTORY | O_CLOEXEC);
-      if (UNLIKELY (dirfd < 0))
-        return crun_make_error (err, errno, "open directory `%s`", parent_dir);
+      якщо (UNLIKELY (dirfd < 0))
+        повернути crun_make_error (err, errno, "open directory `%s`", parent_dir);
 
       get_proc_self_fd_path (name_buf, dirfd);
 
       n = snprintf (addr.sun_path, sizeof (addr.sun_path), "%s/%s", name_buf, base);
-      if (n < 0 || (size_t) n >= sizeof (addr.sun_path))
-        return crun_make_error (err, ENAMETOOLONG, "socket path too long: `%s`", path);
+      якщо (n < 0 || (size_t) n >= sizeof (addr.sun_path))
+        повернути crun_make_error (err, ENAMETOOLONG, "socket path too long: `%s`", path);
     }
-  else
+  інакше
     {
       size_t path_len = strlen (path);
       memcpy (addr.sun_path, path, path_len + 1);
@@ -1331,43 +1331,43 @@ open_unix_domain_socket (const char *path, int dgram, libcrun_error_t *err)
 
   addr.sun_family = AF_UNIX;
   ret = bind (fd, (struct sockaddr *) &addr, sizeof (addr));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "bind socket to `%s`", path);
+  якщо (UNLIKELY (ret < 0))
+    повернути crun_make_error (err, errno, "bind socket to `%s`", path);
 
-  if (! dgram)
+  якщо (! dgram)
     {
       ret = listen (fd, 1);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "listen on socket");
+      якщо (UNLIKELY (ret < 0))
+        повернути crun_make_error (err, errno, "listen on socket");
     }
 
   ret = fd;
   fd = -1;
 
-  return ret;
+  повернути ret;
 }
 
-int
-send_fd_to_socket (int server, int fd, libcrun_error_t *err)
+ціле
+send_fd_to_socket (ціле server, ціле fd, libcrun_error_t *err)
 {
-  return send_fd_to_socket_with_payload (server, fd, NULL, 0, err);
+  повернути send_fd_to_socket_with_payload (server, fd, NULL, 0, err);
 }
 
-int
-send_fd_to_socket_with_payload (int server, int fd, const char *payload, size_t payload_len, libcrun_error_t *err)
+ціле
+send_fd_to_socket_with_payload (ціле server, ціле fd, const char *payload, size_t payload_len, libcrun_error_t *err)
 {
-  int ret;
+  ціле ret;
   struct cmsghdr *cmsg = NULL;
   struct iovec iov[2];
   struct msghdr msg = {};
-  char ctrl_buf[CMSG_SPACE (1 + sizeof (int))] = {};
+  char ctrl_buf[CMSG_SPACE (1 + sizeof (ціле))] = {};
   char data[1];
 
   data[0] = ' ';
   iov[0].iov_base = data;
   iov[0].iov_len = sizeof (data);
 
-  if (payload_len > 0)
+  якщо (payload_len > 0)
     {
       iov[0].iov_base = (void *) payload;
       iov[0].iov_len = payload_len;
@@ -1377,30 +1377,30 @@ send_fd_to_socket_with_payload (int server, int fd, const char *payload, size_t 
   msg.msg_namelen = 0;
   msg.msg_iov = iov;
   msg.msg_iovlen = 1;
-  msg.msg_controllen = CMSG_SPACE (sizeof (int));
+  msg.msg_controllen = CMSG_SPACE (sizeof (ціле));
   msg.msg_control = ctrl_buf;
 
   cmsg = CMSG_FIRSTHDR (&msg);
   cmsg->cmsg_level = SOL_SOCKET;
   cmsg->cmsg_type = SCM_RIGHTS;
-  cmsg->cmsg_len = CMSG_LEN (sizeof (int));
+  cmsg->cmsg_len = CMSG_LEN (sizeof (ціле));
 
-  *((int *) CMSG_DATA (cmsg)) = fd;
+  *((ціле *) CMSG_DATA (cmsg)) = fd;
 
   ret = TEMP_FAILURE_RETRY (sendmsg (server, &msg, 0));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "sendmsg");
-  return 0;
+  якщо (UNLIKELY (ret < 0))
+    повернути crun_make_error (err, errno, "sendmsg");
+  повернути 0;
 }
 
-int
-receive_fd_from_socket_with_payload (int from, char *payload, size_t payload_len, libcrun_error_t *err)
+ціле
+receive_fd_from_socket_with_payload (ціле from, char *payload, size_t payload_len, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
-  int ret;
+  cleanup_close ціле fd = -1;
+  ціле ret;
   struct iovec iov[1];
   struct msghdr msg = {};
-  char ctrl_buf[CMSG_SPACE (sizeof (int))] = {};
+  char ctrl_buf[CMSG_SPACE (sizeof (ціле))] = {};
   char data[1];
   struct cmsghdr *cmsg;
 
@@ -1408,7 +1408,7 @@ receive_fd_from_socket_with_payload (int from, char *payload, size_t payload_len
   iov[0].iov_base = data;
   iov[0].iov_len = sizeof (data);
 
-  if (payload_len > 0)
+  якщо (payload_len > 0)
     {
       iov[0].iov_base = (void *) payload;
       iov[0].iov_len = payload_len;
@@ -1418,113 +1418,113 @@ receive_fd_from_socket_with_payload (int from, char *payload, size_t payload_len
   msg.msg_namelen = 0;
   msg.msg_iov = iov;
   msg.msg_iovlen = 1;
-  msg.msg_controllen = CMSG_SPACE (sizeof (int));
+  msg.msg_controllen = CMSG_SPACE (sizeof (ціле));
   msg.msg_control = ctrl_buf;
 
   ret = TEMP_FAILURE_RETRY (recvmsg (from, &msg, 0));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "recvmsg");
-  if (UNLIKELY (ret == 0))
-    return crun_make_error (err, 0, "read FD: connection closed");
+  якщо (UNLIKELY (ret < 0))
+    повернути crun_make_error (err, errno, "recvmsg");
+  якщо (UNLIKELY (ret == 0))
+    повернути crun_make_error (err, 0, "read FD: connection closed");
 
   cmsg = CMSG_FIRSTHDR (&msg);
-  if (cmsg == NULL)
-    return crun_make_error (err, 0, "no msg received");
+  якщо (cmsg == NULL)
+    повернути crun_make_error (err, 0, "no msg received");
   memcpy (&fd, CMSG_DATA (cmsg), sizeof (fd));
 
   ret = fd;
   fd = -1;
-  return ret;
+  повернути ret;
 }
 
-int
-receive_fd_from_socket (int from, libcrun_error_t *err)
+ціле
+receive_fd_from_socket (ціле from, libcrun_error_t *err)
 {
-  return receive_fd_from_socket_with_payload (from, NULL, 0, err);
+  повернути receive_fd_from_socket_with_payload (from, NULL, 0, err);
 }
 
-int
-create_socket_pair (int *pair, libcrun_error_t *err)
+ціле
+create_socket_pair (ціле *pair, libcrun_error_t *err)
 {
-  int ret = socketpair (AF_UNIX, SOCK_SEQPACKET, 0, pair);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "socketpair");
-  return 0;
+  ціле ret = socketpair (AF_UNIX, SOCK_SEQPACKET, 0, pair);
+  якщо (UNLIKELY (ret < 0))
+    повернути crun_make_error (err, errno, "socketpair");
+  повернути 0;
 }
 
-int
+ціле
 create_signalfd (sigset_t *mask, libcrun_error_t *err)
 {
-  int ret = signalfd (-1, mask, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "signalfd");
-  return ret;
+  ціле ret = signalfd (-1, mask, 0);
+  якщо (UNLIKELY (ret < 0))
+    повернути crun_make_error (err, errno, "signalfd");
+  повернути ret;
 }
 
-static int
-epoll_helper_toggle (int epollfd, int fd, int events, libcrun_error_t *err)
+static ціле
+epoll_helper_toggle (ціле epollfd, ціле fd, ціле events, libcrun_error_t *err)
 {
   struct epoll_event ev = {};
   bool add = events != 0;
-  int ret;
+  ціле ret;
 
   ev.events = events;
   ev.data.fd = fd;
   ret = epoll_ctl (epollfd, add ? EPOLL_CTL_ADD : EPOLL_CTL_DEL, fd, &ev);
   /* The fd is already registered, possibly with a different mask.  */
-  if (UNLIKELY (ret < 0 && errno == EEXIST))
+  якщо (UNLIKELY (ret < 0 && errno == EEXIST))
     ret = epoll_ctl (epollfd, EPOLL_CTL_MOD, fd, &ev);
-  if (UNLIKELY (ret < 0))
+  якщо (UNLIKELY (ret < 0))
     {
       /* ENOENT: not registered.  EPERM: the fd is not supported by epoll,
          such as a regular file or /dev/null, and is always ready.  */
-      if (errno == ENOENT || errno == EPERM)
-        return 0;
-      return crun_make_error (err, errno, "epoll_ctl `%s` `%d`", add ? "add" : "del", fd);
+      якщо (errno == ENOENT || errno == EPERM)
+        повернути 0;
+      повернути crun_make_error (err, errno, "epoll_ctl `%s` `%d`", add ? "add" : "del", fd);
     }
-  return 0;
+  повернути 0;
 }
 
-int
-epoll_helper (int *in_fds, int *in_levelfds, int *out_fds, int *out_levelfds, libcrun_error_t *err)
+ціле
+epoll_helper (ціле *in_fds, ціле *in_levelfds, ціле *out_fds, ціле *out_levelfds, libcrun_error_t *err)
 {
   struct epoll_event ev;
-  cleanup_close int epollfd = -1;
-  int ret;
+  cleanup_close ціле epollfd = -1;
+  ціле ret;
 
-  int *it;
+  ціле *it;
   epollfd = epoll_create1 (0);
-  if (UNLIKELY (epollfd < 0))
-    return crun_make_error (err, errno, "epoll_create1");
+  якщо (UNLIKELY (epollfd < 0))
+    повернути crun_make_error (err, errno, "epoll_create1");
 
 #define ADD_FDS(FDS, EVENTS)                                            \
-  for (it = FDS; *it >= 0; it++)                                        \
+  для (it = FDS; *it >= 0; it++)                                        \
     {                                                                   \
       ev.events = EVENTS;                                               \
       ev.data.fd = *it;                                                 \
       ret = epoll_ctl (epollfd, EPOLL_CTL_ADD, *it, &ev);               \
-      if (UNLIKELY (ret < 0))                                           \
-        return crun_make_error (err, errno, "epoll_ctl add `%d`", *it); \
+      якщо (UNLIKELY (ret < 0))                                           \
+        повернути crun_make_error (err, errno, "epoll_ctl add `%d`", *it); \
     }
 
-  if (in_fds)
+  якщо (in_fds)
     ADD_FDS (in_fds, EPOLLIN);
-  if (in_levelfds)
+  якщо (in_levelfds)
     ADD_FDS (in_levelfds, EPOLLIN | EPOLLET);
-  if (out_fds)
+  якщо (out_fds)
     ADD_FDS (out_fds, EPOLLOUT);
-  if (out_levelfds)
+  якщо (out_levelfds)
     ADD_FDS (out_levelfds, EPOLLOUT | EPOLLET);
 
   ret = epollfd;
   epollfd = -1;
-  return ret;
+  повернути ret;
 }
 
-int
-copy_from_fd_to_fd (int src, int dst, int consume, libcrun_error_t *err)
+ціле
+copy_from_fd_to_fd (ціле src, ціле dst, ціле consume, libcrun_error_t *err)
 {
-  int ret;
+  ціле ret;
   ssize_t nread;
   size_t pagesize = get_page_size ();
 #ifdef HAVE_COPY_FILE_RANGE
@@ -1536,20 +1536,20 @@ copy_from_fd_to_fd (int src, int dst, int consume, libcrun_error_t *err)
       ssize_t remaining;
 
 #ifdef HAVE_COPY_FILE_RANGE
-      if (can_copy_file_range)
+      якщо (can_copy_file_range)
         {
           nread = copy_file_range (src, NULL, dst, NULL, pagesize, 0);
-          if (nread < 0 && (errno == EINVAL || errno == EXDEV))
+          якщо (nread < 0 && (errno == EINVAL || errno == EXDEV))
             {
               can_copy_file_range = false;
               goto fallback;
             }
-          if (consume && nread < 0 && errno == EAGAIN)
-            return 0;
-          if (nread < 0 && errno == EIO)
-            return 0;
-          if (UNLIKELY (nread < 0))
-            return crun_make_error (err, errno, "copy_file_range");
+          якщо (consume && nread < 0 && errno == EAGAIN)
+            повернути 0;
+          якщо (nread < 0 && errno == EIO)
+            повернути 0;
+          якщо (UNLIKELY (nread < 0))
+            повернути crun_make_error (err, errno, "copy_file_range");
           continue;
         }
     fallback:
@@ -1557,40 +1557,40 @@ copy_from_fd_to_fd (int src, int dst, int consume, libcrun_error_t *err)
 
       buffer = xmalloc (pagesize);
       nread = TEMP_FAILURE_RETRY (read (src, buffer, pagesize));
-      if (consume && nread < 0 && errno == EAGAIN)
-        return 0;
-      if (nread < 0 && errno == EIO)
-        return 0;
-      if (UNLIKELY (nread < 0))
-        return crun_make_error (err, errno, "read");
+      якщо (consume && nread < 0 && errno == EAGAIN)
+        повернути 0;
+      якщо (nread < 0 && errno == EIO)
+        повернути 0;
+      якщо (UNLIKELY (nread < 0))
+        повернути crun_make_error (err, errno, "read");
 
       remaining = nread;
-      while (remaining)
+      поки (remaining)
         {
           ret = TEMP_FAILURE_RETRY (write (dst, buffer + nread - remaining, remaining));
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "write");
+          якщо (UNLIKELY (ret < 0))
+            повернути crun_make_error (err, errno, "write");
           remaining -= ret;
         }
-  } while (consume && nread);
+  } поки (consume && nread);
 
-  return 0;
+  повернути 0;
 }
 
-int
+ціле
 run_process (char **args, libcrun_error_t *err)
 {
   pid_t pid = fork ();
-  if (UNLIKELY (pid < 0))
-    return crun_make_error (err, errno, "fork");
-  if (pid)
+  якщо (UNLIKELY (pid < 0))
+    повернути crun_make_error (err, errno, "fork");
+  якщо (pid)
     {
-      int r, status;
+      ціле r, status;
       r = TEMP_FAILURE_RETRY (waitpid (pid, &status, 0));
-      if (r < 0)
-        return crun_make_error (err, errno, "waitpid");
-      if (WIFEXITED (status) || WIFSIGNALED (status))
-        return WEXITSTATUS (status);
+      якщо (r < 0)
+        повернути crun_make_error (err, errno, "waitpid");
+      якщо (WIFEXITED (status) || WIFSIGNALED (status))
+        повернути WEXITSTATUS (status);
     }
 
   execvp (args[0], args);
@@ -1602,20 +1602,20 @@ static unsigned
 atou (char **s)
 {
   unsigned x;
-  for (x = 0; **s >= '0' && **s <= '9'; ++*s)
+  для (x = 0; **s >= '0' && **s <= '9'; ++*s)
     x = 10 * x + (**s - '0');
-  return x;
+  повернути x;
 }
 
-int
+ціле
 fgetpwent_r (FILE *f, struct passwd *pw, char *line, size_t size, struct passwd **res)
 {
   char *s;
-  int rv = 0;
-  for (;;)
+  ціле rv = 0;
+  для (;;)
     {
       line[size - 1] = '\xff';
-      if ((fgets (line, size, f) == NULL) || ferror (f) || line[size - 1] != '\xff')
+      якщо ((fgets (line, size, f) == NULL) || ferror (f) || line[size - 1] != '\xff')
         {
           rv = (line[size - 1] != '\xff') ? ERANGE : ENOENT;
           line = 0;
@@ -1626,32 +1626,32 @@ fgetpwent_r (FILE *f, struct passwd *pw, char *line, size_t size, struct passwd 
 
       s = line;
       pw->pw_name = s++;
-      if (! (s = strchr (s, ':')))
+      якщо (! (s = strchr (s, ':')))
         continue;
 
       *s++ = 0;
       pw->pw_passwd = s;
-      if (! (s = strchr (s, ':')))
+      якщо (! (s = strchr (s, ':')))
         continue;
 
       *s++ = 0;
       pw->pw_uid = atou (&s);
-      if (*s != ':')
+      якщо (*s != ':')
         continue;
 
       *s++ = 0;
       pw->pw_gid = atou (&s);
-      if (*s != ':')
+      якщо (*s != ':')
         continue;
 
       *s++ = 0;
       pw->pw_gecos = s;
-      if (! (s = strchr (s, ':')))
+      якщо (! (s = strchr (s, ':')))
         continue;
 
       *s++ = 0;
       pw->pw_dir = s;
-      if (! (s = strchr (s, ':')))
+      якщо (! (s = strchr (s, ':')))
         continue;
 
       *s++ = 0;
@@ -1659,13 +1659,13 @@ fgetpwent_r (FILE *f, struct passwd *pw, char *line, size_t size, struct passwd 
       break;
     }
   *res = pw;
-  if (rv)
+  якщо (rv)
     errno = rv;
-  return rv;
+  повернути rv;
 }
 #endif
 
-int
+ціле
 set_home_env (uid_t id)
 {
   struct passwd pwd;
@@ -1674,30 +1674,30 @@ set_home_env (uid_t id)
   cleanup_file FILE *stream = NULL;
 
   buf_size = sysconf (_SC_GETPW_R_SIZE_MAX);
-  if (buf_size < 0)
+  якщо (buf_size < 0)
     buf_size = 1024;
 
   buf = xmalloc (buf_size);
 
   stream = fopen ("/etc/passwd", "re");
-  if (stream == NULL)
-    return -1;
+  якщо (stream == NULL)
+    повернути -1;
 
-  for (;;)
+  для (;;)
     {
       struct passwd *ret_pw = NULL;
 
-      int ret = fgetpwent_r (stream, &pwd, buf, buf_size, &ret_pw);
-      if (UNLIKELY (ret != 0))
+      ціле ret = fgetpwent_r (stream, &pwd, buf, buf_size, &ret_pw);
+      якщо (UNLIKELY (ret != 0))
         {
-          if (ret == EINTR)
+          якщо (ret == EINTR)
             continue;
 
-          if (ret != ERANGE)
+          якщо (ret != ERANGE)
             {
               /* Let callers handle the error if the user was not found. */
               errno = ret;
-              return -1;
+              повернути -1;
             }
 
           buf_size *= 2;
@@ -1705,19 +1705,19 @@ set_home_env (uid_t id)
           continue;
         }
 
-      if (ret_pw && ret_pw->pw_uid == id)
+      якщо (ret_pw && ret_pw->pw_uid == id)
         {
-          if (UNLIKELY (setenv ("HOME", ret_pw->pw_dir, 1) < 0))
+          якщо (UNLIKELY (setenv ("HOME", ret_pw->pw_dir, 1) < 0))
             OOM ();
-          else
-            return 0;
+          інакше
+            повернути 0;
         }
     }
 }
 
 /*if subuid or subgid exist, take the first range for the user */
-static int
-getsubidrange (uid_t id, int is_uid, uint32_t *from, uint32_t *len)
+static ціле
+getsubidrange (uid_t id, ціле is_uid, uint32_t *from, uint32_t *len)
 {
   cleanup_file FILE *input = NULL;
   cleanup_free char *lineptr = NULL;
@@ -1728,28 +1728,28 @@ getsubidrange (uid_t id, int is_uid, uint32_t *from, uint32_t *len)
   struct passwd pwd;
 
   buf_size = sysconf (_SC_GETPW_R_SIZE_MAX);
-  if (buf_size < 0)
+  якщо (buf_size < 0)
     buf_size = 1024;
 
   buf = xmalloc (buf_size);
-  for (;;)
+  для (;;)
     {
-      int ret;
+      ціле ret;
       struct passwd *ret_pw = NULL;
 
       ret = getpwuid_r (id, &pwd, buf, buf_size, &ret_pw);
-      if (LIKELY (ret == 0))
+      якщо (LIKELY (ret == 0))
         {
-          if (ret_pw)
+          якщо (ret_pw)
             {
               name = ret_pw->pw_name;
               break;
             }
-          return -1;
+          повернути -1;
         }
 
-      if (ret != ERANGE)
-        return -1;
+      якщо (ret != ERANGE)
+        повернути -1;
 
       buf_size *= 2;
       buf = xrealloc (buf, buf_size);
@@ -1758,58 +1758,58 @@ getsubidrange (uid_t id, int is_uid, uint32_t *from, uint32_t *len)
   len_name = strlen (name);
 
   input = fopen (is_uid ? "/etc/subuid" : "/etc/subgid", "re");
-  if (input == NULL)
-    return -1;
+  якщо (input == NULL)
+    повернути -1;
 
-  for (;;)
+  для (;;)
     {
       char *endptr;
       ssize_t read = getline (&lineptr, &lenlineptr, input);
-      if (read < 0)
-        return -1;
+      якщо (read < 0)
+        повернути -1;
 
-      if (read < (ssize_t) (len_name + 2))
+      якщо (read < (ssize_t) (len_name + 2))
         continue;
 
-      if (memcmp (lineptr, name, len_name) || lineptr[len_name] != ':')
+      якщо (memcmp (lineptr, name, len_name) || lineptr[len_name] != ':')
         continue;
 
       *from = strtoull (&lineptr[len_name + 1], &endptr, 10);
 
-      if (endptr >= &lineptr[read])
-        return -1;
+      якщо (endptr >= &lineptr[read])
+        повернути -1;
 
       *len = strtoull (&endptr[1], &endptr, 10);
 
-      return 0;
+      повернути 0;
     }
 }
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 
-int
-format_default_id_mapping (char **out, uid_t container_id, uid_t host_uid, uid_t host_id, int is_uid, libcrun_error_t *err)
+ціле
+format_default_id_mapping (char **out, uid_t container_id, uid_t host_uid, uid_t host_id, ціле is_uid, libcrun_error_t *err)
 {
   uint32_t from = 0, available = 0;
   cleanup_free char *buffer = NULL;
-  int written = 0;
-  int ret, remaining;
+  ціле written = 0;
+  ціле ret, remaining;
 
   *out = NULL;
 
-  if (getsubidrange (host_uid, is_uid, &from, &available) < 0)
-    return 0;
+  якщо (getsubidrange (host_uid, is_uid, &from, &available) < 0)
+    повернути 0;
 
   /* More than enough space for all the mappings.  */
   remaining = 15 * 5 * 3;
   buffer = xmalloc (remaining + 1);
 
-  if (container_id > 0)
+  якщо (container_id > 0)
     {
       uint32_t used = MIN (container_id, available);
       ret = snprintf (buffer + written, remaining, "%d %" PRIu32 " %" PRIu32 "\n", 0, from, used);
-      if (UNLIKELY (ret >= remaining))
-        return crun_make_error (err, 0, "internal error: allocated buffer too small");
+      якщо (UNLIKELY (ret >= remaining))
+        повернути crun_make_error (err, 0, "internal error: allocated buffer too small");
 
       written += ret;
       remaining -= ret;
@@ -1820,55 +1820,55 @@ format_default_id_mapping (char **out, uid_t container_id, uid_t host_uid, uid_t
 
   /* Host ID -> Container ID.  */
   ret = snprintf (buffer + written, remaining, "%d %d 1\n", container_id, host_id);
-  if (UNLIKELY (ret >= remaining))
-    return crun_make_error (err, 0, "internal error: allocated buffer too small");
+  якщо (UNLIKELY (ret >= remaining))
+    повернути crun_make_error (err, 0, "internal error: allocated buffer too small");
   written += ret;
   remaining -= ret;
 
   /* Last mapping: use any id that is left.  */
-  if (available)
+  якщо (available)
     {
       ret = snprintf (buffer + written, remaining, "%d %" PRIu32 " %" PRIu32 "\n", container_id + 1, from, available);
-      if (UNLIKELY (ret >= remaining))
-        return crun_make_error (err, 0, "internal error: allocated buffer too small");
+      якщо (UNLIKELY (ret >= remaining))
+        повернути crun_make_error (err, 0, "internal error: allocated buffer too small");
       written += ret;
       remaining -= ret;
     }
 
   *out = buffer;
   buffer = NULL;
-  return written;
+  повернути written;
 }
 
-static int
-unset_cloexec_flag (int fd)
+static ціле
+unset_cloexec_flag (ціле fd)
 {
-  int flags = fcntl (fd, F_GETFD);
-  if (flags == -1)
-    return -1;
+  ціле flags = fcntl (fd, F_GETFD);
+  якщо (flags == -1)
+    повернути -1;
 
   flags &= ~FD_CLOEXEC;
 
-  return fcntl (fd, F_SETFD, flags);
+  повернути fcntl (fd, F_SETFD, flags);
 }
 
 static void __attribute__ ((__noreturn__))
-run_process_child (char *path, char **args, const char *cwd, char **envp, int pipe_r,
-                   int pipe_w, int out_fd, int err_fd, bool can_ignore_chdir_errors)
+run_process_child (char *path, char **args, const char *cwd, char **envp, ціле pipe_r,
+                   ціле pipe_w, ціле out_fd, ціле err_fd, bool can_ignore_chdir_errors)
 {
   char *tmp_args[] = { path, NULL };
   libcrun_error_t err = NULL;
-  int dev_null_fd = -1;
-  int ret;
+  ціле dev_null_fd = -1;
+  ціле ret;
 
   ret = mark_or_close_fds_ge_than (NULL, 3, false, &err);
-  if (UNLIKELY (ret < 0))
+  якщо (UNLIKELY (ret < 0))
     libcrun_fail_with_error ((err)->status, "%s", (err)->msg);
 
-  if (out_fd < 0 || err_fd < 0)
+  якщо (out_fd < 0 || err_fd < 0)
     {
       dev_null_fd = open ("/dev/null", O_WRONLY | O_CLOEXEC);
-      if (UNLIKELY (dev_null_fd < 0))
+      якщо (UNLIKELY (dev_null_fd < 0))
         _safe_exit (EXIT_FAILURE);
     }
 
@@ -1879,24 +1879,24 @@ run_process_child (char *path, char **args, const char *cwd, char **envp, int pi
   dup2 (out_fd >= 0 ? out_fd : dev_null_fd, 1);
   dup2 (err_fd >= 0 ? err_fd : dev_null_fd, 2);
 
-  if (out_fd >= 0)
+  якщо (out_fd >= 0)
     unset_cloexec_flag (1);
-  if (err_fd >= 0)
+  якщо (err_fd >= 0)
     unset_cloexec_flag (2);
 
-  if (dev_null_fd >= 0)
+  якщо (dev_null_fd >= 0)
     TEMP_FAILURE_RETRY (close (dev_null_fd));
-  if (out_fd >= 0)
+  якщо (out_fd >= 0)
     TEMP_FAILURE_RETRY (close (out_fd));
-  if (err_fd >= 0)
+  якщо (err_fd >= 0)
     TEMP_FAILURE_RETRY (close (err_fd));
 
-  if (args == NULL)
+  якщо (args == NULL)
     args = tmp_args;
 
-  if (cwd && chdir (cwd) < 0)
+  якщо (cwd && chdir (cwd) < 0)
     {
-      if (! can_ignore_chdir_errors || (errno != EACCES && errno != EPERM))
+      якщо (! can_ignore_chdir_errors || (errno != EACCES && errno != EPERM))
         _safe_exit (EXIT_FAILURE);
     }
 
@@ -1905,43 +1905,43 @@ run_process_child (char *path, char **args, const char *cwd, char **envp, int pi
 }
 
 /* It changes the signals mask for the current process.  */
-int
-run_process_with_stdin_timeout_envp (char *path, char **args, const char *cwd, int timeout,
-                                     char **envp, char *stdin, size_t stdin_len, int out_fd,
-                                     int err_fd, bool can_ignore_chdir_errors, libcrun_error_t *err)
+ціле
+run_process_with_stdin_timeout_envp (char *path, char **args, const char *cwd, ціле timeout,
+                                     char **envp, char *stdin, size_t stdin_len, ціле out_fd,
+                                     ціле err_fd, bool can_ignore_chdir_errors, libcrun_error_t *err)
 {
-  int stdin_pipe[2];
+  ціле stdin_pipe[2];
   pid_t pid;
-  int ret;
-  cleanup_close int pipe_r = -1;
-  cleanup_close int pipe_w = -1;
+  ціле ret;
+  cleanup_close ціле pipe_r = -1;
+  cleanup_close ціле pipe_w = -1;
   sigset_t oldmask, mask;
-  int r, status;
+  ціле r, status;
 
   sigemptyset (&mask);
 
   ret = pipe2 (stdin_pipe, O_CLOEXEC);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "pipe");
+  якщо (UNLIKELY (ret < 0))
+    повернути crun_make_error (err, errno, "pipe");
   pipe_r = stdin_pipe[0];
   pipe_w = stdin_pipe[1];
 
-  if (timeout > 0)
+  якщо (timeout > 0)
     {
       sigaddset (&mask, SIGCHLD);
       ret = sigprocmask (SIG_BLOCK, &mask, &oldmask);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "sigprocmask");
+      якщо (UNLIKELY (ret < 0))
+        повернути crun_make_error (err, errno, "sigprocmask");
     }
 
   pid = fork ();
-  if (UNLIKELY (pid < 0))
+  якщо (UNLIKELY (pid < 0))
     {
       ret = crun_make_error (err, errno, "fork");
       goto restore_sig_mask_and_exit;
     }
 
-  if (pid == 0)
+  якщо (pid == 0)
     {
       /* run_process_child doesn't return.  */
       run_process_child (path, args, cwd, envp, pipe_r, pipe_w, out_fd, err_fd, can_ignore_chdir_errors);
@@ -1950,11 +1950,11 @@ run_process_with_stdin_timeout_envp (char *path, char **args, const char *cwd, i
   close_and_reset (&pipe_r);
 
   ret = TEMP_FAILURE_RETRY (write (pipe_w, stdin, stdin_len));
-  if (UNLIKELY (ret < 0))
+  якщо (UNLIKELY (ret < 0))
     {
       /* Ignore EPIPE as the container process could have already
          been terminated.  */
-      if (errno != EPIPE)
+      якщо (errno != EPIPE)
         {
           ret = crun_make_error (err, errno, "write to pipe");
           goto restore_sig_mask_and_exit;
@@ -1963,27 +1963,27 @@ run_process_with_stdin_timeout_envp (char *path, char **args, const char *cwd, i
 
   close_and_reset (&pipe_w);
 
-  if (timeout)
+  якщо (timeout)
     {
       time_t start = time (NULL);
       time_t now;
-      for (now = start; now - start < timeout; now = time (NULL))
+      для (now = start; now - start < timeout; now = time (NULL))
         {
           siginfo_t info;
-          int elapsed = now - start;
+          ціле elapsed = now - start;
           struct timespec ts_timeout = { .tv_sec = timeout - elapsed, .tv_nsec = 0 };
 
           ret = sigtimedwait (&mask, &info, &ts_timeout);
-          if (UNLIKELY (ret < 0 && errno != EAGAIN))
+          якщо (UNLIKELY (ret < 0 && errno != EAGAIN))
             {
               ret = crun_make_error (err, errno, "sigtimedwait");
               goto restore_sig_mask_and_exit;
             }
 
-          if (info.si_signo == SIGCHLD && info.si_pid == pid)
+          якщо (info.si_signo == SIGCHLD && info.si_pid == pid)
             goto read_waitpid;
 
-          if (ret < 0 && errno == EAGAIN)
+          якщо (ret < 0 && errno == EAGAIN)
             goto timeout;
         }
     timeout:
@@ -1995,99 +1995,99 @@ run_process_with_stdin_timeout_envp (char *path, char **args, const char *cwd, i
 
 read_waitpid:
   r = waitpid_ignore_stopped (pid, &status, 0);
-  if (r < 0)
+  якщо (r < 0)
     ret = crun_make_error (err, errno, "waitpid");
-  else
+  інакше
     ret = get_process_exit_status (status);
 
   /* Prevent to cleanup the pid again.  */
   pid = 0;
 
 restore_sig_mask_and_exit:
-  if (timeout > 0)
+  якщо (timeout > 0)
     {
       /* Cleanup the zombie process.  */
-      if (pid > 0)
+      якщо (pid > 0)
         {
           kill (pid, SIGKILL);
           TEMP_FAILURE_RETRY (waitpid (pid, &status, 0));
         }
       r = sigprocmask (SIG_UNBLOCK, &oldmask, NULL);
-      if (UNLIKELY (r < 0 && ret >= 0))
+      якщо (UNLIKELY (r < 0 && ret >= 0))
         ret = crun_make_error (err, errno, "restoring signal mask with sigprocmask");
     }
-  return ret;
+  повернути ret;
 }
 
-int
-mark_or_close_fds_ge_than (libcrun_container_t *container, int n, bool close_now, libcrun_error_t *err)
+ціле
+mark_or_close_fds_ge_than (libcrun_container_t *container, ціле n, bool close_now, libcrun_error_t *err)
 {
-  cleanup_close int cfd = -1;
+  cleanup_close ціле cfd = -1;
   cleanup_dir DIR *dir = NULL;
-  int ret;
-  int fd;
+  ціле ret;
+  ціле fd;
   struct dirent *next;
 
 #ifdef ENABLE_GCOV
   /* Flush gcov data before closing all fds.  Any code coverage after this point will be lost.  */
-  if (close_now)
+  якщо (close_now)
     GCOV_DUMP ();
 #endif
 
   ret = syscall_close_range (n, UINT_MAX, close_now ? 0 : CLOSE_RANGE_CLOEXEC);
-  if (ret == 0)
+  якщо (ret == 0)
     {
-      if (close_now && container && container->proc_fd >= n)
+      якщо (close_now && container && container->proc_fd >= n)
         container->proc_fd = -1;
-      return 0;
+      повернути 0;
     }
-  if (ret < 0 && errno != EINVAL && errno != ENOSYS && errno != EPERM)
-    return crun_make_error (err, errno, "close_range from `%d`", n);
+  якщо (ret < 0 && errno != EINVAL && errno != ENOSYS && errno != EPERM)
+    повернути crun_make_error (err, errno, "close_range from `%d`", n);
 
   cfd = libcrun_open_proc_file (container, "self/fd", O_DIRECTORY | O_RDONLY, err);
-  if (UNLIKELY (cfd < 0))
-    return cfd;
+  якщо (UNLIKELY (cfd < 0))
+    повернути cfd;
 
   ret = check_proc_super_magic (cfd, "self/fd", err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  якщо (UNLIKELY (ret < 0))
+    повернути ret;
 
   dir = fdopendir (cfd);
-  if (UNLIKELY (dir == NULL))
-    return crun_make_error (err, errno, "fdopendir `self/fd`");
+  якщо (UNLIKELY (dir == NULL))
+    повернути crun_make_error (err, errno, "fdopendir `self/fd`");
 
   /* Now it is owned by dir.  */
   cfd = -1;
 
   fd = dirfd (dir);
-  for (next = readdir (dir); next; next = readdir (dir))
+  для (next = readdir (dir); next; next = readdir (dir))
     {
-      int val;
+      ціле val;
       const char *name = next->d_name;
-      if (name[0] == '.')
+      якщо (name[0] == '.')
         continue;
 
       val = strtoll (name, NULL, 10);
-      if (val < n || val == fd)
+      якщо (val < n || val == fd)
         continue;
 
-      if (close_now)
+      якщо (close_now)
         {
           ret = close (val);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "close fd `%d`", val);
+          якщо (UNLIKELY (ret < 0))
+            повернути crun_make_error (err, errno, "close fd `%d`", val);
 
-          if (container && val == container->proc_fd)
+          якщо (container && val == container->proc_fd)
             container->proc_fd = -1;
         }
-      else
+      інакше
         {
           ret = fcntl (val, F_SETFD, FD_CLOEXEC);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "cannot set CLOEXEC for fd `%d`", val);
+          якщо (UNLIKELY (ret < 0))
+            повернути crun_make_error (err, errno, "cannot set CLOEXEC for fd `%d`", val);
         }
     }
-  return 0;
+  повернути 0;
 }
 
 void
@@ -2101,24 +2101,24 @@ get_current_timestamp (char *out, size_t len)
   gmtime_r (&tv.tv_sec, &now);
   strftime (timestamp, sizeof (timestamp), "%Y-%m-%dT%H:%M:%S", &now);
 
-  (void) snprintf (out, len, "%s.%06lldZ", timestamp, (long long int) tv.tv_usec);
+  (void) snprintf (out, len, "%s.%06lldZ", timestamp, (long long ціле) tv.tv_usec);
   out[len - 1] = '\0';
 }
 
-int
-set_blocking_fd (int fd, bool blocking, libcrun_error_t *err)
+ціле
+set_blocking_fd (ціле fd, bool blocking, libcrun_error_t *err)
 {
-  int ret, flags = fcntl (fd, F_GETFL, 0);
-  if (UNLIKELY (flags < 0))
-    return crun_make_error (err, errno, "fcntl");
+  ціле ret, flags = fcntl (fd, F_GETFL, 0);
+  якщо (UNLIKELY (flags < 0))
+    повернути crun_make_error (err, errno, "fcntl");
 
   ret = fcntl (fd, F_SETFL, blocking ? flags & ~O_NONBLOCK : flags | O_NONBLOCK);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fcntl");
-  return 0;
+  якщо (UNLIKELY (ret < 0))
+    повернути crun_make_error (err, errno, "fcntl");
+  повернути 0;
 }
 
-int
+ціле
 parse_json_file (json_object **out, const char *jsondata, struct parser_context *ctx arg_unused, libcrun_error_t *err)
 {
   struct json_tokener *tok;
@@ -2126,33 +2126,33 @@ parse_json_file (json_object **out, const char *jsondata, struct parser_context 
 
   *err = NULL;
 
-  if (UNLIKELY (jsondata == NULL))
-    return crun_make_error (err, 0, "JSON data is NULL");
+  якщо (UNLIKELY (jsondata == NULL))
+    повернути crun_make_error (err, 0, "JSON data is NULL");
 
   tok = json_tokener_new ();
-  if (UNLIKELY (tok == NULL))
-    return crun_make_error (err, 0, "cannot allocate JSON tokener");
+  якщо (UNLIKELY (tok == NULL))
+    повернути crun_make_error (err, 0, "cannot allocate JSON tokener");
 
   json_tokener_set_flags (tok, JSON_TOKENER_VALIDATE_UTF8);
 
-  *out = json_tokener_parse_ex (tok, jsondata, (int) strlen (jsondata));
+  *out = json_tokener_parse_ex (tok, jsondata, (ціле) strlen (jsondata));
   jerr = json_tokener_get_error (tok);
-  if (*out == NULL || jerr != json_tokener_success)
+  якщо (*out == NULL || jerr != json_tokener_success)
     {
-      int saved_pos = (int) tok->char_offset;
+      ціле saved_pos = (ціле) tok->char_offset;
 
       json_tokener_free (tok);
-      if (*out)
+      якщо (*out)
         {
           json_object_put (*out);
           *out = NULL;
         }
-      return crun_make_error (err, 0, "cannot parse the data: %s at position %d",
+      повернути crun_make_error (err, 0, "cannot parse the data: %s at position %d",
                               json_tokener_error_desc (jerr), saved_pos);
     }
 
   json_tokener_free (tok);
-  return 0;
+  повернути 0;
 }
 
 #define CHECK_ACCESS_NOT_EXECUTABLE 1
@@ -2165,67 +2165,67 @@ parse_json_file (json_object **out, const char *jsondata, struct parser_context 
    - CHECK_ACCESS_NOT_REGULAR if it not a regular file
    - -errno for any other generic error
  */
-static int
+static ціле
 check_access (const char *path)
 {
-  int ret;
+  ціле ret;
   mode_t mode;
 
 #ifdef HAVE_EACCESS
 #  define ACCESS(path, mode) (eaccess (path, mode))
-#else
+#інакше
 #  define ACCESS(path, mode) (access (path, mode))
 #endif
 
   ret = ACCESS (path, X_OK);
-  if (ret < 0)
+  якщо (ret < 0)
     {
       /* If the file is not executable, check if it exists.  */
-      if (errno == EACCES)
+      якщо (errno == EACCES)
         {
-          int saved_errno = errno;
+          ціле saved_errno = errno;
           ret = ACCESS (path, F_OK);
           errno = saved_errno;
 
-          if (ret == 0)
-            return CHECK_ACCESS_NOT_EXECUTABLE;
+          якщо (ret == 0)
+            повернути CHECK_ACCESS_NOT_EXECUTABLE;
         }
-      return -errno;
+      повернути -errno;
     }
 
   ret = get_file_type (&mode, false, path);
-  if (UNLIKELY (ret < 0))
-    return -errno;
+  якщо (UNLIKELY (ret < 0))
+    повернути -errno;
 
-  if (! S_ISREG (mode))
-    return CHECK_ACCESS_NOT_REGULAR;
+  якщо (! S_ISREG (mode))
+    повернути CHECK_ACCESS_NOT_REGULAR;
 
   /* It exists, is executable and is a regular file.  */
-  return 0;
+  повернути 0;
 }
 
-int
+ціле
 find_executable (char **out, const char *executable_path, const char *cwd, libcrun_error_t *err)
 {
   cleanup_free char *cwd_executable_path = NULL;
   cleanup_free char *tmp = NULL;
-  int last_error = -ENOENT;
+  ціле last_error = -ENOENT;
   char *it, *end;
-  int ret;
+  ціле ret;
 
   *out = NULL;
 
-  if (executable_path == NULL || executable_path[0] == '\0')
-    return crun_make_error (err, ENOENT, "cannot find `` in $PATH");
+  якщо (executable_path == NULL || executable_path[0] == '\0')
+    повернути crun_make_error (err, ENOENT, "cannot find `` in $PATH");
 
-  if (executable_path[0] != '/' && strchr (executable_path, '/'))
+  якщо (executable_path[0] != '/' && strchr (executable_path, '/'))
     {
       cleanup_free char *cwd_allocated = NULL;
 
-      if (cwd == NULL)
+      якщо (cwd == NULL)
         {
           cwd_allocated = getcwd (NULL, 0);
-          if (cwd_allocated == NULL)
+          якщо (cwd_allocated == NULL)
             OOM ();
 
           cwd = cwd_allocated;
@@ -2234,19 +2234,19 @@ find_executable (char **out, const char *executable_path, const char *cwd, libcr
       /* Make sure the path starts with a '/' so it will hit the check
          for absolute paths.  */
       ret = append_paths (&cwd_executable_path, err, "/", cwd, executable_path, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      якщо (UNLIKELY (ret < 0))
+        повернути ret;
       executable_path = cwd_executable_path;
     }
 
   /* Absolute path.  It doesn't need to lookup $PATH.  */
-  if (executable_path[0] == '/')
+  якщо (executable_path[0] == '/')
     {
       ret = check_access (executable_path);
-      if (LIKELY (ret == 0))
+      якщо (LIKELY (ret == 0))
         {
           *out = xstrdup (executable_path);
-          return 0;
+          повернути 0;
         }
       last_error = ret;
       goto fail;
@@ -2254,30 +2254,30 @@ find_executable (char **out, const char *executable_path, const char *cwd, libcr
 
   end = tmp = xstrdup (getenv ("PATH"));
 
-  while ((it = strsep (&end, ":")))
+  поки ((it = strsep (&end, ":")))
     {
       cleanup_free char *path = NULL;
 
-      if (it == end)
+      якщо (it == end)
         it = ".";
 
       ret = append_paths (&path, err, it, executable_path, NULL);
-      if (UNLIKELY (ret < 0))
+      якщо (UNLIKELY (ret < 0))
         {
           crun_error_release (err);
           continue;
         }
 
       ret = check_access (path);
-      if (ret == 0)
+      якщо (ret == 0)
         {
           /* Change owner.  */
           *out = path;
           path = NULL;
-          return 0;
+          повернути 0;
         }
 
-      if (ret == -ENOENT)
+      якщо (ret == -ENOENT)
         continue;
 
       last_error = ret;
@@ -2287,23 +2287,23 @@ fail:
   switch (last_error)
     {
     case CHECK_ACCESS_NOT_EXECUTABLE:
-      return crun_make_error (err, EPERM, "the path `%s` exists but it is not executable", executable_path);
+      повернути crun_make_error (err, EPERM, "the path `%s` exists but it is not executable", executable_path);
 
     case CHECK_ACCESS_NOT_REGULAR:
-      return crun_make_error (err, EPERM, "the path `%s` is not a regular file", executable_path);
+      повернути crun_make_error (err, EPERM, "the path `%s` is not a regular file", executable_path);
 
     default:
       errno = -last_error;
-      if (errno == ENOENT)
-        return crun_make_error (err, errno, "executable file `%s` not found%s", executable_path, executable_path[0] == '/' ? "" : " in $PATH");
-      return crun_make_error (err, errno, "open `%s`", executable_path);
+      якщо (errno == ENOENT)
+        повернути crun_make_error (err, errno, "executable file `%s` not found%s", executable_path, executable_path[0] == '/' ? "" : " in $PATH");
+      повернути crun_make_error (err, errno, "open `%s`", executable_path);
     }
 }
 
 #ifdef HAVE_FGETXATTR
 
 static ssize_t
-safe_read_xattr (char **ret, int sfd, const char *srcname, const char *name, size_t initial_size, libcrun_error_t *err)
+safe_read_xattr (char **ret, ціле sfd, const char *srcname, const char *name, size_t initial_size, libcrun_error_t *err)
 {
   cleanup_free char *buffer = NULL;
   ssize_t current_size;
@@ -2312,21 +2312,21 @@ safe_read_xattr (char **ret, int sfd, const char *srcname, const char *name, siz
   current_size = (ssize_t) initial_size;
   buffer = xmalloc (current_size + 1);
 
-  while (1)
+  поки (1)
     {
       s = fgetxattr (sfd, name, buffer, current_size);
-      if (UNLIKELY (s < 0))
-        return crun_make_error (err, errno, "get xattr `%s` from `%s`", name, srcname);
+      якщо (UNLIKELY (s < 0))
+        повернути crun_make_error (err, errno, "get xattr `%s` from `%s`", name, srcname);
 
-      if (s < current_size)
+      якщо (s < current_size)
         break;
 
       current_size *= 2;
       buffer = xrealloc (buffer, current_size + 1);
     }
 
-  if (s <= 0)
-    return s;
+  якщо (s <= 0)
+    повернути s;
 
   buffer[s] = '\0';
 
@@ -2334,63 +2334,63 @@ safe_read_xattr (char **ret, int sfd, const char *srcname, const char *name, siz
   *ret = buffer;
   buffer = NULL;
 
-  return s;
+  повернути s;
 }
 
 static ssize_t
-copy_xattr (int sfd, int dfd, const char *srcname, const char *destname, libcrun_error_t *err)
+copy_xattr (ціле sfd, ціле dfd, const char *srcname, const char *destname, libcrun_error_t *err)
 {
   cleanup_free char *buf = NULL;
   ssize_t xattr_len;
   char *it;
 
   xattr_len = flistxattr (sfd, NULL, 0);
-  if (UNLIKELY (xattr_len < 0))
+  якщо (UNLIKELY (xattr_len < 0))
     {
-      if (errno == ENOTSUP)
-        return 0;
+      якщо (errno == ENOTSUP)
+        повернути 0;
 
-      return crun_make_error (err, errno, "flistxattr `%s`", srcname);
+      повернути crun_make_error (err, errno, "flistxattr `%s`", srcname);
     }
 
-  if (xattr_len == 0)
-    return 0;
+  якщо (xattr_len == 0)
+    повернути 0;
 
   buf = xmalloc (xattr_len + 1);
 
   xattr_len = flistxattr (sfd, buf, xattr_len + 1);
-  if (UNLIKELY (xattr_len < 0))
-    return crun_make_error (err, errno, "flistxattr `%s`", srcname);
+  якщо (UNLIKELY (xattr_len < 0))
+    повернути crun_make_error (err, errno, "flistxattr `%s`", srcname);
 
-  for (it = buf; it - buf < xattr_len; it += strlen (it) + 1)
+  для (it = buf; it - buf < xattr_len; it += strlen (it) + 1)
     {
       cleanup_free char *v = NULL;
       ssize_t s;
 
       s = safe_read_xattr (&v, sfd, srcname, it, 256, err);
-      if (UNLIKELY (s < 0))
-        return s;
+      якщо (UNLIKELY (s < 0))
+        повернути s;
 
       s = fsetxattr (dfd, it, v, s, 0);
-      if (UNLIKELY (s < 0))
+      якщо (UNLIKELY (s < 0))
         {
-          if (errno == EINVAL || errno == EOPNOTSUPP)
+          якщо (errno == EINVAL || errno == EOPNOTSUPP)
             continue;
 
-          return crun_make_error (err, errno, "fsetxattr `%s` to `%s`", it, destname);
+          повернути crun_make_error (err, errno, "fsetxattr `%s` to `%s`", it, destname);
         }
     }
 
-  return 0;
+  повернути 0;
 }
 
 #endif
 
-static int
-copy_rec_stat_file_at (int dfd, const char *path, mode_t *mode, off_t *size, dev_t *rdev, uid_t *uid, gid_t *gid)
+static ціле
+copy_rec_stat_file_at (ціле dfd, const char *path, mode_t *mode, off_t *size, dev_t *rdev, uid_t *uid, gid_t *gid)
 {
   struct stat st;
-  int ret;
+  ціле ret;
 
 #ifdef HAVE_STATX
   struct statx stx = {
@@ -2399,12 +2399,12 @@ copy_rec_stat_file_at (int dfd, const char *path, mode_t *mode, off_t *size, dev
 
   ret = statx (dfd, path, AT_SYMLINK_NOFOLLOW | AT_STATX_DONT_SYNC,
                STATX_TYPE | STATX_MODE | STATX_SIZE | STATX_UID | STATX_GID, &stx);
-  if (UNLIKELY (ret < 0))
+  якщо (UNLIKELY (ret < 0))
     {
-      if (errno == ENOSYS || errno == EINVAL)
+      якщо (errno == ENOSYS || errno == EINVAL)
         goto fallback;
 
-      return ret;
+      повернути ret;
     }
 
   *mode = stx.stx_mode;
@@ -2413,7 +2413,7 @@ copy_rec_stat_file_at (int dfd, const char *path, mode_t *mode, off_t *size, dev
   *uid = stx.stx_uid;
   *gid = stx.stx_gid;
 
-  return ret;
+  повернути ret;
 
 fallback:
 #endif
@@ -2425,61 +2425,61 @@ fallback:
   *uid = st.st_uid;
   *gid = st.st_gid;
 
-  return ret;
+  повернути ret;
 }
 
-int
-copy_recursive_fd_to_fd (int srcdirfd, int dfd, const char *srcname, const char *destname, libcrun_error_t *err)
+ціле
+copy_recursive_fd_to_fd (ціле srcdirfd, ціле dfd, const char *srcname, const char *destname, libcrun_error_t *err)
 {
-  cleanup_close int destdirfd = dfd;
+  cleanup_close ціле destdirfd = dfd;
   cleanup_dir DIR *dsrcfd = NULL;
   struct dirent *de;
 
   dsrcfd = fdopendir (srcdirfd);
-  if (UNLIKELY (dsrcfd == NULL))
+  якщо (UNLIKELY (dsrcfd == NULL))
     {
       TEMP_FAILURE_RETRY (close (srcdirfd));
-      return crun_make_error (err, errno, "open directory `%s`", destname);
+      повернути crun_make_error (err, errno, "open directory `%s`", destname);
     }
 
-  for (de = readdir (dsrcfd); de; de = readdir (dsrcfd))
+  для (de = readdir (dsrcfd); de; de = readdir (dsrcfd))
     {
-      cleanup_close int srcfd = -1;
-      cleanup_close int destfd = -1;
+      cleanup_close ціле srcfd = -1;
+      cleanup_close ціле destfd = -1;
       cleanup_free char *target_buf = NULL;
-      int ret;
+      ціле ret;
       mode_t mode;
       off_t st_size;
       dev_t rdev;
       uid_t uid;
       gid_t gid;
 
-      if (strcmp (de->d_name, ".") == 0 || strcmp (de->d_name, "..") == 0)
+      якщо (strcmp (de->d_name, ".") == 0 || strcmp (de->d_name, "..") == 0)
         continue;
 
       ret = copy_rec_stat_file_at (dirfd (dsrcfd), de->d_name, &mode, &st_size, &rdev, &uid, &gid);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "stat `%s/%s`", srcname, de->d_name);
+      якщо (UNLIKELY (ret < 0))
+        повернути crun_make_error (err, errno, "stat `%s/%s`", srcname, de->d_name);
 
       switch (mode & S_IFMT)
         {
         case S_IFREG:
           srcfd = openat (dirfd (dsrcfd), de->d_name, O_NONBLOCK | O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
-          if (UNLIKELY (srcfd < 0))
-            return crun_make_error (err, errno, "open `%s/%s`", srcname, de->d_name);
+          якщо (UNLIKELY (srcfd < 0))
+            повернути crun_make_error (err, errno, "open `%s/%s`", srcname, de->d_name);
 
           destfd = openat (destdirfd, de->d_name, O_RDWR | O_CREAT | O_CLOEXEC | O_NOFOLLOW, 0777);
-          if (UNLIKELY (destfd < 0))
-            return crun_make_error (err, errno, "open `%s/%s`", destname, de->d_name);
+          якщо (UNLIKELY (destfd < 0))
+            повернути crun_make_error (err, errno, "open `%s/%s`", destname, de->d_name);
 
           ret = copy_from_fd_to_fd (srcfd, destfd, 1, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          якщо (UNLIKELY (ret < 0))
+            повернути ret;
 
 #ifdef HAVE_FGETXATTR
-          ret = (int) copy_xattr (srcfd, destfd, de->d_name, de->d_name, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = (ціле) copy_xattr (srcfd, destfd, de->d_name, de->d_name, err);
+          якщо (UNLIKELY (ret < 0))
+            повернути ret;
 #endif
 
           TEMP_FAILURE_RETRY (close (destfd));
@@ -2488,38 +2488,38 @@ copy_recursive_fd_to_fd (int srcdirfd, int dfd, const char *srcname, const char 
 
         case S_IFDIR:
           ret = mkdirat (destdirfd, de->d_name, mode);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "mkdir `%s/%s`", destname, de->d_name);
+          якщо (UNLIKELY (ret < 0))
+            повернути crun_make_error (err, errno, "mkdir `%s/%s`", destname, de->d_name);
 
           srcfd = openat (dirfd (dsrcfd), de->d_name, O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
-          if (UNLIKELY (srcfd < 0))
-            return crun_make_error (err, errno, "open directory `%s/%s`", srcname, de->d_name);
+          якщо (UNLIKELY (srcfd < 0))
+            повернути crun_make_error (err, errno, "open directory `%s/%s`", srcname, de->d_name);
 
           destfd = openat (destdirfd, de->d_name, O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
-          if (UNLIKELY (destfd < 0))
-            return crun_make_error (err, errno, "open directory `%s/%s`", srcname, de->d_name);
+          якщо (UNLIKELY (destfd < 0))
+            повернути crun_make_error (err, errno, "open directory `%s/%s`", srcname, de->d_name);
 
 #ifdef HAVE_FGETXATTR
-          ret = (int) copy_xattr (srcfd, destfd, de->d_name, de->d_name, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = (ціле) copy_xattr (srcfd, destfd, de->d_name, de->d_name, err);
+          якщо (UNLIKELY (ret < 0))
+            повернути ret;
 #endif
 
           // copy_recursive_fd_to_fd closes srcfd and destfd
           ret = copy_recursive_fd_to_fd (srcfd, destfd, de->d_name, de->d_name, err);
           srcfd = destfd = -1;
-          if (UNLIKELY (ret < 0))
-            return ret;
+          якщо (UNLIKELY (ret < 0))
+            повернути ret;
           break;
 
         case S_IFLNK:
           ret = safe_readlinkat (dirfd (dsrcfd), de->d_name, &target_buf, st_size, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          якщо (UNLIKELY (ret < 0))
+            повернути ret;
 
           ret = symlinkat (target_buf, destdirfd, de->d_name);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "symlinkat `%s/%s`", destname, de->d_name);
+          якщо (UNLIKELY (ret < 0))
+            повернути crun_make_error (err, errno, "symlinkat `%s/%s`", destname, de->d_name);
           break;
 
         case S_IFBLK:
@@ -2527,14 +2527,14 @@ copy_recursive_fd_to_fd (int srcdirfd, int dfd, const char *srcname, const char 
         case S_IFIFO:
         case S_IFSOCK:
           ret = mknodat (destdirfd, de->d_name, mode, rdev);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "mknodat `%s/%s`", destname, de->d_name);
+          якщо (UNLIKELY (ret < 0))
+            повернути crun_make_error (err, errno, "mknodat `%s/%s`", destname, de->d_name);
           break;
         }
 
       ret = fchownat (destdirfd, de->d_name, uid, gid, AT_SYMLINK_NOFOLLOW);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "fchownat `%s/%s`", destname, de->d_name);
+      якщо (UNLIKELY (ret < 0))
+        повернути crun_make_error (err, errno, "fchownat `%s/%s`", destname, de->d_name);
 
       /*
        * ALLPERMS is not defined by POSIX
@@ -2544,49 +2544,49 @@ copy_recursive_fd_to_fd (int srcdirfd, int dfd, const char *srcname, const char 
 #endif
 
       ret = fchmodat (destdirfd, de->d_name, mode & ALLPERMS, AT_SYMLINK_NOFOLLOW);
-      if (UNLIKELY (ret < 0))
+      якщо (UNLIKELY (ret < 0))
         {
           /* If the operation fails with ENOTSUP we are dealing with a symlink, so ignore it.  */
-          if (errno == ENOTSUP)
+          якщо (errno == ENOTSUP)
             continue;
 
-          return crun_make_error (err, errno, "fchmodat `%s/%s`", destname, de->d_name);
+          повернути crun_make_error (err, errno, "fchmodat `%s/%s`", destname, de->d_name);
         }
     }
 
-  return 0;
+  повернути 0;
 }
 
 const char *
 find_annotation (libcrun_container_t *container, const char *name)
 {
-  if (container->container_def->annotations == NULL)
-    return NULL;
+  якщо (container->container_def->annotations == NULL)
+    повернути NULL;
 
-  return find_string_map_value (container->annotations, name);
+  повернути find_string_map_value (container->annotations, name);
 }
 
-int
-safe_write (int fd, const char *fname, const void *buf, size_t count, libcrun_error_t *err)
+ціле
+safe_write (ціле fd, const char *fname, const void *buf, size_t count, libcrun_error_t *err)
 {
   size_t written = 0;
-  while (written < count)
+  поки (written < count)
     {
       ssize_t w = write (fd, (const char *) buf + written, count - written);
-      if (UNLIKELY (w < 0))
+      якщо (UNLIKELY (w < 0))
         {
-          if (errno == EINTR || errno == EAGAIN)
+          якщо (errno == EINTR || errno == EAGAIN)
             continue;
-          return crun_make_error (err, errno, "write to `%s`", fname);
+          повернути crun_make_error (err, errno, "write to `%s`", fname);
         }
       written += w;
     }
-  return 0;
+  повернути 0;
 }
 
 #define MAX_PARTS 32
 
-int
+ціле
 append_paths (char **out, libcrun_error_t *err, ...)
 {
   const char *parts[MAX_PARTS];
@@ -2598,39 +2598,39 @@ append_paths (char **out, libcrun_error_t *err, ...)
   size_t i;
 
   va_start (ap, err);
-  for (;;)
+  для (;;)
     {
       const char *part;
       size_t size;
 
       part = va_arg (ap, const char *);
-      if (part == NULL)
+      якщо (part == NULL)
         break;
 
-      if (n_parts == MAX_PARTS)
+      якщо (n_parts == MAX_PARTS)
         {
           va_end (ap);
-          return crun_make_error (err, EINVAL, "too many paths specified");
+          повернути crun_make_error (err, EINVAL, "too many paths specified");
         }
 
-      if (n_parts == 0)
+      якщо (n_parts == 0)
         {
           /* For the first component allow only one '/'.  */
-          while (part[0] == '/' && part[1] == '/')
+          поки (part[0] == '/' && part[1] == '/')
             part++;
         }
-      else
+      інакше
         {
           /* And drop any initial '/' for other components.  */
-          while (part[0] == '/')
+          поки (part[0] == '/')
             part++;
         }
 
       size = strlen (part);
-      if (size == 0)
+      якщо (size == 0)
         continue;
 
-      while (size > 1 && part[size - 1] == '/')
+      поки (size > 1 && part[size - 1] == '/')
         size--;
 
       parts[n_parts] = part;
@@ -2641,18 +2641,18 @@ append_paths (char **out, libcrun_error_t *err, ...)
   va_end (ap);
 
   total_len = n_parts + 1;
-  for (i = 0; i < n_parts; i++)
+  для (i = 0; i < n_parts; i++)
     total_len += sizes[i];
 
   *out = xmalloc (total_len);
 
   copied = 0;
-  for (i = 0; i < n_parts; i++)
+  для (i = 0; i < n_parts; i++)
     {
       bool has_trailing_slash;
 
       has_trailing_slash = copied > 0 && (*out)[copied - 1] == '/';
-      if (i > 0 && ! has_trailing_slash)
+      якщо (i > 0 && ! has_trailing_slash)
         {
           (*out)[copied] = '/';
           copied += 1;
@@ -2662,51 +2662,51 @@ append_paths (char **out, libcrun_error_t *err, ...)
       copied += sizes[i];
     }
   (*out)[copied] = '\0';
-  return 0;
+  повернути 0;
 }
 
-#if __has_attribute(__nonstring__)
+#якщо __has_attribute(__nonstring__)
 #  define __nonstring __attribute__ ((__nonstring__))
-#else
+#інакше
 #  define __nonstring
 #endif
 
 /* Adapted from mailutils 0.6.91 (distributed under LGPL 2.0+)  */
-static int
+static ціле
 b64_input (char c)
 {
   const char table[64] __nonstring = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-  int i;
+  ціле i;
 
-  for (i = 0; i < 64; i++)
+  для (i = 0; i < 64; i++)
     {
-      if (table[i] == c)
-        return i;
+      якщо (table[i] == c)
+        повернути i;
     }
-  return -1;
+  повернути -1;
 }
 
-int
+ціле
 base64_decode (const char *iptr, size_t isize, char *optr, size_t osize, size_t *nbytes)
 {
-  int i = 0, tmp = 0, pad = 0;
+  ціле i = 0, tmp = 0, pad = 0;
   size_t consumed = 0;
   unsigned char data[4];
 
   *nbytes = 0;
-  while (consumed < isize && (*nbytes) + 3 < osize)
+  поки (consumed < isize && (*nbytes) + 3 < osize)
     {
-      while ((i < 4) && (consumed < isize))
+      поки ((i < 4) && (consumed < isize))
         {
           tmp = b64_input (*iptr++);
           consumed++;
-          if (tmp != -1)
+          якщо (tmp != -1)
             {
-              if (UNLIKELY (pad > 0))
-                return -1;
+              якщо (UNLIKELY (pad > 0))
+                повернути -1;
               data[i++] = tmp;
             }
-          else if (*(iptr - 1) == '=')
+          інакше якщо (*(iptr - 1) == '=')
             {
               data[i++] = '\0';
               pad++;
@@ -2714,24 +2714,24 @@ base64_decode (const char *iptr, size_t isize, char *optr, size_t osize, size_t 
         }
 
       /* I have an entire block of data 32 bits get the output data.  */
-      if (i == 4)
+      якщо (i == 4)
         {
-          if (UNLIKELY (pad > 2))
-            return -1;
+          якщо (UNLIKELY (pad > 2))
+            повернути -1;
           *optr++ = (data[0] << 2) | ((data[1] & 0x30) >> 4);
           *optr++ = ((data[1] & 0xf) << 4) | ((data[2] & 0x3c) >> 2);
           *optr++ = ((data[2] & 0x3) << 6) | data[3];
           (*nbytes) += 3 - pad;
         }
-      else
+      інакше
         {
           /* I did not get all the data.  */
           consumed -= i;
-          return consumed;
+          повернути consumed;
         }
       i = 0;
     }
-  return consumed;
+  повернути consumed;
 }
 
 char *
@@ -2740,9 +2740,9 @@ get_user_name (uid_t uid)
   struct passwd pd;
   struct passwd *temp_result_ptr;
   char pwdbuffer[200];
-  if (! getpwuid_r (uid, &pd, pwdbuffer, sizeof (pwdbuffer), &temp_result_ptr))
-    return xstrdup (pd.pw_name);
-  return xstrdup ("");
+  якщо (! getpwuid_r (uid, &pd, pwdbuffer, sizeof (pwdbuffer), &temp_result_ptr))
+    повернути xstrdup (pd.pw_name);
+  повернути xstrdup ("");
 }
 
 /* Convert a sysctl key to its /proc/sys path according to sysctl.d(5).
@@ -2757,35 +2757,35 @@ libcrun_sysctl_key_to_proc_path (const char *key)
   sep = strpbrk (key, "./");
 
   /* No separator at all, or the key is already in the path form.  */
-  if (sep == NULL || *sep == '/')
-    return xstrdup (key);
+  якщо (sep == NULL || *sep == '/')
+    повернути xstrdup (key);
 
   ret = xstrdup (key);
-  for (it = ret; *it; it++)
+  для (it = ret; *it; it++)
     {
-      if (*it == '.')
+      якщо (*it == '.')
         *it = '/';
-      else if (*it == '/')
+      інакше якщо (*it == '/')
         *it = '.';
     }
 
-  return ret;
+  повернути ret;
 }
 
-int
+ціле
 has_suffix (const char *str, const char *suffix)
 {
-  if (! str || ! suffix)
-    return 0;
+  якщо (! str || ! suffix)
+    повернути 0;
   size_t lenstr = strlen (str);
   size_t lensuffix = strlen (suffix);
-  if (lensuffix > lenstr)
-    return 0;
-  return memcmp (str + lenstr - lensuffix, suffix, lensuffix) == 0;
+  якщо (lensuffix > lenstr)
+    повернути 0;
+  повернути memcmp (str + lenstr - lensuffix, suffix, lensuffix) == 0;
 }
 
 char *
-str_join_array (int offset, size_t size, char *const array[], const char *joint)
+str_join_array (ціле offset, size_t size, char *const array[], const char *joint)
 {
   size_t jlen;
   cleanup_free size_t *lens = NULL;
@@ -2794,35 +2794,35 @@ str_join_array (int offset, size_t size, char *const array[], const char *joint)
 
   lens = xmalloc (size * sizeof (*lens));
 
-  for (i = 0; i < size; ++i)
+  для (i = 0; i < size; ++i)
     {
       total_size += (lens[i] = strlen (array[i]));
     }
   p = result = xmalloc (total_size);
-  for (i = offset; i < size; ++i)
+  для (i = offset; i < size; ++i)
     {
       memcpy (p, array[i], lens[i]);
       p += lens[i];
-      if (i < size - 1)
+      якщо (i < size - 1)
         {
           memcpy (p, joint, jlen);
           p += jlen;
         }
     }
   *p = '\0';
-  return result;
+  повернути result;
 }
 
-int
+ціле
 libcrun_mmap (struct libcrun_mmap_s **ret, void *addr, size_t length,
-              int prot, int flags, int fd, off_t offset,
+              ціле prot, ціле flags, ціле fd, off_t offset,
               libcrun_error_t *err)
 {
   struct libcrun_mmap_s *mmap_s = NULL;
 
   void *mapped = mmap (addr, length, prot, flags, fd, offset);
-  if (mapped == MAP_FAILED)
-    return crun_make_error (err, errno, "mmap");
+  якщо (mapped == MAP_FAILED)
+    повернути crun_make_error (err, errno, "mmap");
 
   mmap_s = xmalloc (sizeof (struct libcrun_mmap_s));
   mmap_s->addr = mapped;
@@ -2830,21 +2830,21 @@ libcrun_mmap (struct libcrun_mmap_s **ret, void *addr, size_t length,
 
   *ret = mmap_s;
 
-  return 0;
+  повернути 0;
 }
 
-int
+ціле
 libcrun_munmap (struct libcrun_mmap_s *mmap, libcrun_error_t *err)
 {
-  int ret;
+  ціле ret;
 
   ret = munmap (mmap->addr, mmap->length);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "munmap");
+  якщо (UNLIKELY (ret < 0))
+    повернути crun_make_error (err, errno, "munmap");
 
   free (mmap);
 
-  return 0;
+  повернути 0;
 }
 
 static long
@@ -2854,22 +2854,22 @@ read_file_as_long_or_default (const char *path, long def_value)
   libcrun_error_t tmp_err = NULL;
   char *endptr;
   long val;
-  int ret;
+  ціле ret;
 
   ret = read_all_file (path, &content, NULL, &tmp_err);
-  if (UNLIKELY (ret < 0))
+  якщо (UNLIKELY (ret < 0))
     {
       crun_error_release (&tmp_err);
-      return def_value;
+      повернути def_value;
     }
 
   errno = 0;
   val = strtol (content, &endptr, 10);
-  if (UNLIKELY (errno))
-    return def_value;
-  if (endptr == content || (*endptr && *endptr != '\n'))
-    return def_value;
-  return val;
+  якщо (UNLIKELY (errno))
+    повернути def_value;
+  якщо (endptr == content || (*endptr && *endptr != '\n'))
+    повернути def_value;
+  повернути val;
 }
 
 #define DEFAULT_OVERFLOW_ID 65534
@@ -2879,12 +2879,12 @@ get_overflow_uid (void)
 {
   static atomic_long cached_uid = -1;
   atomic_long uid = cached_uid;
-  if (uid == -1)
+  якщо (uid == -1)
     {
       uid = read_file_as_long_or_default ("/proc/sys/kernel/overflowuid", DEFAULT_OVERFLOW_ID);
       cached_uid = uid;
     }
-  return uid;
+  повернути uid;
 }
 
 gid_t
@@ -2892,23 +2892,23 @@ get_overflow_gid (void)
 {
   static atomic_long cached_gid = -1;
   atomic_long gid = cached_gid;
-  if (gid == -1)
+  якщо (gid == -1)
     {
       gid = read_file_as_long_or_default ("/proc/sys/kernel/overflowgid", DEFAULT_OVERFLOW_ID);
       cached_gid = gid;
     }
-  return gid;
+  повернути gid;
 }
 
 void
 consume_trailing_slashes (char *path)
 {
-  if (! path || path[0] == '\0')
-    return;
+  якщо (! path || path[0] == '\0')
+    повернути;
 
   char *last = path + strlen (path);
 
-  while (last > path && *(last - 1) == '/')
+  поки (last > path && *(last - 1) == '/')
     last--;
 
   *last = '\0';
@@ -2924,18 +2924,18 @@ read_dir_entries (const char *path, libcrun_error_t *err)
   struct dirent *de;
 
   dir = opendir (path);
-  if (UNLIKELY (dir == NULL))
+  якщо (UNLIKELY (dir == NULL))
     {
       crun_make_error (err, errno, "opendir `%s`", path);
-      return NULL;
+      повернути NULL;
     }
 
   entries = xmalloc (entries_size * sizeof (char *));
-  while ((de = readdir (dir)))
+  поки ((de = readdir (dir)))
     {
-      if (strcmp (de->d_name, ".") == 0 || strcmp (de->d_name, "..") == 0)
+      якщо (strcmp (de->d_name, ".") == 0 || strcmp (de->d_name, "..") == 0)
         continue;
-      if (n_entries == entries_size)
+      якщо (n_entries == entries_size)
         {
           entries_size *= 2;
           entries = xrealloc (entries, entries_size * sizeof (char *));
@@ -2945,10 +2945,10 @@ read_dir_entries (const char *path, libcrun_error_t *err)
   entries = xrealloc (entries, (n_entries + 1) * sizeof (char *));
   entries[n_entries] = NULL;
 
-  return entries;
+  повернути entries;
 }
 
-int
+ціле
 cpuset_string_to_bitmask (const char *str, char **out, size_t *out_size, libcrun_error_t *err)
 {
   cleanup_free char *mask = NULL;
@@ -2956,41 +2956,41 @@ cpuset_string_to_bitmask (const char *str, char **out, size_t *out_size, libcrun
   const char *p = str;
   char *endptr;
 
-  while (*p)
+  поки (*p)
     {
       long long start_range, end_range;
 
-      if (*p < '0' || *p > '9')
+      якщо (*p < '0' || *p > '9')
         goto invalid_input;
 
       start_range = strtoll (p, &endptr, 10);
-      if (start_range < 0)
+      якщо (start_range < 0)
         goto invalid_input;
 
       p = endptr;
 
-      if (*p != '-')
+      якщо (*p != '-')
         end_range = start_range;
-      else
+      інакше
         {
           p++;
 
-          if (*p < '0' || *p > '9')
+          якщо (*p < '0' || *p > '9')
             goto invalid_input;
 
           end_range = strtoll (p, &endptr, 10);
 
-          if (end_range < start_range)
+          якщо (end_range < start_range)
             goto invalid_input;
 
           p = endptr;
         }
 
       /* Just set some limit.  */
-      if (end_range > (1 << 20))
+      якщо (end_range > (1 << 20))
         goto invalid_input;
 
-      if (end_range >= (long long) (mask_size * CHAR_BIT))
+      якщо (end_range >= (long long) (mask_size * CHAR_BIT))
         {
           size_t new_mask_size = (end_range / CHAR_BIT) + 1;
           mask = xrealloc (mask, new_mask_size);
@@ -2998,12 +2998,12 @@ cpuset_string_to_bitmask (const char *str, char **out, size_t *out_size, libcrun
           mask_size = new_mask_size;
         }
 
-      for (long long i = start_range; i <= end_range; i++)
+      для (long long i = start_range; i <= end_range; i++)
         mask[i / CHAR_BIT] |= (1 << (i % CHAR_BIT));
 
-      if (*p == ',')
+      якщо (*p == ',')
         p++;
-      else if (*p)
+      інакше якщо (*p)
         goto invalid_input;
     }
 
@@ -3011,25 +3011,25 @@ cpuset_string_to_bitmask (const char *str, char **out, size_t *out_size, libcrun
   mask = NULL;
   *out_size = mask_size;
 
-  return 0;
+  повернути 0;
 
 invalid_input:
-  return crun_make_error (err, 0, "cannot parse input `%s`", str);
+  повернути crun_make_error (err, 0, "cannot parse input `%s`", str);
 }
 
 struct channel_fd_pair
 {
   struct ring_buffer *rb;
 
-  int in_fd;
-  int out_fd;
+  ціле in_fd;
+  ціле out_fd;
 
-  int infd_epoll_events;
-  int outfd_epoll_events;
+  ціле infd_epoll_events;
+  ціле outfd_epoll_events;
 };
 
 struct channel_fd_pair *
-channel_fd_pair_new (int in_fd, int out_fd, size_t size)
+channel_fd_pair_new (ціле in_fd, ціле out_fd, size_t size)
 {
   struct channel_fd_pair *channel = xmalloc (sizeof (struct channel_fd_pair));
   channel->in_fd = in_fd;
@@ -3037,146 +3037,146 @@ channel_fd_pair_new (int in_fd, int out_fd, size_t size)
   channel->infd_epoll_events = -1;
   channel->outfd_epoll_events = -1;
   channel->rb = ring_buffer_make (size);
-  return channel;
+  повернути channel;
 }
 
 void
 channel_fd_pair_free (struct channel_fd_pair *channel)
 {
-  if (channel == NULL)
-    return;
+  якщо (channel == NULL)
+    повернути;
 
   ring_buffer_free (channel->rb);
   free (channel);
 }
 
-int
-channel_fd_pair_process (struct channel_fd_pair *channel, int epollfd, libcrun_error_t *err)
+ціле
+channel_fd_pair_process (struct channel_fd_pair *channel, ціле epollfd, libcrun_error_t *err)
 {
   bool is_input_eagain = false, is_output_eagain = false, repeat;
-  int ret, i;
+  ціле ret, i;
 
   /* This function is called from an epoll loop.  Use a hard limit to avoid infinite loops
      and prevent other events from being processed.  */
-  for (i = 0, repeat = true; i < 1000 && repeat; i++)
+  для (i = 0, repeat = true; i < 1000 && repeat; i++)
     {
       repeat = false;
-      if (ring_buffer_get_space_available (channel->rb) > 0)
+      якщо (ring_buffer_get_space_available (channel->rb) > 0)
         {
           ret = ring_buffer_read (channel->rb, channel->in_fd, &is_input_eagain, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
-          if (ret > 0)
+          якщо (UNLIKELY (ret < 0))
+            повернути ret;
+          якщо (ret > 0)
             repeat = true;
         }
-      if (ring_buffer_get_data_available (channel->rb) > 0)
+      якщо (ring_buffer_get_data_available (channel->rb) > 0)
         {
           ret = ring_buffer_write (channel->rb, channel->out_fd, &is_output_eagain, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
-          if (ret > 0)
+          якщо (UNLIKELY (ret < 0))
+            повернути ret;
+          якщо (ret > 0)
             repeat = true;
         }
     }
 
-  if (epollfd >= 0)
+  якщо (epollfd >= 0)
     {
       size_t available = ring_buffer_get_space_available (channel->rb);
       size_t used = ring_buffer_get_data_available (channel->rb);
-      int events;
+      ціле events;
 
       /* If there is space available in the buffer and the output is not
          blocked, we want to read more.  When the output got EAGAIN, stop
          reading until the output fd becomes writable again to avoid a
          busy loop when the consumer is not draining the pipe.  */
       events = (available > 0 && ! is_output_eagain) ? (EPOLLIN | (is_input_eagain ? EPOLLET : 0)) : 0;
-      if (events != channel->infd_epoll_events)
+      якщо (events != channel->infd_epoll_events)
         {
           ret = epoll_helper_toggle (epollfd, channel->in_fd, events, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          якщо (UNLIKELY (ret < 0))
+            повернути ret;
           channel->infd_epoll_events = events;
         }
 
       /* If there is data available in the buffer, we want to write as soon as
          it is possible.  */
       events = (used > 0) ? (EPOLLOUT | (is_output_eagain ? EPOLLET : 0)) : 0;
-      if (events != channel->outfd_epoll_events)
+      якщо (events != channel->outfd_epoll_events)
         {
           ret = epoll_helper_toggle (epollfd, channel->out_fd, events, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          якщо (UNLIKELY (ret < 0))
+            повернути ret;
           channel->outfd_epoll_events = events;
         }
     }
-  return 0;
+  повернути 0;
 }
 
-static int
+static ціле
 open_proc (libcrun_error_t *err)
 {
-  int fd;
+  ціле fd;
 
 #ifdef HAVE_NEW_MOUNT_API
-  cleanup_close int fsfd = -1;
-  int ret;
+  cleanup_close ціле fsfd = -1;
+  ціле ret;
 
   fsfd = syscall_fsopen ("proc", FSOPEN_CLOEXEC);
-  if (fsfd >= 0)
+  якщо (fsfd >= 0)
     {
       ret = syscall_fsconfig (fsfd, FSCONFIG_CMD_CREATE, NULL, NULL, 0);
-      if (ret >= 0)
+      якщо (ret >= 0)
         {
           fd = syscall_fsmount (fsfd, FSMOUNT_CLOEXEC, 0);
-          if (fd >= 0)
-            return fd;
+          якщо (fd >= 0)
+            повернути fd;
         }
     }
 #endif
 
   fd = open ("/proc", O_PATH | O_DIRECTORY | O_CLOEXEC);
-  if (fd < 0)
-    return crun_make_error (err, errno, "open `/proc`");
-  return fd;
+  якщо (fd < 0)
+    повернути crun_make_error (err, errno, "open `/proc`");
+  повернути fd;
 }
 
-int
+ціле
 libcrun_get_cached_proc_fd (libcrun_container_t *container, libcrun_error_t *err)
 {
-  if (! container)
-    return open_proc (err);
+  якщо (! container)
+    повернути open_proc (err);
 
-  if (container->proc_fd < 0)
+  якщо (container->proc_fd < 0)
     container->proc_fd = open_proc (err);
 
-  return container->proc_fd;
+  повернути container->proc_fd;
 }
 
-int
-libcrun_open_proc_file (libcrun_container_t *container, const char *path, int flags, libcrun_error_t *err)
+ціле
+libcrun_open_proc_file (libcrun_container_t *container, const char *path, ціле flags, libcrun_error_t *err)
 {
-  int proc_fd, fd, saved_errno;
+  ціле proc_fd, fd, saved_errno;
 
   proc_fd = libcrun_get_cached_proc_fd (container, err);
-  if (proc_fd < 0)
-    return proc_fd;
+  якщо (proc_fd < 0)
+    повернути proc_fd;
 
   fd = TEMP_FAILURE_RETRY (openat (proc_fd, path, flags | O_CLOEXEC));
   saved_errno = errno;
   /* requires closing if not cached */
-  if (! container)
+  якщо (! container)
     TEMP_FAILURE_RETRY (close (proc_fd));
 
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, saved_errno, "openat `/proc/%s`", path);
+  якщо (UNLIKELY (fd < 0))
+    повернути crun_make_error (err, saved_errno, "openat `/proc/%s`", path);
 
-  return fd;
+  повернути fd;
 }
 
-int
-libcrun_open_proc_pid_file (libcrun_container_t *container, pid_t pid, const char *path, int flags, libcrun_error_t *err)
+ціле
+libcrun_open_proc_pid_file (libcrun_container_t *container, pid_t pid, const char *path, ціле flags, libcrun_error_t *err)
 {
   cleanup_free char *full_path = NULL;
   xasprintf (&full_path, "%d/%s", pid, path);
-  return libcrun_open_proc_file (container, full_path, flags, err);
+  повернути libcrun_open_proc_file (container, full_path, flags, err);
 }

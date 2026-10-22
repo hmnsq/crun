@@ -38,35 +38,35 @@
 #  include <wasmedge/wasmedge.h>
 #endif
 
-#if HAVE_DLOPEN && HAVE_WASMEDGE
-static int
+#якщо HAVE_DLOPEN && HAVE_WASMEDGE
+static ціле
 libwasmedge_load (void **cookie, libcrun_error_t *err)
 {
   void *handle;
 
   handle = dlopen ("libwasmedge.so.0", RTLD_NOW);
-  if (handle == NULL)
-    return crun_make_error (err, 0, "could not load `libwasmedge.so.0`: `%s`", dlerror ());
+  якщо (handle == NULL)
+    повернути crun_make_error (err, 0, "could not load `libwasmedge.so.0`: `%s`", dlerror ());
   *cookie = handle;
 
-  return 0;
+  повернути 0;
 }
 
-static int
+static ціле
 libwasmedge_unload (void *cookie, libcrun_error_t *err)
 {
-  int r;
+  ціле r;
 
-  if (cookie)
+  якщо (cookie)
     {
       r = dlclose (cookie);
-      if (UNLIKELY (r < 0))
-        return crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
+      якщо (UNLIKELY (r < 0))
+        повернути crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
     }
-  return 0;
+  повернути 0;
 }
 
-static int
+static ціле
 libwasmedge_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *container, const char *pathname, char *const argv[])
 {
   WasmEdge_ConfigureContext *(*WasmEdge_ConfigureCreate) (void);
@@ -107,7 +107,7 @@ libwasmedge_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *co
   WasmEdge_ResultOK = dlsym (cookie, "WasmEdge_ResultOK");
   WasmEdge_StringCreateByCString = dlsym (cookie, "WasmEdge_StringCreateByCString");
 
-  if (WasmEdge_ConfigureCreate == NULL || WasmEdge_ConfigureDelete == NULL || WasmEdge_ConfigureAddProposal == NULL
+  якщо (WasmEdge_ConfigureCreate == NULL || WasmEdge_ConfigureDelete == NULL || WasmEdge_ConfigureAddProposal == NULL
       || WasmEdge_ConfigureAddHostRegistration == NULL || WasmEdge_VMCreate == NULL || WasmEdge_VMDelete == NULL
       || WasmEdge_VMRegisterModuleFromFile == NULL || WasmEdge_VMGetImportModuleContext == NULL
       || WasmEdge_ModuleInstanceInitWASI == NULL || WasmEdge_VMRunWasmFromFile == NULL
@@ -115,7 +115,7 @@ libwasmedge_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *co
     error (EXIT_FAILURE, 0, "could not find symbol in `libwasmedge.so.0`");
 
   configure = WasmEdge_ConfigureCreate ();
-  if (UNLIKELY (configure == NULL))
+  якщо (UNLIKELY (configure == NULL))
     error (EXIT_FAILURE, 0, "could not create wasmedge configure");
 
   WasmEdge_ConfigureAddProposal (configure, WasmEdge_Proposal_BulkMemoryOperations);
@@ -124,39 +124,39 @@ libwasmedge_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *co
   WasmEdge_ConfigureAddHostRegistration (configure, WasmEdge_HostRegistration_Wasi);
   // Check if the necessary environment variables are set
   const char *plugin_path_env = getenv ("WASMEDGE_PLUGIN_PATH");
-  if (plugin_path_env != NULL)
+  якщо (plugin_path_env != NULL)
     WasmEdge_PluginLoadFromPath (plugin_path_env);
 
   const char *nnpreload_env = getenv ("WASMEDGE_WASINN_PRELOAD");
-  if (nnpreload_env != NULL)
+  якщо (nnpreload_env != NULL)
     WasmEdge_PluginInitWASINN (&nnpreload_env, 1);
 
   vm = WasmEdge_VMCreate (configure, NULL);
-  if (UNLIKELY (vm == NULL))
+  якщо (UNLIKELY (vm == NULL))
     {
       WasmEdge_ConfigureDelete (configure);
       error (EXIT_FAILURE, 0, "could not create wasmedge vm");
     }
 
   wasi_module = WasmEdge_VMGetImportModuleContext (vm, WasmEdge_HostRegistration_Wasi);
-  if (UNLIKELY (wasi_module == NULL))
+  якщо (UNLIKELY (wasi_module == NULL))
     {
       WasmEdge_VMDelete (vm);
       WasmEdge_ConfigureDelete (configure);
       error (EXIT_FAILURE, 0, "could not get wasmedge wasi module context");
     }
 
-  for (char *const *arg = argv; *arg != NULL; ++arg, ++argn)
+  для (char *const *arg = argv; *arg != NULL; ++arg, ++argn)
     ;
   extern char **environ;
-  for (char *const *env = environ; *env != NULL; ++env, ++envn)
+  для (char *const *env = environ; *env != NULL; ++env, ++envn)
     ;
 
   WasmEdge_ModuleInstanceInitWASI (wasi_module, (const char *const *) &argv[0], argn, (const char *const *) &environ[0], envn, dirs, 1, NULL, 0);
 
   result = WasmEdge_VMRunWasmFromFile (vm, pathname, WasmEdge_StringCreateByCString ("_start"), NULL, 0, NULL, 0);
 
-  if (UNLIKELY (! WasmEdge_ResultOK (result)))
+  якщо (UNLIKELY (! WasmEdge_ResultOK (result)))
     {
       WasmEdge_VMDelete (vm);
       WasmEdge_ConfigureDelete (configure);
@@ -168,45 +168,45 @@ libwasmedge_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *co
   exit (EXIT_SUCCESS);
 }
 
-static int
+static ціле
 wasmedge_can_handle_container (libcrun_container_t *container, libcrun_error_t *err)
 {
-  return wasm_can_handle_container (container, err);
+  повернути wasm_can_handle_container (container, err);
 }
 
 // This works only when the plugin is present in /usr/lib/wasmedge
-static int
+static ціле
 libwasmedge_configure_container (void *cookie arg_unused, enum handler_configure_phase phase,
                                  libcrun_context_t *context arg_unused, libcrun_container_t *container,
                                  const char *rootfs arg_unused, libcrun_error_t *err)
 {
-  int ret;
+  ціле ret;
   runtime_spec_schema_config_schema *def = container->container_def;
 
   char **container_env = def->process->env;
   bool has_plugin_path = false, has_preload = false;
 
-  for (char **env = container_env; env && *env; env++)
+  для (char **env = container_env; env && *env; env++)
     {
-      if (strncmp (*env, "WASMEDGE_PLUGIN_PATH=", 21) == 0)
+      якщо (strncmp (*env, "WASMEDGE_PLUGIN_PATH=", 21) == 0)
         has_plugin_path = true;
-      else if (strncmp (*env, "WASMEDGE_WASINN_PRELOAD=", 24) == 0)
+      інакше якщо (strncmp (*env, "WASMEDGE_WASINN_PRELOAD=", 24) == 0)
         has_preload = true;
     }
 
-  if (! has_plugin_path && ! has_preload)
-    return 0;
+  якщо (! has_plugin_path && ! has_preload)
+    повернути 0;
 
-  if (phase != HANDLER_CONFIGURE_AFTER_MOUNTS)
-    return 0;
+  якщо (phase != HANDLER_CONFIGURE_AFTER_MOUNTS)
+    повернути 0;
 
   // Check if /usr/lib/wasmedge is already present in spec
-  if (def->linux && def->mounts)
+  якщо (def->linux && def->mounts)
     {
-      for (size_t i = 0; i < def->mounts_len; i++)
+      для (size_t i = 0; i < def->mounts_len; i++)
         {
-          if (strcmp (def->mounts[i]->destination, "/usr/lib/wasmedge") == 0)
-            return 0;
+          якщо (strcmp (def->mounts[i]->destination, "/usr/lib/wasmedge") == 0)
+            повернути 0;
         }
     }
 
@@ -220,14 +220,14 @@ libwasmedge_configure_container (void *cookie arg_unused, enum handler_configure
   };
 
   ret = libcrun_container_do_bind_mount (container, "/usr/lib/wasmedge ", "/usr/lib/wasmedge", options, 5, err);
-  if (ret < 0)
+  якщо (ret < 0)
     {
-      if (crun_error_get_errno (err) != ENOENT)
-        return ret;
+      якщо (crun_error_get_errno (err) != ENOENT)
+        повернути ret;
       crun_error_release (err);
     }
 
-  return 0;
+  повернути 0;
 }
 
 struct custom_handler_s handler_wasmedge = {
