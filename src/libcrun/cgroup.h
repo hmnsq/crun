@@ -15,104 +15,104 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CGROUP_H
-#define CGROUP_H
+#यदि_अपरिभाषितम् CGROUP_H
+#परिभाषय CGROUP_H
 
-#include "container.h"
-#include "string_map.h"
-#include <unistd.h>
+#अन्तर्भाव "container.h"
+#अन्तर्भाव "string_map.h"
+#अन्तर्भाव <unistd.h>
 
-#ifndef CGROUP_ROOT
-#  define CGROUP_ROOT "/sys/fs/cgroup"
-#endif
+#यदि_अपरिभाषितम् CGROUP_मूलम्
+#  define CGROUP_मूलम् "/sys/fs/cgroup"
+#यदि_अन्तः
 
-#ifndef SELF_CGROUP
+#यदि_अपरिभाषितम् SELF_CGROUP
 #  define SELF_CGROUP "self/cgroup"
-#endif
+#यदि_अन्तः
 
-#ifndef PROC_SELF_CGROUP
+#यदि_अपरिभाषितम् PROC_SELF_CGROUP
 #  define PROC_SELF_CGROUP "/proc/" SELF_CGROUP
-#endif
+#यदि_अन्तः
 
-enum
+गणना
 {
-  CGROUP_MODE_UNIFIED = 1,
-  CGROUP_MODE_LEGACY,
-  CGROUP_MODE_HYBRID
+  CGROUP_बहुलकम्_UNIFIED = 1,
+  CGROUP_बहुलकम्_LEGACY,
+  CGROUP_बहुलकम्_HYBRID
 };
 
-enum
+गणना
 {
   CGROUP_MANAGER_CGROUPFS = 1,
   CGROUP_MANAGER_SYSTEMD,
   CGROUP_MANAGER_DISABLED
 };
 
-struct libcrun_cgroup_status;
+संरचना libcrun_cgroup_स्थितिः;
 
-struct libcrun_cgroup_args
+संरचना libcrun_cgroup_तर्काः
 {
   runtime_spec_schema_config_linux_resources *resources;
   string_map *annotations;
-  const char *cgroup_path;
-  int manager;
+  ध्रुव वर्ण *cgroup_मार्गः;
+  पूर्णाङ्क manager;
   pid_t pid;
-  uid_t root_uid;
-  gid_t root_gid;
-  const char *id;
+  uid_t मूलम्_uid;
+  gid_t मूलम्_gid;
+  ध्रुव वर्ण *id;
   bool joined;
   /* The path of the cgroup created by libcrun_cgroup_preenter, when there
      is no status for it yet.  */
-  char *precreated_path;
+  वर्ण *precreated_मार्गः;
 
-  const char *state_root;
+  ध्रुव वर्ण *state_मूलम्;
   libcrun_container_t *container;
 };
 
 /* cgroup life-cycle management.  */
-int libcrun_cgroup_preenter (struct libcrun_cgroup_args *args, int *dirfd, libcrun_error_t *err);
-void libcrun_cgroup_preenter_cleanup (struct libcrun_cgroup_args *args);
-int libcrun_cgroup_enter (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status **out, libcrun_error_t *err);
-int libcrun_cgroup_enter_finalize (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status *cgroup_status, libcrun_error_t *err);
-int libcrun_cgroup_destroy (struct libcrun_cgroup_status *cgroup_status, libcrun_error_t *err);
+पूर्णाङ्क libcrun_cgroup_preenter (संरचना libcrun_cgroup_तर्काः *तर्काः, पूर्णाङ्क *dirfd, libcrun_error_t *err);
+शून्य libcrun_cgroup_preenter_cleanup (संरचना libcrun_cgroup_तर्काः *तर्काः);
+पूर्णाङ्क libcrun_cgroup_enter (संरचना libcrun_cgroup_तर्काः *तर्काः, संरचना libcrun_cgroup_स्थितिः **बहिर्गमनम्, libcrun_error_t *err);
+पूर्णाङ्क libcrun_cgroup_enter_finalize (संरचना libcrun_cgroup_तर्काः *तर्काः, संरचना libcrun_cgroup_स्थितिः *cgroup_स्थितिः, libcrun_error_t *err);
+पूर्णाङ्क libcrun_cgroup_destroy (संरचना libcrun_cgroup_स्थितिः *cgroup_स्थितिः, libcrun_error_t *err);
 
 /* Handle the cgroup status.  */
-int libcrun_cgroup_get_status (struct libcrun_cgroup_status *cgroup_status, libcrun_container_status_t *status,
+पूर्णाङ्क libcrun_cgroup_get_स्थितिः (संरचना libcrun_cgroup_स्थितिः *cgroup_स्थितिः, libcrun_container_स्थितिः_t *स्थितिः,
                                libcrun_error_t *err);
-void libcrun_cgroup_status_free (struct libcrun_cgroup_status *cgroup_status);
+शून्य libcrun_cgroup_स्थितिः_free (संरचना libcrun_cgroup_स्थितिः *cgroup_स्थितिः);
 
-struct libcrun_cgroup_status *libcrun_cgroup_make_status (libcrun_container_status_t *status);
+संरचना libcrun_cgroup_स्थितिः *libcrun_cgroup_make_स्थितिः (libcrun_container_स्थितिः_t *स्थितिः);
 
-static inline void
-cgroup_status_freep (struct libcrun_cgroup_status **p)
+स्थिर अन्तःस्थ शून्य
+cgroup_स्थितिः_freep (संरचना libcrun_cgroup_स्थितिः **p)
 {
-  struct libcrun_cgroup_status *s = *p;
-  if (s)
-    libcrun_cgroup_status_free (s);
+  संरचना libcrun_cgroup_स्थितिः *s = *p;
+  यदि (s)
+    libcrun_cgroup_स्थितिः_free (s);
 }
-#define cleanup_cgroup_status __attribute__ ((cleanup (cgroup_status_freep)))
-#define cleanup_cgroup_preenter __attribute__ ((cleanup (libcrun_cgroup_preenter_cleanup)))
+#परिभाषय cleanup_cgroup_स्थितिः __attribute__ ((cleanup (cgroup_स्थितिः_freep)))
+#परिभाषय cleanup_cgroup_preenter __attribute__ ((cleanup (libcrun_cgroup_preenter_cleanup)))
 
 /* Operations on the cgroup.  */
 
-int libcrun_cgroup_killall (struct libcrun_cgroup_status *cgroup_status, int signal, libcrun_error_t *err);
+पूर्णाङ्क libcrun_cgroup_killall (संरचना libcrun_cgroup_स्थितिः *cgroup_स्थितिः, पूर्णाङ्क सङ्केत, libcrun_error_t *err);
 
-int libcrun_cgroup_has_oom (struct libcrun_cgroup_status *status, libcrun_error_t *err);
+पूर्णाङ्क libcrun_cgroup_has_oom (संरचना libcrun_cgroup_स्थितिः *स्थितिः, libcrun_error_t *err);
 
-int libcrun_cgroup_read_pids (struct libcrun_cgroup_status *status, bool recurse, pid_t **pids, libcrun_error_t *err);
+पूर्णाङ्क libcrun_cgroup_read_pids (संरचना libcrun_cgroup_स्थितिः *स्थितिः, bool recurse, pid_t **pids, libcrun_error_t *err);
 
-int libcrun_update_cgroup_resources (struct libcrun_cgroup_status *status,
-                                     const char *state_root,
+पूर्णाङ्क libcrun_update_cgroup_resources (संरचना libcrun_cgroup_स्थितिः *स्थितिः,
+                                     ध्रुव वर्ण *state_मूलम्,
                                      runtime_spec_schema_config_linux_resources *resources,
                                      libcrun_error_t *err);
 
-int libcrun_cgroup_is_container_paused (struct libcrun_cgroup_status *status, bool *paused, libcrun_error_t *err);
+पूर्णाङ्क libcrun_cgroup_is_container_paused (संरचना libcrun_cgroup_स्थितिः *स्थितिः, bool *paused, libcrun_error_t *err);
 
 /* Move PID to the cgroup PATH, which is the container cgroup described by STATUS
    or its sub-cgroup.  */
-int libcrun_cgroup_join_process (struct libcrun_cgroup_status *status, const char *path, pid_t pid, pid_t init_pid,
+पूर्णाङ्क libcrun_cgroup_join_process (संरचना libcrun_cgroup_स्थितिः *स्थितिः, ध्रुव वर्ण *मार्गः, pid_t pid, pid_t init_pid,
                                  libcrun_error_t *err);
 
-int libcrun_cgroup_pause_unpause (struct libcrun_cgroup_status *status, const bool pause, libcrun_error_t *err);
+पूर्णाङ्क libcrun_cgroup_pause_unpause (संरचना libcrun_cgroup_स्थितिः *स्थितिः, ध्रुव bool pause, libcrun_error_t *err);
 
-#endif
+#यदि_अन्तः

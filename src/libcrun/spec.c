@@ -15,32 +15,32 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE
+#परिभाषय _GNU_SOURCE
 
-#include <config.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <errno.h>
-#include "spec.h"
-#include "utils.h"
-#include "cgroup.h"
-#include "cgroup-utils.h"
+#अन्तर्भाव <config.h>
+#अन्तर्भाव <stdbool.h>
+#अन्तर्भाव <stdio.h>
+#अन्तर्भाव <errno.h>
+#अन्तर्भाव "spec.h"
+#अन्तर्भाव "utils.h"
+#अन्तर्भाव "cgroup.h"
+#अन्तर्भाव "cgroup-utils.h"
 
-static const char spec_file[] = "\
+स्थिर ध्रुव वर्ण spec_file[] = "\
 {\n\
-	\"ociVersion\": \"1.0.0\",\n\
+	\"oci_संस्करणम्\": \"1.0.0\",\n\
 	\"process\": {\n\
 		\"terminal\": true,\n\
 		\"user\": {\n\
 			\"uid\": 0,\n\
 			\"gid\": 0\n\
 		},\n\
-		\"args\": [\n\
+		\"तर्काः\": [\n\
 			\"sh\"\n\
 		],\n\
 		\"env\": [\n\
-			\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\",\n\
-			\"TERM=xterm\"\n\
+			\"मार्गः_3=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\",\n\
+			\"पदांशः=xterm\"\n\
 		],\n\
 		\"cwd\": \"/\",\n\
 		\"capabilities\": {\n\
@@ -76,8 +76,8 @@ static const char spec_file[] = "\
 		],\n\
 		\"noNewPrivileges\": true\n\
 	},\n\
-	\"root\": {\n\
-		\"path\": \"rootfs\",\n\
+	\"मूलम्\": {\n\
+		\"मार्गः\": \"rootfs\",\n\
 		\"readonly\": true\n\
 	},\n\
 	\"hostname\": \"crun\",\n\
@@ -94,8 +94,8 @@ static const char spec_file[] = "\
 			\"options\": [\n\
 				\"nosuid\",\n\
 				\"strictatime\",\n\
-				\"mode=755\",\n\
-				\"size=65536k\"\n\
+				\"बहुलकम्=755\",\n\
+				\"आकार=65536k\"\n\
 			]\n\
 		},\n\
 		{\n\
@@ -107,7 +107,7 @@ static const char spec_file[] = "\
 				\"noexec\",\n\
 				\"newinstance\",\n\
 				\"ptmxmode=0666\",\n\
-				\"mode=0620\"\
+				\"बहुलकम्=0620\"\
 %s\
 			]\n\
 		},\n\
@@ -119,8 +119,8 @@ static const char spec_file[] = "\
 				\"nosuid\",\n\
 				\"noexec\",\n\
 				\"nodev\",\n\
-				\"mode=1777\",\n\
-				\"size=65536k\"\n\
+				\"बहुलकम्=1777\",\n\
+				\"आकार=65536k\"\n\
 			]\n\
 		},\n\
 		{\n\
@@ -171,7 +171,7 @@ static const char spec_file[] = "\
 				\"type\": \"pid\"\n\
 			},\n\
 			{\n\
-				\"type\": \"network\"\n\
+				\"type\": \"जालम्\"\n\
 			},\n\
 			{\n\
 				\"type\": \"ipc\"\n\
@@ -189,7 +189,7 @@ static const char spec_file[] = "\
 			\"/proc/acpi\",\n\
 			\"/proc/asound\",\n\
 			\"/proc/kcore\",\n\
-			\"/proc/keys\",\n\
+			\"/proc/कुञ्चिकाः\",\n\
 			\"/proc/latency_stats\",\n\
 			\"/proc/timer_list\",\n\
 			\"/proc/timer_stats\",\n\
@@ -207,59 +207,59 @@ static const char spec_file[] = "\
 	}\n\
 }\n";
 
-static const char *spec_pts_tty_group = ",\n\
+स्थिर ध्रुव वर्ण *spec_pts_tty_गणः = ",\n\
 				\"gid=5\"\n";
 
-static const char *spec_user = "\
+स्थिर ध्रुव वर्ण *spec_user = "\
 			{\n\
 				\"type\": \"user\"\n\
 			},\n";
 
-static const char *spec_cgroupns = "\
+स्थिर ध्रुव वर्ण *spec_cgroupns = "\
 			{\n\
 				\"type\": \"cgroup\"\n\
 			},\n";
 
-int
-libcrun_container_spec (bool root, FILE *out, libcrun_error_t *err)
+पूर्णाङ्क
+libcrun_container_spec (bool मूलम्, FILE *बहिर्गमनम्, libcrun_error_t *err)
 {
-  int ret;
-  int cgroup_mode;
+  पूर्णाङ्क ret;
+  पूर्णाङ्क cgroup_बहुलकम्;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_बहुलकम् = libcrun_get_cgroup_बहुलकम् (err);
+  यदि (UNLIKELY (cgroup_बहुलकम् < 0))
+    प्रत्यागम cgroup_बहुलकम्;
 
-  ret = fprintf (out, spec_file,
-                 root ? spec_pts_tty_group : "\n",
-                 root ? "" : spec_user,
-                 cgroup_mode == CGROUP_MODE_UNIFIED ? spec_cgroupns : "");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fprintf failed");
+  ret = fprintf (बहिर्गमनम्, spec_file,
+                 मूलम् ? spec_pts_tty_गणः : "\n",
+                 मूलम् ? "" : spec_user,
+                 cgroup_बहुलकम् == CGROUP_बहुलकम्_UNIFIED ? spec_cgroupns : "");
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम crun_make_error (err, errno, "fprintf failed");
 
-  return ret;
+  प्रत्यागम ret;
 }
 
-int
-libcrun_container_spec_json (bool root, char **out, libcrun_error_t *err)
+पूर्णाङ्क
+libcrun_container_spec_json (bool मूलम्, वर्ण **बहिर्गमनम्, libcrun_error_t *err)
 {
-  char *buffer = NULL;
+  वर्ण *बफर = रिक्त;
   size_t len = 0;
   FILE *f;
-  int ret;
+  पूर्णाङ्क ret;
 
-  f = open_memstream (&buffer, &len);
-  if (f == NULL)
-    return crun_make_error (err, errno, "open_memstream");
+  f = open_memstream (&बफर, &len);
+  यदि (f == रिक्त)
+    प्रत्यागम crun_make_error (err, errno, "open_memstream");
 
-  ret = libcrun_container_spec (root, f, err);
+  ret = libcrun_container_spec (मूलम्, f, err);
   fclose (f);
-  if (UNLIKELY (ret < 0))
+  यदि (UNLIKELY (ret < 0))
     {
-      free (buffer);
-      return ret;
+      मुक्त (बफर);
+      प्रत्यागम ret;
     }
 
-  *out = buffer;
-  return 0;
+  *बहिर्गमनम् = बफर;
+  प्रत्यागम 0;
 }

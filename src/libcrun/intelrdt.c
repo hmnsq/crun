@@ -16,114 +16,114 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#परिभाषय _GNU_SOURCE
 
-#include <config.h>
-#include "linux.h"
-#include "utils.h"
-#include "intelrdt.h"
-#include <string.h>
-#include <sched.h>
-#include <fcntl.h>
-#include <sys/vfs.h>
-#include <unistd.h>
-#include <errno.h>
+#अन्तर्भाव <config.h>
+#अन्तर्भाव "linux.h"
+#अन्तर्भाव "utils.h"
+#अन्तर्भाव "intelrdt.h"
+#अन्तर्भाव <string.h>
+#अन्तर्भाव <sched.h>
+#अन्तर्भाव <fcntl.h>
+#अन्तर्भाव <sys/vfs.h>
+#अन्तर्भाव <unistd.h>
+#अन्तर्भाव <errno.h>
 
-#define INTEL_RDT_MOUNT_POINT "/sys/fs/resctrl"
-#define SCHEMATA_FILE "schemata"
-#define TASKS_FILE "tasks"
-#define MON_GROUPS "mon_groups"
-#define RDTGROUP_SUPER_MAGIC 0x7655821
+#परिभाषय INTEL_RDT_MOUNT_POINT "/sys/fs/resctrl"
+#परिभाषय SCHEMATA_FILE "schemata"
+#परिभाषय TASKS_FILE "tasks"
+#परिभाषय MON_GROUPS "mon_groups"
+#परिभाषय RDTGROUP_SUPER_MAGIC 0x7655821
 
-static int
+स्थिर पूर्णाङ्क
 is_rdt_mounted (libcrun_error_t *err)
 {
-  struct statfs sfs;
-  int ret;
+  संरचना statfs sfs;
+  पूर्णाङ्क ret;
 
   ret = statfs (INTEL_RDT_MOUNT_POINT, &sfs);
-  if (ret < 0)
-    return crun_make_error (err, errno, "statfs `%s`", INTEL_RDT_MOUNT_POINT);
+  यदि (ret < 0)
+    प्रत्यागम crun_make_error (err, errno, "statfs `%s`", INTEL_RDT_MOUNT_POINT);
 
-  return sfs.f_type == RDTGROUP_SUPER_MAGIC;
+  प्रत्यागम sfs.f_type == RDTGROUP_SUPER_MAGIC;
 }
 
-int
-get_rdt_value (char **out, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata)
+पूर्णाङ्क
+get_rdt_मानम् (वर्ण **बहिर्गमनम्, ध्रुव वर्ण *l3_cache_schema, ध्रुव वर्ण *mem_bw_schema, वर्ण *ध्रुव *schemata)
 {
-  cleanup_free char *schemata_joined = NULL;
-  size_t schemata_size = 0;
+  cleanup_free वर्ण *schemata_joined = रिक्त;
+  size_t schemata_आकार = 0;
 
-  while (schemata && schemata[schemata_size])
-    schemata_size++;
+  यावत् (schemata && schemata[schemata_आकार])
+    schemata_आकार++;
 
-  if (schemata_size > 0)
-    schemata_joined = str_join_array (0, schemata_size, schemata, "\n");
+  यदि (schemata_आकार > 0)
+    schemata_joined = str_join_array (0, schemata_आकार, schemata, "\n");
 
-  return xasprintf (out, "%s%s%s%s%s\n", l3_cache_schema ?: "",
+  प्रत्यागम xasprintf (बहिर्गमनम्, "%s%s%s%s%s\n", l3_cache_schema ?: "",
                     (l3_cache_schema && mem_bw_schema) ? "\n" : "", mem_bw_schema ?: "",
                     ((l3_cache_schema || mem_bw_schema) && schemata_joined) ? "\n" : "", schemata_joined ?: "");
 }
 
-struct key_value
+संरचना कुञ्चिका_मानम्
 {
-  int key;
-  int value;
+  पूर्णाङ्क कुञ्चिका;
+  पूर्णाङ्क मानम्;
 };
 
-static int
-kv_cmp (const void *p1, const void *p2)
+स्थिर पूर्णाङ्क
+kv_cmp (ध्रुव शून्य *p1, ध्रुव शून्य *p2)
 {
-  const struct key_value *kv1 = p1;
-  const struct key_value *kv2 = p2;
+  ध्रुव संरचना कुञ्चिका_मानम् *kv1 = p1;
+  ध्रुव संरचना कुञ्चिका_मानम् *kv2 = p2;
 
   /* Not a subtraction: the keys are parsed out of the configuration, so two
      of them far enough apart make the difference overflow.  */
-  if (kv1->key < kv2->key)
-    return -1;
-  if (kv1->key > kv2->key)
-    return 1;
-  return 0;
+  यदि (kv1->कुञ्चिका < kv2->कुञ्चिका)
+    प्रत्यागम -1;
+  यदि (kv1->कुञ्चिका > kv2->कुञ्चिका)
+    प्रत्यागम 1;
+  प्रत्यागम 0;
 }
 
-static int
-count_parts (const char *str)
+स्थिर पूर्णाङ्क
+गणनम्_parts (ध्रुव वर्ण *str)
 {
-  const char *it;
-  int ret = 0;
+  ध्रुव वर्ण *it;
+  पूर्णाङ्क ret = 0;
 
-  for (it = str; *it; it++)
+  प्रति (it = str; *it; it++)
     {
-      if (*it == ';' || *(it + 1) == '\0')
+      यदि (*it == ';' || *(it + 1) == '\0')
         ret++;
     }
-  return ret;
+  प्रत्यागम ret;
 }
 
-static int
-read_kv (const char *value, struct key_value *out)
+स्थिर पूर्णाङ्क
+read_kv (ध्रुव वर्ण *मानम्, संरचना कुञ्चिका_मानम् *बहिर्गमनम्)
 {
-  char *endptr;
+  वर्ण *endptr;
 
-  out->key = strtoll (value, &endptr, 10);
-  if (*endptr != '=')
-    return 1;
+  बहिर्गमनम्->कुञ्चिका = strtoll (मानम्, &endptr, 10);
+  यदि (*endptr != '=')
+    प्रत्यागम 1;
 
   endptr++;
-  out->value = strtoll (endptr, NULL, 16);
-  return 0;
+  बहिर्गमनम्->मानम् = strtoll (endptr, रिक्त, 16);
+  प्रत्यागम 0;
 }
 
-int
-compare_rdt_configurations (const char *a, const char *b)
+पूर्णाङ्क
+compare_rdt_configurations (ध्रुव वर्ण *a, ध्रुव वर्ण *b)
 {
-  cleanup_free struct key_value *kv = NULL;
+  cleanup_free संरचना कुञ्चिका_मानम् *kv = रिक्त;
   size_t i, n_parts_a = 0, n_parts_b = 0;
-  cleanup_free char *a_copy = NULL;
-  cleanup_free char *b_copy = NULL;
-  const char *it;
-  char *end;
-  int ret;
+  cleanup_free वर्ण *a_copy = रिक्त;
+  cleanup_free वर्ण *b_copy = रिक्त;
+  ध्रुव वर्ण *it;
+  वर्ण *अन्तः;
+  पूर्णाङ्क ret;
 
   it = strchr (a, ':');
   a = it ? it + 1 : a;
@@ -131,317 +131,317 @@ compare_rdt_configurations (const char *a, const char *b)
   it = strchr (b, ':');
   b = it ? it + 1 : b;
 
-  n_parts_a = count_parts (a);
-  n_parts_b = count_parts (b);
+  n_parts_a = गणनम्_parts (a);
+  n_parts_b = गणनम्_parts (b);
 
-  if (n_parts_a != n_parts_b)
-    return 1;
+  यदि (n_parts_a != n_parts_b)
+    प्रत्यागम 1;
 
-  kv = xmalloc (sizeof (struct key_value) * (n_parts_a + 1));
+  kv = xmalloc (परिमाण (संरचना कुञ्चिका_मानम्) * (n_parts_a + 1));
 
-  end = a_copy = xstrdup (a);
+  अन्तः = a_copy = xstrdup (a);
   i = 0;
-  while ((it = strsep (&end, ";")))
+  यावत् ((it = strsep (&अन्तः, ";")))
     {
-      if (it[0] == '\0')
-        break;
+      यदि (it[0] == '\0')
+        भङ्ग;
       ret = read_kv (it, &(kv[i]));
-      if (ret)
-        return 1;
+      यदि (ret)
+        प्रत्यागम 1;
       i++;
     }
 
-  qsort (kv, i, sizeof (struct key_value), kv_cmp);
+  शीघ्रं_क्रमय (kv, i, परिमाण (संरचना कुञ्चिका_मानम्), kv_cmp);
 
-  end = b_copy = xstrdup (b);
-  while ((it = strsep (&end, ";")))
+  अन्तः = b_copy = xstrdup (b);
+  यावत् ((it = strsep (&अन्तः, ";")))
     {
-      struct key_value key;
-      struct key_value *res;
+      संरचना कुञ्चिका_मानम् कुञ्चिका;
+      संरचना कुञ्चिका_मानम् *res;
 
-      if (it[0] == '\0')
-        break;
+      यदि (it[0] == '\0')
+        भङ्ग;
 
-      ret = read_kv (it, &key);
-      if (ret)
-        return 1;
+      ret = read_kv (it, &कुञ्चिका);
+      यदि (ret)
+        प्रत्यागम 1;
 
-      res = bsearch (&key, kv, n_parts_a, sizeof (struct key_value), kv_cmp);
-      if (res == NULL || res->value != key.value)
-        return 1;
+      res = bsearch (&कुञ्चिका, kv, n_parts_a, परिमाण (संरचना कुञ्चिका_मानम्), kv_cmp);
+      यदि (res == रिक्त || res->मानम् != कुञ्चिका.मानम्)
+        प्रत्यागम 1;
     }
 
-  return 0;
+  प्रत्यागम 0;
 }
 
-static bool
-is_default_clos (const char *name)
+स्थिर bool
+is_default_clos (ध्रुव वर्ण *name)
 {
-  return strcmp (name, "/") == 0;
+  प्रत्यागम वाक्यं_तुलय (name, "/") == 0;
 }
 
-static int
-get_resctrl_path (char **path, const char *file, const char *name, libcrun_error_t *err)
+स्थिर पूर्णाङ्क
+get_resctrl_मार्गः (वर्ण **मार्गः, ध्रुव वर्ण *file, ध्रुव वर्ण *name, libcrun_error_t *err)
 {
-  return append_paths (path, err, INTEL_RDT_MOUNT_POINT, name, file, NULL);
+  प्रत्यागम append_paths (मार्गः, err, INTEL_RDT_MOUNT_POINT, name, file, रिक्त);
 }
 
-static int
-validate_rdt_configuration (const char *name, const char *l3_cache_schema, const char *mem_bw_schema, libcrun_error_t *err)
+स्थिर पूर्णाङ्क
+validate_rdt_configuration (ध्रुव वर्ण *name, ध्रुव वर्ण *l3_cache_schema, ध्रुव वर्ण *mem_bw_schema, libcrun_error_t *err)
 {
-  cleanup_free char *existing_content = NULL;
-  cleanup_free char *path = NULL;
-  char *it, *end;
-  int ret;
+  cleanup_free वर्ण *existing_content = रिक्त;
+  cleanup_free वर्ण *मार्गः = रिक्त;
+  वर्ण *it, *अन्तः;
+  पूर्णाङ्क ret;
 
-  ret = get_resctrl_path (&path, SCHEMATA_FILE, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_resctrl_मार्गः (&मार्गः, SCHEMATA_FILE, name, err);
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम ret;
 
-  ret = read_all_file (path, &existing_content, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file (मार्गः, &existing_content, रिक्त, err);
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम ret;
 
-  end = existing_content;
-  while ((it = strsep (&end, "\n")))
+  अन्तः = existing_content;
+  यावत् ((it = strsep (&अन्तः, "\n")))
     {
       ret = 0;
 
-      if (mem_bw_schema && has_prefix (it, "MB:"))
+      यदि (mem_bw_schema && has_उपसर्गः (it, "MB:"))
         ret = compare_rdt_configurations (it, mem_bw_schema);
 
-      if (l3_cache_schema && has_prefix (it, "L3:"))
+      यदि (l3_cache_schema && has_उपसर्गः (it, "L3:"))
         ret = compare_rdt_configurations (it, l3_cache_schema);
 
-      if (ret)
-        return crun_make_error (err, 0, "the resctl group `%s` has a different configuration", name);
+      यदि (ret)
+        प्रत्यागम crun_make_error (err, 0, "the resctl group `%s` has a different configuration", name);
     }
 
-  return 0;
+  प्रत्यागम 0;
 }
 
-static int
-write_intelrdt_string (int fd, const char *file, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err)
+स्थिर पूर्णाङ्क
+write_intelrdt_string (पूर्णाङ्क fd, ध्रुव वर्ण *file, ध्रुव वर्ण *l3_cache_schema, ध्रुव वर्ण *mem_bw_schema, वर्ण *ध्रुव *schemata, libcrun_error_t *err)
 {
-  cleanup_free char *formatted = NULL;
-  int len, ret;
+  cleanup_free वर्ण *formatted = रिक्त;
+  पूर्णाङ्क len, ret;
 
-  len = get_rdt_value (&formatted, l3_cache_schema, mem_bw_schema, schemata);
-  if (len < 0)
-    return crun_make_error (err, errno, "internal error get_rdt_value");
+  len = get_rdt_मानम् (&formatted, l3_cache_schema, mem_bw_schema, schemata);
+  यदि (len < 0)
+    प्रत्यागम crun_make_error (err, errno, "internal error get_rdt_value");
 
-  ret = write (fd, formatted, len);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "write `%s`", file);
+  ret = लिख (fd, formatted, len);
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम crun_make_error (err, errno, "write `%s`", file);
 
-  return 0;
+  प्रत्यागम 0;
 }
 
 /* filter any line in the l3_cache_schema that starts with MB:.  */
-char *
-intelrdt_clean_l3_cache_schema (const char *l3_cache_schema)
+वर्ण *
+intelrdt_clean_l3_cache_schema (ध्रुव वर्ण *l3_cache_schema)
 {
-  size_t i, j, len = strlen (l3_cache_schema);
-  char *ret;
+  size_t i, j, len = वाक्यदैर्घ्यम् (l3_cache_schema);
+  वर्ण *ret;
 
   ret = xmalloc (len + 1);
 
-  for (i = 0, j = 0; i < len; i++)
+  प्रति (i = 0, j = 0; i < len; i++)
     {
-      if (l3_cache_schema[i] == 'M' && l3_cache_schema[i + 1] == 'B' && l3_cache_schema[i + 2] == ':')
+      यदि (l3_cache_schema[i] == 'M' && l3_cache_schema[i + 1] == 'B' && l3_cache_schema[i + 2] == ':')
         {
           i += 3;
-          while (l3_cache_schema[i] != '\n' && l3_cache_schema[i] != '\0')
+          यावत् (l3_cache_schema[i] != '\n' && l3_cache_schema[i] != '\0')
             i++;
-          continue;
+          अनुवर्त;
         }
       ret[j++] = l3_cache_schema[i];
     }
   ret[j] = '\0';
-  return ret;
+  प्रत्यागम ret;
 }
 
-int
-resctl_create (const char *name, bool explicit_clos_id, bool *created, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err)
+पूर्णाङ्क
+resctl_create (ध्रुव वर्ण *name, bool explicit_clos_id, bool *created, ध्रुव वर्ण *l3_cache_schema, ध्रुव वर्ण *mem_bw_schema, वर्ण *ध्रुव *schemata, libcrun_error_t *err)
 {
-  cleanup_free char *cleaned_l3_cache_schema = NULL;
-  cleanup_free char *path = NULL;
-  int exist;
-  int ret;
+  cleanup_free वर्ण *cleaned_l3_cache_schema = रिक्त;
+  cleanup_free वर्ण *मार्गः = रिक्त;
+  पूर्णाङ्क exist;
+  पूर्णाङ्क ret;
 
   *created = false;
 
   ret = is_rdt_mounted (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
-  if (ret == 0)
-    return crun_make_error (err, 0, "the resctl file system is not mounted");
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम ret;
+  यदि (ret == 0)
+    प्रत्यागम crun_make_error (err, 0, "the resctl file system is not mounted");
 
-  ret = get_resctrl_path (&path, NULL, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_resctrl_मार्गः (&मार्गः, रिक्त, name, err);
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम ret;
 
-  exist = crun_path_exists (path, err);
-  if (UNLIKELY (exist < 0))
-    return exist;
+  exist = crun_मार्गः_exists (मार्गः, err);
+  यदि (UNLIKELY (exist < 0))
+    प्रत्यागम exist;
 
-  if (l3_cache_schema && strstr (l3_cache_schema, "MB:"))
+  यदि (l3_cache_schema && वाक्ये_अन्विष (l3_cache_schema, "MB:"))
     l3_cache_schema = cleaned_l3_cache_schema = intelrdt_clean_l3_cache_schema (l3_cache_schema);
 
   /* If the closID was specified and both l3cache and bwSchema are unset, and schemata is empty,
      the group must exist.  */
-  if (explicit_clos_id && is_empty_string (l3_cache_schema) && is_empty_string (mem_bw_schema) && (schemata == NULL))
+  यदि (explicit_clos_id && is_रिक्तानि_string (l3_cache_schema) && is_रिक्तानि_string (mem_bw_schema) && (schemata == रिक्त))
     {
-      if (exist || is_default_clos (name))
-        return 0;
+      यदि (exist || is_default_clos (name))
+        प्रत्यागम 0;
 
-      return crun_make_error (err, 0, "the resctl group `%s` does not exist", name);
+      प्रत्यागम crun_make_error (err, 0, "the resctl group `%s` does not exist", name);
     }
 
   /* If the closID exists then it must match the specified configuration.  */
-  if (exist && (l3_cache_schema != NULL || mem_bw_schema != NULL))
-    return validate_rdt_configuration (name, l3_cache_schema, mem_bw_schema, err);
+  यदि (exist && (l3_cache_schema != रिक्त || mem_bw_schema != रिक्त))
+    प्रत्यागम validate_rdt_configuration (name, l3_cache_schema, mem_bw_schema, err);
 
-  if (is_default_clos (name))
-    return 0;
+  यदि (is_default_clos (name))
+    प्रत्यागम 0;
 
   /* At this point, assume it was created.  */
-  ret = crun_ensure_directory (path, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = crun_ensure_directory (मार्गः, 0755, true, err);
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम ret;
   *created = true;
 
-  return 0;
+  प्रत्यागम 0;
 }
 
-int
-resctl_move_task_to (const char *name, const char *monitoring_name, pid_t pid, libcrun_error_t *err)
+पूर्णाङ्क
+resctl_move_task_गन्तव्यम् (ध्रुव वर्ण *name, ध्रुव वर्ण *monitoring_name, pid_t pid, libcrun_error_t *err)
 {
-  cleanup_free char *monitoring_path = NULL;
-  cleanup_free char *path = NULL;
-  char pid_str[32];
-  int len;
-  int ret;
+  cleanup_free वर्ण *monitoring_मार्गः = रिक्त;
+  cleanup_free वर्ण *मार्गः = रिक्त;
+  वर्ण pid_str[32];
+  पूर्णाङ्क len;
+  पूर्णाङ्क ret;
 
-  ret = get_resctrl_path (&path, TASKS_FILE, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_resctrl_मार्गः (&मार्गः, TASKS_FILE, name, err);
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम ret;
 
-  len = snprintf (pid_str, sizeof (pid_str), "%d", pid);
-  if (UNLIKELY (len >= (int) sizeof (pid_str)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  len = snprintf (pid_str, परिमाण (pid_str), "%d", pid);
+  यदि (UNLIKELY (len >= (पूर्णाङ्क) परिमाण (pid_str)))
+    प्रत्यागम crun_make_error (err, 0, "internal error: static buffer too small");
 
-  ret = write_file (path, pid_str, len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = write_file (मार्गः, pid_str, len, err);
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम ret;
 
-  if (monitoring_name)
+  यदि (monitoring_name)
     {
-      ret = append_paths (&monitoring_path, err, INTEL_RDT_MOUNT_POINT, name, MON_GROUPS, monitoring_name, TASKS_FILE, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&monitoring_मार्गः, err, INTEL_RDT_MOUNT_POINT, name, MON_GROUPS, monitoring_name, TASKS_FILE, रिक्त);
+      यदि (UNLIKELY (ret < 0))
+        प्रत्यागम ret;
 
-      ret = write_file (monitoring_path, pid_str, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = write_file (monitoring_मार्गः, pid_str, len, err);
+      यदि (UNLIKELY (ret < 0))
+        प्रत्यागम ret;
     }
 
-  return 0;
+  प्रत्यागम 0;
 }
 
-int
-resctl_update (const char *name, const char *l3_cache_schema, const char *mem_bw_schema,
-               char *const *schemata, libcrun_error_t *err)
+पूर्णाङ्क
+resctl_update (ध्रुव वर्ण *name, ध्रुव वर्ण *l3_cache_schema, ध्रुव वर्ण *mem_bw_schema,
+               वर्ण *ध्रुव *schemata, libcrun_error_t *err)
 {
-  const char *actual_l3_cache_schema = l3_cache_schema;
-  cleanup_free char *cleaned_l3_cache_schema = NULL;
-  cleanup_free char *path = NULL;
-  cleanup_close int fd = -1;
-  int ret;
+  ध्रुव वर्ण *actual_l3_cache_schema = l3_cache_schema;
+  cleanup_free वर्ण *cleaned_l3_cache_schema = रिक्त;
+  cleanup_free वर्ण *मार्गः = रिक्त;
+  cleanup_close पूर्णाङ्क fd = -1;
+  पूर्णाङ्क ret;
 
   /* Nothing to do.  */
-  if (l3_cache_schema == NULL && mem_bw_schema == NULL && schemata == NULL)
-    return 0;
+  यदि (l3_cache_schema == रिक्त && mem_bw_schema == रिक्त && schemata == रिक्त)
+    प्रत्यागम 0;
 
-  ret = get_resctrl_path (&path, SCHEMATA_FILE, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_resctrl_मार्गः (&मार्गः, SCHEMATA_FILE, name, err);
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम ret;
 
-  if (l3_cache_schema && strstr (l3_cache_schema, "MB:"))
+  यदि (l3_cache_schema && वाक्ये_अन्विष (l3_cache_schema, "MB:"))
     {
       cleaned_l3_cache_schema = intelrdt_clean_l3_cache_schema (l3_cache_schema);
       actual_l3_cache_schema = cleaned_l3_cache_schema;
     }
 
-  fd = open (path, O_WRONLY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s` for writing", path);
+  fd = उद्घाटय (मार्गः, O_WRONLY | O_CLOEXEC);
+  यदि (UNLIKELY (fd < 0))
+    प्रत्यागम crun_make_error (err, errno, "open `%s` for writing", मार्गः);
 
-  return write_intelrdt_string (fd, path, actual_l3_cache_schema, mem_bw_schema, schemata, err);
+  प्रत्यागम write_intelrdt_string (fd, मार्गः, actual_l3_cache_schema, mem_bw_schema, schemata, err);
 }
 
-static int
-resctl_get_monitoring_path (const char *resctrl_group_name, const char *container_id, char **monitoring_path, libcrun_error_t *err)
+स्थिर पूर्णाङ्क
+resctl_get_monitoring_मार्गः (ध्रुव वर्ण *resctrl_गणः_name, ध्रुव वर्ण *container_id, वर्ण **monitoring_मार्गः, libcrun_error_t *err)
 {
-  int ret;
+  पूर्णाङ्क ret;
 
-  ret = append_paths (monitoring_path, err, INTEL_RDT_MOUNT_POINT, resctrl_group_name, MON_GROUPS, container_id, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (monitoring_मार्गः, err, INTEL_RDT_MOUNT_POINT, resctrl_गणः_name, MON_GROUPS, container_id, रिक्त);
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम ret;
 
-  return 0;
+  प्रत्यागम 0;
 }
 
-int
-resctl_destroy_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err)
+पूर्णाङ्क
+resctl_destroy_monitoring_गणः (ध्रुव वर्ण *resctrl_गणः_name, ध्रुव वर्ण *container_id, libcrun_error_t *err)
 {
-  cleanup_free char *monitoring_path = NULL;
-  int ret;
+  cleanup_free वर्ण *monitoring_मार्गः = रिक्त;
+  पूर्णाङ्क ret;
 
-  ret = resctl_get_monitoring_path (resctrl_group_name, container_id, &monitoring_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = resctl_get_monitoring_मार्गः (resctrl_गणः_name, container_id, &monitoring_मार्गः, err);
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम ret;
 
-  ret = rmdir (monitoring_path);
-  if (UNLIKELY (ret < 0 && errno != ENOENT))
-    return crun_make_error (err, errno, "rmdir `%s`", monitoring_path);
+  ret = rmdir (monitoring_मार्गः);
+  यदि (UNLIKELY (ret < 0 && errno != ENOENT))
+    प्रत्यागम crun_make_error (err, errno, "rmdir `%s`", monitoring_मार्गः);
 
-  return 0;
+  प्रत्यागम 0;
 }
 
-int
-resctl_destroy (const char *name, libcrun_error_t *err)
+पूर्णाङ्क
+resctl_destroy (ध्रुव वर्ण *name, libcrun_error_t *err)
 {
-  cleanup_free char *path = NULL;
-  int ret;
+  cleanup_free वर्ण *मार्गः = रिक्त;
+  पूर्णाङ्क ret;
 
-  if (is_default_clos (name))
-    return 0;
+  यदि (is_default_clos (name))
+    प्रत्यागम 0;
 
-  ret = get_resctrl_path (&path, NULL, name, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_resctrl_मार्गः (&मार्गः, रिक्त, name, err);
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम ret;
 
-  ret = rmdir (path);
-  if (UNLIKELY (ret < 0 && errno != ENOENT))
-    return crun_make_error (err, errno, "rmdir `%s`", path);
+  ret = rmdir (मार्गः);
+  यदि (UNLIKELY (ret < 0 && errno != ENOENT))
+    प्रत्यागम crun_make_error (err, errno, "rmdir `%s`", मार्गः);
 
-  return 0;
+  प्रत्यागम 0;
 }
 
-int
-resctl_create_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err)
+पूर्णाङ्क
+resctl_create_monitoring_गणः (ध्रुव वर्ण *resctrl_गणः_name, ध्रुव वर्ण *container_id, libcrun_error_t *err)
 {
-  cleanup_free char *monitoring_path = NULL;
-  int ret;
+  cleanup_free वर्ण *monitoring_मार्गः = रिक्त;
+  पूर्णाङ्क ret;
 
-  ret = resctl_get_monitoring_path (resctrl_group_name, container_id, &monitoring_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = resctl_get_monitoring_मार्गः (resctrl_गणः_name, container_id, &monitoring_मार्गः, err);
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम ret;
 
-  ret = crun_ensure_directory (monitoring_path, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = crun_ensure_directory (monitoring_मार्गः, 0755, true, err);
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम ret;
 
-  return 0;
+  प्रत्यागम 0;
 }

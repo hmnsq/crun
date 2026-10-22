@@ -15,17 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef RUN_CREATE_H
-#define RUN_CREATE_H
+#यदि_अपरिभाषितम् सततम्_CREATE_H
+#परिभाषय सततम्_CREATE_H
 
-#include "crun.h"
+#अन्तर्भाव "crun.h"
 
-typedef int (*container_run_create_func_t) (libcrun_context_t *, libcrun_container_t *, unsigned int, libcrun_error_t *);
-typedef unsigned int (*get_options_func_t) ();
+प्रकारनिर्देश पूर्णाङ्क (*container_सततम्_create_func_t) (libcrun_context_t *, libcrun_container_t *, अचिह्नित पूर्णाङ्क, libcrun_error_t *);
+प्रकारनिर्देश अचिह्नित पूर्णाङ्क (*get_options_func_t) ();
 
-int crun_run_create_internal (struct crun_global_arguments *global_args, int argc, char **argv,
-                              container_run_create_func_t container_run_create_func, get_options_func_t get_options_func,
-                              libcrun_context_t *crun_context, struct argp *run_argp, const char **config_file,
-                              const char **bundle, libcrun_error_t *err);
+पूर्णाङ्क crun_सततम्_create_आन्तरिकम् (संरचना crun_global_arguments *global_तर्काः, पूर्णाङ्क argc, वर्ण **argv,
+                              container_सततम्_create_func_t container_सततम्_create_func, get_options_func_t get_options_func,
+                              libcrun_context_t *crun_context, संरचना argp *सततम्_argp, ध्रुव वर्ण **config_file,
+                              ध्रुव वर्ण **bundle, libcrun_error_t *err);
 
-#endif
+#यदि_अन्तः

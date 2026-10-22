@@ -16,19 +16,19 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#अन्तर्भाव <config.h>
+#अन्तर्भाव <stdio.h>
+#अन्तर्भाव <stdlib.h>
+#अन्तर्भाव <argp.h>
+#अन्तर्भाव <string.h>
+#अन्तर्भाव <unistd.h>
+#अन्तर्भाव <errno.h>
 
-#include "crun.h"
+#अन्तर्भाव "crun.h"
 
-static char doc[] = "OCI runtime";
+स्थिर वर्ण doc[] = "OCI runtime";
 
-enum
+गणना
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -37,91 +37,91 @@ enum
   OPTION_PRESERVE_FDS
 };
 
-struct ps_options_s
+संरचना ps_options_s
 {
-  int format;
+  पूर्णाङ्क format;
 };
 
-enum
+गणना
 {
-  PS_TABLE = 100,
+  PS_सारणी = 100,
   PS_JSON,
 };
 
-static struct ps_options_s ps_options;
+स्थिर संरचना ps_options_s ps_options;
 
-static struct argp_option options[] = { { "format", 'f', "FORMAT", 0, "select the output format", 0 },
+स्थिर संरचना argp_option options[] = { { "format", 'f', "FORMAT", 0, "select the output format", 0 },
                                         {
                                             0,
                                         } };
 
-static char args_doc[] = "ps";
+स्थिर वर्ण तर्काः_doc[] = "ps";
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state arg_unused)
+स्थिर error_t
+parse_opt (पूर्णाङ्क कुञ्चिका, वर्ण *arg, संरचना argp_state *state arg_अप्रयुक्तम्)
 {
-  switch (key)
+  विकल्प (कुञ्चिका)
     {
-    case 'f':
-      if (strcmp (arg, "table") == 0)
-        ps_options.format = PS_TABLE;
-      else if (strcmp (arg, "json") == 0)
+    पक्ष 'f':
+      यदि (वाक्यं_तुलय (arg, "table") == 0)
+        ps_options.format = PS_सारणी;
+      अन्यथा यदि (वाक्यं_तुलय (arg, "json") == 0)
         ps_options.format = PS_JSON;
-      else
+      अन्यथा
         libcrun_fail_with_error (0, "invalid format `%s`", arg);
-      break;
+      भङ्ग;
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    स्वभाव:
+      प्रत्यागम ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  प्रत्यागम 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+स्थिर संरचना argp सततम्_argp = { options, parse_opt, तर्काः_doc, doc, रिक्त, रिक्त, रिक्त };
 
-int
-crun_command_ps (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+पूर्णाङ्क
+crun_command_ps (संरचना crun_global_arguments *global_तर्काः, पूर्णाङ्क argc, वर्ण **argv, libcrun_error_t *err)
 {
-  int first_arg;
-  int ret;
-  cleanup_free pid_t *pids = NULL;
-  cleanup_context libcrun_context_t *crun_context = NULL;
+  पूर्णाङ्क first_arg;
+  पूर्णाङ्क ret;
+  cleanup_free pid_t *pids = रिक्त;
+  cleanup_context libcrun_context_t *crun_context = रिक्त;
   size_t i;
 
-  ps_options.format = PS_TABLE;
+  ps_options.format = PS_सारणी;
 
-  argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &ps_options);
-  crun_assert_n_args (argc - first_arg, 1, 1);
+  argp_parse (&सततम्_argp, argc, argv, ARGP_अन्तर्_क्रमः, &first_arg, &ps_options);
+  crun_assert_n_तर्काः (argc - first_arg, 1, 1);
 
-  crun_context = new_libcrun_context (global_args);
+  crun_context = new_libcrun_context (global_तर्काः);
 
-  ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = init_libcrun_context (crun_context, argv[first_arg], global_तर्काः, err);
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम ret;
 
   ret = libcrun_container_read_pids (crun_context, argv[first_arg], true, &pids, err);
-  if (UNLIKELY (ret < 0))
+  यदि (UNLIKELY (ret < 0))
     {
       libcrun_error_report_and_release (err);
-      return ret;
+      प्रत्यागम ret;
     }
 
-  switch (ps_options.format)
+  विकल्प (ps_options.format)
     {
-    case PS_JSON:
-      printf ("[\n");
-      for (i = 0; pids && pids[i]; i++)
-        printf ("  %d%s\n", pids[i], pids[i + 1] ? "," : "");
-      printf ("]\n");
-      break;
+    पक्ष PS_JSON:
+      प्रारूप_लिख ("[\n");
+      प्रति (i = 0; pids && pids[i]; i++)
+        प्रारूप_लिख ("  %d%s\n", pids[i], pids[i + 1] ? "," : "");
+      प्रारूप_लिख ("]\n");
+      भङ्ग;
 
-    case PS_TABLE:
-      printf ("PID\n");
-      for (i = 0; pids && pids[i]; i++)
-        printf ("%d\n", pids[i]);
-      break;
+    पक्ष PS_सारणी:
+      प्रारूप_लिख ("PID\n");
+      प्रति (i = 0; pids && pids[i]; i++)
+        प्रारूप_लिख ("%d\n", pids[i]);
+      भङ्ग;
     }
 
-  return 0;
+  प्रत्यागम 0;
 }

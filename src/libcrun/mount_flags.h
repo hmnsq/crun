@@ -16,10 +16,10 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MOUNT_FLAGS_H
-#define MOUNT_FLAGS_H
+#यदि_अपरिभाषितम् MOUNT_FLAGS_H
+#परिभाषय MOUNT_FLAGS_H
 
-enum
+गणना
 {
   OPTION_TMPCOPYUP = (1 << 0),
   OPTION_RECURSIVE = (1 << 1),
@@ -29,15 +29,15 @@ enum
   OPTION_DEST_NOFOLLOW = (1 << 5),
 };
 
-struct propagation_flags_s
+संरचना सञ्चरणम्_flags_s
 {
-  char *name;
-  int clear;
-  int flags;
-  int extra_flags;
+  वर्ण *name;
+  पूर्णाङ्क clear;
+  पूर्णाङ्क flags;
+  पूर्णाङ्क extra_flags;
 };
 
-const struct propagation_flags_s *libcrun_str2mount_flags (const char *name);
-const struct propagation_flags_s *get_mount_flags_from_wordlist ();
+ध्रुव संरचना सञ्चरणम्_flags_s *libcrun_str2mount_flags (ध्रुव वर्ण *name);
+ध्रुव संरचना सञ्चरणम्_flags_s *get_mount_flags_from_wordlist ();
 
-#endif
+#यदि_अन्तः

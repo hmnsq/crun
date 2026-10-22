@@ -23,29 +23,29 @@
  * 2020/02/02: Giuseppe Scrivano (don't lose terminal '/' if an absolute symlink is found)
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+#यदि_परिभाषितम् HAVE_CONFIG_H
+#अन्तर्भाव <config.h>
+#यदि_अन्तः
 
-#include <sys/types.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
-#include <strings.h>
-#include <limits.h>				/* for PATH_MAX */
-#include <sys/param.h>			/* for MAXPATHLEN */
-#include <errno.h>
-#ifndef __set_errno
-#define __set_errno(val) ((errno) = (val))
-#endif
+#अन्तर्भाव <sys/types.h>
+#अन्तर्भाव <unistd.h>
+#अन्तर्भाव <stdio.h>
+#अन्तर्भाव <string.h>
+#अन्तर्भाव <strings.h>
+#अन्तर्भाव <limits.h>				/* for PATH_MAX */
+#अन्तर्भाव <sys/param.h>			/* for MAXPATHLEN */
+#अन्तर्भाव <errno.h>
+#यदि_अपरिभाषितम् __set_errno
+#परिभाषय __set_errno(val) ((errno) = (val))
+#यदि_अन्तः
 
-#include <sys/stat.h>			/* for S_IFLNK */
+#अन्तर्भाव <sys/stat.h>			/* for S_IFLNK */
 
-#ifndef PATH_MAX
-#define PATH_MAX _POSIX_PATH_MAX
-#endif
+#यदि_अपरिभाषितम् PATH_MAX
+#परिभाषय PATH_MAX _POSIX_PATH_MAX
+#यदि_अन्तः
 
-#define MAX_READLINKS 32
+#परिभाषय MAX_READLINKS 32
 
 /* Resolve PATH as if CHROOT was the root directory, storing the result in
    RESOLVED_PATH (which must be at least PATH_MAX bytes long).
@@ -57,146 +57,146 @@
 
    On failure NULL is returned and errno is set to either ENAMETOOLONG or
    ELOOP, or to any error readlink(2) can report except ENOENT and EINVAL. */
-char *chroot_realpath(const char *chroot, const char *path, char resolved_path[])
+वर्ण *chroot_realpath(ध्रुव वर्ण *chroot, ध्रुव वर्ण *मार्गः, वर्ण resolved_मार्गः[])
 {
-	char copy_path[PATH_MAX];
-	char link_path[PATH_MAX];
-	char got_path[PATH_MAX];
-	char *got_path_root = got_path;
-	char *new_path = got_path;
-	char *max_path;
-	int readlinks = 0;
-	int n;
-	int chroot_len;
-	int last_component;
+	वर्ण copy_मार्गः[PATH_MAX];
+	वर्ण link_मार्गः[PATH_MAX];
+	वर्ण got_मार्गः[PATH_MAX];
+	वर्ण *got_मार्गः_मूलम् = got_मार्गः;
+	वर्ण *new_मार्गः = got_मार्गः;
+	वर्ण *max_मार्गः;
+	पूर्णाङ्क readlinks = 0;
+	पूर्णाङ्क n;
+	पूर्णाङ्क chroot_len;
+	पूर्णाङ्क चरमः_component;
 
 	/* Trivial case. */
-	if (chroot == NULL || *chroot == '\0' ||
+	यदि (chroot == रिक्त || *chroot == '\0' ||
 	    (*chroot == '/' && chroot[1] == '\0')) {
-		if (strlen(path) >= PATH_MAX) {
+		यदि (वाक्यदैर्घ्यम्(मार्गः) >= PATH_MAX) {
 			__set_errno(ENAMETOOLONG);
-			return NULL;
+			प्रत्यागम रिक्त;
 		}
-		strcpy(resolved_path, path);
-		return resolved_path;
+		वाक्यं_प्रतिलिख(resolved_मार्गः, मार्गः);
+		प्रत्यागम resolved_मार्गः;
 	}
 
-	chroot_len = strlen(chroot);
+	chroot_len = वाक्यदैर्घ्यम्(chroot);
 
-	if (chroot_len + strlen(path) >= PATH_MAX - 3) {
+	यदि (chroot_len + वाक्यदैर्घ्यम्(मार्गः) >= PATH_MAX - 3) {
 		__set_errno(ENAMETOOLONG);
-		return NULL;
+		प्रत्यागम रिक्त;
 	}
 
 	/* Make a copy of the source path since we may need to modify it. */
-	strcpy(copy_path, path);
-	path = copy_path;
-	max_path = copy_path + PATH_MAX - chroot_len - 3;
+	वाक्यं_प्रतिलिख(copy_मार्गः, मार्गः);
+	मार्गः = copy_मार्गः;
+	max_मार्गः = copy_मार्गः + PATH_MAX - chroot_len - 3;
 
 	/* Start with the chroot path.  It is copied verbatim so that the
 	   result is always prefixed by CHROOT and callers can strip it. */
-	strcpy(new_path, chroot);
-	new_path += chroot_len;
-	got_path_root = new_path;
-	*new_path++ = '/';
+	वाक्यं_प्रतिलिख(new_मार्गः, chroot);
+	new_मार्गः += chroot_len;
+	got_मार्गः_मूलम् = new_मार्गः;
+	*new_मार्गः++ = '/';
 
 	/* Expand each slash-separated pathname component. */
-	while (*path != '\0') {
+	यावत् (*मार्गः != '\0') {
 		/* Ignore stray "/". */
-		if (*path == '/') {
-			path++;
-			continue;
+		यदि (*मार्गः == '/') {
+			मार्गः++;
+			अनुवर्त;
 		}
-		if (*path == '.') {
+		यदि (*मार्गः == '.') {
 			/* Ignore ".". */
-			if (path[1] == '\0' || path[1] == '/') {
-				path++;
-				continue;
+			यदि (मार्गः[1] == '\0' || मार्गः[1] == '/') {
+				मार्गः++;
+				अनुवर्त;
 			}
-			if (path[1] == '.') {
-				if (path[2] == '\0' || path[2] == '/') {
-					path += 2;
+			यदि (मार्गः[1] == '.') {
+				यदि (मार्गः[2] == '\0' || मार्गः[2] == '/') {
+					मार्गः += 2;
 					/* Ignore ".." at root. */
-					if (new_path == got_path_root + 1)
-						continue;
+					यदि (new_मार्गः == got_मार्गः_मूलम् + 1)
+						अनुवर्त;
 					/* Handle ".." by backing up. */
-					while ((--new_path)[-1] != '/');
-					continue;
+					यावत् ((--new_मार्गः)[-1] != '/');
+					अनुवर्त;
 				}
 			}
 		}
 		/* Safely copy the next pathname component. */
-		while (*path != '\0' && *path != '/') {
-			if (path > max_path || new_path >= got_path + PATH_MAX - 1) {
+		यावत् (*मार्गः != '\0' && *मार्गः != '/') {
+			यदि (मार्गः > max_मार्गः || new_मार्गः >= got_मार्गः + PATH_MAX - 1) {
 				__set_errno(ENAMETOOLONG);
-				return NULL;
+				प्रत्यागम रिक्त;
 			}
-			*new_path++ = *path++;
+			*new_मार्गः++ = *मार्गः++;
 		}
 
-		last_component = (*path == '\0');
+		चरमः_component = (*मार्गः == '\0');
 
-#ifdef S_IFLNK
+#यदि_परिभाषितम् S_IFLNK
 		/* Protect against infinite loops. */
-		if (readlinks++ > MAX_READLINKS) {
+		यदि (readlinks++ > MAX_READLINKS) {
 			__set_errno(ELOOP);
-			return NULL;
+			प्रत्यागम रिक्त;
 		}
 		/* See if latest pathname component is a symlink. */
-		*new_path = '\0';
-		n = readlink(got_path, link_path, PATH_MAX - 1);
-		if (n < 0) {
+		*new_मार्गः = '\0';
+		n = readlink(got_मार्गः, link_मार्गः, PATH_MAX - 1);
+		यदि (n < 0) {
 			/* If a component doesn't exist, then return what we could translate. */
-			if (errno == ENOENT) {
-				int ret = snprintf (resolved_path, PATH_MAX, "%s%s%s", got_path, path[0] == '/' || path[0] == '\0' ? "" : "/", path);
-				if (ret >= PATH_MAX) {
+			यदि (errno == ENOENT) {
+				पूर्णाङ्क ret = snprintf (resolved_मार्गः, PATH_MAX, "%s%s%s", got_मार्गः, मार्गः[0] == '/' || मार्गः[0] == '\0' ? "" : "/", मार्गः);
+				यदि (ret >= PATH_MAX) {
 					__set_errno(ENAMETOOLONG);
-					return NULL;
+					प्रत्यागम रिक्त;
 				}
-				return resolved_path;
+				प्रत्यागम resolved_मार्गः;
 			}
 			/* EINVAL means the file exists but isn't a symlink. */
-			if (errno != EINVAL)
-				return NULL;
-		} else {
+			यदि (errno != EINVAL)
+				प्रत्यागम रिक्त;
+		} अन्यथा {
 			/* Note: readlink doesn't add the null byte. */
-			link_path[n] = '\0';
-			if (*link_path == '/') {
+			link_मार्गः[n] = '\0';
+			यदि (*link_मार्गः == '/') {
 				/* Start over for an absolute symlink. */
-				new_path = got_path_root;
-				*new_path++ = '/';
+				new_मार्गः = got_मार्गः_मूलम्;
+				*new_मार्गः++ = '/';
 			}
-			else {
+			अन्यथा {
 				/* Otherwise back up over this component, keeping the
 				   separator, so that the expanded symlink is not
 				   concatenated to the parent directory name. */
-				while (*(--new_path) != '/');
-				new_path++;
+				यावत् (*(--new_मार्गः) != '/');
+				new_मार्गः++;
 			}
 			/* Safe sex check. */
-			if (strlen(path) + n >= PATH_MAX - 2) {
+			यदि (वाक्यदैर्घ्यम्(मार्गः) + n >= PATH_MAX - 2) {
 				__set_errno(ENAMETOOLONG);
-				return NULL;
+				प्रत्यागम रिक्त;
 			}
 			/* Insert symlink contents into path. */
-			strcat(link_path, path);
-			strcpy(copy_path, link_path);
-			path = copy_path;
+			वाक्यं_योजय(link_मार्गः, मार्गः);
+			वाक्यं_प्रतिलिख(copy_मार्गः, link_मार्गः);
+			मार्गः = copy_मार्गः;
 		}
-#endif							/* S_IFLNK */
-		if (!last_component) {
-			if (new_path >= got_path + PATH_MAX - 1) {
+#यदि_अन्तः							/* S_IFLNK */
+		यदि (!चरमः_component) {
+			यदि (new_मार्गः >= got_मार्गः + PATH_MAX - 1) {
 				__set_errno(ENAMETOOLONG);
-				return NULL;
+				प्रत्यागम रिक्त;
 			}
-			*new_path++ = '/';
+			*new_मार्गः++ = '/';
 		}
 	}
 	/* Delete trailing slash but don't whomp a lone slash. */
-	if (new_path != got_path + 1 && new_path[-1] == '/')
-		new_path--;
+	यदि (new_मार्गः != got_मार्गः + 1 && new_मार्गः[-1] == '/')
+		new_मार्गः--;
 	/* Make sure it's null terminated. */
-	*new_path = '\0';
-	strcpy(resolved_path, got_path);
-	return resolved_path;
+	*new_मार्गः = '\0';
+	वाक्यं_प्रतिलिख(resolved_मार्गः, got_मार्गः);
+	प्रत्यागम resolved_मार्गः;
 }

@@ -15,18 +15,18 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CGROUP_SYSTEMD_H
-#define CGROUP_SYSTEMD_H
+#यदि_अपरिभाषितम् CGROUP_SYSTEMD_H
+#परिभाषय CGROUP_SYSTEMD_H
 
-#include "container.h"
-#include <unistd.h>
+#अन्तर्भाव "container.h"
+#अन्तर्भाव <unistd.h>
 
-#ifdef HAVE_SYSTEMD
-extern int parse_sd_array (char *s, char **out, char **next, libcrun_error_t *err);
+#यदि_परिभाषितम् HAVE_SYSTEMD
+बाह्य पूर्णाङ्क parse_sd_array (वर्ण *s, वर्ण **बहिर्गमनम्, वर्ण **अग्र, libcrun_error_t *err);
 
-extern char *get_cgroup_scope_path (const char *cgroup_path, const char *scope);
-#endif
+बाह्य वर्ण *get_cgroup_scope_मार्गः (ध्रुव वर्ण *cgroup_मार्गः, ध्रुव वर्ण *scope);
+#यदि_अन्तः
 
-extern struct libcrun_cgroup_manager cgroup_manager_systemd;
+बाह्य संरचना libcrun_cgroup_manager cgroup_manager_systemd;
 
-#endif
+#यदि_अन्तः

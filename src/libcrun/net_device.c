@@ -16,440 +16,440 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#परिभाषय _GNU_SOURCE
 
-#include <config.h>
-#include "net_device.h"
-#include "utils.h"
+#अन्तर्भाव <config.h>
+#अन्तर्भाव "net_device.h"
+#अन्तर्भाव "utils.h"
 
-#include <sys/socket.h>
-#include <errno.h>
-#include <sched.h>
-#include <sys/wait.h>
-#include <sys/xattr.h>
-#include <linux/netlink.h>
-#include <linux/rtnetlink.h>
-#include <arpa/inet.h>
-#include <net/if.h>
-#if HAVE_STDATOMIC_H
+#अन्तर्भाव <sys/socket.h>
+#अन्तर्भाव <errno.h>
+#अन्तर्भाव <sched.h>
+#अन्तर्भाव <sys/wait.h>
+#अन्तर्भाव <sys/xattr.h>
+#अन्तर्भाव <linux/netlink.h>
+#अन्तर्भाव <linux/rtnetlink.h>
+#अन्तर्भाव <arpa/inet.h>
+#अन्तर्भाव <net/if.h>
+#यदि HAVE_STDATOMIC_H
 #  include <stdatomic.h>
 #  ifndef HAVE_ATOMIC_INT
-#    define atomic_uint volatile uint
+#    define atomic_uint चञ्चल uint
 #  endif
-#endif
+#यदि_अन्तः
 
-struct ip_addr
+संरचना ip_addr
 {
-  struct ifaddrmsg ifa;
+  संरचना ifaddrmsg ifa;
 
-  int rta_len;
-  char *rta;
+  पूर्णाङ्क rta_len;
+  वर्ण *rta;
 };
 
-struct nl_req
+संरचना nl_req
 {
-  struct nlmsghdr nlh;
-  union
+  संरचना nlmsghdr nlh;
+  सङ्घ
   {
-    struct ifaddrmsg ifa;
-    struct ifinfomsg ifi;
+    संरचना ifaddrmsg ifa;
+    संरचना ifinfomsg ifi;
   };
 };
 
-static atomic_uint nl_seq_counter;
+स्थिर atomic_uint nl_seq_गणक;
 
-static uint32_t
-get_next_seq ()
+स्थिर uint32_t
+get_अग्र_seq ()
 {
-  return (uint32_t) ++nl_seq_counter;
+  प्रत्यागम (uint32_t) ++nl_seq_गणक;
 }
 
-static uint32_t
-reset_request (struct nl_req *req, int type, int flags, int msg_len)
+स्थिर uint32_t
+reset_request (संरचना nl_req *req, पूर्णाङ्क type, पूर्णाङ्क flags, पूर्णाङ्क सन्देशः_len)
 {
-  uint32_t seq = get_next_seq ();
+  uint32_t seq = get_अग्र_seq ();
 
-  memset (req, 0, sizeof (*req));
+  स्मृतिं_पूरय (req, 0, परिमाण (*req));
   req->nlh.nlmsg_type = type;
   req->nlh.nlmsg_flags = flags;
-  req->nlh.nlmsg_len = NLMSG_LENGTH (msg_len);
+  req->nlh.nlmsg_len = NLMSG_दीर्घता (सन्देशः_len);
   req->nlh.nlmsg_seq = seq;
 
-  return seq;
+  प्रत्यागम seq;
 }
 
-static void
-cleanup_ip_addrsp (void *p)
+स्थिर शून्य
+cleanup_ip_addrsp (शून्य *p)
 {
-  struct ip_addr **pp = (struct ip_addr **) p;
-  struct ip_addr *ip;
-  if (*pp == NULL)
-    return;
+  संरचना ip_addr **pp = (संरचना ip_addr **) p;
+  संरचना ip_addr *ip;
+  यदि (*pp == रिक्त)
+    प्रत्यागम;
 
-  for (ip = *pp; ip->rta_len >= 0; ip++)
-    free (ip->rta);
+  प्रति (ip = *pp; ip->rta_len >= 0; ip++)
+    मुक्त (ip->rta);
 
-  free (*pp);
+  मुक्त (*pp);
 }
 
-#define cleanup_ip_addrs __attribute__ ((cleanup (cleanup_ip_addrsp)))
+#परिभाषय cleanup_ip_addrs __attribute__ ((cleanup (cleanup_ip_addrsp)))
 
-static int
+स्थिर पूर्णाङ्क
 open_netlink_fd (libcrun_error_t *err)
 {
-  cleanup_close int sock = -1;
-  struct sockaddr_nl local = {
+  cleanup_close पूर्णाङ्क sock = -1;
+  संरचना sockaddr_nl local = {
     .nl_family = AF_NETLINK
   };
-  int fd;
+  पूर्णाङ्क fd;
 
   sock = socket (AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
-  if (sock < 0)
-    return crun_make_error (err, errno, "netlink socket");
+  यदि (sock < 0)
+    प्रत्यागम crun_make_error (err, errno, "netlink socket");
 
-  if (bind (sock, (struct sockaddr *) &local, sizeof (local)) < 0)
-    return crun_make_error (err, errno, "bind");
+  यदि (bind (sock, (संरचना sockaddr *) &local, परिमाण (local)) < 0)
+    प्रत्यागम crun_make_error (err, errno, "bind");
 
   fd = sock;
   sock = -1;
-  return fd;
+  प्रत्यागम fd;
 }
 
-static int
-append_rtattr (struct nlmsghdr *n, size_t maxlen, int type, const void *data, size_t data_len, libcrun_error_t *err)
+स्थिर पूर्णाङ्क
+append_rtattr (संरचना nlmsghdr *n, size_t maxlen, पूर्णाङ्क type, ध्रुव शून्य *दत्त, size_t दत्त_len, libcrun_error_t *err)
 {
-  int len = RTA_LENGTH (data_len);
-  struct rtattr *rta;
+  पूर्णाङ्क len = RTA_दीर्घता (दत्त_len);
+  संरचना rtattr *rta;
 
-  if (NLMSG_ALIGN (n->nlmsg_len) + RTA_ALIGN (len) > maxlen)
-    return crun_make_error (err, E2BIG, "internal error: buffer too small");
+  यदि (NLMSG_ALIGN (n->nlmsg_len) + RTA_ALIGN (len) > maxlen)
+    प्रत्यागम crun_make_error (err, E2BIG, "internal error: buffer too small");
 
-  rta = (struct rtattr *) (((char *) n) + NLMSG_ALIGN (n->nlmsg_len));
+  rta = (संरचना rtattr *) (((वर्ण *) n) + NLMSG_ALIGN (n->nlmsg_len));
   rta->rta_type = type;
   rta->rta_len = len;
-  if (data_len)
-    memcpy (RTA_DATA (rta), data, data_len);
+  यदि (दत्त_len)
+    स्मृतिं_प्रतिलिख (RTA_दत्त (rta), दत्त, दत्त_len);
   n->nlmsg_len = NLMSG_ALIGN (n->nlmsg_len) + RTA_ALIGN (len);
-  return 0;
+  प्रत्यागम 0;
 }
 
-static int
-send_request (int sock, struct nl_req *req, libcrun_error_t *err)
+स्थिर पूर्णाङ्क
+send_request (पूर्णाङ्क sock, संरचना nl_req *req, libcrun_error_t *err)
 {
-  int ret;
+  पूर्णाङ्क ret;
 
-  ret = TEMP_FAILURE_RETRY (send (sock, req, req->nlh.nlmsg_len, 0));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "send");
+  ret = अस्थायी_FAILURE_RETRY (send (sock, req, req->nlh.nlmsg_len, 0));
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम crun_make_error (err, errno, "send");
 
-  return 0;
+  प्रत्यागम 0;
 }
 
 /* if_nametoindex with an open netlink socket.  */
-static int
-name_to_index (int sock, const char *ifname, char *buffer, size_t buffer_size, libcrun_error_t *err)
+स्थिर पूर्णाङ्क
+name_गन्तव्यम्_सूचकांक (पूर्णाङ्क sock, ध्रुव वर्ण *ifname, वर्ण *बफर, size_t बफर_आकार, libcrun_error_t *err)
 {
-  struct nlmsghdr *nlh;
-  struct nl_req *req;
+  संरचना nlmsghdr *nlh;
+  संरचना nl_req *req;
   uint32_t seq;
   ssize_t len;
-  int ret;
+  पूर्णाङ्क ret;
 
-  req = (struct nl_req *) buffer;
+  req = (संरचना nl_req *) बफर;
 
   nlh = &req->nlh;
 
-  seq = reset_request (req, RTM_GETLINK, NLM_F_REQUEST, sizeof (struct ifinfomsg));
+  seq = reset_request (req, RTM_GETLINK, NLM_F_REQUEST, परिमाण (संरचना ifinfomsg));
   req->ifi.ifi_family = AF_UNSPEC;
 
-  ret = append_rtattr (nlh, buffer_size, IFLA_IFNAME, ifname, strlen (ifname) + 1, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_rtattr (nlh, बफर_आकार, IFLA_IFNAME, ifname, वाक्यदैर्घ्यम् (ifname) + 1, err);
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम ret;
 
   ret = send_request (sock, req, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम ret;
 
-  len = TEMP_FAILURE_RETRY (recv (sock, buffer, buffer_size, 0));
-  if (UNLIKELY (len < 0))
-    return crun_make_error (err, errno, "recv");
+  len = अस्थायी_FAILURE_RETRY (recv (sock, बफर, बफर_आकार, 0));
+  यदि (UNLIKELY (len < 0))
+    प्रत्यागम crun_make_error (err, errno, "recv");
 
-  for (nlh = (struct nlmsghdr *) buffer; NLMSG_OK (nlh, (unsigned int) len); nlh = NLMSG_NEXT (nlh, len))
+  प्रति (nlh = (संरचना nlmsghdr *) बफर; NLMSG_OK (nlh, (अचिह्नित पूर्णाङ्क) len); nlh = NLMSG_अग्र (nlh, len))
     {
-      if (nlh->nlmsg_seq != seq)
-        continue;
+      यदि (nlh->nlmsg_seq != seq)
+        अनुवर्त;
 
-      if (nlh->nlmsg_type == NLMSG_ERROR)
+      यदि (nlh->nlmsg_type == NLMSG_ERROR)
         {
-          struct nlmsgerr *err_data = (struct nlmsgerr *) NLMSG_DATA (nlh);
-          if (err_data->error == 0)
-            continue;
-          return crun_make_error (err, -err_data->error, "netlink error while looking for interface `%s`", ifname);
+          संरचना nlmsgerr *err_दत्त = (संरचना nlmsgerr *) NLMSG_दत्त (nlh);
+          यदि (err_दत्त->error == 0)
+            अनुवर्त;
+          प्रत्यागम crun_make_error (err, -err_दत्त->error, "netlink error while looking for interface `%s`", ifname);
         }
 
-      if (nlh->nlmsg_type == RTM_NEWLINK)
+      यदि (nlh->nlmsg_type == RTM_NEWLINK)
         {
-          struct ifinfomsg *ifi = NLMSG_DATA (nlh);
-          return ifi->ifi_index;
+          संरचना ifinfomsg *ifi = NLMSG_दत्त (nlh);
+          प्रत्यागम ifi->ifi_सूचकांक;
         }
     }
 
-  return crun_make_error (err, 0, "could not find device `%s`", ifname);
+  प्रत्यागम crun_make_error (err, 0, "could not find device `%s`", ifname);
 }
 
-static int
-wait_for_ack (int sock, uint32_t seq, char *recv_buffer, size_t recv_buffer_size, libcrun_error_t *err)
+स्थिर पूर्णाङ्क
+wait_for_ack (पूर्णाङ्क sock, uint32_t seq, वर्ण *recv_बफर, size_t recv_बफर_आकार, libcrun_error_t *err)
 {
-  struct nlmsghdr *nlh_recv = (struct nlmsghdr *) recv_buffer;
+  संरचना nlmsghdr *nlh_recv = (संरचना nlmsghdr *) recv_बफर;
   ssize_t len;
 
-  do
+  कुरु
     {
-      len = TEMP_FAILURE_RETRY (recv (sock, recv_buffer, recv_buffer_size, 0));
-      if (len < 0)
-        return crun_make_error (err, errno, "recv");
-  } while (nlh_recv->nlmsg_seq != seq);
+      len = अस्थायी_FAILURE_RETRY (recv (sock, recv_बफर, recv_बफर_आकार, 0));
+      यदि (len < 0)
+        प्रत्यागम crun_make_error (err, errno, "recv");
+  } यावत् (nlh_recv->nlmsg_seq != seq);
 
-  if (! NLMSG_OK (nlh_recv, len))
-    return crun_make_error (err, 0, "received invalid packet");
+  यदि (! NLMSG_OK (nlh_recv, len))
+    प्रत्यागम crun_make_error (err, 0, "received invalid packet");
 
-  if (nlh_recv->nlmsg_type == NLMSG_ERROR)
+  यदि (nlh_recv->nlmsg_type == NLMSG_ERROR)
     {
-      struct nlmsgerr *err_data = (struct nlmsgerr *) NLMSG_DATA (nlh_recv);
-      if (err_data->error == 0)
-        return 0;
-      return crun_make_error (err, -err_data->error, "netlink error");
+      संरचना nlmsgerr *err_दत्त = (संरचना nlmsgerr *) NLMSG_दत्त (nlh_recv);
+      यदि (err_दत्त->error == 0)
+        प्रत्यागम 0;
+      प्रत्यागम crun_make_error (err, -err_दत्त->error, "netlink error");
     }
 
-  return crun_make_error (err, 0, "internal error: received unknown netlink packet type");
+  प्रत्यागम crun_make_error (err, 0, "internal error: received unknown netlink packet type");
 }
 
-static void
-copy_ip_addr (struct nlmsghdr *nlh, struct ip_addr *ip)
+स्थिर शून्य
+copy_ip_addr (संरचना nlmsghdr *nlh, संरचना ip_addr *ip)
 {
-  struct ifaddrmsg *ifa = (struct ifaddrmsg *) NLMSG_DATA (nlh);
-  memcpy (&ip->ifa, ifa, sizeof (struct ifaddrmsg));
+  संरचना ifaddrmsg *ifa = (संरचना ifaddrmsg *) NLMSG_दत्त (nlh);
+  स्मृतिं_प्रतिलिख (&ip->ifa, ifa, परिमाण (संरचना ifaddrmsg));
   ip->rta_len = IFA_PAYLOAD (nlh);
   ip->rta = xmalloc (ip->rta_len);
-  memcpy (ip->rta, IFA_RTA (ifa), ip->rta_len);
+  स्मृतिं_प्रतिलिख (ip->rta, IFA_RTA (ifa), ip->rta_len);
 };
 
-static int
-get_ip_addresses (int sock, uint32_t ifindex, struct ip_addr **out_ips, char *buffer, size_t buffer_size, libcrun_error_t *err)
+स्थिर पूर्णाङ्क
+get_ip_स्थानाङ्काः (पूर्णाङ्क sock, uint32_t ifindex, संरचना ip_addr **बहिर्गमनम्_ips, वर्ण *बफर, size_t बफर_आकार, libcrun_error_t *err)
 {
-  struct nl_req *req = (struct nl_req *) buffer;
-  cleanup_ip_addrs struct ip_addr *ips = NULL;
+  संरचना nl_req *req = (संरचना nl_req *) बफर;
+  cleanup_ip_addrs संरचना ip_addr *ips = रिक्त;
   size_t ips_len = 0;
-  int optval = 1;
+  पूर्णाङ्क optval = 1;
   uint32_t seq;
   ssize_t len;
-  int ret;
+  पूर्णाङ्क ret;
 
-#ifdef NETLINK_GET_STRICT_CHK
-  ret = setsockopt (sock, SOL_NETLINK, NETLINK_GET_STRICT_CHK, &optval, sizeof (optval));
-  if (ret < 0)
+#यदि_परिभाषितम् NETLINK_GET_STRICT_CHK
+  ret = setsockopt (sock, SOL_NETLINK, NETLINK_GET_STRICT_CHK, &optval, परिमाण (optval));
+  यदि (ret < 0)
     {
-      if (errno != ENOPROTOOPT)
-        return crun_make_error (err, errno, "setsockopt (NETLINK_GET_STRICT_CHK)");
+      यदि (errno != ENOPROTOOPT)
+        प्रत्यागम crun_make_error (err, errno, "setsockopt (NETLINK_GET_STRICT_CHK)");
 
       /* NETLINK_GET_STRICT_CHK not supported by this kernel, continue without strict checking.   */
     }
-#endif
+#यदि_अन्तः
 
-  seq = reset_request (req, RTM_GETADDR, NLM_F_DUMP | NLM_F_REQUEST, sizeof (struct ifaddrmsg));
+  seq = reset_request (req, RTM_GETADDR, NLM_F_DUMP | NLM_F_REQUEST, परिमाण (संरचना ifaddrmsg));
   req->ifa.ifa_family = AF_UNSPEC;
-  req->ifa.ifa_index = ifindex;
+  req->ifa.ifa_सूचकांक = ifindex;
 
   ret = send_request (sock, req, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम ret;
 
-  while ((len = TEMP_FAILURE_RETRY (recv (sock, buffer, buffer_size, 0))) > 0)
+  यावत् ((len = अस्थायी_FAILURE_RETRY (recv (sock, बफर, बफर_आकार, 0))) > 0)
     {
-      struct nlmsghdr *nlh;
+      संरचना nlmsghdr *nlh;
 
-      for (nlh = (struct nlmsghdr *) buffer; NLMSG_OK (nlh, len); nlh = NLMSG_NEXT (nlh, len))
+      प्रति (nlh = (संरचना nlmsghdr *) बफर; NLMSG_OK (nlh, len); nlh = NLMSG_अग्र (nlh, len))
         {
-          struct ifaddrmsg *ifa;
+          संरचना ifaddrmsg *ifa;
 
-          if (nlh->nlmsg_seq != seq)
-            continue;
+          यदि (nlh->nlmsg_seq != seq)
+            अनुवर्त;
 
-          if (nlh->nlmsg_type == NLMSG_DONE)
+          यदि (nlh->nlmsg_type == NLMSG_समाप्तम्)
             {
-              *out_ips = ips;
-              ips = NULL;
-              return 0;
+              *बहिर्गमनम्_ips = ips;
+              ips = रिक्त;
+              प्रत्यागम 0;
             }
 
-          if (nlh->nlmsg_type == NLMSG_ERROR)
+          यदि (nlh->nlmsg_type == NLMSG_ERROR)
             {
-              struct nlmsgerr *err_data = (struct nlmsgerr *) NLMSG_DATA (nlh);
-              if (err_data->error == 0)
-                continue;
-              return crun_make_error (err, -err_data->error, "netlink error reading ip addresses");
+              संरचना nlmsgerr *err_दत्त = (संरचना nlmsgerr *) NLMSG_दत्त (nlh);
+              यदि (err_दत्त->error == 0)
+                अनुवर्त;
+              प्रत्यागम crun_make_error (err, -err_दत्त->error, "netlink error reading ip addresses");
             }
 
-          ifa = (struct ifaddrmsg *) NLMSG_DATA (nlh);
-          if (ifa->ifa_index != ifindex)
-            continue;
+          ifa = (संरचना ifaddrmsg *) NLMSG_दत्त (nlh);
+          यदि (ifa->ifa_सूचकांक != ifindex)
+            अनुवर्त;
 
           /* Copy only permanent, globally routable IP addresses.  */
-          if (! (ifa->ifa_flags & IFA_F_PERMANENT) || (ifa->ifa_scope != RT_SCOPE_UNIVERSE))
-            continue;
+          यदि (! (ifa->ifa_flags & IFA_F_PERMANENT) || (ifa->ifa_scope != RT_SCOPE_UNIVERSE))
+            अनुवर्त;
 
           /* Always append an empty struct.  */
-          ips = xrealloc (ips, sizeof (struct ip_addr) * (++ips_len + 1));
+          ips = xrealloc (ips, परिमाण (संरचना ip_addr) * (++ips_len + 1));
           /* Mark the end of the array.  */
           ips[ips_len].rta_len = -1;
 
           copy_ip_addr (nlh, &ips[ips_len - 1]);
         }
     }
-  if (UNLIKELY (len < 0))
-    return crun_make_error (err, errno, "recv");
-  return 0;
+  यदि (UNLIKELY (len < 0))
+    प्रत्यागम crun_make_error (err, errno, "recv");
+  प्रत्यागम 0;
 }
 
-static int
-configure_ip_addresses (int sock, int ifindex, char *buffer, size_t buffer_size, const struct ip_addr *ips, libcrun_error_t *err)
+स्थिर पूर्णाङ्क
+configure_ip_स्थानाङ्काः (पूर्णाङ्क sock, पूर्णाङ्क ifindex, वर्ण *बफर, size_t बफर_आकार, ध्रुव संरचना ip_addr *ips, libcrun_error_t *err)
 {
-  struct nl_req *req = (struct nl_req *) buffer;
-  const struct ip_addr *ip;
-  int ret;
+  संरचना nl_req *req = (संरचना nl_req *) बफर;
+  ध्रुव संरचना ip_addr *ip;
+  पूर्णाङ्क ret;
 
-  if (ips == NULL)
-    return 0;
+  यदि (ips == रिक्त)
+    प्रत्यागम 0;
 
-  for (ip = ips; ip->rta_len >= 0; ip++)
+  प्रति (ip = ips; ip->rta_len >= 0; ip++)
     {
       /* RTA_NEXT modifies the argument, so use a copy.  */
-      int rta_len = ip->rta_len;
-      struct rtattr *rta;
+      पूर्णाङ्क rta_len = ip->rta_len;
+      संरचना rtattr *rta;
       uint32_t seq;
 
-      seq = reset_request (req, RTM_NEWADDR, NLM_F_REQUEST | NLM_F_CREATE | NLM_F_REPLACE | NLM_F_ACK, sizeof (struct ifaddrmsg));
+      seq = reset_request (req, RTM_NEWADDR, NLM_F_REQUEST | NLM_F_CREATE | NLM_F_REPLACE | NLM_F_ACK, परिमाण (संरचना ifaddrmsg));
 
-      memcpy (&req->ifa, &ip->ifa, sizeof (struct ifaddrmsg));
+      स्मृतिं_प्रतिलिख (&req->ifa, &ip->ifa, परिमाण (संरचना ifaddrmsg));
 
-      req->ifa.ifa_index = ifindex;
+      req->ifa.ifa_सूचकांक = ifindex;
 
-      for (rta = (struct rtattr *) ip->rta; RTA_OK (rta, rta_len); rta = RTA_NEXT (rta, rta_len))
+      प्रति (rta = (संरचना rtattr *) ip->rta; RTA_OK (rta, rta_len); rta = RTA_अग्र (rta, rta_len))
         {
-          ret = append_rtattr (&(req->nlh), buffer_size, rta->rta_type, RTA_DATA (rta), RTA_PAYLOAD (rta), err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = append_rtattr (&(req->nlh), बफर_आकार, rta->rta_type, RTA_दत्त (rta), RTA_PAYLOAD (rta), err);
+          यदि (UNLIKELY (ret < 0))
+            प्रत्यागम ret;
         }
 
       ret = send_request (sock, req, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      यदि (UNLIKELY (ret < 0))
+        प्रत्यागम ret;
 
-      ret = wait_for_ack (sock, seq, buffer, buffer_size, err);
-      if (ret < 0)
-        return ret;
+      ret = wait_for_ack (sock, seq, बफर, बफर_आकार, err);
+      यदि (ret < 0)
+        प्रत्यागम ret;
     }
 
-  return 0;
+  प्रत्यागम 0;
 }
 
-static int
-request_enable_interface_and_wait (int sock, char *buffer, size_t buffer_size, int index, libcrun_error_t *err)
+स्थिर पूर्णाङ्क
+request_enable_interface_and_wait (पूर्णाङ्क sock, वर्ण *बफर, size_t बफर_आकार, पूर्णाङ्क सूचकांक, libcrun_error_t *err)
 {
-  struct nl_req *req = (struct nl_req *) buffer;
+  संरचना nl_req *req = (संरचना nl_req *) बफर;
   uint32_t seq;
-  int ret;
+  पूर्णाङ्क ret;
 
-  seq = reset_request (req, RTM_NEWLINK, NLM_F_REQUEST | NLM_F_ACK, sizeof (struct ifinfomsg));
+  seq = reset_request (req, RTM_NEWLINK, NLM_F_REQUEST | NLM_F_ACK, परिमाण (संरचना ifinfomsg));
 
   req->ifi.ifi_family = AF_UNSPEC;
-  req->ifi.ifi_index = index;
+  req->ifi.ifi_सूचकांक = सूचकांक;
 
-  req->ifi.ifi_flags = IFF_UP;
-  req->ifi.ifi_change = IFF_UP;
+  req->ifi.ifi_flags = IFF_ऊर्ध्वम्;
+  req->ifi.ifi_change = IFF_ऊर्ध्वम्;
 
   ret = send_request (sock, req, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम ret;
 
-  return wait_for_ack (sock, seq, buffer, buffer_size, err);
+  प्रत्यागम wait_for_ack (sock, seq, बफर, बफर_आकार, err);
 }
 
-static int
-setup_network_device_in_ns_helper (char *buffer, size_t buffer_size, int netns_fd, const char *newifname,
-                                   struct ip_addr *ips, libcrun_error_t *err)
+स्थिर पूर्णाङ्क
+सज्जता_जालम्_device_अन्तर्_ns_helper (वर्ण *बफर, size_t बफर_आकार, पूर्णाङ्क netns_fd, ध्रुव वर्ण *newifname,
+                                   संरचना ip_addr *ips, libcrun_error_t *err)
 {
-  cleanup_close int sock_in_ns = -1;
-  int new_ifindex;
-  int ret;
+  cleanup_close पूर्णाङ्क sock_अन्तर्_ns = -1;
+  पूर्णाङ्क new_ifindex;
+  पूर्णाङ्क ret;
 
   ret = setns (netns_fd, CLONE_NEWNET);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "change network namespace");
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम crun_make_error (err, errno, "change network namespace");
 
-  sock_in_ns = open_netlink_fd (err);
-  if (sock_in_ns < 0)
-    return sock_in_ns;
+  sock_अन्तर्_ns = open_netlink_fd (err);
+  यदि (sock_अन्तर्_ns < 0)
+    प्रत्यागम sock_अन्तर्_ns;
 
   /* we could ask for a specific index with IFLA_NEW_IFINDEX, and apparently the kernel tries anyway to
      reuse the existing one, but asking for a specific index could cause conflicts if the
      target network namespace already exists, so avoid doing it and lookup the device again.  */
-  new_ifindex = name_to_index (sock_in_ns, newifname, buffer, buffer_size, err);
-  if (UNLIKELY (new_ifindex < 0))
-    return new_ifindex;
+  new_ifindex = name_गन्तव्यम्_सूचकांक (sock_अन्तर्_ns, newifname, बफर, बफर_आकार, err);
+  यदि (UNLIKELY (new_ifindex < 0))
+    प्रत्यागम new_ifindex;
 
-  ret = configure_ip_addresses (sock_in_ns, new_ifindex, buffer, buffer_size, ips, err);
-  if (ret < 0)
-    return ret;
+  ret = configure_ip_स्थानाङ्काः (sock_अन्तर्_ns, new_ifindex, बफर, बफर_आकार, ips, err);
+  यदि (ret < 0)
+    प्रत्यागम ret;
 
-  return request_enable_interface_and_wait (sock_in_ns, buffer, buffer_size, new_ifindex, err);
+  प्रत्यागम request_enable_interface_and_wait (sock_अन्तर्_ns, बफर, बफर_आकार, new_ifindex, err);
 }
 
-static int
-do_move_link_to_ns_and_wait (int sock, char *buffer, size_t buffer_size, int ifindex, int netns_fd, const char *newifname, libcrun_error_t *err)
+स्थिर पूर्णाङ्क
+do_move_link_गन्तव्यम्_ns_and_wait (पूर्णाङ्क sock, वर्ण *बफर, size_t बफर_आकार, पूर्णाङ्क ifindex, पूर्णाङ्क netns_fd, ध्रुव वर्ण *newifname, libcrun_error_t *err)
 {
-  struct nl_req *req = (struct nl_req *) buffer;
+  संरचना nl_req *req = (संरचना nl_req *) बफर;
   uint32_t seq;
-  int ret;
+  पूर्णाङ्क ret;
 
-  seq = reset_request (req, RTM_NEWLINK, NLM_F_REQUEST | NLM_F_ACK, sizeof (struct ifinfomsg));
+  seq = reset_request (req, RTM_NEWLINK, NLM_F_REQUEST | NLM_F_ACK, परिमाण (संरचना ifinfomsg));
   req->ifi.ifi_family = AF_UNSPEC;
-  req->ifi.ifi_index = ifindex;
+  req->ifi.ifi_सूचकांक = ifindex;
 
-  ret = append_rtattr (&req->nlh, buffer_size, IFLA_NET_NS_FD, &netns_fd, sizeof (netns_fd), err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_rtattr (&req->nlh, बफर_आकार, IFLA_NET_NS_FD, &netns_fd, परिमाण (netns_fd), err);
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम ret;
 
-  ret = append_rtattr (&req->nlh, buffer_size, IFLA_IFNAME, newifname, strlen (newifname) + 1, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_rtattr (&req->nlh, बफर_आकार, IFLA_IFNAME, newifname, वाक्यदैर्घ्यम् (newifname) + 1, err);
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम ret;
 
   ret = send_request (sock, req, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम ret;
 
-  return wait_for_ack (sock, seq, buffer, buffer_size, err);
+  प्रत्यागम wait_for_ack (sock, seq, बफर, बफर_आकार, err);
 }
 
 /* Run the setup in the target namespace.  It is done in a separate function
    so that no variable of the caller is live across the vfork.  */
-static int
-setup_network_device_in_ns (char *buffer, size_t buffer_size, int netns_fd, const char *newifname,
-                            struct ip_addr *ips, libcrun_error_t *err)
+स्थिर पूर्णाङ्क
+सज्जता_जालम्_device_अन्तर्_ns (वर्ण *बफर, size_t बफर_आकार, पूर्णाङ्क netns_fd, ध्रुव वर्ण *newifname,
+                            संरचना ip_addr *ips, libcrun_error_t *err)
 {
-  int wait_status;
+  पूर्णाङ्क wait_स्थितिः;
   pid_t pid;
-  int ret;
+  पूर्णाङ्क ret;
 
   /* must be vfork to propagate the error from the child proc.  */
   pid = vfork ();
-  if (UNLIKELY (pid < 0))
-    return crun_make_error (err, errno, "vfork");
+  यदि (UNLIKELY (pid < 0))
+    प्रत्यागम crun_make_error (err, errno, "vfork");
 
-  if (pid == 0)
+  यदि (pid == 0)
     {
-      ret = setup_network_device_in_ns_helper (buffer, buffer_size, netns_fd, newifname, ips, err);
-      if (UNLIKELY (ret < 0))
+      ret = सज्जता_जालम्_device_अन्तर्_ns_helper (बफर, बफर_आकार, netns_fd, newifname, ips, err);
+      यदि (UNLIKELY (ret < 0))
         {
           /* Do not release the error as it will be used by the parent proc.  */
           _safe_exit (-ret);
@@ -458,46 +458,46 @@ setup_network_device_in_ns (char *buffer, size_t buffer_size, int netns_fd, cons
       _safe_exit (0);
     }
 
-  ret = waitpid_ignore_stopped (pid, &wait_status, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "waitpid for exec child pid");
+  ret = waitpid_ignore_stopped (pid, &wait_स्थितिः, 0);
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम crun_make_error (err, errno, "waitpid for exec child pid");
 
-  if (wait_status != 0)
+  यदि (wait_स्थितिः != 0)
     {
       /* Reuse the error from the child proc.
          In other words, do not call crun_make_error() here. */
-      return -get_process_exit_status (wait_status);
+      प्रत्यागम -get_process_exit_स्थितिः (wait_स्थितिः);
     }
 
-  return 0;
+  प्रत्यागम 0;
 }
 
-int
-move_network_device (const char *ifname, const char *newifname, int netns_fd, libcrun_error_t *err)
+पूर्णाङ्क
+move_जालम्_device (ध्रुव वर्ण *ifname, ध्रुव वर्ण *newifname, पूर्णाङ्क netns_fd, libcrun_error_t *err)
 {
-  const size_t buffer_size = 8192;
-  cleanup_ip_addrs struct ip_addr *ips = NULL;
-  cleanup_free char *buffer = xmalloc (buffer_size);
-  cleanup_close int sock = -1;
-  int ifindex;
-  int ret;
+  ध्रुव size_t बफर_आकार = 8192;
+  cleanup_ip_addrs संरचना ip_addr *ips = रिक्त;
+  cleanup_free वर्ण *बफर = xmalloc (बफर_आकार);
+  cleanup_close पूर्णाङ्क sock = -1;
+  पूर्णाङ्क ifindex;
+  पूर्णाङ्क ret;
 
   sock = open_netlink_fd (err);
-  if (sock < 0)
-    return sock;
+  यदि (sock < 0)
+    प्रत्यागम sock;
 
-  ifindex = name_to_index (sock, ifname, buffer, buffer_size, err);
-  if (UNLIKELY (ifindex < 0))
-    return ifindex;
+  ifindex = name_गन्तव्यम्_सूचकांक (sock, ifname, बफर, बफर_आकार, err);
+  यदि (UNLIKELY (ifindex < 0))
+    प्रत्यागम ifindex;
 
-  ret = get_ip_addresses (sock, ifindex, &ips, buffer, buffer_size, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_ip_स्थानाङ्काः (sock, ifindex, &ips, बफर, बफर_आकार, err);
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम ret;
 
   /* Move the device to the target network namespace.  */
-  ret = do_move_link_to_ns_and_wait (sock, buffer, buffer_size, ifindex, netns_fd, newifname, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = do_move_link_गन्तव्यम्_ns_and_wait (sock, बफर, बफर_आकार, ifindex, netns_fd, newifname, err);
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम ret;
 
-  return setup_network_device_in_ns (buffer, buffer_size, netns_fd, newifname, ips, err);
+  प्रत्यागम सज्जता_जालम्_device_अन्तर्_ns (बफर, बफर_आकार, netns_fd, newifname, ips, err);
 }

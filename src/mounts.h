@@ -15,11 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef MOUNTS_H
-#define MOUNTS_H
+#यदि_अपरिभाषितम् MOUNTS_H
+#परिभाषय MOUNTS_H
 
-#include "crun.h"
+#अन्तर्भाव "crun.h"
 
-int crun_command_mounts (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err);
+पूर्णाङ्क crun_command_mounts (संरचना crun_global_arguments *global_तर्काः, पूर्णाङ्क argc, वर्ण **argv, libcrun_error_t *err);
 
-#endif
+#यदि_अन्तः

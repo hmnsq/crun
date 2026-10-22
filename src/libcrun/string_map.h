@@ -16,33 +16,33 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STRING_MAP_H
-#define STRING_MAP_H
+#यदि_अपरिभाषितम् STRING_MAP_H
+#परिभाषय STRING_MAP_H
 
-#ifndef _GNU_SOURCE
+#यदि_अपरिभाषितम् _GNU_SOURCE
 #  define _GNU_SOURCE
-#endif
+#यदि_अन्तः
 
-#include <config.h>
+#अन्तर्भाव <config.h>
 
-#ifdef HAVE_HSEARCH_R
+#यदि_परिभाषितम् HAVE_HSEARCH_R
 #  include <search.h>
-#endif
+#यदि_अन्तः
 
-#include <ocispec/runtime_spec_schema_config_schema.h>
-#include "error.h"
+#अन्तर्भाव <ocispec/runtime_spec_schema_config_schema.h>
+#अन्तर्भाव "error.h"
 
-struct string_map_s;
-typedef struct string_map_s string_map;
+संरचना string_map_s;
+प्रकारनिर्देश संरचना string_map_s string_map;
 
-const char *find_string_map_value (string_map *map, const char *name);
+ध्रुव वर्ण *find_string_map_मानम् (string_map *map, ध्रुव वर्ण *name);
 
 string_map *make_string_map_from_json (json_map_string_string *jmap);
 
-void free_string_map (string_map *map);
+शून्य free_string_map (string_map *map);
 
-int string_map_get_at (string_map *map, size_t index, const char **name, const char **value);
+पूर्णाङ्क string_map_get_at (string_map *map, size_t सूचकांक, ध्रुव वर्ण **name, ध्रुव वर्ण **मानम्);
 
-size_t string_map_size (string_map *map);
+size_t string_map_आकार (string_map *map);
 
-#endif
+#यदि_अन्तः

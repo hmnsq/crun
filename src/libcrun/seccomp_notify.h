@@ -15,27 +15,27 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SECCOMP_NOTIFY_H
-#define SECCOMP_NOTIFY_H
+#यदि_अपरिभाषितम् SECCOMP_NOTIFY_H
+#परिभाषय SECCOMP_NOTIFY_H
 
-#include <config.h>
-#include "error.h"
+#अन्तर्भाव <config.h>
+#अन्तर्भाव "error.h"
 
-#if ! (HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES)
+#यदि ! (HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES)
 #  define SECCOMP_NOTIFY_SKIP_TYPEDEF
-#endif
-#include "seccomp_notify_plugin.h"
+#यदि_अन्तः
+#अन्तर्भाव "seccomp_notify_plugin.h"
 
-struct seccomp_notify_context_s;
+संरचना seccomp_notify_context_s;
 
-LIBCRUN_PUBLIC int libcrun_load_seccomp_notify_plugins (struct seccomp_notify_context_s **out, const char *plugins,
-                                                        struct libcrun_load_seccomp_notify_conf_s *conf,
+LIBCRUN_लौकिकम् पूर्णाङ्क libcrun_आरोपय_seccomp_notify_plugins (संरचना seccomp_notify_context_s **बहिर्गमनम्, ध्रुव वर्ण *plugins,
+                                                        संरचना libcrun_आरोपय_seccomp_notify_conf_s *conf,
                                                         libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, int seccomp_fd,
+LIBCRUN_लौकिकम् पूर्णाङ्क libcrun_seccomp_notify_plugins (संरचना seccomp_notify_context_s *ctx, पूर्णाङ्क seccomp_fd,
                                                    libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_free_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, libcrun_error_t *err);
+LIBCRUN_लौकिकम् पूर्णाङ्क libcrun_free_seccomp_notify_plugins (संरचना seccomp_notify_context_s *ctx, libcrun_error_t *err);
 
-#define cleanup_seccomp_notify_context __attribute__ ((cleanup (cleanup_seccomp_notify_pluginsp)))
-void cleanup_seccomp_notify_pluginsp (void *p);
+#परिभाषय cleanup_seccomp_notify_context __attribute__ ((cleanup (cleanup_seccomp_notify_pluginsp)))
+शून्य cleanup_seccomp_notify_pluginsp (शून्य *p);
 
-#endif
+#यदि_अन्तः

@@ -16,21 +16,21 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <signal.h>
-#include <regex.h>
+#अन्तर्भाव <config.h>
+#अन्तर्भाव <stdio.h>
+#अन्तर्भाव <stdlib.h>
+#अन्तर्भाव <argp.h>
+#अन्तर्भाव <string.h>
+#अन्तर्भाव <unistd.h>
+#अन्तर्भाव <errno.h>
+#अन्तर्भाव <signal.h>
+#अन्तर्भाव <regex.h>
 
-#include "crun.h"
+#अन्तर्भाव "crun.h"
 
-static char doc[] = "OCI runtime";
+स्थिर वर्ण doc[] = "OCI runtime";
 
-enum
+गणना
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -39,99 +39,99 @@ enum
   OPTION_PRESERVE_FDS
 };
 
-struct kill_options_s
+संरचना kill_options_s
 {
   bool all;
   bool regex;
 };
 
-static struct kill_options_s kill_options;
+स्थिर संरचना kill_options_s kill_options;
 
-static struct argp_option options[]
+स्थिर संरचना argp_option options[]
     = { { "all", 'a', 0, 0, "kill all the processes", 0 },
         { "regex", 'r', 0, 0, "the specified CONTAINER is a regular expression (kill multiple containers)", 0 },
         {
             0,
         } };
 
-static char args_doc[] = "kill CONTAINER [SIGNAL]";
+स्थिर वर्ण तर्काः_doc[] = "kill CONTAINER [SIGNAL]";
 
-static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+स्थिर error_t
+parse_opt (पूर्णाङ्क कुञ्चिका, वर्ण *arg arg_अप्रयुक्तम्, संरचना argp_state *state arg_अप्रयुक्तम्)
 {
-  switch (key)
+  विकल्प (कुञ्चिका)
     {
-    case 'a':
+    पक्ष 'a':
       kill_options.all = true;
-      break;
+      भङ्ग;
 
-    case 'r':
+    पक्ष 'r':
       kill_options.regex = true;
-      break;
+      भङ्ग;
 
-    case ARGP_KEY_NO_ARGS:
+    पक्ष ARGP_कुञ्चिका_NO_तर्काः:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    स्वभाव:
+      प्रत्यागम ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  प्रत्यागम 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+स्थिर संरचना argp सततम्_argp = { options, parse_opt, तर्काः_doc, doc, रिक्त, रिक्त, रिक्त };
 
-int
-crun_command_kill (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+पूर्णाङ्क
+crun_command_kill (संरचना crun_global_arguments *global_तर्काः, पूर्णाङ्क argc, वर्ण **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
-  const char *signal;
-  cleanup_context libcrun_context_t *crun_context = NULL;
+  पूर्णाङ्क first_arg = 0, ret;
+  ध्रुव वर्ण *सङ्केत;
+  cleanup_context libcrun_context_t *crun_context = रिक्त;
 
-  argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &kill_options);
-  crun_assert_n_args (argc - first_arg, 1, 2);
+  argp_parse (&सततम्_argp, argc, argv, ARGP_अन्तर्_क्रमः, &first_arg, &kill_options);
+  crun_assert_n_तर्काः (argc - first_arg, 1, 2);
 
-  crun_context = new_libcrun_context (global_args);
+  crun_context = new_libcrun_context (global_तर्काः);
 
-  ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = init_libcrun_context (crun_context, argv[first_arg], global_तर्काः, err);
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम ret;
 
-  signal = "SIGTERM";
-  if (argc - first_arg > 1)
-    signal = argv[first_arg + 1];
+  सङ्केत = "SIGTERM";
+  यदि (argc - first_arg > 1)
+    सङ्केत = argv[first_arg + 1];
 
-  if (kill_options.regex)
+  यदि (kill_options.regex)
     {
       regex_t re;
       libcrun_container_list_t *list;
       libcrun_container_iter_t *it;
-      const char *name;
+      ध्रुव वर्ण *name;
 
       ret = regcomp (&re, argv[first_arg], REG_EXTENDED | REG_NOSUB);
-      if (UNLIKELY (ret < 0))
+      यदि (UNLIKELY (ret < 0))
         libcrun_fail_with_error (0, "invalid regular expression %s", argv[first_arg]);
 
       ret = libcrun_container_list (crun_context, &list, err);
-      if (UNLIKELY (ret < 0))
+      यदि (UNLIKELY (ret < 0))
         libcrun_fail_with_error (0, "cannot read containers list");
 
-      for (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
-        if (regexec (&re, name, 0, NULL, 0) == 0)
+      प्रति (it = libcrun_container_list_iter (list); libcrun_container_iter_अग्र (it, &name);)
+        यदि (regexec (&re, name, 0, रिक्त, 0) == 0)
           {
-            ret = libcrun_container_kill (crun_context, name, signal, err);
-            if (UNLIKELY (ret < 0))
+            ret = libcrun_container_kill (crun_context, name, सङ्केत, err);
+            यदि (UNLIKELY (ret < 0))
               libcrun_error_report_and_release (err);
           }
 
       libcrun_container_iter_free (it);
       libcrun_container_list_free (list);
       regfree (&re);
-      return 0;
+      प्रत्यागम 0;
     }
 
-  if (kill_options.all)
-    return libcrun_container_killall (crun_context, argv[first_arg], signal, err);
+  यदि (kill_options.all)
+    प्रत्यागम libcrun_container_killall (crun_context, argv[first_arg], सङ्केत, err);
 
-  return libcrun_container_kill (crun_context, argv[first_arg], signal, err);
+  प्रत्यागम libcrun_container_kill (crun_context, argv[first_arg], सङ्केत, err);
 }
