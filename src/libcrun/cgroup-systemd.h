@@ -18,15 +18,15 @@
 #ifndef CGROUP_SYSTEMD_H
 #define CGROUP_SYSTEMD_H
 
-#include "container.h"
-#include <unistd.h>
+#अन्तर्भाव "container.h"
+#अन्तर्भाव <unistd.h>
 
 #ifdef HAVE_SYSTEMD
-extern int parse_sd_array (char *s, char **out, char **next, libcrun_error_t *err);
+बाह्य पूर्णाङ्क parse_sd_array (वर्ण *s, वर्ण **out, वर्ण **next, libcrun_error_t *err);
 
-extern char *get_cgroup_scope_path (const char *cgroup_path, const char *scope);
+बाह्य वर्ण *get_cgroup_scope_path (ध्रुव वर्ण *cgroup_path, ध्रुव वर्ण *scope);
 #endif
 
-extern struct libcrun_cgroup_manager cgroup_manager_systemd;
+बाह्य संरचना libcrun_cgroup_manager cgroup_manager_systemd;
 
 #endif
