@@ -34,57 +34,57 @@
 #  define TIOCGPTPEER _IO ('T', 0x41)
 #endif
 
-struct terminal_status_s
+sa_nracanaa terminal_status_s
 {
-  int fd;
-  struct termios termios;
+  puur_naa_nka fd;
+  sa_nracanaa termios termios;
 };
 
-int
-libcrun_new_terminal (char **pty, libcrun_error_t *err)
+puur_naa_nka
+libcrun_new_terminal (var_na **pty, libcrun_error_t *err)
 {
-  char buf[64];
-  int ret;
-  cleanup_close int fd = open ("/dev/ptmx", O_RDWR | O_NOCTTY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `/dev/ptmx`");
+  var_na buf[64];
+  puur_naa_nka ret;
+  cleanup_close puur_naa_nka fd = open ("/dev/ptmx", O_RDWR | O_NOCTTY | O_CLOEXEC);
+  ᬬᬾᬦ᭄ (UNLIKELY (fd < 0))
+    ᬯᬮᬶ crun_make_error (err, errno, "open `/dev/ptmx`");
 
-  ret = ptsname_r (fd, buf, sizeof (buf));
-  if (UNLIKELY (ret != 0))
-    return crun_make_error (err, errno, "ptsname");
+  ret = ptsname_r (fd, buf, parimaa_na (buf));
+  ᬬᬾᬦ᭄ (UNLIKELY (ret != 0))
+    ᬯᬮᬶ crun_make_error (err, errno, "ptsname");
 
   ret = unlockpt (fd);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "unlockpt");
+  ᬬᬾᬦ᭄ (UNLIKELY (ret < 0))
+    ᬯᬮᬶ crun_make_error (err, errno, "unlockpt");
 
   *pty = xstrdup (buf);
 
   ret = fd;
   fd = -1;
 
-  return ret;
+  ᬯᬮᬶ ret;
 }
 
-int
-libcrun_set_raw (int fd, void **current_status, libcrun_error_t *err)
+puur_naa_nka
+libcrun_set_raw (puur_naa_nka fd, void **current_status, libcrun_error_t *err)
 {
-  int ret;
-  struct termios termios;
+  puur_naa_nka ret;
+  sa_nracanaa termios termios;
 
   ret = tcgetattr (fd, &termios);
-  if (UNLIKELY (ret < 0))
+  ᬬᬾᬦ᭄ (UNLIKELY (ret < 0))
     {
       /* Nothing to do if FD is not a terminal.  */
-      if (errno == ENOTTY)
-        return 0;
-      return crun_make_error (err, errno, "tcgetattr");
+      ᬬᬾᬦ᭄ (errno == ENOTTY)
+        ᬯᬮᬶ 0;
+      ᬯᬮᬶ crun_make_error (err, errno, "tcgetattr");
     }
 
-  if (current_status)
+  ᬬᬾᬦ᭄ (current_status)
     {
-      struct terminal_status_s *s = xmalloc (sizeof (*s));
+      sa_nracanaa terminal_status_s *s = xmalloc (parimaa_na (*s));
       s->fd = fd;
-      memcpy (&(s->termios), &termios, sizeof (termios));
+      memcpy (&(s->termios), &termios, parimaa_na (termios));
       *current_status = s;
     }
 
@@ -92,94 +92,94 @@ libcrun_set_raw (int fd, void **current_status, libcrun_error_t *err)
   termios.c_iflag = 0;
 
   ret = tcsetattr (fd, TCSANOW, &termios);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "tcsetattr");
+  ᬬᬾᬦ᭄ (UNLIKELY (ret < 0))
+    ᬯᬮᬶ crun_make_error (err, errno, "tcsetattr");
 
-  return 0;
+  ᬯᬮᬶ 0;
 }
 
 /* Do not translate "\n" to "\r\n" on output, so that what the container
    writes to the terminal reaches our stdout unchanged.  */
-int
-libcrun_clear_onlcr (int fd, libcrun_error_t *err)
+puur_naa_nka
+libcrun_clear_onlcr (puur_naa_nka fd, libcrun_error_t *err)
 {
-  int ret;
-  struct termios termios;
+  puur_naa_nka ret;
+  sa_nracanaa termios termios;
 
   ret = tcgetattr (fd, &termios);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "tcgetattr");
+  ᬬᬾᬦ᭄ (UNLIKELY (ret < 0))
+    ᬯᬮᬶ crun_make_error (err, errno, "tcgetattr");
 
   termios.c_oflag &= ~ONLCR;
 
   ret = tcsetattr (fd, TCSANOW, &termios);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "tcsetattr");
+  ᬬᬾᬦ᭄ (UNLIKELY (ret < 0))
+    ᬯᬮᬶ crun_make_error (err, errno, "tcsetattr");
 
-  return 0;
+  ᬯᬮᬶ 0;
 }
 
-int
-libcrun_set_stdio (int ptmx_fd, char *pty, libcrun_error_t *err)
+puur_naa_nka
+libcrun_set_stdio (puur_naa_nka ptmx_fd, var_na *pty, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
-  int ret, i;
+  cleanup_close puur_naa_nka fd = -1;
+  puur_naa_nka ret, i;
 
   /* Open the slave directly from the master.  The path is resolved in the
      container mount namespace, and could point anywhere.  */
   fd = ioctl (ptmx_fd, TIOCGPTPEER, O_RDWR | O_CLOEXEC);
-  if (fd < 0 && (errno == EINVAL || errno == ENOTTY))
+  ᬬᬾᬦ᭄ (fd < 0 && (errno == EINVAL || errno == ENOTTY))
     {
       /* TIOCGPTPEER requires Linux 4.13.  */
       fd = open (pty, O_RDWR | O_CLOEXEC);
     }
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s`", pty);
+  ᬬᬾᬦ᭄ (UNLIKELY (fd < 0))
+    ᬯᬮᬶ crun_make_error (err, errno, "open `%s`", pty);
 
   for (i = 0; i < 3; i++)
     {
       ret = dup3 (fd, i, 0);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "dup terminal");
+      ᬬᬾᬦ᭄ (UNLIKELY (ret < 0))
+        ᬯᬮᬶ crun_make_error (err, errno, "dup terminal");
     }
 
   ret = ioctl (0, TIOCSCTTY, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "ioctl TIOCSCTTY");
+  ᬬᬾᬦ᭄ (UNLIKELY (ret < 0))
+    ᬯᬮᬶ crun_make_error (err, errno, "ioctl TIOCSCTTY");
 
-  return 0;
+  ᬯᬮᬶ 0;
 }
 
 void
 cleanup_terminalp (void *p)
 {
-  struct terminal_status_s **s = (struct terminal_status_s **) p;
-  if (*s)
+  sa_nracanaa terminal_status_s **s = (sa_nracanaa terminal_status_s **) p;
+  ᬬᬾᬦ᭄ (*s)
     {
       tcsetattr ((*s)->fd, TCSANOW, &(*s)->termios);
       free (*s);
     }
 }
 
-int
-libcrun_terminal_setup_size (int fd, unsigned short rows, unsigned short cols, libcrun_error_t *err)
+puur_naa_nka
+libcrun_terminal_setup_size (puur_naa_nka fd, unsigned short rows, unsigned short cols, libcrun_error_t *err)
 {
-  struct winsize ws = { .ws_row = rows, .ws_col = cols };
-  int ret;
+  sa_nracanaa winsize ws = { .ws_row = rows, .ws_col = cols };
+  puur_naa_nka ret;
 
-  if (ws.ws_row == 0 || ws.ws_col == 0)
+  ᬬᬾᬦ᭄ (ws.ws_row == 0 || ws.ws_col == 0)
     {
       ret = ioctl (0, TIOCGWINSZ, &ws);
-      if (UNLIKELY (ret < 0))
+      ᬬᬾᬦ᭄ (UNLIKELY (ret < 0))
         {
-          if (errno == ENOTTY)
-            return 0;
-          return crun_make_error (err, errno, "ioctl TIOCGWINSZ");
+          ᬬᬾᬦ᭄ (errno == ENOTTY)
+            ᬯᬮᬶ 0;
+          ᬯᬮᬶ crun_make_error (err, errno, "ioctl TIOCGWINSZ");
         }
     }
 
   ret = ioctl (fd, TIOCSWINSZ, &ws);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "ioctl TIOCSWINSZ");
-  return 0;
+  ᬬᬾᬦ᭄ (UNLIKELY (ret < 0))
+    ᬯᬮᬶ crun_make_error (err, errno, "ioctl TIOCSWINSZ");
+  ᬯᬮᬶ 0;
 }

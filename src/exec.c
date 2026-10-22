@@ -27,29 +27,29 @@
 
 #include "crun.h"
 
-static char doc[] = "OCI runtime";
+static var_na doc[] = "OCI runtime";
 
-struct exec_options_s
+sa_nracanaa exec_options_s
 {
   bool tty;
   bool detach;
   bool no_new_privs;
-  int preserve_fds;
-  const char *process;
-  const char *console_socket;
-  const char *pid_file;
-  char *process_label;
-  char *apparmor;
-  char *cwd;
-  char *user;
-  char **env;
-  char **cap;
+  puur_naa_nka preserve_fds;
+  const var_na *process;
+  const var_na *console_socket;
+  const var_na *pid_file;
+  var_na *process_label;
+  var_na *apparmor;
+  var_na *cwd;
+  var_na *user;
+  var_na **env;
+  var_na **cap;
   size_t cap_size;
   size_t env_size;
-  char *cgroup;
+  var_na *cgroup;
 };
 
-enum
+ga_nanaa
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -61,9 +61,9 @@ enum
   OPTION_CGROUP,
 };
 
-static struct exec_options_s exec_options;
+static sa_nracanaa exec_options_s exec_options;
 
-static struct argp_option options[]
+static sa_nracanaa argp_option options[]
     = { { "console-socket", OPTION_CONSOLE_SOCKET, "SOCKET", 0,
           "path to a socket that will receive the ptmx end of the tty", 0 },
         { "tty", 't', "TTY", OPTION_ARG_OPTIONAL, "allocate a pseudo-TTY", 0 },
@@ -83,119 +83,119 @@ static struct argp_option options[]
             0,
         } };
 
-static char args_doc[] = "exec CONTAINER cmd";
+static var_na args_doc[] = "exec CONTAINER cmd";
 
 static void
-append_to_string_array (char ***arr, size_t *size, const char *arg)
+append_to_string_array (var_na ***arr, size_t *size, const var_na *arg)
 {
-  *arr = xrealloc (*arr, (*size + 2) * sizeof (**arr));
+  *arr = xrealloc (*arr, (*size + 2) * parimaa_na (**arr));
   (*arr)[*size + 1] = NULL;
   (*arr)[*size] = xstrdup (arg);
   (*size)++;
 }
 
 static void
-append_env (const char *arg)
+append_env (const var_na *arg)
 {
   append_to_string_array (&exec_options.env, &exec_options.env_size, arg);
 }
 
 static void
-append_cap (const char *arg)
+append_cap (const var_na *arg)
 {
   append_to_string_array (&exec_options.cap, &exec_options.cap_size, arg);
 }
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (puur_naa_nka key, var_na *arg, sa_nracanaa argp_state *state)
 {
   switch (key)
     {
-    case OPTION_CONSOLE_SOCKET:
+    pak_sa OPTION_CONSOLE_SOCKET:
       exec_options.console_socket = arg;
-      break;
+      bha_nga;
 
-    case OPTION_PID_FILE:
+    pak_sa OPTION_PID_FILE:
       exec_options.pid_file = arg;
-      break;
+      bha_nga;
 
-    case OPTION_NO_NEW_PRIVS:
+    pak_sa OPTION_NO_NEW_PRIVS:
       exec_options.no_new_privs = true;
-      break;
+      bha_nga;
 
-    case OPTION_PROCESS_LABEL:
+    pak_sa OPTION_PROCESS_LABEL:
       exec_options.process_label = argp_mandatory_argument (arg, state);
-      break;
+      bha_nga;
 
-    case OPTION_APPARMOR:
+    pak_sa OPTION_APPARMOR:
       exec_options.apparmor = argp_mandatory_argument (arg, state);
-      break;
+      bha_nga;
 
-    case OPTION_PRESERVE_FDS:
+    pak_sa OPTION_PRESERVE_FDS:
       exec_options.preserve_fds = parse_id_or_fail (argp_mandatory_argument (arg, state), NULL, "preserve-fds");
-      break;
+      bha_nga;
 
-    case OPTION_CGROUP:
+    pak_sa OPTION_CGROUP:
       exec_options.cgroup = argp_mandatory_argument (arg, state);
-      break;
+      bha_nga;
 
-    case 'd':
+    pak_sa 'd':
       exec_options.detach = true;
-      break;
+      bha_nga;
 
-    case 'p':
+    pak_sa 'p':
       exec_options.process = arg;
-      break;
+      bha_nga;
 
-    case 't':
+    pak_sa 't':
       exec_options.tty = arg == NULL || (strcmp (arg, "false") != 0 && strcmp (arg, "no") != 0);
-      break;
+      bha_nga;
 
-    case 'u':
+    pak_sa 'u':
       exec_options.user = arg;
-      break;
+      bha_nga;
 
-    case 'e':
+    pak_sa 'e':
       append_env (arg);
-      break;
+      bha_nga;
 
-    case 'c':
+    pak_sa 'c':
       append_cap (arg);
-      break;
+      bha_nga;
 
-    case OPTION_CWD:
+    pak_sa OPTION_CWD:
       exec_options.cwd = xstrdup (arg);
-      break;
+      bha_nga;
 
-    case ARGP_KEY_NO_ARGS:
+    pak_sa ARGP_KEY_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
     default:
-      return ARGP_ERR_UNKNOWN;
+      ᬯᬮᬶ ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  ᬯᬮᬶ 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+static sa_nracanaa argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
 /* Minimal growable string buffer used to assemble the OCI Process JSON.  The
    binary is a pure consumer of the public API, so it builds the process as a
    JSON string rather than reaching for the internal ocispec types.  */
-struct strbuf
+sa_nracanaa strbuf
 {
-  char *buf;
+  var_na *buf;
   size_t len;
   size_t cap;
 };
 
 static void
-sb_ensure (struct strbuf *sb, size_t extra)
+sb_ensure (sa_nracanaa strbuf *sb, size_t extra)
 {
-  if (sb->len + extra + 1 > sb->cap)
+  ᬬᬾᬦ᭄ (sb->len + extra + 1 > sb->cap)
     {
       size_t ncap = sb->cap ? sb->cap : 256;
-      while (ncap < sb->len + extra + 1)
+      ᬲᭂᬤᭂᬮ (ncap < sb->len + extra + 1)
         ncap *= 2;
       sb->buf = xrealloc (sb->buf, ncap);
       sb->cap = ncap;
@@ -203,7 +203,7 @@ sb_ensure (struct strbuf *sb, size_t extra)
 }
 
 static void
-sb_puts (struct strbuf *sb, const char *s)
+sb_puts (sa_nracanaa strbuf *sb, const var_na *s)
 {
   size_t l = strlen (s);
   sb_ensure (sb, l);
@@ -213,7 +213,7 @@ sb_puts (struct strbuf *sb, const char *s)
 }
 
 static void
-sb_putc (struct strbuf *sb, char c)
+sb_putc (sa_nracanaa strbuf *sb, var_na c)
 {
   sb_ensure (sb, 1);
   sb->buf[sb->len++] = c;
@@ -222,43 +222,43 @@ sb_putc (struct strbuf *sb, char c)
 
 /* Append S as a quoted, escaped JSON string.  */
 static void
-sb_put_json_string (struct strbuf *sb, const char *s)
+sb_put_json_string (sa_nracanaa strbuf *sb, const var_na *s)
 {
   sb_putc (sb, '"');
   for (; *s; s++)
     {
-      unsigned char c = (unsigned char) *s;
+      unsigned var_na c = (unsigned var_na) *s;
       switch (c)
         {
-        case '"':
+        pak_sa '"':
           sb_puts (sb, "\\\"");
-          break;
-        case '\\':
+          bha_nga;
+        pak_sa '\\':
           sb_puts (sb, "\\\\");
-          break;
-        case '\b':
+          bha_nga;
+        pak_sa '\b':
           sb_puts (sb, "\\b");
-          break;
-        case '\f':
+          bha_nga;
+        pak_sa '\f':
           sb_puts (sb, "\\f");
-          break;
-        case '\n':
+          bha_nga;
+        pak_sa '\n':
           sb_puts (sb, "\\n");
-          break;
-        case '\r':
+          bha_nga;
+        pak_sa '\r':
           sb_puts (sb, "\\r");
-          break;
-        case '\t':
+          bha_nga;
+        pak_sa '\t':
           sb_puts (sb, "\\t");
-          break;
+          bha_nga;
         default:
-          if (c < 0x20)
+          ᬬᬾᬦ᭄ (c < 0x20)
             {
-              char tmp[8];
-              snprintf (tmp, sizeof (tmp), "\\u%04x", c);
+              var_na tmp[8];
+              snprintf (tmp, parimaa_na (tmp), "\\u%04x", c);
               sb_puts (sb, tmp);
             }
-          else
+          ᬮᬶᬬ
             sb_putc (sb, c);
         }
     }
@@ -266,13 +266,13 @@ sb_put_json_string (struct strbuf *sb, const char *s)
 }
 
 static void
-sb_put_json_string_array (struct strbuf *sb, char **arr, size_t len)
+sb_put_json_string_array (sa_nracanaa strbuf *sb, var_na **arr, size_t len)
 {
   size_t i;
   sb_putc (sb, '[');
   for (i = 0; i < len; i++)
     {
-      if (i)
+      ᬬᬾᬦ᭄ (i)
         sb_putc (sb, ',');
       sb_put_json_string (sb, arr[i]);
     }
@@ -281,48 +281,48 @@ sb_put_json_string_array (struct strbuf *sb, char **arr, size_t len)
 
 /* Read the whole file at PATH into a NUL-terminated string.  A PATH of `-`
    reads from stdin.  */
-static char *
-read_file_to_string (const char *path, libcrun_error_t *err)
+static var_na *
+read_file_to_string (const var_na *path, libcrun_error_t *err)
 {
   cleanup_file FILE *f = NULL;
-  struct strbuf sb = { 0 };
-  char chunk[4096];
+  sa_nracanaa strbuf sb = { 0 };
+  var_na chunk[4096];
   size_t n;
 
-  if (strcmp (path, "-") == 0)
+  ᬬᬾᬦ᭄ (strcmp (path, "-") == 0)
     path = "/dev/stdin";
 
   f = fopen (path, "re");
-  if (f == NULL)
+  ᬬᬾᬦ᭄ (f == NULL)
     {
       libcrun_make_error (err, errno, "cannot open `%s`", path);
-      return NULL;
+      ᬯᬮᬶ NULL;
     }
 
-  while ((n = fread (chunk, 1, sizeof (chunk), f)) > 0)
+  ᬲᭂᬤᭂᬮ ((n = fread (chunk, 1, parimaa_na (chunk), f)) > 0)
     {
       sb_ensure (&sb, n);
       memcpy (sb.buf + sb.len, chunk, n);
       sb.len += n;
       sb.buf[sb.len] = '\0';
     }
-  if (ferror (f))
+  ᬬᬾᬦ᭄ (ferror (f))
     {
       free (sb.buf);
       libcrun_make_error (err, errno, "cannot read `%s`", path);
-      return NULL;
+      ᬯᬮᬶ NULL;
     }
 
-  if (sb.buf == NULL)
+  ᬬᬾᬦ᭄ (sb.buf == NULL)
     sb.buf = xstrdup ("");
-  return sb.buf;
+  ᬯᬮᬶ sb.buf;
 }
 
 /* Build the OCI Process JSON from the CLI options.  */
-static char *
-build_process_json (struct crun_global_arguments *global_args arg_unused, char **args, size_t args_len)
+static var_na *
+build_process_json (sa_nracanaa crun_global_arguments *global_args arg_unused, var_na **args, size_t args_len)
 {
-  struct strbuf sb = { 0 };
+  sa_nracanaa strbuf sb = { 0 };
 
   sb_putc (&sb, '{');
 
@@ -337,52 +337,52 @@ build_process_json (struct crun_global_arguments *global_args arg_unused, char *
   sb_puts (&sb, ",\"terminal\":");
   sb_puts (&sb, exec_options.tty ? "true" : "false");
 
-  if (exec_options.env_size > 0)
+  ᬬᬾᬦ᭄ (exec_options.env_size > 0)
     {
       sb_puts (&sb, ",\"env\":");
       sb_put_json_string_array (&sb, exec_options.env, exec_options.env_size);
     }
 
-  if (exec_options.user)
+  ᬬᬾᬦ᭄ (exec_options.user)
     {
-      char *endptr = NULL;
-      char *gidstr;
-      int uid, gid = 0;
-      char tmp[32];
+      var_na *endptr = NULL;
+      var_na *gidstr;
+      puur_naa_nka uid, gid = 0;
+      var_na tmp[32];
 
       uid = parse_id_or_fail (exec_options.user, &endptr, "UID");
-      if (*endptr == ':')
+      ᬬᬾᬦ᭄ (*endptr == ':')
         {
           gidstr = endptr + 1;
           gid = parse_id_or_fail (gidstr, &endptr, "GID");
-          if (*endptr != '\0')
+          ᬬᬾᬦ᭄ (*endptr != '\0')
             libcrun_fail_with_error (0, "invalid USERSPEC specified");
         }
-      else if (*endptr != '\0')
+      ᬮᬶᬬ ᬬᬾᬦ᭄ (*endptr != '\0')
         libcrun_fail_with_error (0, "invalid USERSPEC specified");
 
       sb_puts (&sb, ",\"user\":{\"uid\":");
-      snprintf (tmp, sizeof (tmp), "%d", uid);
+      snprintf (tmp, parimaa_na (tmp), "%d", uid);
       sb_puts (&sb, tmp);
       sb_puts (&sb, ",\"gid\":");
-      snprintf (tmp, sizeof (tmp), "%d", gid);
+      snprintf (tmp, parimaa_na (tmp), "%d", gid);
       sb_puts (&sb, tmp);
       sb_putc (&sb, '}');
     }
 
-  if (exec_options.process_label != NULL)
+  ᬬᬾᬦ᭄ (exec_options.process_label != NULL)
     {
       sb_puts (&sb, ",\"selinuxLabel\":");
       sb_put_json_string (&sb, exec_options.process_label);
     }
 
-  if (exec_options.apparmor != NULL)
+  ᬬᬾᬦ᭄ (exec_options.apparmor != NULL)
     {
       sb_puts (&sb, ",\"apparmorProfile\":");
       sb_put_json_string (&sb, exec_options.apparmor);
     }
 
-  if (exec_options.cap_size > 0)
+  ᬬᬾᬦ᭄ (exec_options.cap_size > 0)
     {
       sb_puts (&sb, ",\"capabilities\":{");
       sb_puts (&sb, "\"effective\":");
@@ -397,24 +397,24 @@ build_process_json (struct crun_global_arguments *global_args arg_unused, char *
     }
 
   /* noNewPrivileges remains at the config default unless explicitly requested.  */
-  if (exec_options.no_new_privs)
+  ᬬᬾᬦ᭄ (exec_options.no_new_privs)
     sb_puts (&sb, ",\"noNewPrivileges\":true");
 
   sb_putc (&sb, '}');
 
-  return sb.buf;
+  ᬯᬮᬶ sb.buf;
 }
 
-int
-crun_command_exec (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+puur_naa_nka
+crun_command_exec (sa_nracanaa crun_global_arguments *global_args, puur_naa_nka argc, var_na **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret = 0;
+  puur_naa_nka first_arg = 0, ret = 0;
   cleanup_context libcrun_context_t *crun_context = NULL;
-  cleanup_free char *process_json = NULL;
-  struct libcrun_exec_options_s exec_opts;
+  cleanup_free var_na *process_json = NULL;
+  sa_nracanaa libcrun_exec_options_s exec_opts;
 
-  memset (&exec_opts, 0, sizeof (exec_opts));
-  exec_opts.struct_size = sizeof (exec_opts);
+  memset (&exec_opts, 0, parimaa_na (exec_opts));
+  exec_opts.struct_size = parimaa_na (exec_opts);
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &exec_options);
   crun_assert_n_args (argc - first_arg, exec_options.process ? 1 : 2, -1);
@@ -423,30 +423,30 @@ crun_command_exec (struct crun_global_arguments *global_args, int argc, char **a
 
   libcrun_context_set_preserve_fds (crun_context, exec_options.preserve_fds);
 
-  if (getenv ("LISTEN_FDS"))
+  ᬬᬾᬦ᭄ (getenv ("LISTEN_FDS"))
     {
-      int listen_fds = strtoll (getenv ("LISTEN_FDS"), NULL, 10);
+      puur_naa_nka listen_fds = strtoll (getenv ("LISTEN_FDS"), NULL, 10);
       libcrun_context_set_listen_fds (crun_context, listen_fds);
       libcrun_context_set_preserve_fds (crun_context, exec_options.preserve_fds + listen_fds);
     }
 
   /* The process file may be passed as /dev/fd/N, so read it before
      closing the file descriptors.  */
-  if (exec_options.process)
+  ᬬᬾᬦ᭄ (exec_options.process)
     {
       process_json = read_file_to_string (exec_options.process, err);
-      if (process_json == NULL)
-        return -1;
+      ᬬᬾᬦ᭄ (process_json == NULL)
+        ᬯᬮᬶ -1;
       exec_opts.merge_env = false;
     }
-  else
+  ᬮᬶᬬ
     {
-      cleanup_free char **args = NULL;
+      cleanup_free var_na **args = NULL;
       size_t args_len = argc - first_arg - 1;
       size_t i;
 
       /* argv[first_arg] is the container id, the command follows it.  */
-      args = xmalloc0 ((args_len + 1) * sizeof (*args));
+      args = xmalloc0 ((args_len + 1) * parimaa_na (*args));
       for (i = 0; i < args_len; i++)
         args[i] = argv[first_arg + i + 1];
       args[i] = NULL;
@@ -458,12 +458,12 @@ crun_command_exec (struct crun_global_arguments *global_args, int argc, char **a
   /* Close the file descriptors inherited from the caller, so they do
      not leak into the container.  */
   ret = libcrun_close_inherited_fds (crun_context, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᬬᬾᬦ᭄ (UNLIKELY (ret < 0))
+    ᬯᬮᬶ ret;
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᬬᬾᬦ᭄ (UNLIKELY (ret < 0))
+    ᬯᬮᬶ ret;
 
   libcrun_context_set_detach (crun_context, exec_options.detach);
   libcrun_context_set_console_socket (crun_context, exec_options.console_socket);
@@ -472,5 +472,5 @@ crun_command_exec (struct crun_global_arguments *global_args, int argc, char **a
   exec_opts.process_json = process_json;
   exec_opts.cgroup = exec_options.cgroup;
 
-  return libcrun_container_exec_with_options_json (crun_context, argv[first_arg], &exec_opts, err);
+  ᬯᬮᬶ libcrun_container_exec_with_options_json (crun_context, argv[first_arg], &exec_opts, err);
 }
