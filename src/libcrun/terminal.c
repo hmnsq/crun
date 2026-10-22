@@ -36,51 +36,51 @@
 
 struct terminal_status_s
 {
-  int fd;
+  số_nguyên fd;
   struct termios termios;
 };
 
-int
+số_nguyên
 libcrun_new_terminal (char **pty, libcrun_error_t *err)
 {
   char buf[64];
-  int ret;
-  cleanup_close int fd = open ("/dev/ptmx", O_RDWR | O_NOCTTY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `/dev/ptmx`");
+  số_nguyên ret;
+  cleanup_close số_nguyên fd = open ("/dev/ptmx", O_RDWR | O_NOCTTY | O_CLOEXEC);
+  nếu (UNLIKELY (fd < 0))
+    trả_về crun_make_error (err, errno, "open `/dev/ptmx`");
 
   ret = ptsname_r (fd, buf, sizeof (buf));
-  if (UNLIKELY (ret != 0))
-    return crun_make_error (err, errno, "ptsname");
+  nếu (UNLIKELY (ret != 0))
+    trả_về crun_make_error (err, errno, "ptsname");
 
   ret = unlockpt (fd);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "unlockpt");
+  nếu (UNLIKELY (ret < 0))
+    trả_về crun_make_error (err, errno, "unlockpt");
 
   *pty = xstrdup (buf);
 
   ret = fd;
   fd = -1;
 
-  return ret;
+  trả_về ret;
 }
 
-int
-libcrun_set_raw (int fd, void **current_status, libcrun_error_t *err)
+số_nguyên
+libcrun_set_raw (số_nguyên fd, void **current_status, libcrun_error_t *err)
 {
-  int ret;
+  số_nguyên ret;
   struct termios termios;
 
   ret = tcgetattr (fd, &termios);
-  if (UNLIKELY (ret < 0))
+  nếu (UNLIKELY (ret < 0))
     {
       /* Nothing to do if FD is not a terminal.  */
-      if (errno == ENOTTY)
-        return 0;
-      return crun_make_error (err, errno, "tcgetattr");
+      nếu (errno == ENOTTY)
+        trả_về 0;
+      trả_về crun_make_error (err, errno, "tcgetattr");
     }
 
-  if (current_status)
+  nếu (current_status)
     {
       struct terminal_status_s *s = xmalloc (sizeof (*s));
       s->fd = fd;
@@ -92,94 +92,94 @@ libcrun_set_raw (int fd, void **current_status, libcrun_error_t *err)
   termios.c_iflag = 0;
 
   ret = tcsetattr (fd, TCSANOW, &termios);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "tcsetattr");
+  nếu (UNLIKELY (ret < 0))
+    trả_về crun_make_error (err, errno, "tcsetattr");
 
-  return 0;
+  trả_về 0;
 }
 
 /* Do not translate "\n" to "\r\n" on output, so that what the container
    writes to the terminal reaches our stdout unchanged.  */
-int
-libcrun_clear_onlcr (int fd, libcrun_error_t *err)
+số_nguyên
+libcrun_clear_onlcr (số_nguyên fd, libcrun_error_t *err)
 {
-  int ret;
+  số_nguyên ret;
   struct termios termios;
 
   ret = tcgetattr (fd, &termios);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "tcgetattr");
+  nếu (UNLIKELY (ret < 0))
+    trả_về crun_make_error (err, errno, "tcgetattr");
 
   termios.c_oflag &= ~ONLCR;
 
   ret = tcsetattr (fd, TCSANOW, &termios);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "tcsetattr");
+  nếu (UNLIKELY (ret < 0))
+    trả_về crun_make_error (err, errno, "tcsetattr");
 
-  return 0;
+  trả_về 0;
 }
 
-int
-libcrun_set_stdio (int ptmx_fd, char *pty, libcrun_error_t *err)
+số_nguyên
+libcrun_set_stdio (số_nguyên ptmx_fd, char *pty, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
-  int ret, i;
+  cleanup_close số_nguyên fd = -1;
+  số_nguyên ret, i;
 
   /* Open the slave directly from the master.  The path is resolved in the
      container mount namespace, and could point anywhere.  */
   fd = ioctl (ptmx_fd, TIOCGPTPEER, O_RDWR | O_CLOEXEC);
-  if (fd < 0 && (errno == EINVAL || errno == ENOTTY))
+  nếu (fd < 0 && (errno == EINVAL || errno == ENOTTY))
     {
       /* TIOCGPTPEER requires Linux 4.13.  */
       fd = open (pty, O_RDWR | O_CLOEXEC);
     }
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s`", pty);
+  nếu (UNLIKELY (fd < 0))
+    trả_về crun_make_error (err, errno, "open `%s`", pty);
 
-  for (i = 0; i < 3; i++)
+  cho (i = 0; i < 3; i++)
     {
       ret = dup3 (fd, i, 0);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "dup terminal");
+      nếu (UNLIKELY (ret < 0))
+        trả_về crun_make_error (err, errno, "dup terminal");
     }
 
   ret = ioctl (0, TIOCSCTTY, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "ioctl TIOCSCTTY");
+  nếu (UNLIKELY (ret < 0))
+    trả_về crun_make_error (err, errno, "ioctl TIOCSCTTY");
 
-  return 0;
+  trả_về 0;
 }
 
 void
 cleanup_terminalp (void *p)
 {
   struct terminal_status_s **s = (struct terminal_status_s **) p;
-  if (*s)
+  nếu (*s)
     {
       tcsetattr ((*s)->fd, TCSANOW, &(*s)->termios);
       free (*s);
     }
 }
 
-int
-libcrun_terminal_setup_size (int fd, unsigned short rows, unsigned short cols, libcrun_error_t *err)
+số_nguyên
+libcrun_terminal_setup_size (số_nguyên fd, unsigned short rows, unsigned short cols, libcrun_error_t *err)
 {
   struct winsize ws = { .ws_row = rows, .ws_col = cols };
-  int ret;
+  số_nguyên ret;
 
-  if (ws.ws_row == 0 || ws.ws_col == 0)
+  nếu (ws.ws_row == 0 || ws.ws_col == 0)
     {
       ret = ioctl (0, TIOCGWINSZ, &ws);
-      if (UNLIKELY (ret < 0))
+      nếu (UNLIKELY (ret < 0))
         {
-          if (errno == ENOTTY)
-            return 0;
-          return crun_make_error (err, errno, "ioctl TIOCGWINSZ");
+          nếu (errno == ENOTTY)
+            trả_về 0;
+          trả_về crun_make_error (err, errno, "ioctl TIOCGWINSZ");
         }
     }
 
   ret = ioctl (fd, TIOCSWINSZ, &ws);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "ioctl TIOCSWINSZ");
-  return 0;
+  nếu (UNLIKELY (ret < 0))
+    trả_về crun_make_error (err, errno, "ioctl TIOCSWINSZ");
+  trả_về 0;
 }

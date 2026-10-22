@@ -32,7 +32,7 @@
 #  define LIKELY(x) __builtin_expect ((x), 1)
 #  define UNLIKELY(x) __builtin_expect ((x), 0)
 #  define arg_unused __attribute__ ((unused))
-#else
+#không_thì
 #  define LIKELY(x) (x)
 #  define UNLIKELY(x) (x)
 #  define arg_unused
@@ -43,7 +43,7 @@
     {                                    \
       fprintf (stderr, "out of memory"); \
       _exit (EXIT_FAILURE);              \
-  } while (0)
+  } trong_khi (0)
 
 #define crun_make_error libcrun_make_error
 
@@ -51,39 +51,39 @@ __attribute__ ((malloc)) static inline void *
 xmalloc (size_t size)
 {
   void *res = malloc (size);
-  if (UNLIKELY (res == NULL))
+  nếu (UNLIKELY (res == NULL))
     OOM ();
-  return res;
+  trả_về res;
 }
 
 __attribute__ ((malloc)) static inline void *
 xmalloc0 (size_t size)
 {
   void *res = calloc (1, size);
-  if (UNLIKELY (res == NULL))
+  nếu (UNLIKELY (res == NULL))
     OOM ();
-  return res;
+  trả_về res;
 }
 
 __attribute__ ((malloc)) static inline void *
 xrealloc (void *ptr, size_t size)
 {
   void *res = realloc (ptr, size);
-  if (UNLIKELY (res == NULL))
+  nếu (UNLIKELY (res == NULL))
     OOM ();
-  return res;
+  trả_về res;
 }
 
 static inline char *
 xstrdup (const char *str)
 {
   char *ret;
-  if (str == NULL)
-    return NULL;
+  nếu (str == NULL)
+    trả_về NULL;
   ret = strdup (str);
-  if (UNLIKELY (ret == NULL))
+  nếu (UNLIKELY (ret == NULL))
     OOM ();
-  return ret;
+  trả_về ret;
 }
 
 static inline void
@@ -97,15 +97,15 @@ static inline void
 cleanup_filep (FILE **f)
 {
   FILE *file = *f;
-  if (file)
+  nếu (file)
     (void) fclose (file);
 }
 
 static inline void
 cleanup_closep (void *p)
 {
-  int *pp = (int *) p;
-  if (*pp >= 0)
+  số_nguyên *pp = (số_nguyên *) p;
+  nếu (*pp >= 0)
     close (*pp);
 }
 
@@ -118,7 +118,7 @@ cleanup_closep (void *p)
 static inline void
 cleanup_libcrun_contextp (libcrun_context_t **p)
 {
-  if (*p)
+  nếu (*p)
     libcrun_context_free (*p);
 }
 
@@ -127,7 +127,7 @@ cleanup_libcrun_contextp (libcrun_context_t **p)
 static inline void
 cleanup_libcrun_containerp (libcrun_container_t **p)
 {
-  if (*p)
+  nếu (*p)
     libcrun_container_free (*p);
 }
 

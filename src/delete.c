@@ -40,7 +40,7 @@ enum
 
 struct delete_options_s
 {
-  int regex;
+  số_nguyên regex;
   bool force;
 };
 
@@ -56,7 +56,7 @@ static struct argp_option options[]
 static char args_doc[] = "delete CONTAINER";
 
 static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+parse_opt (số_nguyên key, char *arg arg_unused, struct argp_state *state arg_unused)
 {
   switch (key)
     {
@@ -72,18 +72,18 @@ parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
     default:
-      return ARGP_ERR_UNKNOWN;
+      trả_về ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  trả_về 0;
 }
 
 static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-int
-crun_command_delete (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+số_nguyên
+crun_command_delete (struct crun_global_arguments *global_args, số_nguyên argc, char **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
+  số_nguyên first_arg = 0, ret;
   cleanup_context libcrun_context_t *crun_context = NULL;
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &delete_options);
@@ -92,10 +92,10 @@ crun_command_delete (struct crun_global_arguments *global_args, int argc, char *
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  nếu (UNLIKELY (ret < 0))
+    trả_về ret;
 
-  if (delete_options.regex)
+  nếu (delete_options.regex)
     {
       regex_t re;
       libcrun_container_list_t *list;
@@ -103,26 +103,26 @@ crun_command_delete (struct crun_global_arguments *global_args, int argc, char *
       const char *name;
 
       ret = regcomp (&re, argv[first_arg], REG_EXTENDED | REG_NOSUB);
-      if (UNLIKELY (ret < 0))
+      nếu (UNLIKELY (ret < 0))
         libcrun_fail_with_error (0, "invalid regular expression %s", argv[first_arg]);
 
       ret = libcrun_container_list (crun_context, &list, err);
-      if (UNLIKELY (ret < 0))
+      nếu (UNLIKELY (ret < 0))
         libcrun_fail_with_error (0, "cannot read containers list");
 
-      for (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
-        if (regexec (&re, name, 0, NULL, 0) == 0)
+      cho (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
+        nếu (regexec (&re, name, 0, NULL, 0) == 0)
           {
             ret = libcrun_container_delete (crun_context, name, delete_options.force, err);
-            if (UNLIKELY (ret < 0))
+            nếu (UNLIKELY (ret < 0))
               libcrun_error_report_and_release (err);
           }
 
       libcrun_container_iter_free (it);
       libcrun_container_list_free (list);
       regfree (&re);
-      return 0;
+      trả_về 0;
     }
 
-  return libcrun_container_delete (crun_context, argv[first_arg], delete_options.force, err);
+  trả_về libcrun_container_delete (crun_context, argv[first_arg], delete_options.force, err);
 }

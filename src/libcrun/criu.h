@@ -24,30 +24,30 @@
 #include "error.h"
 #include "utils.h"
 
-#if HAVE_CRIU && HAVE_DLOPEN
+#nếu HAVE_CRIU && HAVE_DLOPEN
 
-int libcrun_container_checkpoint_linux_criu (libcrun_container_status_t *status, libcrun_container_t *container,
+số_nguyên libcrun_container_checkpoint_linux_criu (libcrun_container_status_t *status, libcrun_container_t *container,
                                              libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err);
 
-int libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcrun_container_t *container,
+số_nguyên libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcrun_container_t *container,
                                           libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err);
 
-#else
+#không_thì
 
-static inline int
+static inline số_nguyên
 libcrun_container_checkpoint_linux_criu (arg_unused libcrun_container_status_t *status,
                                          arg_unused libcrun_container_t *container,
                                          arg_unused libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
 {
-  return crun_make_error (err, 0, "compiled without CRIU support. Checkpointing not available");
+  trả_về crun_make_error (err, 0, "compiled without CRIU support. Checkpointing not available");
 }
 
-static inline int
+static inline số_nguyên
 libcrun_container_restore_linux_criu (arg_unused libcrun_container_status_t *status,
                                       arg_unused libcrun_container_t *container,
                                       arg_unused libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
 {
-  return crun_make_error (err, 0, "compiled without CRIU support. Restore not available");
+  trả_về crun_make_error (err, 0, "compiled without CRIU support. Restore not available");
 }
 
 #endif

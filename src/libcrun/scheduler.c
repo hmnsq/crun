@@ -64,17 +64,17 @@ struct sched_attr_s
   uint64_t sched_period;
 };
 
-static int
-syscall_sched_setattr (pid_t pid, struct sched_attr_s *attr, unsigned int flags)
+static số_nguyên
+syscall_sched_setattr (pid_t pid, struct sched_attr_s *attr, unsigned số_nguyên flags)
 {
 #ifdef __NR_sched_setattr
-  return syscall (__NR_sched_setattr, pid, attr, flags);
-#else
+  trả_về syscall (__NR_sched_setattr, pid, attr, flags);
+#không_thì
   (void) pid;
   (void) attr;
   (void) flags;
   errno = ENOSYS;
-  return -1;
+  trả_về -1;
 #endif
 }
 
@@ -85,11 +85,11 @@ syscall_sched_setattr (pid_t pid, struct sched_attr_s *attr, unsigned int flags)
    CPUs outside of it.  */
 #define MAX_CPU_MASK_BITS (64 * 1024)
 
-int
+số_nguyên
 libcrun_reset_cpu_affinity_mask (pid_t pid, libcrun_error_t *err)
 {
   cpu_set_t mask[MAX_CPU_MASK_BITS / (CHAR_BIT * sizeof (cpu_set_t))];
-  int ret;
+  số_nguyên ret;
 
   /* Reset the inherited cpu affinity. Old kernels do that automatically, but
      new kernels remember the affinity that was set before the cgroup move.
@@ -98,33 +98,33 @@ libcrun_reset_cpu_affinity_mask (pid_t pid, libcrun_error_t *err)
      See: https://issues.redhat.com/browse/OCPBUGS-15102   */
   memset (mask, 0xFF, sizeof (mask));
   ret = sched_setaffinity (pid, sizeof (mask), mask);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "sched_setaffinity");
-  return 0;
+  nếu (UNLIKELY (ret < 0))
+    trả_về crun_make_error (err, errno, "sched_setaffinity");
+  trả_về 0;
 }
 
-static int
+static số_nguyên
 diagnose_scheduler_failure (libcrun_error_t *err, runtime_spec_schema_config_schema_process *process,
                             struct sched_attr_s *attr)
 {
-  if (attr->sched_policy == SCHED_DEADLINE && errno == EINVAL)
+  nếu (attr->sched_policy == SCHED_DEADLINE && errno == EINVAL)
     {
-      if (! process->scheduler->runtime_present)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` requires `runtime`");
-      if (! process->scheduler->deadline_present)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` requires `deadline`");
+      nếu (! process->scheduler->runtime_present)
+        trả_về crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` requires `runtime`");
+      nếu (! process->scheduler->deadline_present)
+        trả_về crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` requires `deadline`");
 
-      if (attr->sched_runtime == 0)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` runtime must be greater than 0");
-      if (attr->sched_deadline == 0)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` deadline must be greater than 0");
+      nếu (attr->sched_runtime == 0)
+        trả_về crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` runtime must be greater than 0");
+      nếu (attr->sched_deadline == 0)
+        trả_về crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` deadline must be greater than 0");
       /* Per sched(7), ff sched_period is specified as 0, then it is made the same as sched_deadline. */
 
-      if (attr->sched_runtime > attr->sched_deadline)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` runtime (%" PRIu64 ") must be <= deadline (%" PRIu64 ")",
+      nếu (attr->sched_runtime > attr->sched_deadline)
+        trả_về crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` runtime (%" PRIu64 ") must be <= deadline (%" PRIu64 ")",
                                 attr->sched_runtime, attr->sched_deadline);
-      if (attr->sched_period != 0 && attr->sched_deadline > attr->sched_period)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` deadline (%" PRIu64 ") must be <= period (%" PRIu64 ")",
+      nếu (attr->sched_period != 0 && attr->sched_deadline > attr->sched_period)
+        trả_về crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` deadline (%" PRIu64 ") must be <= period (%" PRIu64 ")",
                                 attr->sched_deadline, attr->sched_period);
 
       /* sched(7) says "under the current implementation, all of the parameter values
@@ -132,33 +132,33 @@ diagnose_scheduler_failure (libcrun_error_t *err, runtime_spec_schema_config_sch
       const uint64_t min = 1024;
       const uint64_t max = (1ULL << 63) - 1;
 
-      if (attr->sched_runtime < min || attr->sched_runtime > max)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` runtime (%" PRIu64 ") must be between %" PRIu64 " and %" PRIu64,
+      nếu (attr->sched_runtime < min || attr->sched_runtime > max)
+        trả_về crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` runtime (%" PRIu64 ") must be between %" PRIu64 " and %" PRIu64,
                                 attr->sched_runtime, min, max);
-      if (attr->sched_deadline < min || attr->sched_deadline > max)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` deadline (%" PRIu64 ") must be between %" PRIu64 " and %" PRIu64,
+      nếu (attr->sched_deadline < min || attr->sched_deadline > max)
+        trả_về crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` deadline (%" PRIu64 ") must be between %" PRIu64 " and %" PRIu64,
                                 attr->sched_deadline, min, max);
-      if (attr->sched_period != 0 && (attr->sched_period < min || attr->sched_period > max))
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` period (%" PRIu64 ") must be between %" PRIu64 " and %" PRIu64,
+      nếu (attr->sched_period != 0 && (attr->sched_period < min || attr->sched_period > max))
+        trả_về crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` period (%" PRIu64 ") must be between %" PRIu64 " and %" PRIu64,
                                 attr->sched_period, min, max);
 
-      return crun_make_error (err, errno, "sched_setattr: invalid `SCHED_DEADLINE` parameters (runtime=%" PRIu64 ", deadline=%" PRIu64 ", period=%" PRIu64 ")",
+      trả_về crun_make_error (err, errno, "sched_setattr: invalid `SCHED_DEADLINE` parameters (runtime=%" PRIu64 ", deadline=%" PRIu64 ", period=%" PRIu64 ")",
                               attr->sched_runtime, attr->sched_deadline, attr->sched_period);
     }
 
-  return crun_make_error (err, errno, "sched_setattr");
+  trả_về crun_make_error (err, errno, "sched_setattr");
 }
 
-int
+số_nguyên
 libcrun_set_scheduler (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err)
 {
   struct sched_attr_s attr;
-  int i, ret, policy;
+  số_nguyên i, ret, policy;
   size_t s;
   struct
   {
     const char *name;
-    int value;
+    số_nguyên value;
   } policies[] = {
     { "SCHED_OTHER", SCHED_OTHER },
     { "SCHED_BATCH", SCHED_BATCH },
@@ -169,109 +169,109 @@ libcrun_set_scheduler (pid_t pid, runtime_spec_schema_config_schema_process *pro
     { NULL, 0 },
   };
 
-  if (process == NULL || process->scheduler == NULL)
-    return 0;
+  nếu (process == NULL || process->scheduler == NULL)
+    trả_về 0;
 
   memset (&attr, 0, sizeof (attr));
   attr.size = sizeof (attr);
 
-  if (is_empty_string (process->scheduler->policy))
-    return crun_make_error (err, 0, "scheduler policy not defined");
+  nếu (is_empty_string (process->scheduler->policy))
+    trả_về crun_make_error (err, 0, "scheduler policy not defined");
 
   policy = -1;
-  for (i = 0; policies[i].name; i++)
-    if (strcmp (process->scheduler->policy, policies[i].name) == 0)
+  cho (i = 0; policies[i].name; i++)
+    nếu (strcmp (process->scheduler->policy, policies[i].name) == 0)
       {
         policy = i;
         break;
       }
-  if (UNLIKELY (policy < 0))
-    return crun_make_error (err, 0, "invalid scheduler `%s`", process->scheduler->policy);
+  nếu (UNLIKELY (policy < 0))
+    trả_về crun_make_error (err, 0, "invalid scheduler `%s`", process->scheduler->policy);
 
   attr.sched_policy = policies[policy].value;
 
-  if (process->scheduler->nice_present)
+  nếu (process->scheduler->nice_present)
     attr.sched_nice = process->scheduler->nice;
 
-  if (process->scheduler->priority_present)
+  nếu (process->scheduler->priority_present)
     attr.sched_priority = process->scheduler->priority;
 
-  if (process->scheduler->runtime_present)
+  nếu (process->scheduler->runtime_present)
     attr.sched_runtime = process->scheduler->runtime;
 
-  if (process->scheduler->deadline_present)
+  nếu (process->scheduler->deadline_present)
     attr.sched_deadline = process->scheduler->deadline;
 
-  if (process->scheduler->period_present)
+  nếu (process->scheduler->period_present)
     attr.sched_period = process->scheduler->period;
 
-  for (s = 0; s < process->scheduler->flags_len; s++)
+  cho (s = 0; s < process->scheduler->flags_len; s++)
     {
       char *key = process->scheduler->flags[s];
 
-      if (key == NULL)
-        return crun_make_error (err, EINVAL, "scheduler flag is not specified");
+      nếu (key == NULL)
+        trả_về crun_make_error (err, EINVAL, "scheduler flag is not specified");
 
-      if (strcmp (key, "SCHED_FLAG_RESET_ON_FORK") == 0)
+      nếu (strcmp (key, "SCHED_FLAG_RESET_ON_FORK") == 0)
         attr.sched_flags |= SCHED_FLAG_RESET_ON_FORK;
-      else if (strcmp (key, "SCHED_FLAG_RECLAIM") == 0)
+      không_thì nếu (strcmp (key, "SCHED_FLAG_RECLAIM") == 0)
         attr.sched_flags |= SCHED_FLAG_RECLAIM;
-      else if (strcmp (key, "SCHED_FLAG_DL_OVERRUN") == 0)
+      không_thì nếu (strcmp (key, "SCHED_FLAG_DL_OVERRUN") == 0)
         attr.sched_flags |= SCHED_FLAG_DL_OVERRUN;
-      else if (strcmp (key, "SCHED_FLAG_KEEP_POLICY") == 0)
+      không_thì nếu (strcmp (key, "SCHED_FLAG_KEEP_POLICY") == 0)
         attr.sched_flags |= SCHED_FLAG_KEEP_POLICY;
-      else if (strcmp (key, "SCHED_FLAG_KEEP_PARAMS") == 0)
+      không_thì nếu (strcmp (key, "SCHED_FLAG_KEEP_PARAMS") == 0)
         attr.sched_flags |= SCHED_FLAG_KEEP_PARAMS;
-      else if (strcmp (key, "SCHED_FLAG_UTIL_CLAMP_MIN") == 0)
+      không_thì nếu (strcmp (key, "SCHED_FLAG_UTIL_CLAMP_MIN") == 0)
         attr.sched_flags |= SCHED_FLAG_UTIL_CLAMP_MIN;
-      else if (strcmp (key, "SCHED_FLAG_UTIL_CLAMP_MAX") == 0)
+      không_thì nếu (strcmp (key, "SCHED_FLAG_UTIL_CLAMP_MAX") == 0)
         attr.sched_flags |= SCHED_FLAG_UTIL_CLAMP_MAX;
-      else
-        return crun_make_error (err, 0, "invalid scheduler option `%s`", key);
+      không_thì
+        trả_về crun_make_error (err, 0, "invalid scheduler option `%s`", key);
     }
 
   ret = syscall_sched_setattr (pid, &attr, 0);
-  if (UNLIKELY (ret < 0))
-    return diagnose_scheduler_failure (err, process, &attr);
+  nếu (UNLIKELY (ret < 0))
+    trả_về diagnose_scheduler_failure (err, process, &attr);
 
-  return 0;
+  trả_về 0;
 }
 
-int
+số_nguyên
 libcrun_set_cpu_affinity_from_string (pid_t pid, const char *str, libcrun_error_t *err)
 {
   cleanup_free char *bitmask = NULL;
-  int ret, saved_errno;
+  số_nguyên ret, saved_errno;
   size_t bitmask_size;
   cpu_set_t *cpuset;
   size_t alloc_size;
   size_t i;
 
-  if (is_empty_string (str))
-    return 0;
+  nếu (is_empty_string (str))
+    trả_về 0;
 
   ret = cpuset_string_to_bitmask (str, &bitmask, &bitmask_size, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  nếu (UNLIKELY (ret < 0))
+    trả_về ret;
 
   alloc_size = CPU_ALLOC_SIZE (bitmask_size * CHAR_BIT);
 
   cpuset = CPU_ALLOC (bitmask_size * CHAR_BIT);
-  if (UNLIKELY (cpuset == NULL))
+  nếu (UNLIKELY (cpuset == NULL))
     OOM ();
 
   CPU_ZERO_S (alloc_size, cpuset);
 
-  for (i = 0; i < bitmask_size * CHAR_BIT; i++)
+  cho (i = 0; i < bitmask_size * CHAR_BIT; i++)
     {
-      if (bitmask[i / CHAR_BIT] & (1 << (i % CHAR_BIT)))
+      nếu (bitmask[i / CHAR_BIT] & (1 << (i % CHAR_BIT)))
         CPU_SET_S (i, alloc_size, cpuset);
     }
 
   ret = sched_setaffinity (pid, alloc_size, cpuset);
   saved_errno = errno;
   CPU_FREE (cpuset);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, saved_errno, "sched_setaffinity");
-  return 0;
+  nếu (UNLIKELY (ret < 0))
+    trả_về crun_make_error (err, saved_errno, "sched_setaffinity");
+  trả_về 0;
 }

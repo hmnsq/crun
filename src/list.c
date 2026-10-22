@@ -40,7 +40,7 @@ enum
 struct list_options_s
 {
   bool quiet;
-  int format;
+  số_nguyên format;
 };
 
 enum
@@ -61,7 +61,7 @@ static struct argp_option options[]
 static char args_doc[] = "list";
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state arg_unused)
+parse_opt (số_nguyên key, char *arg, struct argp_state *state arg_unused)
 {
   switch (key)
     {
@@ -69,28 +69,28 @@ parse_opt (int key, char *arg, struct argp_state *state arg_unused)
       list_options.quiet = true;
       break;
     case 'f':
-      if (strcmp (arg, "table") == 0)
+      nếu (strcmp (arg, "table") == 0)
         list_options.format = LIST_TABLE;
-      else if (strcmp (arg, "json") == 0)
+      không_thì nếu (strcmp (arg, "json") == 0)
         list_options.format = LIST_JSON;
-      else
+      không_thì
         libcrun_fail_with_error (0, "invalid format `%s`", arg);
       break;
 
     default:
-      return ARGP_ERR_UNKNOWN;
+      trả_về ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  trả_về 0;
 }
 
 static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-int
-crun_command_list (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+số_nguyên
+crun_command_list (struct crun_global_arguments *global_args, số_nguyên argc, char **argv, libcrun_error_t *err)
 {
-  int first_arg;
-  int ret, max_length = 4;
+  số_nguyên first_arg;
+  số_nguyên ret, max_length = 4;
   cleanup_context libcrun_context_t *crun_context = NULL;
   libcrun_container_list_t *list = NULL;
   libcrun_container_iter_t *it;
@@ -104,65 +104,65 @@ crun_command_list (struct crun_global_arguments *global_args, int argc, char **a
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  nếu (UNLIKELY (ret < 0))
+    trả_về ret;
 
-  if (list_options.format == LIST_JSON)
+  nếu (list_options.format == LIST_JSON)
     {
       cleanup_free char *json = NULL;
 
       ret = libcrun_container_list_json (crun_context, &json, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      nếu (UNLIKELY (ret < 0))
+        trả_về ret;
 
       fputs (json, stdout);
-      return 0;
+      trả_về 0;
     }
 
   ret = libcrun_container_list (crun_context, &list, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  nếu (UNLIKELY (ret < 0))
+    trả_về ret;
 
-  for (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
+  cho (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
     {
-      int l = strlen (name);
-      if (l > max_length)
+      số_nguyên l = strlen (name);
+      nếu (l > max_length)
         max_length = l;
     }
   libcrun_container_iter_free (it);
 
   max_length++;
 
-  if (! list_options.quiet)
+  nếu (! list_options.quiet)
     printf ("%-*s%-10s%-8s %-39s %-30s %s\n", max_length, "NAME", "PID", "STATUS", "BUNDLE PATH", "CREATED", "OWNER");
 
-  for (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
+  cho (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
     {
       libcrun_status_t *status = NULL;
 
       ret = libcrun_container_status_load (crun_context, name, &status, err);
-      if (UNLIKELY (ret < 0))
+      nếu (UNLIKELY (ret < 0))
         {
           libcrun_error_report_and_release (err);
           continue;
         }
-      if (list_options.quiet)
+      nếu (list_options.quiet)
         printf ("%s\n", name);
-      else
+      không_thì
         {
           libcrun_container_state_t state;
-          int running = 0;
-          int pid = libcrun_status_get_pid (status);
+          số_nguyên running = 0;
+          số_nguyên pid = libcrun_status_get_pid (status);
 
           ret = libcrun_status_get_state (status, &state, &running, err);
-          if (UNLIKELY (ret < 0))
+          nếu (UNLIKELY (ret < 0))
             {
               libcrun_error_report_and_release (err);
               libcrun_container_status_free (status);
               continue;
             }
 
-          if (! running)
+          nếu (! running)
             pid = 0;
 
           printf ("%-*s%-10d%-8s %-39s %-30s %s\n", max_length, name, pid,
@@ -175,5 +175,5 @@ crun_command_list (struct crun_global_arguments *global_args, int argc, char **a
   libcrun_container_iter_free (it);
 
   libcrun_container_list_free (list);
-  return ret >= 0 ? 0 : ret;
+  trả_về ret >= 0 ? 0 : ret;
 }

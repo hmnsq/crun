@@ -30,30 +30,30 @@
 #include <sys/sysmacros.h>
 
 #ifdef HAVE_LINUX_IOPRIO_H
-static int
-syscall_ioprio_set (int which, int who, int ioprio)
+static số_nguyên
+syscall_ioprio_set (số_nguyên which, số_nguyên who, số_nguyên ioprio)
 {
 #  ifdef __NR_ioprio_set
-  return syscall (__NR_ioprio_set, which, who, ioprio);
-#  else
+  trả_về syscall (__NR_ioprio_set, which, who, ioprio);
+#  không_thì
   (void) which;
   (void) who;
   (void) ioprio;
   errno = ENOSYS;
-  return -1;
+  trả_về -1;
 #  endif
 }
 #endif
 
-int
+số_nguyên
 libcrun_set_io_priority (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err)
 {
 #ifdef HAVE_LINUX_IOPRIO_H
-  int ret, i, class_value, value;
+  số_nguyên ret, i, class_value, value;
   struct
   {
     const char *name;
-    int value;
+    số_nguyên value;
   } classes[] = {
     { "IOPRIO_CLASS_RT", IOPRIO_CLASS_RT },
     { "IOPRIO_CLASS_BE", IOPRIO_CLASS_BE },
@@ -61,34 +61,34 @@ libcrun_set_io_priority (pid_t pid, runtime_spec_schema_config_schema_process *p
     { NULL, 0 },
   };
 
-  if (process == NULL || process->io_priority == NULL)
-    return 0;
+  nếu (process == NULL || process->io_priority == NULL)
+    trả_về 0;
 
   class_value = -1;
-  for (i = 0; classes[i].name; i++)
-    if (strcmp (process->io_priority->_class, classes[i].name) == 0)
+  cho (i = 0; classes[i].name; i++)
+    nếu (strcmp (process->io_priority->_class, classes[i].name) == 0)
       {
         class_value = i;
         break;
       }
-  if (UNLIKELY (class_value < 0))
-    return crun_make_error (err, 0, "invalid io priority `%s`", process->io_priority->_class);
+  nếu (UNLIKELY (class_value < 0))
+    trả_về crun_make_error (err, 0, "invalid io priority `%s`", process->io_priority->_class);
 
   value = IOPRIO_PRIO_VALUE (classes[class_value].value, process->io_priority->priority);
 
   ret = syscall_ioprio_set (IOPRIO_WHO_PROCESS, pid, value);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "failed to set io priority");
+  nếu (UNLIKELY (ret < 0))
+    trả_về crun_make_error (err, errno, "failed to set io priority");
 
-  return 0;
-#else
+  trả_về 0;
+#không_thì
   // If io_priority is not set then return without doing
   // anything.
-  if (process == NULL || process->io_priority == NULL)
-    return 0;
+  nếu (process == NULL || process->io_priority == NULL)
+    trả_về 0;
 
   (void) pid;
   (void) process;
-  return crun_make_error (err, 0, "io priority not supported");
+  trả_về crun_make_error (err, 0, "io priority not supported");
 #endif
 }

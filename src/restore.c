@@ -81,7 +81,7 @@ static struct argp_option options[]
 static char args_doc[] = "restore CONTAINER";
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (số_nguyên key, char *arg, struct argp_state *state)
 {
   switch (key)
     {
@@ -153,21 +153,21 @@ parse_opt (int key, char *arg, struct argp_state *state)
       break;
 
     default:
-      return ARGP_ERR_UNKNOWN;
+      trả_về ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  trả_về 0;
 }
 
 static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-int
-crun_command_restore (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+số_nguyên
+crun_command_restore (struct crun_global_arguments *global_args, số_nguyên argc, char **argv, libcrun_error_t *err)
 {
   cleanup_free char *bundle_cleanup = NULL;
   cleanup_free char *cr_path = NULL;
-  int first_arg;
-  int ret;
+  số_nguyên first_arg;
+  số_nguyên ret;
 
   crun_context = new_libcrun_context (global_args);
   cr_options.struct_size = sizeof (cr_options);
@@ -178,44 +178,44 @@ crun_command_restore (struct crun_global_arguments *global_args, int argc, char 
 
   /* Make sure the bundle is an absolute path.  */
 
-  if (bundle == NULL)
+  nếu (bundle == NULL)
     {
       bundle_cleanup = realpath (".", NULL);
-      if (bundle_cleanup == NULL)
+      nếu (bundle_cleanup == NULL)
         libcrun_fail_with_error (errno, "realpath `.` failed");
       bundle = bundle_cleanup;
     }
-  else
+  không_thì
     {
-      if (bundle[0] != '/')
+      nếu (bundle[0] != '/')
         {
           bundle_cleanup = realpath (bundle, NULL);
-          if (bundle_cleanup == NULL)
+          nếu (bundle_cleanup == NULL)
             libcrun_fail_with_error (errno, "realpath `%s` failed", bundle);
           bundle = bundle_cleanup;
         }
 
-      if (chdir (bundle) < 0)
+      nếu (chdir (bundle) < 0)
         libcrun_fail_with_error (errno, "chdir `%s` failed", bundle);
     }
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
+  nếu (UNLIKELY (ret < 0))
     {
       libcrun_context_free (crun_context);
-      return ret;
+      trả_về ret;
     }
 
-  if (cr_options.image_path == NULL)
+  nếu (cr_options.image_path == NULL)
     {
       cleanup_free char *path = NULL;
 
       path = getcwd (NULL, 0);
-      if (UNLIKELY (path == NULL))
+      nếu (UNLIKELY (path == NULL))
         libcrun_fail_with_error (errno, "getcwd failed");
 
       ret = asprintf (&cr_path, "%s/checkpoint", path);
-      if (UNLIKELY (ret < 0))
+      nếu (UNLIKELY (ret < 0))
         OOM ();
       cr_options.image_path = cr_path;
     }
@@ -223,5 +223,5 @@ crun_command_restore (struct crun_global_arguments *global_args, int argc, char 
   libcrun_context_set_bundle (crun_context, bundle);
   ret = libcrun_container_restore (crun_context, argv[first_arg], &cr_options, err);
   libcrun_context_free (crun_context);
-  return ret;
+  trả_về ret;
 }

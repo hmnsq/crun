@@ -62,7 +62,7 @@
 #include "linux.h"
 
 /* Use our own wrapper for memfd_create. */
-#if !defined(SYS_memfd_create) && defined(__NR_memfd_create)
+#nếu !defined(SYS_memfd_create) && defined(__NR_memfd_create)
 #  define SYS_memfd_create __NR_memfd_create
 #endif
 /* memfd_create(2) flags -- copied from <linux/memfd.h>. */
@@ -70,13 +70,13 @@
 #  define MFD_CLOEXEC       0x0001U
 #  define MFD_ALLOW_SEALING 0x0002U
 #endif
-int memfd_create(const char *name, unsigned int flags)
+số_nguyên memfd_create(const char *name, unsigned số_nguyên flags)
 {
 #ifdef SYS_memfd_create
-	return syscall(SYS_memfd_create, name, flags);
-#else
+	trả_về syscall(SYS_memfd_create, name, flags);
+#không_thì
 	errno = ENOSYS;
-	return -1;
+	trả_về -1;
 #endif
 }
 
@@ -106,15 +106,15 @@ int memfd_create(const char *name, unsigned int flags)
  * /proc/self/exe a memfd). F_GET_SEALS will only succeed for memfds (or rather
  * for shmem files), and we want to be sure it's actually sealed.
  */
-static int is_self_cloned(void)
+static số_nguyên is_self_cloned(void)
 {
-	int fd, ret, is_cloned = 0;
+	số_nguyên fd, ret, is_cloned = 0;
 	struct stat statbuf = {};
 	struct statfs fsbuf = {};
 
 	fd = open("/proc/self/exe", O_RDONLY|O_CLOEXEC);
-	if (fd < 0)
-		return -ENOTRECOVERABLE;
+	nếu (fd < 0)
+		trả_về -ENOTRECOVERABLE;
 
 	/*
 	 * Is the binary a fully-sealed memfd? We don't need CLONED_BINARY_ENV for
@@ -123,7 +123,7 @@ static int is_self_cloned(void)
 	 * memfd to /usr/bin/crun to allow reuse).
 	 */
 	ret = fcntl(fd, F_GET_SEALS);
-	if (ret >= 0) {
+	nếu (ret >= 0) {
 		is_cloned = (ret == CRUN_MEMFD_SEALS);
 		goto out;
 	}
@@ -134,7 +134,7 @@ static int is_self_cloned(void)
 	 * such as truly read-only filesystems like squashfs/erofs as well as
 	 * things like the ostree read-only bind mount.
 	 */
-	if (fstatfs(fd, &fsbuf) >= 0 && (fsbuf.f_flags & MS_RDONLY)) {
+	nếu (fstatfs(fd, &fsbuf) >= 0 && (fsbuf.f_flags & MS_RDONLY)) {
 		is_cloned = true;
 		goto out;
 	}
@@ -144,7 +144,7 @@ static int is_self_cloned(void)
 	 * writeable (or we can't tell if they're fully safe) and thus we must
 	 * check the environment as an extra layer of defence.
 	 */
-	if (!getenv(CLONED_BINARY_ENV)) {
+	nếu (!getenv(CLONED_BINARY_ENV)) {
 		is_cloned = false;
 		goto out;
 	}
@@ -157,35 +157,35 @@ static int is_self_cloned(void)
 	 * cannot fake (because unlinking requires being able to resolve the
 	 * path that you want to unlink).
 	 */
-	if (fstat(fd, &statbuf) >= 0)
+	nếu (fstat(fd, &statbuf) >= 0)
 		is_cloned |= (statbuf.st_nlink == 0);
 
 out:
 	close(fd);
-	return is_cloned;
+	trả_về is_cloned;
 }
 
 /* Read a given file into a new buffer, and providing the length. */
 static char *read_file(char *path, size_t *length)
 {
-	int fd;
+	số_nguyên fd;
 	char buf[4096], *copy = NULL;
 
-	if (!length)
-		return NULL;
+	nếu (!length)
+		trả_về NULL;
 
 	fd = open(path, O_RDONLY | O_CLOEXEC);
-	if (fd < 0)
-		return NULL;
+	nếu (fd < 0)
+		trả_về NULL;
 
 	*length = 0;
-	for (;;) {
+	cho (;;) {
 		ssize_t n;
 
 		n = read(fd, buf, sizeof(buf));
-		if (n < 0)
+		nếu (n < 0)
 			goto error;
-		if (!n)
+		nếu (!n)
 			break;
 
 		copy = xrealloc(copy, (*length + n) * sizeof(*copy));
@@ -193,12 +193,12 @@ static char *read_file(char *path, size_t *length)
 		*length += n;
 	}
 	close(fd);
-	return copy;
+	trả_về copy;
 
 error:
 	close(fd);
 	free(copy);
-	return NULL;
+	trả_về NULL;
 }
 
 /*
@@ -206,22 +206,22 @@ error:
  * NUL-delimited data, within the given length and adds a pointer to each entry
  * to the array of pointers.
  */
-static int parse_xargs(char *data, int data_length, char ***output)
+static số_nguyên parse_xargs(char *data, số_nguyên data_length, char ***output)
 {
-	int num = 0;
+	số_nguyên num = 0;
 	char *cur = data;
 
-	if (!data || *output != NULL)
-		return -1;
+	nếu (!data || *output != NULL)
+		trả_về -1;
 
-	while (cur < data + data_length) {
+	trong_khi (cur < data + data_length) {
 		num++;
 		*output = xrealloc(*output, (num + 1) * sizeof(**output));
 		(*output)[num - 1] = cur;
 		cur += strlen(cur) + 1;
 	}
 	(*output)[num] = NULL;
-	return num;
+	trả_về num;
 }
 
 /*
@@ -229,23 +229,23 @@ static int parse_xargs(char *data, int data_length, char ***output)
  * This is necessary because we are running in a context where we don't have a
  * main() that we can just get the arguments from.
  */
-static int fetchve(char ***argv)
+static số_nguyên fetchve(char ***argv)
 {
 	char *cmdline = NULL;
 	size_t cmdline_size;
 
 	cmdline = read_file("/proc/self/cmdline", &cmdline_size);
-	if (!cmdline)
+	nếu (!cmdline)
 		goto error;
 
-	if (parse_xargs(cmdline, cmdline_size, argv) <= 0)
+	nếu (parse_xargs(cmdline, cmdline_size, argv) <= 0)
 		goto error;
 
-	return 0;
+	trả_về 0;
 
 error:
 	free(cmdline);
-	return -EINVAL;
+	trả_về -EINVAL;
 }
 
 enum {
@@ -260,21 +260,21 @@ enum {
  * have the mkostemp(3) fallback.
  */
 #ifndef O_TMPFILE
-#  if defined(__O_TMPFILE) && defined(O_DIRECTORY)
+#  nếu defined(__O_TMPFILE) && defined(O_DIRECTORY)
 #    define O_TMPFILE (__O_TMPFILE | O_DIRECTORY)
 #  endif
 #endif
 
-static int make_execfd(int *fdtype)
+static số_nguyên make_execfd(số_nguyên *fdtype)
 {
-	int fd = -1;
+	số_nguyên fd = -1;
 	char template[PATH_MAX] = {0};
 	char *prefix = getenv("_LIBCONTAINER_STATEDIR");
 
-	if (!prefix || *prefix != '/')
+	nếu (!prefix || *prefix != '/')
 		prefix = "/tmp";
-	if (snprintf(template, sizeof(template), "%s/crun.XXXXXX", prefix) < 0)
-		return -1;
+	nếu (snprintf(template, sizeof(template), "%s/crun.XXXXXX", prefix) < 0)
+		trả_về -1;
 
 	/*
 	 * Now try memfd, it's much nicer than actually creating a file in STATEDIR
@@ -283,9 +283,9 @@ static int make_execfd(int *fdtype)
 	 */
 	*fdtype = EFD_MEMFD;
 	fd = memfd_create(CRUN_MEMFD_COMMENT, MFD_CLOEXEC | MFD_ALLOW_SEALING);
-	if (fd >= 0)
-		return fd;
-	if (errno != ENOSYS && errno != EINVAL)
+	nếu (fd >= 0)
+		trả_về fd;
+	nếu (errno != ENOSYS && errno != EINVAL)
 		goto error;
 
 #ifdef O_TMPFILE
@@ -296,7 +296,7 @@ static int make_execfd(int *fdtype)
 	 */
 	*fdtype = EFD_FILE;
 	fd = open(prefix, O_TMPFILE | O_EXCL | O_RDWR | O_CLOEXEC, 0700);
-	if (fd >= 0) {
+	nếu (fd >= 0) {
 		struct stat statbuf = {};
 		bool working_otmpfile = false;
 
@@ -306,17 +306,17 @@ static int make_execfd(int *fdtype)
 		 * if we get nlink != 0 (or EISDIR) then we know that this kernel
 		 * doesn't support O_TMPFILE.
 		 */
-		if (fstat(fd, &statbuf) >= 0)
+		nếu (fstat(fd, &statbuf) >= 0)
 			working_otmpfile = (statbuf.st_nlink == 0);
 
-		if (working_otmpfile)
-			return fd;
+		nếu (working_otmpfile)
+			trả_về fd;
 
 		/* Pretend that we got EISDIR since O_TMPFILE failed. */
 		close(fd);
 		errno = EISDIR;
 	}
-	if (errno != EISDIR)
+	nếu (errno != EISDIR)
 		goto error;
 #endif /* defined(O_TMPFILE) */
 
@@ -326,69 +326,69 @@ static int make_execfd(int *fdtype)
 	 */
 	*fdtype = EFD_FILE;
 	fd = mkostemp(template, O_CLOEXEC);
-	if (fd >= 0) {
-		if (unlink(template) >= 0)
-			return fd;
+	nếu (fd >= 0) {
+		nếu (unlink(template) >= 0)
+			trả_về fd;
 		close(fd);
 	}
 
 error:
 	*fdtype = EFD_NONE;
-	return -1;
+	trả_về -1;
 }
 
-static int seal_execfd(int *fd, int fdtype)
+static số_nguyên seal_execfd(số_nguyên *fd, số_nguyên fdtype)
 {
 	switch (fdtype) {
 	case EFD_MEMFD:
-		return fcntl(*fd, F_ADD_SEALS, CRUN_MEMFD_SEALS);
+		trả_về fcntl(*fd, F_ADD_SEALS, CRUN_MEMFD_SEALS);
 	case EFD_FILE: {
 		/* Need to re-open our pseudo-memfd as an O_PATH to avoid execve(2) giving -ETXTBSY. */
-		int newfd;
+		số_nguyên newfd;
 		char fdpath[PATH_MAX] = {0};
 
-		if (fchmod(*fd, 0100) < 0)
-			return -1;
+		nếu (fchmod(*fd, 0100) < 0)
+			trả_về -1;
 
-		if (snprintf(fdpath, sizeof(fdpath), "/proc/self/fd/%d", *fd) < 0)
-			return -1;
+		nếu (snprintf(fdpath, sizeof(fdpath), "/proc/self/fd/%d", *fd) < 0)
+			trả_về -1;
 
 		newfd = open(fdpath, O_PATH | O_CLOEXEC);
-		if (newfd < 0)
-			return -1;
+		nếu (newfd < 0)
+			trả_về -1;
 
 		close(*fd);
 		*fd = newfd;
-		return 0;
+		trả_về 0;
 	}
 	default:
 	   break;
 	}
-	return -1;
+	trả_về -1;
 }
 
-static int try_bindfd_mount_api(void)
+static số_nguyên try_bindfd_mount_api(void)
 {
 	libcrun_error_t err;
-	int mountfd = get_bind_mount (-1, "/proc/self/exe", false, true, false, MS_PRIVATE, &err);
-	if (mountfd < 0) {
+	số_nguyên mountfd = get_bind_mount (-1, "/proc/self/exe", false, true, false, MS_PRIVATE, &err);
+	nếu (mountfd < 0) {
 		crun_error_release (&err);
-		return -1;
+		trả_về -1;
 	}
-	return mountfd;
+	trả_về mountfd;
 }
 
-static int try_bindfd(void)
+static số_nguyên try_bindfd(void)
 {
 	mode_t mask;
-	int fd, ret = -1;
+	số_nguyên fd, ret = -1;
 	char template[PATH_MAX] = {0};
 	char *prefix = getenv("_LIBCONTAINER_STATEDIR");
 
-	if (!prefix || *prefix != '/')
+	nếu (!prefix || *prefix != '/')
 		prefix = "/tmp";
-	if (snprintf(template, sizeof(template), "%s/crun.XXXXXX", prefix) < 0)
-		return ret;
+	nếu (snprintf(template, sizeof(template), "%s/crun.XXXXXX", prefix) < 0)
+		trả_về ret;
 
 	/*
 	 * We need somewhere to mount it, mounting anything over /proc/self is a
@@ -397,8 +397,8 @@ static int try_bindfd(void)
 	mask = umask(0700);
 	fd = mkstemp(template);
 	umask(mask);
-	if (fd < 0)
-		return ret;
+	nếu (fd < 0)
+		trả_về ret;
 	close(fd);
 
 	/*
@@ -407,9 +407,9 @@ static int try_bindfd(void)
 	 * complicated and it's only worth doing if someone actually needs it.
 	 */
 	ret = -EPERM;
-	if (mount("/proc/self/exe", template, "", MS_BIND, "") < 0)
+	nếu (mount("/proc/self/exe", template, "", MS_BIND, "") < 0)
 		goto out;
-	if (mount("", template, "", MS_REMOUNT | MS_BIND | MS_RDONLY, "") < 0)
+	nếu (mount("", template, "", MS_REMOUNT | MS_BIND | MS_RDONLY, "") < 0)
 		goto out_umount;
 
 
@@ -422,8 +422,8 @@ out_umount:
 	 * read-write and that would be quite bad (the fd would be made read-write
 	 * too, invalidating the protection).
 	 */
-	if (umount2(template, MNT_DETACH) < 0) {
-		if (ret >= 0)
+	nếu (umount2(template, MNT_DETACH) < 0) {
+		nếu (ret >= 0)
 			close(ret);
 		ret = -ENOTRECOVERABLE;
 	}
@@ -434,60 +434,60 @@ out:
 	 * there's an empty file left around in STATEDIR.
 	 */
 	unlink(template);
-	return ret;
+	trả_về ret;
 }
 
-static ssize_t fd_to_fd(int outfd, int infd)
+static ssize_t fd_to_fd(số_nguyên outfd, số_nguyên infd)
 {
 	ssize_t total = 0;
 	char buffer[4096];
 
-	for (;;) {
+	cho (;;) {
 		ssize_t nread, nwritten = 0;
 
 		nread = read(infd, buffer, sizeof(buffer));
-		if (nread < 0)
-			return -1;
-		if (!nread)
+		nếu (nread < 0)
+			trả_về -1;
+		nếu (!nread)
 			break;
 
 		do {
 			ssize_t n = write(outfd, buffer + nwritten, nread - nwritten);
-			if (n < 0)
-				return -1;
+			nếu (n < 0)
+				trả_về -1;
 			nwritten += n;
-		} while(nwritten < nread);
+		} trong_khi(nwritten < nread);
 
 		total += nwritten;
 	}
 
-	return total;
+	trả_về total;
 }
 
-static int clone_binary(void)
+static số_nguyên clone_binary(void)
 {
-	cleanup_close int execfd = -1;
+	cleanup_close số_nguyên execfd = -1;
 	struct stat statbuf = {};
 	ssize_t sent = 0;
-	int fdtype = EFD_NONE;
+	số_nguyên fdtype = EFD_NONE;
 
 	/*
 	 * Before we resort to copying, let's try creating an ro-binfd in one shot
 	 * by getting a handle for a read-only bind-mount of the execfd.
 	 */
 	execfd = try_bindfd_mount_api();
-	if (execfd >= 0) {
+	nếu (execfd >= 0) {
 		/* Transfer ownership to caller */
-		int ret_execfd = execfd;
+		số_nguyên ret_execfd = execfd;
 		execfd = -1;
-		return ret_execfd;
+		trả_về ret_execfd;
 	}
 	execfd = try_bindfd();
-	if (execfd >= 0) {
+	nếu (execfd >= 0) {
 		/* Transfer ownership to caller */
-		int ret_execfd = execfd;
+		số_nguyên ret_execfd = execfd;
 		execfd = -1;
-		return ret_execfd;
+		trả_về ret_execfd;
 	}
 
 	/*
@@ -495,69 +495,69 @@ static int clone_binary(void)
 	 * can seal the contents.
 	 */
 	execfd = make_execfd(&fdtype);
-	if (execfd < 0 || fdtype == EFD_NONE)
-		return -ENOTRECOVERABLE;
+	nếu (execfd < 0 || fdtype == EFD_NONE)
+		trả_về -ENOTRECOVERABLE;
 
 	{
-		cleanup_close int binfd = -1;
+		cleanup_close số_nguyên binfd = -1;
 		binfd = open("/proc/self/exe", O_RDONLY | O_CLOEXEC);
-		if (binfd < 0)
+		nếu (binfd < 0)
 			goto error;
 
-		if (fstat(binfd, &statbuf) < 0)
+		nếu (fstat(binfd, &statbuf) < 0)
 			goto error;
 
-		while (sent < statbuf.st_size) {
-			int n = sendfile(execfd, binfd, NULL, statbuf.st_size - sent);
-			if (n < 0) {
+		trong_khi (sent < statbuf.st_size) {
+			số_nguyên n = sendfile(execfd, binfd, NULL, statbuf.st_size - sent);
+			nếu (n < 0) {
 				/* sendfile can fail so we fallback to a dumb user-space copy. */
 				n = fd_to_fd(execfd, binfd);
-				if (n < 0)
+				nếu (n < 0)
 					goto error;
 			}
 			sent += n;
 		}
 	}
-	if (sent != statbuf.st_size)
+	nếu (sent != statbuf.st_size)
 		goto error;
 
-	if (seal_execfd(&execfd, fdtype) < 0)
+	nếu (seal_execfd(&execfd, fdtype) < 0)
 		goto error;
 
 	{
 		/* Transfer ownership to caller */
-		int ret_execfd = execfd;
+		số_nguyên ret_execfd = execfd;
 		execfd = -1;
-		return ret_execfd;
+		trả_về ret_execfd;
 	}
 error:
-	return -EIO;
+	trả_về -EIO;
 }
 
 /* Get cheap access to the environment. */
 extern char **environ;
 
-int ensure_cloned_binary(void)
+số_nguyên ensure_cloned_binary(void)
 {
-	cleanup_close int execfd = -1;
+	cleanup_close số_nguyên execfd = -1;
 	char **argv = NULL;
 
 	/* Check that we're not self-cloned, and if we are then bail. */
-	int cloned = is_self_cloned();
-	if (cloned > 0 || cloned == -ENOTRECOVERABLE)
-		return cloned;
+	số_nguyên cloned = is_self_cloned();
+	nếu (cloned > 0 || cloned == -ENOTRECOVERABLE)
+		trả_về cloned;
 
-	if (fetchve(&argv) < 0)
-		return -EINVAL;
+	nếu (fetchve(&argv) < 0)
+		trả_về -EINVAL;
 
 	execfd = clone_binary();
-	if (execfd < 0)
-		return -EIO;
+	nếu (execfd < 0)
+		trả_về -EIO;
 
-	if (putenv(CLONED_BINARY_ENV "=1"))
+	nếu (putenv(CLONED_BINARY_ENV "=1"))
 		goto error;
 
 	fexecve(execfd, argv, environ);
 error:
-	return -ENOEXEC;
+	trả_về -ENOEXEC;
 }

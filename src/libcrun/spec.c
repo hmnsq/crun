@@ -220,46 +220,46 @@ static const char *spec_cgroupns = "\
 				\"type\": \"cgroup\"\n\
 			},\n";
 
-int
+số_nguyên
 libcrun_container_spec (bool root, FILE *out, libcrun_error_t *err)
 {
-  int ret;
-  int cgroup_mode;
+  số_nguyên ret;
+  số_nguyên cgroup_mode;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  nếu (UNLIKELY (cgroup_mode < 0))
+    trả_về cgroup_mode;
 
   ret = fprintf (out, spec_file,
                  root ? spec_pts_tty_group : "\n",
                  root ? "" : spec_user,
                  cgroup_mode == CGROUP_MODE_UNIFIED ? spec_cgroupns : "");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fprintf failed");
+  nếu (UNLIKELY (ret < 0))
+    trả_về crun_make_error (err, errno, "fprintf failed");
 
-  return ret;
+  trả_về ret;
 }
 
-int
+số_nguyên
 libcrun_container_spec_json (bool root, char **out, libcrun_error_t *err)
 {
   char *buffer = NULL;
   size_t len = 0;
   FILE *f;
-  int ret;
+  số_nguyên ret;
 
   f = open_memstream (&buffer, &len);
-  if (f == NULL)
-    return crun_make_error (err, errno, "open_memstream");
+  nếu (f == NULL)
+    trả_về crun_make_error (err, errno, "open_memstream");
 
   ret = libcrun_container_spec (root, f, err);
   fclose (f);
-  if (UNLIKELY (ret < 0))
+  nếu (UNLIKELY (ret < 0))
     {
       free (buffer);
-      return ret;
+      trả_về ret;
     }
 
   *out = buffer;
-  return 0;
+  trả_về 0;
 }

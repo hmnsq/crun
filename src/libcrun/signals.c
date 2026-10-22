@@ -2,7 +2,7 @@
 /* Command-line: gperf --lookup-function-name libcrun_signal_in_word_set -m 100 --null-strings --pic -tCEG -S1 src/libcrun/signals.perf  */
 /* Computed positions: -k'2,4,$' */
 
-#if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
+#nếu !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
       && ('%' == 37) && ('&' == 38) && ('\'' == 39) && ('(' == 40) \
       && (')' == 41) && ('*' == 42) && ('+' == 43) && (',' == 44) \
       && ('-' == 45) && ('.' == 46) && ('/' == 47) && ('0' == 48) \
@@ -40,8 +40,8 @@
 #line 27 "src/libcrun/signals.perf"
 struct signal_s
 {
-  int name;
-  int value;
+  số_nguyên name;
+  số_nguyên value;
 };
 enum
   {
@@ -56,12 +56,12 @@ enum
 
 #ifdef __GNUC__
 __inline
-#else
+#không_thì
 #ifdef __cplusplus
 inline
 #endif
 #endif
-static unsigned int
+static unsigned số_nguyên
 hash (register const char *str, register size_t len)
 {
   static const unsigned char asso_values[] =
@@ -93,7 +93,7 @@ hash (register const char *str, register size_t len)
       87, 87, 87, 87, 87, 87, 87, 87, 87, 87,
       87, 87, 87, 87, 87, 87
     };
-  register unsigned int hval = len;
+  register unsigned số_nguyên hval = len;
 
   switch (hval)
     {
@@ -105,7 +105,7 @@ hash (register const char *str, register size_t len)
         hval += asso_values[(unsigned char)str[1]];
         break;
     }
-  return hval + asso_values[(unsigned char)str[len - 1]];
+  trả_về hval + asso_values[(unsigned char)str[len - 1]];
 }
 
 struct stringpool_t
@@ -243,139 +243,139 @@ static const struct stringpool_t stringpool_contents =
 static const struct signal_s wordlist[] =
   {
 #line 36 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str0, 4},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str0, 4},
 #line 33 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str1, 1},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str1, 1},
 #line 41 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str2, 9},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str2, 9},
 #line 54 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str3, 22},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str3, 22},
 #line 35 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str4, 3},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str4, 3},
 #line 51 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str5, 19},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str5, 19},
 #line 66 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str6, 36},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str6, 36},
 #line 76 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str7, 46},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str7, 46},
 #line 92 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str8, 62},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str8, 62},
 #line 82 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str9, 52},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str9, 52},
 #line 65 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str10, 35},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str10, 35},
 #line 75 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str11, 45},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str11, 45},
 #line 93 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str12, 63},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str12, 63},
 #line 83 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str13, 53},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str13, 53},
 #line 68 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str14, 38},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str14, 38},
 #line 78 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str15, 48},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str15, 48},
 #line 90 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str16, 60},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str16, 60},
 #line 80 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str17, 50},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str17, 50},
 #line 67 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str18, 37},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str18, 37},
 #line 77 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str19, 47},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str19, 47},
 #line 91 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str20, 61},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str20, 61},
 #line 81 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str21, 51},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str21, 51},
 #line 39 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str22, 7},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str22, 7},
 #line 58 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str23, 26},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str23, 26},
 #line 34 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str24, 2},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str24, 2},
 #line 40 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str25, 8},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str25, 8},
 #line 50 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str26, 18},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str26, 18},
 #line 48 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str27, 16},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str27, 16},
 #line 44 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str28, 12},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str28, 12},
 #line 37 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str29, 5},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str29, 5},
 #line 52 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str30, 20},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str30, 20},
 #line 64 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str31, 34},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str31, 34},
 #line 69 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str32, 39},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str32, 39},
 #line 79 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str33, 49},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str33, 49},
 #line 89 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str34, 59},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str34, 59},
 #line 73 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str35, 43},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str35, 43},
 #line 42 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str36, 10},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str36, 10},
 #line 85 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str37, 55},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str37, 55},
 #line 46 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str38, 14},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str38, 14},
 #line 61 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str39, 29},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str39, 29},
 #line 72 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str40, 42},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str40, 42},
 #line 71 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str41, 41},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str41, 41},
 #line 86 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str42, 56},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str42, 56},
 #line 87 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str43, 57},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str43, 57},
 #line 70 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str44, 40},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str44, 40},
 #line 74 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str45, 44},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str45, 44},
 #line 88 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str46, 58},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str46, 58},
 #line 84 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str47, 54},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str47, 54},
 #line 63 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str48, 31},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str48, 31},
 #line 57 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str49, 25},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str49, 25},
 #line 94 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str50, 64},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str50, 64},
 #line 62 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str51, 30},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str51, 30},
 #line 43 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str52, 11},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str52, 11},
 #line 56 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str53, 24},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str53, 24},
 #line 60 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str54, 28},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str54, 28},
 #line 55 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str55, 23},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str55, 23},
 #line 49 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str56, 17},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str56, 17},
 #line 53 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str57, 21},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str57, 21},
 #line 45 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str58, 13},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str58, 13},
 #line 38 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str59, 6},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str59, 6},
 #line 47 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str60, 15},
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str60, 15},
 #line 59 "src/libcrun/signals.perf"
-    {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str61, 27}
+    {(số_nguyên)(size_t)&((struct stringpool_t *)0)->stringpool_str61, 27}
   };
 
 const struct signal_s *
 libcrun_signal_in_word_set (register const char *str, register size_t len)
 {
-  if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
+  nếu (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
-      register unsigned int key = hash (str, len);
+      register unsigned số_nguyên key = hash (str, len);
 
-      if (key <= MAX_HASH_VALUE && key >= MIN_HASH_VALUE)
+      nếu (key <= MAX_HASH_VALUE && key >= MIN_HASH_VALUE)
         {
           register const struct signal_s *resword;
 
@@ -568,46 +568,46 @@ libcrun_signal_in_word_set (register const char *str, register size_t len)
                 resword = &wordlist[61];
                 goto compare;
             }
-          return 0;
+          trả_về 0;
         compare:
           {
             register const char *s = resword->name + stringpool;
 
-            if (*str == *s && !strcmp (str + 1, s + 1))
-              return resword;
+            nếu (*str == *s && !strcmp (str + 1, s + 1))
+              trả_về resword;
           }
         }
     }
-  return 0;
+  trả_về 0;
 }
 #line 95 "src/libcrun/signals.perf"
 
-int
+số_nguyên
 str2sig (const char *name)
 {
   const struct signal_s *s;
 
-  if (has_prefix (name, "SIG"))
+  nếu (has_prefix (name, "SIG"))
     name += 3;
 
   s = libcrun_signal_in_word_set (name, strlen (name));
-  if (s == NULL)
+  nếu (s == NULL)
     {
-      long int value;
+      long số_nguyên value;
 
-      if (!isdigit(name[0]))
+      nếu (!isdigit(name[0]))
         {
           errno = EINVAL;
-          return -1;
+          trả_về -1;
         }
 
       errno = 0;
       value = strtol (name, NULL, 10);
-      if (errno != 0)
-        return -1;
+      nếu (errno != 0)
+        trả_về -1;
 
-      return value;
+      trả_về value;
     }
 
-  return s->value;
+  trả_về s->value;
 }

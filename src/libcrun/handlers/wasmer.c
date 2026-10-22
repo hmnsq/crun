@@ -38,13 +38,13 @@
 #  include <wasmer.h>
 #endif
 
-#if HAVE_DLOPEN && HAVE_WASMER
+#nếu HAVE_DLOPEN && HAVE_WASMER
 #  define WASMER_BUF_SIZE 128
-static int
+static số_nguyên
 libwasmer_exec (void *cookie, libcrun_container_t *container arg_unused,
                 const char *pathname, char *const argv[])
 {
-  int ret;
+  số_nguyên ret;
   char buffer[WASMER_BUF_SIZE] = { 0 };
   size_t data_read_size = WASMER_BUF_SIZE;
   const wasm_func_t *core_func;
@@ -132,7 +132,7 @@ libwasmer_exec (void *cookie, libcrun_container_t *container arg_unused,
   wasm_func_delete = dlsym (cookie, "wasm_func_delete");
   wasi_env_initialize_instance = dlsym (cookie, "wasi_env_initialize_instance");
 
-  if (wat2wasm == NULL || wasm_module_delete == NULL || wasm_instance_delete == NULL
+  nếu (wat2wasm == NULL || wasm_module_delete == NULL || wasm_instance_delete == NULL
       || wasm_engine_delete == NULL || wasm_store_delete == NULL || wasm_func_call == NULL
       || wasm_extern_as_func == NULL || wasm_instance_exports == NULL || wasm_instance_new == NULL
       || wasm_store_new == NULL || wasm_engine_new == NULL || wasm_byte_vec_new == NULL
@@ -146,7 +146,7 @@ libwasmer_exec (void *cookie, libcrun_container_t *container arg_unused,
 
   wat_wasm_file = fopen (pathname, "rbe");
 
-  if (! wat_wasm_file)
+  nếu (! wat_wasm_file)
     error (EXIT_FAILURE, errno, "error opening wat/wasm module");
 
   fseek (wat_wasm_file, 0L, SEEK_END);
@@ -155,14 +155,14 @@ libwasmer_exec (void *cookie, libcrun_container_t *container arg_unused,
 
   wasm_byte_vec_new_uninitialized (&binary_bytes, file_size);
 
-  if (fread (binary_bytes.data, file_size, 1, wat_wasm_file) != 1)
+  nếu (fread (binary_bytes.data, file_size, 1, wat_wasm_file) != 1)
     error (EXIT_FAILURE, errno, "error loading wat/wasm module");
 
   /* We can close entrypoint file.   */
   fclose (wat_wasm_file);
 
   /* We have received a wat file: convert wat to wasm.   */
-  if (has_suffix (pathname, "wat") > 0)
+  nếu (has_suffix (pathname, "wat") > 0)
     {
       wat2wasm (&binary_bytes, &wasm_bytes);
       binary_bytes = wasm_bytes;
@@ -173,16 +173,16 @@ libwasmer_exec (void *cookie, libcrun_container_t *container arg_unused,
 
   module = wasm_module_new (store, &binary_bytes);
 
-  if (! module)
+  nếu (! module)
     error (EXIT_FAILURE, 0, "error compiling wasm module");
 
   config = wasi_config_new ("crun_wasi_program");
 
   /* Count number of external arguments given.  */
-  for (arg = argv; *arg != NULL; ++arg)
+  cho (arg = argv; *arg != NULL; ++arg)
     args_size++;
 
-  if (args_size > 1)
+  nếu (args_size > 1)
     {
       wasi_args = str_join_array (1, args_size, argv, " ");
       wasi_config_arg (config, wasi_args);
@@ -190,33 +190,33 @@ libwasmer_exec (void *cookie, libcrun_container_t *container arg_unused,
 
   wasi_config_inherit_stdout (config);
   wasi_env = wasi_env_new (store, config);
-  if (! wasi_env)
+  nếu (! wasi_env)
     {
       error (EXIT_FAILURE, 0, "error building wasi env");
     }
 
   /* Instantiate.  */
-  if (! wasi_get_imports (store, wasi_env, module, &imports))
+  nếu (! wasi_get_imports (store, wasi_env, module, &imports))
     error (EXIT_FAILURE, 0, "error getting WASI imports");
 
   instance = wasm_instance_new (store, module, &imports, NULL);
 
-  if (! instance)
+  nếu (! instance)
     error (EXIT_FAILURE, 0, "error instantiating module");
 
-  if (! wasi_env_initialize_instance (wasi_env, store, instance))
+  nếu (! wasi_env_initialize_instance (wasi_env, store, instance))
     error (EXIT_FAILURE, 0, "error init wasi env");
 
   /* Extract export.  */
   wasm_instance_exports (instance, &exports);
-  if (exports.size == 0)
+  nếu (exports.size == 0)
     error (EXIT_FAILURE, 0, "error getting instance exports");
 
   run_func = wasi_get_start_function (instance);
-  if (run_func == NULL)
+  nếu (run_func == NULL)
     error (EXIT_FAILURE, 0, "error accessing export");
 
-  if (wasm_func_call (run_func, &args, &res))
+  nếu (wasm_func_call (run_func, &args, &res))
     error (EXIT_FAILURE, 0, "error calling wasm function");
 
   wasm_extern_vec_delete (&exports);
@@ -233,37 +233,37 @@ libwasmer_exec (void *cookie, libcrun_container_t *container arg_unused,
   exit (EXIT_SUCCESS);
 }
 
-static int
+static số_nguyên
 libwasmer_load (void **cookie, libcrun_error_t *err)
 {
   void *handle;
 
   handle = dlopen ("libwasmer.so", RTLD_NOW);
-  if (handle == NULL)
-    return crun_make_error (err, 0, "could not load `libwasmer.so`: %s", dlerror ());
+  nếu (handle == NULL)
+    trả_về crun_make_error (err, 0, "could not load `libwasmer.so`: %s", dlerror ());
   *cookie = handle;
 
-  return 0;
+  trả_về 0;
 }
 
-static int
+static số_nguyên
 libwasmer_unload (void *cookie, libcrun_error_t *err)
 {
-  int r;
+  số_nguyên r;
 
-  if (cookie)
+  nếu (cookie)
     {
       r = dlclose (cookie);
-      if (UNLIKELY (r < 0))
-        return crun_make_error (err, 0, "could not unload handle: %s", dlerror ());
+      nếu (UNLIKELY (r < 0))
+        trả_về crun_make_error (err, 0, "could not unload handle: %s", dlerror ());
     }
-  return 0;
+  trả_về 0;
 }
 
-static int
+static số_nguyên
 libwasmer_can_handle_container (libcrun_container_t *container, libcrun_error_t *err)
 {
-  return wasm_can_handle_container (container, err);
+  trả_về wasm_can_handle_container (container, err);
 }
 
 struct custom_handler_s handler_wasmer = {

@@ -43,18 +43,18 @@
 #include <fcntl.h>
 #include <libgen.h>
 
-static int
+static số_nguyên
 libcrun_cgroup_enter_disabled (struct libcrun_cgroup_args *args arg_unused, struct libcrun_cgroup_status *out, libcrun_error_t *err arg_unused)
 {
   out->path = NULL;
-  return 0;
+  trả_về 0;
 }
 
-static int
+static số_nguyên
 libcrun_destroy_cgroup_disabled (struct libcrun_cgroup_status *cgroup_status arg_unused,
                                  libcrun_error_t *err arg_unused)
 {
-  return 0;
+  trả_về 0;
 }
 
 struct libcrun_cgroup_manager cgroup_manager_disabled = {
@@ -63,26 +63,26 @@ struct libcrun_cgroup_manager cgroup_manager_disabled = {
   .destroy_cgroup = libcrun_destroy_cgroup_disabled,
 };
 
-static int
-get_cgroup_manager (int manager, struct libcrun_cgroup_manager **out, libcrun_error_t *err)
+static số_nguyên
+get_cgroup_manager (số_nguyên manager, struct libcrun_cgroup_manager **out, libcrun_error_t *err)
 {
   switch (manager)
     {
     case CGROUP_MANAGER_DISABLED:
       *out = &cgroup_manager_disabled;
-      return 0;
+      trả_về 0;
 
     case CGROUP_MANAGER_SYSTEMD:
       *out = &cgroup_manager_systemd;
-      return 0;
+      trả_về 0;
 
     case CGROUP_MANAGER_CGROUPFS:
       *out = &cgroup_manager_cgroupfs;
-      return 0;
+      trả_về 0;
     }
 
   *out = NULL;
-  return crun_make_error (err, EINVAL, "unknown cgroup manager specified `%d`", manager);
+  trả_về crun_make_error (err, EINVAL, "unknown cgroup manager specified `%d`", manager);
 }
 
 static const char *
@@ -91,58 +91,58 @@ find_delegate_cgroup (string_map *annotations)
   const char *annotation;
 
   annotation = find_string_map_value (annotations, "run.oci.delegate-cgroup");
-  if (annotation)
+  nếu (annotation)
     {
-      if (annotation[0] == '\0')
-        return NULL;
-      return annotation;
+      nếu (annotation[0] == '\0')
+        trả_về NULL;
+      trả_về annotation;
     }
 
-  return NULL;
+  trả_về NULL;
 }
 
-int
+số_nguyên
 libcrun_cgroup_pause_unpause (struct libcrun_cgroup_status *status, const bool pause, libcrun_error_t *err)
 {
-  return libcrun_cgroup_pause_unpause_path (status->path, pause, err);
+  trả_về libcrun_cgroup_pause_unpause_path (status->path, pause, err);
 }
 
-int
+số_nguyên
 libcrun_cgroup_is_container_paused (struct libcrun_cgroup_status *status, bool *paused, libcrun_error_t *err)
 {
   const char *cgroup_path = status->path;
   cleanup_free char *content = NULL;
   cleanup_free char *path = NULL;
   const char *state;
-  int cgroup_mode;
-  int ret;
+  số_nguyên cgroup_mode;
+  số_nguyên ret;
 
-  if (cgroup_path == NULL)
-    return 0;
+  nếu (cgroup_path == NULL)
+    trả_về 0;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  nếu (UNLIKELY (cgroup_mode < 0))
+    trả_về cgroup_mode;
 
-  if (cgroup_mode == CGROUP_MODE_UNIFIED)
+  nếu (cgroup_mode == CGROUP_MODE_UNIFIED)
     {
       state = "1";
 
       ret = append_paths (&path, err, CGROUP_ROOT, cgroup_path, "cgroup.freeze", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      nếu (UNLIKELY (ret < 0))
+        trả_về ret;
     }
-  else
+  không_thì
     {
       state = "FROZEN";
 
       ret = append_paths (&path, err, CGROUP_ROOT "/freezer", cgroup_path, "freezer.state", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      nếu (UNLIKELY (ret < 0))
+        trả_về ret;
     }
 
   ret = read_all_file (path, &content, NULL, err);
-  if (UNLIKELY (ret < 0))
+  nếu (UNLIKELY (ret < 0))
     {
       errno = crun_error_get_errno (err);
       /* If the file is missing and we were checking for freezer.state
@@ -150,8 +150,8 @@ libcrun_cgroup_is_container_paused (struct libcrun_cgroup_status *status, bool *
          simply disabled. In such case the container cannot be paused.
          On cgroup v2 freezer is always there.
       */
-      if (errno != ENOENT || cgroup_mode == CGROUP_MODE_UNIFIED)
-        return ret;
+      nếu (errno != ENOENT || cgroup_mode == CGROUP_MODE_UNIFIED)
+        trả_về ret;
 
       /* Even with freezer disabled, its directory is still there. But
          when it's disabled it has type tmpfs, while on systems with
@@ -159,99 +159,99 @@ libcrun_cgroup_is_container_paused (struct libcrun_cgroup_status *status, bool *
          whether freezer is enabled or not.
       */
       struct statfs freezer_stat;
-      if (statfs (CGROUP_ROOT "/freezer", &freezer_stat))
+      nếu (statfs (CGROUP_ROOT "/freezer", &freezer_stat))
         {
           crun_error_release (err);
-          return crun_make_error (err, errno, "error when using statfs on `%s`", CGROUP_ROOT "/freezer");
+          trả_về crun_make_error (err, errno, "error when using statfs on `%s`", CGROUP_ROOT "/freezer");
         }
 
       /* If the freezer is mounted as cgroupfs type, then missing
          freezer.state file is an error and should be handled like before.
       */
-      if (freezer_stat.f_type == CGROUP_SUPER_MAGIC)
-        return ret;
+      nếu (freezer_stat.f_type == CGROUP_SUPER_MAGIC)
+        trả_về ret;
 
       /* When freezer dir is not mounted as cgroupfs, then it's
          disabled, therefore container cannot be in paused state.
       */
       crun_error_release (err);
       *paused = false;
-      return 0;
+      trả_về 0;
     }
 
   *paused = strstr (content, state) != NULL;
-  return 0;
+  trả_về 0;
 }
 
-int
+số_nguyên
 libcrun_cgroup_join_process (struct libcrun_cgroup_status *status, const char *path, pid_t pid, pid_t init_pid,
                              libcrun_error_t *err)
 {
   struct libcrun_cgroup_manager *cgroup_manager;
   libcrun_error_t tmp_err = NULL;
-  int errno_;
-  int ret;
+  số_nguyên errno_;
+  số_nguyên ret;
 
   ret = libcrun_move_process_to_cgroup (pid, init_pid, path, false, err);
-  if (LIKELY (ret >= 0))
-    return ret;
+  nếu (LIKELY (ret >= 0))
+    trả_về ret;
 
   /* Moving a process requires write access to cgroup.procs of the common
      ancestor of the source and the destination cgroups, which the caller
      may lack.  See if the cgroup manager can do it instead.  */
   errno_ = crun_error_get_errno (err);
-  if (errno_ != EACCES && errno_ != EPERM)
-    return ret;
+  nếu (errno_ != EACCES && errno_ != EPERM)
+    trả_về ret;
 
-  if (get_cgroup_manager (status->manager, &cgroup_manager, &tmp_err) < 0)
+  nếu (get_cgroup_manager (status->manager, &cgroup_manager, &tmp_err) < 0)
     {
       crun_error_release (&tmp_err);
-      return ret;
+      trả_về ret;
     }
-  if (cgroup_manager->attach_process == NULL)
-    return ret;
+  nếu (cgroup_manager->attach_process == NULL)
+    trả_về ret;
 
-  if (UNLIKELY (cgroup_manager->attach_process (status, path, pid, &tmp_err) < 0))
+  nếu (UNLIKELY (cgroup_manager->attach_process (status, path, pid, &tmp_err) < 0))
     {
       /* Report the original error, as it is more relevant.  */
       libcrun_debug ("Cannot attach pid %d to cgroup `%s`: %s", pid, path, tmp_err->msg);
       crun_error_release (&tmp_err);
-      return ret;
+      trả_về ret;
     }
 
   crun_error_release (err);
-  return 0;
+  trả_về 0;
 }
 
-int
+số_nguyên
 libcrun_cgroup_read_pids (struct libcrun_cgroup_status *status, bool recurse, pid_t **pids, libcrun_error_t *err)
 {
-  return libcrun_cgroup_read_pids_from_path (status->path, recurse, pids, err);
+  trả_về libcrun_cgroup_read_pids_from_path (status->path, recurse, pids, err);
 }
 
-int
-libcrun_cgroup_killall (struct libcrun_cgroup_status *cgroup_status, int signal, libcrun_error_t *err)
+số_nguyên
+libcrun_cgroup_killall (struct libcrun_cgroup_status *cgroup_status, số_nguyên signal, libcrun_error_t *err)
 {
-  return cgroup_killall_path (cgroup_status->path, signal, err);
+  trả_về cgroup_killall_path (cgroup_status->path, signal, err);
 }
 
-int
+số_nguyên
 libcrun_cgroup_destroy (struct libcrun_cgroup_status *cgroup_status, libcrun_error_t *err)
 {
   struct libcrun_cgroup_manager *cgroup_manager = NULL;
-  int ret;
+  số_nguyên ret;
 
   ret = get_cgroup_manager (cgroup_status->manager, &cgroup_manager, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  nếu (UNLIKELY (ret < 0))
+    trả_về ret;
 
-  return cgroup_manager->destroy_cgroup (cgroup_status, err);
+  trả_về cgroup_manager->destroy_cgroup (cgroup_status, err);
 }
 
 /* On cgroup v2, the CPU quota and period are set together, via cpu.max.
    If an update sets only one of them, take the other one from the current
    cpu.max, so it is kept (rather than reset to the default).  */
-static int
+static số_nguyên
 complete_cpu_max (const char *path, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
 {
   runtime_spec_schema_config_linux_resources_cpu *cpu;
@@ -260,92 +260,92 @@ complete_cpu_max (const char *path, runtime_spec_schema_config_linux_resources *
   bool has_period;
   uint64_t period;
   int64_t quota;
-  int cgroup_mode;
-  int ret;
+  số_nguyên cgroup_mode;
+  số_nguyên ret;
 
-  if (resources == NULL || resources->cpu == NULL)
-    return 0;
+  nếu (resources == NULL || resources->cpu == NULL)
+    trả_về 0;
 
   cpu = resources->cpu;
-  if (cpu->quota_present == cpu->period_present)
-    return 0;
+  nếu (cpu->quota_present == cpu->period_present)
+    trả_về 0;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
-  if (cgroup_mode != CGROUP_MODE_UNIFIED)
-    return 0;
+  nếu (UNLIKELY (cgroup_mode < 0))
+    trả_về cgroup_mode;
+  nếu (cgroup_mode != CGROUP_MODE_UNIFIED)
+    trả_về 0;
 
   ret = append_paths (&cpu_max_path, err, CGROUP_ROOT, path, "cpu.max", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  nếu (UNLIKELY (ret < 0))
+    trả_về ret;
 
   ret = read_all_file (cpu_max_path, &content, NULL, err);
-  if (UNLIKELY (ret < 0))
+  nếu (UNLIKELY (ret < 0))
     {
       /* The cpu controller might not be enabled; nothing to keep then.  */
       crun_error_release (err);
-      return 0;
+      trả_về 0;
     }
 
   ret = parse_cpu_max (content, &quota, &period, &has_period, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  nếu (UNLIKELY (ret < 0))
+    trả_về ret;
 
-  if (! cpu->quota_present)
+  nếu (! cpu->quota_present)
     {
       cpu->quota = quota;
       cpu->quota_present = 1;
     }
-  else if (has_period)
+  không_thì nếu (has_period)
     {
       cpu->period = period;
       cpu->period_present = 1;
     }
 
-  return 0;
+  trả_về 0;
 }
 
-int
+số_nguyên
 libcrun_update_cgroup_resources (struct libcrun_cgroup_status *cgroup_status,
                                  const char *state_root,
                                  runtime_spec_schema_config_linux_resources *resources,
                                  libcrun_error_t *err)
 {
   struct libcrun_cgroup_manager *cgroup_manager = NULL;
-  int ret;
+  số_nguyên ret;
 
   ret = get_cgroup_manager (cgroup_status->manager, &cgroup_manager, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  nếu (UNLIKELY (ret < 0))
+    trả_về ret;
 
   ret = check_memory_before_update (cgroup_status->path, resources, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  nếu (UNLIKELY (ret < 0))
+    trả_về ret;
 
   ret = complete_cpu_max (cgroup_status->path, resources, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  nếu (UNLIKELY (ret < 0))
+    trả_về ret;
 
-  if (cgroup_manager->update_resources)
+  nếu (cgroup_manager->update_resources)
     {
       ret = cgroup_manager->update_resources (cgroup_status, state_root, resources, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      nếu (UNLIKELY (ret < 0))
+        trả_về ret;
     }
-  return update_cgroup_resources (cgroup_status->path, state_root, resources, ! cgroup_status->bpf_dev_set, err);
+  trả_về update_cgroup_resources (cgroup_status->path, state_root, resources, ! cgroup_status->bpf_dev_set, err);
 }
 
-static int
-can_ignore_cgroup_enter_errors (struct libcrun_cgroup_args *args, int cgroup_mode,
+static số_nguyên
+can_ignore_cgroup_enter_errors (struct libcrun_cgroup_args *args, số_nguyên cgroup_mode,
                                 libcrun_error_t *err)
 {
-  int manager = args->manager;
-  int rootless;
+  số_nguyên manager = args->manager;
+  số_nguyên rootless;
 
   rootless = is_rootless (err);
-  if (UNLIKELY (rootless < 0))
-    return rootless;
+  nếu (UNLIKELY (rootless < 0))
+    trả_về rootless;
 
   /* Ignore errors if all these conditions are met:
      - it is running as rootless.
@@ -353,42 +353,42 @@ can_ignore_cgroup_enter_errors (struct libcrun_cgroup_args *args, int cgroup_mod
      - it is not both cgroupv2 and manager=systemd.
   */
 
-  if (! rootless)
-    return 0;
+  nếu (! rootless)
+    trả_về 0;
 
-  if (! is_empty_string (args->cgroup_path))
-    return 0;
+  nếu (! is_empty_string (args->cgroup_path))
+    trả_về 0;
 
-  if (cgroup_mode == CGROUP_MODE_UNIFIED && manager == CGROUP_MANAGER_SYSTEMD)
-    return 0;
+  nếu (cgroup_mode == CGROUP_MODE_UNIFIED && manager == CGROUP_MANAGER_SYSTEMD)
+    trả_về 0;
 
-  return 1;
+  trả_về 1;
 }
 
-int
-libcrun_cgroup_preenter (struct libcrun_cgroup_args *args, int *dirfd, libcrun_error_t *err)
+số_nguyên
+libcrun_cgroup_preenter (struct libcrun_cgroup_args *args, số_nguyên *dirfd, libcrun_error_t *err)
 {
   struct libcrun_cgroup_manager *cgroup_manager;
-  int cgroup_mode;
-  int ret;
+  số_nguyên cgroup_mode;
+  số_nguyên ret;
 
   *dirfd = -1;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  nếu (UNLIKELY (cgroup_mode < 0))
+    trả_về cgroup_mode;
 
-  if (cgroup_mode != CGROUP_MODE_UNIFIED)
-    return 0;
+  nếu (cgroup_mode != CGROUP_MODE_UNIFIED)
+    trả_về 0;
 
   ret = get_cgroup_manager (args->manager, &cgroup_manager, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  nếu (UNLIKELY (ret < 0))
+    trả_về ret;
 
-  if (cgroup_manager->precreate_cgroup == NULL)
-    return 0;
+  nếu (cgroup_manager->precreate_cgroup == NULL)
+    trả_về 0;
 
-  return cgroup_manager->precreate_cgroup (args, dirfd, err);
+  trả_về cgroup_manager->precreate_cgroup (args, dirfd, err);
 }
 
 /* Remove the cgroup created by libcrun_cgroup_preenter if libcrun_cgroup_enter
@@ -398,15 +398,15 @@ libcrun_cgroup_preenter (struct libcrun_cgroup_args *args, int *dirfd, libcrun_e
 void
 libcrun_cgroup_preenter_cleanup (struct libcrun_cgroup_args *args)
 {
-  if (args->precreated_path == NULL)
-    return;
+  nếu (args->precreated_path == NULL)
+    trả_về;
 
   (void) rmdir (args->precreated_path);
   free (args->precreated_path);
   args->precreated_path = NULL;
 }
 
-int
+số_nguyên
 libcrun_cgroup_enter (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status **out, libcrun_error_t *err)
 {
   /* status will be filled by the cgroup manager.  */
@@ -414,14 +414,14 @@ libcrun_cgroup_enter (struct libcrun_cgroup_args *args, struct libcrun_cgroup_st
   struct libcrun_cgroup_manager *cgroup_manager;
   uid_t root_uid = args->root_uid;
   uid_t root_gid = args->root_gid;
-  int cgroup_mode;
-  int ret;
+  số_nguyên cgroup_mode;
+  số_nguyên ret;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  nếu (UNLIKELY (cgroup_mode < 0))
+    trả_về cgroup_mode;
 
-  if (cgroup_mode == CGROUP_MODE_HYBRID)
+  nếu (cgroup_mode == CGROUP_MODE_HYBRID)
     {
       /* We don't really support hybrid mode, so check that cgroups2 is not using any controller.  */
 
@@ -429,33 +429,33 @@ libcrun_cgroup_enter (struct libcrun_cgroup_args *args, struct libcrun_cgroup_st
       cleanup_free char *buffer = NULL;
 
       ret = read_all_file (CGROUP_ROOT "/unified/cgroup.controllers", &buffer, &len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      if (len > 0)
-        return crun_make_error (err, 0, "cgroups in hybrid mode not supported, drop all controllers from cgroupv2");
+      nếu (UNLIKELY (ret < 0))
+        trả_về ret;
+      nếu (len > 0)
+        trả_về crun_make_error (err, 0, "cgroups in hybrid mode not supported, drop all controllers from cgroupv2");
     }
 
   ret = get_cgroup_manager (args->manager, &cgroup_manager, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  nếu (UNLIKELY (ret < 0))
+    trả_về ret;
 
   status->manager = args->manager;
 
   ret = cgroup_manager->create_cgroup (args, status, err);
-  if (UNLIKELY (ret < 0))
+  nếu (UNLIKELY (ret < 0))
     {
       libcrun_error_t tmp_err = NULL;
-      int ignore_cgroup_errors;
+      số_nguyên ignore_cgroup_errors;
 
       ignore_cgroup_errors = can_ignore_cgroup_enter_errors (args, cgroup_mode, &tmp_err);
-      if (UNLIKELY (ignore_cgroup_errors < 0))
+      nếu (UNLIKELY (ignore_cgroup_errors < 0))
         {
           crun_error_release (err);
           *err = tmp_err;
-          return ignore_cgroup_errors;
+          trả_về ignore_cgroup_errors;
         }
 
-      if (ignore_cgroup_errors)
+      nếu (ignore_cgroup_errors)
         {
           /* Ignore cgroups errors and set there is no cgroup path to use.  */
           free (status->path);
@@ -468,36 +468,36 @@ libcrun_cgroup_enter (struct libcrun_cgroup_args *args, struct libcrun_cgroup_st
           goto success;
         }
 
-      return ret;
+      trả_về ret;
     }
 
   /* From now on the cgroup is destroyed through its status.  */
   free (args->precreated_path);
   args->precreated_path = NULL;
 
-  if (status->path)
+  nếu (status->path)
     {
       bool need_chown;
 
       need_chown = root_uid != (uid_t) -1 || root_gid != (gid_t) -1;
-      if (cgroup_mode == CGROUP_MODE_UNIFIED && need_chown)
+      nếu (cgroup_mode == CGROUP_MODE_UNIFIED && need_chown)
         {
           ret = chown_cgroups (status->path, root_uid, root_gid, err);
-          if (UNLIKELY (ret < 0))
+          nếu (UNLIKELY (ret < 0))
             goto fail_destroy;
         }
 
-      if (args->resources)
+      nếu (args->resources)
         {
           ret = update_cgroup_resources (status->path, args->state_root, args->resources, ! status->bpf_dev_set, err);
-          if (UNLIKELY (ret < 0))
+          nếu (UNLIKELY (ret < 0))
             goto fail_destroy;
         }
     }
 success:
   *out = status;
   status = NULL;
-  return 0;
+  trả_về 0;
 
 fail_destroy:
   /* The cgroup is created, but the caller does not get its status, so it
@@ -505,13 +505,13 @@ fail_destroy:
   {
     libcrun_error_t tmp_err = NULL;
 
-    if (UNLIKELY (cgroup_manager->destroy_cgroup (status, &tmp_err) < 0))
+    nếu (UNLIKELY (cgroup_manager->destroy_cgroup (status, &tmp_err) < 0))
       crun_error_release (&tmp_err);
   }
-  return ret;
+  trả_về ret;
 }
 
-int
+số_nguyên
 libcrun_cgroup_enter_finalize (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status *cgroup_status arg_unused, libcrun_error_t *err)
 {
   cleanup_free char *target_cgroup = NULL;
@@ -519,103 +519,103 @@ libcrun_cgroup_enter_finalize (struct libcrun_cgroup_args *args, struct libcrun_
   const char *delegate_cgroup;
   cleanup_free char *dir = NULL;
   char *current_cgroup, *to;
-  int cgroup_mode;
-  int ret;
+  số_nguyên cgroup_mode;
+  số_nguyên ret;
 
   delegate_cgroup = find_delegate_cgroup (args->annotations);
-  if (delegate_cgroup == NULL)
-    return 0;
+  nếu (delegate_cgroup == NULL)
+    trả_về 0;
 
-  if (path_has_dot_dot_component (delegate_cgroup))
-    return crun_make_error (err, 0, "invalid `..` component in delegate-cgroup `%s`", delegate_cgroup);
+  nếu (path_has_dot_dot_component (delegate_cgroup))
+    trả_về crun_make_error (err, 0, "invalid `..` component in delegate-cgroup `%s`", delegate_cgroup);
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  nếu (UNLIKELY (cgroup_mode < 0))
+    trả_về cgroup_mode;
 
-  if (cgroup_mode != CGROUP_MODE_UNIFIED)
-    return crun_make_error (err, 0, "delegate-cgroup not supported on cgroup v1");
+  nếu (cgroup_mode != CGROUP_MODE_UNIFIED)
+    trả_về crun_make_error (err, 0, "delegate-cgroup not supported on cgroup v1");
 
   cleanup_free char *proc_path = NULL;
-  cleanup_close int fd = -1;
+  cleanup_close số_nguyên fd = -1;
 
   xasprintf (&proc_path, "%d/cgroup", args->pid);
   fd = libcrun_open_proc_file (args->container, proc_path, O_RDONLY, err);
-  if (UNLIKELY (fd < 0))
-    return fd;
+  nếu (UNLIKELY (fd < 0))
+    trả_về fd;
 
   ret = read_all_fd (fd, "cgroup path", &content, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  nếu (UNLIKELY (ret < 0))
+    trả_về ret;
 
   current_cgroup = strstr (content, "0::");
-  if (UNLIKELY (current_cgroup == NULL))
-    return crun_make_error (err, 0, "cannot find cgroup2 for the current process");
+  nếu (UNLIKELY (current_cgroup == NULL))
+    trả_về crun_make_error (err, 0, "cannot find cgroup2 for the current process");
   current_cgroup += 3;
   to = strchr (current_cgroup, '\n');
-  if (UNLIKELY (to == NULL))
-    return crun_make_error (err, 0, "cannot parse `%s`", PROC_SELF_CGROUP);
+  nếu (UNLIKELY (to == NULL))
+    trả_về crun_make_error (err, 0, "cannot parse `%s`", PROC_SELF_CGROUP);
   *to = '\0';
 
   ret = append_paths (&target_cgroup, err, current_cgroup, delegate_cgroup, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  nếu (UNLIKELY (ret < 0))
+    trả_về ret;
 
   ret = append_paths (&dir, err, CGROUP_ROOT, target_cgroup, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  nếu (UNLIKELY (ret < 0))
+    trả_về ret;
 
   ret = crun_ensure_directory (dir, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  nếu (UNLIKELY (ret < 0))
+    trả_về ret;
 
   ret = move_process_to_cgroup (args->pid, NULL, target_cgroup, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  nếu (UNLIKELY (ret < 0))
+    trả_về ret;
 
   ret = enable_controllers (target_cgroup, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  nếu (UNLIKELY (ret < 0))
+    trả_về ret;
 
   ret = chown_cgroups (target_cgroup, args->root_uid, args->root_gid, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  nếu (UNLIKELY (ret < 0))
+    trả_về ret;
 
-  return 0;
+  trả_về 0;
 }
 
-int
+số_nguyên
 libcrun_cgroup_has_oom (struct libcrun_cgroup_status *status, libcrun_error_t *err)
 {
   cleanup_free char *content = NULL;
   const char *path = status->path;
   const char *prefix = NULL;
   size_t content_size = 0;
-  int cgroup_mode;
+  số_nguyên cgroup_mode;
   char *it;
 
-  if (UNLIKELY (path == NULL || path[0] == '\0'))
-    return 0;
+  nếu (UNLIKELY (path == NULL || path[0] == '\0'))
+    trả_về 0;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  nếu (UNLIKELY (cgroup_mode < 0))
+    trả_về cgroup_mode;
 
   switch (cgroup_mode)
     {
     case CGROUP_MODE_UNIFIED:
       {
         cleanup_free char *events_path = NULL;
-        int ret;
+        số_nguyên ret;
 
         ret = append_paths (&events_path, err, CGROUP_ROOT, path, "memory.events", NULL);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        nếu (UNLIKELY (ret < 0))
+          trả_về ret;
 
         /* read_all_file always NUL terminates the output.  */
         ret = read_all_file (events_path, &content, &content_size, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        nếu (UNLIKELY (ret < 0))
+          trả_về ret;
 
         prefix = "oom ";
         break;
@@ -624,63 +624,63 @@ libcrun_cgroup_has_oom (struct libcrun_cgroup_status *status, libcrun_error_t *e
     case CGROUP_MODE_HYBRID:
       {
         cleanup_free char *oom_control_path = NULL;
-        int ret;
+        số_nguyên ret;
 
         ret = append_paths (&oom_control_path, err, CGROUP_ROOT, "memory", path, "memory.oom_control", NULL);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        nếu (UNLIKELY (ret < 0))
+          trả_về ret;
 
         /* read_all_file always NUL terminates the output.  */
         ret = read_all_file (oom_control_path, &content, &content_size, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        nếu (UNLIKELY (ret < 0))
+          trả_về ret;
 
         prefix = "oom_kill ";
         break;
       }
 
     default:
-      return crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_mode);
+      trả_về crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_mode);
     }
 
   it = content;
-  while (it && *it)
+  trong_khi (it && *it)
     {
-      if (has_prefix (it, prefix))
+      nếu (has_prefix (it, prefix))
         {
           it += strlen (prefix);
-          while (*it == ' ')
+          trong_khi (*it == ' ')
             it++;
 
-          return *it != '0';
+          trả_về *it != '0';
         }
-      else
+      không_thì
         {
           it = strchr (it, '\n');
-          if (it == NULL)
-            return 0;
+          nếu (it == NULL)
+            trả_về 0;
           it++;
         }
     }
 
-  return 0;
+  trả_về 0;
 }
 
-int
+số_nguyên
 libcrun_cgroup_get_status (struct libcrun_cgroup_status *cgroup_status,
                            libcrun_container_status_t *status,
                            libcrun_error_t *err arg_unused)
 {
   status->cgroup_path = cgroup_status->path;
   status->scope = cgroup_status->scope;
-  return 0;
+  trả_về 0;
 }
 
 void
 libcrun_cgroup_status_free (struct libcrun_cgroup_status *cgroup_status)
 {
-  if (cgroup_status == NULL)
-    return;
+  nếu (cgroup_status == NULL)
+    trả_về;
 
   free (cgroup_status->path);
   free (cgroup_status->scope);
@@ -694,16 +694,16 @@ libcrun_cgroup_make_status (libcrun_container_status_t *status)
 
   ret = xmalloc0 (sizeof *ret);
 
-  if (! is_empty_string (status->cgroup_path))
+  nếu (! is_empty_string (status->cgroup_path))
     ret->path = xstrdup (status->cgroup_path);
 
-  if (! is_empty_string (status->scope))
+  nếu (! is_empty_string (status->scope))
     ret->scope = xstrdup (status->scope);
 
-  if (is_empty_string (status->cgroup_path) && is_empty_string (status->scope))
+  nếu (is_empty_string (status->cgroup_path) && is_empty_string (status->scope))
     ret->manager = CGROUP_MANAGER_DISABLED;
-  else
+  không_thì
     ret->manager = status->systemd_cgroup ? CGROUP_MANAGER_SYSTEMD : CGROUP_MANAGER_CGROUPFS;
 
-  return ret;
+  trả_về ret;
 }

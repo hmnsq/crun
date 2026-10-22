@@ -57,7 +57,7 @@ static char args_doc[] = "create [OPTION]... CONTAINER";
 static const char *config_file = "config.json";
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (số_nguyên key, char *arg, struct argp_state *state)
 {
   switch (key)
     {
@@ -96,27 +96,27 @@ parse_opt (int key, char *arg, struct argp_state *state)
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
     default:
-      return ARGP_ERR_UNKNOWN;
+      trả_về ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  trả_về 0;
 }
 
 static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-static unsigned int
+static unsigned số_nguyên
 get_options ()
 {
-  return 0;
+  trả_về 0;
 }
 
-int
-crun_command_create (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+số_nguyên
+crun_command_create (struct crun_global_arguments *global_args, số_nguyên argc, char **argv, libcrun_error_t *err)
 {
-  int ret;
+  số_nguyên ret;
 
   crun_context = new_libcrun_context (global_args);
   ret = crun_run_create_internal (global_args, argc, argv, libcrun_container_create, get_options, crun_context, &run_argp, &config_file, &bundle, err);
   libcrun_context_free (crun_context);
-  return ret;
+  trả_về ret;
 }

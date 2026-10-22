@@ -70,36 +70,36 @@ static char args_doc[] = "checkpoint CONTAINER";
 
 /* Map the CLI names onto the public LIBCRUN_CR_* enums; libcrun translates
    these to CRIU's own values internally so CRIU headers never reach here.  */
-int
+số_nguyên
 crun_parse_network_lock_method (char *param)
 {
-  if (strcmp (param, "iptables") == 0)
-    return LIBCRUN_CR_NETWORK_LOCK_IPTABLES;
-  else if (strcmp (param, "nftables") == 0)
-    return LIBCRUN_CR_NETWORK_LOCK_NFTABLES;
-  else if (strcmp (param, "skip") == 0)
-    return LIBCRUN_CR_NETWORK_LOCK_SKIP;
-  else
+  nếu (strcmp (param, "iptables") == 0)
+    trả_về LIBCRUN_CR_NETWORK_LOCK_IPTABLES;
+  không_thì nếu (strcmp (param, "nftables") == 0)
+    trả_về LIBCRUN_CR_NETWORK_LOCK_NFTABLES;
+  không_thì nếu (strcmp (param, "skip") == 0)
+    trả_về LIBCRUN_CR_NETWORK_LOCK_SKIP;
+  không_thì
     libcrun_fail_with_error (0, "unknown network lock method specified");
 }
 
-int
+số_nguyên
 crun_parse_manage_cgroups_mode (char *param)
 {
-  if (strcmp (param, "soft") == 0)
-    return LIBCRUN_CR_CG_MODE_SOFT;
-  else if (strcmp (param, "ignore") == 0)
-    return LIBCRUN_CR_CG_MODE_IGNORE;
-  else if (strcmp (param, "full") == 0)
-    return LIBCRUN_CR_CG_MODE_FULL;
-  else if (strcmp (param, "strict") == 0)
-    return LIBCRUN_CR_CG_MODE_STRICT;
-  else
+  nếu (strcmp (param, "soft") == 0)
+    trả_về LIBCRUN_CR_CG_MODE_SOFT;
+  không_thì nếu (strcmp (param, "ignore") == 0)
+    trả_về LIBCRUN_CR_CG_MODE_IGNORE;
+  không_thì nếu (strcmp (param, "full") == 0)
+    trả_về LIBCRUN_CR_CG_MODE_FULL;
+  không_thì nếu (strcmp (param, "strict") == 0)
+    trả_về LIBCRUN_CR_CG_MODE_STRICT;
+  không_thì
     libcrun_fail_with_error (0, "unknown cgroup mode specified");
 }
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (số_nguyên key, char *arg, struct argp_state *state)
 {
   switch (key)
     {
@@ -151,20 +151,20 @@ parse_opt (int key, char *arg, struct argp_state *state)
       break;
 
     default:
-      return ARGP_ERR_UNKNOWN;
+      trả_về ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  trả_về 0;
 }
 
 static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-int
-crun_command_checkpoint (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+số_nguyên
+crun_command_checkpoint (struct crun_global_arguments *global_args, số_nguyên argc, char **argv, libcrun_error_t *err)
 {
   cleanup_free char *cr_path = NULL;
-  int first_arg;
-  int ret;
+  số_nguyên first_arg;
+  số_nguyên ret;
   cleanup_context libcrun_context_t *crun_context = NULL;
 
   cr_options.struct_size = sizeof (cr_options);
@@ -175,22 +175,22 @@ crun_command_checkpoint (struct crun_global_arguments *global_args, int argc, ch
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  nếu (UNLIKELY (ret < 0))
+    trả_về ret;
 
-  if (cr_options.image_path == NULL)
+  nếu (cr_options.image_path == NULL)
     {
       cleanup_free char *path = NULL;
 
       path = getcwd (NULL, 0);
-      if (UNLIKELY (path == NULL))
+      nếu (UNLIKELY (path == NULL))
         libcrun_fail_with_error (errno, "getcwd failed");
 
       ret = asprintf (&cr_path, "%s/checkpoint", path);
-      if (UNLIKELY (ret < 0))
+      nếu (UNLIKELY (ret < 0))
         OOM ();
       cr_options.image_path = cr_path;
     }
 
-  return libcrun_container_checkpoint (crun_context, argv[first_arg], &cr_options, err);
+  trả_về libcrun_container_checkpoint (crun_context, argv[first_arg], &cr_options, err);
 }

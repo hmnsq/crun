@@ -20,6 +20,6 @@
 
 #include "crun.h"
 
-int crun_command_pause (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+số_nguyên crun_command_pause (struct crun_global_arguments *global_args, số_nguyên argc, char **argv, libcrun_error_t *error);
 
 #endif

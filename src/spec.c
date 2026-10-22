@@ -53,7 +53,7 @@ static struct argp_option options[] = { { "bundle", 'b', "DIR", 0, "path to the 
 static char args_doc[] = "spec";
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (số_nguyên key, char *arg, struct argp_state *state)
 {
   switch (key)
     {
@@ -70,25 +70,25 @@ parse_opt (int key, char *arg, struct argp_state *state)
       break;
 
     default:
-      return ARGP_ERR_UNKNOWN;
+      trả_về ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  trả_về 0;
 }
 
 static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-int
-crun_command_spec (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+số_nguyên
+crun_command_spec (struct crun_global_arguments *global_args, số_nguyên argc, char **argv, libcrun_error_t *err)
 {
-  int first_arg;
+  số_nguyên first_arg;
   cleanup_context libcrun_context_t *crun_context = NULL;
   cleanup_file FILE *f = NULL;
   cleanup_free char *bundle_cleanup = NULL;
   cleanup_free char *spec = NULL;
   const char *where;
-  int ret;
-  int close_ret;
+  số_nguyên ret;
+  số_nguyên close_ret;
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &spec_options);
   crun_assert_n_args (argc - first_arg, 0, 0);
@@ -96,51 +96,51 @@ crun_command_spec (struct crun_global_arguments *global_args, int argc, char **a
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  nếu (UNLIKELY (ret < 0))
+    trả_về ret;
 
   /* Change dir only if -b or --bundle is defined and make sure the bundle is an absolute path.  */
-  if (bundle != NULL)
+  nếu (bundle != NULL)
     {
-      if (bundle[0] != '/')
+      nếu (bundle[0] != '/')
         {
           bundle_cleanup = realpath (bundle, NULL);
-          if (bundle_cleanup == NULL)
+          nếu (bundle_cleanup == NULL)
             libcrun_fail_with_error (errno, "realpath `%s` failed", bundle);
           bundle = bundle_cleanup;
         }
 
-      if (chdir (bundle) < 0)
+      nếu (chdir (bundle) < 0)
         libcrun_fail_with_error (errno, "chdir `%s` failed", bundle);
     }
 
   where = fname ? fname : "config.json";
 
-  if (fname == NULL)
+  nếu (fname == NULL)
     {
       ret = access (where, F_OK);
-      if (ret == 0)
-        return libcrun_make_error (err, 0, "`%s` already exists", where);
+      nếu (ret == 0)
+        trả_về libcrun_make_error (err, 0, "`%s` already exists", where);
     }
 
   f = fopen (where, "w+e");
-  if (f == NULL)
-    return libcrun_make_error (err, errno, "cannot open `%s`", where);
+  nếu (f == NULL)
+    trả_về libcrun_make_error (err, errno, "cannot open `%s`", where);
 
   ret = libcrun_container_spec_json (! spec_options.rootless, &spec, err);
-  if (UNLIKELY (ret < 0))
+  nếu (UNLIKELY (ret < 0))
     goto out;
 
-  if (fputs (spec, f) == EOF)
+  nếu (fputs (spec, f) == EOF)
     ret = libcrun_make_error (err, errno, "cannot write to `%s`", where);
-  else
+  không_thì
     ret = 0;
 
 out:
   close_ret = fclose (f);
   f = NULL;
-  if (close_ret < 0 && ret >= 0)
-    return libcrun_make_error (err, errno, "cannot close `%s`", where);
+  nếu (close_ret < 0 && ret >= 0)
+    trả_về libcrun_make_error (err, errno, "cannot close `%s`", where);
 
-  return ret;
+  trả_về ret;
 }

@@ -28,7 +28,7 @@
 #ifdef HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H
 #  include <linux/mount.h>
 #endif
-#if defined HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H || defined HAVE_FSCONFIG_CMD_CREATE_SYS_MOUNT_H
+#nếu defined HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H || defined HAVE_FSCONFIG_CMD_CREATE_SYS_MOUNT_H
 #  define HAVE_NEW_MOUNT_API
 #endif
 
@@ -154,67 +154,67 @@ struct _clone3_args
 };
 
 /* Mount API syscall wrappers */
-static inline int
-syscall_fsopen (const char *fs_name, unsigned int flags)
+static inline số_nguyên
+syscall_fsopen (const char *fs_name, unsigned số_nguyên flags)
 {
-#if defined __NR_fsopen
-  return (int) syscall (__NR_fsopen, fs_name, flags);
-#else
+#nếu defined __NR_fsopen
+  trả_về (số_nguyên) syscall (__NR_fsopen, fs_name, flags);
+#không_thì
   (void) fs_name;
   (void) flags;
   errno = ENOSYS;
-  return -1;
+  trả_về -1;
 #endif
 }
 
-static inline int
-syscall_fsmount (int fsfd, unsigned int flags, unsigned int attr_flags)
+static inline số_nguyên
+syscall_fsmount (số_nguyên fsfd, unsigned số_nguyên flags, unsigned số_nguyên attr_flags)
 {
-#if defined __NR_fsmount
-  return (int) syscall (__NR_fsmount, fsfd, flags, attr_flags);
-#else
+#nếu defined __NR_fsmount
+  trả_về (số_nguyên) syscall (__NR_fsmount, fsfd, flags, attr_flags);
+#không_thì
   (void) fsfd;
   (void) flags;
   (void) attr_flags;
   errno = ENOSYS;
-  return -1;
+  trả_về -1;
 #endif
 }
 
-static inline int
-syscall_fsconfig (int fsfd, unsigned int cmd, const char *key, const void *val, int aux)
+static inline số_nguyên
+syscall_fsconfig (số_nguyên fsfd, unsigned số_nguyên cmd, const char *key, const void *val, số_nguyên aux)
 {
-#if defined __NR_fsconfig
-  return (int) syscall (__NR_fsconfig, fsfd, cmd, key, val, aux);
-#else
+#nếu defined __NR_fsconfig
+  trả_về (số_nguyên) syscall (__NR_fsconfig, fsfd, cmd, key, val, aux);
+#không_thì
   (void) fsfd;
   (void) cmd;
   (void) key;
   (void) val;
   (void) aux;
   errno = ENOSYS;
-  return -1;
+  trả_về -1;
 #endif
 }
 
 /* File descriptor management syscalls */
-static inline int
-syscall_close_range (unsigned int fd, unsigned int max_fd, unsigned int flags)
+static inline số_nguyên
+syscall_close_range (unsigned số_nguyên fd, unsigned số_nguyên max_fd, unsigned số_nguyên flags)
 {
 #ifdef __NR_close_range
-  return (int) syscall (__NR_close_range, fd, max_fd, flags);
-#else
+  trả_về (số_nguyên) syscall (__NR_close_range, fd, max_fd, flags);
+#không_thì
   (void) fd;
   (void) max_fd;
   (void) flags;
   errno = ENOSYS;
-  return -1;
+  trả_về -1;
 #endif
 }
 
 /* Secure file operation syscalls */
-static inline int
-syscall_openat2 (int dirfd, const char *path, uint64_t flags, uint64_t mode, uint64_t resolve)
+static inline số_nguyên
+syscall_openat2 (số_nguyên dirfd, const char *path, uint64_t flags, uint64_t mode, uint64_t resolve)
 {
 #ifdef __NR_openat2
   struct openat2_open_how how = {
@@ -222,87 +222,87 @@ syscall_openat2 (int dirfd, const char *path, uint64_t flags, uint64_t mode, uin
     .mode = mode,
     .resolve = resolve,
   };
-  return (int) syscall (__NR_openat2, dirfd, path, &how, sizeof (how), 0);
-#else
+  trả_về (số_nguyên) syscall (__NR_openat2, dirfd, path, &how, sizeof (how), 0);
+#không_thì
   (void) dirfd;
   (void) path;
   (void) flags;
   (void) mode;
   (void) resolve;
   errno = ENOSYS;
-  return -1;
+  trả_về -1;
 #endif
 }
 
 /* Process management syscalls */
-static inline int
+static inline số_nguyên
 syscall_clone3 (struct _clone3_args *args)
 {
 #ifdef __NR_clone3
-  return (int) syscall (__NR_clone3, args, sizeof (*args));
-#else
+  trả_về (số_nguyên) syscall (__NR_clone3, args, sizeof (*args));
+#không_thì
   (void) args;
   errno = ENOSYS;
-  return -1;
+  trả_về -1;
 #endif
 }
 
-static inline int
+static inline số_nguyên
 syscall_getcwd (char *path, size_t len)
 {
 #ifdef __NR_getcwd
-  return (int) syscall (__NR_getcwd, path, len);
-#else
+  trả_về (số_nguyên) syscall (__NR_getcwd, path, len);
+#không_thì
   (void) path;
   (void) len;
   errno = ENOSYS;
-  return -1;
+  trả_về -1;
 #endif
 }
 
 /* Mount management syscalls */
-static inline int
-syscall_move_mount (int from_dfd, const char *from_pathname, int to_dfd, const char *to_pathname, unsigned int flags)
+static inline số_nguyên
+syscall_move_mount (số_nguyên from_dfd, const char *from_pathname, số_nguyên to_dfd, const char *to_pathname, unsigned số_nguyên flags)
 {
-#if defined __NR_move_mount
-  return (int) syscall (__NR_move_mount, from_dfd, from_pathname, to_dfd, to_pathname, flags);
-#else
+#nếu defined __NR_move_mount
+  trả_về (số_nguyên) syscall (__NR_move_mount, from_dfd, from_pathname, to_dfd, to_pathname, flags);
+#không_thì
   (void) from_dfd;
   (void) from_pathname;
   (void) to_dfd;
   (void) to_pathname;
   (void) flags;
   errno = ENOSYS;
-  return -1;
+  trả_về -1;
 #endif
 }
 
-static inline int
-syscall_open_tree (int dfd, const char *pathname, unsigned int flags)
+static inline số_nguyên
+syscall_open_tree (số_nguyên dfd, const char *pathname, unsigned số_nguyên flags)
 {
-#if defined __NR_open_tree
-  return (int) syscall (__NR_open_tree, dfd, pathname, flags);
-#else
+#nếu defined __NR_open_tree
+  trả_về (số_nguyên) syscall (__NR_open_tree, dfd, pathname, flags);
+#không_thì
   (void) dfd;
   (void) pathname;
   (void) flags;
   errno = ENOSYS;
-  return -1;
+  trả_về -1;
 #endif
 }
 
-static inline int
-syscall_mount_setattr (int dfd, const char *path, unsigned int flags, struct mount_attr_s *attr)
+static inline số_nguyên
+syscall_mount_setattr (số_nguyên dfd, const char *path, unsigned số_nguyên flags, struct mount_attr_s *attr)
 {
 #ifdef __NR_mount_setattr
-  return (int) syscall (__NR_mount_setattr, dfd, path, flags, attr, sizeof (*attr));
-#else
+  trả_về (số_nguyên) syscall (__NR_mount_setattr, dfd, path, flags, attr, sizeof (*attr));
+#không_thì
   (void) dfd;
   (void) path;
   (void) flags;
   (void) attr;
   errno = ENOSYS;
-  return -1;
+  trả_về -1;
 #endif
 }
 
