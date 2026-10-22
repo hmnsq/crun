@@ -24,12 +24,12 @@
 #include <stdbool.h>
 #include "error.h"
 
-int resctl_create (const char *name, bool explicit_clos_id, bool *created, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err);
-int resctl_move_task_to (const char *name, const char *monitoring_name, pid_t pid, libcrun_error_t *err);
-int resctl_update (const char *name, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err);
-int resctl_destroy (const char *name, libcrun_error_t *err);
+จำนวนเต็ม resctl_create (const var_na *name, bool explicit_clos_id, bool *created, const var_na *l3_cache_schema, const var_na *mem_bw_schema, var_na *const *schemata, libcrun_error_t *err);
+จำนวนเต็ม resctl_move_task_to (const var_na *name, const var_na *monitoring_name, pid_t pid, libcrun_error_t *err);
+จำนวนเต็ม resctl_update (const var_na *name, const var_na *l3_cache_schema, const var_na *mem_bw_schema, var_na *const *schemata, libcrun_error_t *err);
+จำนวนเต็ม resctl_destroy (const var_na *name, libcrun_error_t *err);
 
-int resctl_destroy_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err);
-int resctl_create_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err);
+จำนวนเต็ม resctl_destroy_monitoring_group (const var_na *resctrl_group_name, const var_na *container_id, libcrun_error_t *err);
+จำนวนเต็ม resctl_create_monitoring_group (const var_na *resctrl_group_name, const var_na *container_id, libcrun_error_t *err);
 
 #endif

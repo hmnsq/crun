@@ -22,25 +22,25 @@
 #include "cgroup.h"
 #include <unistd.h>
 
-struct default_dev_s
+sa_nracanaa default_dev_s
 {
-  char type;
-  int major;
-  int minor;
-  const char *access;
+  var_na type;
+  จำนวนเต็ม major;
+  จำนวนเต็ม minor;
+  const var_na *access;
 };
-struct default_dev_s *get_default_devices ();
+sa_nracanaa default_dev_s *get_default_devices ();
 
-int check_memory_before_update (const char *path, runtime_spec_schema_config_linux_resources *resources,
+จำนวนเต็ม check_memory_before_update (const var_na *path, runtime_spec_schema_config_linux_resources *resources,
                                 libcrun_error_t *err);
 
-int update_cgroup_resources (const char *path,
-                             const char *state_root,
+จำนวนเต็ม update_cgroup_resources (const var_na *path,
+                             const var_na *state_root,
                              runtime_spec_schema_config_linux_resources *resources,
                              bool need_devices,
                              libcrun_error_t *err);
 
-struct bpf_program *create_dev_bpf (runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
+sa_nracanaa bpf_program *create_dev_bpf (runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
                                     libcrun_error_t *err);
 
 #endif

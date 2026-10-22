@@ -62,7 +62,7 @@
 #include "linux.h"
 
 /* Use our own wrapper for memfd_create. */
-#if !defined(SYS_memfd_create) && defined(__NR_memfd_create)
+#ถ้า !defined(SYS_memfd_create) && defined(__NR_memfd_create)
 #  define SYS_memfd_create __NR_memfd_create
 #endif
 /* memfd_create(2) flags -- copied from <linux/memfd.h>. */
@@ -70,13 +70,13 @@
 #  define MFD_CLOEXEC       0x0001U
 #  define MFD_ALLOW_SEALING 0x0002U
 #endif
-int memfd_create(const char *name, unsigned int flags)
+จำนวนเต็ม memfd_create(const var_na *name, unsigned จำนวนเต็ม flags)
 {
 #ifdef SYS_memfd_create
-	return syscall(SYS_memfd_create, name, flags);
-#else
+	คืน syscall(SYS_memfd_create, name, flags);
+#มิฉะนั้น
 	errno = ENOSYS;
-	return -1;
+	คืน -1;
 #endif
 }
 
@@ -106,15 +106,15 @@ int memfd_create(const char *name, unsigned int flags)
  * /proc/self/exe a memfd). F_GET_SEALS will only succeed for memfds (or rather
  * for shmem files), and we want to be sure it's actually sealed.
  */
-static int is_self_cloned(void)
+static จำนวนเต็ม is_self_cloned(void)
 {
-	int fd, ret, is_cloned = 0;
-	struct stat statbuf = {};
-	struct statfs fsbuf = {};
+	จำนวนเต็ม fd, ret, is_cloned = 0;
+	sa_nracanaa stat statbuf = {};
+	sa_nracanaa statfs fsbuf = {};
 
 	fd = open("/proc/self/exe", O_RDONLY|O_CLOEXEC);
-	if (fd < 0)
-		return -ENOTRECOVERABLE;
+	ถ้า (fd < 0)
+		คืน -ENOTRECOVERABLE;
 
 	/*
 	 * Is the binary a fully-sealed memfd? We don't need CLONED_BINARY_ENV for
@@ -123,7 +123,7 @@ static int is_self_cloned(void)
 	 * memfd to /usr/bin/crun to allow reuse).
 	 */
 	ret = fcntl(fd, F_GET_SEALS);
-	if (ret >= 0) {
+	ถ้า (ret >= 0) {
 		is_cloned = (ret == CRUN_MEMFD_SEALS);
 		goto out;
 	}
@@ -134,7 +134,7 @@ static int is_self_cloned(void)
 	 * such as truly read-only filesystems like squashfs/erofs as well as
 	 * things like the ostree read-only bind mount.
 	 */
-	if (fstatfs(fd, &fsbuf) >= 0 && (fsbuf.f_flags & MS_RDONLY)) {
+	ถ้า (fstatfs(fd, &fsbuf) >= 0 && (fsbuf.f_flags & MS_RDONLY)) {
 		is_cloned = true;
 		goto out;
 	}
@@ -144,7 +144,7 @@ static int is_self_cloned(void)
 	 * writeable (or we can't tell if they're fully safe) and thus we must
 	 * check the environment as an extra layer of defence.
 	 */
-	if (!getenv(CLONED_BINARY_ENV)) {
+	ถ้า (!getenv(CLONED_BINARY_ENV)) {
 		is_cloned = false;
 		goto out;
 	}
@@ -157,48 +157,48 @@ static int is_self_cloned(void)
 	 * cannot fake (because unlinking requires being able to resolve the
 	 * path that you want to unlink).
 	 */
-	if (fstat(fd, &statbuf) >= 0)
+	ถ้า (fstat(fd, &statbuf) >= 0)
 		is_cloned |= (statbuf.st_nlink == 0);
 
 out:
 	close(fd);
-	return is_cloned;
+	คืน is_cloned;
 }
 
 /* Read a given file into a new buffer, and providing the length. */
-static char *read_file(char *path, size_t *length)
+static var_na *read_file(var_na *path, size_t *length)
 {
-	int fd;
-	char buf[4096], *copy = NULL;
+	จำนวนเต็ม fd;
+	var_na buf[4096], *copy = NULL;
 
-	if (!length)
-		return NULL;
+	ถ้า (!length)
+		คืน NULL;
 
 	fd = open(path, O_RDONLY | O_CLOEXEC);
-	if (fd < 0)
-		return NULL;
+	ถ้า (fd < 0)
+		คืน NULL;
 
 	*length = 0;
-	for (;;) {
+	สำหรับ (;;) {
 		ssize_t n;
 
-		n = read(fd, buf, sizeof(buf));
-		if (n < 0)
+		n = read(fd, buf, parimaa_na(buf));
+		ถ้า (n < 0)
 			goto error;
-		if (!n)
-			break;
+		ถ้า (!n)
+			bha_nga;
 
-		copy = xrealloc(copy, (*length + n) * sizeof(*copy));
+		copy = xrealloc(copy, (*length + n) * parimaa_na(*copy));
 		memcpy(copy + *length, buf, n);
 		*length += n;
 	}
 	close(fd);
-	return copy;
+	คืน copy;
 
 error:
 	close(fd);
 	free(copy);
-	return NULL;
+	คืน NULL;
 }
 
 /*
@@ -206,22 +206,22 @@ error:
  * NUL-delimited data, within the given length and adds a pointer to each entry
  * to the array of pointers.
  */
-static int parse_xargs(char *data, int data_length, char ***output)
+static จำนวนเต็ม parse_xargs(var_na *data, จำนวนเต็ม data_length, var_na ***output)
 {
-	int num = 0;
-	char *cur = data;
+	จำนวนเต็ม num = 0;
+	var_na *cur = data;
 
-	if (!data || *output != NULL)
-		return -1;
+	ถ้า (!data || *output != NULL)
+		คืน -1;
 
-	while (cur < data + data_length) {
+	ขณะ (cur < data + data_length) {
 		num++;
-		*output = xrealloc(*output, (num + 1) * sizeof(**output));
+		*output = xrealloc(*output, (num + 1) * parimaa_na(**output));
 		(*output)[num - 1] = cur;
 		cur += strlen(cur) + 1;
 	}
 	(*output)[num] = NULL;
-	return num;
+	คืน num;
 }
 
 /*
@@ -229,26 +229,26 @@ static int parse_xargs(char *data, int data_length, char ***output)
  * This is necessary because we are running in a context where we don't have a
  * main() that we can just get the arguments from.
  */
-static int fetchve(char ***argv)
+static จำนวนเต็ม fetchve(var_na ***argv)
 {
-	char *cmdline = NULL;
+	var_na *cmdline = NULL;
 	size_t cmdline_size;
 
 	cmdline = read_file("/proc/self/cmdline", &cmdline_size);
-	if (!cmdline)
+	ถ้า (!cmdline)
 		goto error;
 
-	if (parse_xargs(cmdline, cmdline_size, argv) <= 0)
+	ถ้า (parse_xargs(cmdline, cmdline_size, argv) <= 0)
 		goto error;
 
-	return 0;
+	คืน 0;
 
 error:
 	free(cmdline);
-	return -EINVAL;
+	คืน -EINVAL;
 }
 
-enum {
+ga_nanaa {
 	EFD_NONE = 0,
 	EFD_MEMFD,
 	EFD_FILE,
@@ -260,21 +260,21 @@ enum {
  * have the mkostemp(3) fallback.
  */
 #ifndef O_TMPFILE
-#  if defined(__O_TMPFILE) && defined(O_DIRECTORY)
+#  ถ้า defined(__O_TMPFILE) && defined(O_DIRECTORY)
 #    define O_TMPFILE (__O_TMPFILE | O_DIRECTORY)
 #  endif
 #endif
 
-static int make_execfd(int *fdtype)
+static จำนวนเต็ม make_execfd(จำนวนเต็ม *fdtype)
 {
-	int fd = -1;
-	char template[PATH_MAX] = {0};
-	char *prefix = getenv("_LIBCONTAINER_STATEDIR");
+	จำนวนเต็ม fd = -1;
+	var_na template[PATH_MAX] = {0};
+	var_na *prefix = getenv("_LIBCONTAINER_STATEDIR");
 
-	if (!prefix || *prefix != '/')
+	ถ้า (!prefix || *prefix != '/')
 		prefix = "/tmp";
-	if (snprintf(template, sizeof(template), "%s/crun.XXXXXX", prefix) < 0)
-		return -1;
+	ถ้า (snprintf(template, parimaa_na(template), "%s/crun.XXXXXX", prefix) < 0)
+		คืน -1;
 
 	/*
 	 * Now try memfd, it's much nicer than actually creating a file in STATEDIR
@@ -283,9 +283,9 @@ static int make_execfd(int *fdtype)
 	 */
 	*fdtype = EFD_MEMFD;
 	fd = memfd_create(CRUN_MEMFD_COMMENT, MFD_CLOEXEC | MFD_ALLOW_SEALING);
-	if (fd >= 0)
-		return fd;
-	if (errno != ENOSYS && errno != EINVAL)
+	ถ้า (fd >= 0)
+		คืน fd;
+	ถ้า (errno != ENOSYS && errno != EINVAL)
 		goto error;
 
 #ifdef O_TMPFILE
@@ -296,8 +296,8 @@ static int make_execfd(int *fdtype)
 	 */
 	*fdtype = EFD_FILE;
 	fd = open(prefix, O_TMPFILE | O_EXCL | O_RDWR | O_CLOEXEC, 0700);
-	if (fd >= 0) {
-		struct stat statbuf = {};
+	ถ้า (fd >= 0) {
+		sa_nracanaa stat statbuf = {};
 		bool working_otmpfile = false;
 
 		/*
@@ -306,17 +306,17 @@ static int make_execfd(int *fdtype)
 		 * if we get nlink != 0 (or EISDIR) then we know that this kernel
 		 * doesn't support O_TMPFILE.
 		 */
-		if (fstat(fd, &statbuf) >= 0)
+		ถ้า (fstat(fd, &statbuf) >= 0)
 			working_otmpfile = (statbuf.st_nlink == 0);
 
-		if (working_otmpfile)
-			return fd;
+		ถ้า (working_otmpfile)
+			คืน fd;
 
 		/* Pretend that we got EISDIR since O_TMPFILE failed. */
 		close(fd);
 		errno = EISDIR;
 	}
-	if (errno != EISDIR)
+	ถ้า (errno != EISDIR)
 		goto error;
 #endif /* defined(O_TMPFILE) */
 
@@ -326,69 +326,69 @@ static int make_execfd(int *fdtype)
 	 */
 	*fdtype = EFD_FILE;
 	fd = mkostemp(template, O_CLOEXEC);
-	if (fd >= 0) {
-		if (unlink(template) >= 0)
-			return fd;
+	ถ้า (fd >= 0) {
+		ถ้า (unlink(template) >= 0)
+			คืน fd;
 		close(fd);
 	}
 
 error:
 	*fdtype = EFD_NONE;
-	return -1;
+	คืน -1;
 }
 
-static int seal_execfd(int *fd, int fdtype)
+static จำนวนเต็ม seal_execfd(จำนวนเต็ม *fd, จำนวนเต็ม fdtype)
 {
 	switch (fdtype) {
-	case EFD_MEMFD:
-		return fcntl(*fd, F_ADD_SEALS, CRUN_MEMFD_SEALS);
-	case EFD_FILE: {
+	pak_sa EFD_MEMFD:
+		คืน fcntl(*fd, F_ADD_SEALS, CRUN_MEMFD_SEALS);
+	pak_sa EFD_FILE: {
 		/* Need to re-open our pseudo-memfd as an O_PATH to avoid execve(2) giving -ETXTBSY. */
-		int newfd;
-		char fdpath[PATH_MAX] = {0};
+		จำนวนเต็ม newfd;
+		var_na fdpath[PATH_MAX] = {0};
 
-		if (fchmod(*fd, 0100) < 0)
-			return -1;
+		ถ้า (fchmod(*fd, 0100) < 0)
+			คืน -1;
 
-		if (snprintf(fdpath, sizeof(fdpath), "/proc/self/fd/%d", *fd) < 0)
-			return -1;
+		ถ้า (snprintf(fdpath, parimaa_na(fdpath), "/proc/self/fd/%d", *fd) < 0)
+			คืน -1;
 
 		newfd = open(fdpath, O_PATH | O_CLOEXEC);
-		if (newfd < 0)
-			return -1;
+		ถ้า (newfd < 0)
+			คืน -1;
 
 		close(*fd);
 		*fd = newfd;
-		return 0;
+		คืน 0;
 	}
 	default:
-	   break;
+	   bha_nga;
 	}
-	return -1;
+	คืน -1;
 }
 
-static int try_bindfd_mount_api(void)
+static จำนวนเต็ม try_bindfd_mount_api(void)
 {
 	libcrun_error_t err;
-	int mountfd = get_bind_mount (-1, "/proc/self/exe", false, true, false, MS_PRIVATE, &err);
-	if (mountfd < 0) {
+	จำนวนเต็ม mountfd = get_bind_mount (-1, "/proc/self/exe", false, true, false, MS_PRIVATE, &err);
+	ถ้า (mountfd < 0) {
 		crun_error_release (&err);
-		return -1;
+		คืน -1;
 	}
-	return mountfd;
+	คืน mountfd;
 }
 
-static int try_bindfd(void)
+static จำนวนเต็ม try_bindfd(void)
 {
 	mode_t mask;
-	int fd, ret = -1;
-	char template[PATH_MAX] = {0};
-	char *prefix = getenv("_LIBCONTAINER_STATEDIR");
+	จำนวนเต็ม fd, ret = -1;
+	var_na template[PATH_MAX] = {0};
+	var_na *prefix = getenv("_LIBCONTAINER_STATEDIR");
 
-	if (!prefix || *prefix != '/')
+	ถ้า (!prefix || *prefix != '/')
 		prefix = "/tmp";
-	if (snprintf(template, sizeof(template), "%s/crun.XXXXXX", prefix) < 0)
-		return ret;
+	ถ้า (snprintf(template, parimaa_na(template), "%s/crun.XXXXXX", prefix) < 0)
+		คืน ret;
 
 	/*
 	 * We need somewhere to mount it, mounting anything over /proc/self is a
@@ -397,8 +397,8 @@ static int try_bindfd(void)
 	mask = umask(0700);
 	fd = mkstemp(template);
 	umask(mask);
-	if (fd < 0)
-		return ret;
+	ถ้า (fd < 0)
+		คืน ret;
 	close(fd);
 
 	/*
@@ -407,9 +407,9 @@ static int try_bindfd(void)
 	 * complicated and it's only worth doing if someone actually needs it.
 	 */
 	ret = -EPERM;
-	if (mount("/proc/self/exe", template, "", MS_BIND, "") < 0)
+	ถ้า (mount("/proc/self/exe", template, "", MS_BIND, "") < 0)
 		goto out;
-	if (mount("", template, "", MS_REMOUNT | MS_BIND | MS_RDONLY, "") < 0)
+	ถ้า (mount("", template, "", MS_REMOUNT | MS_BIND | MS_RDONLY, "") < 0)
 		goto out_umount;
 
 
@@ -422,8 +422,8 @@ out_umount:
 	 * read-write and that would be quite bad (the fd would be made read-write
 	 * too, invalidating the protection).
 	 */
-	if (umount2(template, MNT_DETACH) < 0) {
-		if (ret >= 0)
+	ถ้า (umount2(template, MNT_DETACH) < 0) {
+		ถ้า (ret >= 0)
 			close(ret);
 		ret = -ENOTRECOVERABLE;
 	}
@@ -434,60 +434,60 @@ out:
 	 * there's an empty file left around in STATEDIR.
 	 */
 	unlink(template);
-	return ret;
+	คืน ret;
 }
 
-static ssize_t fd_to_fd(int outfd, int infd)
+static ssize_t fd_to_fd(จำนวนเต็ม outfd, จำนวนเต็ม infd)
 {
 	ssize_t total = 0;
-	char buffer[4096];
+	var_na buffer[4096];
 
-	for (;;) {
+	สำหรับ (;;) {
 		ssize_t nread, nwritten = 0;
 
-		nread = read(infd, buffer, sizeof(buffer));
-		if (nread < 0)
-			return -1;
-		if (!nread)
-			break;
+		nread = read(infd, buffer, parimaa_na(buffer));
+		ถ้า (nread < 0)
+			คืน -1;
+		ถ้า (!nread)
+			bha_nga;
 
 		do {
 			ssize_t n = write(outfd, buffer + nwritten, nread - nwritten);
-			if (n < 0)
-				return -1;
+			ถ้า (n < 0)
+				คืน -1;
 			nwritten += n;
-		} while(nwritten < nread);
+		} ขณะ(nwritten < nread);
 
 		total += nwritten;
 	}
 
-	return total;
+	คืน total;
 }
 
-static int clone_binary(void)
+static จำนวนเต็ม clone_binary(void)
 {
-	cleanup_close int execfd = -1;
-	struct stat statbuf = {};
+	cleanup_close จำนวนเต็ม execfd = -1;
+	sa_nracanaa stat statbuf = {};
 	ssize_t sent = 0;
-	int fdtype = EFD_NONE;
+	จำนวนเต็ม fdtype = EFD_NONE;
 
 	/*
 	 * Before we resort to copying, let's try creating an ro-binfd in one shot
 	 * by getting a handle for a read-only bind-mount of the execfd.
 	 */
 	execfd = try_bindfd_mount_api();
-	if (execfd >= 0) {
+	ถ้า (execfd >= 0) {
 		/* Transfer ownership to caller */
-		int ret_execfd = execfd;
+		จำนวนเต็ม ret_execfd = execfd;
 		execfd = -1;
-		return ret_execfd;
+		คืน ret_execfd;
 	}
 	execfd = try_bindfd();
-	if (execfd >= 0) {
+	ถ้า (execfd >= 0) {
 		/* Transfer ownership to caller */
-		int ret_execfd = execfd;
+		จำนวนเต็ม ret_execfd = execfd;
 		execfd = -1;
-		return ret_execfd;
+		คืน ret_execfd;
 	}
 
 	/*
@@ -495,69 +495,69 @@ static int clone_binary(void)
 	 * can seal the contents.
 	 */
 	execfd = make_execfd(&fdtype);
-	if (execfd < 0 || fdtype == EFD_NONE)
-		return -ENOTRECOVERABLE;
+	ถ้า (execfd < 0 || fdtype == EFD_NONE)
+		คืน -ENOTRECOVERABLE;
 
 	{
-		cleanup_close int binfd = -1;
+		cleanup_close จำนวนเต็ม binfd = -1;
 		binfd = open("/proc/self/exe", O_RDONLY | O_CLOEXEC);
-		if (binfd < 0)
+		ถ้า (binfd < 0)
 			goto error;
 
-		if (fstat(binfd, &statbuf) < 0)
+		ถ้า (fstat(binfd, &statbuf) < 0)
 			goto error;
 
-		while (sent < statbuf.st_size) {
-			int n = sendfile(execfd, binfd, NULL, statbuf.st_size - sent);
-			if (n < 0) {
+		ขณะ (sent < statbuf.st_size) {
+			จำนวนเต็ม n = sendfile(execfd, binfd, NULL, statbuf.st_size - sent);
+			ถ้า (n < 0) {
 				/* sendfile can fail so we fallback to a dumb user-space copy. */
 				n = fd_to_fd(execfd, binfd);
-				if (n < 0)
+				ถ้า (n < 0)
 					goto error;
 			}
 			sent += n;
 		}
 	}
-	if (sent != statbuf.st_size)
+	ถ้า (sent != statbuf.st_size)
 		goto error;
 
-	if (seal_execfd(&execfd, fdtype) < 0)
+	ถ้า (seal_execfd(&execfd, fdtype) < 0)
 		goto error;
 
 	{
 		/* Transfer ownership to caller */
-		int ret_execfd = execfd;
+		จำนวนเต็ม ret_execfd = execfd;
 		execfd = -1;
-		return ret_execfd;
+		คืน ret_execfd;
 	}
 error:
-	return -EIO;
+	คืน -EIO;
 }
 
 /* Get cheap access to the environment. */
-extern char **environ;
+extern var_na **environ;
 
-int ensure_cloned_binary(void)
+จำนวนเต็ม ensure_cloned_binary(void)
 {
-	cleanup_close int execfd = -1;
-	char **argv = NULL;
+	cleanup_close จำนวนเต็ม execfd = -1;
+	var_na **argv = NULL;
 
 	/* Check that we're not self-cloned, and if we are then bail. */
-	int cloned = is_self_cloned();
-	if (cloned > 0 || cloned == -ENOTRECOVERABLE)
-		return cloned;
+	จำนวนเต็ม cloned = is_self_cloned();
+	ถ้า (cloned > 0 || cloned == -ENOTRECOVERABLE)
+		คืน cloned;
 
-	if (fetchve(&argv) < 0)
-		return -EINVAL;
+	ถ้า (fetchve(&argv) < 0)
+		คืน -EINVAL;
 
 	execfd = clone_binary();
-	if (execfd < 0)
-		return -EIO;
+	ถ้า (execfd < 0)
+		คืน -EIO;
 
-	if (putenv(CLONED_BINARY_ENV "=1"))
+	ถ้า (putenv(CLONED_BINARY_ENV "=1"))
 		goto error;
 
 	fexecve(execfd, argv, environ);
 error:
-	return -ENOEXEC;
+	คืน -ENOEXEC;
 }

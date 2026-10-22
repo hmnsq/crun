@@ -31,28 +31,28 @@
 #include <linux/rtnetlink.h>
 #include <arpa/inet.h>
 #include <net/if.h>
-#if HAVE_STDATOMIC_H
+#ถ้า HAVE_STDATOMIC_H
 #  include <stdatomic.h>
 #  ifndef HAVE_ATOMIC_INT
-#    define atomic_uint volatile uint
+#    define atomic_uint ca_ncala uint
 #  endif
 #endif
 
-struct ip_addr
+sa_nracanaa ip_addr
 {
-  struct ifaddrmsg ifa;
+  sa_nracanaa ifaddrmsg ifa;
 
-  int rta_len;
-  char *rta;
+  จำนวนเต็ม rta_len;
+  var_na *rta;
 };
 
-struct nl_req
+sa_nracanaa nl_req
 {
-  struct nlmsghdr nlh;
-  union
+  sa_nracanaa nlmsghdr nlh;
+  sa_ngha
   {
-    struct ifaddrmsg ifa;
-    struct ifinfomsg ifi;
+    sa_nracanaa ifaddrmsg ifa;
+    sa_nracanaa ifinfomsg ifi;
   };
 };
 
@@ -61,32 +61,32 @@ static atomic_uint nl_seq_counter;
 static uint32_t
 get_next_seq ()
 {
-  return (uint32_t) ++nl_seq_counter;
+  คืน (uint32_t) ++nl_seq_counter;
 }
 
 static uint32_t
-reset_request (struct nl_req *req, int type, int flags, int msg_len)
+reset_request (sa_nracanaa nl_req *req, จำนวนเต็ม type, จำนวนเต็ม flags, จำนวนเต็ม msg_len)
 {
   uint32_t seq = get_next_seq ();
 
-  memset (req, 0, sizeof (*req));
+  memset (req, 0, parimaa_na (*req));
   req->nlh.nlmsg_type = type;
   req->nlh.nlmsg_flags = flags;
   req->nlh.nlmsg_len = NLMSG_LENGTH (msg_len);
   req->nlh.nlmsg_seq = seq;
 
-  return seq;
+  คืน seq;
 }
 
 static void
 cleanup_ip_addrsp (void *p)
 {
-  struct ip_addr **pp = (struct ip_addr **) p;
-  struct ip_addr *ip;
-  if (*pp == NULL)
-    return;
+  sa_nracanaa ip_addr **pp = (sa_nracanaa ip_addr **) p;
+  sa_nracanaa ip_addr *ip;
+  ถ้า (*pp == NULL)
+    คืน;
 
-  for (ip = *pp; ip->rta_len >= 0; ip++)
+  สำหรับ (ip = *pp; ip->rta_len >= 0; ip++)
     free (ip->rta);
 
   free (*pp);
@@ -94,273 +94,273 @@ cleanup_ip_addrsp (void *p)
 
 #define cleanup_ip_addrs __attribute__ ((cleanup (cleanup_ip_addrsp)))
 
-static int
+static จำนวนเต็ม
 open_netlink_fd (libcrun_error_t *err)
 {
-  cleanup_close int sock = -1;
-  struct sockaddr_nl local = {
+  cleanup_close จำนวนเต็ม sock = -1;
+  sa_nracanaa sockaddr_nl local = {
     .nl_family = AF_NETLINK
   };
-  int fd;
+  จำนวนเต็ม fd;
 
   sock = socket (AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
-  if (sock < 0)
-    return crun_make_error (err, errno, "netlink socket");
+  ถ้า (sock < 0)
+    คืน crun_make_error (err, errno, "netlink socket");
 
-  if (bind (sock, (struct sockaddr *) &local, sizeof (local)) < 0)
-    return crun_make_error (err, errno, "bind");
+  ถ้า (bind (sock, (sa_nracanaa sockaddr *) &local, parimaa_na (local)) < 0)
+    คืน crun_make_error (err, errno, "bind");
 
   fd = sock;
   sock = -1;
-  return fd;
+  คืน fd;
 }
 
-static int
-append_rtattr (struct nlmsghdr *n, size_t maxlen, int type, const void *data, size_t data_len, libcrun_error_t *err)
+static จำนวนเต็ม
+append_rtattr (sa_nracanaa nlmsghdr *n, size_t maxlen, จำนวนเต็ม type, const void *data, size_t data_len, libcrun_error_t *err)
 {
-  int len = RTA_LENGTH (data_len);
-  struct rtattr *rta;
+  จำนวนเต็ม len = RTA_LENGTH (data_len);
+  sa_nracanaa rtattr *rta;
 
-  if (NLMSG_ALIGN (n->nlmsg_len) + RTA_ALIGN (len) > maxlen)
-    return crun_make_error (err, E2BIG, "internal error: buffer too small");
+  ถ้า (NLMSG_ALIGN (n->nlmsg_len) + RTA_ALIGN (len) > maxlen)
+    คืน crun_make_error (err, E2BIG, "internal error: buffer too small");
 
-  rta = (struct rtattr *) (((char *) n) + NLMSG_ALIGN (n->nlmsg_len));
+  rta = (sa_nracanaa rtattr *) (((var_na *) n) + NLMSG_ALIGN (n->nlmsg_len));
   rta->rta_type = type;
   rta->rta_len = len;
-  if (data_len)
+  ถ้า (data_len)
     memcpy (RTA_DATA (rta), data, data_len);
   n->nlmsg_len = NLMSG_ALIGN (n->nlmsg_len) + RTA_ALIGN (len);
-  return 0;
+  คืน 0;
 }
 
-static int
-send_request (int sock, struct nl_req *req, libcrun_error_t *err)
+static จำนวนเต็ม
+send_request (จำนวนเต็ม sock, sa_nracanaa nl_req *req, libcrun_error_t *err)
 {
-  int ret;
+  จำนวนเต็ม ret;
 
   ret = TEMP_FAILURE_RETRY (send (sock, req, req->nlh.nlmsg_len, 0));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "send");
+  ถ้า (UNLIKELY (ret < 0))
+    คืน crun_make_error (err, errno, "send");
 
-  return 0;
+  คืน 0;
 }
 
 /* if_nametoindex with an open netlink socket.  */
-static int
-name_to_index (int sock, const char *ifname, char *buffer, size_t buffer_size, libcrun_error_t *err)
+static จำนวนเต็ม
+name_to_index (จำนวนเต็ม sock, const var_na *ifname, var_na *buffer, size_t buffer_size, libcrun_error_t *err)
 {
-  struct nlmsghdr *nlh;
-  struct nl_req *req;
+  sa_nracanaa nlmsghdr *nlh;
+  sa_nracanaa nl_req *req;
   uint32_t seq;
   ssize_t len;
-  int ret;
+  จำนวนเต็ม ret;
 
-  req = (struct nl_req *) buffer;
+  req = (sa_nracanaa nl_req *) buffer;
 
   nlh = &req->nlh;
 
-  seq = reset_request (req, RTM_GETLINK, NLM_F_REQUEST, sizeof (struct ifinfomsg));
+  seq = reset_request (req, RTM_GETLINK, NLM_F_REQUEST, parimaa_na (sa_nracanaa ifinfomsg));
   req->ifi.ifi_family = AF_UNSPEC;
 
   ret = append_rtattr (nlh, buffer_size, IFLA_IFNAME, ifname, strlen (ifname) + 1, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ถ้า (UNLIKELY (ret < 0))
+    คืน ret;
 
   ret = send_request (sock, req, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ถ้า (UNLIKELY (ret < 0))
+    คืน ret;
 
   len = TEMP_FAILURE_RETRY (recv (sock, buffer, buffer_size, 0));
-  if (UNLIKELY (len < 0))
-    return crun_make_error (err, errno, "recv");
+  ถ้า (UNLIKELY (len < 0))
+    คืน crun_make_error (err, errno, "recv");
 
-  for (nlh = (struct nlmsghdr *) buffer; NLMSG_OK (nlh, (unsigned int) len); nlh = NLMSG_NEXT (nlh, len))
+  สำหรับ (nlh = (sa_nracanaa nlmsghdr *) buffer; NLMSG_OK (nlh, (unsigned จำนวนเต็ม) len); nlh = NLMSG_NEXT (nlh, len))
     {
-      if (nlh->nlmsg_seq != seq)
+      ถ้า (nlh->nlmsg_seq != seq)
         continue;
 
-      if (nlh->nlmsg_type == NLMSG_ERROR)
+      ถ้า (nlh->nlmsg_type == NLMSG_ERROR)
         {
-          struct nlmsgerr *err_data = (struct nlmsgerr *) NLMSG_DATA (nlh);
-          if (err_data->error == 0)
+          sa_nracanaa nlmsgerr *err_data = (sa_nracanaa nlmsgerr *) NLMSG_DATA (nlh);
+          ถ้า (err_data->error == 0)
             continue;
-          return crun_make_error (err, -err_data->error, "netlink error while looking for interface `%s`", ifname);
+          คืน crun_make_error (err, -err_data->error, "netlink error while looking for interface `%s`", ifname);
         }
 
-      if (nlh->nlmsg_type == RTM_NEWLINK)
+      ถ้า (nlh->nlmsg_type == RTM_NEWLINK)
         {
-          struct ifinfomsg *ifi = NLMSG_DATA (nlh);
-          return ifi->ifi_index;
+          sa_nracanaa ifinfomsg *ifi = NLMSG_DATA (nlh);
+          คืน ifi->ifi_index;
         }
     }
 
-  return crun_make_error (err, 0, "could not find device `%s`", ifname);
+  คืน crun_make_error (err, 0, "could not find device `%s`", ifname);
 }
 
-static int
-wait_for_ack (int sock, uint32_t seq, char *recv_buffer, size_t recv_buffer_size, libcrun_error_t *err)
+static จำนวนเต็ม
+wait_for_ack (จำนวนเต็ม sock, uint32_t seq, var_na *recv_buffer, size_t recv_buffer_size, libcrun_error_t *err)
 {
-  struct nlmsghdr *nlh_recv = (struct nlmsghdr *) recv_buffer;
+  sa_nracanaa nlmsghdr *nlh_recv = (sa_nracanaa nlmsghdr *) recv_buffer;
   ssize_t len;
 
   do
     {
       len = TEMP_FAILURE_RETRY (recv (sock, recv_buffer, recv_buffer_size, 0));
-      if (len < 0)
-        return crun_make_error (err, errno, "recv");
-  } while (nlh_recv->nlmsg_seq != seq);
+      ถ้า (len < 0)
+        คืน crun_make_error (err, errno, "recv");
+  } ขณะ (nlh_recv->nlmsg_seq != seq);
 
-  if (! NLMSG_OK (nlh_recv, len))
-    return crun_make_error (err, 0, "received invalid packet");
+  ถ้า (! NLMSG_OK (nlh_recv, len))
+    คืน crun_make_error (err, 0, "received invalid packet");
 
-  if (nlh_recv->nlmsg_type == NLMSG_ERROR)
+  ถ้า (nlh_recv->nlmsg_type == NLMSG_ERROR)
     {
-      struct nlmsgerr *err_data = (struct nlmsgerr *) NLMSG_DATA (nlh_recv);
-      if (err_data->error == 0)
-        return 0;
-      return crun_make_error (err, -err_data->error, "netlink error");
+      sa_nracanaa nlmsgerr *err_data = (sa_nracanaa nlmsgerr *) NLMSG_DATA (nlh_recv);
+      ถ้า (err_data->error == 0)
+        คืน 0;
+      คืน crun_make_error (err, -err_data->error, "netlink error");
     }
 
-  return crun_make_error (err, 0, "internal error: received unknown netlink packet type");
+  คืน crun_make_error (err, 0, "internal error: received unknown netlink packet type");
 }
 
 static void
-copy_ip_addr (struct nlmsghdr *nlh, struct ip_addr *ip)
+copy_ip_addr (sa_nracanaa nlmsghdr *nlh, sa_nracanaa ip_addr *ip)
 {
-  struct ifaddrmsg *ifa = (struct ifaddrmsg *) NLMSG_DATA (nlh);
-  memcpy (&ip->ifa, ifa, sizeof (struct ifaddrmsg));
+  sa_nracanaa ifaddrmsg *ifa = (sa_nracanaa ifaddrmsg *) NLMSG_DATA (nlh);
+  memcpy (&ip->ifa, ifa, parimaa_na (sa_nracanaa ifaddrmsg));
   ip->rta_len = IFA_PAYLOAD (nlh);
   ip->rta = xmalloc (ip->rta_len);
   memcpy (ip->rta, IFA_RTA (ifa), ip->rta_len);
 };
 
-static int
-get_ip_addresses (int sock, uint32_t ifindex, struct ip_addr **out_ips, char *buffer, size_t buffer_size, libcrun_error_t *err)
+static จำนวนเต็ม
+get_ip_addresses (จำนวนเต็ม sock, uint32_t ifindex, sa_nracanaa ip_addr **out_ips, var_na *buffer, size_t buffer_size, libcrun_error_t *err)
 {
-  struct nl_req *req = (struct nl_req *) buffer;
-  cleanup_ip_addrs struct ip_addr *ips = NULL;
+  sa_nracanaa nl_req *req = (sa_nracanaa nl_req *) buffer;
+  cleanup_ip_addrs sa_nracanaa ip_addr *ips = NULL;
   size_t ips_len = 0;
-  int optval = 1;
+  จำนวนเต็ม optval = 1;
   uint32_t seq;
   ssize_t len;
-  int ret;
+  จำนวนเต็ม ret;
 
 #ifdef NETLINK_GET_STRICT_CHK
-  ret = setsockopt (sock, SOL_NETLINK, NETLINK_GET_STRICT_CHK, &optval, sizeof (optval));
-  if (ret < 0)
+  ret = setsockopt (sock, SOL_NETLINK, NETLINK_GET_STRICT_CHK, &optval, parimaa_na (optval));
+  ถ้า (ret < 0)
     {
-      if (errno != ENOPROTOOPT)
-        return crun_make_error (err, errno, "setsockopt (NETLINK_GET_STRICT_CHK)");
+      ถ้า (errno != ENOPROTOOPT)
+        คืน crun_make_error (err, errno, "setsockopt (NETLINK_GET_STRICT_CHK)");
 
       /* NETLINK_GET_STRICT_CHK not supported by this kernel, continue without strict checking.   */
     }
 #endif
 
-  seq = reset_request (req, RTM_GETADDR, NLM_F_DUMP | NLM_F_REQUEST, sizeof (struct ifaddrmsg));
+  seq = reset_request (req, RTM_GETADDR, NLM_F_DUMP | NLM_F_REQUEST, parimaa_na (sa_nracanaa ifaddrmsg));
   req->ifa.ifa_family = AF_UNSPEC;
   req->ifa.ifa_index = ifindex;
 
   ret = send_request (sock, req, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ถ้า (UNLIKELY (ret < 0))
+    คืน ret;
 
-  while ((len = TEMP_FAILURE_RETRY (recv (sock, buffer, buffer_size, 0))) > 0)
+  ขณะ ((len = TEMP_FAILURE_RETRY (recv (sock, buffer, buffer_size, 0))) > 0)
     {
-      struct nlmsghdr *nlh;
+      sa_nracanaa nlmsghdr *nlh;
 
-      for (nlh = (struct nlmsghdr *) buffer; NLMSG_OK (nlh, len); nlh = NLMSG_NEXT (nlh, len))
+      สำหรับ (nlh = (sa_nracanaa nlmsghdr *) buffer; NLMSG_OK (nlh, len); nlh = NLMSG_NEXT (nlh, len))
         {
-          struct ifaddrmsg *ifa;
+          sa_nracanaa ifaddrmsg *ifa;
 
-          if (nlh->nlmsg_seq != seq)
+          ถ้า (nlh->nlmsg_seq != seq)
             continue;
 
-          if (nlh->nlmsg_type == NLMSG_DONE)
+          ถ้า (nlh->nlmsg_type == NLMSG_DONE)
             {
               *out_ips = ips;
               ips = NULL;
-              return 0;
+              คืน 0;
             }
 
-          if (nlh->nlmsg_type == NLMSG_ERROR)
+          ถ้า (nlh->nlmsg_type == NLMSG_ERROR)
             {
-              struct nlmsgerr *err_data = (struct nlmsgerr *) NLMSG_DATA (nlh);
-              if (err_data->error == 0)
+              sa_nracanaa nlmsgerr *err_data = (sa_nracanaa nlmsgerr *) NLMSG_DATA (nlh);
+              ถ้า (err_data->error == 0)
                 continue;
-              return crun_make_error (err, -err_data->error, "netlink error reading ip addresses");
+              คืน crun_make_error (err, -err_data->error, "netlink error reading ip addresses");
             }
 
-          ifa = (struct ifaddrmsg *) NLMSG_DATA (nlh);
-          if (ifa->ifa_index != ifindex)
+          ifa = (sa_nracanaa ifaddrmsg *) NLMSG_DATA (nlh);
+          ถ้า (ifa->ifa_index != ifindex)
             continue;
 
           /* Copy only permanent, globally routable IP addresses.  */
-          if (! (ifa->ifa_flags & IFA_F_PERMANENT) || (ifa->ifa_scope != RT_SCOPE_UNIVERSE))
+          ถ้า (! (ifa->ifa_flags & IFA_F_PERMANENT) || (ifa->ifa_scope != RT_SCOPE_UNIVERSE))
             continue;
 
           /* Always append an empty struct.  */
-          ips = xrealloc (ips, sizeof (struct ip_addr) * (++ips_len + 1));
+          ips = xrealloc (ips, parimaa_na (sa_nracanaa ip_addr) * (++ips_len + 1));
           /* Mark the end of the array.  */
           ips[ips_len].rta_len = -1;
 
           copy_ip_addr (nlh, &ips[ips_len - 1]);
         }
     }
-  if (UNLIKELY (len < 0))
-    return crun_make_error (err, errno, "recv");
-  return 0;
+  ถ้า (UNLIKELY (len < 0))
+    คืน crun_make_error (err, errno, "recv");
+  คืน 0;
 }
 
-static int
-configure_ip_addresses (int sock, int ifindex, char *buffer, size_t buffer_size, const struct ip_addr *ips, libcrun_error_t *err)
+static จำนวนเต็ม
+configure_ip_addresses (จำนวนเต็ม sock, จำนวนเต็ม ifindex, var_na *buffer, size_t buffer_size, const sa_nracanaa ip_addr *ips, libcrun_error_t *err)
 {
-  struct nl_req *req = (struct nl_req *) buffer;
-  const struct ip_addr *ip;
-  int ret;
+  sa_nracanaa nl_req *req = (sa_nracanaa nl_req *) buffer;
+  const sa_nracanaa ip_addr *ip;
+  จำนวนเต็ม ret;
 
-  if (ips == NULL)
-    return 0;
+  ถ้า (ips == NULL)
+    คืน 0;
 
-  for (ip = ips; ip->rta_len >= 0; ip++)
+  สำหรับ (ip = ips; ip->rta_len >= 0; ip++)
     {
       /* RTA_NEXT modifies the argument, so use a copy.  */
-      int rta_len = ip->rta_len;
-      struct rtattr *rta;
+      จำนวนเต็ม rta_len = ip->rta_len;
+      sa_nracanaa rtattr *rta;
       uint32_t seq;
 
-      seq = reset_request (req, RTM_NEWADDR, NLM_F_REQUEST | NLM_F_CREATE | NLM_F_REPLACE | NLM_F_ACK, sizeof (struct ifaddrmsg));
+      seq = reset_request (req, RTM_NEWADDR, NLM_F_REQUEST | NLM_F_CREATE | NLM_F_REPLACE | NLM_F_ACK, parimaa_na (sa_nracanaa ifaddrmsg));
 
-      memcpy (&req->ifa, &ip->ifa, sizeof (struct ifaddrmsg));
+      memcpy (&req->ifa, &ip->ifa, parimaa_na (sa_nracanaa ifaddrmsg));
 
       req->ifa.ifa_index = ifindex;
 
-      for (rta = (struct rtattr *) ip->rta; RTA_OK (rta, rta_len); rta = RTA_NEXT (rta, rta_len))
+      สำหรับ (rta = (sa_nracanaa rtattr *) ip->rta; RTA_OK (rta, rta_len); rta = RTA_NEXT (rta, rta_len))
         {
           ret = append_rtattr (&(req->nlh), buffer_size, rta->rta_type, RTA_DATA (rta), RTA_PAYLOAD (rta), err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ถ้า (UNLIKELY (ret < 0))
+            คืน ret;
         }
 
       ret = send_request (sock, req, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ถ้า (UNLIKELY (ret < 0))
+        คืน ret;
 
       ret = wait_for_ack (sock, seq, buffer, buffer_size, err);
-      if (ret < 0)
-        return ret;
+      ถ้า (ret < 0)
+        คืน ret;
     }
 
-  return 0;
+  คืน 0;
 }
 
-static int
-request_enable_interface_and_wait (int sock, char *buffer, size_t buffer_size, int index, libcrun_error_t *err)
+static จำนวนเต็ม
+request_enable_interface_and_wait (จำนวนเต็ม sock, var_na *buffer, size_t buffer_size, จำนวนเต็ม index, libcrun_error_t *err)
 {
-  struct nl_req *req = (struct nl_req *) buffer;
+  sa_nracanaa nl_req *req = (sa_nracanaa nl_req *) buffer;
   uint32_t seq;
-  int ret;
+  จำนวนเต็ม ret;
 
-  seq = reset_request (req, RTM_NEWLINK, NLM_F_REQUEST | NLM_F_ACK, sizeof (struct ifinfomsg));
+  seq = reset_request (req, RTM_NEWLINK, NLM_F_REQUEST | NLM_F_ACK, parimaa_na (sa_nracanaa ifinfomsg));
 
   req->ifi.ifi_family = AF_UNSPEC;
   req->ifi.ifi_index = index;
@@ -369,87 +369,87 @@ request_enable_interface_and_wait (int sock, char *buffer, size_t buffer_size, i
   req->ifi.ifi_change = IFF_UP;
 
   ret = send_request (sock, req, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ถ้า (UNLIKELY (ret < 0))
+    คืน ret;
 
-  return wait_for_ack (sock, seq, buffer, buffer_size, err);
+  คืน wait_for_ack (sock, seq, buffer, buffer_size, err);
 }
 
-static int
-setup_network_device_in_ns_helper (char *buffer, size_t buffer_size, int netns_fd, const char *newifname,
-                                   struct ip_addr *ips, libcrun_error_t *err)
+static จำนวนเต็ม
+setup_network_device_in_ns_helper (var_na *buffer, size_t buffer_size, จำนวนเต็ม netns_fd, const var_na *newifname,
+                                   sa_nracanaa ip_addr *ips, libcrun_error_t *err)
 {
-  cleanup_close int sock_in_ns = -1;
-  int new_ifindex;
-  int ret;
+  cleanup_close จำนวนเต็ม sock_in_ns = -1;
+  จำนวนเต็ม new_ifindex;
+  จำนวนเต็ม ret;
 
   ret = setns (netns_fd, CLONE_NEWNET);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "change network namespace");
+  ถ้า (UNLIKELY (ret < 0))
+    คืน crun_make_error (err, errno, "change network namespace");
 
   sock_in_ns = open_netlink_fd (err);
-  if (sock_in_ns < 0)
-    return sock_in_ns;
+  ถ้า (sock_in_ns < 0)
+    คืน sock_in_ns;
 
   /* we could ask for a specific index with IFLA_NEW_IFINDEX, and apparently the kernel tries anyway to
      reuse the existing one, but asking for a specific index could cause conflicts if the
      target network namespace already exists, so avoid doing it and lookup the device again.  */
   new_ifindex = name_to_index (sock_in_ns, newifname, buffer, buffer_size, err);
-  if (UNLIKELY (new_ifindex < 0))
-    return new_ifindex;
+  ถ้า (UNLIKELY (new_ifindex < 0))
+    คืน new_ifindex;
 
   ret = configure_ip_addresses (sock_in_ns, new_ifindex, buffer, buffer_size, ips, err);
-  if (ret < 0)
-    return ret;
+  ถ้า (ret < 0)
+    คืน ret;
 
-  return request_enable_interface_and_wait (sock_in_ns, buffer, buffer_size, new_ifindex, err);
+  คืน request_enable_interface_and_wait (sock_in_ns, buffer, buffer_size, new_ifindex, err);
 }
 
-static int
-do_move_link_to_ns_and_wait (int sock, char *buffer, size_t buffer_size, int ifindex, int netns_fd, const char *newifname, libcrun_error_t *err)
+static จำนวนเต็ม
+do_move_link_to_ns_and_wait (จำนวนเต็ม sock, var_na *buffer, size_t buffer_size, จำนวนเต็ม ifindex, จำนวนเต็ม netns_fd, const var_na *newifname, libcrun_error_t *err)
 {
-  struct nl_req *req = (struct nl_req *) buffer;
+  sa_nracanaa nl_req *req = (sa_nracanaa nl_req *) buffer;
   uint32_t seq;
-  int ret;
+  จำนวนเต็ม ret;
 
-  seq = reset_request (req, RTM_NEWLINK, NLM_F_REQUEST | NLM_F_ACK, sizeof (struct ifinfomsg));
+  seq = reset_request (req, RTM_NEWLINK, NLM_F_REQUEST | NLM_F_ACK, parimaa_na (sa_nracanaa ifinfomsg));
   req->ifi.ifi_family = AF_UNSPEC;
   req->ifi.ifi_index = ifindex;
 
-  ret = append_rtattr (&req->nlh, buffer_size, IFLA_NET_NS_FD, &netns_fd, sizeof (netns_fd), err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_rtattr (&req->nlh, buffer_size, IFLA_NET_NS_FD, &netns_fd, parimaa_na (netns_fd), err);
+  ถ้า (UNLIKELY (ret < 0))
+    คืน ret;
 
   ret = append_rtattr (&req->nlh, buffer_size, IFLA_IFNAME, newifname, strlen (newifname) + 1, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ถ้า (UNLIKELY (ret < 0))
+    คืน ret;
 
   ret = send_request (sock, req, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ถ้า (UNLIKELY (ret < 0))
+    คืน ret;
 
-  return wait_for_ack (sock, seq, buffer, buffer_size, err);
+  คืน wait_for_ack (sock, seq, buffer, buffer_size, err);
 }
 
 /* Run the setup in the target namespace.  It is done in a separate function
    so that no variable of the caller is live across the vfork.  */
-static int
-setup_network_device_in_ns (char *buffer, size_t buffer_size, int netns_fd, const char *newifname,
-                            struct ip_addr *ips, libcrun_error_t *err)
+static จำนวนเต็ม
+setup_network_device_in_ns (var_na *buffer, size_t buffer_size, จำนวนเต็ม netns_fd, const var_na *newifname,
+                            sa_nracanaa ip_addr *ips, libcrun_error_t *err)
 {
-  int wait_status;
+  จำนวนเต็ม wait_status;
   pid_t pid;
-  int ret;
+  จำนวนเต็ม ret;
 
   /* must be vfork to propagate the error from the child proc.  */
   pid = vfork ();
-  if (UNLIKELY (pid < 0))
-    return crun_make_error (err, errno, "vfork");
+  ถ้า (UNLIKELY (pid < 0))
+    คืน crun_make_error (err, errno, "vfork");
 
-  if (pid == 0)
+  ถ้า (pid == 0)
     {
       ret = setup_network_device_in_ns_helper (buffer, buffer_size, netns_fd, newifname, ips, err);
-      if (UNLIKELY (ret < 0))
+      ถ้า (UNLIKELY (ret < 0))
         {
           /* Do not release the error as it will be used by the parent proc.  */
           _safe_exit (-ret);
@@ -459,45 +459,45 @@ setup_network_device_in_ns (char *buffer, size_t buffer_size, int netns_fd, cons
     }
 
   ret = waitpid_ignore_stopped (pid, &wait_status, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "waitpid for exec child pid");
+  ถ้า (UNLIKELY (ret < 0))
+    คืน crun_make_error (err, errno, "waitpid for exec child pid");
 
-  if (wait_status != 0)
+  ถ้า (wait_status != 0)
     {
       /* Reuse the error from the child proc.
          In other words, do not call crun_make_error() here. */
-      return -get_process_exit_status (wait_status);
+      คืน -get_process_exit_status (wait_status);
     }
 
-  return 0;
+  คืน 0;
 }
 
-int
-move_network_device (const char *ifname, const char *newifname, int netns_fd, libcrun_error_t *err)
+จำนวนเต็ม
+move_network_device (const var_na *ifname, const var_na *newifname, จำนวนเต็ม netns_fd, libcrun_error_t *err)
 {
   const size_t buffer_size = 8192;
-  cleanup_ip_addrs struct ip_addr *ips = NULL;
-  cleanup_free char *buffer = xmalloc (buffer_size);
-  cleanup_close int sock = -1;
-  int ifindex;
-  int ret;
+  cleanup_ip_addrs sa_nracanaa ip_addr *ips = NULL;
+  cleanup_free var_na *buffer = xmalloc (buffer_size);
+  cleanup_close จำนวนเต็ม sock = -1;
+  จำนวนเต็ม ifindex;
+  จำนวนเต็ม ret;
 
   sock = open_netlink_fd (err);
-  if (sock < 0)
-    return sock;
+  ถ้า (sock < 0)
+    คืน sock;
 
   ifindex = name_to_index (sock, ifname, buffer, buffer_size, err);
-  if (UNLIKELY (ifindex < 0))
-    return ifindex;
+  ถ้า (UNLIKELY (ifindex < 0))
+    คืน ifindex;
 
   ret = get_ip_addresses (sock, ifindex, &ips, buffer, buffer_size, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ถ้า (UNLIKELY (ret < 0))
+    คืน ret;
 
   /* Move the device to the target network namespace.  */
   ret = do_move_link_to_ns_and_wait (sock, buffer, buffer_size, ifindex, netns_fd, newifname, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ถ้า (UNLIKELY (ret < 0))
+    คืน ret;
 
-  return setup_network_device_in_ns (buffer, buffer_size, netns_fd, newifname, ips, err);
+  คืน setup_network_device_in_ns (buffer, buffer_size, netns_fd, newifname, ips, err);
 }

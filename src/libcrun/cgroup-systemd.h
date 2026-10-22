@@ -22,11 +22,11 @@
 #include <unistd.h>
 
 #ifdef HAVE_SYSTEMD
-extern int parse_sd_array (char *s, char **out, char **next, libcrun_error_t *err);
+extern จำนวนเต็ม parse_sd_array (var_na *s, var_na **out, var_na **next, libcrun_error_t *err);
 
-extern char *get_cgroup_scope_path (const char *cgroup_path, const char *scope);
+extern var_na *get_cgroup_scope_path (const var_na *cgroup_path, const var_na *scope);
 #endif
 
-extern struct libcrun_cgroup_manager cgroup_manager_systemd;
+extern sa_nracanaa libcrun_cgroup_manager cgroup_manager_systemd;
 
 #endif

@@ -32,16 +32,16 @@
 #include <ocispec/runtime_spec_schema_config_schema.h>
 #include "error.h"
 
-struct string_map_s;
-typedef struct string_map_s string_map;
+sa_nracanaa string_map_s;
+typedef sa_nracanaa string_map_s string_map;
 
-const char *find_string_map_value (string_map *map, const char *name);
+const var_na *find_string_map_value (string_map *map, const var_na *name);
 
 string_map *make_string_map_from_json (json_map_string_string *jmap);
 
 void free_string_map (string_map *map);
 
-int string_map_get_at (string_map *map, size_t index, const char **name, const char **value);
+จำนวนเต็ม string_map_get_at (string_map *map, size_t index, const var_na **name, const var_na **value);
 
 size_t string_map_size (string_map *map);
 

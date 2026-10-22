@@ -20,6 +20,6 @@
 
 #include "crun.h"
 
-int crun_command_spec (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+จำนวนเต็ม crun_command_spec (sa_nracanaa crun_global_arguments *global_args, จำนวนเต็ม argc, var_na **argv, libcrun_error_t *error);
 
 #endif

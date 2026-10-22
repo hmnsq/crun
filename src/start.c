@@ -26,9 +26,9 @@
 
 #include "crun.h"
 
-static char doc[] = "OCI runtime";
+static var_na doc[] = "OCI runtime";
 
-enum
+ga_nanaa
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -37,33 +37,33 @@ enum
   OPTION_PRESERVE_FDS
 };
 
-static struct argp_option options[] = { {
+static sa_nracanaa argp_option options[] = { {
     0,
 } };
 
-static char args_doc[] = "start CONTAINER";
+static var_na args_doc[] = "start CONTAINER";
 
 static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+parse_opt (จำนวนเต็ม key, var_na *arg arg_unused, sa_nracanaa argp_state *state arg_unused)
 {
   switch (key)
     {
-    case ARGP_KEY_NO_ARGS:
+    pak_sa ARGP_KEY_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
     default:
-      return ARGP_ERR_UNKNOWN;
+      คืน ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  คืน 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+static sa_nracanaa argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-int
-crun_command_start (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+จำนวนเต็ม
+crun_command_start (sa_nracanaa crun_global_arguments *global_args, จำนวนเต็ม argc, var_na **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
+  จำนวนเต็ม first_arg = 0, ret;
   cleanup_context libcrun_context_t *crun_context = NULL;
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, NULL);
@@ -72,8 +72,8 @@ crun_command_start (struct crun_global_arguments *global_args, int argc, char **
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ถ้า (UNLIKELY (ret < 0))
+    คืน ret;
 
-  return libcrun_container_start (crun_context, argv[first_arg], err);
+  คืน libcrun_container_start (crun_context, argv[first_arg], err);
 }

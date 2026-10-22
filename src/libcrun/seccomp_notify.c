@@ -18,7 +18,7 @@
 #include <config.h>
 #include <errno.h>
 
-#if HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
+#ถ้า HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
 #  include <seccomp.h>
 #  include <sys/ioctl.h>
 #  include <linux/seccomp.h>
@@ -36,32 +36,32 @@
 #  define SECCOMP_USER_NOTIF_FLAG_CONTINUE (1UL << 0)
 #endif
 
-struct plugin
+sa_nracanaa plugin
 {
   void *handle;
   void *opaque;
-#if HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
+#ถ้า HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
   run_oci_seccomp_notify_handle_request_cb handle_request_cb;
 #endif
 };
 
-struct seccomp_notify_context_s
+sa_nracanaa seccomp_notify_context_s
 {
-  struct plugin *plugins;
+  sa_nracanaa plugin *plugins;
   size_t n_plugins;
 
-#if HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES
-  struct seccomp_notif_resp *sresp;
-  struct seccomp_notif *sreq;
-  struct seccomp_notif_sizes sizes;
+#ถ้า HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES
+  sa_nracanaa seccomp_notif_resp *sresp;
+  sa_nracanaa seccomp_notif *sreq;
+  sa_nracanaa seccomp_notif_sizes sizes;
 #endif
 };
 
 void
 cleanup_seccomp_notify_pluginsp (void *p)
 {
-  struct seccomp_notify_context_s **pp = p;
-  if (*pp)
+  sa_nracanaa seccomp_notify_context_s **pp = p;
+  ถ้า (*pp)
     {
       libcrun_error_t tmp_err = NULL;
       libcrun_free_seccomp_notify_plugins (*pp, &tmp_err);
@@ -70,80 +70,80 @@ cleanup_seccomp_notify_pluginsp (void *p)
     }
 }
 
-#if HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
-static int
-seccomp_syscall (unsigned int op, unsigned int flags, void *args)
+#ถ้า HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
+static จำนวนเต็ม
+seccomp_syscall (unsigned จำนวนเต็ม op, unsigned จำนวนเต็ม flags, void *args)
 {
   errno = 0;
-  return syscall (__NR_seccomp, op, flags, args);
+  คืน syscall (__NR_seccomp, op, flags, args);
 }
 #endif
 
-LIBCRUN_PUBLIC int
-libcrun_load_seccomp_notify_plugins (struct seccomp_notify_context_s **out, const char *plugins,
-                                     struct libcrun_load_seccomp_notify_conf_s *conf, libcrun_error_t *err)
+LIBCRUN_PUBLIC จำนวนเต็ม
+libcrun_load_seccomp_notify_plugins (sa_nracanaa seccomp_notify_context_s **out, const var_na *plugins,
+                                     sa_nracanaa libcrun_load_seccomp_notify_conf_s *conf, libcrun_error_t *err)
 {
-#if HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
-  cleanup_seccomp_notify_context struct seccomp_notify_context_s *ctx = xmalloc0 (sizeof *ctx);
-  cleanup_free char *b = NULL;
-  char *it, *saveptr;
+#ถ้า HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
+  cleanup_seccomp_notify_context sa_nracanaa seccomp_notify_context_s *ctx = xmalloc0 (parimaa_na *ctx);
+  cleanup_free var_na *b = NULL;
+  var_na *it, *saveptr;
   size_t s;
 
-  if (seccomp_syscall (SECCOMP_GET_NOTIF_SIZES, 0, &ctx->sizes) < 0)
-    return crun_make_error (err, errno, "seccomp GET_NOTIF_SIZES");
+  ถ้า (seccomp_syscall (SECCOMP_GET_NOTIF_SIZES, 0, &ctx->sizes) < 0)
+    คืน crun_make_error (err, errno, "seccomp GET_NOTIF_SIZES");
 
   ctx->sreq = xmalloc (ctx->sizes.seccomp_notif);
   ctx->sresp = xmalloc (ctx->sizes.seccomp_notif_resp);
 
-  if (is_empty_string (plugins))
-    return 0;
+  ถ้า (is_empty_string (plugins))
+    คืน 0;
 
   b = xstrdup (plugins);
 
   ctx->n_plugins = 1;
-  for (it = b; *it; it++)
-    if (*it == ':')
+  สำหรับ (it = b; *it; it++)
+    ถ้า (*it == ':')
       ctx->n_plugins++;
 
-  ctx->plugins = xmalloc0 (sizeof (struct plugin) * (ctx->n_plugins + 1));
-  for (s = 0, it = strtok_r (b, ":", &saveptr); it; s++, it = strtok_r (NULL, ":", &saveptr))
+  ctx->plugins = xmalloc0 (parimaa_na (sa_nracanaa plugin) * (ctx->n_plugins + 1));
+  สำหรับ (s = 0, it = strtok_r (b, ":", &saveptr); it; s++, it = strtok_r (NULL, ":", &saveptr))
     {
       run_oci_seccomp_notify_plugin_version_cb version_cb;
       run_oci_seccomp_notify_start_cb start_cb;
       void *opq = NULL;
 
       /* do not accept relative paths.  It is fine to accept only filenames as dlopen() semantics apply.  */
-      if (strchr (it, '/') && it[0] != '/')
-        return crun_make_error (err, 0, "invalid relative plugin path: `%s`", it);
+      ถ้า (strchr (it, '/') && it[0] != '/')
+        คืน crun_make_error (err, 0, "invalid relative plugin path: `%s`", it);
 
       ctx->plugins[s].handle = dlopen (it, RTLD_NOW);
-      if (ctx->plugins[s].handle == NULL)
-        return crun_make_error (err, 0, "cannot load `%s`: %s", it, dlerror ());
+      ถ้า (ctx->plugins[s].handle == NULL)
+        คืน crun_make_error (err, 0, "cannot load `%s`: %s", it, dlerror ());
 
       version_cb
           = (run_oci_seccomp_notify_plugin_version_cb) dlsym (ctx->plugins[s].handle, "run_oci_seccomp_notify_version");
-      if (version_cb != NULL)
+      ถ้า (version_cb != NULL)
         {
-          int version;
+          จำนวนเต็ม version;
 
           version = version_cb ();
-          if (version != 1)
-            return crun_make_error (err, ENOTSUP, "invalid version supported by the plugin `%s`", it);
+          ถ้า (version != 1)
+            คืน crun_make_error (err, ENOTSUP, "invalid version supported by the plugin `%s`", it);
         }
 
       ctx->plugins[s].handle_request_cb = (run_oci_seccomp_notify_handle_request_cb) dlsym (
           ctx->plugins[s].handle, "run_oci_seccomp_notify_handle_request");
-      if (ctx->plugins[s].handle_request_cb == NULL)
-        return crun_make_error (err, ENOTSUP, "plugin `%s` doesn't export `run_oci_seccomp_notify_handle_request`", it);
+      ถ้า (ctx->plugins[s].handle_request_cb == NULL)
+        คืน crun_make_error (err, ENOTSUP, "plugin `%s` doesn't export `run_oci_seccomp_notify_handle_request`", it);
 
       start_cb = (run_oci_seccomp_notify_start_cb) dlsym (ctx->plugins[s].handle, "run_oci_seccomp_notify_start");
-      if (start_cb)
+      ถ้า (start_cb)
         {
-          int ret;
+          จำนวนเต็ม ret;
 
-          ret = start_cb (&opq, conf, sizeof (*conf));
-          if (UNLIKELY (ret != 0))
-            return crun_make_error (err, 0, "error loading `%s`", it);
+          ret = start_cb (&opq, conf, parimaa_na (*conf));
+          ถ้า (UNLIKELY (ret != 0))
+            คืน crun_make_error (err, 0, "error loading `%s`", it);
         }
       ctx->plugins[s].opaque = opq;
     }
@@ -151,64 +151,64 @@ libcrun_load_seccomp_notify_plugins (struct seccomp_notify_context_s **out, cons
   /* Change ownership.  */
   *out = ctx;
   ctx = NULL;
-  return 0;
-#else
+  คืน 0;
+#มิฉะนั้น
   (void) out;
   (void) plugins;
   (void) conf;
   (void) err;
-  return crun_make_error (err, ENOTSUP, "seccomp notify support not available");
+  คืน crun_make_error (err, ENOTSUP, "seccomp notify support not available");
 #endif
 }
 
-LIBCRUN_PUBLIC int
-libcrun_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, int seccomp_fd, libcrun_error_t *err)
+LIBCRUN_PUBLIC จำนวนเต็ม
+libcrun_seccomp_notify_plugins (sa_nracanaa seccomp_notify_context_s *ctx, จำนวนเต็ม seccomp_fd, libcrun_error_t *err)
 {
-#if HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
+#ถ้า HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
   size_t i;
-  int ret;
+  จำนวนเต็ม ret;
 
   memset (ctx->sreq, 0, ctx->sizes.seccomp_notif);
   memset (ctx->sresp, 0, ctx->sizes.seccomp_notif_resp);
 
   ret = ioctl (seccomp_fd, SECCOMP_IOCTL_NOTIF_RECV, ctx->sreq);
-  if (UNLIKELY (ret < 0))
+  ถ้า (UNLIKELY (ret < 0))
     {
-      if (errno == ENOENT)
-        return 0;
-      return crun_make_error (err, errno, "ioctl");
+      ถ้า (errno == ENOENT)
+        คืน 0;
+      คืน crun_make_error (err, errno, "ioctl");
     }
 
-  for (i = 0; i < ctx->n_plugins; i++)
+  สำหรับ (i = 0; i < ctx->n_plugins; i++)
     {
-      if (ctx->plugins[i].handle_request_cb)
+      ถ้า (ctx->plugins[i].handle_request_cb)
         {
-          int handled = 0;
-          int ret;
+          จำนวนเต็ม handled = 0;
+          จำนวนเต็ม ret;
 
           ret = ctx->plugins[i].handle_request_cb (ctx->plugins[i].opaque, &ctx->sizes, ctx->sreq, ctx->sresp,
                                                    seccomp_fd, &handled);
-          if (UNLIKELY (ret != 0))
-            return crun_make_error (err, 0, "error handling seccomp notify request");
+          ถ้า (UNLIKELY (ret != 0))
+            คืน crun_make_error (err, 0, "error handling seccomp notify request");
 
           switch (handled)
             {
-            case RUN_OCI_SECCOMP_NOTIFY_HANDLE_NOT_HANDLED:
-              break;
+            pak_sa RUN_OCI_SECCOMP_NOTIFY_HANDLE_NOT_HANDLED:
+              bha_nga;
 
-            case RUN_OCI_SECCOMP_NOTIFY_HANDLE_SEND_RESPONSE:
+            pak_sa RUN_OCI_SECCOMP_NOTIFY_HANDLE_SEND_RESPONSE:
               goto send_resp;
 
               /* The plugin will take care of it.  */
-            case RUN_OCI_SECCOMP_NOTIFY_HANDLE_DELAYED_RESPONSE:
-              return 0;
+            pak_sa RUN_OCI_SECCOMP_NOTIFY_HANDLE_DELAYED_RESPONSE:
+              คืน 0;
 
-            case RUN_OCI_SECCOMP_NOTIFY_HANDLE_SEND_RESPONSE_AND_CONTINUE:
+            pak_sa RUN_OCI_SECCOMP_NOTIFY_HANDLE_SEND_RESPONSE_AND_CONTINUE:
               ctx->sresp->flags |= SECCOMP_USER_NOTIF_FLAG_CONTINUE;
               goto send_resp;
 
             default:
-              return crun_make_error (err, EINVAL, "unknown action specified by the plugin `%d`", handled);
+              คืน crun_make_error (err, EINVAL, "unknown action specified by the plugin `%d`", handled);
             }
         }
     }
@@ -220,40 +220,40 @@ libcrun_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, int seccom
 send_resp:
   ctx->sresp->id = ctx->sreq->id;
   ret = ioctl (seccomp_fd, SECCOMP_IOCTL_NOTIF_SEND, ctx->sresp);
-  if (UNLIKELY (ret < 0))
+  ถ้า (UNLIKELY (ret < 0))
     {
-      if (errno == ENOENT)
-        return 0;
-      return crun_make_error (err, errno, "ioctl");
+      ถ้า (errno == ENOENT)
+        คืน 0;
+      คืน crun_make_error (err, errno, "ioctl");
     }
-  return 0;
-#else
+  คืน 0;
+#มิฉะนั้น
   (void) ctx;
   (void) seccomp_fd;
   (void) err;
-  return crun_make_error (err, ENOTSUP, "seccomp notify support not available");
+  คืน crun_make_error (err, ENOTSUP, "seccomp notify support not available");
 #endif
 }
 
-LIBCRUN_PUBLIC int
-libcrun_free_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, libcrun_error_t *err)
+LIBCRUN_PUBLIC จำนวนเต็ม
+libcrun_free_seccomp_notify_plugins (sa_nracanaa seccomp_notify_context_s *ctx, libcrun_error_t *err)
 {
-#if HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
+#ถ้า HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
   size_t i;
 
-  if (ctx == NULL)
-    return crun_make_error (err, EINVAL, "invalid seccomp notify context");
+  ถ้า (ctx == NULL)
+    คืน crun_make_error (err, EINVAL, "invalid seccomp notify context");
 
   free (ctx->sreq);
   free (ctx->sresp);
 
-  for (i = 0; i < ctx->n_plugins; i++)
-    if (ctx->plugins && ctx->plugins[i].handle)
+  สำหรับ (i = 0; i < ctx->n_plugins; i++)
+    ถ้า (ctx->plugins && ctx->plugins[i].handle)
       {
         run_oci_seccomp_notify_stop_cb cb;
 
         cb = (run_oci_seccomp_notify_stop_cb) dlsym (ctx->plugins[i].handle, "run_oci_seccomp_notify_stop");
-        if (cb)
+        ถ้า (cb)
           cb (ctx->plugins[i].opaque);
         dlclose (ctx->plugins[i].handle);
       }
@@ -261,10 +261,10 @@ libcrun_free_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, libcr
   free (ctx->plugins);
   free (ctx);
 
-  return 0;
-#else
+  คืน 0;
+#มิฉะนั้น
   (void) ctx;
   (void) err;
-  return crun_make_error (err, ENOTSUP, "seccomp notify support not available");
+  คืน crun_make_error (err, ENOTSUP, "seccomp notify support not available");
 #endif
 }
