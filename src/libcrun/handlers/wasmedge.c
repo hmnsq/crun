@@ -15,82 +15,82 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE
+#घोषणा _GNU_SOURCE
 
-#include <config.h>
-#include "../custom-handler.h"
-#include "../container.h"
-#include "../utils.h"
-#include "../linux.h"
-#include "handler-utils.h"
-#include <unistd.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <sched.h>
+#समावेश <config.h>
+#समावेश "../custom-handler.h"
+#समावेश "../container.h"
+#समावेश "../utils.h"
+#समावेश "../linux.h"
+#समावेश "handler-utils.h"
+#समावेश <unistd.h>
+#समावेश <sys/stat.h>
+#समावेश <errno.h>
+#समावेश <sys/types.h>
+#समावेश <fcntl.h>
+#समावेश <sched.h>
 
-#ifdef HAVE_DLOPEN
+#अगर_घोषित HAVE_DLOPEN
 #  include <dlfcn.h>
-#endif
+#पूर्ण_अगर
 
-#ifdef HAVE_WASMEDGE
+#अगर_घोषित HAVE_WASMEDGE
 #  include <wasmedge/wasmedge.h>
-#endif
+#पूर्ण_अगर
 
-#if HAVE_DLOPEN && HAVE_WASMEDGE
-static int
-libwasmedge_load (void **cookie, libcrun_error_t *err)
+#अगर HAVE_DLOPEN && HAVE_WASMEDGE
+अटल पूर्णांक
+libwasmedge_load (व्योम **cookie, libcrun_error_t *err)
 {
-  void *handle;
+  व्योम *handle;
 
   handle = dlopen ("libwasmedge.so.0", RTLD_NOW);
-  if (handle == NULL)
-    return crun_make_error (err, 0, "could not load `libwasmedge.so.0`: `%s`", dlerror ());
+  अगर (handle == शून्य)
+    वापस crun_make_error (err, 0, "could not load `libwasmedge.so.0`: `%s`", dlerror ());
   *cookie = handle;
 
-  return 0;
+  वापस 0;
 }
 
-static int
-libwasmedge_unload (void *cookie, libcrun_error_t *err)
+अटल पूर्णांक
+libwasmedge_unload (व्योम *cookie, libcrun_error_t *err)
 {
-  int r;
+  पूर्णांक r;
 
-  if (cookie)
+  अगर (cookie)
     {
       r = dlclose (cookie);
-      if (UNLIKELY (r < 0))
-        return crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
+      अगर (UNLIKELY (r < 0))
+        वापस crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
     }
-  return 0;
+  वापस 0;
 }
 
-static int
-libwasmedge_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *container, const char *pathname, char *const argv[])
+अटल पूर्णांक
+libwasmedge_exec (व्योम *cookie, __attribute__ ((unused)) libcrun_container_t *container, स्थिर अक्षर *pathname, अक्षर *स्थिर argv[])
 {
-  WasmEdge_ConfigureContext *(*WasmEdge_ConfigureCreate) (void);
-  void (*WasmEdge_ConfigureDelete) (WasmEdge_ConfigureContext *Cxt);
-  void (*WasmEdge_ConfigureAddProposal) (WasmEdge_ConfigureContext *Cxt, const enum WasmEdge_Proposal Prop);
-  void (*WasmEdge_ConfigureAddHostRegistration) (WasmEdge_ConfigureContext *Cxt, enum WasmEdge_HostRegistration Host);
-  WasmEdge_VMContext *(*WasmEdge_VMCreate) (const WasmEdge_ConfigureContext *ConfCxt, WasmEdge_StoreContext *StoreCxt);
-  void (*WasmEdge_VMDelete) (WasmEdge_VMContext *Cxt);
-  WasmEdge_Result (*WasmEdge_VMRegisterModuleFromFile) (WasmEdge_VMContext *Cxt, WasmEdge_String ModuleName, const char *Path);
-  WasmEdge_Result (*WasmEdge_VMRunWasmFromFile) (WasmEdge_VMContext *Cxt, const char *Path, const WasmEdge_String FuncName, const WasmEdge_Value *Params, const uint32_t ParamLen, WasmEdge_Value *Returns, const uint32_t ReturnLen);
-  void (*WasmEdge_PluginLoadFromPath) (const char *Path);
-  void (*WasmEdge_PluginInitWASINN) (const char *const *NNPreloads, const uint32_t PreloadsLen);
-  bool (*WasmEdge_ResultOK) (const WasmEdge_Result Res);
-  WasmEdge_String (*WasmEdge_StringCreateByCString) (const char *Str);
+  WasmEdge_ConfigureContext *(*WasmEdge_ConfigureCreate) (व्योम);
+  व्योम (*WasmEdge_ConfigureDelete) (WasmEdge_ConfigureContext *Cxt);
+  व्योम (*WasmEdge_ConfigureAddProposal) (WasmEdge_ConfigureContext *Cxt, स्थिर क्रमागत WasmEdge_Proposal Prop);
+  व्योम (*WasmEdge_ConfigureAddHostRegistration) (WasmEdge_ConfigureContext *Cxt, क्रमागत WasmEdge_HostRegistration Host);
+  WasmEdge_VMContext *(*WasmEdge_VMCreate) (स्थिर WasmEdge_ConfigureContext *ConfCxt, WasmEdge_StoreContext *StoreCxt);
+  व्योम (*WasmEdge_VMDelete) (WasmEdge_VMContext *Cxt);
+  Wasm_Edge_परिणाम (*WasmEdge_VMRegisterModuleFromFile) (WasmEdge_VMContext *Cxt, WasmEdge_String ModuleName, स्थिर अक्षर *Path);
+  Wasm_Edge_परिणाम (*WasmEdge_VMRunWasmFromFile) (WasmEdge_VMContext *Cxt, स्थिर अक्षर *Path, स्थिर WasmEdge_String FuncName, स्थिर Wasm_Edge_मूल्य *Params, स्थिर uint32_t ParamLen, Wasm_Edge_मूल्य *Returns, स्थिर uint32_t ReturnLen);
+  व्योम (*WasmEdge_PluginLoadFromPath) (स्थिर अक्षर *Path);
+  व्योम (*WasmEdge_PluginInitWASINN) (स्थिर अक्षर *स्थिर *NNPreloads, स्थिर uint32_t PreloadsLen);
+  bool (*Wasm_Edge_परिणाम_OK) (स्थिर Wasm_Edge_परिणाम Res);
+  WasmEdge_String (*WasmEdge_StringCreateByCString) (स्थिर अक्षर *Str);
   uint32_t argn = 0;
   uint32_t envn = 0;
-  const char *dirs[2] = { "/:/", ".:." };
+  स्थिर अक्षर *dirs[2] = { "/:/", ".:." };
   WasmEdge_ConfigureContext *configure;
   WasmEdge_VMContext *vm;
-  WasmEdge_Result result;
+  Wasm_Edge_परिणाम परिणाम;
 
   WasmEdge_ModuleInstanceContext *wasi_module;
-  WasmEdge_ModuleInstanceContext *(*WasmEdge_VMGetImportModuleContext) (WasmEdge_VMContext *Cxt, const enum WasmEdge_HostRegistration Reg);
-  void (*WasmEdge_ModuleInstanceInitWASI) (WasmEdge_ModuleInstanceContext *Cxt, const char *const *Args, const uint32_t ArgLen, const char *const *Envs, const uint32_t EnvLen, const char *const *Dirs, const uint32_t DirLen, const char *const *Preopens, const uint32_t PreopenLen);
+  WasmEdge_ModuleInstanceContext *(*WasmEdge_VMGetImportModuleContext) (WasmEdge_VMContext *Cxt, स्थिर क्रमागत WasmEdge_HostRegistration Reg);
+  व्योम (*WasmEdge_ModuleInstanceInitWASI) (WasmEdge_ModuleInstanceContext *Cxt, स्थिर अक्षर *स्थिर *Args, स्थिर uint32_t ArgLen, स्थिर अक्षर *स्थिर *Envs, स्थिर uint32_t EnvLen, स्थिर अक्षर *स्थिर *Dirs, स्थिर uint32_t DirLen, स्थिर अक्षर *स्थिर *Preopens, स्थिर uint32_t PreopenLen);
   WasmEdge_ModuleInstanceInitWASI = dlsym (cookie, "WasmEdge_ModuleInstanceInitWASI");
 
   WasmEdge_ConfigureCreate = dlsym (cookie, "WasmEdge_ConfigureCreate");
@@ -104,114 +104,114 @@ libwasmedge_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *co
   WasmEdge_VMRunWasmFromFile = dlsym (cookie, "WasmEdge_VMRunWasmFromFile");
   WasmEdge_PluginLoadFromPath = dlsym (cookie, "WasmEdge_PluginLoadFromPath");
   WasmEdge_PluginInitWASINN = dlsym (cookie, "WasmEdge_PluginInitWASINN");
-  WasmEdge_ResultOK = dlsym (cookie, "WasmEdge_ResultOK");
+  Wasm_Edge_परिणाम_OK = dlsym (cookie, "WasmEdge_ResultOK");
   WasmEdge_StringCreateByCString = dlsym (cookie, "WasmEdge_StringCreateByCString");
 
-  if (WasmEdge_ConfigureCreate == NULL || WasmEdge_ConfigureDelete == NULL || WasmEdge_ConfigureAddProposal == NULL
-      || WasmEdge_ConfigureAddHostRegistration == NULL || WasmEdge_VMCreate == NULL || WasmEdge_VMDelete == NULL
-      || WasmEdge_VMRegisterModuleFromFile == NULL || WasmEdge_VMGetImportModuleContext == NULL
-      || WasmEdge_ModuleInstanceInitWASI == NULL || WasmEdge_VMRunWasmFromFile == NULL
-      || WasmEdge_ResultOK == NULL || WasmEdge_StringCreateByCString == NULL)
-    error (EXIT_FAILURE, 0, "could not find symbol in `libwasmedge.so.0`");
+  अगर (WasmEdge_ConfigureCreate == शून्य || WasmEdge_ConfigureDelete == शून्य || WasmEdge_ConfigureAddProposal == शून्य
+      || WasmEdge_ConfigureAddHostRegistration == शून्य || WasmEdge_VMCreate == शून्य || WasmEdge_VMDelete == शून्य
+      || WasmEdge_VMRegisterModuleFromFile == शून्य || WasmEdge_VMGetImportModuleContext == शून्य
+      || WasmEdge_ModuleInstanceInitWASI == शून्य || WasmEdge_VMRunWasmFromFile == शून्य
+      || Wasm_Edge_परिणाम_OK == शून्य || WasmEdge_StringCreateByCString == शून्य)
+    error (निकास_त्रुटि, 0, "could not find symbol in `libwasmedge.so.0`");
 
   configure = WasmEdge_ConfigureCreate ();
-  if (UNLIKELY (configure == NULL))
-    error (EXIT_FAILURE, 0, "could not create wasmedge configure");
+  अगर (UNLIKELY (configure == शून्य))
+    error (निकास_त्रुटि, 0, "could not create wasmedge configure");
 
   WasmEdge_ConfigureAddProposal (configure, WasmEdge_Proposal_BulkMemoryOperations);
   WasmEdge_ConfigureAddProposal (configure, WasmEdge_Proposal_ReferenceTypes);
   WasmEdge_ConfigureAddProposal (configure, WasmEdge_Proposal_SIMD);
   WasmEdge_ConfigureAddHostRegistration (configure, WasmEdge_HostRegistration_Wasi);
   // Check if the necessary environment variables are set
-  const char *plugin_path_env = getenv ("WASMEDGE_PLUGIN_PATH");
-  if (plugin_path_env != NULL)
+  स्थिर अक्षर *plugin_path_env = दो_पर्या ("WASMEDGE_PLUGIN_PATH");
+  अगर (plugin_path_env != शून्य)
     WasmEdge_PluginLoadFromPath (plugin_path_env);
 
-  const char *nnpreload_env = getenv ("WASMEDGE_WASINN_PRELOAD");
-  if (nnpreload_env != NULL)
+  स्थिर अक्षर *nnpreload_env = दो_पर्या ("WASMEDGE_WASINN_PRELOAD");
+  अगर (nnpreload_env != शून्य)
     WasmEdge_PluginInitWASINN (&nnpreload_env, 1);
 
-  vm = WasmEdge_VMCreate (configure, NULL);
-  if (UNLIKELY (vm == NULL))
+  vm = WasmEdge_VMCreate (configure, शून्य);
+  अगर (UNLIKELY (vm == शून्य))
     {
       WasmEdge_ConfigureDelete (configure);
-      error (EXIT_FAILURE, 0, "could not create wasmedge vm");
+      error (निकास_त्रुटि, 0, "could not create wasmedge vm");
     }
 
   wasi_module = WasmEdge_VMGetImportModuleContext (vm, WasmEdge_HostRegistration_Wasi);
-  if (UNLIKELY (wasi_module == NULL))
+  अगर (UNLIKELY (wasi_module == शून्य))
     {
       WasmEdge_VMDelete (vm);
       WasmEdge_ConfigureDelete (configure);
-      error (EXIT_FAILURE, 0, "could not get wasmedge wasi module context");
+      error (निकास_त्रुटि, 0, "could not get wasmedge wasi module context");
     }
 
-  for (char *const *arg = argv; *arg != NULL; ++arg, ++argn)
+  क्रम (अक्षर *स्थिर *arg = argv; *arg != शून्य; ++arg, ++argn)
     ;
-  extern char **environ;
-  for (char *const *env = environ; *env != NULL; ++env, ++envn)
+  बाह्य अक्षर **environ;
+  क्रम (अक्षर *स्थिर *env = environ; *env != शून्य; ++env, ++envn)
     ;
 
-  WasmEdge_ModuleInstanceInitWASI (wasi_module, (const char *const *) &argv[0], argn, (const char *const *) &environ[0], envn, dirs, 1, NULL, 0);
+  WasmEdge_ModuleInstanceInitWASI (wasi_module, (स्थिर अक्षर *स्थिर *) &argv[0], argn, (स्थिर अक्षर *स्थिर *) &environ[0], envn, dirs, 1, शून्य, 0);
 
-  result = WasmEdge_VMRunWasmFromFile (vm, pathname, WasmEdge_StringCreateByCString ("_start"), NULL, 0, NULL, 0);
+  परिणाम = WasmEdge_VMRunWasmFromFile (vm, pathname, WasmEdge_StringCreateByCString ("_start"), शून्य, 0, शून्य, 0);
 
-  if (UNLIKELY (! WasmEdge_ResultOK (result)))
+  अगर (UNLIKELY (! Wasm_Edge_परिणाम_OK (परिणाम)))
     {
       WasmEdge_VMDelete (vm);
       WasmEdge_ConfigureDelete (configure);
-      error (EXIT_FAILURE, 0, "could not get wasmedge result from VM");
+      error (निकास_त्रुटि, 0, "could not get wasmedge result from VM");
     }
 
   WasmEdge_VMDelete (vm);
   WasmEdge_ConfigureDelete (configure);
-  exit (EXIT_SUCCESS);
+  निकास (निकास_सफल);
 }
 
-static int
+अटल पूर्णांक
 wasmedge_can_handle_container (libcrun_container_t *container, libcrun_error_t *err)
 {
-  return wasm_can_handle_container (container, err);
+  वापस wasm_can_handle_container (container, err);
 }
 
 // This works only when the plugin is present in /usr/lib/wasmedge
-static int
-libwasmedge_configure_container (void *cookie arg_unused, enum handler_configure_phase phase,
+अटल पूर्णांक
+libwasmedge_configure_container (व्योम *cookie arg_unused, क्रमागत handler_configure_phase phase,
                                  libcrun_context_t *context arg_unused, libcrun_container_t *container,
-                                 const char *rootfs arg_unused, libcrun_error_t *err)
+                                 स्थिर अक्षर *rootfs arg_unused, libcrun_error_t *err)
 {
-  int ret;
+  पूर्णांक ret;
   runtime_spec_schema_config_schema *def = container->container_def;
 
-  char **container_env = def->process->env;
+  अक्षर **container_env = def->process->env;
   bool has_plugin_path = false, has_preload = false;
 
-  for (char **env = container_env; env && *env; env++)
+  क्रम (अक्षर **env = container_env; env && *env; env++)
     {
-      if (strncmp (*env, "WASMEDGE_PLUGIN_PATH=", 21) == 0)
+      अगर (म_भेदन (*env, "WASMEDGE_PLUGIN_PATH=", 21) == 0)
         has_plugin_path = true;
-      else if (strncmp (*env, "WASMEDGE_WASINN_PRELOAD=", 24) == 0)
+      अन्यथा अगर (म_भेदन (*env, "WASMEDGE_WASINN_PRELOAD=", 24) == 0)
         has_preload = true;
     }
 
-  if (! has_plugin_path && ! has_preload)
-    return 0;
+  अगर (! has_plugin_path && ! has_preload)
+    वापस 0;
 
-  if (phase != HANDLER_CONFIGURE_AFTER_MOUNTS)
-    return 0;
+  अगर (phase != HANDLER_CONFIGURE_AFTER_MOUNTS)
+    वापस 0;
 
   // Check if /usr/lib/wasmedge is already present in spec
-  if (def->linux && def->mounts)
+  अगर (def->linux && def->mounts)
     {
-      for (size_t i = 0; i < def->mounts_len; i++)
+      क्रम (माप_प्रकार i = 0; i < def->mounts_len; i++)
         {
-          if (strcmp (def->mounts[i]->destination, "/usr/lib/wasmedge") == 0)
-            return 0;
+          अगर (म_भेद (def->mounts[i]->destination, "/usr/lib/wasmedge") == 0)
+            वापस 0;
         }
     }
 
   // Mount the plugin folder to /usr/lib/wasmedge with specific options
-  char *options[] = {
+  अक्षर *options[] = {
     "ro",
     "rprivate",
     "nosuid",
@@ -220,21 +220,21 @@ libwasmedge_configure_container (void *cookie arg_unused, enum handler_configure
   };
 
   ret = libcrun_container_do_bind_mount (container, "/usr/lib/wasmedge ", "/usr/lib/wasmedge", options, 5, err);
-  if (ret < 0)
+  अगर (ret < 0)
     {
-      if (crun_error_get_errno (err) != ENOENT)
-        return ret;
+      अगर (crun_error_get_errno (err) != ENOENT)
+        वापस ret;
       crun_error_release (err);
     }
 
-  return 0;
+  वापस 0;
 }
 
-struct custom_handler_s handler_wasmedge = {
+काष्ठा custom_handler_s handler_wasmedge = {
   .name = "wasmedge",
   .alias = "wasm",
   .feature_string = "WASM:wasmedge",
-  .supports_open_tree_namespace = false,
+  .supports_open_वृक्ष_namespace = false,
   .load = libwasmedge_load,
   .unload = libwasmedge_unload,
   .run_func = libwasmedge_exec,
@@ -242,4 +242,4 @@ struct custom_handler_s handler_wasmedge = {
   .configure_container = libwasmedge_configure_container,
 };
 
-#endif
+#पूर्ण_अगर

@@ -1,93 +1,93 @@
-#ifndef BLAKE3_IMPL_H
-#define BLAKE3_IMPL_H
+#अगर_अघोषित BLAKE3_IMPL_H
+#घोषणा BLAKE3_IMPL_H
 
-#include <assert.h>
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <string.h>
+#समावेश <assert.h>
+#समावेश <stdbool.h>
+#समावेश <stddef.h>
+#समावेश <stdint.h>
+#समावेश <string.h>
 
-#include "blake3.h"
+#समावेश "blake3.h"
 
 /* libcrun specific code.  Always force the portable implementation as it is fast enough for us.   */
-#define blake3_compress_in_place_portable blake3_compress_in_place
-#define blake3_compress_xof_portable blake3_compress_xof
-#define blake3_simd_degree_portable blake3_simd_degree
-#define blake3_compress_subtree_wide_portable blake3_compress_subtree_wide
-#define blake3_hash_many_portable blake3_hash_many
-static inline size_t blake3_simd_degree(void) {
-  return 1;
+#घोषणा blake3_compress_in_place_portable blake3_compress_in_place
+#घोषणा blake3_compress_xof_portable blake3_compress_xof
+#घोषणा blake3_simd_degree_portable blake3_simd_degree
+#घोषणा blake3_compress_subtree_wide_portable blake3_compress_subtree_wide
+#घोषणा blake3_hash_many_portable blake3_hash_many
+अटल अंतरभूत माप_प्रकार blake3_simd_degree(व्योम) {
+  वापस 1;
 }
 
 // internal flags
-enum blake3_flags {
+क्रमागत blake3_flags {
   CHUNK_START         = 1 << 0,
   CHUNK_END           = 1 << 1,
   PARENT              = 1 << 2,
-  ROOT                = 1 << 3,
+  मूल_2                = 1 << 3,
   KEYED_HASH          = 1 << 4,
-  DERIVE_KEY_CONTEXT  = 1 << 5,
-  DERIVE_KEY_MATERIAL = 1 << 6,
+  DERIVE_कुंजी_CONTEXT  = 1 << 5,
+  DERIVE_कुंजी_MATERIAL = 1 << 6,
 };
 
 // This C implementation tries to support recent versions of GCC, Clang, and
 // MSVC.
-#if defined(_MSC_VER)
-#define INLINE static __forceinline
-#else
-#define INLINE static inline __attribute__((always_inline))
-#endif
+#अगर defined(_MSC_VER)
+#घोषणा INLINE अटल __forceinline
+#अन्यथा
+#घोषणा INLINE अटल अंतरभूत __attribute__((always_inline))
+#पूर्ण_अगर
 
-#if defined(__x86_64__) || defined(_M_X64) 
-#define IS_X86
-#define IS_X86_64
-#endif
+#अगर defined(__x86_64__) || defined(_M_X64) 
+#घोषणा IS_X86
+#घोषणा IS_X86_64
+#पूर्ण_अगर
 
-#if defined(__i386__) || defined(_M_IX86)
-#define IS_X86
-#define IS_X86_32
-#endif
+#अगर defined(__i386__) || defined(_M_IX86)
+#घोषणा IS_X86
+#घोषणा IS_X86_32
+#पूर्ण_अगर
 
-#if defined(__aarch64__) || defined(_M_ARM64)
-#define IS_AARCH64
-#endif
+#अगर defined(__aarch64__) || defined(_M_ARM64)
+#घोषणा IS_AARCH64
+#पूर्ण_अगर
 
-#if defined(IS_X86)
-#if defined(_MSC_VER)
-#include <intrin.h>
-#endif
-#endif
+#अगर defined(IS_X86)
+#अगर defined(_MSC_VER)
+#समावेश <intrin.h>
+#पूर्ण_अगर
+#पूर्ण_अगर
 
-#if !defined(BLAKE3_USE_NEON) 
+#अगर !defined(BLAKE3_USE_NEON) 
   // If BLAKE3_USE_NEON not manually set, autodetect based on AArch64ness
-  #if defined(IS_AARCH64)
-    #if defined(__ARM_BIG_ENDIAN)
-      #define BLAKE3_USE_NEON 0
-    #else
-      #define BLAKE3_USE_NEON 1
-    #endif
-  #else
-    #define BLAKE3_USE_NEON 0
-  #endif
-#endif
+  #अगर defined(IS_AARCH64)
+    #अगर defined(__ARM_BIG_ENDIAN)
+      #घोषणा BLAKE3_USE_NEON 0
+    #अन्यथा
+      #घोषणा BLAKE3_USE_NEON 1
+    #पूर्ण_अगर
+  #अन्यथा
+    #घोषणा BLAKE3_USE_NEON 0
+  #पूर्ण_अगर
+#पूर्ण_अगर
 
-#if defined(IS_X86)
-#define MAX_SIMD_DEGREE 16
-#elif BLAKE3_USE_NEON == 1
-#define MAX_SIMD_DEGREE 4
-#else
-#define MAX_SIMD_DEGREE 1
-#endif
+#अगर defined(IS_X86)
+#घोषणा MAX_SIMD_DEGREE 16
+#या_अगर BLAKE3_USE_NEON == 1
+#घोषणा MAX_SIMD_DEGREE 4
+#अन्यथा
+#घोषणा MAX_SIMD_DEGREE 1
+#पूर्ण_अगर
 
 // There are some places where we want a static size that's equal to the
 // MAX_SIMD_DEGREE, but also at least 2.
-#define MAX_SIMD_DEGREE_OR_2 (MAX_SIMD_DEGREE > 2 ? MAX_SIMD_DEGREE : 2)
+#घोषणा MAX_SIMD_DEGREE_OR_2 (MAX_SIMD_DEGREE > 2 ? MAX_SIMD_DEGREE : 2)
 
-static const uint32_t IV[8] = {0x6A09E667UL, 0xBB67AE85UL, 0x3C6EF372UL,
+अटल स्थिर uint32_t IV[8] = {0x6A09E667UL, 0xBB67AE85UL, 0x3C6EF372UL,
                                0xA54FF53AUL, 0x510E527FUL, 0x9B05688CUL,
                                0x1F83D9ABUL, 0x5BE0CD19UL};
 
-static const uint8_t MSG_SCHEDULE[7][16] = {
+अटल स्थिर uint8_t संदेश_SCHEDULE[7][16] = {
     {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15},
     {2, 6, 3, 10, 7, 0, 4, 13, 1, 11, 12, 5, 9, 14, 15, 8},
     {3, 4, 10, 12, 13, 2, 7, 14, 6, 5, 9, 0, 11, 15, 8, 1},
@@ -99,80 +99,80 @@ static const uint8_t MSG_SCHEDULE[7][16] = {
 
 /* Find index of the highest set bit */
 /* x is assumed to be nonzero.       */
-static unsigned int highest_one(uint64_t x) {
-#if defined(__GNUC__) || defined(__clang__)
-  return 63 ^ (unsigned int)__builtin_clzll(x);
-#elif defined(_MSC_VER) && defined(IS_X86_64)
-  unsigned long index;
-  _BitScanReverse64(&index, x);
-  return index;
-#elif defined(_MSC_VER) && defined(IS_X86_32)
-  if(x >> 32) {
-    unsigned long index;
-    _BitScanReverse(&index, (unsigned long)(x >> 32));
-    return 32 + index;
-  } else {
-    unsigned long index;
-    _BitScanReverse(&index, (unsigned long)x);
-    return index;
+अटल अचिन्हित पूर्णांक highest_one(uint64_t x) {
+#अगर defined(__GNUC__) || defined(__clang__)
+  वापस 63 ^ (अचिन्हित पूर्णांक)__builtin_clzll(x);
+#या_अगर defined(_MSC_VER) && defined(IS_X86_64)
+  अचिन्हित दीर्घ सूचकांक;
+  _BitScanReverse64(&सूचकांक, x);
+  वापस सूचकांक;
+#या_अगर defined(_MSC_VER) && defined(IS_X86_32)
+  अगर(x >> 32) {
+    अचिन्हित दीर्घ सूचकांक;
+    _BitScanReverse(&सूचकांक, (अचिन्हित दीर्घ)(x >> 32));
+    वापस 32 + सूचकांक;
+  } अन्यथा {
+    अचिन्हित दीर्घ सूचकांक;
+    _BitScanReverse(&सूचकांक, (अचिन्हित दीर्घ)x);
+    वापस सूचकांक;
   }
-#else
-  unsigned int c = 0;
-  if(x & 0xffffffff00000000ULL) { x >>= 32; c += 32; }
-  if(x & 0x00000000ffff0000ULL) { x >>= 16; c += 16; }
-  if(x & 0x000000000000ff00ULL) { x >>=  8; c +=  8; }
-  if(x & 0x00000000000000f0ULL) { x >>=  4; c +=  4; }
-  if(x & 0x000000000000000cULL) { x >>=  2; c +=  2; }
-  if(x & 0x0000000000000002ULL) {           c +=  1; }
-  return c;
-#endif
+#अन्यथा
+  अचिन्हित पूर्णांक c = 0;
+  अगर(x & 0xffffffff00000000ULL) { x >>= 32; c += 32; }
+  अगर(x & 0x00000000ffff0000ULL) { x >>= 16; c += 16; }
+  अगर(x & 0x000000000000ff00ULL) { x >>=  8; c +=  8; }
+  अगर(x & 0x00000000000000f0ULL) { x >>=  4; c +=  4; }
+  अगर(x & 0x000000000000000cULL) { x >>=  2; c +=  2; }
+  अगर(x & 0x0000000000000002ULL) {           c +=  1; }
+  वापस c;
+#पूर्ण_अगर
 }
 
 // Count the number of 1 bits.
-INLINE unsigned int popcnt(uint64_t x) {
-#if defined(__GNUC__) || defined(__clang__)
-  return (unsigned int)__builtin_popcountll(x);
-#else
-  unsigned int count = 0;
-  while (x != 0) {
-    count += 1;
+INLINE अचिन्हित पूर्णांक popcnt(uint64_t x) {
+#अगर defined(__GNUC__) || defined(__clang__)
+  वापस (अचिन्हित पूर्णांक)__builtin_popcountll(x);
+#अन्यथा
+  अचिन्हित पूर्णांक गिनती = 0;
+  जबतक (x != 0) {
+    गिनती += 1;
     x &= x - 1;
   }
-  return count;
-#endif
+  वापस गिनती;
+#पूर्ण_अगर
 }
 
 // Largest power of two less than or equal to x. As a special case, returns 1
 // when x is 0. 
 INLINE uint64_t round_down_to_power_of_2(uint64_t x) {
-  return 1ULL << highest_one(x | 1);
+  वापस 1ULL << highest_one(x | 1);
 }
 
-INLINE uint32_t counter_low(uint64_t counter) { return (uint32_t)counter; }
+INLINE uint32_t गणक_निचला(uint64_t गणक) { वापस (uint32_t)गणक; }
 
-INLINE uint32_t counter_high(uint64_t counter) {
-  return (uint32_t)(counter >> 32);
+INLINE uint32_t गणक_ऊपरी(uint64_t गणक) {
+  वापस (uint32_t)(गणक >> 32);
 }
 
-INLINE uint32_t load32(const void *src) {
-  const uint8_t *p = (const uint8_t *)src;
-  return ((uint32_t)(p[0]) << 0) | ((uint32_t)(p[1]) << 8) |
+INLINE uint32_t load32(स्थिर व्योम *src) {
+  स्थिर uint8_t *p = (स्थिर uint8_t *)src;
+  वापस ((uint32_t)(p[0]) << 0) | ((uint32_t)(p[1]) << 8) |
          ((uint32_t)(p[2]) << 16) | ((uint32_t)(p[3]) << 24);
 }
 
-INLINE void load_key_words(const uint8_t key[BLAKE3_KEY_LEN],
-                           uint32_t key_words[8]) {
-  key_words[0] = load32(&key[0 * 4]);
-  key_words[1] = load32(&key[1 * 4]);
-  key_words[2] = load32(&key[2 * 4]);
-  key_words[3] = load32(&key[3 * 4]);
-  key_words[4] = load32(&key[4 * 4]);
-  key_words[5] = load32(&key[5 * 4]);
-  key_words[6] = load32(&key[6 * 4]);
-  key_words[7] = load32(&key[7 * 4]);
+INLINE व्योम load_कुंजी_शब्दगण(स्थिर uint8_t कुंजी[BLAKE3_कुंजी_LEN],
+                           uint32_t कुंजी_शब्दगण[8]) {
+  कुंजी_शब्दगण[0] = load32(&कुंजी[0 * 4]);
+  कुंजी_शब्दगण[1] = load32(&कुंजी[1 * 4]);
+  कुंजी_शब्दगण[2] = load32(&कुंजी[2 * 4]);
+  कुंजी_शब्दगण[3] = load32(&कुंजी[3 * 4]);
+  कुंजी_शब्दगण[4] = load32(&कुंजी[4 * 4]);
+  कुंजी_शब्दगण[5] = load32(&कुंजी[5 * 4]);
+  कुंजी_शब्दगण[6] = load32(&कुंजी[6 * 4]);
+  कुंजी_शब्दगण[7] = load32(&कुंजी[7 * 4]);
 }
 
-INLINE void store32(void *dst, uint32_t w) {
+INLINE व्योम store32(व्योम *dst, uint32_t w) {
   uint8_t *p = (uint8_t *)dst;
   p[0] = (uint8_t)(w >> 0);
   p[1] = (uint8_t)(w >> 8);
@@ -180,116 +180,116 @@ INLINE void store32(void *dst, uint32_t w) {
   p[3] = (uint8_t)(w >> 24);
 }
 
-INLINE void store_cv_words(uint8_t bytes_out[32], uint32_t cv_words[8]) {
-  store32(&bytes_out[0 * 4], cv_words[0]);
-  store32(&bytes_out[1 * 4], cv_words[1]);
-  store32(&bytes_out[2 * 4], cv_words[2]);
-  store32(&bytes_out[3 * 4], cv_words[3]);
-  store32(&bytes_out[4 * 4], cv_words[4]);
-  store32(&bytes_out[5 * 4], cv_words[5]);
-  store32(&bytes_out[6 * 4], cv_words[6]);
-  store32(&bytes_out[7 * 4], cv_words[7]);
+INLINE व्योम store_cv_शब्दगण(uint8_t bytes_out[32], uint32_t cv_शब्दगण[8]) {
+  store32(&bytes_out[0 * 4], cv_शब्दगण[0]);
+  store32(&bytes_out[1 * 4], cv_शब्दगण[1]);
+  store32(&bytes_out[2 * 4], cv_शब्दगण[2]);
+  store32(&bytes_out[3 * 4], cv_शब्दगण[3]);
+  store32(&bytes_out[4 * 4], cv_शब्दगण[4]);
+  store32(&bytes_out[5 * 4], cv_शब्दगण[5]);
+  store32(&bytes_out[6 * 4], cv_शब्दगण[6]);
+  store32(&bytes_out[7 * 4], cv_शब्दगण[7]);
 }
 
-void blake3_compress_in_place(uint32_t cv[8],
-                              const uint8_t block[BLAKE3_BLOCK_LEN],
-                              uint8_t block_len, uint64_t counter,
+व्योम blake3_compress_in_place(uint32_t cv[8],
+                              स्थिर uint8_t block[BLAKE3_BLOCK_LEN],
+                              uint8_t block_len, uint64_t गणक,
                               uint8_t flags);
 
-void blake3_compress_xof(const uint32_t cv[8],
-                         const uint8_t block[BLAKE3_BLOCK_LEN],
-                         uint8_t block_len, uint64_t counter, uint8_t flags,
+व्योम blake3_compress_xof(स्थिर uint32_t cv[8],
+                         स्थिर uint8_t block[BLAKE3_BLOCK_LEN],
+                         uint8_t block_len, uint64_t गणक, uint8_t flags,
                          uint8_t out[64]);
 
-void blake3_hash_many(const uint8_t *const *inputs, size_t num_inputs,
-                      size_t blocks, const uint32_t key[8], uint64_t counter,
-                      bool increment_counter, uint8_t flags,
+व्योम blake3_hash_many(स्थिर uint8_t *स्थिर *inputs, माप_प्रकार अंक_inputs,
+                      माप_प्रकार blocks, स्थिर uint32_t कुंजी[8], uint64_t गणक,
+                      bool increment_गणक, uint8_t flags,
                       uint8_t flags_start, uint8_t flags_end, uint8_t *out);
 
-size_t blake3_simd_degree(void);
+माप_प्रकार blake3_simd_degree(व्योम);
 
 
 // Declarations for implementation-specific functions.
-void blake3_compress_in_place_portable(uint32_t cv[8],
-                                       const uint8_t block[BLAKE3_BLOCK_LEN],
-                                       uint8_t block_len, uint64_t counter,
+व्योम blake3_compress_in_place_portable(uint32_t cv[8],
+                                       स्थिर uint8_t block[BLAKE3_BLOCK_LEN],
+                                       uint8_t block_len, uint64_t गणक,
                                        uint8_t flags);
 
-void blake3_compress_xof_portable(const uint32_t cv[8],
-                                  const uint8_t block[BLAKE3_BLOCK_LEN],
-                                  uint8_t block_len, uint64_t counter,
+व्योम blake3_compress_xof_portable(स्थिर uint32_t cv[8],
+                                  स्थिर uint8_t block[BLAKE3_BLOCK_LEN],
+                                  uint8_t block_len, uint64_t गणक,
                                   uint8_t flags, uint8_t out[64]);
 
-void blake3_hash_many_portable(const uint8_t *const *inputs, size_t num_inputs,
-                               size_t blocks, const uint32_t key[8],
-                               uint64_t counter, bool increment_counter,
+व्योम blake3_hash_many_portable(स्थिर uint8_t *स्थिर *inputs, माप_प्रकार अंक_inputs,
+                               माप_प्रकार blocks, स्थिर uint32_t कुंजी[8],
+                               uint64_t गणक, bool increment_गणक,
                                uint8_t flags, uint8_t flags_start,
                                uint8_t flags_end, uint8_t *out);
 
-#if defined(IS_X86)
-#if !defined(BLAKE3_NO_SSE2)
-void blake3_compress_in_place_sse2(uint32_t cv[8],
-                                   const uint8_t block[BLAKE3_BLOCK_LEN],
-                                   uint8_t block_len, uint64_t counter,
+#अगर defined(IS_X86)
+#अगर !defined(BLAKE3_NO_SSE2)
+व्योम blake3_compress_in_place_sse2(uint32_t cv[8],
+                                   स्थिर uint8_t block[BLAKE3_BLOCK_LEN],
+                                   uint8_t block_len, uint64_t गणक,
                                    uint8_t flags);
-void blake3_compress_xof_sse2(const uint32_t cv[8],
-                              const uint8_t block[BLAKE3_BLOCK_LEN],
-                              uint8_t block_len, uint64_t counter,
+व्योम blake3_compress_xof_sse2(स्थिर uint32_t cv[8],
+                              स्थिर uint8_t block[BLAKE3_BLOCK_LEN],
+                              uint8_t block_len, uint64_t गणक,
                               uint8_t flags, uint8_t out[64]);
-void blake3_hash_many_sse2(const uint8_t *const *inputs, size_t num_inputs,
-                           size_t blocks, const uint32_t key[8],
-                           uint64_t counter, bool increment_counter,
+व्योम blake3_hash_many_sse2(स्थिर uint8_t *स्थिर *inputs, माप_प्रकार अंक_inputs,
+                           माप_प्रकार blocks, स्थिर uint32_t कुंजी[8],
+                           uint64_t गणक, bool increment_गणक,
                            uint8_t flags, uint8_t flags_start,
                            uint8_t flags_end, uint8_t *out);
-#endif
-#if !defined(BLAKE3_NO_SSE41)
-void blake3_compress_in_place_sse41(uint32_t cv[8],
-                                    const uint8_t block[BLAKE3_BLOCK_LEN],
-                                    uint8_t block_len, uint64_t counter,
+#पूर्ण_अगर
+#अगर !defined(BLAKE3_NO_SSE41)
+व्योम blake3_compress_in_place_sse41(uint32_t cv[8],
+                                    स्थिर uint8_t block[BLAKE3_BLOCK_LEN],
+                                    uint8_t block_len, uint64_t गणक,
                                     uint8_t flags);
-void blake3_compress_xof_sse41(const uint32_t cv[8],
-                               const uint8_t block[BLAKE3_BLOCK_LEN],
-                               uint8_t block_len, uint64_t counter,
+व्योम blake3_compress_xof_sse41(स्थिर uint32_t cv[8],
+                               स्थिर uint8_t block[BLAKE3_BLOCK_LEN],
+                               uint8_t block_len, uint64_t गणक,
                                uint8_t flags, uint8_t out[64]);
-void blake3_hash_many_sse41(const uint8_t *const *inputs, size_t num_inputs,
-                            size_t blocks, const uint32_t key[8],
-                            uint64_t counter, bool increment_counter,
+व्योम blake3_hash_many_sse41(स्थिर uint8_t *स्थिर *inputs, माप_प्रकार अंक_inputs,
+                            माप_प्रकार blocks, स्थिर uint32_t कुंजी[8],
+                            uint64_t गणक, bool increment_गणक,
                             uint8_t flags, uint8_t flags_start,
                             uint8_t flags_end, uint8_t *out);
-#endif
-#if !defined(BLAKE3_NO_AVX2)
-void blake3_hash_many_avx2(const uint8_t *const *inputs, size_t num_inputs,
-                           size_t blocks, const uint32_t key[8],
-                           uint64_t counter, bool increment_counter,
+#पूर्ण_अगर
+#अगर !defined(BLAKE3_NO_AVX2)
+व्योम blake3_hash_many_avx2(स्थिर uint8_t *स्थिर *inputs, माप_प्रकार अंक_inputs,
+                           माप_प्रकार blocks, स्थिर uint32_t कुंजी[8],
+                           uint64_t गणक, bool increment_गणक,
                            uint8_t flags, uint8_t flags_start,
                            uint8_t flags_end, uint8_t *out);
-#endif
-#if !defined(BLAKE3_NO_AVX512)
-void blake3_compress_in_place_avx512(uint32_t cv[8],
-                                     const uint8_t block[BLAKE3_BLOCK_LEN],
-                                     uint8_t block_len, uint64_t counter,
+#पूर्ण_अगर
+#अगर !defined(BLAKE3_NO_AVX512)
+व्योम blake3_compress_in_place_avx512(uint32_t cv[8],
+                                     स्थिर uint8_t block[BLAKE3_BLOCK_LEN],
+                                     uint8_t block_len, uint64_t गणक,
                                      uint8_t flags);
 
-void blake3_compress_xof_avx512(const uint32_t cv[8],
-                                const uint8_t block[BLAKE3_BLOCK_LEN],
-                                uint8_t block_len, uint64_t counter,
+व्योम blake3_compress_xof_avx512(स्थिर uint32_t cv[8],
+                                स्थिर uint8_t block[BLAKE3_BLOCK_LEN],
+                                uint8_t block_len, uint64_t गणक,
                                 uint8_t flags, uint8_t out[64]);
 
-void blake3_hash_many_avx512(const uint8_t *const *inputs, size_t num_inputs,
-                             size_t blocks, const uint32_t key[8],
-                             uint64_t counter, bool increment_counter,
+व्योम blake3_hash_many_avx512(स्थिर uint8_t *स्थिर *inputs, माप_प्रकार अंक_inputs,
+                             माप_प्रकार blocks, स्थिर uint32_t कुंजी[8],
+                             uint64_t गणक, bool increment_गणक,
                              uint8_t flags, uint8_t flags_start,
                              uint8_t flags_end, uint8_t *out);
-#endif
-#endif
+#पूर्ण_अगर
+#पूर्ण_अगर
 
-#if BLAKE3_USE_NEON == 1
-void blake3_hash_many_neon(const uint8_t *const *inputs, size_t num_inputs,
-                           size_t blocks, const uint32_t key[8],
-                           uint64_t counter, bool increment_counter,
+#अगर BLAKE3_USE_NEON == 1
+व्योम blake3_hash_many_neon(स्थिर uint8_t *स्थिर *inputs, माप_प्रकार अंक_inputs,
+                           माप_प्रकार blocks, स्थिर uint32_t कुंजी[8],
+                           uint64_t गणक, bool increment_गणक,
                            uint8_t flags, uint8_t flags_start,
                            uint8_t flags_end, uint8_t *out);
-#endif
+#पूर्ण_अगर
 
 
-#endif /* BLAKE3_IMPL_H */
+#पूर्ण_अगर /* BLAKE3_IMPL_H */

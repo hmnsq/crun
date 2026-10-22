@@ -15,38 +15,38 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef RING_BUFFER_H
-#define RING_BUFFER_H
+#अगर_अघोषित RING_बफर_H
+#घोषणा RING_बफर_H
 
-#include <config.h>
+#समावेश <config.h>
 
-#include "error.h"
-#include "utils.h"
+#समावेश "error.h"
+#समावेश "utils.h"
 
-struct ring_buffer;
+काष्ठा ring_बफर;
 
-size_t ring_buffer_get_data_available (struct ring_buffer *rb);
+माप_प्रकार ring_बफर_get_तथ्य_available (काष्ठा ring_बफर *rb);
 
-size_t ring_buffer_get_space_available (struct ring_buffer *rb);
+माप_प्रकार ring_बफर_get_space_available (काष्ठा ring_बफर *rb);
 
-size_t ring_buffer_get_size (struct ring_buffer *rb);
+माप_प्रकार ring_बफर_get_आकार (काष्ठा ring_बफर *rb);
 
-int ring_buffer_read (struct ring_buffer *rb, int fd, bool *is_eagain, libcrun_error_t *err);
+पूर्णांक ring_बफर_read (काष्ठा ring_बफर *rb, पूर्णांक fd, bool *is_eagain, libcrun_error_t *err);
 
-int ring_buffer_write (struct ring_buffer *rb, int fd, bool *is_eagain, libcrun_error_t *err);
+पूर्णांक ring_बफर_write (काष्ठा ring_बफर *rb, पूर्णांक fd, bool *is_eagain, libcrun_error_t *err);
 
-struct ring_buffer *ring_buffer_make (size_t size);
+काष्ठा ring_बफर *ring_बफर_make (माप_प्रकार आकार);
 
-void ring_buffer_free (struct ring_buffer *rb);
+व्योम ring_बफर_free (काष्ठा ring_बफर *rb);
 
-#define cleanup_ring_buffer __attribute__ ((cleanup (cleanup_ring_bufferp)))
+#घोषणा cleanup_ring_बफर __attribute__ ((cleanup (cleanup_ring_bufferp)))
 
-static inline void
-cleanup_ring_bufferp (struct ring_buffer **p)
+अटल अंतरभूत व्योम
+cleanup_ring_bufferp (काष्ठा ring_बफर **p)
 {
-  struct ring_buffer *rb = *p;
-  if (rb)
-    ring_buffer_free (rb);
+  काष्ठा ring_बफर *rb = *p;
+  अगर (rb)
+    ring_बफर_free (rb);
 }
 
-#endif
+#पूर्ण_अगर

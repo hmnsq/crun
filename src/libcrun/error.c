@@ -16,562 +16,562 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
-#include <config.h>
-#include <stdarg.h>
-#include <unistd.h>
-#include <string.h>
-#include <time.h>
-#include <sys/time.h>
-#include <stdio.h>
-#include "utils.h"
+#घोषणा _GNU_SOURCE
+#समावेश <config.h>
+#समावेश <stdarg.h>
+#समावेश <unistd.h>
+#समावेश <string.h>
+#समावेश <time.h>
+#समावेश <sys/time.h>
+#समावेश <stdio.h>
+#समावेश "utils.h"
 
-#include <json-c/json.h>
-#include <ocispec/json_common.h>
+#समावेश <json-c/json.h>
+#समावेश <ocispec/json_common.h>
 
-#ifdef HAVE_SYSTEMD
+#अगर_घोषित HAVE_SYSTEMD
 #  include <systemd/sd-journal.h>
-#endif
+#पूर्ण_अगर
 
-enum
+क्रमागत
 {
   LOG_FORMAT_TEXT = 0,
   LOG_FORMAT_JSON,
 };
 
-static int log_format;
-static int output_verbosity = LIBCRUN_VERBOSITY_ERROR;
+अटल पूर्णांक log_format;
+अटल पूर्णांक output_verbosity = LIBCRUN_VERBOSITY_ERROR;
 
-int
-libcrun_make_error (libcrun_error_t *err, int status, const char *msg, ...)
+पूर्णांक
+libcrun_make_error (libcrun_error_t *err, पूर्णांक status, स्थिर अक्षर *संदेश, ...)
 {
-  va_list args_list;
+  बहु_सूची args_list;
   libcrun_error_t ptr;
 
-  va_start (args_list, msg);
-  *err = xmalloc (sizeof (struct libcrun_error_s));
+  बहु_शुरू (args_list, संदेश);
+  *err = xmalloc (माप (काष्ठा libcrun_error_s));
   ptr = *err;
   ptr->status = status;
-  if (vasprintf (&(ptr->msg), msg, args_list) < 0)
+  अगर (vasprintf (&(ptr->संदेश), संदेश, args_list) < 0)
     OOM ();
-  va_end (args_list);
+  बहु_पूर्ण (args_list);
 
-  return -status - 1;
+  वापस -status - 1;
 }
 
-int
-crun_error_wrap (libcrun_error_t *err, const char *fmt, ...)
+पूर्णांक
+crun_error_wrap (libcrun_error_t *err, स्थिर अक्षर *fmt, ...)
 {
-  cleanup_free char *msg = NULL;
-  cleanup_free char *tmp = NULL;
-  va_list args_list;
-  char *swap;
-  int ret;
+  cleanup_free अक्षर *संदेश = शून्य;
+  cleanup_free अक्षर *tmp = शून्य;
+  बहु_सूची args_list;
+  अक्षर *swap;
+  पूर्णांक ret;
 
-  if (err == NULL || *err == NULL)
+  अगर (err == शून्य || *err == शून्य)
     {
       // Internal error
-      return 0;
+      वापस 0;
     }
 
   ret = -(*err)->status - 1;
 
-  va_start (args_list, fmt);
+  बहु_शुरू (args_list, fmt);
 
-  if (vasprintf (&msg, fmt, args_list) < 0)
+  अगर (vasprintf (&संदेश, fmt, args_list) < 0)
     {
-      va_end (args_list);
-      msg = NULL;
-      return ret;
+      बहु_पूर्ण (args_list);
+      संदेश = शून्य;
+      वापस ret;
     }
-  va_end (args_list);
+  बहु_पूर्ण (args_list);
 
-  xasprintf (&tmp, "%s: %s", msg, (*err)->msg);
+  xasprintf (&tmp, "%s: %s", संदेश, (*err)->संदेश);
   swap = tmp;
-  tmp = (*err)->msg;
-  (*err)->msg = swap;
+  tmp = (*err)->संदेश;
+  (*err)->संदेश = swap;
 
-  return ret;
+  वापस ret;
 }
 
-int
+पूर्णांक
 crun_error_release (libcrun_error_t *err)
 {
-  const int saved_errno = errno;
+  स्थिर पूर्णांक saved_errno = त्रुटि_सं;
   libcrun_error_t ptr;
 
-  if (err == NULL)
-    return 0;
+  अगर (err == शून्य)
+    वापस 0;
 
   ptr = *err;
-  if (ptr == NULL)
-    return 0;
+  अगर (ptr == शून्य)
+    वापस 0;
 
-  free (ptr->msg);
-  free (ptr);
-  *err = NULL;
+  मुक्त (ptr->संदेश);
+  मुक्त (ptr);
+  *err = शून्य;
 
-  errno = saved_errno;
-  return 0;
+  त्रुटि_सं = saved_errno;
+  वापस 0;
 }
 
-int
+पूर्णांक
 libcrun_error_release (libcrun_error_t *err)
 {
-  return crun_error_release (err);
+  वापस crun_error_release (err);
 }
 
-int
+पूर्णांक
 libcrun_error_get_status (libcrun_error_t err)
 {
-  if (err == NULL)
-    return 0;
-  return err->status;
+  अगर (err == शून्य)
+    वापस 0;
+  वापस err->status;
 }
 
-const char *
+स्थिर अक्षर *
 libcrun_error_get_message (libcrun_error_t err)
 {
-  if (err == NULL)
-    return NULL;
-  return err->msg;
+  अगर (err == शून्य)
+    वापस शून्य;
+  वापस err->संदेश;
 }
 
-void
-crun_error_write_warning_and_release (FILE *out, libcrun_error_t **err)
+व्योम
+crun_error_write_warning_and_release (खाता *out, libcrun_error_t **err)
 {
-  const int saved_errno = errno;
+  स्थिर पूर्णांक saved_errno = त्रुटि_सं;
   libcrun_error_t ref;
 
-  if (out == NULL)
-    out = stderr;
-  if (err == NULL || *err == NULL || **err == NULL)
+  अगर (out == शून्य)
+    out = मानक_त्रुटि;
+  अगर (err == शून्य || *err == शून्य || **err == शून्य)
     {
       // Internal error
-      return;
+      वापस;
     }
 
   ref = **err;
-  if (ref->status)
-    fprintf (out, "%s: %s\n", ref->msg, strerror (ref->status));
-  else
-    fprintf (out, "%s\n", ref->msg);
+  अगर (ref->status)
+    ख_लिखो (out, "%s: %s\n", ref->संदेश, म_त्रुटि (ref->status));
+  अन्यथा
+    ख_लिखो (out, "%s\n", ref->संदेश);
 
-  free (ref->msg);
-  free (ref);
-  **err = NULL;
+  मुक्त (ref->संदेश);
+  मुक्त (ref);
+  **err = शून्य;
 
-  errno = saved_errno;
+  त्रुटि_सं = saved_errno;
 }
 
-void
-libcrun_error_write_warning_and_release (FILE *out, libcrun_error_t **err)
+व्योम
+libcrun_error_write_warning_and_release (खाता *out, libcrun_error_t **err)
 {
-  return crun_error_write_warning_and_release (out, err);
+  वापस crun_error_write_warning_and_release (out, err);
 }
 
-void
+व्योम
 libcrun_error_report_and_release (libcrun_error_t *err)
 {
   libcrun_error_t ref;
 
-  if (err == NULL || *err == NULL)
-    return;
+  अगर (err == शून्य || *err == शून्य)
+    वापस;
 
   ref = *err;
-  libcrun_error (ref->status, "%s", ref->msg);
+  libcrun_error (ref->status, "%s", ref->संदेश);
   crun_error_release (err);
 }
 
-int
+पूर्णांक
 crun_error_get_errno (libcrun_error_t *err)
 {
-  if (err == NULL || *err == NULL)
-    return 0;
-  return (*err)->status;
+  अगर (err == शून्य || *err == शून्य)
+    वापस 0;
+  वापस (*err)->status;
 }
 
-typedef char timestamp_t[64];
+प्रकार अक्षर timestamp_t[64];
 
-static void
-get_timestamp (timestamp_t *timestamp, const char *suffix)
+अटल व्योम
+get_timestamp (timestamp_t *timestamp, स्थिर अक्षर *suffix)
 {
-  const size_t buffer_size = sizeof (timestamp_t);
-  char *buffer = (char *) timestamp;
-  struct timeval tv;
-  size_t written;
-  struct tm now;
+  स्थिर माप_प्रकार बफर_आकार = माप (timestamp_t);
+  अक्षर *बफर = (अक्षर *) timestamp;
+  काष्ठा timeval tv;
+  माप_प्रकार written;
+  काष्ठा पंचांग now;
 
-  gettimeofday (&tv, NULL);
+  gettimeofday (&tv, शून्य);
   gmtime_r (&tv.tv_sec, &now);
-  written = strftime (buffer, buffer_size, "%Y-%m-%dT%H:%M:%S", &now);
-  snprintf (buffer + written, buffer_size - written, ".%06lldZ%.8s", (long long int) tv.tv_usec, suffix);
+  written = स_माला (बफर, बफर_आकार, "%Y-%m-%dT%H:%M:%S", &now);
+  snprintf (बफर + written, बफर_आकार - written, ".%06lldZ%.8s", (दीर्घ दीर्घ पूर्णांक) tv.tv_usec, suffix);
 }
 
 /* Neither openlog(3) nor the journald handler copy the identifier they are
    given, and the global output handler outlives the caller's strings (e.g.
    the context is freed while errors are still reported through it), so keep
    an owned copy alive for as long as the handler can use it.  */
-static char *log_id;
+अटल अक्षर *log_id;
 
-static const char *
-set_log_id (const char *id, char **old_id)
+अटल स्थिर अक्षर *
+set_log_id (स्थिर अक्षर *id, अक्षर **old_id)
 {
   *old_id = log_id;
-  log_id = id ? xstrdup (id) : NULL;
-  return log_id;
+  log_id = id ? xstrdup (id) : शून्य;
+  वापस log_id;
 }
 
-static void *
-init_syslog (const char *id)
+अटल व्योम *
+init_syslog (स्थिर अक्षर *id)
 {
   openlog (id, 0, LOG_USER);
-  return NULL;
+  वापस शून्य;
 }
 
-enum
+क्रमागत
 {
   LOG_TYPE_FILE = 1,
   LOG_TYPE_SYSLOG = 2,
   LOG_TYPE_JOURNALD = 3
 };
 
-static int
-get_log_type (const char *log, const char **data)
+अटल पूर्णांक
+get_log_type (स्थिर अक्षर *log, स्थिर अक्षर **तथ्य)
 {
-  const char *sep = strchr (log, ':');
-  if (sep == NULL)
+  स्थिर अक्षर *sep = म_अक्षर (log, ':');
+  अगर (sep == शून्य)
     {
-      *data = log;
-      return LOG_TYPE_FILE;
+      *तथ्य = log;
+      वापस LOG_TYPE_FILE;
     }
-  *data = sep + 1;
+  *तथ्य = sep + 1;
 
-  if (has_prefix (log, "syslog:"))
-    return LOG_TYPE_SYSLOG;
-  if (has_prefix (log, "journald:"))
-    return LOG_TYPE_JOURNALD;
-  if (has_prefix (log, "file:"))
-    return LOG_TYPE_FILE;
+  अगर (has_prefix (log, "syslog:"))
+    वापस LOG_TYPE_SYSLOG;
+  अगर (has_prefix (log, "journald:"))
+    वापस LOG_TYPE_JOURNALD;
+  अगर (has_prefix (log, "file:"))
+    वापस LOG_TYPE_FILE;
 
-  return -1;
+  वापस -1;
 }
 
-int
-libcrun_init_logging (crun_output_handler *new_output_handler, void **new_output_handler_arg, const char *id,
-                      const char *log, libcrun_error_t *err)
+पूर्णांक
+libcrun_init_logging (crun_output_handler *new_output_handler, व्योम **new_output_handler_arg, स्थिर अक्षर *id,
+                      स्थिर अक्षर *log, libcrun_error_t *err)
 {
   /* Released only after the new handler is installed.  */
-  cleanup_free char *old_log_id = NULL;
+  cleanup_free अक्षर *old_log_id = शून्य;
 
-  if (log == NULL)
+  अगर (log == शून्य)
     {
       *new_output_handler = log_write_to_stderr;
-      *new_output_handler_arg = NULL;
+      *new_output_handler_arg = शून्य;
     }
-  else
+  अन्यथा
     {
-      const char *arg = NULL;
-      int log_type = get_log_type (log, &arg);
+      स्थिर अक्षर *arg = शून्य;
+      पूर्णांक log_type = get_log_type (log, &arg);
 
-      if (log_type < 0)
-        return crun_make_error (err, errno, "unknown log type `%s`", log);
+      अगर (log_type < 0)
+        वापस crun_make_error (err, त्रुटि_सं, "unknown log type `%s`", log);
 
-      switch (log_type)
+      चयन (log_type)
         {
-        case LOG_TYPE_FILE:
+        हाल LOG_TYPE_FILE:
           *new_output_handler = log_write_to_stream;
-          *new_output_handler_arg = fopen (arg, "a+e");
-          if (*new_output_handler_arg == NULL)
-            return crun_make_error (err, errno, "open log file `%s`", log);
-          if (output_verbosity >= LIBCRUN_VERBOSITY_WARNING)
+          *new_output_handler_arg = ख_खोलो (arg, "a+e");
+          अगर (*new_output_handler_arg == शून्य)
+            वापस crun_make_error (err, त्रुटि_सं, "open log file `%s`", log);
+          अगर (output_verbosity >= LIBCRUN_VERBOSITY_WARNING)
             setlinebuf (*new_output_handler_arg);
-          break;
+          अवरोध;
 
-        case LOG_TYPE_SYSLOG:
+        हाल LOG_TYPE_SYSLOG:
           *new_output_handler_arg = init_syslog (set_log_id (arg[0] ? arg : id, &old_log_id));
           *new_output_handler = log_write_to_syslog;
-          break;
+          अवरोध;
 
-        case LOG_TYPE_JOURNALD:
+        हाल LOG_TYPE_JOURNALD:
           *new_output_handler = log_write_to_journald;
-          *new_output_handler_arg = (void *) set_log_id (id, &old_log_id);
-          break;
+          *new_output_handler_arg = (व्योम *) set_log_id (id, &old_log_id);
+          अवरोध;
         }
     }
   crun_set_output_handler (*new_output_handler, *new_output_handler_arg);
-  return 0;
+  वापस 0;
 }
 
-void
-log_write_to_stream (int errno_, const char *msg, int verbosity, void *arg)
+व्योम
+log_write_to_stream (पूर्णांक errno_, स्थिर अक्षर *संदेश, पूर्णांक verbosity, व्योम *arg)
 {
   timestamp_t timestamp = {
     0,
   };
-  FILE *stream = arg;
-  int tty = isatty (fileno (stream));
-  const char *color_begin = "";
-  const char *color_end = "";
+  खाता *stream = arg;
+  पूर्णांक tty = isatty (fileno (stream));
+  स्थिर अक्षर *color_begin = "";
+  स्थिर अक्षर *color_end = "";
 
-  if (tty)
+  अगर (tty)
     {
-      switch (verbosity)
+      चयन (verbosity)
         {
-        case LIBCRUN_VERBOSITY_DEBUG:
+        हाल LIBCRUN_VERBOSITY_DEBUG:
           color_begin = "\x1b[1;34m";
           color_end = "\x1b[0m";
-          break;
-        case LIBCRUN_VERBOSITY_WARNING:
+          अवरोध;
+        हाल LIBCRUN_VERBOSITY_WARNING:
           color_begin = "\x1b[1;33m";
           color_end = "\x1b[0m";
-          break;
-        case LIBCRUN_VERBOSITY_ERROR:
+          अवरोध;
+        हाल LIBCRUN_VERBOSITY_ERROR:
           color_begin = "\x1b[1;31m";
           color_end = "\x1b[0m";
-          break;
+          अवरोध;
         }
 
-      if (log_format == LOG_FORMAT_TEXT)
+      अगर (log_format == LOG_FORMAT_TEXT)
         get_timestamp (&timestamp, ": ");
     }
 
-  if (errno_)
-    fprintf (stream, "%s%s%s: %s%s\n", color_begin, timestamp, msg, strerror (errno_), color_end);
-  else
-    fprintf (stream, "%s%s%s%s\n", color_begin, timestamp, msg, color_end);
+  अगर (errno_)
+    ख_लिखो (stream, "%s%s%s: %s%s\n", color_begin, timestamp, संदेश, म_त्रुटि (errno_), color_end);
+  अन्यथा
+    ख_लिखो (stream, "%s%s%s%s\n", color_begin, timestamp, संदेश, color_end);
 }
 
-void
-log_write_to_stderr (int errno_, const char *msg, int verbosity, void *arg arg_unused)
+व्योम
+log_write_to_stderr (पूर्णांक errno_, स्थिर अक्षर *संदेश, पूर्णांक verbosity, व्योम *arg arg_unused)
 {
-  log_write_to_stream (errno_, msg, verbosity, stderr);
+  log_write_to_stream (errno_, संदेश, verbosity, मानक_त्रुटि);
 }
 
-void
-log_write_to_syslog (int errno_, const char *msg, int verbosity, void *arg arg_unused)
+व्योम
+log_write_to_syslog (पूर्णांक errno_, स्थिर अक्षर *संदेश, पूर्णांक verbosity, व्योम *arg arg_unused)
 {
-  int priority = LOG_ERR;
-  switch (verbosity)
+  पूर्णांक priority = LOG_ERR;
+  चयन (verbosity)
     {
-    case LIBCRUN_VERBOSITY_DEBUG:
+    हाल LIBCRUN_VERBOSITY_DEBUG:
       priority = LOG_DEBUG;
-      break;
-    case LIBCRUN_VERBOSITY_WARNING:
+      अवरोध;
+    हाल LIBCRUN_VERBOSITY_WARNING:
       priority = LOG_WARNING;
-      break;
-    case LIBCRUN_VERBOSITY_ERROR:
+      अवरोध;
+    हाल LIBCRUN_VERBOSITY_ERROR:
       priority = LOG_ERR;
-      break;
+      अवरोध;
     }
-  if (errno_ == 0)
-    syslog (priority, "%s", msg);
-  else
-    syslog (priority, "%s: %s", msg, strerror (errno_));
+  अगर (errno_ == 0)
+    syslog (priority, "%s", संदेश);
+  अन्यथा
+    syslog (priority, "%s: %s", संदेश, म_त्रुटि (errno_));
 }
 
-void
-log_write_to_journald (int errno_, const char *msg, int verbosity, void *arg arg_unused)
+व्योम
+log_write_to_journald (पूर्णांक errno_, स्थिर अक्षर *संदेश, पूर्णांक verbosity, व्योम *arg arg_unused)
 {
-  (void) errno_;
-  (void) msg;
-  (void) verbosity;
-#ifdef HAVE_SYSTEMD
-  int priority = LOG_ERR;
-  switch (verbosity)
+  (व्योम) errno_;
+  (व्योम) संदेश;
+  (व्योम) verbosity;
+#अगर_घोषित HAVE_SYSTEMD
+  पूर्णांक priority = LOG_ERR;
+  चयन (verbosity)
     {
-    case LIBCRUN_VERBOSITY_DEBUG:
+    हाल LIBCRUN_VERBOSITY_DEBUG:
       priority = LOG_DEBUG;
-      break;
-    case LIBCRUN_VERBOSITY_WARNING:
+      अवरोध;
+    हाल LIBCRUN_VERBOSITY_WARNING:
       priority = LOG_WARNING;
-      break;
-    case LIBCRUN_VERBOSITY_ERROR:
+      अवरोध;
+    हाल LIBCRUN_VERBOSITY_ERROR:
       priority = LOG_ERR;
-      break;
+      अवरोध;
     }
-  if (errno_ == 0)
-    sd_journal_send ("PRIORITY=%d", priority, "MESSAGE=%s", msg, "ID=%s", arg, NULL);
-  else
-    sd_journal_send ("PRIORITY=%d", priority, "MESSAGE=%s: %s", msg, strerror (errno_), "ID=%s",
-                     arg, NULL);
-#endif
+  अगर (errno_ == 0)
+    sd_journal_send ("PRIORITY=%d", priority, "MESSAGE=%s", संदेश, "ID=%s", arg, शून्य);
+  अन्यथा
+    sd_journal_send ("PRIORITY=%d", priority, "MESSAGE=%s: %s", संदेश, म_त्रुटि (errno_), "ID=%s",
+                     arg, शून्य);
+#पूर्ण_अगर
 }
 
-static crun_output_handler output_handler = log_write_to_stderr;
-static void *output_handler_arg = NULL;
+अटल crun_output_handler output_handler = log_write_to_stderr;
+अटल व्योम *output_handler_arg = शून्य;
 
-void
-libcrun_set_verbosity (int verbosity)
+व्योम
+libcrun_set_verbosity (पूर्णांक verbosity)
 {
   output_verbosity = verbosity;
 }
 
-int
+पूर्णांक
 libcrun_get_verbosity ()
 {
-  return output_verbosity;
+  वापस output_verbosity;
 }
 
-void
-crun_set_output_handler (crun_output_handler handler, void *arg)
+व्योम
+crun_set_output_handler (crun_output_handler handler, व्योम *arg)
 {
   output_handler = handler;
   output_handler_arg = arg;
 }
 
-static char *
-make_json_error (const char *msg, int errno_, int verbosity)
+अटल अक्षर *
+make_json_error (स्थिर अक्षर *संदेश, पूर्णांक errno_, पूर्णांक verbosity)
 {
-  const char *level;
-  switch (verbosity)
+  स्थिर अक्षर *level;
+  चयन (verbosity)
     {
-    case LIBCRUN_VERBOSITY_DEBUG:
+    हाल LIBCRUN_VERBOSITY_DEBUG:
       level = "debug";
-      break;
-    case LIBCRUN_VERBOSITY_WARNING:
+      अवरोध;
+    हाल LIBCRUN_VERBOSITY_WARNING:
       level = "warning";
-      break;
-    case LIBCRUN_VERBOSITY_ERROR:
+      अवरोध;
+    हाल LIBCRUN_VERBOSITY_ERROR:
       level = "error";
-      break;
+      अवरोध;
     }
-  const char *buf = NULL;
-  json_gen_ctx *gen = NULL;
-  char *ret = NULL;
-  size_t buf_len;
+  स्थिर अक्षर *buf = शून्य;
+  json_gen_ctx *gen = शून्य;
+  अक्षर *ret = शून्य;
+  माप_प्रकार buf_len;
   timestamp_t timestamp = {
     0,
   };
 
-  if (! json_gen_init (&gen, NULL))
-    return NULL;
+  अगर (! json_gen_init (&gen, शून्य))
+    वापस शून्य;
 
   get_timestamp (&timestamp, "");
 
   json_gen_map_open (gen);
 
-  json_gen_string (gen, "msg", strlen ("msg"));
-  if (errno_ == 0)
-    json_gen_string (gen, msg, strlen (msg));
-  else
+  json_gen_string (gen, "msg", म_माप ("msg"));
+  अगर (errno_ == 0)
+    json_gen_string (gen, संदेश, म_माप (संदेश));
+  अन्यथा
     {
-      cleanup_free char *tmp = NULL;
+      cleanup_free अक्षर *tmp = शून्य;
 
-      xasprintf (&tmp, "%s: %s", msg, strerror (errno_));
-      json_gen_string (gen, tmp, strlen (tmp));
+      xasprintf (&tmp, "%s: %s", संदेश, म_त्रुटि (errno_));
+      json_gen_string (gen, tmp, म_माप (tmp));
     }
 
-  json_gen_string (gen, "level", strlen ("level"));
-  json_gen_string (gen, level, strlen (level));
+  json_gen_string (gen, "level", म_माप ("level"));
+  json_gen_string (gen, level, म_माप (level));
 
-  json_gen_string (gen, "time", strlen ("time"));
-  json_gen_string (gen, timestamp, strlen (timestamp));
+  json_gen_string (gen, "time", म_माप ("time"));
+  json_gen_string (gen, timestamp, म_माप (timestamp));
 
   json_gen_map_close (gen);
 
   json_gen_get_buf (gen, &buf, &buf_len);
-  if (buf)
+  अगर (buf)
     ret = strdup (buf);
 
   json_gen_free (gen);
 
-  return ret;
+  वापस ret;
 }
 
-static void
-write_log (int errno_, int verbosity, const char *msg, va_list args_list)
+अटल व्योम
+write_log (पूर्णांक errno_, पूर्णांक verbosity, स्थिर अक्षर *संदेश, बहु_सूची args_list)
 {
-  int ret;
-  cleanup_free char *output = NULL;
-  cleanup_free char *json = NULL;
+  पूर्णांक ret;
+  cleanup_free अक्षर *output = शून्य;
+  cleanup_free अक्षर *json = शून्य;
 
-  if (verbosity > output_verbosity)
-    return;
+  अगर (verbosity > output_verbosity)
+    वापस;
 
-  ret = vasprintf (&output, msg, args_list);
-  if (UNLIKELY (ret < 0))
+  ret = vasprintf (&output, संदेश, args_list);
+  अगर (UNLIKELY (ret < 0))
     OOM ();
 
-  if (verbosity == LIBCRUN_VERBOSITY_ERROR && output_handler != log_write_to_stderr)
-    log_write_to_stderr (errno_, output, LIBCRUN_VERBOSITY_ERROR, NULL);
+  अगर (verbosity == LIBCRUN_VERBOSITY_ERROR && output_handler != log_write_to_stderr)
+    log_write_to_stderr (errno_, output, LIBCRUN_VERBOSITY_ERROR, शून्य);
 
-  switch (log_format)
+  चयन (log_format)
     {
-    case LOG_FORMAT_TEXT:
+    हाल LOG_FORMAT_TEXT:
       output_handler (errno_, output, verbosity, output_handler_arg);
-      break;
+      अवरोध;
 
-    case LOG_FORMAT_JSON:
+    हाल LOG_FORMAT_JSON:
       json = make_json_error (output, errno_, verbosity);
-      if (json)
+      अगर (json)
         output_handler (0, json, verbosity, output_handler_arg);
-      else
+      अन्यथा
         output_handler (errno_, output, verbosity, output_handler_arg);
-      break;
+      अवरोध;
     }
 }
 
-void
-libcrun_debug (const char *msg, ...)
+व्योम
+libcrun_debug (स्थिर अक्षर *संदेश, ...)
 {
-  va_list args_list;
-  va_start (args_list, msg);
-  write_log (0, LIBCRUN_VERBOSITY_DEBUG, msg, args_list);
-  va_end (args_list);
+  बहु_सूची args_list;
+  बहु_शुरू (args_list, संदेश);
+  write_log (0, LIBCRUN_VERBOSITY_DEBUG, संदेश, args_list);
+  बहु_पूर्ण (args_list);
 }
 
-void
-libcrun_warning (const char *msg, ...)
+व्योम
+libcrun_warning (स्थिर अक्षर *संदेश, ...)
 {
-  va_list args_list;
-  va_start (args_list, msg);
-  write_log (0, LIBCRUN_VERBOSITY_WARNING, msg, args_list);
-  va_end (args_list);
+  बहु_सूची args_list;
+  बहु_शुरू (args_list, संदेश);
+  write_log (0, LIBCRUN_VERBOSITY_WARNING, संदेश, args_list);
+  बहु_पूर्ण (args_list);
 }
 
-void
-libcrun_error (int errno_, const char *msg, ...)
+व्योम
+libcrun_error (पूर्णांक errno_, स्थिर अक्षर *संदेश, ...)
 {
-  va_list args_list;
-  va_start (args_list, msg);
+  बहु_सूची args_list;
+  बहु_शुरू (args_list, संदेश);
 
-  write_log (errno_, LIBCRUN_VERBOSITY_ERROR, msg, args_list);
-  va_end (args_list);
+  write_log (errno_, LIBCRUN_VERBOSITY_ERROR, संदेश, args_list);
+  बहु_पूर्ण (args_list);
 }
 
-void __attribute__ ((noreturn))
-libcrun_fail_with_error (int errno_, const char *msg, ...)
+व्योम __attribute__ ((noreturn))
+libcrun_fail_with_error (पूर्णांक errno_, स्थिर अक्षर *संदेश, ...)
 {
-  va_list args_list;
-  va_start (args_list, msg);
-  write_log (errno_, LIBCRUN_VERBOSITY_ERROR, msg, args_list);
-  va_end (args_list);
-  exit (EXIT_FAILURE);
+  बहु_सूची args_list;
+  बहु_शुरू (args_list, संदेश);
+  write_log (errno_, LIBCRUN_VERBOSITY_ERROR, संदेश, args_list);
+  बहु_पूर्ण (args_list);
+  निकास (निकास_त्रुटि);
 }
 
-int
-libcrun_set_log_format (const char *format, libcrun_error_t *err)
+पूर्णांक
+libcrun_set_log_format (स्थिर अक्षर *format, libcrun_error_t *err)
 {
-  if (strcmp (format, "text") == 0)
+  अगर (म_भेद (format, "text") == 0)
     log_format = LOG_FORMAT_TEXT;
-  else if (strcmp (format, "json") == 0)
+  अन्यथा अगर (म_भेद (format, "json") == 0)
     log_format = LOG_FORMAT_JSON;
-  else
-    return crun_make_error (err, 0, "unknown log format type `%s`", format);
+  अन्यथा
+    वापस crun_make_error (err, 0, "unknown log format type `%s`", format);
 
-  return 0;
+  वापस 0;
 }
 
-int
-json_gen_error_to_crun_error (int status, libcrun_error_t *err)
+पूर्णांक
+json_gen_error_to_crun_error (पूर्णांक status, libcrun_error_t *err)
 {
-  switch (status)
+  चयन (status)
     {
-    case json_gen_status_ok:
-      return 0;
+    हाल json_gen_status_ok:
+      वापस 0;
 
-    default:
-      return crun_make_error (err, 0, "generate JSON document: error %d", status);
+    शेष:
+      वापस crun_make_error (err, 0, "generate JSON document: error %d", status);
     }
 }

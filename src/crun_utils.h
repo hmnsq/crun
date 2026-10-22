@@ -15,122 +15,122 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CRUN_UTILS_H
-#define CRUN_UTILS_H
+#अगर_अघोषित CRUN_UTILS_H
+#घोषणा CRUN_UTILS_H
 
 /* Self-contained helpers for the crun binary so that it does not have to
    include the internal libcrun/utils.h (which pulls in the internal,
    non-public headers).  The binary is a pure consumer of the public
    <libcrun.h> API; everything here is either libc or a trivial inline.  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
+#समावेश <stdlib.h>
+#समावेश <stdio.h>
+#समावेश <string.h>
+#समावेश <unistd.h>
 
-#ifdef __GNUC__
+#अगर_घोषित __GNUC__
 #  define LIKELY(x) __builtin_expect ((x), 1)
 #  define UNLIKELY(x) __builtin_expect ((x), 0)
 #  define arg_unused __attribute__ ((unused))
-#else
+#अन्यथा
 #  define LIKELY(x) (x)
 #  define UNLIKELY(x) (x)
 #  define arg_unused
-#endif
+#पूर्ण_अगर
 
-#define OOM()                            \
-  do                                     \
+#घोषणा OOM()                            \
+  करो                                     \
     {                                    \
-      fprintf (stderr, "out of memory"); \
-      _exit (EXIT_FAILURE);              \
-  } while (0)
+      ख_लिखो (मानक_त्रुटि, "out of memory"); \
+      _निकास (निकास_त्रुटि);              \
+  } जबतक (0)
 
-#define crun_make_error libcrun_make_error
+#घोषणा crun_make_error libcrun_make_error
 
-__attribute__ ((malloc)) static inline void *
-xmalloc (size_t size)
+__attribute__ ((दो_स्मृति)) अटल अंतरभूत व्योम *
+xmalloc (माप_प्रकार आकार)
 {
-  void *res = malloc (size);
-  if (UNLIKELY (res == NULL))
+  व्योम *res = दो_स्मृति (आकार);
+  अगर (UNLIKELY (res == शून्य))
     OOM ();
-  return res;
+  वापस res;
 }
 
-__attribute__ ((malloc)) static inline void *
-xmalloc0 (size_t size)
+__attribute__ ((दो_स्मृति)) अटल अंतरभूत व्योम *
+xmalloc0 (माप_प्रकार आकार)
 {
-  void *res = calloc (1, size);
-  if (UNLIKELY (res == NULL))
+  व्योम *res = सुस्मृति (1, आकार);
+  अगर (UNLIKELY (res == शून्य))
     OOM ();
-  return res;
+  वापस res;
 }
 
-__attribute__ ((malloc)) static inline void *
-xrealloc (void *ptr, size_t size)
+__attribute__ ((दो_स्मृति)) अटल अंतरभूत व्योम *
+xrealloc (व्योम *ptr, माप_प्रकार आकार)
 {
-  void *res = realloc (ptr, size);
-  if (UNLIKELY (res == NULL))
+  व्योम *res = पुनः_स्मृति (ptr, आकार);
+  अगर (UNLIKELY (res == शून्य))
     OOM ();
-  return res;
+  वापस res;
 }
 
-static inline char *
-xstrdup (const char *str)
+अटल अंतरभूत अक्षर *
+xstrdup (स्थिर अक्षर *str)
 {
-  char *ret;
-  if (str == NULL)
-    return NULL;
+  अक्षर *ret;
+  अगर (str == शून्य)
+    वापस शून्य;
   ret = strdup (str);
-  if (UNLIKELY (ret == NULL))
+  अगर (UNLIKELY (ret == शून्य))
     OOM ();
-  return ret;
+  वापस ret;
 }
 
-static inline void
-cleanup_freep (void *p)
+अटल अंतरभूत व्योम
+cleanup_freep (व्योम *p)
 {
-  void **pp = (void **) p;
-  free (*pp);
+  व्योम **pp = (व्योम **) p;
+  मुक्त (*pp);
 }
 
-static inline void
-cleanup_filep (FILE **f)
+अटल अंतरभूत व्योम
+cleanup_filep (खाता **f)
 {
-  FILE *file = *f;
-  if (file)
-    (void) fclose (file);
+  खाता *file = *f;
+  अगर (file)
+    (व्योम) ख_बंद (file);
 }
 
-static inline void
-cleanup_closep (void *p)
+अटल अंतरभूत व्योम
+cleanup_closep (व्योम *p)
 {
-  int *pp = (int *) p;
-  if (*pp >= 0)
-    close (*pp);
+  पूर्णांक *pp = (पूर्णांक *) p;
+  अगर (*pp >= 0)
+    बंद (*pp);
 }
 
-#define cleanup_free __attribute__ ((cleanup (cleanup_freep)))
-#define cleanup_file __attribute__ ((cleanup (cleanup_filep)))
-#define cleanup_close __attribute__ ((cleanup (cleanup_closep)))
+#घोषणा cleanup_free __attribute__ ((cleanup (cleanup_freep)))
+#घोषणा cleanup_file __attribute__ ((cleanup (cleanup_filep)))
+#घोषणा cleanup_close __attribute__ ((cleanup (cleanup_closep)))
 
 /* Relies on <libcrun.h> (included before this header via crun.h) for the
    opaque libcrun_context_t and libcrun_context_free.  */
-static inline void
+अटल अंतरभूत व्योम
 cleanup_libcrun_contextp (libcrun_context_t **p)
 {
-  if (*p)
+  अगर (*p)
     libcrun_context_free (*p);
 }
 
-#define cleanup_context __attribute__ ((cleanup (cleanup_libcrun_contextp)))
+#घोषणा cleanup_context __attribute__ ((cleanup (cleanup_libcrun_contextp)))
 
-static inline void
+अटल अंतरभूत व्योम
 cleanup_libcrun_containerp (libcrun_container_t **p)
 {
-  if (*p)
+  अगर (*p)
     libcrun_container_free (*p);
 }
 
-#define cleanup_container __attribute__ ((cleanup (cleanup_libcrun_containerp)))
+#घोषणा cleanup_container __attribute__ ((cleanup (cleanup_libcrun_containerp)))
 
-#endif
+#पूर्ण_अगर

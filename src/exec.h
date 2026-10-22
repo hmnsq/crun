@@ -15,11 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef EXEC_H
-#define EXEC_H
+#अगर_अघोषित EXEC_H
+#घोषणा EXEC_H
 
-#include "crun.h"
+#समावेश "crun.h"
 
-int crun_command_exec (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+पूर्णांक crun_command_exec (काष्ठा crun_global_arguments *global_args, पूर्णांक argc, अक्षर **argv, libcrun_error_t *error);
 
-#endif
+#पूर्ण_अगर

@@ -15,27 +15,27 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SECCOMP_NOTIFY_H
-#define SECCOMP_NOTIFY_H
+#अगर_अघोषित SECCOMP_NOTIFY_H
+#घोषणा SECCOMP_NOTIFY_H
 
-#include <config.h>
-#include "error.h"
+#समावेश <config.h>
+#समावेश "error.h"
 
-#if ! (HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES)
+#अगर ! (HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES)
 #  define SECCOMP_NOTIFY_SKIP_TYPEDEF
-#endif
-#include "seccomp_notify_plugin.h"
+#पूर्ण_अगर
+#समावेश "seccomp_notify_plugin.h"
 
-struct seccomp_notify_context_s;
+काष्ठा seccomp_notify_context_s;
 
-LIBCRUN_PUBLIC int libcrun_load_seccomp_notify_plugins (struct seccomp_notify_context_s **out, const char *plugins,
-                                                        struct libcrun_load_seccomp_notify_conf_s *conf,
+LIBCRUN_PUBLIC पूर्णांक libcrun_load_seccomp_notify_plugins (काष्ठा seccomp_notify_context_s **out, स्थिर अक्षर *plugins,
+                                                        काष्ठा libcrun_load_seccomp_notify_conf_s *conf,
                                                         libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, int seccomp_fd,
+LIBCRUN_PUBLIC पूर्णांक libcrun_seccomp_notify_plugins (काष्ठा seccomp_notify_context_s *ctx, पूर्णांक seccomp_fd,
                                                    libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_free_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, libcrun_error_t *err);
+LIBCRUN_PUBLIC पूर्णांक libcrun_free_seccomp_notify_plugins (काष्ठा seccomp_notify_context_s *ctx, libcrun_error_t *err);
 
-#define cleanup_seccomp_notify_context __attribute__ ((cleanup (cleanup_seccomp_notify_pluginsp)))
-void cleanup_seccomp_notify_pluginsp (void *p);
+#घोषणा cleanup_seccomp_notify_context __attribute__ ((cleanup (cleanup_seccomp_notify_pluginsp)))
+व्योम cleanup_seccomp_notify_pluginsp (व्योम *p);
 
-#endif
+#पूर्ण_अगर

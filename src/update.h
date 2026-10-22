@@ -15,11 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef UPDATE_H
-#define UPDATE_H
+#अगर_अघोषित UPDATE_H
+#घोषणा UPDATE_H
 
-#include "crun.h"
+#समावेश "crun.h"
 
-int crun_command_update (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err);
+पूर्णांक crun_command_update (काष्ठा crun_global_arguments *global_args, पूर्णांक argc, अक्षर **argv, libcrun_error_t *err);
 
-#endif
+#पूर्ण_अगर

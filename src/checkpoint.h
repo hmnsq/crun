@@ -15,13 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CHECKPOINT_H
-#define CHECKPOINT_H
+#अगर_अघोषित CHECKPOINT_H
+#घोषणा CHECKPOINT_H
 
-#include "crun.h"
+#समावेश "crun.h"
 
-int crun_parse_manage_cgroups_mode (char *param);
-int crun_parse_network_lock_method (char *param);
-int crun_command_checkpoint (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+पूर्णांक crun_parse_manage_cgroups_mode (अक्षर *param);
+पूर्णांक crun_parse_network_lock_method (अक्षर *param);
+पूर्णांक crun_command_checkpoint (काष्ठा crun_global_arguments *global_args, पूर्णांक argc, अक्षर **argv, libcrun_error_t *error);
 
-#endif
+#पूर्ण_अगर

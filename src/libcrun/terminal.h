@@ -15,24 +15,24 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef TERMINAL_H
-#define TERMINAL_H
-#include <config.h>
+#अगर_अघोषित TERMINAL_H
+#घोषणा TERMINAL_H
+#समावेश <config.h>
 
-#include "container.h"
-#include <termios.h>
+#समावेश "container.h"
+#समावेश <termios.h>
 
-void cleanup_terminalp (void *p);
-#define cleanup_terminal __attribute__ ((cleanup (cleanup_terminalp)))
+व्योम cleanup_terminalp (व्योम *p);
+#घोषणा cleanup_terminal __attribute__ ((cleanup (cleanup_terminalp)))
 
-int libcrun_new_terminal (char **pty, libcrun_error_t *err);
+पूर्णांक libcrun_new_terminal (अक्षर **pty, libcrun_error_t *err);
 
-int libcrun_set_stdio (int ptmx_fd, char *pty, libcrun_error_t *err);
+पूर्णांक libcrun_set_stdio (पूर्णांक ptmx_fd, अक्षर *pty, libcrun_error_t *err);
 
-int libcrun_set_raw (int fd, void **current_status, libcrun_error_t *err);
+पूर्णांक libcrun_set_raw (पूर्णांक fd, व्योम **current_status, libcrun_error_t *err);
 
-int libcrun_clear_onlcr (int fd, libcrun_error_t *err);
+पूर्णांक libcrun_clear_onlcr (पूर्णांक fd, libcrun_error_t *err);
 
-int libcrun_terminal_setup_size (int fd, unsigned short rows, unsigned short cols, libcrun_error_t *err);
+पूर्णांक libcrun_terminal_setup_आकार (पूर्णांक fd, अचिन्हित लघु rows, अचिन्हित लघु cols, libcrun_error_t *err);
 
-#endif
+#पूर्ण_अगर

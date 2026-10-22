@@ -15,55 +15,55 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#समावेश <config.h>
+#समावेश <stdio.h>
+#समावेश <stdlib.h>
+#समावेश <argp.h>
+#समावेश <string.h>
+#समावेश <unistd.h>
+#समावेश <errno.h>
 
-#include "crun.h"
+#समावेश "crun.h"
 
-static char doc[] = "OCI runtime";
+अटल अक्षर doc[] = "OCI runtime";
 
-static struct argp_option options[] = { { 0 } };
+अटल काष्ठा argp_option options[] = { { 0 } };
 
-static char args_doc[] = "features";
+अटल अक्षर args_doc[] = "features";
 
-static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+अटल error_t
+parse_opt (पूर्णांक कुंजी, अक्षर *arg arg_unused, काष्ठा argp_state *state arg_unused)
 {
-  if (key != ARGP_KEY_NO_ARGS)
+  अगर (कुंजी != ARGP_कुंजी_NO_ARGS)
     {
-      return ARGP_ERR_UNKNOWN;
+      वापस ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  वापस 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+अटल काष्ठा argp run_argp = { options, parse_opt, args_doc, doc, शून्य, शून्य, शून्य };
 
-int
-crun_command_features (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+पूर्णांक
+crun_command_features (काष्ठा crun_global_arguments *global_args, पूर्णांक argc, अक्षर **argv, libcrun_error_t *err)
 {
-  cleanup_free char *json = NULL;
-  int first_arg = 0, ret = 0;
-  cleanup_context libcrun_context_t *crun_context = NULL;
+  cleanup_free अक्षर *json = शून्य;
+  पूर्णांक first_arg = 0, ret = 0;
+  cleanup_context libcrun_context_t *crun_context = शून्य;
 
   argp_parse (&run_argp, argc, argv, 0, 0, &options);
 
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  अगर (UNLIKELY (ret < 0))
+    वापस ret;
 
   ret = libcrun_container_get_features_json (crun_context, &json, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  अगर (UNLIKELY (ret < 0))
+    वापस ret;
 
-  printf ("%s", json);
+  म_लिखो ("%s", json);
 
-  return 0;
+  वापस 0;
 }

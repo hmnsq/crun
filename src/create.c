@@ -16,13 +16,13 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <argp.h>
+#समावेश <config.h>
+#समावेश <argp.h>
 
-#include "crun.h"
-#include "run_create.h"
+#समावेश "crun.h"
+#समावेश "run_create.h"
 
-enum
+क्रमागत
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -32,11 +32,11 @@ enum
   OPTION_NO_PIVOT
 };
 
-static const char *bundle = NULL;
+अटल स्थिर अक्षर *bundle = शून्य;
 
-static libcrun_context_t *crun_context;
+अटल libcrun_context_t *crun_context;
 
-static struct argp_option options[]
+अटल काष्ठा argp_option options[]
     = { { "bundle", 'b', "DIR", 0, "container bundle (default \".\")", 0 },
         { "config", 'f', "FILE", 0, "override the config file name", 0 },
         { "console-socket", OPTION_CONSOLE_SOCKET, "SOCK", 0,
@@ -50,73 +50,73 @@ static struct argp_option options[]
             0,
         } };
 
-static char doc[] = "OCI runtime";
+अटल अक्षर doc[] = "OCI runtime";
 
-static char args_doc[] = "create [OPTION]... CONTAINER";
+अटल अक्षर args_doc[] = "create [OPTION]... CONTAINER";
 
-static const char *config_file = "config.json";
+अटल स्थिर अक्षर *config_file = "config.json";
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+अटल error_t
+parse_opt (पूर्णांक कुंजी, अक्षर *arg, काष्ठा argp_state *state)
 {
-  switch (key)
+  चयन (कुंजी)
     {
-    case 'b':
+    हाल 'b':
       bundle = argp_mandatory_argument (arg, state);
-      break;
+      अवरोध;
 
-    case 'f':
+    हाल 'f':
       config_file = argp_mandatory_argument (arg, state);
-      break;
+      अवरोध;
 
-    case OPTION_CONSOLE_SOCKET:
+    हाल OPTION_CONSOLE_SOCKET:
       libcrun_context_set_console_socket (crun_context, argp_mandatory_argument (arg, state));
-      break;
+      अवरोध;
 
-    case OPTION_PRESERVE_FDS:
-      libcrun_context_set_preserve_fds (crun_context, parse_id_or_fail (argp_mandatory_argument (arg, state), NULL, "preserve-fds"));
-      break;
+    हाल OPTION_PRESERVE_FDS:
+      libcrun_context_set_preserve_fds (crun_context, parse_id_or_fail (argp_mandatory_argument (arg, state), शून्य, "preserve-fds"));
+      अवरोध;
 
-    case OPTION_NO_SUBREAPER:
-      break;
+    हाल OPTION_NO_SUBREAPER:
+      अवरोध;
 
-    case OPTION_NO_PIVOT:
+    हाल OPTION_NO_PIVOT:
       libcrun_context_set_no_pivot (crun_context, true);
-      break;
+      अवरोध;
 
-    case OPTION_NO_NEW_KEYRING:
+    हाल OPTION_NO_NEW_KEYRING:
       libcrun_context_set_no_new_keyring (crun_context, true);
-      break;
+      अवरोध;
 
-    case OPTION_PID_FILE:
+    हाल OPTION_PID_FILE:
       libcrun_context_set_pid_file (crun_context, argp_mandatory_argument (arg, state));
-      break;
+      अवरोध;
 
-    case ARGP_KEY_NO_ARGS:
+    हाल ARGP_कुंजी_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    शेष:
+      वापस ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  वापस 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+अटल काष्ठा argp run_argp = { options, parse_opt, args_doc, doc, शून्य, शून्य, शून्य };
 
-static unsigned int
+अटल अचिन्हित पूर्णांक
 get_options ()
 {
-  return 0;
+  वापस 0;
 }
 
-int
-crun_command_create (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+पूर्णांक
+crun_command_create (काष्ठा crun_global_arguments *global_args, पूर्णांक argc, अक्षर **argv, libcrun_error_t *err)
 {
-  int ret;
+  पूर्णांक ret;
 
   crun_context = new_libcrun_context (global_args);
   ret = crun_run_create_internal (global_args, argc, argv, libcrun_container_create, get_options, crun_context, &run_argp, &config_file, &bundle, err);
   libcrun_context_free (crun_context);
-  return ret;
+  वापस ret;
 }

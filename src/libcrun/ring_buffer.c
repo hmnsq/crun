@@ -15,223 +15,223 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE
-#include <config.h>
-#include <sys/uio.h>
+#घोषणा _GNU_SOURCE
+#समावेश <config.h>
+#समावेश <sys/uio.h>
 
-#include "ring_buffer.h"
-#include "utils.h"
+#समावेश "ring_buffer.h"
+#समावेश "utils.h"
 
-struct ring_buffer
+काष्ठा ring_बफर
 {
-  char *buffer;
-  size_t size;
-  size_t head;
-  size_t tail;
+  अक्षर *बफर;
+  माप_प्रकार आकार;
+  माप_प्रकार शीर्ष;
+  माप_प्रकार पुच्छ;
 };
 
 /*
  * It returns up to two regions in `iov` that can be read from.
  */
-static int
-ring_buffer_get_read_iov (struct ring_buffer *rb, struct iovec *iov)
+अटल पूर्णांक
+ring_बफर_get_read_iov (काष्ठा ring_बफर *rb, काष्ठा iovec *iov)
 {
-  int iov_count = 0;
+  पूर्णांक iov_गिनती = 0;
 
   /* Buffer is empty.  */
-  if (rb->head == rb->tail)
-    return 0;
+  अगर (rb->शीर्ष == rb->पुच्छ)
+    वापस 0;
 
   /* Head before tail.  There is only one region to read from, up to tail.  */
-  if (rb->tail > rb->head)
+  अगर (rb->पुच्छ > rb->शीर्ष)
     {
-      iov[iov_count].iov_base = rb->buffer + rb->head;
-      iov[iov_count].iov_len = rb->tail - rb->head;
-      iov_count++;
+      iov[iov_गिनती].iov_base = rb->बफर + rb->शीर्ष;
+      iov[iov_गिनती].iov_len = rb->पुच्छ - rb->शीर्ष;
+      iov_गिनती++;
     }
   /* Head after tail.  There are two regions to read from, up to the
    * end of the buffer and from the beginning of the buffer to tail.  */
-  else
+  अन्यथा
     {
-      iov[iov_count].iov_base = rb->buffer + rb->head;
-      iov[iov_count].iov_len = rb->size - rb->head;
-      iov_count++;
+      iov[iov_गिनती].iov_base = rb->बफर + rb->शीर्ष;
+      iov[iov_गिनती].iov_len = rb->आकार - rb->शीर्ष;
+      iov_गिनती++;
 
-      if (rb->tail > 0)
+      अगर (rb->पुच्छ > 0)
         {
-          iov[iov_count].iov_base = rb->buffer;
-          iov[iov_count].iov_len = rb->tail;
-          iov_count++;
+          iov[iov_गिनती].iov_base = rb->बफर;
+          iov[iov_गिनती].iov_len = rb->पुच्छ;
+          iov_गिनती++;
         }
     }
-  return iov_count;
+  वापस iov_गिनती;
 }
 
 /*
  * It returns up to two regions in `iov` that can be written to without overwriting
  * existing data.
  */
-static int
-ring_buffer_get_write_iov (struct ring_buffer *rb, struct iovec *iov)
+अटल पूर्णांक
+ring_बफर_get_write_iov (काष्ठा ring_बफर *rb, काष्ठा iovec *iov)
 {
-  int iov_count = 0;
+  पूर्णांक iov_गिनती = 0;
 
   /* Buffer is full.  */
-  if ((rb->tail + 1) % rb->size == rb->head)
-    return 0;
+  अगर ((rb->पुच्छ + 1) % rb->आकार == rb->शीर्ष)
+    वापस 0;
 
   /* Tail before head.  There is only one region to write to, up to head.  */
-  if (rb->head > rb->tail + 1)
+  अगर (rb->शीर्ष > rb->पुच्छ + 1)
     {
-      iov[iov_count].iov_base = rb->buffer + rb->tail;
-      iov[iov_count].iov_len = rb->head - rb->tail - 1;
-      iov_count++;
+      iov[iov_गिनती].iov_base = rb->बफर + rb->पुच्छ;
+      iov[iov_गिनती].iov_len = rb->शीर्ष - rb->पुच्छ - 1;
+      iov_गिनती++;
     }
   /* Tail after or equal to head.  There are two regions to write to, up to the
    * end of the buffer and from the beginning of the buffer to head.  */
-  else
+  अन्यथा
     {
-      iov[iov_count].iov_base = rb->buffer + rb->tail;
-      iov[iov_count].iov_len = rb->head == 0 ? rb->size - rb->tail - 1 : rb->size - rb->tail;
-      iov_count++;
+      iov[iov_गिनती].iov_base = rb->बफर + rb->पुच्छ;
+      iov[iov_गिनती].iov_len = rb->शीर्ष == 0 ? rb->आकार - rb->पुच्छ - 1 : rb->आकार - rb->पुच्छ;
+      iov_गिनती++;
 
-      if (rb->head > 1)
+      अगर (rb->शीर्ष > 1)
         {
-          iov[iov_count].iov_base = rb->buffer;
-          iov[iov_count].iov_len = rb->head - 1;
-          iov_count++;
+          iov[iov_गिनती].iov_base = rb->बफर;
+          iov[iov_गिनती].iov_len = rb->शीर्ष - 1;
+          iov_गिनती++;
         }
     }
-  return iov_count;
+  वापस iov_गिनती;
 }
 
 /* manually advance the head after a successful read.  */
-static void
-ring_buffer_advance_nocheck_head (struct ring_buffer *rb, size_t amount)
+अटल व्योम
+ring_बफर_advance_nocheck_शीर्ष (काष्ठा ring_बफर *rb, माप_प्रकार amount)
 {
-  rb->head = (rb->head + amount) % rb->size;
+  rb->शीर्ष = (rb->शीर्ष + amount) % rb->आकार;
 }
 
 /* manually advance the tail after a successful write.  */
-static void
-ring_buffer_advance_nocheck_tail (struct ring_buffer *rb, size_t amount)
+अटल व्योम
+ring_बफर_advance_nocheck_पुच्छ (काष्ठा ring_बफर *rb, माप_प्रकार amount)
 {
-  rb->tail = (rb->tail + amount) % rb->size;
+  rb->पुच्छ = (rb->पुच्छ + amount) % rb->आकार;
 }
 
-size_t
-ring_buffer_get_data_available (struct ring_buffer *rb)
+माप_प्रकार
+ring_बफर_get_तथ्य_available (काष्ठा ring_बफर *rb)
 {
-  if (rb->head <= rb->tail)
-    return rb->tail - rb->head;
+  अगर (rb->शीर्ष <= rb->पुच्छ)
+    वापस rb->पुच्छ - rb->शीर्ष;
 
-  return rb->size - rb->head + rb->tail;
+  वापस rb->आकार - rb->शीर्ष + rb->पुच्छ;
 }
 
-size_t
-ring_buffer_get_size (struct ring_buffer *rb)
+माप_प्रकार
+ring_बफर_get_आकार (काष्ठा ring_बफर *rb)
 {
-  return rb->size - 1;
+  वापस rb->आकार - 1;
 }
 
-size_t
-ring_buffer_get_space_available (struct ring_buffer *rb)
+माप_प्रकार
+ring_बफर_get_space_available (काष्ठा ring_बफर *rb)
 {
-  return rb->size - ring_buffer_get_data_available (rb) - 1;
+  वापस rb->आकार - ring_बफर_get_तथ्य_available (rb) - 1;
 }
 
-int
-ring_buffer_read (struct ring_buffer *rb, int fd, bool *is_eagain, libcrun_error_t *err)
+पूर्णांक
+ring_बफर_read (काष्ठा ring_बफर *rb, पूर्णांक fd, bool *is_eagain, libcrun_error_t *err)
 {
-  struct iovec iov[2];
-  int iov_count = 0;
+  काष्ठा iovec iov[2];
+  पूर्णांक iov_गिनती = 0;
   ssize_t ret;
 
   *is_eagain = false;
 
-  iov_count = ring_buffer_get_write_iov (rb, iov);
-  if (iov_count == 0)
+  iov_गिनती = ring_बफर_get_write_iov (rb, iov);
+  अगर (iov_गिनती == 0)
     {
       *is_eagain = true;
-      return 0;
+      वापस 0;
     }
 
-  ret = readv (fd, iov, iov_count);
-  if (UNLIKELY (ret < 0))
+  ret = readv (fd, iov, iov_गिनती);
+  अगर (UNLIKELY (ret < 0))
     {
       /* A terminal that was hung up fails with EIO.  As with EAGAIN, there
          is nothing to read until the state of the fd changes.  */
-      if (errno == EIO || errno == EAGAIN || errno == EWOULDBLOCK)
+      अगर (त्रुटि_सं == EIO || त्रुटि_सं == EAGAIN || त्रुटि_सं == EWOULDBLOCK)
         {
           *is_eagain = true;
-          return 0;
+          वापस 0;
         }
-      return crun_make_error (err, errno, "readv");
+      वापस crun_make_error (err, त्रुटि_सं, "readv");
     }
   /* The same holds at EOF.  */
-  if (ret == 0)
+  अगर (ret == 0)
     *is_eagain = true;
-  ring_buffer_advance_nocheck_tail (rb, ret);
-  return ret;
+  ring_बफर_advance_nocheck_पुच्छ (rb, ret);
+  वापस ret;
 }
 
-int
-ring_buffer_write (struct ring_buffer *rb, int fd, bool *is_eagain, libcrun_error_t *err)
+पूर्णांक
+ring_बफर_write (काष्ठा ring_बफर *rb, पूर्णांक fd, bool *is_eagain, libcrun_error_t *err)
 {
   ssize_t ret;
-  struct iovec iov[2];
-  int iov_count = 0;
+  काष्ठा iovec iov[2];
+  पूर्णांक iov_गिनती = 0;
 
   *is_eagain = false;
 
-  iov_count = ring_buffer_get_read_iov (rb, iov);
-  if (iov_count == 0)
+  iov_गिनती = ring_बफर_get_read_iov (rb, iov);
+  अगर (iov_गिनती == 0)
     {
       *is_eagain = true;
-      return 0;
+      वापस 0;
     }
 
-  ret = writev (fd, iov, iov_count);
-  if (UNLIKELY (ret < 0))
+  ret = writev (fd, iov, iov_गिनती);
+  अगर (UNLIKELY (ret < 0))
     {
       /* A terminal that was hung up fails with EIO.  As with EAGAIN, there
          is nothing to write until the state of the fd changes.  */
-      if (errno == EIO || errno == EAGAIN || errno == EWOULDBLOCK)
+      अगर (त्रुटि_सं == EIO || त्रुटि_सं == EAGAIN || त्रुटि_सं == EWOULDBLOCK)
         {
           *is_eagain = true;
-          return 0;
+          वापस 0;
         }
-      return crun_make_error (err, errno, "writev");
+      वापस crun_make_error (err, त्रुटि_सं, "writev");
     }
-  ring_buffer_advance_nocheck_head (rb, ret);
+  ring_बफर_advance_nocheck_शीर्ष (rb, ret);
   /* If the buffer is empty, reset the head and tail.  */
-  if (rb->head == rb->tail)
+  अगर (rb->शीर्ष == rb->पुच्छ)
     {
-      rb->head = 0;
-      rb->tail = 0;
+      rb->शीर्ष = 0;
+      rb->पुच्छ = 0;
     }
-  return ret;
+  वापस ret;
 }
 
-struct ring_buffer *
-ring_buffer_make (size_t size)
+काष्ठा ring_बफर *
+ring_बफर_make (माप_प्रकार आकार)
 {
-  struct ring_buffer *rb = xmalloc (sizeof (struct ring_buffer));
+  काष्ठा ring_बफर *rb = xmalloc (माप (काष्ठा ring_बफर));
 
   /* The extra byte is used to distinguish between full and empty buffer.  */
-  rb->size = size + 1;
-  rb->buffer = xmalloc (rb->size);
-  rb->head = 0;
-  rb->tail = 0;
+  rb->आकार = आकार + 1;
+  rb->बफर = xmalloc (rb->आकार);
+  rb->शीर्ष = 0;
+  rb->पुच्छ = 0;
 
-  return rb;
+  वापस rb;
 }
 
-void
-ring_buffer_free (struct ring_buffer *rb)
+व्योम
+ring_बफर_free (काष्ठा ring_बफर *rb)
 {
-  if (rb == NULL)
-    return;
-  free (rb->buffer);
-  free (rb);
+  अगर (rb == शून्य)
+    वापस;
+  मुक्त (rb->बफर);
+  मुक्त (rb);
 }

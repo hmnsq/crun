@@ -15,81 +15,81 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE
+#घोषणा _GNU_SOURCE
 
-#include <config.h>
-#include "../custom-handler.h"
-#include "../container.h"
-#include "../utils.h"
-#include "../linux.h"
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/socket.h>
-#include <errno.h>
-#include <sys/mount.h>
-#include <sys/param.h>
-#include <sys/types.h>
-#include <sys/sysmacros.h>
-#include <fcntl.h>
-#include <sched.h>
-#include <ocispec/runtime_spec_schema_config_schema.h>
+#समावेश <config.h>
+#समावेश "../custom-handler.h"
+#समावेश "../container.h"
+#समावेश "../utils.h"
+#समावेश "../linux.h"
+#समावेश <unistd.h>
+#समावेश <sys/stat.h>
+#समावेश <sys/socket.h>
+#समावेश <errno.h>
+#समावेश <sys/mount.h>
+#समावेश <sys/param.h>
+#समावेश <sys/types.h>
+#समावेश <sys/sysmacros.h>
+#समावेश <fcntl.h>
+#समावेश <sched.h>
+#समावेश <ocispec/runtime_spec_schema_config_schema.h>
 
-#ifdef HAVE_DLOPEN
+#अगर_घोषित HAVE_DLOPEN
 #  include <dlfcn.h>
-#endif
+#पूर्ण_अगर
 
-#ifdef HAVE_LIBKRUN
+#अगर_घोषित HAVE_LIBKRUN
 #  include <libkrun.h>
-#endif
+#पूर्ण_अगर
 
 /* This allows us to build even with headers from older libkrun versions.
  * If the installed version of libkrun doesn't support this feature,
  * krun_add_net_unixstream() will return EINVAL.
  */
-#ifndef NET_FLAG_DHCP_CLIENT
+#अगर_अघोषित NET_FLAG_DHCP_CLIENT
 #  define NET_FLAG_DHCP_CLIENT (1 << 1)
-#endif
+#पूर्ण_अगर
 /* libkrun has a hard-limit of 16 vCPUs per microVM. */
-#define LIBKRUN_MAX_VCPUS 16
+#घोषणा LIBKRUN_MAX_VCPUS 16
 
 /* If the user doesn't configure the RAM amount, fallback to this value. */
-#define LIBKRUN_DEFAULT_RAM_MIB 1024
+#घोषणा LIBKRUN_DEFAULT_RAM_MIB 1024
 
 /* The minimum amount of RAM for a viable microVM is 128 MB. */
-#define LIBKRUN_MINIMUM_RAM_MIB 128
+#घोषणा LIBKRUN_MINIMUM_RAM_MIB 128
 
 /* crun dumps the container configuration into this file, which will be read by
  * libkrun to set up the environment for the workload inside the microVM.
  */
-#define KRUN_CONFIG_FILE ".krun_config.json"
+#घोषणा KRUN_CONFIG_FILE ".krun_config.json"
 
 /* The presence of this file indicates this is a container intended to be run
  * as a confidential workload inside a SEV-powered TEE.
  */
-#define KRUN_SEV_FILE "/krun-sev.json"
+#घोषणा KRUN_SEV_FILE "/krun-sev.json"
 
 /* This file contains configuration parameters for the microVM. crun needs to
  * read and parse it, using the information obtained from it to configure
  * libkrun as required.
  */
-#define KRUN_VM_FILE "/.krun_vm.json"
+#घोषणा KRUN_VM_FILE "/.krun_vm.json"
 
 /* KRUN_VM_FILE holds a handful of settings and it is parsed by crun
  * itself before the container process exists, refuse anything bigger.
  */
-#define KRUN_VM_FILE_MAX_SIZE (64 * 1024)
+#घोषणा KRUN_VM_FILE_MAX_आकार (64 * 1024)
 
-#define KRUN_FLAVOR_AWS_NITRO "aws-nitro"
-#define KRUN_FLAVOR_SEV "sev"
+#घोषणा KRUN_FLAVOR_AWS_NITRO "aws-nitro"
+#घोषणा KRUN_FLAVOR_SEV "sev"
 
-#define FD_PAIR_PARENT 0
-#define FD_PAIR_CHILD 1
+#घोषणा FD_PAIR_PARENT 0
+#घोषणा FD_PAIR_CHILD 1
 
-struct krun_config
+काष्ठा krun_config
 {
-  void *handle;
-  void *handle_sev;
-  void *handle_awsnitro;
+  व्योम *handle;
+  व्योम *handle_sev;
+  व्योम *handle_awsnitro;
   bool sev;
   bool awsnitro;
   int32_t ctx_id;
@@ -97,128 +97,128 @@ struct krun_config
   int32_t ctx_id_awsnitro;
   bool has_kvm;
   bool has_awsnitro;
-  int passt_fds[2];
+  पूर्णांक passt_fds[2];
   json_object *config_doc;
-  json_object *config_tree;
+  json_object *config_वृक्ष;
   bool use_passt;
-  const char *tap_name;
-  int gpu_render_server_fd;
-  int gpu_flags;
+  स्थिर अक्षर *tap_name;
+  पूर्णांक gpu_render_server_fd;
+  पूर्णांक gpu_flags;
 };
 
 /* libkrun handler.  */
-#if HAVE_DLOPEN && HAVE_LIBKRUN
-static int32_t
-libkrun_create_context (void *handle, libcrun_error_t *err)
+#अगर HAVE_DLOPEN && HAVE_LIBKRUN
+अटल int32_t
+libkrun_create_context (व्योम *handle, libcrun_error_t *err)
 {
   int32_t (*krun_create_ctx) ();
   int32_t ctx_id;
 
   krun_create_ctx = dlsym (handle, "krun_create_ctx");
-  if (krun_create_ctx == NULL)
-    return crun_make_error (err, 0, "could not find symbol in the krun library");
+  अगर (krun_create_ctx == शून्य)
+    वापस crun_make_error (err, 0, "could not find symbol in the krun library");
 
   ctx_id = krun_create_ctx ();
-  if (UNLIKELY (ctx_id < 0))
-    return crun_make_error (err, -ctx_id, "could not create krun context");
+  अगर (UNLIKELY (ctx_id < 0))
+    वापस crun_make_error (err, -ctx_id, "could not create krun context");
 
-  return ctx_id;
+  वापस ctx_id;
 }
 
-static int
-libkrun_configure_kernel (uint32_t ctx_id, void *handle, json_object *config_tree, libcrun_error_t *err)
+अटल पूर्णांक
+libkrun_configure_kernel (uint32_t ctx_id, व्योम *handle, json_object *config_वृक्ष, libcrun_error_t *err)
 {
-  int32_t (*krun_set_kernel) (uint32_t ctx_id, const char *kernel_path,
-                              uint32_t kernel_format, const char *initrd_path, const char *kernel_cmdline);
-  json_object *kernel_path = NULL;
-  json_object *kernel_format = NULL;
-  json_object *val_initrd_path = NULL;
-  json_object *val_kernel_cmdline = NULL;
-  const char *initrd_path = NULL;
-  const char *kernel_cmdline = NULL;
-  int ret;
+  int32_t (*krun_set_kernel) (uint32_t ctx_id, स्थिर अक्षर *kernel_path,
+                              uint32_t kernel_format, स्थिर अक्षर *initrd_path, स्थिर अक्षर *kernel_cmdline);
+  json_object *kernel_path = शून्य;
+  json_object *kernel_format = शून्य;
+  json_object *val_initrd_path = शून्य;
+  json_object *val_kernel_cmdline = शून्य;
+  स्थिर अक्षर *initrd_path = शून्य;
+  स्थिर अक्षर *kernel_cmdline = शून्य;
+  पूर्णांक ret;
 
   /* kernel_path and kernel_format must be present */
-  kernel_path = json_object_object_get (config_tree, "kernel_path");
-  if (kernel_path == NULL || ! json_object_is_type (kernel_path, json_type_string))
-    return 0;
+  kernel_path = json_object_object_get (config_वृक्ष, "kernel_path");
+  अगर (kernel_path == शून्य || ! json_object_is_type (kernel_path, json_type_string))
+    वापस 0;
 
-  kernel_format = json_object_object_get (config_tree, "kernel_format");
-  if (kernel_format == NULL || ! json_object_is_type (kernel_format, json_type_int))
-    return 0;
+  kernel_format = json_object_object_get (config_वृक्ष, "kernel_format");
+  अगर (kernel_format == शून्य || ! json_object_is_type (kernel_format, json_type_int))
+    वापस 0;
 
   /* initrd and kernel_cmdline are optional */
-  val_initrd_path = json_object_object_get (config_tree, "initrd_path");
-  if (val_initrd_path != NULL && json_object_is_type (val_initrd_path, json_type_string))
+  val_initrd_path = json_object_object_get (config_वृक्ष, "initrd_path");
+  अगर (val_initrd_path != शून्य && json_object_is_type (val_initrd_path, json_type_string))
     initrd_path = json_object_get_string (val_initrd_path);
 
-  val_kernel_cmdline = json_object_object_get (config_tree, "kernel_cmdline");
-  if (val_kernel_cmdline != NULL && json_object_is_type (val_kernel_cmdline, json_type_string))
+  val_kernel_cmdline = json_object_object_get (config_वृक्ष, "kernel_cmdline");
+  अगर (val_kernel_cmdline != शून्य && json_object_is_type (val_kernel_cmdline, json_type_string))
     kernel_cmdline = json_object_get_string (val_kernel_cmdline);
 
   krun_set_kernel = dlsym (handle, "krun_set_kernel");
-  if (krun_set_kernel == NULL)
-    return crun_make_error (err, 0, "could not find symbol in krun library");
+  अगर (krun_set_kernel == शून्य)
+    वापस crun_make_error (err, 0, "could not find symbol in krun library");
 
   ret = krun_set_kernel (ctx_id,
                          json_object_get_string (kernel_path),
                          (uint32_t) json_object_get_int64 (kernel_format),
                          initrd_path, kernel_cmdline);
 
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, -ret, "could not configure a krun external kernel");
+  अगर (UNLIKELY (ret < 0))
+    वापस crun_make_error (err, -ret, "could not configure a krun external kernel");
 
-  return 0;
+  वापस 0;
 }
 
-static int
-libkrun_read_vm_config (struct krun_config *kconf, int rootfsfd, const char *rootfs, libcrun_error_t *err)
+अटल पूर्णांक
+libkrun_read_vm_config (काष्ठा krun_config *kconf, पूर्णांक rootfsfd, स्थिर अक्षर *rootfs, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_free char *config = NULL;
-  cleanup_close int pathfd = -1;
-  cleanup_close int fd = -1;
+  पूर्णांक ret;
+  cleanup_free अक्षर *config = शून्य;
+  cleanup_close पूर्णांक pathfd = -1;
+  cleanup_close पूर्णांक fd = -1;
   proc_fd_path_t fd_path;
-  struct stat st;
+  काष्ठा stat st;
 
   /* The content of the rootfs is controlled by the user: look at the file through an
      O_PATH descriptor first and refuse anything that is not a small regular file, as
      opening a FIFO blocks and a device node must not be accessed.  */
   pathfd = safe_openat (rootfsfd, rootfs, KRUN_VM_FILE, O_PATH | O_CLOEXEC | O_NOFOLLOW, 0, err);
-  if (pathfd < 0)
+  अगर (pathfd < 0)
     {
       // The configuration file is optional, don't generate an error if it's missing.
-      if (crun_error_get_errno (err) == ENOENT)
+      अगर (crun_error_get_errno (err) == ENOENT)
         {
           crun_error_release (err);
-          return 0;
+          वापस 0;
         }
-      return pathfd;
+      वापस pathfd;
     }
 
-  ret = fstat (pathfd, &st);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "stat `%s`", KRUN_VM_FILE);
+  ret = ख_स्थिति (pathfd, &st);
+  अगर (UNLIKELY (ret < 0))
+    वापस crun_make_error (err, त्रुटि_सं, "stat `%s`", KRUN_VM_FILE);
 
-  if (! S_ISREG (st.st_mode))
-    return crun_make_error (err, 0, "`%s` is not a regular file", KRUN_VM_FILE);
+  अगर (! S_ISREG (st.st_mode))
+    वापस crun_make_error (err, 0, "`%s` is not a regular file", KRUN_VM_FILE);
 
   get_proc_self_fd_path (fd_path, pathfd);
 
-  fd = open (fd_path, O_RDONLY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s`", KRUN_VM_FILE);
+  fd = खोलो (fd_path, O_RDONLY | O_CLOEXEC);
+  अगर (UNLIKELY (fd < 0))
+    वापस crun_make_error (err, त्रुटि_सं, "open `%s`", KRUN_VM_FILE);
 
-  ret = read_all_fd_with_max_size (fd, KRUN_VM_FILE, &config, NULL, KRUN_VM_FILE_MAX_SIZE, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_fd_with_max_आकार (fd, KRUN_VM_FILE, &config, शून्य, KRUN_VM_FILE_MAX_आकार, err);
+  अगर (UNLIKELY (ret < 0))
+    वापस ret;
 
-  ret = parse_json_file (&kconf->config_doc, config, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = parse_json_file (&kconf->config_doc, config, शून्य, err);
+  अगर (UNLIKELY (ret < 0))
+    वापस ret;
 
-  kconf->config_tree = kconf->config_doc;
-  return 0;
+  kconf->config_वृक्ष = kconf->config_doc;
+  वापस 0;
 }
 
 /*
@@ -230,241 +230,241 @@ libkrun_read_vm_config (struct krun_config *kconf, int rootfsfd, const char *roo
  * OCI annotations -> krun_vm.json.
  * The config file is only used if "use_config_file" is "true".
  */
-static int
-libkrun_parse_resource_configuration (json_object *config_tree, libcrun_container_t *container, const char *annotation, const char *key, bool use_config_file)
+अटल पूर्णांक
+libkrun_parse_resource_configuration (json_object *config_वृक्ष, libcrun_container_t *container, स्थिर अक्षर *annotation, स्थिर अक्षर *कुंजी, bool use_config_file)
 {
-  char *val_str, *endptr;
-  int val = -1;
-  json_object *val_json = NULL;
+  अक्षर *val_str, *endptr;
+  पूर्णांक val = -1;
+  json_object *val_json = शून्य;
 
-  val_str = (char *) find_annotation (container, annotation);
-  if (val_str != NULL)
+  val_str = (अक्षर *) find_annotation (container, annotation);
+  अगर (val_str != शून्य)
     {
-      errno = 0;
-      val = (int) strtol (val_str, &endptr, 10);
-      if (errno != 0 || endptr == val_str || *endptr != '\0')
+      त्रुटि_सं = 0;
+      val = (पूर्णांक) म_से_दीर्घ (val_str, &endptr, 10);
+      अगर (त्रुटि_सं != 0 || endptr == val_str || *endptr != '\0')
         /* Annotations value is not a valid integer. */
-        error (EXIT_FAILURE, 0, "krun annotation %s value cannot be converted to an integer", annotation);
+        error (निकास_त्रुटि, 0, "krun annotation %s value cannot be converted to an integer", annotation);
 
-      if (val < 0)
-        error (EXIT_FAILURE, 0, "krun annotation %s value must be a positive integer", annotation);
+      अगर (val < 0)
+        error (निकास_त्रुटि, 0, "krun annotation %s value must be a positive integer", annotation);
 
-      return val;
+      वापस val;
     }
-  else if (use_config_file && config_tree != NULL)
+  अन्यथा अगर (use_config_file && config_वृक्ष != शून्य)
     {
-      val_json = json_object_object_get (config_tree, key);
-      if (val_json == NULL)
-        return val;
-      if (! json_object_is_type (val_json, json_type_int))
-        error (EXIT_FAILURE, 0, "krun krun_vm.json %s value is not an integer", key);
+      val_json = json_object_object_get (config_वृक्ष, कुंजी);
+      अगर (val_json == शून्य)
+        वापस val;
+      अगर (! json_object_is_type (val_json, json_type_int))
+        error (निकास_त्रुटि, 0, "krun krun_vm.json %s value is not an integer", कुंजी);
 
-      val = (int) json_object_get_int64 (val_json);
+      val = (पूर्णांक) json_object_get_int64 (val_json);
     }
 
-  return val;
+  वापस val;
 }
 
-static int
-libkrun_parse_string_configuration (json_object *config_tree, libcrun_container_t *container,
-                                    const char *annotation, const char *key,
-                                    const char **value, libcrun_error_t *err, bool use_config_file)
+अटल पूर्णांक
+libkrun_parse_string_configuration (json_object *config_वृक्ष, libcrun_container_t *container,
+                                    स्थिर अक्षर *annotation, स्थिर अक्षर *कुंजी,
+                                    स्थिर अक्षर **मूल्य, libcrun_error_t *err, bool use_config_file)
 {
-  const char *val;
-  json_object *val_json = NULL;
+  स्थिर अक्षर *val;
+  json_object *val_json = शून्य;
 
-  *value = NULL;
+  *मूल्य = शून्य;
 
   val = find_annotation (container, annotation);
-  if (val != NULL)
+  अगर (val != शून्य)
     {
-      *value = val;
-      return 0;
+      *मूल्य = val;
+      वापस 0;
     }
 
-  if (! use_config_file || config_tree == NULL)
-    return 0;
+  अगर (! use_config_file || config_वृक्ष == शून्य)
+    वापस 0;
 
-  val_json = json_object_object_get (config_tree, key);
-  if (val_json == NULL)
-    return 0;
+  val_json = json_object_object_get (config_वृक्ष, कुंजी);
+  अगर (val_json == शून्य)
+    वापस 0;
 
-  if (! json_object_is_type (val_json, json_type_string))
-    return crun_make_error (err, 0, ".krun_vm.json %s value is not a string", key);
+  अगर (! json_object_is_type (val_json, json_type_string))
+    वापस crun_make_error (err, 0, ".krun_vm.json %s value is not a string", कुंजी);
 
-  *value = json_object_get_string (val_json);
-  return 0;
+  *मूल्य = json_object_get_string (val_json);
+  वापस 0;
 }
 
-static void
-libkrun_make_tap_mac (const char *id, uint8_t mac[6])
+अटल व्योम
+libkrun_make_tap_mac (स्थिर अक्षर *id, uint8_t mac[6])
 {
   uint64_t hash = 14695981039346656037ULL;
-  size_t i;
+  माप_प्रकार i;
 
-  for (; *id != '\0'; id++)
+  क्रम (; *id != '\0'; id++)
     {
       hash ^= (uint8_t) *id;
       hash *= 1099511628211ULL;
     }
 
-  for (i = 0; i < 6; i++)
+  क्रम (i = 0; i < 6; i++)
     mac[i] = (uint8_t) (hash >> (i * 8));
 
   mac[0] = (mac[0] & 0xfe) | 0x02;
 }
 
-static int
-libkrun_configure_vm (uint32_t ctx_id, void *handle, struct krun_config *kconf, libcrun_container_t *container, libcrun_error_t *err)
+अटल पूर्णांक
+libkrun_configure_vm (uint32_t ctx_id, व्योम *handle, काष्ठा krun_config *kconf, libcrun_container_t *container, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  int32_t (*krun_set_vm_config) (uint32_t ctx_id, uint8_t num_vcpus, uint32_t ram_mib);
-  int32_t (*krun_add_net_unixstream) (uint32_t ctx_id, const char *c_path, int fd, uint8_t *const c_mac, uint32_t features, uint32_t flags);
-  int32_t (*krun_add_net_tap) (uint32_t ctx_id, const char *c_tap_name, const uint8_t *c_mac, uint32_t features, uint32_t flags);
+  int32_t (*krun_set_vm_config) (uint32_t ctx_id, uint8_t अंक_vcpus, uint32_t ram_mib);
+  int32_t (*krun_add_net_unixstream) (uint32_t ctx_id, स्थिर अक्षर *c_path, पूर्णांक fd, uint8_t *स्थिर c_mac, uint32_t features, uint32_t flags);
+  int32_t (*krun_add_net_tap) (uint32_t ctx_id, स्थिर अक्षर *c_tap_name, स्थिर uint8_t *c_mac, uint32_t features, uint32_t flags);
   int32_t (*krun_set_gpu_options) (uint32_t ctx_id, uint32_t virgl_flags);
-  int32_t (*krun_set_gpu_render_server_fd) (uint32_t ctx_id, int fd);
-  int cpus, ram_mib, nested_virt, ret;
+  int32_t (*krun_set_gpu_render_server_fd) (uint32_t ctx_id, पूर्णांक fd);
+  पूर्णांक cpus, ram_mib, nested_virt, ret;
   cpu_set_t set;
 
   /* We let the OCI set the number of vCPUs for the VM, since cgroups CPU restrictions still apply. */
-  cpus = libkrun_parse_resource_configuration (kconf->config_tree, container, "krun.cpus", "cpus", true);
-  if (cpus <= 0)
+  cpus = libkrun_parse_resource_configuration (kconf->config_वृक्ष, container, "krun.cpus", "cpus", true);
+  अगर (cpus <= 0)
     {
       CPU_ZERO (&set);
-      if (sched_getaffinity (getpid (), sizeof (set), &set) == 0)
-        cpus = MIN (CPU_COUNT (&set), LIBKRUN_MAX_VCPUS);
-      else
+      अगर (sched_getaffinity (getpid (), माप (set), &set) == 0)
+        cpus = MIN (CPU_गिनती (&set), LIBKRUN_MAX_VCPUS);
+      अन्यथा
         cpus = 1;
     }
 
   /* We let the OCI set the amount of RAM for the VM, since cgroups memory restrictions still apply. */
-  ram_mib = libkrun_parse_resource_configuration (kconf->config_tree, container, "krun.ram_mib", "ram_mib", true);
-  if (ram_mib <= LIBKRUN_MINIMUM_RAM_MIB)
+  ram_mib = libkrun_parse_resource_configuration (kconf->config_वृक्ष, container, "krun.ram_mib", "ram_mib", true);
+  अगर (ram_mib <= LIBKRUN_MINIMUM_RAM_MIB)
     {
-      if (def && def->linux && def->linux->resources && def->linux->resources->memory
+      अगर (def && def->linux && def->linux->resources && def->linux->resources->memory
           && def->linux->resources->memory->limit_present)
         ram_mib = def->linux->resources->memory->limit / (1024 * 1024);
-      else
+      अन्यथा
         ram_mib = LIBKRUN_DEFAULT_RAM_MIB;
     }
 
   krun_set_vm_config = dlsym (handle, "krun_set_vm_config");
 
-  if (krun_set_vm_config == NULL)
-    return crun_make_error (err, 0, "could not find symbol in the krun library");
+  अगर (krun_set_vm_config == शून्य)
+    वापस crun_make_error (err, 0, "could not find symbol in the krun library");
 
   ret = krun_set_vm_config (ctx_id, cpus, ram_mib);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, -ret, "could not set krun vm configuration");
+  अगर (UNLIKELY (ret < 0))
+    वापस crun_make_error (err, -ret, "could not set krun vm configuration");
 
-  nested_virt = libkrun_parse_resource_configuration (kconf->config_tree, container, "krun.nested_virt", "nested_virt", false);
-  if (nested_virt > 0)
+  nested_virt = libkrun_parse_resource_configuration (kconf->config_वृक्ष, container, "krun.nested_virt", "nested_virt", false);
+  अगर (nested_virt > 0)
     {
-      int32_t (*krun_check_nested_virt) (void);
+      int32_t (*krun_check_nested_virt) (व्योम);
       int32_t (*krun_set_nested_virt) (uint32_t ctx_id, bool enabled);
 
       krun_check_nested_virt = dlsym (handle, "krun_check_nested_virt");
-      if (krun_check_nested_virt != NULL && krun_check_nested_virt () != 1)
+      अगर (krun_check_nested_virt != शून्य && krun_check_nested_virt () != 1)
         libcrun_warning ("nested virtualization requested but may not be supported on this host");
 
       krun_set_nested_virt = dlsym (handle, "krun_set_nested_virt");
-      if (krun_set_nested_virt == NULL)
-        return crun_make_error (err, 0, "could not find symbol `krun_set_nested_virt` in the krun library");
+      अगर (krun_set_nested_virt == शून्य)
+        वापस crun_make_error (err, 0, "could not find symbol `krun_set_nested_virt` in the krun library");
 
       ret = krun_set_nested_virt (ctx_id, true);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, -ret, "could not enable nested virtualization");
+      अगर (UNLIKELY (ret < 0))
+        वापस crun_make_error (err, -ret, "could not enable nested virtualization");
     }
 
-  if (kconf->tap_name != NULL)
+  अगर (kconf->tap_name != शून्य)
     {
       krun_add_net_tap = dlsym (handle, "krun_add_net_tap");
-      if (krun_add_net_tap == NULL)
-        return crun_make_error (err, 0, "could not find symbol `krun_add_net_tap` in the krun library");
+      अगर (krun_add_net_tap == शून्य)
+        वापस crun_make_error (err, 0, "could not find symbol `krun_add_net_tap` in the krun library");
 
       uint8_t mac[6];
       libkrun_make_tap_mac (container->context->id, mac);
       ret = krun_add_net_tap (ctx_id, kconf->tap_name, &mac[0], COMPAT_NET_FEATURES, 0);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, -ret, "could not add krun TAP interface `%s`", kconf->tap_name);
+      अगर (UNLIKELY (ret < 0))
+        वापस crun_make_error (err, -ret, "could not add krun TAP interface `%s`", kconf->tap_name);
     }
-  else if (kconf->use_passt)
+  अन्यथा अगर (kconf->use_passt)
     {
       krun_add_net_unixstream = dlsym (handle, "krun_add_net_unixstream");
-      if (krun_add_net_unixstream == NULL)
-        return crun_make_error (err, 0, "could not find symbol `krun_add_net_unixstream` in the krun library");
+      अगर (krun_add_net_unixstream == शून्य)
+        वापस crun_make_error (err, 0, "could not find symbol `krun_add_net_unixstream` in the krun library");
 
       uint8_t mac[] = { 0x5a, 0x94, 0xef, 0xe4, 0x0c, 0xee };
-      ret = krun_add_net_unixstream (ctx_id, NULL, kconf->passt_fds[FD_PAIR_PARENT], &mac[0], COMPAT_NET_FEATURES, NET_FLAG_DHCP_CLIENT);
-      if (UNLIKELY (ret == -EINVAL))
-        ret = krun_add_net_unixstream (ctx_id, NULL, kconf->passt_fds[FD_PAIR_PARENT], &mac[0], COMPAT_NET_FEATURES, 0);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, -ret, "could not set krun net configuration");
+      ret = krun_add_net_unixstream (ctx_id, शून्य, kconf->passt_fds[FD_PAIR_PARENT], &mac[0], COMPAT_NET_FEATURES, NET_FLAG_DHCP_CLIENT);
+      अगर (UNLIKELY (ret == -EINVAL))
+        ret = krun_add_net_unixstream (ctx_id, शून्य, kconf->passt_fds[FD_PAIR_PARENT], &mac[0], COMPAT_NET_FEATURES, 0);
+      अगर (UNLIKELY (ret < 0))
+        वापस crun_make_error (err, -ret, "could not set krun net configuration");
     }
 
-  if (kconf->gpu_flags > 0)
+  अगर (kconf->gpu_flags > 0)
     {
       krun_set_gpu_options = dlsym (kconf->handle, "krun_set_gpu_options");
-      if (krun_set_gpu_options == NULL)
-        return crun_make_error (err, 0, "gpu requested but the version of libkrun in this system does not support it");
+      अगर (krun_set_gpu_options == शून्य)
+        वापस crun_make_error (err, 0, "gpu requested but the version of libkrun in this system does not support it");
 
       ret = krun_set_gpu_options (kconf->ctx_id, kconf->gpu_flags);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, -ret, "gpu requested but could not configure virtio gpu device");
+      अगर (UNLIKELY (ret < 0))
+        वापस crun_make_error (err, -ret, "gpu requested but could not configure virtio gpu device");
 
-      if (kconf->gpu_flags & VIRGLRENDERER_RENDER_SERVER)
+      अगर (kconf->gpu_flags & VIRGLRENDERER_RENDER_SERVER)
         {
           krun_set_gpu_render_server_fd = dlsym (kconf->handle, "krun_set_gpu_render_server_fd");
-          if (krun_set_gpu_render_server_fd == NULL)
-            return crun_make_error (err, 0, "gpu with render server requested but the version of libkrun in this system does not support it");
+          अगर (krun_set_gpu_render_server_fd == शून्य)
+            वापस crun_make_error (err, 0, "gpu with render server requested but the version of libkrun in this system does not support it");
 
           ret = krun_set_gpu_render_server_fd (kconf->ctx_id, kconf->gpu_render_server_fd);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, -ret, "gpu with render server requested but could not configure its file descriptor");
+          अगर (UNLIKELY (ret < 0))
+            वापस crun_make_error (err, -ret, "gpu with render server requested but could not configure its file descriptor");
         }
     }
 
-  if (kconf->config_tree != NULL)
+  अगर (kconf->config_वृक्ष != शून्य)
     {
       /* Try to configure an external kernel. If the configuration file doesn't
        * specify a kernel, libkrun automatically fall back to using libkrunfw,
        * if the library is present and was loaded while creating the context.
        */
-      int custom_kernel = libkrun_parse_resource_configuration (kconf->config_tree, container, "krun.custom_kernel", "custom_kernel", false);
-      if (custom_kernel > 0)
+      पूर्णांक custom_kernel = libkrun_parse_resource_configuration (kconf->config_वृक्ष, container, "krun.custom_kernel", "custom_kernel", false);
+      अगर (custom_kernel > 0)
         {
-          ret = libkrun_configure_kernel (ctx_id, handle, kconf->config_tree, err);
-          if (UNLIKELY (ret))
-            return ret;
+          ret = libkrun_configure_kernel (ctx_id, handle, kconf->config_वृक्ष, err);
+          अगर (UNLIKELY (ret))
+            वापस ret;
         }
     }
 
-  return 0;
+  वापस 0;
 }
 
-static int
-libkrun_configure_flavor (void *cookie, libcrun_container_t *container, libcrun_error_t *err)
+अटल पूर्णांक
+libkrun_configure_flavor (व्योम *cookie, libcrun_container_t *container, libcrun_error_t *err)
 {
-  int ret, sev_indicated = 0, awsnitro_indicated = 0;
-  struct krun_config *kconf = (struct krun_config *) cookie;
-  const char *flavor = NULL;
-  void *close_handles[2];
+  पूर्णांक ret, sev_indicated = 0, awsnitro_indicated = 0;
+  काष्ठा krun_config *kconf = (काष्ठा krun_config *) cookie;
+  स्थिर अक्षर *flavor = शून्य;
+  व्योम *close_handles[2];
 
-  close_handles[0] = NULL;
-  close_handles[1] = NULL;
+  close_handles[0] = शून्य;
+  close_handles[1] = शून्य;
 
   // Check if the user provided the krun variant through OCI annotations.
   flavor = find_annotation (container, "krun.variant");
-  if (flavor != NULL)
+  अगर (flavor != शून्य)
     {
-      sev_indicated |= strcmp (flavor, KRUN_FLAVOR_SEV) == 0;
-      awsnitro_indicated |= strcmp (flavor, KRUN_FLAVOR_AWS_NITRO) == 0;
+      sev_indicated |= म_भेद (flavor, KRUN_FLAVOR_SEV) == 0;
+      awsnitro_indicated |= म_भेद (flavor, KRUN_FLAVOR_AWS_NITRO) == 0;
     }
 
-  if (sev_indicated)
+  अगर (sev_indicated)
     {
-      if (kconf->handle_sev == NULL)
-        error (EXIT_FAILURE, 0, "the container requires libkrun-sev but it's not available");
+      अगर (kconf->handle_sev == शून्य)
+        error (निकास_त्रुटि, 0, "the container requires libkrun-sev but it's not available");
 
       close_handles[0] = kconf->handle;
       close_handles[1] = kconf->handle_awsnitro;
@@ -473,10 +473,10 @@ libkrun_configure_flavor (void *cookie, libcrun_container_t *container, libcrun_
       kconf->ctx_id = kconf->ctx_id_sev;
       kconf->sev = true;
     }
-  else if (awsnitro_indicated)
+  अन्यथा अगर (awsnitro_indicated)
     {
-      if (kconf->handle_awsnitro == NULL)
-        error (EXIT_FAILURE, 0, "the container requires libkrun-awsnitro but it's not available");
+      अगर (kconf->handle_awsnitro == शून्य)
+        error (निकास_त्रुटि, 0, "the container requires libkrun-awsnitro but it's not available");
 
       close_handles[0] = kconf->handle;
       close_handles[1] = kconf->handle_sev;
@@ -485,355 +485,355 @@ libkrun_configure_flavor (void *cookie, libcrun_container_t *container, libcrun_
       kconf->ctx_id = kconf->ctx_id_awsnitro;
       kconf->awsnitro = true;
     }
-  else
+  अन्यथा
     {
-      if (kconf->handle == NULL)
-        error (EXIT_FAILURE, 0, "the container requires libkrun but it's not available");
+      अगर (kconf->handle == शून्य)
+        error (निकास_त्रुटि, 0, "the container requires libkrun but it's not available");
 
       close_handles[0] = kconf->handle_sev;
       close_handles[1] = kconf->handle_awsnitro;
     }
 
   // We no longer need the other two libkrun handles.
-  for (int i = 0; i < 2; i++)
+  क्रम (पूर्णांक i = 0; i < 2; i++)
     {
-      if (close_handles[i] == NULL)
-        continue;
+      अगर (close_handles[i] == शून्य)
+        जारी;
 
       ret = dlclose (close_handles[i]);
-      if (UNLIKELY (ret != 0))
-        return crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
+      अगर (UNLIKELY (ret != 0))
+        वापस crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
     }
 
-  return 0;
+  वापस 0;
 }
 
-static int
-libkrun_exec (void *cookie, libcrun_container_t *container, const char *pathname, char *const argv[])
+अटल पूर्णांक
+libkrun_exec (व्योम *cookie, libcrun_container_t *container, स्थिर अक्षर *pathname, अक्षर *स्थिर argv[])
 {
   runtime_spec_schema_config_schema *def = container->container_def;
   int32_t (*krun_set_log_level) (uint32_t level);
-  int (*krun_start_enter) (uint32_t ctx_id);
-  int32_t (*krun_add_virtiofs2) (uint32_t ctx_id, const char *c_tag, const char *c_path, uint64_t shm_size);
-  int32_t (*krun_set_root_disk) (uint32_t ctx_id, const char *disk_path);
-  int32_t (*krun_set_tee_config_file) (uint32_t ctx_id, const char *file_path);
-  int32_t (*krun_set_console_output) (uint32_t ctx_id, const char *c_filepath);
-  int32_t (*krun_set_exec) (uint32_t ctx_id, const char *exec_path,
-                            const char *const argv[], const char *const envp[]);
-  struct krun_config *kconf = (struct krun_config *) cookie;
-  void *handle;
+  पूर्णांक (*krun_start_enter) (uint32_t ctx_id);
+  int32_t (*krun_add_virtiofs2) (uint32_t ctx_id, स्थिर अक्षर *c_tag, स्थिर अक्षर *c_path, uint64_t shm_आकार);
+  int32_t (*krun_set_मूल_disk) (uint32_t ctx_id, स्थिर अक्षर *disk_path);
+  int32_t (*krun_set_tee_config_file) (uint32_t ctx_id, स्थिर अक्षर *file_path);
+  int32_t (*krun_set_console_output) (uint32_t ctx_id, स्थिर अक्षर *c_filepath);
+  int32_t (*krun_set_exec) (uint32_t ctx_id, स्थिर अक्षर *exec_path,
+                            स्थिर अक्षर *स्थिर argv[], स्थिर अक्षर *स्थिर envp[]);
+  काष्ठा krun_config *kconf = (काष्ठा krun_config *) cookie;
+  व्योम *handle;
   int32_t ctx_id, ret;
   libcrun_error_t err;
 
   ret = libkrun_configure_flavor (cookie, container, &err);
-  if (UNLIKELY (ret < 0))
+  अगर (UNLIKELY (ret < 0))
     {
-      int errcode = crun_error_get_errno (&err);
+      पूर्णांक errcode = crun_error_get_errno (&err);
       crun_error_release (&err);
-      error (EXIT_FAILURE, errcode, "unable to configure libkrun flavor");
+      error (निकास_त्रुटि, errcode, "unable to configure libkrun flavor");
     }
 
   // /dev/kvm is required for all non AWS nitro workloads.
-  if (! kconf->awsnitro && ! kconf->has_kvm)
-    error (EXIT_FAILURE, 0, "`/dev/kvm` unavailable");
+  अगर (! kconf->awsnitro && ! kconf->has_kvm)
+    error (निकास_त्रुटि, 0, "`/dev/kvm` unavailable");
 
   handle = kconf->handle;
   ctx_id = kconf->ctx_id;
 
   krun_set_log_level = dlsym (handle, "krun_set_log_level");
   krun_start_enter = dlsym (handle, "krun_start_enter");
-  if (krun_set_log_level == NULL || krun_start_enter == NULL)
-    error (EXIT_FAILURE, 0, "could not find symbol in the krun library");
+  अगर (krun_set_log_level == शून्य || krun_start_enter == शून्य)
+    error (निकास_त्रुटि, 0, "could not find symbol in the krun library");
 
   /* Set log level according to crun's verbosity. */
-  switch (libcrun_get_verbosity ())
+  चयन (libcrun_get_verbosity ())
     {
-    case LIBCRUN_VERBOSITY_DEBUG:
+    हाल LIBCRUN_VERBOSITY_DEBUG:
       krun_set_log_level (KRUN_LOG_LEVEL_DEBUG);
-      break;
-    case LIBCRUN_VERBOSITY_WARNING:
+      अवरोध;
+    हाल LIBCRUN_VERBOSITY_WARNING:
       krun_set_log_level (KRUN_LOG_LEVEL_WARN);
-      break;
-    default:
+      अवरोध;
+    शेष:
       krun_set_log_level (KRUN_LOG_LEVEL_ERROR);
-      break;
+      अवरोध;
     }
 
-  if (kconf->sev)
+  अगर (kconf->sev)
     {
-      krun_set_root_disk = dlsym (handle, "krun_set_root_disk");
+      krun_set_मूल_disk = dlsym (handle, "krun_set_root_disk");
       krun_set_tee_config_file = dlsym (handle, "krun_set_tee_config_file");
-      if (krun_set_root_disk == NULL || krun_set_tee_config_file == NULL)
-        error (EXIT_FAILURE, 0, "could not find symbol in `libkrun-sev.so`");
+      अगर (krun_set_मूल_disk == शून्य || krun_set_tee_config_file == शून्य)
+        error (निकास_त्रुटि, 0, "could not find symbol in `libkrun-sev.so`");
 
-      ret = krun_set_root_disk (ctx_id, "/disk.img");
-      if (UNLIKELY (ret < 0))
-        error (EXIT_FAILURE, -ret, "could not set root disk");
+      ret = krun_set_मूल_disk (ctx_id, "/disk.img");
+      अगर (UNLIKELY (ret < 0))
+        error (निकास_त्रुटि, -ret, "could not set root disk");
 
       ret = krun_set_tee_config_file (ctx_id, KRUN_SEV_FILE);
-      if (UNLIKELY (ret < 0))
-        error (EXIT_FAILURE, -ret, "could not set krun tee config file");
+      अगर (UNLIKELY (ret < 0))
+        error (निकास_त्रुटि, -ret, "could not set krun tee config file");
     }
-  else
+  अन्यथा
     {
-      json_object *val_virtiofs_tag = NULL;
-      json_object *val_virtiofs_shm_size = NULL;
-      const char *virtiofs_tag = NULL;
+      json_object *val_virtiofs_tag = शून्य;
+      json_object *val_virtiofs_shm_आकार = शून्य;
+      स्थिर अक्षर *virtiofs_tag = शून्य;
       // Default to a conservative DAX size of 512MB, just like krun_set_root() does.
-      uint64_t virtiofs_shm_size = 512 * 1024 * 1024ULL;
+      uint64_t virtiofs_shm_आकार = 512 * 1024 * 1024ULL;
 
-      if (kconf->config_tree != NULL)
+      अगर (kconf->config_वृक्ष != शून्य)
         {
-          val_virtiofs_tag = json_object_object_get (kconf->config_tree, "virtiofs_tag");
-          if (val_virtiofs_tag != NULL && json_object_is_type (val_virtiofs_tag, json_type_string))
+          val_virtiofs_tag = json_object_object_get (kconf->config_वृक्ष, "virtiofs_tag");
+          अगर (val_virtiofs_tag != शून्य && json_object_is_type (val_virtiofs_tag, json_type_string))
             virtiofs_tag = json_object_get_string (val_virtiofs_tag);
 
-          val_virtiofs_shm_size = json_object_object_get (kconf->config_tree, "virtiofs_shm_size");
-          if (val_virtiofs_shm_size != NULL && json_object_is_type (val_virtiofs_shm_size, json_type_int))
-            virtiofs_shm_size = json_object_get_uint64 (val_virtiofs_shm_size);
+          val_virtiofs_shm_आकार = json_object_object_get (kconf->config_वृक्ष, "virtiofs_shm_size");
+          अगर (val_virtiofs_shm_आकार != शून्य && json_object_is_type (val_virtiofs_shm_आकार, json_type_int))
+            virtiofs_shm_आकार = json_object_get_uint64 (val_virtiofs_shm_आकार);
         }
 
-      if (virtiofs_tag == NULL)
+      अगर (virtiofs_tag == शून्य)
         virtiofs_tag = "/dev/root";
 
       krun_add_virtiofs2 = dlsym (handle, "krun_add_virtiofs2");
 
-      if (krun_add_virtiofs2 == NULL)
-        error (EXIT_FAILURE, 0, "could not find symbol `krun_add_virtiofs2` in `libkrun.so`");
+      अगर (krun_add_virtiofs2 == शून्य)
+        error (निकास_त्रुटि, 0, "could not find symbol `krun_add_virtiofs2` in `libkrun.so`");
 
-      ret = krun_add_virtiofs2 (ctx_id, virtiofs_tag, "/", virtiofs_shm_size);
-      if (UNLIKELY (ret < 0))
-        error (EXIT_FAILURE, -ret, "could not add virtiofs root with tag `%s`", virtiofs_tag);
+      ret = krun_add_virtiofs2 (ctx_id, virtiofs_tag, "/", virtiofs_shm_आकार);
+      अगर (UNLIKELY (ret < 0))
+        error (निकास_त्रुटि, -ret, "could not add virtiofs root with tag `%s`", virtiofs_tag);
     }
 
-  if (kconf->awsnitro)
+  अगर (kconf->awsnitro)
     {
       krun_set_console_output = dlsym (handle, "krun_set_console_output");
       krun_set_exec = dlsym (handle, "krun_set_exec");
-      if (krun_set_console_output == NULL || krun_set_exec == NULL)
-        error (EXIT_FAILURE, 0, "could not find symbol in `libkrun-awsnitro.so`");
+      अगर (krun_set_console_output == शून्य || krun_set_exec == शून्य)
+        error (निकास_त्रुटि, 0, "could not find symbol in `libkrun-awsnitro.so`");
 
       // Redirect all enclave output (read from vsock) to stdout.
       ret = krun_set_console_output (ctx_id, "/dev/stdout");
-      if (UNLIKELY (ret < 0))
-        error (EXIT_FAILURE, -ret, "could not redirect enclave output to stdout");
+      अगर (UNLIKELY (ret < 0))
+        error (निकास_त्रुटि, -ret, "could not redirect enclave output to stdout");
 
-      ret = krun_set_exec (ctx_id, pathname, (const char *const *) argv,
-                           (const char *const *) def->process->env);
-      if (UNLIKELY (ret < 0))
-        error (EXIT_FAILURE, -ret, "could not set enclave execution arguments");
+      ret = krun_set_exec (ctx_id, pathname, (स्थिर अक्षर *स्थिर *) argv,
+                           (स्थिर अक्षर *स्थिर *) def->process->env);
+      अगर (UNLIKELY (ret < 0))
+        error (निकास_त्रुटि, -ret, "could not set enclave execution arguments");
     }
 
   ret = libkrun_configure_vm (ctx_id, handle, kconf, container, &err);
-  if (UNLIKELY (ret))
+  अगर (UNLIKELY (ret))
     {
-      int errcode = crun_error_get_errno (&err);
+      पूर्णांक errcode = crun_error_get_errno (&err);
       libcrun_error_t *tmp_err = &err;
       libcrun_error_report_and_release (tmp_err);
-      error (EXIT_FAILURE, errcode, "could not configure krun vm");
+      error (निकास_त्रुटि, errcode, "could not configure krun vm");
     }
 
   json_object_put (kconf->config_doc);
 
   ret = krun_start_enter (ctx_id);
-  if (UNLIKELY (ret < 0))
-    error (EXIT_FAILURE, -ret, "could not start krun");
+  अगर (UNLIKELY (ret < 0))
+    error (निकास_त्रुटि, -ret, "could not start krun");
 
-  return ret;
+  वापस ret;
 }
 
-static int
-libkrun_start_render_server (struct krun_config *kconf, libcrun_container_t *container, libcrun_error_t *err)
+अटल पूर्णांक
+libkrun_start_render_server (काष्ठा krun_config *kconf, libcrun_container_t *container, libcrun_error_t *err)
 {
-  int ret;
+  पूर्णांक ret;
 
-  kconf->gpu_flags = libkrun_parse_resource_configuration (kconf->config_tree, container, "krun.gpu_flags", "gpu_flags", false);
-  if (kconf->gpu_flags > 0)
+  kconf->gpu_flags = libkrun_parse_resource_configuration (kconf->config_वृक्ष, container, "krun.gpu_flags", "gpu_flags", false);
+  अगर (kconf->gpu_flags > 0)
     {
-      if (access ("/dev/dri", F_OK) != 0)
-        return crun_make_error (err, errno, "gpu requested but /dev/dri is not available");
+      अगर (access ("/dev/dri", F_OK) != 0)
+        वापस crun_make_error (err, त्रुटि_सं, "gpu requested but /dev/dri is not available");
 
-      if ((kconf->gpu_flags & VIRGLRENDERER_RENDER_SERVER) != 0)
+      अगर ((kconf->gpu_flags & VIRGLRENDERER_RENDER_SERVER) != 0)
         {
-          char *rs_argv[40];
-          int rs_argc = 0;
-          char fd_as_str[16];
-          int gpu_fds[2];
+          अक्षर *rs_argv[40];
+          पूर्णांक rs_argc = 0;
+          अक्षर fd_as_str[16];
+          पूर्णांक gpu_fds[2];
           pid_t pid;
-          int null;
+          पूर्णांक null;
 
-          if (access ("/usr/libexec/virgl_render_server", X_OK) != 0)
-            return crun_make_error (err, errno, "gpu with render server requested but couldn't find /usr/libexec/virgl_render_server binary");
+          अगर (access ("/usr/libexec/virgl_render_server", X_OK) != 0)
+            वापस crun_make_error (err, त्रुटि_सं, "gpu with render server requested but couldn't find /usr/libexec/virgl_render_server binary");
 
-          if (access ("/usr/bin/bwrap", X_OK) != 0)
-            return crun_make_error (err, errno, "gpu with render server requested but couldn't find /usr/bin/bwrap binary");
+          अगर (access ("/usr/bin/bwrap", X_OK) != 0)
+            वापस crun_make_error (err, त्रुटि_सं, "gpu with render server requested but couldn't find /usr/bin/bwrap binary");
 
           ret = socketpair (AF_UNIX, SOCK_SEQPACKET, 0, gpu_fds);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "could not create socketpair for virgl_render_server");
+          अगर (UNLIKELY (ret < 0))
+            वापस crun_make_error (err, त्रुटि_सं, "could not create socketpair for virgl_render_server");
 
-          snprintf (fd_as_str, sizeof (fd_as_str), "%d", gpu_fds[FD_PAIR_CHILD]);
+          snprintf (fd_as_str, माप (fd_as_str), "%d", gpu_fds[FD_PAIR_CHILD]);
 
-          rs_argv[rs_argc++] = (char *) "bwrap";
-          rs_argv[rs_argc++] = (char *) "--ro-bind";
-          rs_argv[rs_argc++] = (char *) "/usr";
-          rs_argv[rs_argc++] = (char *) "/usr";
-          if (access ("/lib", F_OK) == 0)
+          rs_argv[rs_argc++] = (अक्षर *) "bwrap";
+          rs_argv[rs_argc++] = (अक्षर *) "--ro-bind";
+          rs_argv[rs_argc++] = (अक्षर *) "/usr";
+          rs_argv[rs_argc++] = (अक्षर *) "/usr";
+          अगर (access ("/lib", F_OK) == 0)
             {
-              rs_argv[rs_argc++] = (char *) "--ro-bind";
-              rs_argv[rs_argc++] = (char *) "/lib";
-              rs_argv[rs_argc++] = (char *) "/lib";
+              rs_argv[rs_argc++] = (अक्षर *) "--ro-bind";
+              rs_argv[rs_argc++] = (अक्षर *) "/lib";
+              rs_argv[rs_argc++] = (अक्षर *) "/lib";
             }
-          if (access ("/lib64", F_OK) == 0)
+          अगर (access ("/lib64", F_OK) == 0)
             {
-              rs_argv[rs_argc++] = (char *) "--ro-bind";
-              rs_argv[rs_argc++] = (char *) "/lib64";
-              rs_argv[rs_argc++] = (char *) "/lib64";
+              rs_argv[rs_argc++] = (अक्षर *) "--ro-bind";
+              rs_argv[rs_argc++] = (अक्षर *) "/lib64";
+              rs_argv[rs_argc++] = (अक्षर *) "/lib64";
             }
-          rs_argv[rs_argc++] = (char *) "--ro-bind";
-          rs_argv[rs_argc++] = (char *) "/etc";
-          rs_argv[rs_argc++] = (char *) "/etc";
-          rs_argv[rs_argc++] = (char *) "--ro-bind";
-          rs_argv[rs_argc++] = (char *) "/sys";
-          rs_argv[rs_argc++] = (char *) "/sys";
-          rs_argv[rs_argc++] = (char *) "--dev";
-          rs_argv[rs_argc++] = (char *) "/dev";
-          rs_argv[rs_argc++] = (char *) "--dev-bind";
-          rs_argv[rs_argc++] = (char *) "/dev/dri";
-          rs_argv[rs_argc++] = (char *) "/dev/dri";
-          rs_argv[rs_argc++] = (char *) "--proc";
-          rs_argv[rs_argc++] = (char *) "/proc";
-          rs_argv[rs_argc++] = (char *) "--tmpfs";
-          rs_argv[rs_argc++] = (char *) "/tmp";
-          rs_argv[rs_argc++] = (char *) "--unshare-pid";
-          rs_argv[rs_argc++] = (char *) "--unshare-ipc";
-          rs_argv[rs_argc++] = (char *) "--unshare-net";
-          rs_argv[rs_argc++] = (char *) "--";
-          rs_argv[rs_argc++] = (char *) "/usr/libexec/virgl_render_server";
-          rs_argv[rs_argc++] = (char *) "--socket-fd";
+          rs_argv[rs_argc++] = (अक्षर *) "--ro-bind";
+          rs_argv[rs_argc++] = (अक्षर *) "/etc";
+          rs_argv[rs_argc++] = (अक्षर *) "/etc";
+          rs_argv[rs_argc++] = (अक्षर *) "--ro-bind";
+          rs_argv[rs_argc++] = (अक्षर *) "/sys";
+          rs_argv[rs_argc++] = (अक्षर *) "/sys";
+          rs_argv[rs_argc++] = (अक्षर *) "--dev";
+          rs_argv[rs_argc++] = (अक्षर *) "/dev";
+          rs_argv[rs_argc++] = (अक्षर *) "--dev-bind";
+          rs_argv[rs_argc++] = (अक्षर *) "/dev/dri";
+          rs_argv[rs_argc++] = (अक्षर *) "/dev/dri";
+          rs_argv[rs_argc++] = (अक्षर *) "--proc";
+          rs_argv[rs_argc++] = (अक्षर *) "/proc";
+          rs_argv[rs_argc++] = (अक्षर *) "--tmpfs";
+          rs_argv[rs_argc++] = (अक्षर *) "/tmp";
+          rs_argv[rs_argc++] = (अक्षर *) "--unshare-pid";
+          rs_argv[rs_argc++] = (अक्षर *) "--unshare-ipc";
+          rs_argv[rs_argc++] = (अक्षर *) "--unshare-net";
+          rs_argv[rs_argc++] = (अक्षर *) "--";
+          rs_argv[rs_argc++] = (अक्षर *) "/usr/libexec/virgl_render_server";
+          rs_argv[rs_argc++] = (अक्षर *) "--socket-fd";
           rs_argv[rs_argc++] = fd_as_str;
-          rs_argv[rs_argc] = NULL;
+          rs_argv[rs_argc] = शून्य;
 
-          pid = fork ();
-          if (pid < 0)
+          pid = विभाजन ();
+          अगर (pid < 0)
             {
-              close (gpu_fds[FD_PAIR_PARENT]);
-              close (gpu_fds[FD_PAIR_CHILD]);
-              return crun_make_error (err, errno, "could not fork for virgl_render_server");
+              बंद (gpu_fds[FD_PAIR_PARENT]);
+              बंद (gpu_fds[FD_PAIR_CHILD]);
+              वापस crun_make_error (err, त्रुटि_सं, "could not fork for virgl_render_server");
             }
-          else if (pid == 0)
+          अन्यथा अगर (pid == 0)
             {
-              close (gpu_fds[FD_PAIR_PARENT]);
+              बंद (gpu_fds[FD_PAIR_PARENT]);
 
-              null = open ("/dev/null", O_WRONLY);
-              if (null == -1)
-                _exit (EXIT_FAILURE);
+              null = खोलो ("/dev/null", O_WRONLY);
+              अगर (null == -1)
+                _निकास (निकास_त्रुटि);
 
               dup2 (null, STDOUT_FILENO);
               dup2 (null, STDERR_FILENO);
-              close (null);
+              बंद (null);
 
               execvp ("/usr/bin/bwrap", rs_argv);
-              _exit (EXIT_FAILURE);
+              _निकास (निकास_त्रुटि);
             }
 
-          close (gpu_fds[FD_PAIR_CHILD]);
+          बंद (gpu_fds[FD_PAIR_CHILD]);
           kconf->gpu_render_server_fd = gpu_fds[FD_PAIR_PARENT];
         }
     }
 
-  return 0;
+  वापस 0;
 }
 
-static int
-libkrun_configure_network (void *cookie, libcrun_container_t *container, libcrun_error_t *err)
+अटल पूर्णांक
+libkrun_configure_network (व्योम *cookie, libcrun_container_t *container, libcrun_error_t *err)
 {
-  struct krun_config *kconf = (struct krun_config *) cookie;
+  काष्ठा krun_config *kconf = (काष्ठा krun_config *) cookie;
   pid_t pid;
-  char *passt_argv[10];
-  char fd_as_str[16];
-  int use_passt;
-  int argv_idx;
-  int status;
-  int null;
-  int ret;
+  अक्षर *passt_argv[10];
+  अक्षर fd_as_str[16];
+  पूर्णांक use_passt;
+  पूर्णांक argv_idx;
+  पूर्णांक status;
+  पूर्णांक null;
+  पूर्णांक ret;
 
-  ret = libkrun_parse_string_configuration (kconf->config_tree, container,
+  ret = libkrun_parse_string_configuration (kconf->config_वृक्ष, container,
                                             "krun.tap_name", "tap_name",
                                             &kconf->tap_name, err, false);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  अगर (UNLIKELY (ret < 0))
+    वापस ret;
 
-  if (kconf->tap_name != NULL && is_empty_string (kconf->tap_name))
-    return crun_make_error (err, 0, "krun.tap_name cannot be empty");
+  अगर (kconf->tap_name != शून्य && is_empty_string (kconf->tap_name))
+    वापस crun_make_error (err, 0, "krun.tap_name cannot be empty");
 
-  use_passt = libkrun_parse_resource_configuration (kconf->config_tree, container, "krun.use_passt", "use_passt", false);
+  use_passt = libkrun_parse_resource_configuration (kconf->config_वृक्ष, container, "krun.use_passt", "use_passt", false);
 
-  if (use_passt > 0)
+  अगर (use_passt > 0)
     {
-      if (kconf->tap_name != NULL)
-        return crun_make_error (err, 0, "krun.tap_name and krun.use_passt are mutually exclusive");
+      अगर (kconf->tap_name != शून्य)
+        वापस crun_make_error (err, 0, "krun.tap_name and krun.use_passt are mutually exclusive");
 
       kconf->use_passt = 1;
     }
-  else
-    return 0;
+  अन्यथा
+    वापस 0;
 
   ret = socketpair (AF_UNIX, SOCK_STREAM, 0, kconf->passt_fds);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "create passt socketpair");
+  अगर (UNLIKELY (ret < 0))
+    वापस crun_make_error (err, त्रुटि_सं, "create passt socketpair");
 
-  snprintf (fd_as_str, sizeof (fd_as_str), "%d", kconf->passt_fds[FD_PAIR_CHILD]);
+  snprintf (fd_as_str, माप (fd_as_str), "%d", kconf->passt_fds[FD_PAIR_CHILD]);
 
   argv_idx = 0;
-  passt_argv[argv_idx++] = (char *) "passt";
-  passt_argv[argv_idx++] = (char *) "-t";
-  passt_argv[argv_idx++] = (char *) "all";
+  passt_argv[argv_idx++] = (अक्षर *) "passt";
+  passt_argv[argv_idx++] = (अक्षर *) "-t";
+  passt_argv[argv_idx++] = (अक्षर *) "all";
 
-  if (! kconf->has_awsnitro)
+  अगर (! kconf->has_awsnitro)
     {
-      passt_argv[argv_idx++] = (char *) "-u";
-      passt_argv[argv_idx++] = (char *) "all";
-      passt_argv[argv_idx++] = (char *) "--no-dhcp-dns";
+      passt_argv[argv_idx++] = (अक्षर *) "-u";
+      passt_argv[argv_idx++] = (अक्षर *) "all";
+      passt_argv[argv_idx++] = (अक्षर *) "--no-dhcp-dns";
     }
 
   /* Set --no-map-gw. If the gateway for the network is also the DNS server
    * we won't be able to query the DNS server without --no-map-gw.
    * See discussion in https://github.com/containers/crun/pull/2099
    */
-  passt_argv[argv_idx++] = (char *) "--no-map-gw";
+  passt_argv[argv_idx++] = (अक्षर *) "--no-map-gw";
 
-  passt_argv[argv_idx++] = (char *) "--fd";
+  passt_argv[argv_idx++] = (अक्षर *) "--fd";
   passt_argv[argv_idx++] = fd_as_str;
-  passt_argv[argv_idx] = NULL;
+  passt_argv[argv_idx] = शून्य;
 
-  pid = fork ();
-  if (pid < 0)
-    return crun_make_error (err, errno, "fork passt");
-  else if (pid == 0)
+  pid = विभाजन ();
+  अगर (pid < 0)
+    वापस crun_make_error (err, त्रुटि_सं, "fork passt");
+  अन्यथा अगर (pid == 0)
     {
       runtime_spec_schema_config_schema *def = container->container_def;
-      size_t i;
+      माप_प्रकार i;
 
-      close (kconf->passt_fds[FD_PAIR_PARENT]);
+      बंद (kconf->passt_fds[FD_PAIR_PARENT]);
 
-      null = open ("/dev/null", O_WRONLY);
-      if (null == -1)
-        _exit (EXIT_FAILURE);
+      null = खोलो ("/dev/null", O_WRONLY);
+      अगर (null == -1)
+        _निकास (निकास_त्रुटि);
 
       /* Remount /proc if the parent detached its PID namespace, as passt(1)
        * needs a consistent /proc view to operate properly.
        */
-      for (i = 0; i < def->linux->namespaces_len; i++)
+      क्रम (i = 0; i < def->linux->namespaces_len; i++)
         {
-          int value = libcrun_find_namespace (def->linux->namespaces[i]->type);
+          पूर्णांक मूल्य = libcrun_find_namespace (def->linux->namespaces[i]->type);
 
-          if (value == CLONE_NEWPID)
+          अगर (मूल्य == CLONE_NEWPID)
             {
-              if (mount ("", "/proc", "proc", MS_NOSUID | MS_NODEV | MS_NOEXEC, NULL))
-                _exit (EXIT_FAILURE);
+              अगर (mount ("", "/proc", "proc", MS_NOSUID | MS_NODEV | MS_NOEXEC, शून्य))
+                _निकास (निकास_त्रुटि);
 
-              break;
+              अवरोध;
             }
         }
 
@@ -841,178 +841,178 @@ libkrun_configure_network (void *cookie, libcrun_container_t *container, libcrun
       // instead will cause passt to exit with an error.
       dup2 (null, STDOUT_FILENO);
       dup2 (null, STDERR_FILENO);
-      close (null);
+      बंद (null);
 
       execvp ("/usr/bin/passt", passt_argv);
       // Only reachable on error.
-      _exit (EXIT_FAILURE);
+      _निकास (निकास_त्रुटि);
     }
 
-  close (kconf->passt_fds[FD_PAIR_CHILD]);
+  बंद (kconf->passt_fds[FD_PAIR_CHILD]);
 
   // Wait for passt to daemonize itself.
   waitpid (pid, &status, 0);
-  if (! (WIFEXITED (status)) || WEXITSTATUS (status) != 0)
-    return crun_make_error (err, 0, "start passt");
+  अगर (! (WIFEXITED (status)) || WEXITSTATUS (status) != 0)
+    वापस crun_make_error (err, 0, "start passt");
 
-  return 0;
+  वापस 0;
 }
 
 /* Return true if the spec already declares a device with the given PATH.  */
-static bool
-spec_has_device (runtime_spec_schema_config_schema *def, const char *path)
+अटल bool
+spec_has_device (runtime_spec_schema_config_schema *def, स्थिर अक्षर *path)
 {
-  size_t i;
+  माप_प्रकार i;
 
-  for (i = 0; i < def->linux->devices_len; i++)
-    if (strcmp (def->linux->devices[i]->path, path) == 0)
-      return true;
-  return false;
+  क्रम (i = 0; i < def->linux->devices_len; i++)
+    अगर (म_भेद (def->linux->devices[i]->path, path) == 0)
+      वापस true;
+  वापस false;
 }
 
 /* libkrun_create_kvm_device: explicitly adds kvm device.  */
-static int
-libkrun_configure_container (void *cookie, enum handler_configure_phase phase,
+अटल पूर्णांक
+libkrun_configure_container (व्योम *cookie, क्रमागत handler_configure_phase phase,
                              libcrun_context_t *context, libcrun_container_t *container,
-                             const char *rootfs, libcrun_error_t *err)
+                             स्थिर अक्षर *rootfs, libcrun_error_t *err)
 {
-  int ret, rootfsfd;
-  struct krun_config *kconf = (struct krun_config *) cookie;
-  struct device_s kvm_device = { "/dev/kvm", "c", 10, 232, 0666, 0, 0 };
-  struct device_s sev_device = { "/dev/sev", "c", 10, 124, 0666, 0, 0 };
-  struct device_s nitro_device = { "/dev/nitro_enclaves", "c", 10, 122, 0666, 0, 0 };
-  cleanup_close int devfd = -1;
-  cleanup_close int rootfsfd_cleanup = -1;
+  पूर्णांक ret, rootfsfd;
+  काष्ठा krun_config *kconf = (काष्ठा krun_config *) cookie;
+  काष्ठा device_s kvm_device = { "/dev/kvm", "c", 10, 232, 0666, 0, 0 };
+  काष्ठा device_s sev_device = { "/dev/sev", "c", 10, 124, 0666, 0, 0 };
+  काष्ठा device_s nitro_device = { "/dev/nitro_enclaves", "c", 10, 122, 0666, 0, 0 };
+  cleanup_close पूर्णांक devfd = -1;
+  cleanup_close पूर्णांक rootfsfd_cleanup = -1;
   runtime_spec_schema_config_schema *def = container->container_def;
   bool create_sev = false, create_awsnitro = false;
   bool is_user_ns;
 
-  if (rootfs == NULL)
+  अगर (rootfs == शून्य)
     rootfsfd = AT_FDCWD;
-  else
+  अन्यथा
     {
-      rootfsfd = rootfsfd_cleanup = open (rootfs, O_PATH | O_CLOEXEC);
-      if (UNLIKELY (rootfsfd < 0))
-        return crun_make_error (err, errno, "open `%s`", rootfs);
+      rootfsfd = rootfsfd_cleanup = खोलो (rootfs, O_PATH | O_CLOEXEC);
+      अगर (UNLIKELY (rootfsfd < 0))
+        वापस crun_make_error (err, त्रुटि_सं, "open `%s`", rootfs);
     }
 
-  if (phase == HANDLER_CONFIGURE_BEFORE_USERNS)
+  अगर (phase == HANDLER_CONFIGURE_BEFORE_USERNS)
     {
-      cleanup_free char *origin_config_path = NULL;
-      cleanup_free char *state_dir = NULL;
-      cleanup_free char *config = NULL;
-      cleanup_close int fd = -1;
-      size_t config_size;
+      cleanup_free अक्षर *origin_config_path = शून्य;
+      cleanup_free अक्षर *state_dir = शून्य;
+      cleanup_free अक्षर *config = शून्य;
+      cleanup_close पूर्णांक fd = -1;
+      माप_प्रकार config_आकार;
 
-      ret = libcrun_get_state_directory (&state_dir, context->state_root, context->id, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_get_state_directory (&state_dir, context->state_मूल, context->id, err);
+      अगर (UNLIKELY (ret < 0))
+        वापस ret;
 
-      ret = append_paths (&origin_config_path, err, state_dir, "config.json", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&origin_config_path, err, state_dir, "config.json", शून्य);
+      अगर (UNLIKELY (ret < 0))
+        वापस ret;
 
-      ret = read_all_file (origin_config_path, &config, &config_size, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = read_all_file (origin_config_path, &config, &config_आकार, err);
+      अगर (UNLIKELY (ret < 0))
+        वापस ret;
 
       /* CVE-2025-24965: the content below rootfs cannot be trusted because it is controlled by the user.  We
          must ensure the file is opened below the rootfs directory.  Whatever the image ships at that name
          could also be a device node or a FIFO, so never open it: unlink it and create a new regular file.  */
       ret = unlinkat (rootfsfd, KRUN_CONFIG_FILE, 0);
-      if (UNLIKELY (ret < 0 && errno != ENOENT))
-        return crun_make_error (err, errno, "unlink `%s`", KRUN_CONFIG_FILE);
+      अगर (UNLIKELY (ret < 0 && त्रुटि_सं != ENOENT))
+        वापस crun_make_error (err, त्रुटि_सं, "unlink `%s`", KRUN_CONFIG_FILE);
 
       fd = safe_openat (rootfsfd, rootfs, KRUN_CONFIG_FILE, WRITE_FILE_DEFAULT_FLAGS | O_EXCL | O_NOFOLLOW, S_IRUSR | S_IRGRP | S_IROTH, err);
-      if (UNLIKELY (fd < 0))
-        return fd;
+      अगर (UNLIKELY (fd < 0))
+        वापस fd;
 
-      ret = safe_write (fd, KRUN_CONFIG_FILE, config, config_size, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = safe_write (fd, KRUN_CONFIG_FILE, config, config_आकार, err);
+      अगर (UNLIKELY (ret < 0))
+        वापस ret;
 
       ret = libkrun_read_vm_config (kconf, rootfsfd, rootfs, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      अगर (UNLIKELY (ret < 0))
+        वापस ret;
 
       ret = libkrun_start_render_server (kconf, container, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      अगर (UNLIKELY (ret < 0))
+        वापस ret;
     }
 
-  if (phase != HANDLER_CONFIGURE_AFTER_MOUNTS)
-    return 0;
+  अगर (phase != HANDLER_CONFIGURE_AFTER_MOUNTS)
+    वापस 0;
 
   ret = libkrun_configure_network (cookie, container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  अगर (UNLIKELY (ret < 0))
+    वापस ret;
 
   /* Do nothing if /dev/kvm is already present in spec */
-  if (spec_has_device (def, "/dev/kvm"))
-    return 0;
+  अगर (spec_has_device (def, "/dev/kvm"))
+    वापस 0;
 
-  if (kconf->handle_sev != NULL)
+  अगर (kconf->handle_sev != शून्य)
     create_sev = ! spec_has_device (def, "/dev/sev");
 
-  if (kconf->handle_awsnitro != NULL)
+  अगर (kconf->handle_awsnitro != शून्य)
     create_awsnitro = ! spec_has_device (def, "/dev/nitro_enclaves");
 
   devfd = safe_openat (rootfsfd, rootfs, "dev", O_PATH | O_DIRECTORY | O_CLOEXEC, 0, err);
-  if (UNLIKELY (devfd < 0))
-    return devfd;
+  अगर (UNLIKELY (devfd < 0))
+    वापस devfd;
 
   ret = check_running_in_user_namespace (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  अगर (UNLIKELY (ret < 0))
+    वापस ret;
   is_user_ns = ret;
 
-  if (kconf->has_kvm)
+  अगर (kconf->has_kvm)
     {
       ret = libcrun_create_dev (container, devfd, -1, &kvm_device, is_user_ns, true, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      अगर (UNLIKELY (ret < 0))
+        वापस ret;
     }
 
-  if (create_sev)
+  अगर (create_sev)
     {
       ret = libcrun_create_dev (container, devfd, -1, &sev_device, is_user_ns, true, err);
-      if (UNLIKELY (ret < 0))
+      अगर (UNLIKELY (ret < 0))
         {
           ret = dlclose (kconf->handle_sev);
-          if (UNLIKELY (ret < 0))
-            return ret;
-          kconf->handle_sev = NULL;
+          अगर (UNLIKELY (ret < 0))
+            वापस ret;
+          kconf->handle_sev = शून्य;
         }
     }
 
-  if (create_awsnitro)
+  अगर (create_awsnitro)
     {
       ret = libcrun_create_dev (container, devfd, -1, &nitro_device, is_user_ns, true, err);
-      if (UNLIKELY (ret < 0))
+      अगर (UNLIKELY (ret < 0))
         {
           ret = dlclose (kconf->handle_awsnitro);
-          if (UNLIKELY (ret < 0))
-            return ret;
-          kconf->handle_awsnitro = NULL;
+          अगर (UNLIKELY (ret < 0))
+            वापस ret;
+          kconf->handle_awsnitro = शून्य;
         }
     }
 
-  return 0;
+  वापस 0;
 }
 
-static int
-libkrun_load (void **cookie, libcrun_error_t *err)
+अटल पूर्णांक
+libkrun_load (व्योम **cookie, libcrun_error_t *err)
 {
   int32_t ret;
-  struct krun_config *kconf;
-  const char *libkrun_so = "libkrun.so.1";
-  const char *libkrun_sev_so = "libkrun-sev.so.1";
-  const char *libkrun_awsnitro_so = "libkrun-awsnitro.so.1";
+  काष्ठा krun_config *kconf;
+  स्थिर अक्षर *libkrun_so = "libkrun.so.1";
+  स्थिर अक्षर *libkrun_sev_so = "libkrun-sev.so.1";
+  स्थिर अक्षर *libkrun_awsnitro_so = "libkrun-awsnitro.so.1";
 
-  kconf = malloc (sizeof (struct krun_config));
-  if (kconf == NULL)
-    return crun_make_error (err, 0, "could not allocate memory for krun_config");
-  memset (kconf, 0, sizeof (struct krun_config));
+  kconf = दो_स्मृति (माप (काष्ठा krun_config));
+  अगर (kconf == शून्य)
+    वापस crun_make_error (err, 0, "could not allocate memory for krun_config");
+  स_रखो (kconf, 0, माप (काष्ठा krun_config));
 
   kconf->gpu_render_server_fd = -1;
 
@@ -1020,10 +1020,10 @@ libkrun_load (void **cookie, libcrun_error_t *err)
   kconf->handle_sev = dlopen (libkrun_sev_so, RTLD_NOW);
   kconf->handle_awsnitro = dlopen (libkrun_awsnitro_so, RTLD_NOW);
 
-  if (kconf->handle == NULL && kconf->handle_sev == NULL && kconf->handle_awsnitro == NULL)
+  अगर (kconf->handle == शून्य && kconf->handle_sev == शून्य && kconf->handle_awsnitro == शून्य)
     {
-      free (kconf);
-      return crun_make_error (err, 0, "failed to open `%s`, `%s`, and `%s` for krun_config: %s", libkrun_so, libkrun_sev_so, libkrun_awsnitro_so, dlerror ());
+      मुक्त (kconf);
+      वापस crun_make_error (err, 0, "failed to open `%s`, `%s`, and `%s` for krun_config: %s", libkrun_so, libkrun_sev_so, libkrun_awsnitro_so, dlerror ());
     }
 
   kconf->sev = false;
@@ -1033,79 +1033,79 @@ libkrun_load (void **cookie, libcrun_error_t *err)
      instead they open it when creating the context. This implies
      we need to call "krun_create_ctx" before switching namespaces
      or it won't be able to find the library bundling the kernel. */
-  if (kconf->handle)
+  अगर (kconf->handle)
     {
       ret = libkrun_create_context (kconf->handle, err);
-      if (UNLIKELY (ret < 0))
-        goto error;
+      अगर (UNLIKELY (ret < 0))
+        जाओ error;
       kconf->ctx_id = ret;
     }
 
-  if (kconf->handle_sev)
+  अगर (kconf->handle_sev)
     {
       ret = libkrun_create_context (kconf->handle_sev, err);
-      if (UNLIKELY (ret < 0))
-        goto error;
+      अगर (UNLIKELY (ret < 0))
+        जाओ error;
       kconf->ctx_id_sev = ret;
     }
-  if (kconf->handle_awsnitro)
+  अगर (kconf->handle_awsnitro)
     {
       ret = libkrun_create_context (kconf->handle_awsnitro, err);
-      if (UNLIKELY (ret < 0))
-        goto error;
+      अगर (UNLIKELY (ret < 0))
+        जाओ error;
       kconf->ctx_id_awsnitro = ret;
     }
 
   *cookie = kconf;
 
-  return 0;
+  वापस 0;
 
 error:
-  if (kconf->handle)
+  अगर (kconf->handle)
     dlclose (kconf->handle);
-  if (kconf->handle_sev)
+  अगर (kconf->handle_sev)
     dlclose (kconf->handle_sev);
-  if (kconf->handle_awsnitro)
+  अगर (kconf->handle_awsnitro)
     dlclose (kconf->handle_awsnitro);
-  free (kconf);
-  return ret;
+  मुक्त (kconf);
+  वापस ret;
 }
 
-static int
-libkrun_unload (void *cookie, libcrun_error_t *err)
+अटल पूर्णांक
+libkrun_unload (व्योम *cookie, libcrun_error_t *err)
 {
-  int r;
+  पूर्णांक r;
 
-  struct krun_config *kconf = (struct krun_config *) cookie;
-  if (kconf != NULL)
+  काष्ठा krun_config *kconf = (काष्ठा krun_config *) cookie;
+  अगर (kconf != शून्य)
     {
-      if (kconf->handle != NULL)
+      अगर (kconf->handle != शून्य)
         {
           r = dlclose (kconf->handle);
-          if (UNLIKELY (r != 0))
-            return crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
+          अगर (UNLIKELY (r != 0))
+            वापस crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
         }
-      if (kconf->handle_sev != NULL)
+      अगर (kconf->handle_sev != शून्य)
         {
           r = dlclose (kconf->handle_sev);
-          if (UNLIKELY (r != 0))
-            return crun_make_error (err, 0, "could not unload handle_sev: `%s`", dlerror ());
+          अगर (UNLIKELY (r != 0))
+            वापस crun_make_error (err, 0, "could not unload handle_sev: `%s`", dlerror ());
         }
-      if (kconf->handle_awsnitro != NULL)
+      अगर (kconf->handle_awsnitro != शून्य)
         {
           r = dlclose (kconf->handle_awsnitro);
-          if (UNLIKELY (r != 0))
-            return crun_make_error (err, 0, "could not unload handle_awsnitro: `%s`", dlerror ());
+          अगर (UNLIKELY (r != 0))
+            वापस crun_make_error (err, 0, "could not unload handle_awsnitro: `%s`", dlerror ());
         }
-      free (kconf);
+      मुक्त (kconf);
     }
-  return 0;
+  वापस 0;
 }
 
-static runtime_spec_schema_defs_linux_device_cgroup *
-make_oci_spec_dev (const char *type, dev_t device, bool allow, const char *access)
+अटल runtime_spec_schema_defs_linux_device_cgroup *
+make_oci_spec_dev (स्थिर अक्षर *type, dev_t device, bool allow, स्थिर अक्षर *access)
 {
-  runtime_spec_schema_defs_linux_device_cgroup *dev = xmalloc0 (sizeof (*dev));
+  runtime_spec_schema_defs_linux_device_cgroup *dev = xmalloc0 (माप (*dev));
 
   dev->allow = allow;
   dev->allow_present = 1;
@@ -1120,132 +1120,132 @@ make_oci_spec_dev (const char *type, dev_t device, bool allow, const char *acces
 
   dev->access = xstrdup (access);
 
-  return dev;
+  वापस dev;
 }
 
 /* stat an optional device: on ENOENT clear *PRESENT, any other error fails.  */
-static int
-stat_optional_device (const char *path, struct stat *st, bool *present, libcrun_error_t *err)
+अटल पूर्णांक
+stat_optional_device (स्थिर अक्षर *path, काष्ठा stat *st, bool *present, libcrun_error_t *err)
 {
-  int ret = stat (path, st);
-  if (UNLIKELY (ret < 0))
+  पूर्णांक ret = stat (path, st);
+  अगर (UNLIKELY (ret < 0))
     {
-      if (errno != ENOENT)
-        return crun_make_error (err, errno, "stat `%s`", path);
+      अगर (त्रुटि_सं != ENOENT)
+        वापस crun_make_error (err, त्रुटि_सं, "stat `%s`", path);
       *present = false;
     }
-  return 0;
+  वापस 0;
 }
 
-static int
-libkrun_modify_oci_configuration (void *cookie arg_unused, libcrun_context_t *context arg_unused,
+अटल पूर्णांक
+libkrun_modify_oci_configuration (व्योम *cookie arg_unused, libcrun_context_t *context arg_unused,
                                   runtime_spec_schema_config_schema *def,
                                   libcrun_error_t *err)
 {
-  const size_t device_size = sizeof (runtime_spec_schema_defs_linux_device_cgroup);
-  struct krun_config *kconf = (struct krun_config *) cookie;
-  struct stat st_kvm, st_sev, st_awsnitro;
+  स्थिर माप_प्रकार device_आकार = माप (runtime_spec_schema_defs_linux_device_cgroup);
+  काष्ठा krun_config *kconf = (काष्ठा krun_config *) cookie;
+  काष्ठा stat st_kvm, st_sev, st_awsnitro;
   bool has_kvm = true, has_sev = true, has_awsnitro = true;
-  size_t old_len, new_len;
-  int ret;
+  माप_प्रकार old_len, new_len;
+  पूर्णांक ret;
 
   /* Always allow the /dev/kvm device.  */
 
   ret = stat_optional_device ("/dev/kvm", &st_kvm, &has_kvm, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  अगर (UNLIKELY (ret < 0))
+    वापस ret;
 
   ret = stat_optional_device ("/dev/sev", &st_sev, &has_sev, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  अगर (UNLIKELY (ret < 0))
+    वापस ret;
 
   ret = stat_optional_device ("/dev/nitro_enclaves", &st_awsnitro, &has_awsnitro, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  अगर (UNLIKELY (ret < 0))
+    वापस ret;
 
   kconf->has_kvm = has_kvm;
   kconf->has_awsnitro = has_awsnitro;
 
-  if (! has_kvm && ! has_awsnitro)
-    return 0;
+  अगर (! has_kvm && ! has_awsnitro)
+    वापस 0;
 
   /* spec says these are optional, ensure they exist so we can add our devices */
-  if (def->linux == NULL)
-    def->linux = xmalloc0 (sizeof (runtime_spec_schema_config_linux));
+  अगर (def->linux == शून्य)
+    def->linux = xmalloc0 (माप (runtime_spec_schema_config_linux));
 
-  if (def->linux->resources == NULL)
-    def->linux->resources = xmalloc0 (sizeof (runtime_spec_schema_config_linux_resources));
+  अगर (def->linux->resources == शून्य)
+    def->linux->resources = xmalloc0 (माप (runtime_spec_schema_config_linux_resources));
 
   old_len = def->linux->resources->devices_len;
   new_len = old_len;
-  if (has_kvm)
+  अगर (has_kvm)
     new_len += has_sev ? 2 : 1;
-  if (has_awsnitro)
+  अगर (has_awsnitro)
     new_len += 1;
 
-  def->linux->resources->devices = xrealloc (def->linux->resources->devices, device_size * (new_len + 1));
+  def->linux->resources->devices = xrealloc (def->linux->resources->devices, device_आकार * (new_len + 1));
   def->linux->resources->devices_len = new_len;
 
-  if (has_kvm)
+  अगर (has_kvm)
     {
       def->linux->resources->devices[old_len++] = make_oci_spec_dev ("a", st_kvm.st_rdev, true, "rwm");
-      if (has_sev)
+      अगर (has_sev)
         def->linux->resources->devices[old_len++] = make_oci_spec_dev ("a", st_sev.st_rdev, true, "rwm");
     }
 
-  if (has_awsnitro)
+  अगर (has_awsnitro)
     def->linux->resources->devices[old_len++] = make_oci_spec_dev ("a", st_awsnitro.st_rdev, true, "rwm");
 
-  return 0;
+  वापस 0;
 }
 
-static int
-libkrun_close_fds (void *cookie, libcrun_container_t *container, int preserve_fds, libcrun_error_t *err)
+अटल पूर्णांक
+libkrun_close_fds (व्योम *cookie, libcrun_container_t *container, पूर्णांक preserve_fds, libcrun_error_t *err)
 {
-  struct krun_config *kconf = (struct krun_config *) cookie;
-  int first_fd_to_close = preserve_fds + 3;
-  int low_fd, high_fd;
-  int i;
+  काष्ठा krun_config *kconf = (काष्ठा krun_config *) cookie;
+  पूर्णांक first_fd_to_close = preserve_fds + 3;
+  पूर्णांक निचला_fd, ऊपरी_fd;
+  पूर्णांक i;
 
-  low_fd = high_fd = -1;
+  निचला_fd = ऊपरी_fd = -1;
 
-  if (kconf->use_passt)
-    high_fd = kconf->passt_fds[FD_PAIR_PARENT];
+  अगर (kconf->use_passt)
+    ऊपरी_fd = kconf->passt_fds[FD_PAIR_PARENT];
 
-  if (kconf->gpu_render_server_fd != -1)
+  अगर (kconf->gpu_render_server_fd != -1)
     {
-      if (kconf->gpu_render_server_fd > high_fd)
+      अगर (kconf->gpu_render_server_fd > ऊपरी_fd)
         {
-          low_fd = high_fd;
-          high_fd = kconf->gpu_render_server_fd;
+          निचला_fd = ऊपरी_fd;
+          ऊपरी_fd = kconf->gpu_render_server_fd;
         }
-      else
-        low_fd = kconf->gpu_render_server_fd;
+      अन्यथा
+        निचला_fd = kconf->gpu_render_server_fd;
     }
 
-  if (first_fd_to_close <= high_fd)
+  अगर (first_fd_to_close <= ऊपरी_fd)
     {
-      for (i = first_fd_to_close; i < high_fd; i++)
+      क्रम (i = first_fd_to_close; i < ऊपरी_fd; i++)
         {
           // If we're closing proc_fd, make sure to invalidate it.
-          if (i == container->proc_fd)
+          अगर (i == container->proc_fd)
             container->proc_fd = -1;
-          else if (i == low_fd)
-            continue;
-          close (i);
+          अन्यथा अगर (i == निचला_fd)
+            जारी;
+          बंद (i);
         }
 
-      first_fd_to_close = high_fd + 1;
+      first_fd_to_close = ऊपरी_fd + 1;
     }
 
-  return mark_or_close_fds_ge_than (container, first_fd_to_close, true, err);
+  वापस mark_or_close_fds_ge_than (container, first_fd_to_close, true, err);
 }
 
-struct custom_handler_s handler_libkrun = {
+काष्ठा custom_handler_s handler_libkrun = {
   .name = "krun",
-  .alias = NULL,
+  .alias = शून्य,
   .feature_string = "LIBKRUN",
-  .supports_open_tree_namespace = false,
+  .supports_open_वृक्ष_namespace = false,
   .load = libkrun_load,
   .unload = libkrun_unload,
   .run_func = libkrun_exec,
@@ -1254,4 +1254,4 @@ struct custom_handler_s handler_libkrun = {
   .close_fds = libkrun_close_fds,
 };
 
-#endif
+#पूर्ण_अगर

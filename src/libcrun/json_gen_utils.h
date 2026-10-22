@@ -15,38 +15,38 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef JSON_GEN_UTILS_H
-#define JSON_GEN_UTILS_H
+#अगर_अघोषित JSON_GEN_UTILS_H
+#घोषणा JSON_GEN_UTILS_H
 
-#include <config.h>
-#include <string.h>
-#include <ocispec/json_common.h>
-#include "utils.h"
+#समावेश <config.h>
+#समावेश <string.h>
+#समावेश <ocispec/json_common.h>
+#समावेश "utils.h"
 
 /* Helpers to reduce the boilerplate around the json_gen_* API.  Each macro
    evaluates a json_gen_* call, stores the result in the local variable `r`
    and jumps to the `gen_error` label when the call fails.  A function using
    them must declare `int r;` and provide a `gen_error:` label.  */
-#define GEN_OR_FAIL(EXPR)                     \
-  do                                          \
+#घोषणा GEN_OR_FAIL(व्यंजक)                     \
+  करो                                          \
     {                                         \
-      r = (EXPR);                             \
-      if (UNLIKELY (r != json_gen_status_ok)) \
-        goto gen_error;                       \
-  } while (0)
+      r = (व्यंजक);                             \
+      अगर (UNLIKELY (r != json_gen_status_ok)) \
+        जाओ gen_error;                       \
+  } जबतक (0)
 
 /* Emit a string literal (typically a map key).  */
-#define GEN_KEY(GEN, LIT) GEN_OR_FAIL (json_gen_string ((GEN), (LIT), sizeof (LIT) - 1))
+#घोषणा GEN_कुंजी(GEN, LIT) GEN_OR_FAIL (json_gen_string ((GEN), (LIT), माप (LIT) - 1))
 
 /* Emit a runtime string value.  */
-#define GEN_STR(GEN, STR) GEN_OR_FAIL (json_gen_string ((GEN), (STR), strlen (STR)))
+#घोषणा GEN_STR(GEN, STR) GEN_OR_FAIL (json_gen_string ((GEN), (STR), म_माप (STR)))
 
-static inline void
+अटल अंतरभूत व्योम
 cleanup_json_genp (json_gen_ctx **p)
 {
-  if (*p)
+  अगर (*p)
     json_gen_free (*p);
 }
-#define cleanup_json_gen __attribute__ ((cleanup (cleanup_json_genp)))
+#घोषणा cleanup_json_gen __attribute__ ((cleanup (cleanup_json_genp)))
 
-#endif
+#पूर्ण_अगर

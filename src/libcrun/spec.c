@@ -15,18 +15,18 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE
+#घोषणा _GNU_SOURCE
 
-#include <config.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <errno.h>
-#include "spec.h"
-#include "utils.h"
-#include "cgroup.h"
-#include "cgroup-utils.h"
+#समावेश <config.h>
+#समावेश <stdbool.h>
+#समावेश <stdio.h>
+#समावेश <errno.h>
+#समावेश "spec.h"
+#समावेश "utils.h"
+#समावेश "cgroup.h"
+#समावेश "cgroup-utils.h"
 
-static const char spec_file[] = "\
+अटल स्थिर अक्षर spec_file[] = "\
 {\n\
 	\"ociVersion\": \"1.0.0\",\n\
 	\"process\": {\n\
@@ -76,7 +76,7 @@ static const char spec_file[] = "\
 		],\n\
 		\"noNewPrivileges\": true\n\
 	},\n\
-	\"root\": {\n\
+	\"मूल\": {\n\
 		\"path\": \"rootfs\",\n\
 		\"readonly\": true\n\
 	},\n\
@@ -95,7 +95,7 @@ static const char spec_file[] = "\
 				\"nosuid\",\n\
 				\"strictatime\",\n\
 				\"mode=755\",\n\
-				\"size=65536k\"\n\
+				\"आकार=65536k\"\n\
 			]\n\
 		},\n\
 		{\n\
@@ -120,7 +120,7 @@ static const char spec_file[] = "\
 				\"noexec\",\n\
 				\"nodev\",\n\
 				\"mode=1777\",\n\
-				\"size=65536k\"\n\
+				\"आकार=65536k\"\n\
 			]\n\
 		},\n\
 		{\n\
@@ -189,7 +189,7 @@ static const char spec_file[] = "\
 			\"/proc/acpi\",\n\
 			\"/proc/asound\",\n\
 			\"/proc/kcore\",\n\
-			\"/proc/keys\",\n\
+			\"/proc/कुंजियाँ\",\n\
 			\"/proc/latency_stats\",\n\
 			\"/proc/timer_list\",\n\
 			\"/proc/timer_stats\",\n\
@@ -207,59 +207,59 @@ static const char spec_file[] = "\
 	}\n\
 }\n";
 
-static const char *spec_pts_tty_group = ",\n\
+अटल स्थिर अक्षर *spec_pts_tty_group = ",\n\
 				\"gid=5\"\n";
 
-static const char *spec_user = "\
+अटल स्थिर अक्षर *spec_user = "\
 			{\n\
 				\"type\": \"user\"\n\
 			},\n";
 
-static const char *spec_cgroupns = "\
+अटल स्थिर अक्षर *spec_cgroupns = "\
 			{\n\
 				\"type\": \"cgroup\"\n\
 			},\n";
 
-int
-libcrun_container_spec (bool root, FILE *out, libcrun_error_t *err)
+पूर्णांक
+libcrun_container_spec (bool मूल, खाता *out, libcrun_error_t *err)
 {
-  int ret;
-  int cgroup_mode;
+  पूर्णांक ret;
+  पूर्णांक cgroup_mode;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  अगर (UNLIKELY (cgroup_mode < 0))
+    वापस cgroup_mode;
 
-  ret = fprintf (out, spec_file,
-                 root ? spec_pts_tty_group : "\n",
-                 root ? "" : spec_user,
+  ret = ख_लिखो (out, spec_file,
+                 मूल ? spec_pts_tty_group : "\n",
+                 मूल ? "" : spec_user,
                  cgroup_mode == CGROUP_MODE_UNIFIED ? spec_cgroupns : "");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fprintf failed");
+  अगर (UNLIKELY (ret < 0))
+    वापस crun_make_error (err, त्रुटि_सं, "fprintf failed");
 
-  return ret;
+  वापस ret;
 }
 
-int
-libcrun_container_spec_json (bool root, char **out, libcrun_error_t *err)
+पूर्णांक
+libcrun_container_spec_json (bool मूल, अक्षर **out, libcrun_error_t *err)
 {
-  char *buffer = NULL;
-  size_t len = 0;
-  FILE *f;
-  int ret;
+  अक्षर *बफर = शून्य;
+  माप_प्रकार len = 0;
+  खाता *f;
+  पूर्णांक ret;
 
-  f = open_memstream (&buffer, &len);
-  if (f == NULL)
-    return crun_make_error (err, errno, "open_memstream");
+  f = open_memstream (&बफर, &len);
+  अगर (f == शून्य)
+    वापस crun_make_error (err, त्रुटि_सं, "open_memstream");
 
-  ret = libcrun_container_spec (root, f, err);
-  fclose (f);
-  if (UNLIKELY (ret < 0))
+  ret = libcrun_container_spec (मूल, f, err);
+  ख_बंद (f);
+  अगर (UNLIKELY (ret < 0))
     {
-      free (buffer);
-      return ret;
+      मुक्त (बफर);
+      वापस ret;
     }
 
-  *out = buffer;
-  return 0;
+  *out = बफर;
+  वापस 0;
 }

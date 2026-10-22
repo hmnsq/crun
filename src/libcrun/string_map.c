@@ -16,156 +16,156 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#घोषणा _GNU_SOURCE
 
-#include <config.h>
-#include <stdlib.h>
-#include <errno.h>
-#include "string_map.h"
-#include "utils.h"
+#समावेश <config.h>
+#समावेश <stdlib.h>
+#समावेश <errno.h>
+#समावेश "string_map.h"
+#समावेश "utils.h"
 
-#include <ocispec/runtime_spec_schema_config_schema.h>
+#समावेश <ocispec/runtime_spec_schema_config_schema.h>
 
-struct kv_s
+काष्ठा kv_s
 {
-  char *key;
-  char *value;
+  अक्षर *कुंजी;
+  अक्षर *मूल्य;
 };
 
-struct string_map_s
+काष्ठा string_map_s
 {
-  size_t len;
-  struct kv_s *kvs;
+  माप_प्रकार len;
+  काष्ठा kv_s *kvs;
 
-#ifdef HAVE_HSEARCH_R
-  struct hsearch_data htab;
+#अगर_घोषित HAVE_HSEARCH_R
+  काष्ठा hsearch_तथ्य htab;
   bool htab_initialized;
-#endif
+#पूर्ण_अगर
 
   bool sorted;
 };
 
-static int
-compare_kv (const void *a, const void *b)
+अटल पूर्णांक
+compare_kv (स्थिर व्योम *a, स्थिर व्योम *b)
 {
-  return strcmp (((struct kv_s *) a)->key, ((struct kv_s *) b)->key);
+  वापस म_भेद (((काष्ठा kv_s *) a)->कुंजी, ((काष्ठा kv_s *) b)->कुंजी);
 }
 
-const char *
-find_string_map_value (string_map *map, const char *name)
+स्थिर अक्षर *
+find_string_map_मूल्य (string_map *map, स्थिर अक्षर *name)
 
 {
-  struct kv_s *r, key;
+  काष्ठा kv_s *r, कुंजी;
 
-  if (map == NULL || map->len == 0)
-    return NULL;
+  अगर (map == शून्य || map->len == 0)
+    वापस शून्य;
 
-#ifdef HAVE_HSEARCH_R
+#अगर_घोषित HAVE_HSEARCH_R
   ENTRY e, *ep;
 
   /* Do not bother with hash tables for small maps.  */
-  if (map->len < 8)
-    goto fallback;
+  अगर (map->len < 8)
+    जाओ fallback;
 
-  if (! map->htab_initialized)
+  अगर (! map->htab_initialized)
     {
-      size_t i;
+      माप_प्रकार i;
 
-      if (hcreate_r (map->len, &map->htab) == 0)
-        goto fallback;
+      अगर (hcreate_r (map->len, &map->htab) == 0)
+        जाओ fallback;
 
-      for (i = 0; i < map->len; i++)
+      क्रम (i = 0; i < map->len; i++)
         {
-          e.key = (char *) map->kvs[i].key;
-          e.data = map->kvs[i].value;
-          if (hsearch_r (e, ENTER, &ep, &map->htab) == 0)
+          e.कुंजी = (अक्षर *) map->kvs[i].कुंजी;
+          e.तथ्य = map->kvs[i].मूल्य;
+          अगर (hsearch_r (e, ENTER, &ep, &map->htab) == 0)
             {
               hdestroy_r (&map->htab);
-              goto fallback;
+              जाओ fallback;
             }
         }
       map->htab_initialized = true;
     }
 
-  e.key = (char *) name;
-  if (hsearch_r (e, FIND, &ep, &map->htab) == 0)
-    return NULL;
+  e.कुंजी = (अक्षर *) name;
+  अगर (hsearch_r (e, FIND, &ep, &map->htab) == 0)
+    वापस शून्य;
 
-  return ep->data;
+  वापस ep->तथ्य;
 
 fallback:
-#endif
+#पूर्ण_अगर
 
-  if (! map->sorted)
+  अगर (! map->sorted)
     {
-      qsort (map->kvs, map->len, sizeof (struct kv_s), compare_kv);
+      क्विक (map->kvs, map->len, माप (काष्ठा kv_s), compare_kv);
       map->sorted = true;
     }
 
-  key.key = (char *) name;
+  कुंजी.कुंजी = (अक्षर *) name;
 
-  r = bsearch (&key, map->kvs, map->len, sizeof (struct kv_s), compare_kv);
-  return r ? r->value : NULL;
+  r = द्वा_खोज (&कुंजी, map->kvs, map->len, माप (काष्ठा kv_s), compare_kv);
+  वापस r ? r->मूल्य : शून्य;
 }
 
 string_map *
 make_string_map_from_json (json_map_string_string *jmap)
 {
-  struct string_map_s *new_map = xmalloc0 (sizeof (struct string_map_s));
-  size_t i;
+  काष्ठा string_map_s *new_map = xmalloc0 (माप (काष्ठा string_map_s));
+  माप_प्रकार i;
 
-  if (jmap == NULL)
-    return new_map;
+  अगर (jmap == शून्य)
+    वापस new_map;
 
   new_map->len = jmap->len;
-  new_map->kvs = xmalloc0 (sizeof (struct kv_s) * (jmap->len + 1));
+  new_map->kvs = xmalloc0 (माप (काष्ठा kv_s) * (jmap->len + 1));
 
-  for (i = 0; i < jmap->len; i++)
+  क्रम (i = 0; i < jmap->len; i++)
     {
-      new_map->kvs[i].key = xstrdup (jmap->keys[i]);
-      new_map->kvs[i].value = xstrdup (jmap->values[i]);
+      new_map->kvs[i].कुंजी = xstrdup (jmap->कुंजियाँ[i]);
+      new_map->kvs[i].मूल्य = xstrdup (jmap->मूल्यावली[i]);
     }
 
-  return new_map;
+  वापस new_map;
 }
 
-int
-string_map_get_at (string_map *map, size_t index, const char **name, const char **value)
+पूर्णांक
+string_map_get_at (string_map *map, माप_प्रकार सूचकांक, स्थिर अक्षर **name, स्थिर अक्षर **मूल्य)
 {
-  if (map == NULL || index >= map->len)
+  अगर (map == शून्य || सूचकांक >= map->len)
     {
-      errno = ERANGE;
-      return -1;
+      त्रुटि_सं = दुस्फल;
+      वापस -1;
     }
 
-  *name = map->kvs[index].key;
-  *value = map->kvs[index].value;
+  *name = map->kvs[सूचकांक].कुंजी;
+  *मूल्य = map->kvs[सूचकांक].मूल्य;
 
-  return 0;
+  वापस 0;
 }
 
-void
+व्योम
 free_string_map (string_map *map)
 {
-  size_t i;
+  माप_प्रकार i;
 
-  if (map == NULL)
-    return;
+  अगर (map == शून्य)
+    वापस;
 
-  if (map->htab_initialized)
+  अगर (map->htab_initialized)
     hdestroy_r (&map->htab);
 
-  for (i = 0; i < map->len; i++)
+  क्रम (i = 0; i < map->len; i++)
     {
-      free (map->kvs[i].key);
-      free (map->kvs[i].value);
+      मुक्त (map->kvs[i].कुंजी);
+      मुक्त (map->kvs[i].मूल्य);
     }
-  free (map->kvs);
-  free (map);
+  मुक्त (map->kvs);
+  मुक्त (map);
 }
 
-size_t
-string_map_size (string_map *map)
+माप_प्रकार
+string_map_आकार (string_map *map)
 {
-  return map->len;
+  वापस map->len;
 }

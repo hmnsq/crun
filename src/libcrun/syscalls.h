@@ -16,113 +16,113 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CRUN_SYSCALLS_H
-#define CRUN_SYSCALLS_H
+#अगर_अघोषित CRUN_SYSCALLS_H
+#घोषणा CRUN_SYSCALLS_H
 
-#include <config.h>
-#include <sys/syscall.h>
-#include <unistd.h>
-#include <errno.h>
-#include <stdint.h>
+#समावेश <config.h>
+#समावेश <sys/syscall.h>
+#समावेश <unistd.h>
+#समावेश <errno.h>
+#समावेश <stdint.h>
 
-#ifdef HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H
+#अगर_घोषित HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H
 #  include <linux/mount.h>
-#endif
-#if defined HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H || defined HAVE_FSCONFIG_CMD_CREATE_SYS_MOUNT_H
+#पूर्ण_अगर
+#अगर defined HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H || defined HAVE_FSCONFIG_CMD_CREATE_SYS_MOUNT_H
 #  define HAVE_NEW_MOUNT_API
-#endif
+#पूर्ण_अगर
 
 /* Constants for new mount API */
-#ifndef FSOPEN_CLOEXEC
+#अगर_अघोषित FSOPEN_CLOEXEC
 #  define FSOPEN_CLOEXEC 0x00000001
-#endif
+#पूर्ण_अगर
 
-#ifndef FSMOUNT_CLOEXEC
+#अगर_अघोषित FSMOUNT_CLOEXEC
 #  define FSMOUNT_CLOEXEC 0x00000001
-#endif
+#पूर्ण_अगर
 
-#ifndef FSCONFIG_CMD_CREATE
+#अगर_अघोषित FSCONFIG_CMD_CREATE
 #  define FSCONFIG_CMD_CREATE 6
-#endif
+#पूर्ण_अगर
 
-#ifndef FSCONFIG_SET_STRING
+#अगर_अघोषित FSCONFIG_SET_STRING
 #  define FSCONFIG_SET_STRING 1
-#endif
+#पूर्ण_अगर
 
 /* Additional mount API constants */
-#ifndef MOUNT_ATTR_RDONLY
+#अगर_अघोषित MOUNT_ATTR_RDONLY
 #  define MOUNT_ATTR_RDONLY 0x00000001 /* Mount read-only */
-#endif
+#पूर्ण_अगर
 
-#ifndef MOUNT_ATTR_NOSUID
+#अगर_अघोषित MOUNT_ATTR_NOSUID
 #  define MOUNT_ATTR_NOSUID 0x00000002
-#endif
+#पूर्ण_अगर
 
-#ifndef MOUNT_ATTR_NODEV
+#अगर_अघोषित MOUNT_ATTR_NODEV
 #  define MOUNT_ATTR_NODEV 0x00000004
-#endif
+#पूर्ण_अगर
 
-#ifndef MOUNT_ATTR_NOEXEC
+#अगर_अघोषित MOUNT_ATTR_NOEXEC
 #  define MOUNT_ATTR_NOEXEC 0x00000008
-#endif
+#पूर्ण_अगर
 
-#ifndef MOUNT_ATTR__ATIME
+#अगर_अघोषित MOUNT_ATTR__ATIME
 #  define MOUNT_ATTR__ATIME 0x00000070
-#endif
+#पूर्ण_अगर
 
-#ifndef MOUNT_ATTR_RELATIME
+#अगर_अघोषित MOUNT_ATTR_RELATIME
 #  define MOUNT_ATTR_RELATIME 0x00000000
-#endif
+#पूर्ण_अगर
 
-#ifndef MOUNT_ATTR_NOATIME
+#अगर_अघोषित MOUNT_ATTR_NOATIME
 #  define MOUNT_ATTR_NOATIME 0x00000010
-#endif
+#पूर्ण_अगर
 
-#ifndef MOUNT_ATTR_STRICTATIME
+#अगर_अघोषित MOUNT_ATTR_STRICTATIME
 #  define MOUNT_ATTR_STRICTATIME 0x00000020
-#endif
+#पूर्ण_अगर
 
-#ifndef MOUNT_ATTR_NODIRATIME
+#अगर_अघोषित MOUNT_ATTR_NODIRATIME
 #  define MOUNT_ATTR_NODIRATIME 0x00000080
-#endif
+#पूर्ण_अगर
 
-#ifndef MOUNT_ATTR_IDMAP
+#अगर_अघोषित MOUNT_ATTR_IDMAP
 #  define MOUNT_ATTR_IDMAP 0x00100000 /* Idmap mount to @userns_fd in struct mount_attr. */
-#endif
+#पूर्ण_अगर
 
-#ifndef MOUNT_ATTR_NOSYMFOLLOW
+#अगर_अघोषित MOUNT_ATTR_NOSYMFOLLOW
 #  define MOUNT_ATTR_NOSYMFOLLOW 0x00200000
-#endif
+#पूर्ण_अगर
 
-#ifndef MS_NOSYMFOLLOW
+#अगर_अघोषित MS_NOSYMFOLLOW
 #  define MS_NOSYMFOLLOW 256
-#endif
+#पूर्ण_अगर
 
 /* close_range flags */
-#ifndef CLOSE_RANGE_CLOEXEC
+#अगर_अघोषित CLOSE_RANGE_CLOEXEC
 #  define CLOSE_RANGE_CLOEXEC (1U << 2)
-#endif
+#पूर्ण_अगर
 
 /* openat2 resolve flags */
-#ifndef RESOLVE_NO_MAGICLINKS
+#अगर_अघोषित RESOLVE_NO_MAGICLINKS
 #  define RESOLVE_NO_MAGICLINKS 0x02
-#endif
-#ifndef RESOLVE_NO_SYMLINKS
+#पूर्ण_अगर
+#अगर_अघोषित RESOLVE_NO_SYMLINKS
 #  define RESOLVE_NO_SYMLINKS 0x04
-#endif
-#ifndef RESOLVE_IN_ROOT
-#  define RESOLVE_IN_ROOT 0x10
-#endif
+#पूर्ण_अगर
+#अगर_अघोषित RESOLVE_IN_मूल
+#  define RESOLVE_IN_मूल 0x10
+#पूर्ण_अगर
 
 /* Structures for syscalls */
-struct openat2_open_how
+काष्ठा openat2_open_how
 {
   uint64_t flags;
   uint64_t mode;
   uint64_t resolve;
 };
 
-struct mount_attr_s
+काष्ठा mount_attr_s
 {
   uint64_t attr_set;
   uint64_t attr_clr;
@@ -130,180 +130,180 @@ struct mount_attr_s
   uint64_t userns_fd;
 };
 
-#ifndef __aligned_u64
+#अगर_अघोषित __aligned_u64
 #  define __aligned_u64 uint64_t __attribute__ ((aligned (8)))
-#endif
+#पूर्ण_अगर
 
-#ifndef CLONE_INTO_CGROUP
+#अगर_अघोषित CLONE_INTO_CGROUP
 #  define CLONE_INTO_CGROUP 0x200000000ULL
-#endif
+#पूर्ण_अगर
 
-struct _clone3_args
+काष्ठा _clone3_args
 {
   __aligned_u64 flags;
   __aligned_u64 pidfd;
   __aligned_u64 child_tid;
   __aligned_u64 parent_tid;
   __aligned_u64 exit_signal;
-  __aligned_u64 stack;
-  __aligned_u64 stack_size;
+  __aligned_u64 ढेर;
+  __aligned_u64 ढेर_आकार;
   __aligned_u64 tls;
   __aligned_u64 set_tid;
-  __aligned_u64 set_tid_size;
+  __aligned_u64 set_tid_आकार;
   __aligned_u64 cgroup;
 };
 
 /* Mount API syscall wrappers */
-static inline int
-syscall_fsopen (const char *fs_name, unsigned int flags)
+अटल अंतरभूत पूर्णांक
+syscall_fsopen (स्थिर अक्षर *fs_name, अचिन्हित पूर्णांक flags)
 {
-#if defined __NR_fsopen
-  return (int) syscall (__NR_fsopen, fs_name, flags);
-#else
-  (void) fs_name;
-  (void) flags;
-  errno = ENOSYS;
-  return -1;
-#endif
+#अगर defined __NR_fsopen
+  वापस (पूर्णांक) syscall (__NR_fsopen, fs_name, flags);
+#अन्यथा
+  (व्योम) fs_name;
+  (व्योम) flags;
+  त्रुटि_सं = ENOSYS;
+  वापस -1;
+#पूर्ण_अगर
 }
 
-static inline int
-syscall_fsmount (int fsfd, unsigned int flags, unsigned int attr_flags)
+अटल अंतरभूत पूर्णांक
+syscall_fsmount (पूर्णांक fsfd, अचिन्हित पूर्णांक flags, अचिन्हित पूर्णांक attr_flags)
 {
-#if defined __NR_fsmount
-  return (int) syscall (__NR_fsmount, fsfd, flags, attr_flags);
-#else
-  (void) fsfd;
-  (void) flags;
-  (void) attr_flags;
-  errno = ENOSYS;
-  return -1;
-#endif
+#अगर defined __NR_fsmount
+  वापस (पूर्णांक) syscall (__NR_fsmount, fsfd, flags, attr_flags);
+#अन्यथा
+  (व्योम) fsfd;
+  (व्योम) flags;
+  (व्योम) attr_flags;
+  त्रुटि_सं = ENOSYS;
+  वापस -1;
+#पूर्ण_अगर
 }
 
-static inline int
-syscall_fsconfig (int fsfd, unsigned int cmd, const char *key, const void *val, int aux)
+अटल अंतरभूत पूर्णांक
+syscall_fsconfig (पूर्णांक fsfd, अचिन्हित पूर्णांक cmd, स्थिर अक्षर *कुंजी, स्थिर व्योम *val, पूर्णांक aux)
 {
-#if defined __NR_fsconfig
-  return (int) syscall (__NR_fsconfig, fsfd, cmd, key, val, aux);
-#else
-  (void) fsfd;
-  (void) cmd;
-  (void) key;
-  (void) val;
-  (void) aux;
-  errno = ENOSYS;
-  return -1;
-#endif
+#अगर defined __NR_fsconfig
+  वापस (पूर्णांक) syscall (__NR_fsconfig, fsfd, cmd, कुंजी, val, aux);
+#अन्यथा
+  (व्योम) fsfd;
+  (व्योम) cmd;
+  (व्योम) कुंजी;
+  (व्योम) val;
+  (व्योम) aux;
+  त्रुटि_सं = ENOSYS;
+  वापस -1;
+#पूर्ण_अगर
 }
 
 /* File descriptor management syscalls */
-static inline int
-syscall_close_range (unsigned int fd, unsigned int max_fd, unsigned int flags)
+अटल अंतरभूत पूर्णांक
+syscall_close_range (अचिन्हित पूर्णांक fd, अचिन्हित पूर्णांक max_fd, अचिन्हित पूर्णांक flags)
 {
-#ifdef __NR_close_range
-  return (int) syscall (__NR_close_range, fd, max_fd, flags);
-#else
-  (void) fd;
-  (void) max_fd;
-  (void) flags;
-  errno = ENOSYS;
-  return -1;
-#endif
+#अगर_घोषित __NR_close_range
+  वापस (पूर्णांक) syscall (__NR_close_range, fd, max_fd, flags);
+#अन्यथा
+  (व्योम) fd;
+  (व्योम) max_fd;
+  (व्योम) flags;
+  त्रुटि_सं = ENOSYS;
+  वापस -1;
+#पूर्ण_अगर
 }
 
 /* Secure file operation syscalls */
-static inline int
-syscall_openat2 (int dirfd, const char *path, uint64_t flags, uint64_t mode, uint64_t resolve)
+अटल अंतरभूत पूर्णांक
+syscall_openat2 (पूर्णांक dirfd, स्थिर अक्षर *path, uint64_t flags, uint64_t mode, uint64_t resolve)
 {
-#ifdef __NR_openat2
-  struct openat2_open_how how = {
+#अगर_घोषित __NR_openat2
+  काष्ठा openat2_open_how how = {
     .flags = flags,
     .mode = mode,
     .resolve = resolve,
   };
-  return (int) syscall (__NR_openat2, dirfd, path, &how, sizeof (how), 0);
-#else
-  (void) dirfd;
-  (void) path;
-  (void) flags;
-  (void) mode;
-  (void) resolve;
-  errno = ENOSYS;
-  return -1;
-#endif
+  वापस (पूर्णांक) syscall (__NR_openat2, dirfd, path, &how, माप (how), 0);
+#अन्यथा
+  (व्योम) dirfd;
+  (व्योम) path;
+  (व्योम) flags;
+  (व्योम) mode;
+  (व्योम) resolve;
+  त्रुटि_सं = ENOSYS;
+  वापस -1;
+#पूर्ण_अगर
 }
 
 /* Process management syscalls */
-static inline int
-syscall_clone3 (struct _clone3_args *args)
+अटल अंतरभूत पूर्णांक
+syscall_clone3 (काष्ठा _clone3_args *args)
 {
-#ifdef __NR_clone3
-  return (int) syscall (__NR_clone3, args, sizeof (*args));
-#else
-  (void) args;
-  errno = ENOSYS;
-  return -1;
-#endif
+#अगर_घोषित __NR_clone3
+  वापस (पूर्णांक) syscall (__NR_clone3, args, माप (*args));
+#अन्यथा
+  (व्योम) args;
+  त्रुटि_सं = ENOSYS;
+  वापस -1;
+#पूर्ण_अगर
 }
 
-static inline int
-syscall_getcwd (char *path, size_t len)
+अटल अंतरभूत पूर्णांक
+syscall_getcwd (अक्षर *path, माप_प्रकार len)
 {
-#ifdef __NR_getcwd
-  return (int) syscall (__NR_getcwd, path, len);
-#else
-  (void) path;
-  (void) len;
-  errno = ENOSYS;
-  return -1;
-#endif
+#अगर_घोषित __NR_getcwd
+  वापस (पूर्णांक) syscall (__NR_getcwd, path, len);
+#अन्यथा
+  (व्योम) path;
+  (व्योम) len;
+  त्रुटि_सं = ENOSYS;
+  वापस -1;
+#पूर्ण_अगर
 }
 
 /* Mount management syscalls */
-static inline int
-syscall_move_mount (int from_dfd, const char *from_pathname, int to_dfd, const char *to_pathname, unsigned int flags)
+अटल अंतरभूत पूर्णांक
+syscall_move_mount (पूर्णांक from_dfd, स्थिर अक्षर *from_pathname, पूर्णांक to_dfd, स्थिर अक्षर *to_pathname, अचिन्हित पूर्णांक flags)
 {
-#if defined __NR_move_mount
-  return (int) syscall (__NR_move_mount, from_dfd, from_pathname, to_dfd, to_pathname, flags);
-#else
-  (void) from_dfd;
-  (void) from_pathname;
-  (void) to_dfd;
-  (void) to_pathname;
-  (void) flags;
-  errno = ENOSYS;
-  return -1;
-#endif
+#अगर defined __NR_move_mount
+  वापस (पूर्णांक) syscall (__NR_move_mount, from_dfd, from_pathname, to_dfd, to_pathname, flags);
+#अन्यथा
+  (व्योम) from_dfd;
+  (व्योम) from_pathname;
+  (व्योम) to_dfd;
+  (व्योम) to_pathname;
+  (व्योम) flags;
+  त्रुटि_सं = ENOSYS;
+  वापस -1;
+#पूर्ण_अगर
 }
 
-static inline int
-syscall_open_tree (int dfd, const char *pathname, unsigned int flags)
+अटल अंतरभूत पूर्णांक
+syscall_open_वृक्ष (पूर्णांक dfd, स्थिर अक्षर *pathname, अचिन्हित पूर्णांक flags)
 {
-#if defined __NR_open_tree
-  return (int) syscall (__NR_open_tree, dfd, pathname, flags);
-#else
-  (void) dfd;
-  (void) pathname;
-  (void) flags;
-  errno = ENOSYS;
-  return -1;
-#endif
+#अगर defined __NR_open_tree
+  वापस (पूर्णांक) syscall (__NR_open_tree, dfd, pathname, flags);
+#अन्यथा
+  (व्योम) dfd;
+  (व्योम) pathname;
+  (व्योम) flags;
+  त्रुटि_सं = ENOSYS;
+  वापस -1;
+#पूर्ण_अगर
 }
 
-static inline int
-syscall_mount_setattr (int dfd, const char *path, unsigned int flags, struct mount_attr_s *attr)
+अटल अंतरभूत पूर्णांक
+syscall_mount_setattr (पूर्णांक dfd, स्थिर अक्षर *path, अचिन्हित पूर्णांक flags, काष्ठा mount_attr_s *attr)
 {
-#ifdef __NR_mount_setattr
-  return (int) syscall (__NR_mount_setattr, dfd, path, flags, attr, sizeof (*attr));
-#else
-  (void) dfd;
-  (void) path;
-  (void) flags;
-  (void) attr;
-  errno = ENOSYS;
-  return -1;
-#endif
+#अगर_घोषित __NR_mount_setattr
+  वापस (पूर्णांक) syscall (__NR_mount_setattr, dfd, path, flags, attr, माप (*attr));
+#अन्यथा
+  (व्योम) dfd;
+  (व्योम) path;
+  (व्योम) flags;
+  (व्योम) attr;
+  त्रुटि_सं = ENOSYS;
+  वापस -1;
+#पूर्ण_अगर
 }
 
-#endif
+#पूर्ण_अगर

@@ -15,13 +15,13 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CGROUP_CGROUPFS_H
-#define CGROUP_CGROUPFS_H
+#अगर_अघोषित CGROUP_CGROUPFS_H
+#घोषणा CGROUP_CGROUPFS_H
 
-#include "container.h"
-#include "cgroup.h"
-#include <unistd.h>
+#समावेश "container.h"
+#समावेश "cgroup.h"
+#समावेश <unistd.h>
 
-extern struct libcrun_cgroup_manager cgroup_manager_cgroupfs;
+बाह्य काष्ठा libcrun_cgroup_manager cgroup_manager_cgroupfs;
 
-#endif
+#पूर्ण_अगर

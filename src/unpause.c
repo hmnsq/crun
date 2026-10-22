@@ -16,53 +16,53 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <regex.h>
+#समावेश <config.h>
+#समावेश <stdio.h>
+#समावेश <stdlib.h>
+#समावेश <argp.h>
+#समावेश <string.h>
+#समावेश <unistd.h>
+#समावेश <errno.h>
+#समावेश <regex.h>
 
-#include "crun.h"
+#समावेश "crun.h"
 
-static char doc[] = "OCI runtime";
+अटल अक्षर doc[] = "OCI runtime";
 
-struct unpause_options_s
+काष्ठा unpause_options_s
 {
 };
 
-static struct unpause_options_s unpause_options;
+अटल काष्ठा unpause_options_s unpause_options;
 
-static struct argp_option options[] = { {
+अटल काष्ठा argp_option options[] = { {
     0,
 } };
 
-static char args_doc[] = "resume CONTAINER";
+अटल अक्षर args_doc[] = "resume CONTAINER";
 
-static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+अटल error_t
+parse_opt (पूर्णांक कुंजी, अक्षर *arg arg_unused, काष्ठा argp_state *state arg_unused)
 {
-  switch (key)
+  चयन (कुंजी)
     {
-    case ARGP_KEY_NO_ARGS:
+    हाल ARGP_कुंजी_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    शेष:
+      वापस ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  वापस 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+अटल काष्ठा argp run_argp = { options, parse_opt, args_doc, doc, शून्य, शून्य, शून्य };
 
-int
-crun_command_unpause (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+पूर्णांक
+crun_command_unpause (काष्ठा crun_global_arguments *global_args, पूर्णांक argc, अक्षर **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
-  cleanup_context libcrun_context_t *crun_context = NULL;
+  पूर्णांक first_arg = 0, ret;
+  cleanup_context libcrun_context_t *crun_context = शून्य;
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &unpause_options);
   crun_assert_n_args (argc - first_arg, 1, 2);
@@ -70,8 +70,8 @@ crun_command_unpause (struct crun_global_arguments *global_args, int argc, char 
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  अगर (UNLIKELY (ret < 0))
+    वापस ret;
 
-  return libcrun_container_unpause (crun_context, argv[first_arg], err);
+  वापस libcrun_container_unpause (crun_context, argv[first_arg], err);
 }

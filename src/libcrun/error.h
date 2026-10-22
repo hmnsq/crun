@@ -15,119 +15,119 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ERROR_H
-#define ERROR_H
-#include <config.h>
-#ifdef HAVE_ERROR_H
+#अगर_अघोषित ERROR_H
+#घोषणा ERROR_H
+#समावेश <config.h>
+#अगर_घोषित HAVE_ERROR_H
 #  include <error.h>
-#else
-#  define error(status, errno, fmt, ...)                      \
-    do                                                        \
+#अन्यथा
+#  define error(status, त्रुटि_सं, fmt, ...)                      \
+    करो                                                        \
       {                                                       \
-        if (errno == 0)                                       \
-          fprintf (stderr, "crun: " fmt "\n", ##__VA_ARGS__); \
-        else                                                  \
+        अगर (त्रुटि_सं == 0)                                       \
+          ख_लिखो (मानक_त्रुटि, "crun: " fmt "\n", ##__VA_ARGS__); \
+        अन्यथा                                                  \
           {                                                   \
-            fprintf (stderr, "crun: " fmt, ##__VA_ARGS__);    \
-            fprintf (stderr, ": %s\n", strerror (errno));     \
+            ख_लिखो (मानक_त्रुटि, "crun: " fmt, ##__VA_ARGS__);    \
+            ख_लिखो (मानक_त्रुटि, ": %s\n", म_त्रुटि (त्रुटि_सं));     \
           }                                                   \
-        if (status)                                           \
-          exit (status);                                      \
-    } while (0)
-#endif
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <syslog.h>
-#include <unistd.h>
+        अगर (status)                                           \
+          निकास (status);                                      \
+    } जबतक (0)
+#पूर्ण_अगर
+#समावेश <stdlib.h>
+#समावेश <stdio.h>
+#समावेश <stdbool.h>
+#समावेश <syslog.h>
+#समावेश <unistd.h>
 
-struct libcrun_error_s
+काष्ठा libcrun_error_s
 {
-  int status;
-  char *msg;
+  पूर्णांक status;
+  अक्षर *संदेश;
 };
-typedef struct libcrun_error_s *libcrun_error_t;
+प्रकार काष्ठा libcrun_error_s *libcrun_error_t;
 
 /* Coverage support: flush coverage data before _exit() in forked processes */
-#ifdef HAVE_COVERAGE
-extern void __gcov_dump (void);
+#अगर_घोषित HAVE_COVERAGE
+बाह्य व्योम __gcov_dump (व्योम);
 #  define GCOV_DUMP() __gcov_dump ()
-#else
+#अन्यथा
 #  define GCOV_DUMP()
-#endif
+#पूर्ण_अगर
 
 /* Use this instead of _exit() to ensure coverage data is flushed */
-#define _safe_exit(status) \
-  do                       \
+#घोषणा _safe_exit(status) \
+  करो                       \
     {                      \
       GCOV_DUMP ();        \
-      _exit (status);      \
-  } while (0)
+      _निकास (status);      \
+  } जबतक (0)
 
-#define OOM()                            \
-  do                                     \
+#घोषणा OOM()                            \
+  करो                                     \
     {                                    \
-      fprintf (stderr, "out of memory"); \
-      _safe_exit (EXIT_FAILURE);         \
-  } while (0)
+      ख_लिखो (मानक_त्रुटि, "out of memory"); \
+      _safe_exit (निकास_त्रुटि);         \
+  } जबतक (0)
 
-typedef void (*crun_output_handler) (int errno_, const char *msg, int verbosity, void *arg);
+प्रकार व्योम (*crun_output_handler) (पूर्णांक errno_, स्थिर अक्षर *संदेश, पूर्णांक verbosity, व्योम *arg);
 
-void crun_set_output_handler (crun_output_handler handler, void *arg);
+व्योम crun_set_output_handler (crun_output_handler handler, व्योम *arg);
 
-void log_write_to_journald (int errno_, const char *msg, int verbosity, void *arg);
+व्योम log_write_to_journald (पूर्णांक errno_, स्थिर अक्षर *संदेश, पूर्णांक verbosity, व्योम *arg);
 
-void log_write_to_syslog (int errno_, const char *msg, int verbosity, void *arg);
+व्योम log_write_to_syslog (पूर्णांक errno_, स्थिर अक्षर *संदेश, पूर्णांक verbosity, व्योम *arg);
 
-void log_write_to_stream (int errno_, const char *msg, int verbosity, void *arg);
+व्योम log_write_to_stream (पूर्णांक errno_, स्थिर अक्षर *संदेश, पूर्णांक verbosity, व्योम *arg);
 
-void log_write_to_stderr (int errno_, const char *msg, int verbosity, void *arg);
+व्योम log_write_to_stderr (पूर्णांक errno_, स्थिर अक्षर *संदेश, पूर्णांक verbosity, व्योम *arg);
 
-int crun_error_wrap (libcrun_error_t *err, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
+पूर्णांक crun_error_wrap (libcrun_error_t *err, स्थिर अक्षर *fmt, ...) __attribute__ ((format (म_लिखो, 2, 3)));
 
-int crun_error_get_errno (libcrun_error_t *err);
+पूर्णांक crun_error_get_errno (libcrun_error_t *err);
 
-int crun_error_release (libcrun_error_t *err);
+पूर्णांक crun_error_release (libcrun_error_t *err);
 
-void crun_error_write_warning_and_release (FILE *out, libcrun_error_t **err);
+व्योम crun_error_write_warning_and_release (खाता *out, libcrun_error_t **err);
 
-LIBCRUN_PUBLIC void libcrun_debug (const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
+LIBCRUN_PUBLIC व्योम libcrun_debug (स्थिर अक्षर *संदेश, ...) __attribute__ ((format (म_लिखो, 1, 2)));
 
-LIBCRUN_PUBLIC void libcrun_warning (const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
+LIBCRUN_PUBLIC व्योम libcrun_warning (स्थिर अक्षर *संदेश, ...) __attribute__ ((format (म_लिखो, 1, 2)));
 
-LIBCRUN_PUBLIC void libcrun_error (int errno_, const char *msg, ...) __attribute__ ((format (printf, 2, 3)));
+LIBCRUN_PUBLIC व्योम libcrun_error (पूर्णांक errno_, स्थिर अक्षर *संदेश, ...) __attribute__ ((format (म_लिखो, 2, 3)));
 
-LIBCRUN_PUBLIC int libcrun_make_error (libcrun_error_t *err, int status, const char *msg, ...) __attribute__ ((format (printf, 3, 4)));
+LIBCRUN_PUBLIC पूर्णांक libcrun_make_error (libcrun_error_t *err, पूर्णांक status, स्थिर अक्षर *संदेश, ...) __attribute__ ((format (म_लिखो, 3, 4)));
 
-#define crun_make_error libcrun_make_error
+#घोषणा crun_make_error libcrun_make_error
 
-LIBCRUN_PUBLIC void libcrun_error_write_warning_and_release (FILE *out, libcrun_error_t **err);
+LIBCRUN_PUBLIC व्योम libcrun_error_write_warning_and_release (खाता *out, libcrun_error_t **err);
 
-LIBCRUN_PUBLIC void libcrun_error_report_and_release (libcrun_error_t *err);
+LIBCRUN_PUBLIC व्योम libcrun_error_report_and_release (libcrun_error_t *err);
 
-LIBCRUN_PUBLIC void libcrun_fail_with_error (int errno_, const char *msg, ...) __attribute__ ((noreturn)) __attribute__ ((format (printf, 2, 3)));
+LIBCRUN_PUBLIC व्योम libcrun_fail_with_error (पूर्णांक errno_, स्थिर अक्षर *संदेश, ...) __attribute__ ((noreturn)) __attribute__ ((format (म_लिखो, 2, 3)));
 
-LIBCRUN_PUBLIC int libcrun_set_log_format (const char *format, libcrun_error_t *err);
+LIBCRUN_PUBLIC पूर्णांक libcrun_set_log_format (स्थिर अक्षर *format, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_init_logging (crun_output_handler *output_handler, void **output_handler_arg, const char *id,
-                                         const char *log, libcrun_error_t *err);
+LIBCRUN_PUBLIC पूर्णांक libcrun_init_logging (crun_output_handler *output_handler, व्योम **output_handler_arg, स्थिर अक्षर *id,
+                                         स्थिर अक्षर *log, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_error_release (libcrun_error_t *err);
+LIBCRUN_PUBLIC पूर्णांक libcrun_error_release (libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_error_get_status (libcrun_error_t err);
+LIBCRUN_PUBLIC पूर्णांक libcrun_error_get_status (libcrun_error_t err);
 
-LIBCRUN_PUBLIC const char *libcrun_error_get_message (libcrun_error_t err);
+LIBCRUN_PUBLIC स्थिर अक्षर *libcrun_error_get_message (libcrun_error_t err);
 
-int json_gen_error_to_crun_error (int gen_status, libcrun_error_t *err);
+पूर्णांक json_gen_error_to_crun_error (पूर्णांक gen_status, libcrun_error_t *err);
 
-enum
+क्रमागत
 {
   LIBCRUN_VERBOSITY_ERROR = 0,
   LIBCRUN_VERBOSITY_WARNING,
   LIBCRUN_VERBOSITY_DEBUG,
 };
 
-LIBCRUN_PUBLIC void libcrun_set_verbosity (int verbosity);
-LIBCRUN_PUBLIC int libcrun_get_verbosity ();
+LIBCRUN_PUBLIC व्योम libcrun_set_verbosity (पूर्णांक verbosity);
+LIBCRUN_PUBLIC पूर्णांक libcrun_get_verbosity ();
 
-#endif
+#पूर्ण_अगर
