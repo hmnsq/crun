@@ -18,154 +18,154 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include <stdlib.h>
-#include <errno.h>
-#include "string_map.h"
-#include "utils.h"
+#ضمن <config.h>
+#ضمن <stdlib.h>
+#ضمن <errno.h>
+#ضمن "string_map.h"
+#ضمن "utils.h"
 
-#include <ocispec/runtime_spec_schema_config_schema.h>
+#ضمن <ocispec/runtime_spec_schema_config_schema.h>
 
-struct kv_s
+بنية kv_s
 {
-  char *key;
-  char *value;
+  حرف *key;
+  حرف *value;
 };
 
-struct string_map_s
+بنية string_map_s
 {
   size_t len;
-  struct kv_s *kvs;
+  بنية kv_s *kvs;
 
 #ifdef HAVE_HSEARCH_R
-  struct hsearch_data htab;
+  بنية hsearch_data htab;
   bool htab_initialized;
 #endif
 
   bool sorted;
 };
 
-static int
-compare_kv (const void *a, const void *b)
+ساكن صحيح
+compare_kv (ثابت فراغ *a, ثابت فراغ *b)
 {
-  return strcmp (((struct kv_s *) a)->key, ((struct kv_s *) b)->key);
+  החזר strcmp (((بنية kv_s *) a)->key, ((بنية kv_s *) b)->key);
 }
 
-const char *
-find_string_map_value (string_map *map, const char *name)
+ثابت حرف *
+find_string_map_value (string_map *map, ثابت حرف *name)
 
 {
-  struct kv_s *r, key;
+  بنية kv_s *r, key;
 
-  if (map == NULL || map->len == 0)
-    return NULL;
+  אם (map == عدم || map->len == 0)
+    החזר عدم;
 
 #ifdef HAVE_HSEARCH_R
   ENTRY e, *ep;
 
   /* Do not bother with hash tables for small maps.  */
-  if (map->len < 8)
-    goto fallback;
+  אם (map->len < 8)
+    اذهب fallback;
 
-  if (! map->htab_initialized)
+  אם (! map->htab_initialized)
     {
       size_t i;
 
-      if (hcreate_r (map->len, &map->htab) == 0)
-        goto fallback;
+      אם (hcreate_r (map->len, &map->htab) == 0)
+        اذهب fallback;
 
-      for (i = 0; i < map->len; i++)
+      עבור (i = 0; i < map->len; i++)
         {
-          e.key = (char *) map->kvs[i].key;
+          e.key = (حرف *) map->kvs[i].key;
           e.data = map->kvs[i].value;
-          if (hsearch_r (e, ENTER, &ep, &map->htab) == 0)
+          אם (hsearch_r (e, ENTER, &ep, &map->htab) == 0)
             {
               hdestroy_r (&map->htab);
-              goto fallback;
+              اذهب fallback;
             }
         }
       map->htab_initialized = true;
     }
 
-  e.key = (char *) name;
-  if (hsearch_r (e, FIND, &ep, &map->htab) == 0)
-    return NULL;
+  e.key = (حرف *) name;
+  אם (hsearch_r (e, FIND, &ep, &map->htab) == 0)
+    החזר عدم;
 
-  return ep->data;
+  החזר ep->data;
 
 fallback:
 #endif
 
-  if (! map->sorted)
+  אם (! map->sorted)
     {
-      qsort (map->kvs, map->len, sizeof (struct kv_s), compare_kv);
+      qsort (map->kvs, map->len, حجم (بنية kv_s), compare_kv);
       map->sorted = true;
     }
 
-  key.key = (char *) name;
+  key.key = (حرف *) name;
 
-  r = bsearch (&key, map->kvs, map->len, sizeof (struct kv_s), compare_kv);
-  return r ? r->value : NULL;
+  r = bsearch (&key, map->kvs, map->len, حجم (بنية kv_s), compare_kv);
+  החזר r ? r->value : عدم;
 }
 
 string_map *
 make_string_map_from_json (json_map_string_string *jmap)
 {
-  struct string_map_s *new_map = xmalloc0 (sizeof (struct string_map_s));
+  بنية string_map_s *new_map = xmalloc0 (حجم (بنية string_map_s));
   size_t i;
 
-  if (jmap == NULL)
-    return new_map;
+  אם (jmap == عدم)
+    החזר new_map;
 
   new_map->len = jmap->len;
-  new_map->kvs = xmalloc0 (sizeof (struct kv_s) * (jmap->len + 1));
+  new_map->kvs = xmalloc0 (حجم (بنية kv_s) * (jmap->len + 1));
 
-  for (i = 0; i < jmap->len; i++)
+  עבור (i = 0; i < jmap->len; i++)
     {
       new_map->kvs[i].key = xstrdup (jmap->keys[i]);
       new_map->kvs[i].value = xstrdup (jmap->values[i]);
     }
 
-  return new_map;
+  החזר new_map;
 }
 
-int
-string_map_get_at (string_map *map, size_t index, const char **name, const char **value)
+صحيح
+string_map_get_at (string_map *map, size_t index, ثابت حرف **name, ثابت حرف **value)
 {
-  if (map == NULL || index >= map->len)
+  אם (map == عدم || index >= map->len)
     {
       errno = ERANGE;
-      return -1;
+      החזר -1;
     }
 
   *name = map->kvs[index].key;
   *value = map->kvs[index].value;
 
-  return 0;
+  החזר 0;
 }
 
-void
+فراغ
 free_string_map (string_map *map)
 {
   size_t i;
 
-  if (map == NULL)
-    return;
+  אם (map == عدم)
+    החזר;
 
-  if (map->htab_initialized)
+  אם (map->htab_initialized)
     hdestroy_r (&map->htab);
 
-  for (i = 0; i < map->len; i++)
+  עבור (i = 0; i < map->len; i++)
     {
-      free (map->kvs[i].key);
-      free (map->kvs[i].value);
+      حرر (map->kvs[i].key);
+      حرر (map->kvs[i].value);
     }
-  free (map->kvs);
-  free (map);
+  حرر (map->kvs);
+  حرر (map);
 }
 
 size_t
 string_map_size (string_map *map)
 {
-  return map->len;
+  החזר map->len;
 }
