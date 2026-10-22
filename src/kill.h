@@ -20,6 +20,6 @@
 
 #include "crun.h"
 
-int crun_command_kill (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+ຈຳນວນເຕັມ crun_command_kill (sa_nracanaa crun_global_arguments *global_args, ຈຳນວນເຕັມ argc, var_na **argv, libcrun_error_t *error);
 
 #endif

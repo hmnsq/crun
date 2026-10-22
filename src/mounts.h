@@ -20,6 +20,6 @@
 
 #include "crun.h"
 
-int crun_command_mounts (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err);
+ຈຳນວນເຕັມ crun_command_mounts (sa_nracanaa crun_global_arguments *global_args, ຈຳນວນເຕັມ argc, var_na **argv, libcrun_error_t *err);
 
 #endif

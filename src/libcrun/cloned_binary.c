@@ -62,7 +62,7 @@
 #include "linux.h"
 
 /* Use our own wrapper for memfd_create. */
-#if !defined(SYS_memfd_create) && defined(__NR_memfd_create)
+#ຖ້າ !defined(SYS_memfd_create) && defined(__NR_memfd_create)
 #  define SYS_memfd_create __NR_memfd_create
 #endif
 /* memfd_create(2) flags -- copied from <linux/memfd.h>. */
@@ -70,13 +70,13 @@
 #  define MFD_CLOEXEC       0x0001U
 #  define MFD_ALLOW_SEALING 0x0002U
 #endif
-int memfd_create(const char *name, unsigned int flags)
+ຈຳນວນເຕັມ memfd_create(const var_na *name, unsigned ຈຳນວນເຕັມ flags)
 {
 #ifdef SYS_memfd_create
-	return syscall(SYS_memfd_create, name, flags);
-#else
+	ສົ່ງຄືນ syscall(SYS_memfd_create, name, flags);
+#ບໍ່ດັ່ງນັ້ນ
 	errno = ENOSYS;
-	return -1;
+	ສົ່ງຄືນ -1;
 #endif
 }
 
@@ -106,15 +106,15 @@ int memfd_create(const char *name, unsigned int flags)
  * /proc/self/exe a memfd). F_GET_SEALS will only succeed for memfds (or rather
  * for shmem files), and we want to be sure it's actually sealed.
  */
-static int is_self_cloned(void)
+static ຈຳນວນເຕັມ is_self_cloned(void)
 {
-	int fd, ret, is_cloned = 0;
-	struct stat statbuf = {};
-	struct statfs fsbuf = {};
+	ຈຳນວນເຕັມ fd, ret, is_cloned = 0;
+	sa_nracanaa stat statbuf = {};
+	sa_nracanaa statfs fsbuf = {};
 
 	fd = open("/proc/self/exe", O_RDONLY|O_CLOEXEC);
-	if (fd < 0)
-		return -ENOTRECOVERABLE;
+	ຖ້າ (fd < 0)
+		ສົ່ງຄືນ -ENOTRECOVERABLE;
 
 	/*
 	 * Is the binary a fully-sealed memfd? We don't need CLONED_BINARY_ENV for
@@ -123,7 +123,7 @@ static int is_self_cloned(void)
 	 * memfd to /usr/bin/crun to allow reuse).
 	 */
 	ret = fcntl(fd, F_GET_SEALS);
-	if (ret >= 0) {
+	ຖ້າ (ret >= 0) {
 		is_cloned = (ret == CRUN_MEMFD_SEALS);
 		goto out;
 	}
@@ -134,7 +134,7 @@ static int is_self_cloned(void)
 	 * such as truly read-only filesystems like squashfs/erofs as well as
 	 * things like the ostree read-only bind mount.
 	 */
-	if (fstatfs(fd, &fsbuf) >= 0 && (fsbuf.f_flags & MS_RDONLY)) {
+	ຖ້າ (fstatfs(fd, &fsbuf) >= 0 && (fsbuf.f_flags & MS_RDONLY)) {
 		is_cloned = true;
 		goto out;
 	}
@@ -144,7 +144,7 @@ static int is_self_cloned(void)
 	 * writeable (or we can't tell if they're fully safe) and thus we must
 	 * check the environment as an extra layer of defence.
 	 */
-	if (!getenv(CLONED_BINARY_ENV)) {
+	ຖ້າ (!getenv(CLONED_BINARY_ENV)) {
 		is_cloned = false;
 		goto out;
 	}
@@ -157,48 +157,48 @@ static int is_self_cloned(void)
 	 * cannot fake (because unlinking requires being able to resolve the
 	 * path that you want to unlink).
 	 */
-	if (fstat(fd, &statbuf) >= 0)
+	ຖ້າ (fstat(fd, &statbuf) >= 0)
 		is_cloned |= (statbuf.st_nlink == 0);
 
 out:
 	close(fd);
-	return is_cloned;
+	ສົ່ງຄືນ is_cloned;
 }
 
 /* Read a given file into a new buffer, and providing the length. */
-static char *read_file(char *path, size_t *length)
+static var_na *read_file(var_na *path, size_t *length)
 {
-	int fd;
-	char buf[4096], *copy = NULL;
+	ຈຳນວນເຕັມ fd;
+	var_na buf[4096], *copy = NULL;
 
-	if (!length)
-		return NULL;
+	ຖ້າ (!length)
+		ສົ່ງຄືນ NULL;
 
 	fd = open(path, O_RDONLY | O_CLOEXEC);
-	if (fd < 0)
-		return NULL;
+	ຖ້າ (fd < 0)
+		ສົ່ງຄືນ NULL;
 
 	*length = 0;
-	for (;;) {
+	ສຳລັບ (;;) {
 		ssize_t n;
 
-		n = read(fd, buf, sizeof(buf));
-		if (n < 0)
+		n = read(fd, buf, parimaa_na(buf));
+		ຖ້າ (n < 0)
 			goto error;
-		if (!n)
-			break;
+		ຖ້າ (!n)
+			bha_nga;
 
-		copy = xrealloc(copy, (*length + n) * sizeof(*copy));
+		copy = xrealloc(copy, (*length + n) * parimaa_na(*copy));
 		memcpy(copy + *length, buf, n);
 		*length += n;
 	}
 	close(fd);
-	return copy;
+	ສົ່ງຄືນ copy;
 
 error:
 	close(fd);
 	free(copy);
-	return NULL;
+	ສົ່ງຄືນ NULL;
 }
 
 /*
@@ -206,22 +206,22 @@ error:
  * NUL-delimited data, within the given length and adds a pointer to each entry
  * to the array of pointers.
  */
-static int parse_xargs(char *data, int data_length, char ***output)
+static ຈຳນວນເຕັມ parse_xargs(var_na *data, ຈຳນວນເຕັມ data_length, var_na ***output)
 {
-	int num = 0;
-	char *cur = data;
+	ຈຳນວນເຕັມ num = 0;
+	var_na *cur = data;
 
-	if (!data || *output != NULL)
-		return -1;
+	ຖ້າ (!data || *output != NULL)
+		ສົ່ງຄືນ -1;
 
-	while (cur < data + data_length) {
+	ໃນຂະນະທີ່ (cur < data + data_length) {
 		num++;
-		*output = xrealloc(*output, (num + 1) * sizeof(**output));
+		*output = xrealloc(*output, (num + 1) * parimaa_na(**output));
 		(*output)[num - 1] = cur;
 		cur += strlen(cur) + 1;
 	}
 	(*output)[num] = NULL;
-	return num;
+	ສົ່ງຄືນ num;
 }
 
 /*
@@ -229,26 +229,26 @@ static int parse_xargs(char *data, int data_length, char ***output)
  * This is necessary because we are running in a context where we don't have a
  * main() that we can just get the arguments from.
  */
-static int fetchve(char ***argv)
+static ຈຳນວນເຕັມ fetchve(var_na ***argv)
 {
-	char *cmdline = NULL;
+	var_na *cmdline = NULL;
 	size_t cmdline_size;
 
 	cmdline = read_file("/proc/self/cmdline", &cmdline_size);
-	if (!cmdline)
+	ຖ້າ (!cmdline)
 		goto error;
 
-	if (parse_xargs(cmdline, cmdline_size, argv) <= 0)
+	ຖ້າ (parse_xargs(cmdline, cmdline_size, argv) <= 0)
 		goto error;
 
-	return 0;
+	ສົ່ງຄືນ 0;
 
 error:
 	free(cmdline);
-	return -EINVAL;
+	ສົ່ງຄືນ -EINVAL;
 }
 
-enum {
+ga_nanaa {
 	EFD_NONE = 0,
 	EFD_MEMFD,
 	EFD_FILE,
@@ -260,21 +260,21 @@ enum {
  * have the mkostemp(3) fallback.
  */
 #ifndef O_TMPFILE
-#  if defined(__O_TMPFILE) && defined(O_DIRECTORY)
+#  ຖ້າ defined(__O_TMPFILE) && defined(O_DIRECTORY)
 #    define O_TMPFILE (__O_TMPFILE | O_DIRECTORY)
 #  endif
 #endif
 
-static int make_execfd(int *fdtype)
+static ຈຳນວນເຕັມ make_execfd(ຈຳນວນເຕັມ *fdtype)
 {
-	int fd = -1;
-	char template[PATH_MAX] = {0};
-	char *prefix = getenv("_LIBCONTAINER_STATEDIR");
+	ຈຳນວນເຕັມ fd = -1;
+	var_na template[PATH_MAX] = {0};
+	var_na *prefix = getenv("_LIBCONTAINER_STATEDIR");
 
-	if (!prefix || *prefix != '/')
+	ຖ້າ (!prefix || *prefix != '/')
 		prefix = "/tmp";
-	if (snprintf(template, sizeof(template), "%s/crun.XXXXXX", prefix) < 0)
-		return -1;
+	ຖ້າ (snprintf(template, parimaa_na(template), "%s/crun.XXXXXX", prefix) < 0)
+		ສົ່ງຄືນ -1;
 
 	/*
 	 * Now try memfd, it's much nicer than actually creating a file in STATEDIR
@@ -283,9 +283,9 @@ static int make_execfd(int *fdtype)
 	 */
 	*fdtype = EFD_MEMFD;
 	fd = memfd_create(CRUN_MEMFD_COMMENT, MFD_CLOEXEC | MFD_ALLOW_SEALING);
-	if (fd >= 0)
-		return fd;
-	if (errno != ENOSYS && errno != EINVAL)
+	ຖ້າ (fd >= 0)
+		ສົ່ງຄືນ fd;
+	ຖ້າ (errno != ENOSYS && errno != EINVAL)
 		goto error;
 
 #ifdef O_TMPFILE
@@ -296,8 +296,8 @@ static int make_execfd(int *fdtype)
 	 */
 	*fdtype = EFD_FILE;
 	fd = open(prefix, O_TMPFILE | O_EXCL | O_RDWR | O_CLOEXEC, 0700);
-	if (fd >= 0) {
-		struct stat statbuf = {};
+	ຖ້າ (fd >= 0) {
+		sa_nracanaa stat statbuf = {};
 		bool working_otmpfile = false;
 
 		/*
@@ -306,17 +306,17 @@ static int make_execfd(int *fdtype)
 		 * if we get nlink != 0 (or EISDIR) then we know that this kernel
 		 * doesn't support O_TMPFILE.
 		 */
-		if (fstat(fd, &statbuf) >= 0)
+		ຖ້າ (fstat(fd, &statbuf) >= 0)
 			working_otmpfile = (statbuf.st_nlink == 0);
 
-		if (working_otmpfile)
-			return fd;
+		ຖ້າ (working_otmpfile)
+			ສົ່ງຄືນ fd;
 
 		/* Pretend that we got EISDIR since O_TMPFILE failed. */
 		close(fd);
 		errno = EISDIR;
 	}
-	if (errno != EISDIR)
+	ຖ້າ (errno != EISDIR)
 		goto error;
 #endif /* defined(O_TMPFILE) */
 
@@ -326,69 +326,69 @@ static int make_execfd(int *fdtype)
 	 */
 	*fdtype = EFD_FILE;
 	fd = mkostemp(template, O_CLOEXEC);
-	if (fd >= 0) {
-		if (unlink(template) >= 0)
-			return fd;
+	ຖ້າ (fd >= 0) {
+		ຖ້າ (unlink(template) >= 0)
+			ສົ່ງຄືນ fd;
 		close(fd);
 	}
 
 error:
 	*fdtype = EFD_NONE;
-	return -1;
+	ສົ່ງຄືນ -1;
 }
 
-static int seal_execfd(int *fd, int fdtype)
+static ຈຳນວນເຕັມ seal_execfd(ຈຳນວນເຕັມ *fd, ຈຳນວນເຕັມ fdtype)
 {
 	switch (fdtype) {
-	case EFD_MEMFD:
-		return fcntl(*fd, F_ADD_SEALS, CRUN_MEMFD_SEALS);
-	case EFD_FILE: {
+	pak_sa EFD_MEMFD:
+		ສົ່ງຄືນ fcntl(*fd, F_ADD_SEALS, CRUN_MEMFD_SEALS);
+	pak_sa EFD_FILE: {
 		/* Need to re-open our pseudo-memfd as an O_PATH to avoid execve(2) giving -ETXTBSY. */
-		int newfd;
-		char fdpath[PATH_MAX] = {0};
+		ຈຳນວນເຕັມ newfd;
+		var_na fdpath[PATH_MAX] = {0};
 
-		if (fchmod(*fd, 0100) < 0)
-			return -1;
+		ຖ້າ (fchmod(*fd, 0100) < 0)
+			ສົ່ງຄືນ -1;
 
-		if (snprintf(fdpath, sizeof(fdpath), "/proc/self/fd/%d", *fd) < 0)
-			return -1;
+		ຖ້າ (snprintf(fdpath, parimaa_na(fdpath), "/proc/self/fd/%d", *fd) < 0)
+			ສົ່ງຄືນ -1;
 
 		newfd = open(fdpath, O_PATH | O_CLOEXEC);
-		if (newfd < 0)
-			return -1;
+		ຖ້າ (newfd < 0)
+			ສົ່ງຄືນ -1;
 
 		close(*fd);
 		*fd = newfd;
-		return 0;
+		ສົ່ງຄືນ 0;
 	}
 	default:
-	   break;
+	   bha_nga;
 	}
-	return -1;
+	ສົ່ງຄືນ -1;
 }
 
-static int try_bindfd_mount_api(void)
+static ຈຳນວນເຕັມ try_bindfd_mount_api(void)
 {
 	libcrun_error_t err;
-	int mountfd = get_bind_mount (-1, "/proc/self/exe", false, true, false, MS_PRIVATE, &err);
-	if (mountfd < 0) {
+	ຈຳນວນເຕັມ mountfd = get_bind_mount (-1, "/proc/self/exe", false, true, false, MS_PRIVATE, &err);
+	ຖ້າ (mountfd < 0) {
 		crun_error_release (&err);
-		return -1;
+		ສົ່ງຄືນ -1;
 	}
-	return mountfd;
+	ສົ່ງຄືນ mountfd;
 }
 
-static int try_bindfd(void)
+static ຈຳນວນເຕັມ try_bindfd(void)
 {
 	mode_t mask;
-	int fd, ret = -1;
-	char template[PATH_MAX] = {0};
-	char *prefix = getenv("_LIBCONTAINER_STATEDIR");
+	ຈຳນວນເຕັມ fd, ret = -1;
+	var_na template[PATH_MAX] = {0};
+	var_na *prefix = getenv("_LIBCONTAINER_STATEDIR");
 
-	if (!prefix || *prefix != '/')
+	ຖ້າ (!prefix || *prefix != '/')
 		prefix = "/tmp";
-	if (snprintf(template, sizeof(template), "%s/crun.XXXXXX", prefix) < 0)
-		return ret;
+	ຖ້າ (snprintf(template, parimaa_na(template), "%s/crun.XXXXXX", prefix) < 0)
+		ສົ່ງຄືນ ret;
 
 	/*
 	 * We need somewhere to mount it, mounting anything over /proc/self is a
@@ -397,8 +397,8 @@ static int try_bindfd(void)
 	mask = umask(0700);
 	fd = mkstemp(template);
 	umask(mask);
-	if (fd < 0)
-		return ret;
+	ຖ້າ (fd < 0)
+		ສົ່ງຄືນ ret;
 	close(fd);
 
 	/*
@@ -407,9 +407,9 @@ static int try_bindfd(void)
 	 * complicated and it's only worth doing if someone actually needs it.
 	 */
 	ret = -EPERM;
-	if (mount("/proc/self/exe", template, "", MS_BIND, "") < 0)
+	ຖ້າ (mount("/proc/self/exe", template, "", MS_BIND, "") < 0)
 		goto out;
-	if (mount("", template, "", MS_REMOUNT | MS_BIND | MS_RDONLY, "") < 0)
+	ຖ້າ (mount("", template, "", MS_REMOUNT | MS_BIND | MS_RDONLY, "") < 0)
 		goto out_umount;
 
 
@@ -422,8 +422,8 @@ out_umount:
 	 * read-write and that would be quite bad (the fd would be made read-write
 	 * too, invalidating the protection).
 	 */
-	if (umount2(template, MNT_DETACH) < 0) {
-		if (ret >= 0)
+	ຖ້າ (umount2(template, MNT_DETACH) < 0) {
+		ຖ້າ (ret >= 0)
 			close(ret);
 		ret = -ENOTRECOVERABLE;
 	}
@@ -434,60 +434,60 @@ out:
 	 * there's an empty file left around in STATEDIR.
 	 */
 	unlink(template);
-	return ret;
+	ສົ່ງຄືນ ret;
 }
 
-static ssize_t fd_to_fd(int outfd, int infd)
+static ssize_t fd_to_fd(ຈຳນວນເຕັມ outfd, ຈຳນວນເຕັມ infd)
 {
 	ssize_t total = 0;
-	char buffer[4096];
+	var_na buffer[4096];
 
-	for (;;) {
+	ສຳລັບ (;;) {
 		ssize_t nread, nwritten = 0;
 
-		nread = read(infd, buffer, sizeof(buffer));
-		if (nread < 0)
-			return -1;
-		if (!nread)
-			break;
+		nread = read(infd, buffer, parimaa_na(buffer));
+		ຖ້າ (nread < 0)
+			ສົ່ງຄືນ -1;
+		ຖ້າ (!nread)
+			bha_nga;
 
 		do {
 			ssize_t n = write(outfd, buffer + nwritten, nread - nwritten);
-			if (n < 0)
-				return -1;
+			ຖ້າ (n < 0)
+				ສົ່ງຄືນ -1;
 			nwritten += n;
-		} while(nwritten < nread);
+		} ໃນຂະນະທີ່(nwritten < nread);
 
 		total += nwritten;
 	}
 
-	return total;
+	ສົ່ງຄືນ total;
 }
 
-static int clone_binary(void)
+static ຈຳນວນເຕັມ clone_binary(void)
 {
-	cleanup_close int execfd = -1;
-	struct stat statbuf = {};
+	cleanup_close ຈຳນວນເຕັມ execfd = -1;
+	sa_nracanaa stat statbuf = {};
 	ssize_t sent = 0;
-	int fdtype = EFD_NONE;
+	ຈຳນວນເຕັມ fdtype = EFD_NONE;
 
 	/*
 	 * Before we resort to copying, let's try creating an ro-binfd in one shot
 	 * by getting a handle for a read-only bind-mount of the execfd.
 	 */
 	execfd = try_bindfd_mount_api();
-	if (execfd >= 0) {
+	ຖ້າ (execfd >= 0) {
 		/* Transfer ownership to caller */
-		int ret_execfd = execfd;
+		ຈຳນວນເຕັມ ret_execfd = execfd;
 		execfd = -1;
-		return ret_execfd;
+		ສົ່ງຄືນ ret_execfd;
 	}
 	execfd = try_bindfd();
-	if (execfd >= 0) {
+	ຖ້າ (execfd >= 0) {
 		/* Transfer ownership to caller */
-		int ret_execfd = execfd;
+		ຈຳນວນເຕັມ ret_execfd = execfd;
 		execfd = -1;
-		return ret_execfd;
+		ສົ່ງຄືນ ret_execfd;
 	}
 
 	/*
@@ -495,69 +495,69 @@ static int clone_binary(void)
 	 * can seal the contents.
 	 */
 	execfd = make_execfd(&fdtype);
-	if (execfd < 0 || fdtype == EFD_NONE)
-		return -ENOTRECOVERABLE;
+	ຖ້າ (execfd < 0 || fdtype == EFD_NONE)
+		ສົ່ງຄືນ -ENOTRECOVERABLE;
 
 	{
-		cleanup_close int binfd = -1;
+		cleanup_close ຈຳນວນເຕັມ binfd = -1;
 		binfd = open("/proc/self/exe", O_RDONLY | O_CLOEXEC);
-		if (binfd < 0)
+		ຖ້າ (binfd < 0)
 			goto error;
 
-		if (fstat(binfd, &statbuf) < 0)
+		ຖ້າ (fstat(binfd, &statbuf) < 0)
 			goto error;
 
-		while (sent < statbuf.st_size) {
-			int n = sendfile(execfd, binfd, NULL, statbuf.st_size - sent);
-			if (n < 0) {
+		ໃນຂະນະທີ່ (sent < statbuf.st_size) {
+			ຈຳນວນເຕັມ n = sendfile(execfd, binfd, NULL, statbuf.st_size - sent);
+			ຖ້າ (n < 0) {
 				/* sendfile can fail so we fallback to a dumb user-space copy. */
 				n = fd_to_fd(execfd, binfd);
-				if (n < 0)
+				ຖ້າ (n < 0)
 					goto error;
 			}
 			sent += n;
 		}
 	}
-	if (sent != statbuf.st_size)
+	ຖ້າ (sent != statbuf.st_size)
 		goto error;
 
-	if (seal_execfd(&execfd, fdtype) < 0)
+	ຖ້າ (seal_execfd(&execfd, fdtype) < 0)
 		goto error;
 
 	{
 		/* Transfer ownership to caller */
-		int ret_execfd = execfd;
+		ຈຳນວນເຕັມ ret_execfd = execfd;
 		execfd = -1;
-		return ret_execfd;
+		ສົ່ງຄືນ ret_execfd;
 	}
 error:
-	return -EIO;
+	ສົ່ງຄືນ -EIO;
 }
 
 /* Get cheap access to the environment. */
-extern char **environ;
+extern var_na **environ;
 
-int ensure_cloned_binary(void)
+ຈຳນວນເຕັມ ensure_cloned_binary(void)
 {
-	cleanup_close int execfd = -1;
-	char **argv = NULL;
+	cleanup_close ຈຳນວນເຕັມ execfd = -1;
+	var_na **argv = NULL;
 
 	/* Check that we're not self-cloned, and if we are then bail. */
-	int cloned = is_self_cloned();
-	if (cloned > 0 || cloned == -ENOTRECOVERABLE)
-		return cloned;
+	ຈຳນວນເຕັມ cloned = is_self_cloned();
+	ຖ້າ (cloned > 0 || cloned == -ENOTRECOVERABLE)
+		ສົ່ງຄືນ cloned;
 
-	if (fetchve(&argv) < 0)
-		return -EINVAL;
+	ຖ້າ (fetchve(&argv) < 0)
+		ສົ່ງຄືນ -EINVAL;
 
 	execfd = clone_binary();
-	if (execfd < 0)
-		return -EIO;
+	ຖ້າ (execfd < 0)
+		ສົ່ງຄືນ -EIO;
 
-	if (putenv(CLONED_BINARY_ENV "=1"))
+	ຖ້າ (putenv(CLONED_BINARY_ENV "=1"))
 		goto error;
 
 	fexecve(execfd, argv, environ);
 error:
-	return -ENOEXEC;
+	ສົ່ງຄືນ -ENOEXEC;
 }

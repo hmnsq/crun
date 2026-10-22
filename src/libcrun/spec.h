@@ -23,8 +23,8 @@
 #include <stdio.h>
 #include "error.h"
 
-LIBCRUN_PUBLIC int libcrun_container_spec (bool root, FILE *out, libcrun_error_t *err);
+LIBCRUN_PUBLIC ຈຳນວນເຕັມ libcrun_container_spec (bool root, FILE *out, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_spec_json (bool root, char **out, libcrun_error_t *err);
+LIBCRUN_PUBLIC ຈຳນວນເຕັມ libcrun_container_spec_json (bool root, var_na **out, libcrun_error_t *err);
 
 #endif

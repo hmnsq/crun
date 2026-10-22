@@ -26,32 +26,32 @@
 
 #include "crun.h"
 
-static char doc[] = "OCI runtime";
+static var_na doc[] = "OCI runtime";
 
-static struct argp_option options[] = {
+static sa_nracanaa argp_option options[] = {
   0,
 };
 
-static char args_doc[] = "mounts [add|remove] CONTAINER FILE";
+static var_na args_doc[] = "mounts [add|remove] CONTAINER FILE";
 
 static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+parse_opt (ຈຳນວນເຕັມ key, var_na *arg arg_unused, sa_nracanaa argp_state *state arg_unused)
 {
   switch (key)
     {
     default:
-      return ARGP_ERR_UNKNOWN;
+      ສົ່ງຄືນ ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  ສົ່ງຄືນ 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+static sa_nracanaa argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-int
-crun_command_mounts (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+ຈຳນວນເຕັມ
+crun_command_mounts (sa_nracanaa crun_global_arguments *global_args, ຈຳນວນເຕັມ argc, var_na **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
+  ຈຳນວນເຕັມ first_arg = 0, ret;
   cleanup_context libcrun_context_t *crun_context = NULL;
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, NULL);
@@ -60,13 +60,13 @@ crun_command_mounts (struct crun_global_arguments *global_args, int argc, char *
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ຖ້າ (UNLIKELY (ret < 0))
+    ສົ່ງຄືນ ret;
 
-  if (strcmp (argv[first_arg], "add") == 0)
-    return libcrun_container_add_mounts_from_file (crun_context, argv[first_arg + 1], argv[first_arg + 2], err);
-  else if (strcmp (argv[first_arg], "remove") == 0)
-    return libcrun_container_remove_mounts_from_file (crun_context, argv[first_arg + 1], argv[first_arg + 2], err);
+  ຖ້າ (strcmp (argv[first_arg], "add") == 0)
+    ສົ່ງຄືນ libcrun_container_add_mounts_from_file (crun_context, argv[first_arg + 1], argv[first_arg + 2], err);
+  ບໍ່ດັ່ງນັ້ນ ຖ້າ (strcmp (argv[first_arg], "remove") == 0)
+    ສົ່ງຄືນ libcrun_container_remove_mounts_from_file (crun_context, argv[first_arg + 1], argv[first_arg + 2], err);
 
-  return crun_make_error (err, 0, "unknown command %s", argv[first_arg]);
+  ສົ່ງຄືນ crun_make_error (err, 0, "unknown command %s", argv[first_arg]);
 }
