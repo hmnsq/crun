@@ -18,8 +18,8 @@
 #ifndef MOUNTS_H
 #define MOUNTS_H
 
-#include "crun.h"
+#ضمن "crun.h"
 
-int crun_command_mounts (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err);
+صحيح crun_command_mounts (بنية crun_global_arguments *global_وسائط, صحيح argc, حرف **argv, libcrun_error_t *err);
 
 #endif
