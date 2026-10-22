@@ -21,7 +21,7 @@
 #include "container.h"
 #include "utils.h"
 
-int enter_cgroup (int cgroup_mode, pid_t pid, pid_t init_pid, const char *path,
+ကိန်းပြည့် enter_cgroup (ကိန်းပြည့် cgroup_mode, pid_t pid, pid_t init_pid, const var_na *path,
                   bool create_if_missing, libcrun_error_t *err);
 
 #endif

@@ -22,6 +22,6 @@
 #include "container.h"
 #include "status.h"
 
-int libcrun_set_mempolicy (runtime_spec_schema_config_schema *def, libcrun_error_t *err);
+ကိန်းပြည့် libcrun_set_mempolicy (runtime_spec_schema_config_schema *def, libcrun_error_t *err);
 
 #endif

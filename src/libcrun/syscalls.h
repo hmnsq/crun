@@ -28,7 +28,7 @@
 #ifdef HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H
 #  include <linux/mount.h>
 #endif
-#if defined HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H || defined HAVE_FSCONFIG_CMD_CREATE_SYS_MOUNT_H
+#အကယ်၍ defined HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H || defined HAVE_FSCONFIG_CMD_CREATE_SYS_MOUNT_H
 #  define HAVE_NEW_MOUNT_API
 #endif
 
@@ -115,14 +115,14 @@
 #endif
 
 /* Structures for syscalls */
-struct openat2_open_how
+sa_nracanaa openat2_open_how
 {
   uint64_t flags;
   uint64_t mode;
   uint64_t resolve;
 };
 
-struct mount_attr_s
+sa_nracanaa mount_attr_s
 {
   uint64_t attr_set;
   uint64_t attr_clr;
@@ -138,7 +138,7 @@ struct mount_attr_s
 #  define CLONE_INTO_CGROUP 0x200000000ULL
 #endif
 
-struct _clone3_args
+sa_nracanaa _clone3_args
 {
   __aligned_u64 flags;
   __aligned_u64 pidfd;
@@ -154,155 +154,155 @@ struct _clone3_args
 };
 
 /* Mount API syscall wrappers */
-static inline int
-syscall_fsopen (const char *fs_name, unsigned int flags)
+static anta_hstha ကိန်းပြည့်
+syscall_fsopen (const var_na *fs_name, unsigned ကိန်းပြည့် flags)
 {
-#if defined __NR_fsopen
-  return (int) syscall (__NR_fsopen, fs_name, flags);
-#else
+#အကယ်၍ defined __NR_fsopen
+  ပြန်ပေး (ကိန်းပြည့်) syscall (__NR_fsopen, fs_name, flags);
+#မဟုတ်ပါက
   (void) fs_name;
   (void) flags;
   errno = ENOSYS;
-  return -1;
+  ပြန်ပေး -1;
 #endif
 }
 
-static inline int
-syscall_fsmount (int fsfd, unsigned int flags, unsigned int attr_flags)
+static anta_hstha ကိန်းပြည့်
+syscall_fsmount (ကိန်းပြည့် fsfd, unsigned ကိန်းပြည့် flags, unsigned ကိန်းပြည့် attr_flags)
 {
-#if defined __NR_fsmount
-  return (int) syscall (__NR_fsmount, fsfd, flags, attr_flags);
-#else
+#အကယ်၍ defined __NR_fsmount
+  ပြန်ပေး (ကိန်းပြည့်) syscall (__NR_fsmount, fsfd, flags, attr_flags);
+#မဟုတ်ပါက
   (void) fsfd;
   (void) flags;
   (void) attr_flags;
   errno = ENOSYS;
-  return -1;
+  ပြန်ပေး -1;
 #endif
 }
 
-static inline int
-syscall_fsconfig (int fsfd, unsigned int cmd, const char *key, const void *val, int aux)
+static anta_hstha ကိန်းပြည့်
+syscall_fsconfig (ကိန်းပြည့် fsfd, unsigned ကိန်းပြည့် cmd, const var_na *key, const void *val, ကိန်းပြည့် aux)
 {
-#if defined __NR_fsconfig
-  return (int) syscall (__NR_fsconfig, fsfd, cmd, key, val, aux);
-#else
+#အကယ်၍ defined __NR_fsconfig
+  ပြန်ပေး (ကိန်းပြည့်) syscall (__NR_fsconfig, fsfd, cmd, key, val, aux);
+#မဟုတ်ပါက
   (void) fsfd;
   (void) cmd;
   (void) key;
   (void) val;
   (void) aux;
   errno = ENOSYS;
-  return -1;
+  ပြန်ပေး -1;
 #endif
 }
 
 /* File descriptor management syscalls */
-static inline int
-syscall_close_range (unsigned int fd, unsigned int max_fd, unsigned int flags)
+static anta_hstha ကိန်းပြည့်
+syscall_close_range (unsigned ကိန်းပြည့် fd, unsigned ကိန်းပြည့် max_fd, unsigned ကိန်းပြည့် flags)
 {
 #ifdef __NR_close_range
-  return (int) syscall (__NR_close_range, fd, max_fd, flags);
-#else
+  ပြန်ပေး (ကိန်းပြည့်) syscall (__NR_close_range, fd, max_fd, flags);
+#မဟုတ်ပါက
   (void) fd;
   (void) max_fd;
   (void) flags;
   errno = ENOSYS;
-  return -1;
+  ပြန်ပေး -1;
 #endif
 }
 
 /* Secure file operation syscalls */
-static inline int
-syscall_openat2 (int dirfd, const char *path, uint64_t flags, uint64_t mode, uint64_t resolve)
+static anta_hstha ကိန်းပြည့်
+syscall_openat2 (ကိန်းပြည့် dirfd, const var_na *path, uint64_t flags, uint64_t mode, uint64_t resolve)
 {
 #ifdef __NR_openat2
-  struct openat2_open_how how = {
+  sa_nracanaa openat2_open_how how = {
     .flags = flags,
     .mode = mode,
     .resolve = resolve,
   };
-  return (int) syscall (__NR_openat2, dirfd, path, &how, sizeof (how), 0);
-#else
+  ပြန်ပေး (ကိန်းပြည့်) syscall (__NR_openat2, dirfd, path, &how, parimaa_na (how), 0);
+#မဟုတ်ပါက
   (void) dirfd;
   (void) path;
   (void) flags;
   (void) mode;
   (void) resolve;
   errno = ENOSYS;
-  return -1;
+  ပြန်ပေး -1;
 #endif
 }
 
 /* Process management syscalls */
-static inline int
-syscall_clone3 (struct _clone3_args *args)
+static anta_hstha ကိန်းပြည့်
+syscall_clone3 (sa_nracanaa _clone3_args *args)
 {
 #ifdef __NR_clone3
-  return (int) syscall (__NR_clone3, args, sizeof (*args));
-#else
+  ပြန်ပေး (ကိန်းပြည့်) syscall (__NR_clone3, args, parimaa_na (*args));
+#မဟုတ်ပါက
   (void) args;
   errno = ENOSYS;
-  return -1;
+  ပြန်ပေး -1;
 #endif
 }
 
-static inline int
-syscall_getcwd (char *path, size_t len)
+static anta_hstha ကိန်းပြည့်
+syscall_getcwd (var_na *path, size_t len)
 {
 #ifdef __NR_getcwd
-  return (int) syscall (__NR_getcwd, path, len);
-#else
+  ပြန်ပေး (ကိန်းပြည့်) syscall (__NR_getcwd, path, len);
+#မဟုတ်ပါက
   (void) path;
   (void) len;
   errno = ENOSYS;
-  return -1;
+  ပြန်ပေး -1;
 #endif
 }
 
 /* Mount management syscalls */
-static inline int
-syscall_move_mount (int from_dfd, const char *from_pathname, int to_dfd, const char *to_pathname, unsigned int flags)
+static anta_hstha ကိန်းပြည့်
+syscall_move_mount (ကိန်းပြည့် from_dfd, const var_na *from_pathname, ကိန်းပြည့် to_dfd, const var_na *to_pathname, unsigned ကိန်းပြည့် flags)
 {
-#if defined __NR_move_mount
-  return (int) syscall (__NR_move_mount, from_dfd, from_pathname, to_dfd, to_pathname, flags);
-#else
+#အကယ်၍ defined __NR_move_mount
+  ပြန်ပေး (ကိန်းပြည့်) syscall (__NR_move_mount, from_dfd, from_pathname, to_dfd, to_pathname, flags);
+#မဟုတ်ပါက
   (void) from_dfd;
   (void) from_pathname;
   (void) to_dfd;
   (void) to_pathname;
   (void) flags;
   errno = ENOSYS;
-  return -1;
+  ပြန်ပေး -1;
 #endif
 }
 
-static inline int
-syscall_open_tree (int dfd, const char *pathname, unsigned int flags)
+static anta_hstha ကိန်းပြည့်
+syscall_open_tree (ကိန်းပြည့် dfd, const var_na *pathname, unsigned ကိန်းပြည့် flags)
 {
-#if defined __NR_open_tree
-  return (int) syscall (__NR_open_tree, dfd, pathname, flags);
-#else
+#အကယ်၍ defined __NR_open_tree
+  ပြန်ပေး (ကိန်းပြည့်) syscall (__NR_open_tree, dfd, pathname, flags);
+#မဟုတ်ပါက
   (void) dfd;
   (void) pathname;
   (void) flags;
   errno = ENOSYS;
-  return -1;
+  ပြန်ပေး -1;
 #endif
 }
 
-static inline int
-syscall_mount_setattr (int dfd, const char *path, unsigned int flags, struct mount_attr_s *attr)
+static anta_hstha ကိန်းပြည့်
+syscall_mount_setattr (ကိန်းပြည့် dfd, const var_na *path, unsigned ကိန်းပြည့် flags, sa_nracanaa mount_attr_s *attr)
 {
 #ifdef __NR_mount_setattr
-  return (int) syscall (__NR_mount_setattr, dfd, path, flags, attr, sizeof (*attr));
-#else
+  ပြန်ပေး (ကိန်းပြည့်) syscall (__NR_mount_setattr, dfd, path, flags, attr, parimaa_na (*attr));
+#မဟုတ်ပါက
   (void) dfd;
   (void) path;
   (void) flags;
   (void) attr;
   errno = ENOSYS;
-  return -1;
+  ပြန်ပေး -1;
 #endif
 }
 
