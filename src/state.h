@@ -18,8 +18,8 @@
 #ifndef STATE_H
 #define STATE_H
 
-#include "crun.h"
+#ضمن "crun.h"
 
-int crun_command_state (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+صحيح crun_command_state (بنية crun_global_arguments *global_حجوجي, صحيح argc, حرف **argv, libcrun_error_t *error);
 
 #endif

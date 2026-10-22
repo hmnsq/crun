@@ -18,8 +18,8 @@
 #ifndef DELETE_H
 #define DELETE_H
 
-#include "crun.h"
+#ضمن "crun.h"
 
-int crun_command_delete (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+صحيح crun_command_delete (بنية crun_global_arguments *global_حجوجي, صحيح argc, حرف **argv, libcrun_error_t *error);
 
 #endif

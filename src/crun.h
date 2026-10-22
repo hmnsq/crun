@@ -18,30 +18,30 @@
 #ifndef CRUN_CLI_H
 #define CRUN_CLI_H
 
-#include <stdbool.h>
-#include <libcrun/libcrun.h>
-#include "crun_utils.h"
+#ضمن <stdbool.h>
+#ضمن <libcrun/libcrun.h>
+#ضمن "crun_utils.h"
 
-struct crun_global_arguments
+بنية crun_global_arguments
 {
-  char *root;
-  char *log;
-  char *log_format;
-  const char *handler;
+  حرف *سيو;
+  حرف *log;
+  حرف *log_format;
+  ثابت حرف *handler;
 
-  int argc;
-  int verbosity;
-  char **argv;
+  صحيح argc;
+  صحيح verbosity;
+  حرف **argv;
 
   bool command;
   bool option_systemd_cgroup;
   bool option_force_no_cgroup;
 };
 
-char *argp_mandatory_argument (char *arg, struct argp_state *state);
-int parse_id_or_fail (const char *str, char **endptr, const char *kind);
-int init_libcrun_context (libcrun_context_t *con, const char *id, struct crun_global_arguments *glob,
+حرف *argp_mandatory_argument (حرف *arg, بنية argp_state *state);
+صحيح parse_id_or_fail (ثابت حرف *str, حرف **endptr, ثابت حرف *kind);
+صحيح init_libcrun_context (libcrun_context_t *con, ثابت حرف *id, بنية crun_global_arguments *glob,
                           libcrun_error_t *err);
-libcrun_context_t *new_libcrun_context (struct crun_global_arguments *glob);
-void crun_assert_n_args (int n, int min, int max);
+libcrun_context_t *new_libcrun_context (بنية crun_global_arguments *glob);
+فراغ crun_assert_n_حجوجي (صحيح n, صحيح min, صحيح max);
 #endif

@@ -18,8 +18,8 @@
 #ifndef UPDATE_H
 #define UPDATE_H
 
-#include "crun.h"
+#ضمن "crun.h"
 
-int crun_command_update (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err);
+صحيح crun_command_update (بنية crun_global_arguments *global_حجوجي, صحيح argc, حرف **argv, libcrun_error_t *err);
 
 #endif

@@ -17,16 +17,16 @@
  */
 #define _GNU_SOURCE
 
-#include <config.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <errno.h>
-#include "spec.h"
-#include "utils.h"
-#include "cgroup.h"
-#include "cgroup-utils.h"
+#ضمن <config.h>
+#ضمن <stdbool.h>
+#ضمن <stdio.h>
+#ضمن <errno.h>
+#ضمن "spec.h"
+#ضمن "utils.h"
+#ضمن "cgroup.h"
+#ضمن "cgroup-utils.h"
 
-static const char spec_file[] = "\
+ساكن ثابت حرف spec_file[] = "\
 {\n\
 	\"ociVersion\": \"1.0.0\",\n\
 	\"process\": {\n\
@@ -35,7 +35,7 @@ static const char spec_file[] = "\
 			\"uid\": 0,\n\
 			\"gid\": 0\n\
 		},\n\
-		\"args\": [\n\
+		\"حجوجي\": [\n\
 			\"sh\"\n\
 		],\n\
 		\"env\": [\n\
@@ -76,7 +76,7 @@ static const char spec_file[] = "\
 		],\n\
 		\"noNewPrivileges\": true\n\
 	},\n\
-	\"root\": {\n\
+	\"سيو\": {\n\
 		\"path\": \"rootfs\",\n\
 		\"readonly\": true\n\
 	},\n\
@@ -189,7 +189,7 @@ static const char spec_file[] = "\
 			\"/proc/acpi\",\n\
 			\"/proc/asound\",\n\
 			\"/proc/kcore\",\n\
-			\"/proc/keys\",\n\
+			\"/proc/مبوداي\",\n\
 			\"/proc/latency_stats\",\n\
 			\"/proc/timer_list\",\n\
 			\"/proc/timer_stats\",\n\
@@ -207,59 +207,59 @@ static const char spec_file[] = "\
 	}\n\
 }\n";
 
-static const char *spec_pts_tty_group = ",\n\
+ساكن ثابت حرف *spec_pts_tty_group = ",\n\
 				\"gid=5\"\n";
 
-static const char *spec_user = "\
+ساكن ثابت حرف *spec_user = "\
 			{\n\
 				\"type\": \"user\"\n\
 			},\n";
 
-static const char *spec_cgroupns = "\
+ساكن ثابت حرف *spec_cgroupns = "\
 			{\n\
 				\"type\": \"cgroup\"\n\
 			},\n";
 
-int
-libcrun_container_spec (bool root, FILE *out, libcrun_error_t *err)
+صحيح
+libcrun_container_spec (bool سيو, FILE *out, libcrun_error_t *err)
 {
-  int ret;
-  int cgroup_mode;
+  صحيح ret;
+  صحيح cgroup_mode;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  إذا (UNLIKELY (cgroup_mode < 0))
+    أرجع cgroup_mode;
 
   ret = fprintf (out, spec_file,
-                 root ? spec_pts_tty_group : "\n",
-                 root ? "" : spec_user,
+                 سيو ? spec_pts_tty_group : "\n",
+                 سيو ? "" : spec_user,
                  cgroup_mode == CGROUP_MODE_UNIFIED ? spec_cgroupns : "");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fprintf failed");
+  إذا (UNLIKELY (ret < 0))
+    أرجع crun_make_error (err, errno, "fprintf failed");
 
-  return ret;
+  أرجع ret;
 }
 
-int
-libcrun_container_spec_json (bool root, char **out, libcrun_error_t *err)
+صحيح
+libcrun_container_spec_json (bool سيو, حرف **out, libcrun_error_t *err)
 {
-  char *buffer = NULL;
+  حرف *buffer = عدم;
   size_t len = 0;
   FILE *f;
-  int ret;
+  صحيح ret;
 
   f = open_memstream (&buffer, &len);
-  if (f == NULL)
-    return crun_make_error (err, errno, "open_memstream");
+  إذا (f == عدم)
+    أرجع crun_make_error (err, errno, "open_memstream");
 
-  ret = libcrun_container_spec (root, f, err);
+  ret = libcrun_container_spec (سيو, f, err);
   fclose (f);
-  if (UNLIKELY (ret < 0))
+  إذا (UNLIKELY (ret < 0))
     {
-      free (buffer);
-      return ret;
+      حرر (buffer);
+      أرجع ret;
     }
 
   *out = buffer;
-  return 0;
+  أرجع 0;
 }
