@@ -15,37 +15,37 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CGROUP_UTILS_H
-#define CGROUP_UTILS_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CGROUP_UTILS_H
+#ವ್ಯಾಖ್ಯಾನಿಸು CGROUP_UTILS_H
 
-#include "container.h"
-#include "cgroup.h"
-#include <unistd.h>
+#ಅನ್ತರ್ಭಾವ "container.h"
+#ಅನ್ತರ್ಭಾವ "cgroup.h"
+#ಅನ್ತರ್ಭಾವ <unistd.h>
 
-int libcrun_move_process_to_cgroup (pid_t pid, pid_t init_pid, const char *path, bool create_if_missing, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ libcrun_move_process_ಗಮ್ಯ_cgroup (pid_t pid, pid_t init_pid, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, bool create_if_missing, libcrun_error_t *err);
 
-int libcrun_move_self_to_cgroups (const char *content, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ libcrun_move_self_ಗಮ್ಯ_cgroups (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *content, libcrun_error_t *err);
 
-int libcrun_cgroups_create_symlinks (int dirfd, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ libcrun_cgroups_create_symlinks (ಪೂರ್ಣಾಂಕ dirfd, libcrun_error_t *err);
 
-int libcrun_get_cgroup_process (pid_t pid, char **path, bool absolute, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ libcrun_get_cgroup_process (pid_t pid, ಅಕ್ಷರ **ಮಾರ್ಗ, bool absolute, libcrun_error_t *err);
 
-int libcrun_get_cgroup_process_at (int dirfd, char **path, bool absolute, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ libcrun_get_cgroup_process_at (ಪೂರ್ಣಾಂಕ dirfd, ಅಕ್ಷರ **ಮಾರ್ಗ, bool absolute, libcrun_error_t *err);
 
-int libcrun_get_cgroup_mode (libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ libcrun_get_cgroup_ಬಹುಲಕ (libcrun_error_t *err);
 
-int libcrun_get_cgroup_dirfd (struct libcrun_cgroup_status *status, const char *sub_cgroup, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ libcrun_get_cgroup_dirfd (ರಚನೆ libcrun_cgroup_ಸ್ಥಿತಿ *ಸ್ಥಿತಿ_2, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *sub_cgroup, libcrun_error_t *err);
 
-int maybe_make_cgroup_threaded (const char *path, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ maybe_make_cgroup_threaded (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, libcrun_error_t *err);
 
-int libcrun_migrate_all_pids_to_cgroup (pid_t init_pid, char *from, char *to, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ libcrun_migrate_all_pids_ಗಮ್ಯ_cgroup (pid_t init_pid, ಅಕ್ಷರ *from, ಅಕ್ಷರ *ಗಮ್ಯ, libcrun_error_t *err);
 
-int destroy_cgroup_path (const char *path, int mode, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ destroy_cgroup_ಮಾರ್ಗ (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, ಪೂರ್ಣಾಂಕ ಬಹುಲಕ, libcrun_error_t *err);
 
-int get_cgroup_dirfd_path (int dirfd, char **path, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ get_cgroup_dirfd_ಮಾರ್ಗ (ಪೂರ್ಣಾಂಕ dirfd, ಅಕ್ಷರ **ಮಾರ್ಗ, libcrun_error_t *err);
 
-int libcrun_cgroup_ensure_not_frozen (const char *cgroup_path, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ libcrun_cgroup_ensure_not_frozen (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *cgroup_ಮಾರ್ಗ, libcrun_error_t *err);
 
-int parse_cpu_max (const char *value, int64_t *quota, uint64_t *period, bool *has_period, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ parse_cpu_max (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ, int64_t *quota, uint64_t *period, bool *has_period, libcrun_error_t *err);
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

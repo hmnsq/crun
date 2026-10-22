@@ -23,29 +23,29 @@
  * 2020/02/02: Giuseppe Scrivano (don't lose terminal '/' if an absolute symlink is found)
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_CONFIG_H
+#ಅನ್ತರ್ಭಾವ <config.h>
+#ಆದರೆ_ಅಂತ್ಯ
 
-#include <sys/types.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
-#include <strings.h>
-#include <limits.h>				/* for PATH_MAX */
-#include <sys/param.h>			/* for MAXPATHLEN */
-#include <errno.h>
-#ifndef __set_errno
-#define __set_errno(val) ((errno) = (val))
-#endif
+#ಅನ್ತರ್ಭಾವ <sys/types.h>
+#ಅನ್ತರ್ಭಾವ <unistd.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
+#ಅನ್ತರ್ಭಾವ <strings.h>
+#ಅನ್ತರ್ಭಾವ <limits.h>				/* for PATH_MAX */
+#ಅನ್ತರ್ಭಾವ <sys/param.h>			/* for MAXPATHLEN */
+#ಅನ್ತರ್ಭಾವ <errno.h>
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ __set_errno
+#ವ್ಯಾಖ್ಯಾನಿಸು __set_errno(val) ((errno) = (val))
+#ಆದರೆ_ಅಂತ್ಯ
 
-#include <sys/stat.h>			/* for S_IFLNK */
+#ಅನ್ತರ್ಭಾವ <sys/stat.h>			/* for S_IFLNK */
 
-#ifndef PATH_MAX
-#define PATH_MAX _POSIX_PATH_MAX
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ PATH_MAX
+#ವ್ಯಾಖ್ಯಾನಿಸು PATH_MAX _POSIX_PATH_MAX
+#ಆದರೆ_ಅಂತ್ಯ
 
-#define MAX_READLINKS 32
+#ವ್ಯಾಖ್ಯಾನಿಸು MAX_READLINKS 32
 
 /* Resolve PATH as if CHROOT was the root directory, storing the result in
    RESOLVED_PATH (which must be at least PATH_MAX bytes long).
@@ -57,146 +57,146 @@
 
    On failure NULL is returned and errno is set to either ENAMETOOLONG or
    ELOOP, or to any error readlink(2) can report except ENOENT and EINVAL. */
-char *chroot_realpath(const char *chroot, const char *path, char resolved_path[])
+ಅಕ್ಷರ *chroot_realpath(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *chroot, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, ಅಕ್ಷರ resolved_ಮಾರ್ಗ[])
 {
-	char copy_path[PATH_MAX];
-	char link_path[PATH_MAX];
-	char got_path[PATH_MAX];
-	char *got_path_root = got_path;
-	char *new_path = got_path;
-	char *max_path;
-	int readlinks = 0;
-	int n;
-	int chroot_len;
-	int last_component;
+	ಅಕ್ಷರ copy_ಮಾರ್ಗ[PATH_MAX];
+	ಅಕ್ಷರ link_ಮಾರ್ಗ[PATH_MAX];
+	ಅಕ್ಷರ got_ಮಾರ್ಗ[PATH_MAX];
+	ಅಕ್ಷರ *got_ಮಾರ್ಗ_ಬೇರು = got_ಮಾರ್ಗ;
+	ಅಕ್ಷರ *new_ಮಾರ್ಗ = got_ಮಾರ್ಗ;
+	ಅಕ್ಷರ *max_ಮಾರ್ಗ;
+	ಪೂರ್ಣಾಂಕ readlinks = 0;
+	ಪೂರ್ಣಾಂಕ n;
+	ಪೂರ್ಣಾಂಕ chroot_len;
+	ಪೂರ್ಣಾಂಕ ಕೊನೆಯ_component;
 
 	/* Trivial case. */
-	if (chroot == NULL || *chroot == '\0' ||
+	ಆದರೆ (chroot == ಖಾಲಿ || *chroot == '\0' ||
 	    (*chroot == '/' && chroot[1] == '\0')) {
-		if (strlen(path) >= PATH_MAX) {
+		ಆದರೆ (ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ಮಾರ್ಗ) >= PATH_MAX) {
 			__set_errno(ENAMETOOLONG);
-			return NULL;
+			ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 		}
-		strcpy(resolved_path, path);
-		return resolved_path;
+		strcpy(resolved_ಮಾರ್ಗ, ಮಾರ್ಗ);
+		ಹಿಂತಿರುಗಿ resolved_ಮಾರ್ಗ;
 	}
 
-	chroot_len = strlen(chroot);
+	chroot_len = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(chroot);
 
-	if (chroot_len + strlen(path) >= PATH_MAX - 3) {
+	ಆದರೆ (chroot_len + ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ಮಾರ್ಗ) >= PATH_MAX - 3) {
 		__set_errno(ENAMETOOLONG);
-		return NULL;
+		ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 	}
 
 	/* Make a copy of the source path since we may need to modify it. */
-	strcpy(copy_path, path);
-	path = copy_path;
-	max_path = copy_path + PATH_MAX - chroot_len - 3;
+	strcpy(copy_ಮಾರ್ಗ, ಮಾರ್ಗ);
+	ಮಾರ್ಗ = copy_ಮಾರ್ಗ;
+	max_ಮಾರ್ಗ = copy_ಮಾರ್ಗ + PATH_MAX - chroot_len - 3;
 
 	/* Start with the chroot path.  It is copied verbatim so that the
 	   result is always prefixed by CHROOT and callers can strip it. */
-	strcpy(new_path, chroot);
-	new_path += chroot_len;
-	got_path_root = new_path;
-	*new_path++ = '/';
+	strcpy(new_ಮಾರ್ಗ, chroot);
+	new_ಮಾರ್ಗ += chroot_len;
+	got_ಮಾರ್ಗ_ಬೇರು = new_ಮಾರ್ಗ;
+	*new_ಮಾರ್ಗ++ = '/';
 
 	/* Expand each slash-separated pathname component. */
-	while (*path != '\0') {
+	ಆಗ (*ಮಾರ್ಗ != '\0') {
 		/* Ignore stray "/". */
-		if (*path == '/') {
-			path++;
-			continue;
+		ಆದರೆ (*ಮಾರ್ಗ == '/') {
+			ಮಾರ್ಗ++;
+			ಮುಂದುವರಿ;
 		}
-		if (*path == '.') {
+		ಆದರೆ (*ಮಾರ್ಗ == '.') {
 			/* Ignore ".". */
-			if (path[1] == '\0' || path[1] == '/') {
-				path++;
-				continue;
+			ಆದರೆ (ಮಾರ್ಗ[1] == '\0' || ಮಾರ್ಗ[1] == '/') {
+				ಮಾರ್ಗ++;
+				ಮುಂದುವರಿ;
 			}
-			if (path[1] == '.') {
-				if (path[2] == '\0' || path[2] == '/') {
-					path += 2;
+			ಆದರೆ (ಮಾರ್ಗ[1] == '.') {
+				ಆದರೆ (ಮಾರ್ಗ[2] == '\0' || ಮಾರ್ಗ[2] == '/') {
+					ಮಾರ್ಗ += 2;
 					/* Ignore ".." at root. */
-					if (new_path == got_path_root + 1)
-						continue;
+					ಆದರೆ (new_ಮಾರ್ಗ == got_ಮಾರ್ಗ_ಬೇರು + 1)
+						ಮುಂದುವರಿ;
 					/* Handle ".." by backing up. */
-					while ((--new_path)[-1] != '/');
-					continue;
+					ಆಗ ((--new_ಮಾರ್ಗ)[-1] != '/');
+					ಮುಂದುವರಿ;
 				}
 			}
 		}
 		/* Safely copy the next pathname component. */
-		while (*path != '\0' && *path != '/') {
-			if (path > max_path || new_path >= got_path + PATH_MAX - 1) {
+		ಆಗ (*ಮಾರ್ಗ != '\0' && *ಮಾರ್ಗ != '/') {
+			ಆದರೆ (ಮಾರ್ಗ > max_ಮಾರ್ಗ || new_ಮಾರ್ಗ >= got_ಮಾರ್ಗ + PATH_MAX - 1) {
 				__set_errno(ENAMETOOLONG);
-				return NULL;
+				ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 			}
-			*new_path++ = *path++;
+			*new_ಮಾರ್ಗ++ = *ಮಾರ್ಗ++;
 		}
 
-		last_component = (*path == '\0');
+		ಕೊನೆಯ_component = (*ಮಾರ್ಗ == '\0');
 
-#ifdef S_IFLNK
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ S_IFLNK
 		/* Protect against infinite loops. */
-		if (readlinks++ > MAX_READLINKS) {
+		ಆದರೆ (readlinks++ > MAX_READLINKS) {
 			__set_errno(ELOOP);
-			return NULL;
+			ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 		}
 		/* See if latest pathname component is a symlink. */
-		*new_path = '\0';
-		n = readlink(got_path, link_path, PATH_MAX - 1);
-		if (n < 0) {
+		*new_ಮಾರ್ಗ = '\0';
+		n = readlink(got_ಮಾರ್ಗ, link_ಮಾರ್ಗ, PATH_MAX - 1);
+		ಆದರೆ (n < 0) {
 			/* If a component doesn't exist, then return what we could translate. */
-			if (errno == ENOENT) {
-				int ret = snprintf (resolved_path, PATH_MAX, "%s%s%s", got_path, path[0] == '/' || path[0] == '\0' ? "" : "/", path);
-				if (ret >= PATH_MAX) {
+			ಆದರೆ (errno == ENOENT) {
+				ಪೂರ್ಣಾಂಕ ret = snprintf (resolved_ಮಾರ್ಗ, PATH_MAX, "%s%s%s", got_ಮಾರ್ಗ, ಮಾರ್ಗ[0] == '/' || ಮಾರ್ಗ[0] == '\0' ? "" : "/", ಮಾರ್ಗ);
+				ಆದರೆ (ret >= PATH_MAX) {
 					__set_errno(ENAMETOOLONG);
-					return NULL;
+					ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 				}
-				return resolved_path;
+				ಹಿಂತಿರುಗಿ resolved_ಮಾರ್ಗ;
 			}
 			/* EINVAL means the file exists but isn't a symlink. */
-			if (errno != EINVAL)
-				return NULL;
-		} else {
+			ಆದರೆ (errno != EINVAL)
+				ಹಿಂತಿರುಗಿ ಖಾಲಿ;
+		} ಇಲ್ಲದಿದ್ದರೆ {
 			/* Note: readlink doesn't add the null byte. */
-			link_path[n] = '\0';
-			if (*link_path == '/') {
+			link_ಮಾರ್ಗ[n] = '\0';
+			ಆದರೆ (*link_ಮಾರ್ಗ == '/') {
 				/* Start over for an absolute symlink. */
-				new_path = got_path_root;
-				*new_path++ = '/';
+				new_ಮಾರ್ಗ = got_ಮಾರ್ಗ_ಬೇರು;
+				*new_ಮಾರ್ಗ++ = '/';
 			}
-			else {
+			ಇಲ್ಲದಿದ್ದರೆ {
 				/* Otherwise back up over this component, keeping the
 				   separator, so that the expanded symlink is not
 				   concatenated to the parent directory name. */
-				while (*(--new_path) != '/');
-				new_path++;
+				ಆಗ (*(--new_ಮಾರ್ಗ) != '/');
+				new_ಮಾರ್ಗ++;
 			}
 			/* Safe sex check. */
-			if (strlen(path) + n >= PATH_MAX - 2) {
+			ಆದರೆ (ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ಮಾರ್ಗ) + n >= PATH_MAX - 2) {
 				__set_errno(ENAMETOOLONG);
-				return NULL;
+				ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 			}
 			/* Insert symlink contents into path. */
-			strcat(link_path, path);
-			strcpy(copy_path, link_path);
-			path = copy_path;
+			strcat(link_ಮಾರ್ಗ, ಮಾರ್ಗ);
+			strcpy(copy_ಮಾರ್ಗ, link_ಮಾರ್ಗ);
+			ಮಾರ್ಗ = copy_ಮಾರ್ಗ;
 		}
-#endif							/* S_IFLNK */
-		if (!last_component) {
-			if (new_path >= got_path + PATH_MAX - 1) {
+#ಆದರೆ_ಅಂತ್ಯ							/* S_IFLNK */
+		ಆದರೆ (!ಕೊನೆಯ_component) {
+			ಆದರೆ (new_ಮಾರ್ಗ >= got_ಮಾರ್ಗ + PATH_MAX - 1) {
 				__set_errno(ENAMETOOLONG);
-				return NULL;
+				ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 			}
-			*new_path++ = '/';
+			*new_ಮಾರ್ಗ++ = '/';
 		}
 	}
 	/* Delete trailing slash but don't whomp a lone slash. */
-	if (new_path != got_path + 1 && new_path[-1] == '/')
-		new_path--;
+	ಆದರೆ (new_ಮಾರ್ಗ != got_ಮಾರ್ಗ + 1 && new_ಮಾರ್ಗ[-1] == '/')
+		new_ಮಾರ್ಗ--;
 	/* Make sure it's null terminated. */
-	*new_path = '\0';
-	strcpy(resolved_path, got_path);
-	return resolved_path;
+	*new_ಮಾರ್ಗ = '\0';
+	strcpy(resolved_ಮಾರ್ಗ, got_ಮಾರ್ಗ);
+	ಹಿಂತಿರುಗಿ resolved_ಮಾರ್ಗ;
 }

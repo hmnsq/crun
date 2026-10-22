@@ -15,122 +15,122 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CRUN_UTILS_H
-#define CRUN_UTILS_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CRUN_UTILS_H
+#ವ್ಯಾಖ್ಯಾನಿಸು CRUN_UTILS_H
 
 /* Self-contained helpers for the crun binary so that it does not have to
    include the internal libcrun/utils.h (which pulls in the internal,
    non-public headers).  The binary is a pure consumer of the public
    <libcrun.h> API; everything here is either libc or a trivial inline.  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
+#ಅನ್ತರ್ಭಾವ <stdlib.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
+#ಅನ್ತರ್ಭಾವ <unistd.h>
 
-#ifdef __GNUC__
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ __GNUC__
 #  define LIKELY(x) __builtin_expect ((x), 1)
 #  define UNLIKELY(x) __builtin_expect ((x), 0)
-#  define arg_unused __attribute__ ((unused))
-#else
+#  define arg_ಬಳಸದ __attribute__ ((ಬಳಸದ))
+#ಇಲ್ಲದಿದ್ದರೆ
 #  define LIKELY(x) (x)
 #  define UNLIKELY(x) (x)
-#  define arg_unused
-#endif
+#  define arg_ಬಳಸದ
+#ಆದರೆ_ಅಂತ್ಯ
 
-#define OOM()                            \
-  do                                     \
+#ವ್ಯಾಖ್ಯಾನಿಸು OOM()                            \
+  ಮಾಡು                                     \
     {                                    \
       fprintf (stderr, "out of memory"); \
       _exit (EXIT_FAILURE);              \
-  } while (0)
+  } ಆಗ (0)
 
-#define crun_make_error libcrun_make_error
+#ವ್ಯಾಖ್ಯಾನಿಸು crun_make_error libcrun_make_error
 
-__attribute__ ((malloc)) static inline void *
-xmalloc (size_t size)
+__attribute__ ((ಸ್ಮರಣೆ_ಕೊಡು)) ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ *
+xmalloc (size_t ಗಾತ್ರ_2)
 {
-  void *res = malloc (size);
-  if (UNLIKELY (res == NULL))
+  ಶೂನ್ಯ *res = ಸ್ಮರಣೆ_ಕೊಡು (ಗಾತ್ರ_2);
+  ಆದರೆ (UNLIKELY (res == ಖಾಲಿ))
     OOM ();
-  return res;
+  ಹಿಂತಿರುಗಿ res;
 }
 
-__attribute__ ((malloc)) static inline void *
-xmalloc0 (size_t size)
+__attribute__ ((ಸ್ಮರಣೆ_ಕೊಡು)) ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ *
+xmalloc0 (size_t ಗಾತ್ರ_2)
 {
-  void *res = calloc (1, size);
-  if (UNLIKELY (res == NULL))
+  ಶೂನ್ಯ *res = ಸೊನ್ನೆ_ಸ್ಮರಣೆ_ಕೊಡು (1, ಗಾತ್ರ_2);
+  ಆದರೆ (UNLIKELY (res == ಖಾಲಿ))
     OOM ();
-  return res;
+  ಹಿಂತಿರುಗಿ res;
 }
 
-__attribute__ ((malloc)) static inline void *
-xrealloc (void *ptr, size_t size)
+__attribute__ ((ಸ್ಮರಣೆ_ಕೊಡು)) ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ *
+xrealloc (ಶೂನ್ಯ *ptr, size_t ಗಾತ್ರ_2)
 {
-  void *res = realloc (ptr, size);
-  if (UNLIKELY (res == NULL))
+  ಶೂನ್ಯ *res = realloc (ptr, ಗಾತ್ರ_2);
+  ಆದರೆ (UNLIKELY (res == ಖಾಲಿ))
     OOM ();
-  return res;
+  ಹಿಂತಿರುಗಿ res;
 }
 
-static inline char *
-xstrdup (const char *str)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಅಕ್ಷರ *
+xstrdup (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str)
 {
-  char *ret;
-  if (str == NULL)
-    return NULL;
+  ಅಕ್ಷರ *ret;
+  ಆದರೆ (str == ಖಾಲಿ)
+    ಹಿಂತಿರುಗಿ ಖಾಲಿ;
   ret = strdup (str);
-  if (UNLIKELY (ret == NULL))
+  ಆದರೆ (UNLIKELY (ret == ಖಾಲಿ))
     OOM ();
-  return ret;
+  ಹಿಂತಿರುಗಿ ret;
 }
 
-static inline void
-cleanup_freep (void *p)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ
+cleanup_freep (ಶೂನ್ಯ *p)
 {
-  void **pp = (void **) p;
-  free (*pp);
+  ಶೂನ್ಯ **pp = (ಶೂನ್ಯ **) p;
+  ಬಿಡುಗಡೆ (*pp);
 }
 
-static inline void
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ
 cleanup_filep (FILE **f)
 {
   FILE *file = *f;
-  if (file)
-    (void) fclose (file);
+  ಆದರೆ (file)
+    (ಶೂನ್ಯ) fclose (file);
 }
 
-static inline void
-cleanup_closep (void *p)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ
+cleanup_closep (ಶೂನ್ಯ *p)
 {
-  int *pp = (int *) p;
-  if (*pp >= 0)
+  ಪೂರ್ಣಾಂಕ *pp = (ಪೂರ್ಣಾಂಕ *) p;
+  ಆದರೆ (*pp >= 0)
     close (*pp);
 }
 
-#define cleanup_free __attribute__ ((cleanup (cleanup_freep)))
-#define cleanup_file __attribute__ ((cleanup (cleanup_filep)))
-#define cleanup_close __attribute__ ((cleanup (cleanup_closep)))
+#ವ್ಯಾಖ್ಯಾನಿಸು cleanup_free __attribute__ ((cleanup (cleanup_freep)))
+#ವ್ಯಾಖ್ಯಾನಿಸು cleanup_file __attribute__ ((cleanup (cleanup_filep)))
+#ವ್ಯಾಖ್ಯಾನಿಸು cleanup_close __attribute__ ((cleanup (cleanup_closep)))
 
 /* Relies on <libcrun.h> (included before this header via crun.h) for the
    opaque libcrun_context_t and libcrun_context_free.  */
-static inline void
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ
 cleanup_libcrun_contextp (libcrun_context_t **p)
 {
-  if (*p)
+  ಆದರೆ (*p)
     libcrun_context_free (*p);
 }
 
-#define cleanup_context __attribute__ ((cleanup (cleanup_libcrun_contextp)))
+#ವ್ಯಾಖ್ಯಾನಿಸು cleanup_context __attribute__ ((cleanup (cleanup_libcrun_contextp)))
 
-static inline void
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ
 cleanup_libcrun_containerp (libcrun_container_t **p)
 {
-  if (*p)
+  ಆದರೆ (*p)
     libcrun_container_free (*p);
 }
 
-#define cleanup_container __attribute__ ((cleanup (cleanup_libcrun_containerp)))
+#ವ್ಯಾಖ್ಯಾನಿಸು cleanup_container __attribute__ ((cleanup (cleanup_libcrun_containerp)))
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

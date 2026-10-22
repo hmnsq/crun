@@ -15,16 +15,16 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SPEC_H
-#define SPEC_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ SPEC_H
+#ವ್ಯಾಖ್ಯಾನಿಸು SPEC_H
 
-#include <config.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include "error.h"
+#ಅನ್ತರ್ಭಾವ <config.h>
+#ಅನ್ತರ್ಭಾವ <stdbool.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ "error.h"
 
-LIBCRUN_PUBLIC int libcrun_container_spec (bool root, FILE *out, libcrun_error_t *err);
+LIBCRUN_ಬಹಿರಂಗ ಪೂರ್ಣಾಂಕ libcrun_container_spec (bool ಬೇರು, FILE *ಹೊರಹೋಗು, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_spec_json (bool root, char **out, libcrun_error_t *err);
+LIBCRUN_ಬಹಿರಂಗ ಪೂರ್ಣಾಂಕ libcrun_container_spec_json (bool ಬೇರು, ಅಕ್ಷರ **ಹೊರಹೋಗು, libcrun_error_t *err);
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

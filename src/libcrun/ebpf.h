@@ -15,34 +15,34 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef EBPF_H
-#define EBPF_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ EBPF_H
+#ವ್ಯಾಖ್ಯಾನಿಸು EBPF_H
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include "error.h"
-#include <errno.h>
-#include <argp.h>
-#include <ocispec/runtime_spec_schema_config_schema.h>
-#include "container.h"
+#ಅನ್ತರ್ಭಾವ <config.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <stdlib.h>
+#ಅನ್ತರ್ಭಾವ "error.h"
+#ಅನ್ತರ್ಭಾವ <errno.h>
+#ಅನ್ತರ್ಭಾವ <argp.h>
+#ಅನ್ತರ್ಭಾವ <ocispec/runtime_spec_schema_config_schema.h>
+#ಅನ್ತರ್ಭಾವ "container.h"
 
-#define SYS_FS_BPF "/sys/fs/bpf"
-#define CRUN_BPF_DIR SYS_FS_BPF "/crun"
+#ವ್ಯಾಖ್ಯಾನಿಸು SYS_FS_BPF "/sys/fs/bpf"
+#ವ್ಯಾಖ್ಯಾನಿಸು CRUN_BPF_DIR SYS_FS_BPF "/crun"
 
-struct bpf_program;
+ರಚನೆ bpf_ಕಾರ್ಯಕ್ರಮ;
 
-struct bpf_program *bpf_program_new (size_t size);
-struct bpf_program *bpf_program_append (struct bpf_program *p, void *data, size_t size);
+ರಚನೆ bpf_ಕಾರ್ಯಕ್ರಮ *bpf_ಕಾರ್ಯಕ್ರಮ_new (size_t ಗಾತ್ರ_2);
+ರಚನೆ bpf_ಕಾರ್ಯಕ್ರಮ *bpf_ಕಾರ್ಯಕ್ರಮ_append (ರಚನೆ bpf_ಕಾರ್ಯಕ್ರಮ *p, ಶೂನ್ಯ *ದತ್ತಾಂಶ, size_t ಗಾತ್ರ_2);
 
-struct bpf_program *bpf_program_init_dev (struct bpf_program *program, libcrun_error_t *err);
-struct bpf_program *bpf_program_append_dev (struct bpf_program *program, const char *access, char type, int major,
-                                            int minor, bool accept, libcrun_error_t *err);
-struct bpf_program *bpf_program_complete_dev (struct bpf_program *program, libcrun_error_t *err);
+ರಚನೆ bpf_ಕಾರ್ಯಕ್ರಮ *bpf_ಕಾರ್ಯಕ್ರಮ_init_dev (ರಚನೆ bpf_ಕಾರ್ಯಕ್ರಮ *ಕಾರ್ಯಕ್ರಮ, libcrun_error_t *err);
+ರಚನೆ bpf_ಕಾರ್ಯಕ್ರಮ *bpf_ಕಾರ್ಯಕ್ರಮ_append_dev (ರಚನೆ bpf_ಕಾರ್ಯಕ್ರಮ *ಕಾರ್ಯಕ್ರಮ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *access, ಅಕ್ಷರ type, ಪೂರ್ಣಾಂಕ major,
+                                            ಪೂರ್ಣಾಂಕ minor, bool accept, libcrun_error_t *err);
+ರಚನೆ bpf_ಕಾರ್ಯಕ್ರಮ *bpf_ಕಾರ್ಯಕ್ರಮ_complete_dev (ರಚನೆ bpf_ಕಾರ್ಯಕ್ರಮ *ಕಾರ್ಯಕ್ರಮ, libcrun_error_t *err);
 
-int libcrun_ebpf_load (struct bpf_program *program, int dirfd, const char *pin, libcrun_error_t *err);
-int libcrun_ebpf_read_program (struct bpf_program **program, const char *path, libcrun_error_t *err);
-int libcrun_ebpf_query_cgroup_progs (const char *cgroup_path, uint32_t **progs_out, size_t *n_progs_out, libcrun_error_t *err);
-bool libcrun_ebpf_cmp_programs (struct bpf_program *program1, struct bpf_program *program2);
+ಪೂರ್ಣಾಂಕ libcrun_ebpf_ತುಂಬು (ರಚನೆ bpf_ಕಾರ್ಯಕ್ರಮ *ಕಾರ್ಯಕ್ರಮ, ಪೂರ್ಣಾಂಕ dirfd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *pin, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ libcrun_ebpf_read_ಕಾರ್ಯಕ್ರಮ (ರಚನೆ bpf_ಕಾರ್ಯಕ್ರಮ **ಕಾರ್ಯಕ್ರಮ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ libcrun_ebpf_query_cgroup_progs (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *cgroup_ಮಾರ್ಗ, uint32_t **progs_ಹೊರಹೋಗು, size_t *n_progs_ಹೊರಹೋಗು, libcrun_error_t *err);
+bool libcrun_ebpf_cmp_programs (ರಚನೆ bpf_ಕಾರ್ಯಕ್ರಮ *program1, ರಚನೆ bpf_ಕಾರ್ಯಕ್ರಮ *program2);
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

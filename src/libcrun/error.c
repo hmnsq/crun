@@ -16,562 +16,562 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
-#include <config.h>
-#include <stdarg.h>
-#include <unistd.h>
-#include <string.h>
-#include <time.h>
-#include <sys/time.h>
-#include <stdio.h>
-#include "utils.h"
+#ವ್ಯಾಖ್ಯಾನಿಸು GNU_ಮೂಲ
+#ಅನ್ತರ್ಭಾವ <config.h>
+#ಅನ್ತರ್ಭಾವ <stdarg.h>
+#ಅನ್ತರ್ಭಾವ <unistd.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
+#ಅನ್ತರ್ಭಾವ <time.h>
+#ಅನ್ತರ್ಭಾವ <sys/time.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ "utils.h"
 
-#include <json-c/json.h>
-#include <ocispec/json_common.h>
+#ಅನ್ತರ್ಭಾವ <json-c/json.h>
+#ಅನ್ತರ್ಭಾವ <ocispec/json_common.h>
 
-#ifdef HAVE_SYSTEMD
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_SYSTEMD
 #  include <systemd/sd-journal.h>
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-enum
+ಎಣಿಕೆ
 {
-  LOG_FORMAT_TEXT = 0,
+  LOG_FORMAT_ಪಠ್ಯ = 0,
   LOG_FORMAT_JSON,
 };
 
-static int log_format;
-static int output_verbosity = LIBCRUN_VERBOSITY_ERROR;
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ log_format;
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ output_verbosity = LIBCRUN_VERBOSITY_ERROR;
 
-int
-libcrun_make_error (libcrun_error_t *err, int status, const char *msg, ...)
+ಪೂರ್ಣಾಂಕ
+libcrun_make_error (libcrun_error_t *err, ಪೂರ್ಣಾಂಕ ಸ್ಥಿತಿ_2, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ, ...)
 {
-  va_list args_list;
+  va_list ವಾದಗಳು_list;
   libcrun_error_t ptr;
 
-  va_start (args_list, msg);
-  *err = xmalloc (sizeof (struct libcrun_error_s));
+  va_ಆರಂಭ (ವಾದಗಳು_list, ಸಂದೇಶ);
+  *err = xmalloc (ಗಾತ್ರ (ರಚನೆ libcrun_error_s));
   ptr = *err;
-  ptr->status = status;
-  if (vasprintf (&(ptr->msg), msg, args_list) < 0)
+  ptr->ಸ್ಥಿತಿ_2 = ಸ್ಥಿತಿ_2;
+  ಆದರೆ (vasprintf (&(ptr->ಸಂದೇಶ), ಸಂದೇಶ, ವಾದಗಳು_list) < 0)
     OOM ();
-  va_end (args_list);
+  va_ಕೊನೆ (ವಾದಗಳು_list);
 
-  return -status - 1;
+  ಹಿಂತಿರುಗಿ -ಸ್ಥಿತಿ_2 - 1;
 }
 
-int
-crun_error_wrap (libcrun_error_t *err, const char *fmt, ...)
+ಪೂರ್ಣಾಂಕ
+crun_error_wrap (libcrun_error_t *err, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *fmt, ...)
 {
-  cleanup_free char *msg = NULL;
-  cleanup_free char *tmp = NULL;
-  va_list args_list;
-  char *swap;
-  int ret;
+  cleanup_free ಅಕ್ಷರ *ಸಂದೇಶ = ಖಾಲಿ;
+  cleanup_free ಅಕ್ಷರ *tmp = ಖಾಲಿ;
+  va_list ವಾದಗಳು_list;
+  ಅಕ್ಷರ *ಅದಲುಬದಲು;
+  ಪೂರ್ಣಾಂಕ ret;
 
-  if (err == NULL || *err == NULL)
+  ಆದರೆ (err == ಖಾಲಿ || *err == ಖಾಲಿ)
     {
       // Internal error
-      return 0;
+      ಹಿಂತಿರುಗಿ 0;
     }
 
-  ret = -(*err)->status - 1;
+  ret = -(*err)->ಸ್ಥಿತಿ_2 - 1;
 
-  va_start (args_list, fmt);
+  va_ಆರಂಭ (ವಾದಗಳು_list, fmt);
 
-  if (vasprintf (&msg, fmt, args_list) < 0)
+  ಆದರೆ (vasprintf (&ಸಂದೇಶ, fmt, ವಾದಗಳು_list) < 0)
     {
-      va_end (args_list);
-      msg = NULL;
-      return ret;
+      va_ಕೊನೆ (ವಾದಗಳು_list);
+      ಸಂದೇಶ = ಖಾಲಿ;
+      ಹಿಂತಿರುಗಿ ret;
     }
-  va_end (args_list);
+  va_ಕೊನೆ (ವಾದಗಳು_list);
 
-  xasprintf (&tmp, "%s: %s", msg, (*err)->msg);
-  swap = tmp;
-  tmp = (*err)->msg;
-  (*err)->msg = swap;
+  xasprintf (&tmp, "%s: %s", ಸಂದೇಶ, (*err)->ಸಂದೇಶ);
+  ಅದಲುಬದಲು = tmp;
+  tmp = (*err)->ಸಂದೇಶ;
+  (*err)->ಸಂದೇಶ = ಅದಲುಬದಲು;
 
-  return ret;
+  ಹಿಂತಿರುಗಿ ret;
 }
 
-int
+ಪೂರ್ಣಾಂಕ
 crun_error_release (libcrun_error_t *err)
 {
-  const int saved_errno = errno;
+  ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ saved_errno = errno;
   libcrun_error_t ptr;
 
-  if (err == NULL)
-    return 0;
+  ಆದರೆ (err == ಖಾಲಿ)
+    ಹಿಂತಿರುಗಿ 0;
 
   ptr = *err;
-  if (ptr == NULL)
-    return 0;
+  ಆದರೆ (ptr == ಖಾಲಿ)
+    ಹಿಂತಿರುಗಿ 0;
 
-  free (ptr->msg);
-  free (ptr);
-  *err = NULL;
+  ಬಿಡುಗಡೆ (ptr->ಸಂದೇಶ);
+  ಬಿಡುಗಡೆ (ptr);
+  *err = ಖಾಲಿ;
 
   errno = saved_errno;
-  return 0;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-int
+ಪೂರ್ಣಾಂಕ
 libcrun_error_release (libcrun_error_t *err)
 {
-  return crun_error_release (err);
+  ಹಿಂತಿರುಗಿ crun_error_release (err);
 }
 
-int
-libcrun_error_get_status (libcrun_error_t err)
+ಪೂರ್ಣಾಂಕ
+libcrun_error_get_ಸ್ಥಿತಿ (libcrun_error_t err)
 {
-  if (err == NULL)
-    return 0;
-  return err->status;
+  ಆದರೆ (err == ಖಾಲಿ)
+    ಹಿಂತಿರುಗಿ 0;
+  ಹಿಂತಿರುಗಿ err->ಸ್ಥಿತಿ_2;
 }
 
-const char *
-libcrun_error_get_message (libcrun_error_t err)
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *
+libcrun_error_get_ಸಂದೇಶ (libcrun_error_t err)
 {
-  if (err == NULL)
-    return NULL;
-  return err->msg;
+  ಆದರೆ (err == ಖಾಲಿ)
+    ಹಿಂತಿರುಗಿ ಖಾಲಿ;
+  ಹಿಂತಿರುಗಿ err->ಸಂದೇಶ;
 }
 
-void
-crun_error_write_warning_and_release (FILE *out, libcrun_error_t **err)
+ಶೂನ್ಯ
+crun_error_write_warning_and_release (FILE *ಹೊರಹೋಗು, libcrun_error_t **err)
 {
-  const int saved_errno = errno;
+  ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ saved_errno = errno;
   libcrun_error_t ref;
 
-  if (out == NULL)
-    out = stderr;
-  if (err == NULL || *err == NULL || **err == NULL)
+  ಆದರೆ (ಹೊರಹೋಗು == ಖಾಲಿ)
+    ಹೊರಹೋಗು = stderr;
+  ಆದರೆ (err == ಖಾಲಿ || *err == ಖಾಲಿ || **err == ಖಾಲಿ)
     {
       // Internal error
-      return;
+      ಹಿಂತಿರುಗಿ;
     }
 
   ref = **err;
-  if (ref->status)
-    fprintf (out, "%s: %s\n", ref->msg, strerror (ref->status));
-  else
-    fprintf (out, "%s\n", ref->msg);
+  ಆದರೆ (ref->ಸ್ಥಿತಿ_2)
+    fprintf (ಹೊರಹೋಗು, "%s: %s\n", ref->ಸಂದೇಶ, strerror (ref->ಸ್ಥಿತಿ_2));
+  ಇಲ್ಲದಿದ್ದರೆ
+    fprintf (ಹೊರಹೋಗು, "%s\n", ref->ಸಂದೇಶ);
 
-  free (ref->msg);
-  free (ref);
-  **err = NULL;
+  ಬಿಡುಗಡೆ (ref->ಸಂದೇಶ);
+  ಬಿಡುಗಡೆ (ref);
+  **err = ಖಾಲಿ;
 
   errno = saved_errno;
 }
 
-void
-libcrun_error_write_warning_and_release (FILE *out, libcrun_error_t **err)
+ಶೂನ್ಯ
+libcrun_error_write_warning_and_release (FILE *ಹೊರಹೋಗು, libcrun_error_t **err)
 {
-  return crun_error_write_warning_and_release (out, err);
+  ಹಿಂತಿರುಗಿ crun_error_write_warning_and_release (ಹೊರಹೋಗು, err);
 }
 
-void
+ಶೂನ್ಯ
 libcrun_error_report_and_release (libcrun_error_t *err)
 {
   libcrun_error_t ref;
 
-  if (err == NULL || *err == NULL)
-    return;
+  ಆದರೆ (err == ಖಾಲಿ || *err == ಖಾಲಿ)
+    ಹಿಂತಿರುಗಿ;
 
   ref = *err;
-  libcrun_error (ref->status, "%s", ref->msg);
+  libcrun_error (ref->ಸ್ಥಿತಿ_2, "%s", ref->ಸಂದೇಶ);
   crun_error_release (err);
 }
 
-int
+ಪೂರ್ಣಾಂಕ
 crun_error_get_errno (libcrun_error_t *err)
 {
-  if (err == NULL || *err == NULL)
-    return 0;
-  return (*err)->status;
+  ಆದರೆ (err == ಖಾಲಿ || *err == ಖಾಲಿ)
+    ಹಿಂತಿರುಗಿ 0;
+  ಹಿಂತಿರುಗಿ (*err)->ಸ್ಥಿತಿ_2;
 }
 
-typedef char timestamp_t[64];
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಅಕ್ಷರ timestamp_t[64];
 
-static void
-get_timestamp (timestamp_t *timestamp, const char *suffix)
+ಸ್ಥಿರ ಶೂನ್ಯ
+get_timestamp (timestamp_t *timestamp, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *suffix)
 {
-  const size_t buffer_size = sizeof (timestamp_t);
-  char *buffer = (char *) timestamp;
-  struct timeval tv;
+  ಸ್ಥಿರಾಂಕ size_t ಬಫರ್_ಗಾತ್ರ = ಗಾತ್ರ (timestamp_t);
+  ಅಕ್ಷರ *ಬಫರ್ = (ಅಕ್ಷರ *) timestamp;
+  ರಚನೆ timeval tv;
   size_t written;
-  struct tm now;
+  ರಚನೆ tm now;
 
-  gettimeofday (&tv, NULL);
+  gettimeofday (&tv, ಖಾಲಿ);
   gmtime_r (&tv.tv_sec, &now);
-  written = strftime (buffer, buffer_size, "%Y-%m-%dT%H:%M:%S", &now);
-  snprintf (buffer + written, buffer_size - written, ".%06lldZ%.8s", (long long int) tv.tv_usec, suffix);
+  written = strftime (ಬಫರ್, ಬಫರ್_ಗಾತ್ರ, "%Y-%m-%dT%H:%M:%S", &now);
+  snprintf (ಬಫರ್ + written, ಬಫರ್_ಗಾತ್ರ - written, ".%06lldZ%.8s", (ದೀರ್ಘ ದೀರ್ಘ ಪೂರ್ಣಾಂಕ) tv.tv_usec, suffix);
 }
 
 /* Neither openlog(3) nor the journald handler copy the identifier they are
    given, and the global output handler outlives the caller's strings (e.g.
    the context is freed while errors are still reported through it), so keep
    an owned copy alive for as long as the handler can use it.  */
-static char *log_id;
+ಸ್ಥಿರ ಅಕ್ಷರ *log_id;
 
-static const char *
-set_log_id (const char *id, char **old_id)
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *
+ಗಣ_log_id (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *id, ಅಕ್ಷರ **old_id)
 {
   *old_id = log_id;
-  log_id = id ? xstrdup (id) : NULL;
-  return log_id;
+  log_id = id ? xstrdup (id) : ಖಾಲಿ;
+  ಹಿಂತಿರುಗಿ log_id;
 }
 
-static void *
-init_syslog (const char *id)
+ಸ್ಥಿರ ಶೂನ್ಯ *
+init_syslog (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *id)
 {
   openlog (id, 0, LOG_USER);
-  return NULL;
+  ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 }
 
-enum
+ಎಣಿಕೆ
 {
   LOG_TYPE_FILE = 1,
   LOG_TYPE_SYSLOG = 2,
   LOG_TYPE_JOURNALD = 3
 };
 
-static int
-get_log_type (const char *log, const char **data)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ
+get_log_type (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಲಘುಗಣಕ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ **ದತ್ತಾಂಶ)
 {
-  const char *sep = strchr (log, ':');
-  if (sep == NULL)
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *sep = strchr (ಲಘುಗಣಕ, ':');
+  ಆದರೆ (sep == ಖಾಲಿ)
     {
-      *data = log;
-      return LOG_TYPE_FILE;
+      *ದತ್ತಾಂಶ = ಲಘುಗಣಕ;
+      ಹಿಂತಿರುಗಿ LOG_TYPE_FILE;
     }
-  *data = sep + 1;
+  *ದತ್ತಾಂಶ = sep + 1;
 
-  if (has_prefix (log, "syslog:"))
-    return LOG_TYPE_SYSLOG;
-  if (has_prefix (log, "journald:"))
-    return LOG_TYPE_JOURNALD;
-  if (has_prefix (log, "file:"))
-    return LOG_TYPE_FILE;
+  ಆದರೆ (has_ಪೂರ್ವಪ್ರತ್ಯಯ (ಲಘುಗಣಕ, "syslog:"))
+    ಹಿಂತಿರುಗಿ LOG_TYPE_SYSLOG;
+  ಆದರೆ (has_ಪೂರ್ವಪ್ರತ್ಯಯ (ಲಘುಗಣಕ, "journald:"))
+    ಹಿಂತಿರುಗಿ LOG_TYPE_JOURNALD;
+  ಆದರೆ (has_ಪೂರ್ವಪ್ರತ್ಯಯ (ಲಘುಗಣಕ, "file:"))
+    ಹಿಂತಿರುಗಿ LOG_TYPE_FILE;
 
-  return -1;
+  ಹಿಂತಿರುಗಿ -1;
 }
 
-int
-libcrun_init_logging (crun_output_handler *new_output_handler, void **new_output_handler_arg, const char *id,
-                      const char *log, libcrun_error_t *err)
+ಪೂರ್ಣಾಂಕ
+libcrun_init_logging (crun_output_handler *new_output_handler, ಶೂನ್ಯ **new_output_handler_arg, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *id,
+                      ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಲಘುಗಣಕ, libcrun_error_t *err)
 {
   /* Released only after the new handler is installed.  */
-  cleanup_free char *old_log_id = NULL;
+  cleanup_free ಅಕ್ಷರ *old_log_id = ಖಾಲಿ;
 
-  if (log == NULL)
+  ಆದರೆ (ಲಘುಗಣಕ == ಖಾಲಿ)
     {
-      *new_output_handler = log_write_to_stderr;
-      *new_output_handler_arg = NULL;
+      *new_output_handler = log_write_ಗಮ್ಯ_stderr;
+      *new_output_handler_arg = ಖಾಲಿ;
     }
-  else
+  ಇಲ್ಲದಿದ್ದರೆ
     {
-      const char *arg = NULL;
-      int log_type = get_log_type (log, &arg);
+      ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *arg = ಖಾಲಿ;
+      ಪೂರ್ಣಾಂಕ log_type = get_log_type (ಲಘುಗಣಕ, &arg);
 
-      if (log_type < 0)
-        return crun_make_error (err, errno, "unknown log type `%s`", log);
+      ಆದರೆ (log_type < 0)
+        ಹಿಂತಿರುಗಿ crun_make_error (err, errno, "unknown log type `%s`", ಲಘುಗಣಕ);
 
-      switch (log_type)
+      ಆಯ್ಕೆ (log_type)
         {
-        case LOG_TYPE_FILE:
-          *new_output_handler = log_write_to_stream;
+        ಸ್ಥಿತಿ LOG_TYPE_FILE:
+          *new_output_handler = log_write_ಗಮ್ಯ_ಹರಿವು;
           *new_output_handler_arg = fopen (arg, "a+e");
-          if (*new_output_handler_arg == NULL)
-            return crun_make_error (err, errno, "open log file `%s`", log);
-          if (output_verbosity >= LIBCRUN_VERBOSITY_WARNING)
+          ಆದರೆ (*new_output_handler_arg == ಖಾಲಿ)
+            ಹಿಂತಿರುಗಿ crun_make_error (err, errno, "open log file `%s`", ಲಘುಗಣಕ);
+          ಆದರೆ (output_verbosity >= LIBCRUN_VERBOSITY_WARNING)
             setlinebuf (*new_output_handler_arg);
-          break;
+          ನಿಲ್ಲಿಸು;
 
-        case LOG_TYPE_SYSLOG:
-          *new_output_handler_arg = init_syslog (set_log_id (arg[0] ? arg : id, &old_log_id));
-          *new_output_handler = log_write_to_syslog;
-          break;
+        ಸ್ಥಿತಿ LOG_TYPE_SYSLOG:
+          *new_output_handler_arg = init_syslog (ಗಣ_log_id (arg[0] ? arg : id, &old_log_id));
+          *new_output_handler = log_write_ಗಮ್ಯ_syslog;
+          ನಿಲ್ಲಿಸು;
 
-        case LOG_TYPE_JOURNALD:
-          *new_output_handler = log_write_to_journald;
-          *new_output_handler_arg = (void *) set_log_id (id, &old_log_id);
-          break;
+        ಸ್ಥಿತಿ LOG_TYPE_JOURNALD:
+          *new_output_handler = log_write_ಗಮ್ಯ_journald;
+          *new_output_handler_arg = (ಶೂನ್ಯ *) ಗಣ_log_id (id, &old_log_id);
+          ನಿಲ್ಲಿಸು;
         }
     }
-  crun_set_output_handler (*new_output_handler, *new_output_handler_arg);
-  return 0;
+  crun_ಗಣ_output_handler (*new_output_handler, *new_output_handler_arg);
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-void
-log_write_to_stream (int errno_, const char *msg, int verbosity, void *arg)
+ಶೂನ್ಯ
+log_write_ಗಮ್ಯ_ಹರಿವು (ಪೂರ್ಣಾಂಕ errno_, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ, ಪೂರ್ಣಾಂಕ verbosity, ಶೂನ್ಯ *arg)
 {
   timestamp_t timestamp = {
     0,
   };
-  FILE *stream = arg;
-  int tty = isatty (fileno (stream));
-  const char *color_begin = "";
-  const char *color_end = "";
+  FILE *ಹರಿವು = arg;
+  ಪೂರ್ಣಾಂಕ tty = isatty (fileno (ಹರಿವು));
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *color_begin = "";
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *color_ಕೊನೆ = "";
 
-  if (tty)
+  ಆದರೆ (tty)
     {
-      switch (verbosity)
+      ಆಯ್ಕೆ (verbosity)
         {
-        case LIBCRUN_VERBOSITY_DEBUG:
+        ಸ್ಥಿತಿ LIBCRUN_VERBOSITY_DEBUG:
           color_begin = "\x1b[1;34m";
-          color_end = "\x1b[0m";
-          break;
-        case LIBCRUN_VERBOSITY_WARNING:
+          color_ಕೊನೆ = "\x1b[0m";
+          ನಿಲ್ಲಿಸು;
+        ಸ್ಥಿತಿ LIBCRUN_VERBOSITY_WARNING:
           color_begin = "\x1b[1;33m";
-          color_end = "\x1b[0m";
-          break;
-        case LIBCRUN_VERBOSITY_ERROR:
+          color_ಕೊನೆ = "\x1b[0m";
+          ನಿಲ್ಲಿಸು;
+        ಸ್ಥಿತಿ LIBCRUN_VERBOSITY_ERROR:
           color_begin = "\x1b[1;31m";
-          color_end = "\x1b[0m";
-          break;
+          color_ಕೊನೆ = "\x1b[0m";
+          ನಿಲ್ಲಿಸು;
         }
 
-      if (log_format == LOG_FORMAT_TEXT)
+      ಆದರೆ (log_format == LOG_FORMAT_ಪಠ್ಯ)
         get_timestamp (&timestamp, ": ");
     }
 
-  if (errno_)
-    fprintf (stream, "%s%s%s: %s%s\n", color_begin, timestamp, msg, strerror (errno_), color_end);
-  else
-    fprintf (stream, "%s%s%s%s\n", color_begin, timestamp, msg, color_end);
+  ಆದರೆ (errno_)
+    fprintf (ಹರಿವು, "%s%s%s: %s%s\n", color_begin, timestamp, ಸಂದೇಶ, strerror (errno_), color_ಕೊನೆ);
+  ಇಲ್ಲದಿದ್ದರೆ
+    fprintf (ಹರಿವು, "%s%s%s%s\n", color_begin, timestamp, ಸಂದೇಶ, color_ಕೊನೆ);
 }
 
-void
-log_write_to_stderr (int errno_, const char *msg, int verbosity, void *arg arg_unused)
+ಶೂನ್ಯ
+log_write_ಗಮ್ಯ_stderr (ಪೂರ್ಣಾಂಕ errno_, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ, ಪೂರ್ಣಾಂಕ verbosity, ಶೂನ್ಯ *arg arg_ಬಳಸದ)
 {
-  log_write_to_stream (errno_, msg, verbosity, stderr);
+  log_write_ಗಮ್ಯ_ಹರಿವು (errno_, ಸಂದೇಶ, verbosity, stderr);
 }
 
-void
-log_write_to_syslog (int errno_, const char *msg, int verbosity, void *arg arg_unused)
+ಶೂನ್ಯ
+log_write_ಗಮ್ಯ_syslog (ಪೂರ್ಣಾಂಕ errno_, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ, ಪೂರ್ಣಾಂಕ verbosity, ಶೂನ್ಯ *arg arg_ಬಳಸದ)
 {
-  int priority = LOG_ERR;
-  switch (verbosity)
+  ಪೂರ್ಣಾಂಕ ಆದ್ಯತೆ = LOG_ERR;
+  ಆಯ್ಕೆ (verbosity)
     {
-    case LIBCRUN_VERBOSITY_DEBUG:
-      priority = LOG_DEBUG;
-      break;
-    case LIBCRUN_VERBOSITY_WARNING:
-      priority = LOG_WARNING;
-      break;
-    case LIBCRUN_VERBOSITY_ERROR:
-      priority = LOG_ERR;
-      break;
+    ಸ್ಥಿತಿ LIBCRUN_VERBOSITY_DEBUG:
+      ಆದ್ಯತೆ = LOG_DEBUG;
+      ನಿಲ್ಲಿಸು;
+    ಸ್ಥಿತಿ LIBCRUN_VERBOSITY_WARNING:
+      ಆದ್ಯತೆ = LOG_WARNING;
+      ನಿಲ್ಲಿಸು;
+    ಸ್ಥಿತಿ LIBCRUN_VERBOSITY_ERROR:
+      ಆದ್ಯತೆ = LOG_ERR;
+      ನಿಲ್ಲಿಸು;
     }
-  if (errno_ == 0)
-    syslog (priority, "%s", msg);
-  else
-    syslog (priority, "%s: %s", msg, strerror (errno_));
+  ಆದರೆ (errno_ == 0)
+    syslog (ಆದ್ಯತೆ, "%s", ಸಂದೇಶ);
+  ಇಲ್ಲದಿದ್ದರೆ
+    syslog (ಆದ್ಯತೆ, "%s: %s", ಸಂದೇಶ, strerror (errno_));
 }
 
-void
-log_write_to_journald (int errno_, const char *msg, int verbosity, void *arg arg_unused)
+ಶೂನ್ಯ
+log_write_ಗಮ್ಯ_journald (ಪೂರ್ಣಾಂಕ errno_, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ, ಪೂರ್ಣಾಂಕ verbosity, ಶೂನ್ಯ *arg arg_ಬಳಸದ)
 {
-  (void) errno_;
-  (void) msg;
-  (void) verbosity;
-#ifdef HAVE_SYSTEMD
-  int priority = LOG_ERR;
-  switch (verbosity)
+  (ಶೂನ್ಯ) errno_;
+  (ಶೂನ್ಯ) ಸಂದೇಶ;
+  (ಶೂನ್ಯ) verbosity;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_SYSTEMD
+  ಪೂರ್ಣಾಂಕ ಆದ್ಯತೆ = LOG_ERR;
+  ಆಯ್ಕೆ (verbosity)
     {
-    case LIBCRUN_VERBOSITY_DEBUG:
-      priority = LOG_DEBUG;
-      break;
-    case LIBCRUN_VERBOSITY_WARNING:
-      priority = LOG_WARNING;
-      break;
-    case LIBCRUN_VERBOSITY_ERROR:
-      priority = LOG_ERR;
-      break;
+    ಸ್ಥಿತಿ LIBCRUN_VERBOSITY_DEBUG:
+      ಆದ್ಯತೆ = LOG_DEBUG;
+      ನಿಲ್ಲಿಸು;
+    ಸ್ಥಿತಿ LIBCRUN_VERBOSITY_WARNING:
+      ಆದ್ಯತೆ = LOG_WARNING;
+      ನಿಲ್ಲಿಸು;
+    ಸ್ಥಿತಿ LIBCRUN_VERBOSITY_ERROR:
+      ಆದ್ಯತೆ = LOG_ERR;
+      ನಿಲ್ಲಿಸು;
     }
-  if (errno_ == 0)
-    sd_journal_send ("PRIORITY=%d", priority, "MESSAGE=%s", msg, "ID=%s", arg, NULL);
-  else
-    sd_journal_send ("PRIORITY=%d", priority, "MESSAGE=%s: %s", msg, strerror (errno_), "ID=%s",
-                     arg, NULL);
-#endif
+  ಆದರೆ (errno_ == 0)
+    sd_journal_send ("PRIORITY=%d", ಆದ್ಯತೆ, "MESSAGE=%s", ಸಂದೇಶ, "ID=%s", arg, ಖಾಲಿ);
+  ಇಲ್ಲದಿದ್ದರೆ
+    sd_journal_send ("PRIORITY=%d", ಆದ್ಯತೆ, "MESSAGE=%s: %s", ಸಂದೇಶ, strerror (errno_), "ID=%s",
+                     arg, ಖಾಲಿ);
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
-static crun_output_handler output_handler = log_write_to_stderr;
-static void *output_handler_arg = NULL;
+ಸ್ಥಿರ crun_output_handler output_handler = log_write_ಗಮ್ಯ_stderr;
+ಸ್ಥಿರ ಶೂನ್ಯ *output_handler_arg = ಖಾಲಿ;
 
-void
-libcrun_set_verbosity (int verbosity)
+ಶೂನ್ಯ
+libcrun_ಗಣ_verbosity (ಪೂರ್ಣಾಂಕ verbosity)
 {
   output_verbosity = verbosity;
 }
 
-int
+ಪೂರ್ಣಾಂಕ
 libcrun_get_verbosity ()
 {
-  return output_verbosity;
+  ಹಿಂತಿರುಗಿ output_verbosity;
 }
 
-void
-crun_set_output_handler (crun_output_handler handler, void *arg)
+ಶೂನ್ಯ
+crun_ಗಣ_output_handler (crun_output_handler handler, ಶೂನ್ಯ *arg)
 {
   output_handler = handler;
   output_handler_arg = arg;
 }
 
-static char *
-make_json_error (const char *msg, int errno_, int verbosity)
+ಸ್ಥಿರ ಅಕ್ಷರ *
+make_json_error (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ, ಪೂರ್ಣಾಂಕ errno_, ಪೂರ್ಣಾಂಕ verbosity)
 {
-  const char *level;
-  switch (verbosity)
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *level;
+  ಆಯ್ಕೆ (verbosity)
     {
-    case LIBCRUN_VERBOSITY_DEBUG:
+    ಸ್ಥಿತಿ LIBCRUN_VERBOSITY_DEBUG:
       level = "debug";
-      break;
-    case LIBCRUN_VERBOSITY_WARNING:
+      ನಿಲ್ಲಿಸು;
+    ಸ್ಥಿತಿ LIBCRUN_VERBOSITY_WARNING:
       level = "warning";
-      break;
-    case LIBCRUN_VERBOSITY_ERROR:
+      ನಿಲ್ಲಿಸು;
+    ಸ್ಥಿತಿ LIBCRUN_VERBOSITY_ERROR:
       level = "error";
-      break;
+      ನಿಲ್ಲಿಸು;
     }
-  const char *buf = NULL;
-  json_gen_ctx *gen = NULL;
-  char *ret = NULL;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *buf = ಖಾಲಿ;
+  json_gen_ctx *gen = ಖಾಲಿ;
+  ಅಕ್ಷರ *ret = ಖಾಲಿ;
   size_t buf_len;
   timestamp_t timestamp = {
     0,
   };
 
-  if (! json_gen_init (&gen, NULL))
-    return NULL;
+  ಆದರೆ (! json_gen_init (&gen, ಖಾಲಿ))
+    ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
   get_timestamp (&timestamp, "");
 
   json_gen_map_open (gen);
 
-  json_gen_string (gen, "msg", strlen ("msg"));
-  if (errno_ == 0)
-    json_gen_string (gen, msg, strlen (msg));
-  else
+  json_gen_string (gen, "msg", ಅಕ್ಷರಸರಣಿ_ಉದ್ದ ("msg"));
+  ಆದರೆ (errno_ == 0)
+    json_gen_string (gen, ಸಂದೇಶ, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ (ಸಂದೇಶ));
+  ಇಲ್ಲದಿದ್ದರೆ
     {
-      cleanup_free char *tmp = NULL;
+      cleanup_free ಅಕ್ಷರ *tmp = ಖಾಲಿ;
 
-      xasprintf (&tmp, "%s: %s", msg, strerror (errno_));
-      json_gen_string (gen, tmp, strlen (tmp));
+      xasprintf (&tmp, "%s: %s", ಸಂದೇಶ, strerror (errno_));
+      json_gen_string (gen, tmp, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ (tmp));
     }
 
-  json_gen_string (gen, "level", strlen ("level"));
-  json_gen_string (gen, level, strlen (level));
+  json_gen_string (gen, "level", ಅಕ್ಷರಸರಣಿ_ಉದ್ದ ("level"));
+  json_gen_string (gen, level, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ (level));
 
-  json_gen_string (gen, "time", strlen ("time"));
-  json_gen_string (gen, timestamp, strlen (timestamp));
+  json_gen_string (gen, "time", ಅಕ್ಷರಸರಣಿ_ಉದ್ದ ("time"));
+  json_gen_string (gen, timestamp, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ (timestamp));
 
   json_gen_map_close (gen);
 
   json_gen_get_buf (gen, &buf, &buf_len);
-  if (buf)
+  ಆದರೆ (buf)
     ret = strdup (buf);
 
   json_gen_free (gen);
 
-  return ret;
+  ಹಿಂತಿರುಗಿ ret;
 }
 
-static void
-write_log (int errno_, int verbosity, const char *msg, va_list args_list)
+ಸ್ಥಿರ ಶೂನ್ಯ
+write_log (ಪೂರ್ಣಾಂಕ errno_, ಪೂರ್ಣಾಂಕ verbosity, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ, va_list ವಾದಗಳು_list)
 {
-  int ret;
-  cleanup_free char *output = NULL;
-  cleanup_free char *json = NULL;
+  ಪೂರ್ಣಾಂಕ ret;
+  cleanup_free ಅಕ್ಷರ *output = ಖಾಲಿ;
+  cleanup_free ಅಕ್ಷರ *json = ಖಾಲಿ;
 
-  if (verbosity > output_verbosity)
-    return;
+  ಆದರೆ (verbosity > output_verbosity)
+    ಹಿಂತಿರುಗಿ;
 
-  ret = vasprintf (&output, msg, args_list);
-  if (UNLIKELY (ret < 0))
+  ret = vasprintf (&output, ಸಂದೇಶ, ವಾದಗಳು_list);
+  ಆದರೆ (UNLIKELY (ret < 0))
     OOM ();
 
-  if (verbosity == LIBCRUN_VERBOSITY_ERROR && output_handler != log_write_to_stderr)
-    log_write_to_stderr (errno_, output, LIBCRUN_VERBOSITY_ERROR, NULL);
+  ಆದರೆ (verbosity == LIBCRUN_VERBOSITY_ERROR && output_handler != log_write_ಗಮ್ಯ_stderr)
+    log_write_ಗಮ್ಯ_stderr (errno_, output, LIBCRUN_VERBOSITY_ERROR, ಖಾಲಿ);
 
-  switch (log_format)
+  ಆಯ್ಕೆ (log_format)
     {
-    case LOG_FORMAT_TEXT:
+    ಸ್ಥಿತಿ LOG_FORMAT_ಪಠ್ಯ:
       output_handler (errno_, output, verbosity, output_handler_arg);
-      break;
+      ನಿಲ್ಲಿಸು;
 
-    case LOG_FORMAT_JSON:
+    ಸ್ಥಿತಿ LOG_FORMAT_JSON:
       json = make_json_error (output, errno_, verbosity);
-      if (json)
+      ಆದರೆ (json)
         output_handler (0, json, verbosity, output_handler_arg);
-      else
+      ಇಲ್ಲದಿದ್ದರೆ
         output_handler (errno_, output, verbosity, output_handler_arg);
-      break;
+      ನಿಲ್ಲಿಸು;
     }
 }
 
-void
-libcrun_debug (const char *msg, ...)
+ಶೂನ್ಯ
+libcrun_debug (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ, ...)
 {
-  va_list args_list;
-  va_start (args_list, msg);
-  write_log (0, LIBCRUN_VERBOSITY_DEBUG, msg, args_list);
-  va_end (args_list);
+  va_list ವಾದಗಳು_list;
+  va_ಆರಂಭ (ವಾದಗಳು_list, ಸಂದೇಶ);
+  write_log (0, LIBCRUN_VERBOSITY_DEBUG, ಸಂದೇಶ, ವಾದಗಳು_list);
+  va_ಕೊನೆ (ವಾದಗಳು_list);
 }
 
-void
-libcrun_warning (const char *msg, ...)
+ಶೂನ್ಯ
+libcrun_warning (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ, ...)
 {
-  va_list args_list;
-  va_start (args_list, msg);
-  write_log (0, LIBCRUN_VERBOSITY_WARNING, msg, args_list);
-  va_end (args_list);
+  va_list ವಾದಗಳು_list;
+  va_ಆರಂಭ (ವಾದಗಳು_list, ಸಂದೇಶ);
+  write_log (0, LIBCRUN_VERBOSITY_WARNING, ಸಂದೇಶ, ವಾದಗಳು_list);
+  va_ಕೊನೆ (ವಾದಗಳು_list);
 }
 
-void
-libcrun_error (int errno_, const char *msg, ...)
+ಶೂನ್ಯ
+libcrun_error (ಪೂರ್ಣಾಂಕ errno_, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ, ...)
 {
-  va_list args_list;
-  va_start (args_list, msg);
+  va_list ವಾದಗಳು_list;
+  va_ಆರಂಭ (ವಾದಗಳು_list, ಸಂದೇಶ);
 
-  write_log (errno_, LIBCRUN_VERBOSITY_ERROR, msg, args_list);
-  va_end (args_list);
+  write_log (errno_, LIBCRUN_VERBOSITY_ERROR, ಸಂದೇಶ, ವಾದಗಳು_list);
+  va_ಕೊನೆ (ವಾದಗಳು_list);
 }
 
-void __attribute__ ((noreturn))
-libcrun_fail_with_error (int errno_, const char *msg, ...)
+ಶೂನ್ಯ __attribute__ ((noreturn))
+libcrun_fail_with_error (ಪೂರ್ಣಾಂಕ errno_, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ, ...)
 {
-  va_list args_list;
-  va_start (args_list, msg);
-  write_log (errno_, LIBCRUN_VERBOSITY_ERROR, msg, args_list);
-  va_end (args_list);
-  exit (EXIT_FAILURE);
+  va_list ವಾದಗಳು_list;
+  va_ಆರಂಭ (ವಾದಗಳು_list, ಸಂದೇಶ);
+  write_log (errno_, LIBCRUN_VERBOSITY_ERROR, ಸಂದೇಶ, ವಾದಗಳು_list);
+  va_ಕೊನೆ (ವಾದಗಳು_list);
+  ನಿರ್ಗಮಿಸು (EXIT_FAILURE);
 }
 
-int
-libcrun_set_log_format (const char *format, libcrun_error_t *err)
+ಪೂರ್ಣಾಂಕ
+libcrun_ಗಣ_log_format (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *format, libcrun_error_t *err)
 {
-  if (strcmp (format, "text") == 0)
-    log_format = LOG_FORMAT_TEXT;
-  else if (strcmp (format, "json") == 0)
+  ಆದರೆ (strcmp (format, "text") == 0)
+    log_format = LOG_FORMAT_ಪಠ್ಯ;
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (strcmp (format, "json") == 0)
     log_format = LOG_FORMAT_JSON;
-  else
-    return crun_make_error (err, 0, "unknown log format type `%s`", format);
+  ಇಲ್ಲದಿದ್ದರೆ
+    ಹಿಂತಿರುಗಿ crun_make_error (err, 0, "unknown log format type `%s`", format);
 
-  return 0;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-int
-json_gen_error_to_crun_error (int status, libcrun_error_t *err)
+ಪೂರ್ಣಾಂಕ
+json_gen_error_ಗಮ್ಯ_crun_error (ಪೂರ್ಣಾಂಕ ಸ್ಥಿತಿ_2, libcrun_error_t *err)
 {
-  switch (status)
+  ಆಯ್ಕೆ (ಸ್ಥಿತಿ_2)
     {
-    case json_gen_status_ok:
-      return 0;
+    ಸ್ಥಿತಿ json_gen_ಸ್ಥಿತಿ_ok:
+      ಹಿಂತಿರುಗಿ 0;
 
-    default:
-      return crun_make_error (err, 0, "generate JSON document: error %d", status);
+    ಪೂರ್ವನಿಯೋಜಿತ:
+      ಹಿಂತಿರುಗಿ crun_make_error (err, 0, "generate JSON document: error %d", ಸ್ಥಿತಿ_2);
     }
 }

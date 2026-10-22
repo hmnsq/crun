@@ -16,112 +16,112 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STATUS_H
-#define STATUS_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಸ್ಥಿತಿ_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಸ್ಥಿತಿ_H
 
-#include <config.h>
-#include <ocispec/runtime_spec_schema_config_schema.h>
-#include "error.h"
-#include "container.h"
+#ಅನ್ತರ್ಭಾವ <config.h>
+#ಅನ್ತರ್ಭಾವ <ocispec/runtime_spec_schema_config_schema.h>
+#ಅನ್ತರ್ಭಾವ "error.h"
+#ಅನ್ತರ್ಭಾವ "container.h"
 
-struct libcrun_container_list_s
+ರಚನೆ libcrun_container_list_s
 {
-  struct libcrun_container_list_s *next;
-  char *name;
+  ರಚನೆ libcrun_container_list_s *ಮುಂದಿನ;
+  ಅಕ್ಷರ *name;
 };
-typedef struct libcrun_container_list_s libcrun_container_list_t;
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ರಚನೆ libcrun_container_list_s libcrun_container_list_t;
 
-struct libcrun_container_status_s
+ರಚನೆ libcrun_container_ಸ್ಥಿತಿ_s
 {
   pid_t pid;
-  unsigned long long process_start_time;
-  char *bundle;
-  char *rootfs;
-  char *cgroup_path;
-  char *scope;
-  int systemd_cgroup;
-  char *created;
-  int detached;
-  int no_new_keyring;
-  char *external_descriptors;
-  char *owner;
+  ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ದೀರ್ಘ process_ಆರಂಭ_ಸಮಯ;
+  ಅಕ್ಷರ *bundle;
+  ಅಕ್ಷರ *rootfs;
+  ಅಕ್ಷರ *cgroup_ಮಾರ್ಗ;
+  ಅಕ್ಷರ *scope;
+  ಪೂರ್ಣಾಂಕ systemd_cgroup;
+  ಅಕ್ಷರ *created;
+  ಪೂರ್ಣಾಂಕ detached;
+  ಪೂರ್ಣಾಂಕ no_new_keyring;
+  ಅಕ್ಷರ *external_descriptors;
+  ಅಕ್ಷರ *owner;
 };
-typedef struct libcrun_container_status_s libcrun_container_status_t;
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ರಚನೆ libcrun_container_ಸ್ಥಿತಿ_s libcrun_container_ಸ್ಥಿತಿ_t;
 
-LIBCRUN_PUBLIC void libcrun_free_container_status (libcrun_container_status_t *status);
-LIBCRUN_PUBLIC int libcrun_write_container_status (const char *state_root, const char *id,
-                                                   libcrun_container_status_t *status, libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_read_container_status (libcrun_container_status_t *status, const char *state_root,
-                                                  const char *id, libcrun_error_t *err);
-LIBCRUN_PUBLIC void libcrun_free_containers_list (libcrun_container_list_t *list);
-LIBCRUN_PUBLIC int libcrun_is_container_running (libcrun_container_status_t *status, libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_get_state_directory (char **out, const char *state_root, const char *id, libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_container_delete_status (const char *state_root, const char *id, libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_get_containers_list (libcrun_container_list_t **ret, const char *state_root,
+LIBCRUN_ಬಹಿರಂಗ ಶೂನ್ಯ libcrun_free_container_ಸ್ಥಿತಿ (libcrun_container_ಸ್ಥಿತಿ_t *ಸ್ಥಿತಿ_2);
+LIBCRUN_ಬಹಿರಂಗ ಪೂರ್ಣಾಂಕ libcrun_write_container_ಸ್ಥಿತಿ (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *state_ಬೇರು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *id,
+                                                   libcrun_container_ಸ್ಥಿತಿ_t *ಸ್ಥಿತಿ_2, libcrun_error_t *err);
+LIBCRUN_ಬಹಿರಂಗ ಪೂರ್ಣಾಂಕ libcrun_read_container_ಸ್ಥಿತಿ (libcrun_container_ಸ್ಥಿತಿ_t *ಸ್ಥಿತಿ_2, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *state_ಬೇರು,
+                                                  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *id, libcrun_error_t *err);
+LIBCRUN_ಬಹಿರಂಗ ಶೂನ್ಯ libcrun_free_containers_list (libcrun_container_list_t *list);
+LIBCRUN_ಬಹಿರಂಗ ಪೂರ್ಣಾಂಕ libcrun_is_container_running (libcrun_container_ಸ್ಥಿತಿ_t *ಸ್ಥಿತಿ_2, libcrun_error_t *err);
+LIBCRUN_ಬಹಿರಂಗ ಪೂರ್ಣಾಂಕ libcrun_get_state_directory (ಅಕ್ಷರ **ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *state_ಬೇರು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *id, libcrun_error_t *err);
+LIBCRUN_ಬಹಿರಂಗ ಪೂರ್ಣಾಂಕ libcrun_container_delete_ಸ್ಥಿತಿ (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *state_ಬೇರು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *id, libcrun_error_t *err);
+LIBCRUN_ಬಹಿರಂಗ ಪೂರ್ಣಾಂಕ libcrun_get_containers_list (libcrun_container_list_t **ret, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *state_ಬೇರು,
                                                 libcrun_error_t *err);
 
-struct libcrun_container_iter_s
+ರಚನೆ libcrun_container_iter_s
 {
   libcrun_container_list_t *cur;
 };
-typedef struct libcrun_container_iter_s libcrun_container_iter_t;
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ರಚನೆ libcrun_container_iter_s libcrun_container_iter_t;
 
-LIBCRUN_PUBLIC int libcrun_container_list (libcrun_context_t *context, libcrun_container_list_t **out,
+LIBCRUN_ಬಹಿರಂಗ ಪೂರ್ಣಾಂಕ libcrun_container_list (libcrun_context_t *context, libcrun_container_list_t **ಹೊರಹೋಗು,
                                            libcrun_error_t *err);
-LIBCRUN_PUBLIC libcrun_container_iter_t *libcrun_container_list_iter (libcrun_container_list_t *l);
-LIBCRUN_PUBLIC bool libcrun_container_iter_next (libcrun_container_iter_t *it, const char **id);
-LIBCRUN_PUBLIC void libcrun_container_iter_free (libcrun_container_iter_t *it);
-LIBCRUN_PUBLIC void libcrun_container_list_free (libcrun_container_list_t *l);
+LIBCRUN_ಬಹಿರಂಗ libcrun_container_iter_t *libcrun_container_list_iter (libcrun_container_list_t *l);
+LIBCRUN_ಬಹಿರಂಗ bool libcrun_container_iter_ಮುಂದಿನ (libcrun_container_iter_t *it, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ **id);
+LIBCRUN_ಬಹಿರಂಗ ಶೂನ್ಯ libcrun_container_iter_free (libcrun_container_iter_t *it);
+LIBCRUN_ಬಹಿರಂಗ ಶೂನ್ಯ libcrun_container_list_free (libcrun_container_list_t *l);
 
-typedef enum
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಎಣಿಕೆ
 {
-  LIBCRUN_CONTAINER_STATUS_CREATING = 0,
-  LIBCRUN_CONTAINER_STATUS_CREATED,
-  LIBCRUN_CONTAINER_STATUS_RUNNING,
-  LIBCRUN_CONTAINER_STATUS_STOPPED,
-  LIBCRUN_CONTAINER_STATUS_PAUSED,
+  LIBCRUN_CONTAINER_ಸ್ಥಿತಿ_CREATING = 0,
+  LIBCRUN_CONTAINER_ಸ್ಥಿತಿ_CREATED,
+  LIBCRUN_CONTAINER_ಸ್ಥಿತಿ_RUNNING,
+  LIBCRUN_CONTAINER_ಸ್ಥಿತಿ_STOPPED,
+  LIBCRUN_CONTAINER_ಸ್ಥಿತಿ_PAUSED,
 } libcrun_container_state_t;
 
-struct libcrun_status_s;
-typedef struct libcrun_status_s libcrun_status_t;
+ರಚನೆ libcrun_ಸ್ಥಿತಿ_s;
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ರಚನೆ libcrun_ಸ್ಥಿತಿ_s libcrun_ಸ್ಥಿತಿ_t;
 
-LIBCRUN_PUBLIC int libcrun_container_status_load (libcrun_context_t *context, const char *id, libcrun_status_t **out,
+LIBCRUN_ಬಹಿರಂಗ ಪೂರ್ಣಾಂಕ libcrun_container_ಸ್ಥಿತಿ_ತುಂಬು (libcrun_context_t *context, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *id, libcrun_ಸ್ಥಿತಿ_t **ಹೊರಹೋಗು,
                                                   libcrun_error_t *err);
-LIBCRUN_PUBLIC void libcrun_container_status_free (libcrun_status_t *st);
+LIBCRUN_ಬಹಿರಂಗ ಶೂನ್ಯ libcrun_container_ಸ್ಥಿತಿ_free (libcrun_ಸ್ಥಿತಿ_t *st);
 /* Resolve the live state of the container described by ST.  The state is
    probed on the first call and cached afterwards; STATE and RUNNING can be
    NULL.  */
-LIBCRUN_PUBLIC int libcrun_status_get_state (libcrun_status_t *st, libcrun_container_state_t *state, int *running,
+LIBCRUN_ಬಹಿರಂಗ ಪೂರ್ಣಾಂಕ libcrun_ಸ್ಥಿತಿ_get_state (libcrun_ಸ್ಥಿತಿ_t *st, libcrun_container_state_t *state, ಪೂರ್ಣಾಂಕ *running,
                                              libcrun_error_t *err);
-LIBCRUN_PUBLIC const char *libcrun_container_state_to_string (libcrun_container_state_t state);
-LIBCRUN_PUBLIC pid_t libcrun_status_get_pid (libcrun_status_t *st);
-LIBCRUN_PUBLIC const char *libcrun_status_get_bundle (libcrun_status_t *st);
-LIBCRUN_PUBLIC const char *libcrun_status_get_rootfs (libcrun_status_t *st);
-LIBCRUN_PUBLIC const char *libcrun_status_get_created (libcrun_status_t *st);
-LIBCRUN_PUBLIC const char *libcrun_status_get_owner (libcrun_status_t *st);
-LIBCRUN_PUBLIC const char *libcrun_status_get_scope (libcrun_status_t *st);
-LIBCRUN_PUBLIC const char *libcrun_status_get_external_descriptors (libcrun_status_t *st);
-LIBCRUN_PUBLIC int libcrun_container_get_state_string (libcrun_context_t *context, const char *id, const char **out,
-                                                       int *running, libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_get_state_dir (char **out, const char *state_root, const char *id, libcrun_error_t *err);
+LIBCRUN_ಬಹಿರಂಗ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *libcrun_container_state_ಗಮ್ಯ_string (libcrun_container_state_t state);
+LIBCRUN_ಬಹಿರಂಗ pid_t libcrun_ಸ್ಥಿತಿ_get_pid (libcrun_ಸ್ಥಿತಿ_t *st);
+LIBCRUN_ಬಹಿರಂಗ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *libcrun_ಸ್ಥಿತಿ_get_bundle (libcrun_ಸ್ಥಿತಿ_t *st);
+LIBCRUN_ಬಹಿರಂಗ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *libcrun_ಸ್ಥಿತಿ_get_rootfs (libcrun_ಸ್ಥಿತಿ_t *st);
+LIBCRUN_ಬಹಿರಂಗ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *libcrun_ಸ್ಥಿತಿ_get_created (libcrun_ಸ್ಥಿತಿ_t *st);
+LIBCRUN_ಬಹಿರಂಗ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *libcrun_ಸ್ಥಿತಿ_get_owner (libcrun_ಸ್ಥಿತಿ_t *st);
+LIBCRUN_ಬಹಿರಂಗ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *libcrun_ಸ್ಥಿತಿ_get_scope (libcrun_ಸ್ಥಿತಿ_t *st);
+LIBCRUN_ಬಹಿರಂಗ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *libcrun_ಸ್ಥಿತಿ_get_external_descriptors (libcrun_ಸ್ಥಿತಿ_t *st);
+LIBCRUN_ಬಹಿರಂಗ ಪೂರ್ಣಾಂಕ libcrun_container_get_state_string (libcrun_context_t *context, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *id, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ **ಹೊರಹೋಗು,
+                                                       ಪೂರ್ಣಾಂಕ *running, libcrun_error_t *err);
+LIBCRUN_ಬಹಿರಂಗ ಪೂರ್ಣಾಂಕ libcrun_get_state_dir (ಅಕ್ಷರ **ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *state_ಬೇರು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *id, libcrun_error_t *err);
 
-int libcrun_status_check_directories (const char *state_root, const char *id, libcrun_error_t *err);
-int libcrun_status_create_exec_fifo (const char *state_root, const char *id, libcrun_error_t *err);
-int libcrun_status_write_exec_fifo (const char *state_root, const char *id, libcrun_error_t *err);
-int libcrun_status_has_read_exec_fifo (const char *state_root, const char *id, libcrun_error_t *err);
-int libcrun_check_pid_valid (libcrun_container_status_t *status, libcrun_error_t *err);
-int get_run_directory (char **out, const char *state_root, libcrun_error_t *err);
-int get_shared_empty_directory_path (char **out, const char *state_root, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ libcrun_ಸ್ಥಿತಿ_check_directories (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *state_ಬೇರು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *id, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ libcrun_ಸ್ಥಿತಿ_create_exec_fifo (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *state_ಬೇರು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *id, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ libcrun_ಸ್ಥಿತಿ_write_exec_fifo (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *state_ಬೇರು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *id, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ libcrun_ಸ್ಥಿತಿ_has_read_exec_fifo (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *state_ಬೇರು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *id, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ libcrun_check_pid_valid (libcrun_container_ಸ್ಥಿತಿ_t *ಸ್ಥಿತಿ_2, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ get_ಸತತ_directory (ಅಕ್ಷರ **ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *state_ಬೇರು, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ get_shared_ಖಾಲಿಗಳು_directory_ಮಾರ್ಗ (ಅಕ್ಷರ **ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *state_ಬೇರು, libcrun_error_t *err);
 
-static inline void
-libcrun_free_container_listp (void *p)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ
+libcrun_free_container_listp (ಶೂನ್ಯ *p)
 {
   libcrun_container_list_t **l = (libcrun_container_list_t **) p;
-  if (*l != NULL)
+  ಆದರೆ (*l != ಖಾಲಿ)
     libcrun_free_containers_list (*l);
 }
 
-#define cleanup_container_status __attribute__ ((cleanup (libcrun_free_container_status)))
-#define cleanup_container_list __attribute__ ((cleanup (libcrun_free_container_listp)))
+#ವ್ಯಾಖ್ಯಾನಿಸು cleanup_container_ಸ್ಥಿತಿ __attribute__ ((cleanup (libcrun_free_container_ಸ್ಥಿತಿ)))
+#ವ್ಯಾಖ್ಯಾನಿಸು cleanup_container_list __attribute__ ((cleanup (libcrun_free_container_listp)))
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

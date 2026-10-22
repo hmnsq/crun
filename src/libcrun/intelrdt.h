@@ -16,20 +16,20 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef INTEL_RDT_H
-#define INTEL_RDT_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ INTEL_RDT_H
+#ವ್ಯಾಖ್ಯಾನಿಸು INTEL_RDT_H
 
-#include <config.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include "error.h"
+#ಅನ್ತರ್ಭಾವ <config.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <stdbool.h>
+#ಅನ್ತರ್ಭಾವ "error.h"
 
-int resctl_create (const char *name, bool explicit_clos_id, bool *created, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err);
-int resctl_move_task_to (const char *name, const char *monitoring_name, pid_t pid, libcrun_error_t *err);
-int resctl_update (const char *name, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err);
-int resctl_destroy (const char *name, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ resctl_create (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name, bool explicit_clos_id, bool *created, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *l3_cache_schema, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *mem_bw_schema, ಅಕ್ಷರ *ಸ್ಥಿರಾಂಕ *schemata, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ resctl_move_task_ಗಮ್ಯ (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *monitoring_name, pid_t pid, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ resctl_update (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *l3_cache_schema, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *mem_bw_schema, ಅಕ್ಷರ *ಸ್ಥಿರಾಂಕ *schemata, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ resctl_destroy (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name, libcrun_error_t *err);
 
-int resctl_destroy_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err);
-int resctl_create_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ resctl_destroy_monitoring_ಗುಂಪು (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *resctrl_ಗುಂಪು_name, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *container_id, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ resctl_create_monitoring_ಗುಂಪು (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *resctrl_ಗುಂಪು_name, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *container_id, libcrun_error_t *err);
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

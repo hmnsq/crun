@@ -15,32 +15,32 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CGROUP_RESOURCES_H
-#define CGROUP_RESOURCES_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CGROUP_RESOURCES_H
+#ವ್ಯಾಖ್ಯಾನಿಸು CGROUP_RESOURCES_H
 
-#include "container.h"
-#include "cgroup.h"
-#include <unistd.h>
+#ಅನ್ತರ್ಭಾವ "container.h"
+#ಅನ್ತರ್ಭಾವ "cgroup.h"
+#ಅನ್ತರ್ಭಾವ <unistd.h>
 
-struct default_dev_s
+ರಚನೆ default_dev_s
 {
-  char type;
-  int major;
-  int minor;
-  const char *access;
+  ಅಕ್ಷರ type;
+  ಪೂರ್ಣಾಂಕ major;
+  ಪೂರ್ಣಾಂಕ minor;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *access;
 };
-struct default_dev_s *get_default_devices ();
+ರಚನೆ default_dev_s *get_default_devices ();
 
-int check_memory_before_update (const char *path, runtime_spec_schema_config_linux_resources *resources,
+ಪೂರ್ಣಾಂಕ check_ಸ್ಮರಣೆ_before_update (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, runtime_spec_schema_config_linux_resources *resources,
                                 libcrun_error_t *err);
 
-int update_cgroup_resources (const char *path,
-                             const char *state_root,
+ಪೂರ್ಣಾಂಕ update_cgroup_resources (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ,
+                             ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *state_ಬೇರು,
                              runtime_spec_schema_config_linux_resources *resources,
                              bool need_devices,
                              libcrun_error_t *err);
 
-struct bpf_program *create_dev_bpf (runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
+ರಚನೆ bpf_ಕಾರ್ಯಕ್ರಮ *create_dev_bpf (runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
                                     libcrun_error_t *err);
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

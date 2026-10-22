@@ -15,32 +15,32 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE
+#ವ್ಯಾಖ್ಯಾನಿಸು GNU_ಮೂಲ
 
-#include <config.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <errno.h>
-#include "spec.h"
-#include "utils.h"
-#include "cgroup.h"
-#include "cgroup-utils.h"
+#ಅನ್ತರ್ಭಾವ <config.h>
+#ಅನ್ತರ್ಭಾವ <stdbool.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <errno.h>
+#ಅನ್ತರ್ಭಾವ "spec.h"
+#ಅನ್ತರ್ಭಾವ "utils.h"
+#ಅನ್ತರ್ಭಾವ "cgroup.h"
+#ಅನ್ತರ್ಭಾವ "cgroup-utils.h"
 
-static const char spec_file[] = "\
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ spec_file[] = "\
 {\n\
-	\"ociVersion\": \"1.0.0\",\n\
+	\"oci_ಆವೃತ್ತಿ\": \"1.0.0\",\n\
 	\"process\": {\n\
 		\"terminal\": true,\n\
 		\"user\": {\n\
 			\"uid\": 0,\n\
 			\"gid\": 0\n\
 		},\n\
-		\"args\": [\n\
+		\"ವಾದಗಳು\": [\n\
 			\"sh\"\n\
 		],\n\
 		\"env\": [\n\
-			\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\",\n\
-			\"TERM=xterm\"\n\
+			\"ಮಾರ್ಗ_3=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\",\n\
+			\"ಪದ=xterm\"\n\
 		],\n\
 		\"cwd\": \"/\",\n\
 		\"capabilities\": {\n\
@@ -76,8 +76,8 @@ static const char spec_file[] = "\
 		],\n\
 		\"noNewPrivileges\": true\n\
 	},\n\
-	\"root\": {\n\
-		\"path\": \"rootfs\",\n\
+	\"ಬೇರು\": {\n\
+		\"ಮಾರ್ಗ\": \"rootfs\",\n\
 		\"readonly\": true\n\
 	},\n\
 	\"hostname\": \"crun\",\n\
@@ -85,48 +85,48 @@ static const char spec_file[] = "\
 		{\n\
 			\"destination\": \"/proc\",\n\
 			\"type\": \"proc\",\n\
-			\"source\": \"proc\"\n\
+			\"ಮೂಲ\": \"proc\"\n\
 		},\n\
 		{\n\
 			\"destination\": \"/dev\",\n\
 			\"type\": \"tmpfs\",\n\
-			\"source\": \"tmpfs\",\n\
+			\"ಮೂಲ\": \"tmpfs\",\n\
 			\"options\": [\n\
 				\"nosuid\",\n\
 				\"strictatime\",\n\
-				\"mode=755\",\n\
-				\"size=65536k\"\n\
+				\"ಬಹುಲಕ=755\",\n\
+				\"ಗಾತ್ರ_2=65536k\"\n\
 			]\n\
 		},\n\
 		{\n\
 			\"destination\": \"/dev/pts\",\n\
 			\"type\": \"devpts\",\n\
-			\"source\": \"devpts\",\n\
+			\"ಮೂಲ\": \"devpts\",\n\
 			\"options\": [\n\
 				\"nosuid\",\n\
 				\"noexec\",\n\
 				\"newinstance\",\n\
 				\"ptmxmode=0666\",\n\
-				\"mode=0620\"\
+				\"ಬಹುಲಕ=0620\"\
 %s\
 			]\n\
 		},\n\
 		{\n\
 			\"destination\": \"/dev/shm\",\n\
 			\"type\": \"tmpfs\",\n\
-			\"source\": \"shm\",\n\
+			\"ಮೂಲ\": \"shm\",\n\
 			\"options\": [\n\
 				\"nosuid\",\n\
 				\"noexec\",\n\
 				\"nodev\",\n\
-				\"mode=1777\",\n\
-				\"size=65536k\"\n\
+				\"ಬಹುಲಕ=1777\",\n\
+				\"ಗಾತ್ರ_2=65536k\"\n\
 			]\n\
 		},\n\
 		{\n\
 			\"destination\": \"/dev/mqueue\",\n\
 			\"type\": \"mqueue\",\n\
-			\"source\": \"mqueue\",\n\
+			\"ಮೂಲ\": \"mqueue\",\n\
 			\"options\": [\n\
 				\"nosuid\",\n\
 				\"noexec\",\n\
@@ -136,7 +136,7 @@ static const char spec_file[] = "\
 		{\n\
 			\"destination\": \"/sys\",\n\
 			\"type\": \"sysfs\",\n\
-			\"source\": \"sysfs\",\n\
+			\"ಮೂಲ\": \"sysfs\",\n\
 			\"options\": [\n\
 				\"nosuid\",\n\
 				\"noexec\",\n\
@@ -147,7 +147,7 @@ static const char spec_file[] = "\
 		{\n\
 			\"destination\": \"/sys/fs/cgroup\",\n\
 			\"type\": \"cgroup\",\n\
-			\"source\": \"cgroup\",\n\
+			\"ಮೂಲ\": \"cgroup\",\n\
 			\"options\": [\n\
 				\"nosuid\",\n\
 				\"noexec\",\n\
@@ -171,7 +171,7 @@ static const char spec_file[] = "\
 				\"type\": \"pid\"\n\
 			},\n\
 			{\n\
-				\"type\": \"network\"\n\
+				\"type\": \"ಜಾಲ\"\n\
 			},\n\
 			{\n\
 				\"type\": \"ipc\"\n\
@@ -189,7 +189,7 @@ static const char spec_file[] = "\
 			\"/proc/acpi\",\n\
 			\"/proc/asound\",\n\
 			\"/proc/kcore\",\n\
-			\"/proc/keys\",\n\
+			\"/proc/ಕೀಲಿಗಳು\",\n\
 			\"/proc/latency_stats\",\n\
 			\"/proc/timer_list\",\n\
 			\"/proc/timer_stats\",\n\
@@ -207,59 +207,59 @@ static const char spec_file[] = "\
 	}\n\
 }\n";
 
-static const char *spec_pts_tty_group = ",\n\
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *spec_pts_tty_ಗುಂಪು = ",\n\
 				\"gid=5\"\n";
 
-static const char *spec_user = "\
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *spec_user = "\
 			{\n\
 				\"type\": \"user\"\n\
 			},\n";
 
-static const char *spec_cgroupns = "\
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *spec_cgroupns = "\
 			{\n\
 				\"type\": \"cgroup\"\n\
 			},\n";
 
-int
-libcrun_container_spec (bool root, FILE *out, libcrun_error_t *err)
+ಪೂರ್ಣಾಂಕ
+libcrun_container_spec (bool ಬೇರು, FILE *ಹೊರಹೋಗು, libcrun_error_t *err)
 {
-  int ret;
-  int cgroup_mode;
+  ಪೂರ್ಣಾಂಕ ret;
+  ಪೂರ್ಣಾಂಕ cgroup_ಬಹುಲಕ;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_ಬಹುಲಕ = libcrun_get_cgroup_ಬಹುಲಕ (err);
+  ಆದರೆ (UNLIKELY (cgroup_ಬಹುಲಕ < 0))
+    ಹಿಂತಿರುಗಿ cgroup_ಬಹುಲಕ;
 
-  ret = fprintf (out, spec_file,
-                 root ? spec_pts_tty_group : "\n",
-                 root ? "" : spec_user,
-                 cgroup_mode == CGROUP_MODE_UNIFIED ? spec_cgroupns : "");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fprintf failed");
+  ret = fprintf (ಹೊರಹೋಗು, spec_file,
+                 ಬೇರು ? spec_pts_tty_ಗುಂಪು : "\n",
+                 ಬೇರು ? "" : spec_user,
+                 cgroup_ಬಹುಲಕ == CGROUP_ಬಹುಲಕ_UNIFIED ? spec_cgroupns : "");
+  ಆದರೆ (UNLIKELY (ret < 0))
+    ಹಿಂತಿರುಗಿ crun_make_error (err, errno, "fprintf failed");
 
-  return ret;
+  ಹಿಂತಿರುಗಿ ret;
 }
 
-int
-libcrun_container_spec_json (bool root, char **out, libcrun_error_t *err)
+ಪೂರ್ಣಾಂಕ
+libcrun_container_spec_json (bool ಬೇರು, ಅಕ್ಷರ **ಹೊರಹೋಗು, libcrun_error_t *err)
 {
-  char *buffer = NULL;
+  ಅಕ್ಷರ *ಬಫರ್ = ಖಾಲಿ;
   size_t len = 0;
   FILE *f;
-  int ret;
+  ಪೂರ್ಣಾಂಕ ret;
 
-  f = open_memstream (&buffer, &len);
-  if (f == NULL)
-    return crun_make_error (err, errno, "open_memstream");
+  f = open_memstream (&ಬಫರ್, &len);
+  ಆದರೆ (f == ಖಾಲಿ)
+    ಹಿಂತಿರುಗಿ crun_make_error (err, errno, "open_memstream");
 
-  ret = libcrun_container_spec (root, f, err);
+  ret = libcrun_container_spec (ಬೇರು, f, err);
   fclose (f);
-  if (UNLIKELY (ret < 0))
+  ಆದರೆ (UNLIKELY (ret < 0))
     {
-      free (buffer);
-      return ret;
+      ಬಿಡುಗಡೆ (ಬಫರ್);
+      ಹಿಂತಿರುಗಿ ret;
     }
 
-  *out = buffer;
-  return 0;
+  *ಹೊರಹೋಗು = ಬಫರ್;
+  ಹಿಂತಿರುಗಿ 0;
 }

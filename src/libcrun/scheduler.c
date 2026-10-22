@@ -16,66 +16,66 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#ವ್ಯಾಖ್ಯಾನಿಸು GNU_ಮೂಲ
 
-#include <config.h>
-#include "linux.h"
-#include "utils.h"
-#include <sched.h>
-#include <linux/sched.h>
-#include <sys/sysmacros.h>
-#include <limits.h>
-#include <inttypes.h>
-#include <ocispec/runtime_spec_schema_config_schema.h>
+#ಅನ್ತರ್ಭಾವ <config.h>
+#ಅನ್ತರ್ಭಾವ "linux.h"
+#ಅನ್ತರ್ಭಾವ "utils.h"
+#ಅನ್ತರ್ಭಾವ <sched.h>
+#ಅನ್ತರ್ಭಾವ <linux/sched.h>
+#ಅನ್ತರ್ಭಾವ <sys/sysmacros.h>
+#ಅನ್ತರ್ಭಾವ <limits.h>
+#ಅನ್ತರ್ಭಾವ <inttypes.h>
+#ಅನ್ತರ್ಭಾವ <ocispec/runtime_spec_schema_config_schema.h>
 
-#ifndef SCHED_FLAG_RESET_ON_FORK
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ SCHED_FLAG_RESET_ON_FORK
 #  define SCHED_FLAG_RESET_ON_FORK 0x01
-#endif
-#ifndef SCHED_FLAG_RECLAIM
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ SCHED_FLAG_RECLAIM
 #  define SCHED_FLAG_RECLAIM 0x02
-#endif
-#ifndef SCHED_FLAG_DL_OVERRUN
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ SCHED_FLAG_DL_OVERRUN
 #  define SCHED_FLAG_DL_OVERRUN 0x04
-#endif
-#ifndef SCHED_FLAG_KEEP_POLICY
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ SCHED_FLAG_KEEP_POLICY
 #  define SCHED_FLAG_KEEP_POLICY 0x08
-#endif
-#ifndef SCHED_FLAG_KEEP_PARAMS
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ SCHED_FLAG_KEEP_PARAMS
 #  define SCHED_FLAG_KEEP_PARAMS 0x10
-#endif
-#ifndef SCHED_FLAG_UTIL_CLAMP_MIN
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ SCHED_FLAG_UTIL_CLAMP_MIN
 #  define SCHED_FLAG_UTIL_CLAMP_MIN 0x20
-#endif
-#ifndef SCHED_FLAG_UTIL_CLAMP_MAX
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ SCHED_FLAG_UTIL_CLAMP_MAX
 #  define SCHED_FLAG_UTIL_CLAMP_MAX 0x40
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-struct sched_attr_s
+ರಚನೆ sched_attr_s
 {
-  uint32_t size;
+  uint32_t ಗಾತ್ರ_2;
   uint32_t sched_policy;
   uint64_t sched_flags;
   int32_t sched_nice;
 
-  uint32_t sched_priority;
+  uint32_t sched_ಆದ್ಯತೆ;
 
   uint64_t sched_runtime;
   uint64_t sched_deadline;
   uint64_t sched_period;
 };
 
-static int
-syscall_sched_setattr (pid_t pid, struct sched_attr_s *attr, unsigned int flags)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ
+syscall_sched_setattr (pid_t pid, ರಚನೆ sched_attr_s *attr, ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ flags)
 {
-#ifdef __NR_sched_setattr
-  return syscall (__NR_sched_setattr, pid, attr, flags);
-#else
-  (void) pid;
-  (void) attr;
-  (void) flags;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ __NR_sched_setattr
+  ಹಿಂತಿರುಗಿ syscall (__NR_sched_setattr, pid, attr, flags);
+#ಇಲ್ಲದಿದ್ದರೆ
+  (ಶೂನ್ಯ) pid;
+  (ಶೂನ್ಯ) attr;
+  (ಶೂನ್ಯ) flags;
   errno = ENOSYS;
-  return -1;
-#endif
+  ಹಿಂತಿರುಗಿ -1;
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
 /* Maximum number of CPUs the reset mask can cover.  The mask passed to
@@ -83,82 +83,82 @@ syscall_sched_setattr (pid_t pid, struct sched_attr_s *attr, unsigned int flags)
    using a mask larger than the number of CPUs on the system is safe, while a
    mask that is too small fails with EINVAL when the target cgroup only allows
    CPUs outside of it.  */
-#define MAX_CPU_MASK_BITS (64 * 1024)
+#ವ್ಯಾಖ್ಯಾನಿಸು MAX_CPU_ಮುಖವಾಡ_ಬಿಟ್ಟುಗಳು (64 * 1024)
 
-int
-libcrun_reset_cpu_affinity_mask (pid_t pid, libcrun_error_t *err)
+ಪೂರ್ಣಾಂಕ
+libcrun_reset_cpu_affinity_ಮುಖವಾಡ (pid_t pid, libcrun_error_t *err)
 {
-  cpu_set_t mask[MAX_CPU_MASK_BITS / (CHAR_BIT * sizeof (cpu_set_t))];
-  int ret;
+  cpu_ಗಣ_t ಮುಖವಾಡ[MAX_CPU_ಮುಖವಾಡ_ಬಿಟ್ಟುಗಳು / (CHAR_BIT * ಗಾತ್ರ (cpu_ಗಣ_t))];
+  ಪೂರ್ಣಾಂಕ ret;
 
   /* Reset the inherited cpu affinity. Old kernels do that automatically, but
      new kernels remember the affinity that was set before the cgroup move.
      This is undesirable, because it inherits the systemd affinity when the container
      should really move to the container space cpus.
      See: https://issues.redhat.com/browse/OCPBUGS-15102   */
-  memset (mask, 0xFF, sizeof (mask));
-  ret = sched_setaffinity (pid, sizeof (mask), mask);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "sched_setaffinity");
-  return 0;
+  memset (ಮುಖವಾಡ, 0xFF, ಗಾತ್ರ (ಮುಖವಾಡ));
+  ret = sched_setaffinity (pid, ಗಾತ್ರ (ಮುಖವಾಡ), ಮುಖವಾಡ);
+  ಆದರೆ (UNLIKELY (ret < 0))
+    ಹಿಂತಿರುಗಿ crun_make_error (err, errno, "sched_setaffinity");
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-static int
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ
 diagnose_scheduler_failure (libcrun_error_t *err, runtime_spec_schema_config_schema_process *process,
-                            struct sched_attr_s *attr)
+                            ರಚನೆ sched_attr_s *attr)
 {
-  if (attr->sched_policy == SCHED_DEADLINE && errno == EINVAL)
+  ಆದರೆ (attr->sched_policy == SCHED_DEADLINE && errno == EINVAL)
     {
-      if (! process->scheduler->runtime_present)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` requires `runtime`");
-      if (! process->scheduler->deadline_present)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` requires `deadline`");
+      ಆದರೆ (! process->scheduler->runtime_present)
+        ಹಿಂತಿರುಗಿ crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` requires `runtime`");
+      ಆದರೆ (! process->scheduler->deadline_present)
+        ಹಿಂತಿರುಗಿ crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` requires `deadline`");
 
-      if (attr->sched_runtime == 0)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` runtime must be greater than 0");
-      if (attr->sched_deadline == 0)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` deadline must be greater than 0");
+      ಆದರೆ (attr->sched_runtime == 0)
+        ಹಿಂತಿರುಗಿ crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` runtime must be greater than 0");
+      ಆದರೆ (attr->sched_deadline == 0)
+        ಹಿಂತಿರುಗಿ crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` deadline must be greater than 0");
       /* Per sched(7), ff sched_period is specified as 0, then it is made the same as sched_deadline. */
 
-      if (attr->sched_runtime > attr->sched_deadline)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` runtime (%" PRIu64 ") must be <= deadline (%" PRIu64 ")",
+      ಆದರೆ (attr->sched_runtime > attr->sched_deadline)
+        ಹಿಂತಿರುಗಿ crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` runtime (%" PRIu64 ") must be <= deadline (%" PRIu64 ")",
                                 attr->sched_runtime, attr->sched_deadline);
-      if (attr->sched_period != 0 && attr->sched_deadline > attr->sched_period)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` deadline (%" PRIu64 ") must be <= period (%" PRIu64 ")",
+      ಆದರೆ (attr->sched_period != 0 && attr->sched_deadline > attr->sched_period)
+        ಹಿಂತಿರುಗಿ crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` deadline (%" PRIu64 ") must be <= period (%" PRIu64 ")",
                                 attr->sched_deadline, attr->sched_period);
 
       /* sched(7) says "under the current implementation, all of the parameter values
        * must be at least 1024 <...> and less than 2^63". */
-      const uint64_t min = 1024;
-      const uint64_t max = (1ULL << 63) - 1;
+      ಸ್ಥಿರಾಂಕ uint64_t min = 1024;
+      ಸ್ಥಿರಾಂಕ uint64_t max = (1ULL << 63) - 1;
 
-      if (attr->sched_runtime < min || attr->sched_runtime > max)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` runtime (%" PRIu64 ") must be between %" PRIu64 " and %" PRIu64,
+      ಆದರೆ (attr->sched_runtime < min || attr->sched_runtime > max)
+        ಹಿಂತಿರುಗಿ crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` runtime (%" PRIu64 ") must be between %" PRIu64 " and %" PRIu64,
                                 attr->sched_runtime, min, max);
-      if (attr->sched_deadline < min || attr->sched_deadline > max)
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` deadline (%" PRIu64 ") must be between %" PRIu64 " and %" PRIu64,
+      ಆದರೆ (attr->sched_deadline < min || attr->sched_deadline > max)
+        ಹಿಂತಿರುಗಿ crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` deadline (%" PRIu64 ") must be between %" PRIu64 " and %" PRIu64,
                                 attr->sched_deadline, min, max);
-      if (attr->sched_period != 0 && (attr->sched_period < min || attr->sched_period > max))
-        return crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` period (%" PRIu64 ") must be between %" PRIu64 " and %" PRIu64,
+      ಆದರೆ (attr->sched_period != 0 && (attr->sched_period < min || attr->sched_period > max))
+        ಹಿಂತಿರುಗಿ crun_make_error (err, errno, "sched_setattr: `SCHED_DEADLINE` period (%" PRIu64 ") must be between %" PRIu64 " and %" PRIu64,
                                 attr->sched_period, min, max);
 
-      return crun_make_error (err, errno, "sched_setattr: invalid `SCHED_DEADLINE` parameters (runtime=%" PRIu64 ", deadline=%" PRIu64 ", period=%" PRIu64 ")",
+      ಹಿಂತಿರುಗಿ crun_make_error (err, errno, "sched_setattr: invalid `SCHED_DEADLINE` parameters (runtime=%" PRIu64 ", deadline=%" PRIu64 ", period=%" PRIu64 ")",
                               attr->sched_runtime, attr->sched_deadline, attr->sched_period);
     }
 
-  return crun_make_error (err, errno, "sched_setattr");
+  ಹಿಂತಿರುಗಿ crun_make_error (err, errno, "sched_setattr");
 }
 
-int
-libcrun_set_scheduler (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err)
+ಪೂರ್ಣಾಂಕ
+libcrun_ಗಣ_scheduler (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err)
 {
-  struct sched_attr_s attr;
-  int i, ret, policy;
+  ರಚನೆ sched_attr_s attr;
+  ಪೂರ್ಣಾಂಕ i, ret, policy;
   size_t s;
-  struct
+  ರಚನೆ
   {
-    const char *name;
-    int value;
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name;
+    ಪೂರ್ಣಾಂಕ ಮೌಲ್ಯ;
   } policies[] = {
     { "SCHED_OTHER", SCHED_OTHER },
     { "SCHED_BATCH", SCHED_BATCH },
@@ -166,112 +166,112 @@ libcrun_set_scheduler (pid_t pid, runtime_spec_schema_config_schema_process *pro
     { "SCHED_FIFO", SCHED_FIFO },
     { "SCHED_RR", SCHED_RR },
     { "SCHED_DEADLINE", SCHED_DEADLINE },
-    { NULL, 0 },
+    { ಖಾಲಿ, 0 },
   };
 
-  if (process == NULL || process->scheduler == NULL)
-    return 0;
+  ಆದರೆ (process == ಖಾಲಿ || process->scheduler == ಖಾಲಿ)
+    ಹಿಂತಿರುಗಿ 0;
 
-  memset (&attr, 0, sizeof (attr));
-  attr.size = sizeof (attr);
+  memset (&attr, 0, ಗಾತ್ರ (attr));
+  attr.ಗಾತ್ರ_2 = ಗಾತ್ರ (attr);
 
-  if (is_empty_string (process->scheduler->policy))
-    return crun_make_error (err, 0, "scheduler policy not defined");
+  ಆದರೆ (is_ಖಾಲಿಗಳು_string (process->scheduler->policy))
+    ಹಿಂತಿರುಗಿ crun_make_error (err, 0, "scheduler policy not defined");
 
   policy = -1;
-  for (i = 0; policies[i].name; i++)
-    if (strcmp (process->scheduler->policy, policies[i].name) == 0)
+  ಗಾಗಿ (i = 0; policies[i].name; i++)
+    ಆದರೆ (strcmp (process->scheduler->policy, policies[i].name) == 0)
       {
         policy = i;
-        break;
+        ನಿಲ್ಲಿಸು;
       }
-  if (UNLIKELY (policy < 0))
-    return crun_make_error (err, 0, "invalid scheduler `%s`", process->scheduler->policy);
+  ಆದರೆ (UNLIKELY (policy < 0))
+    ಹಿಂತಿರುಗಿ crun_make_error (err, 0, "invalid scheduler `%s`", process->scheduler->policy);
 
-  attr.sched_policy = policies[policy].value;
+  attr.sched_policy = policies[policy].ಮೌಲ್ಯ;
 
-  if (process->scheduler->nice_present)
+  ಆದರೆ (process->scheduler->nice_present)
     attr.sched_nice = process->scheduler->nice;
 
-  if (process->scheduler->priority_present)
-    attr.sched_priority = process->scheduler->priority;
+  ಆದರೆ (process->scheduler->ಆದ್ಯತೆ_present)
+    attr.sched_ಆದ್ಯತೆ = process->scheduler->ಆದ್ಯತೆ;
 
-  if (process->scheduler->runtime_present)
+  ಆದರೆ (process->scheduler->runtime_present)
     attr.sched_runtime = process->scheduler->runtime;
 
-  if (process->scheduler->deadline_present)
+  ಆದರೆ (process->scheduler->deadline_present)
     attr.sched_deadline = process->scheduler->deadline;
 
-  if (process->scheduler->period_present)
+  ಆದರೆ (process->scheduler->period_present)
     attr.sched_period = process->scheduler->period;
 
-  for (s = 0; s < process->scheduler->flags_len; s++)
+  ಗಾಗಿ (s = 0; s < process->scheduler->flags_len; s++)
     {
-      char *key = process->scheduler->flags[s];
+      ಅಕ್ಷರ *ಕೀಲಿ = process->scheduler->flags[s];
 
-      if (key == NULL)
-        return crun_make_error (err, EINVAL, "scheduler flag is not specified");
+      ಆದರೆ (ಕೀಲಿ == ಖಾಲಿ)
+        ಹಿಂತಿರುಗಿ crun_make_error (err, EINVAL, "scheduler flag is not specified");
 
-      if (strcmp (key, "SCHED_FLAG_RESET_ON_FORK") == 0)
+      ಆದರೆ (strcmp (ಕೀಲಿ, "SCHED_FLAG_RESET_ON_FORK") == 0)
         attr.sched_flags |= SCHED_FLAG_RESET_ON_FORK;
-      else if (strcmp (key, "SCHED_FLAG_RECLAIM") == 0)
+      ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (strcmp (ಕೀಲಿ, "SCHED_FLAG_RECLAIM") == 0)
         attr.sched_flags |= SCHED_FLAG_RECLAIM;
-      else if (strcmp (key, "SCHED_FLAG_DL_OVERRUN") == 0)
+      ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (strcmp (ಕೀಲಿ, "SCHED_FLAG_DL_OVERRUN") == 0)
         attr.sched_flags |= SCHED_FLAG_DL_OVERRUN;
-      else if (strcmp (key, "SCHED_FLAG_KEEP_POLICY") == 0)
+      ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (strcmp (ಕೀಲಿ, "SCHED_FLAG_KEEP_POLICY") == 0)
         attr.sched_flags |= SCHED_FLAG_KEEP_POLICY;
-      else if (strcmp (key, "SCHED_FLAG_KEEP_PARAMS") == 0)
+      ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (strcmp (ಕೀಲಿ, "SCHED_FLAG_KEEP_PARAMS") == 0)
         attr.sched_flags |= SCHED_FLAG_KEEP_PARAMS;
-      else if (strcmp (key, "SCHED_FLAG_UTIL_CLAMP_MIN") == 0)
+      ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (strcmp (ಕೀಲಿ, "SCHED_FLAG_UTIL_CLAMP_MIN") == 0)
         attr.sched_flags |= SCHED_FLAG_UTIL_CLAMP_MIN;
-      else if (strcmp (key, "SCHED_FLAG_UTIL_CLAMP_MAX") == 0)
+      ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (strcmp (ಕೀಲಿ, "SCHED_FLAG_UTIL_CLAMP_MAX") == 0)
         attr.sched_flags |= SCHED_FLAG_UTIL_CLAMP_MAX;
-      else
-        return crun_make_error (err, 0, "invalid scheduler option `%s`", key);
+      ಇಲ್ಲದಿದ್ದರೆ
+        ಹಿಂತಿರುಗಿ crun_make_error (err, 0, "invalid scheduler option `%s`", ಕೀಲಿ);
     }
 
   ret = syscall_sched_setattr (pid, &attr, 0);
-  if (UNLIKELY (ret < 0))
-    return diagnose_scheduler_failure (err, process, &attr);
+  ಆದರೆ (UNLIKELY (ret < 0))
+    ಹಿಂತಿರುಗಿ diagnose_scheduler_failure (err, process, &attr);
 
-  return 0;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-int
-libcrun_set_cpu_affinity_from_string (pid_t pid, const char *str, libcrun_error_t *err)
+ಪೂರ್ಣಾಂಕ
+libcrun_ಗಣ_cpu_affinity_from_string (pid_t pid, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str, libcrun_error_t *err)
 {
-  cleanup_free char *bitmask = NULL;
-  int ret, saved_errno;
-  size_t bitmask_size;
-  cpu_set_t *cpuset;
-  size_t alloc_size;
+  cleanup_free ಅಕ್ಷರ *bitmask = ಖಾಲಿ;
+  ಪೂರ್ಣಾಂಕ ret, saved_errno;
+  size_t bitmask_ಗಾತ್ರ;
+  cpu_ಗಣ_t *cpuset;
+  size_t alloc_ಗಾತ್ರ;
   size_t i;
 
-  if (is_empty_string (str))
-    return 0;
+  ಆದರೆ (is_ಖಾಲಿಗಳು_string (str))
+    ಹಿಂತಿರುಗಿ 0;
 
-  ret = cpuset_string_to_bitmask (str, &bitmask, &bitmask_size, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = cpuset_string_ಗಮ್ಯ_bitmask (str, &bitmask, &bitmask_ಗಾತ್ರ, err);
+  ಆದರೆ (UNLIKELY (ret < 0))
+    ಹಿಂತಿರುಗಿ ret;
 
-  alloc_size = CPU_ALLOC_SIZE (bitmask_size * CHAR_BIT);
+  alloc_ಗಾತ್ರ = CPU_ALLOC_ಗಾತ್ರ (bitmask_ಗಾತ್ರ * CHAR_BIT);
 
-  cpuset = CPU_ALLOC (bitmask_size * CHAR_BIT);
-  if (UNLIKELY (cpuset == NULL))
+  cpuset = CPU_ALLOC (bitmask_ಗಾತ್ರ * CHAR_BIT);
+  ಆದರೆ (UNLIKELY (cpuset == ಖಾಲಿ))
     OOM ();
 
-  CPU_ZERO_S (alloc_size, cpuset);
+  CPU_ZERO_S (alloc_ಗಾತ್ರ, cpuset);
 
-  for (i = 0; i < bitmask_size * CHAR_BIT; i++)
+  ಗಾಗಿ (i = 0; i < bitmask_ಗಾತ್ರ * CHAR_BIT; i++)
     {
-      if (bitmask[i / CHAR_BIT] & (1 << (i % CHAR_BIT)))
-        CPU_SET_S (i, alloc_size, cpuset);
+      ಆದರೆ (bitmask[i / CHAR_BIT] & (1 << (i % CHAR_BIT)))
+        CPU_ಗಣ_S (i, alloc_ಗಾತ್ರ, cpuset);
     }
 
-  ret = sched_setaffinity (pid, alloc_size, cpuset);
+  ret = sched_setaffinity (pid, alloc_ಗಾತ್ರ, cpuset);
   saved_errno = errno;
   CPU_FREE (cpuset);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, saved_errno, "sched_setaffinity");
-  return 0;
+  ಆದರೆ (UNLIKELY (ret < 0))
+    ಹಿಂತಿರುಗಿ crun_make_error (err, saved_errno, "sched_setaffinity");
+  ಹಿಂತಿರುಗಿ 0;
 }

@@ -15,119 +15,119 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ERROR_H
-#define ERROR_H
-#include <config.h>
-#ifdef HAVE_ERROR_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ERROR_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ERROR_H
+#ಅನ್ತರ್ಭಾವ <config.h>
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_ERROR_H
 #  include <error.h>
-#else
-#  define error(status, errno, fmt, ...)                      \
-    do                                                        \
+#ಇಲ್ಲದಿದ್ದರೆ
+#  define error(ಸ್ಥಿತಿ_2, errno, fmt, ...)                      \
+    ಮಾಡು                                                        \
       {                                                       \
-        if (errno == 0)                                       \
+        ಆದರೆ (errno == 0)                                       \
           fprintf (stderr, "crun: " fmt "\n", ##__VA_ARGS__); \
-        else                                                  \
+        ಇಲ್ಲದಿದ್ದರೆ                                                  \
           {                                                   \
             fprintf (stderr, "crun: " fmt, ##__VA_ARGS__);    \
             fprintf (stderr, ": %s\n", strerror (errno));     \
           }                                                   \
-        if (status)                                           \
-          exit (status);                                      \
-    } while (0)
-#endif
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <syslog.h>
-#include <unistd.h>
+        ಆದರೆ (ಸ್ಥಿತಿ_2)                                           \
+          ನಿರ್ಗಮಿಸು (ಸ್ಥಿತಿ_2);                                      \
+    } ಆಗ (0)
+#ಆದರೆ_ಅಂತ್ಯ
+#ಅನ್ತರ್ಭಾವ <stdlib.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <stdbool.h>
+#ಅನ್ತರ್ಭಾವ <syslog.h>
+#ಅನ್ತರ್ಭಾವ <unistd.h>
 
-struct libcrun_error_s
+ರಚನೆ libcrun_error_s
 {
-  int status;
-  char *msg;
+  ಪೂರ್ಣಾಂಕ ಸ್ಥಿತಿ_2;
+  ಅಕ್ಷರ *ಸಂದೇಶ;
 };
-typedef struct libcrun_error_s *libcrun_error_t;
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ರಚನೆ libcrun_error_s *libcrun_error_t;
 
 /* Coverage support: flush coverage data before _exit() in forked processes */
-#ifdef HAVE_COVERAGE
-extern void __gcov_dump (void);
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_COVERAGE
+ಬಾಹ್ಯ ಶೂನ್ಯ __gcov_dump (ಶೂನ್ಯ);
 #  define GCOV_DUMP() __gcov_dump ()
-#else
+#ಇಲ್ಲದಿದ್ದರೆ
 #  define GCOV_DUMP()
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
 /* Use this instead of _exit() to ensure coverage data is flushed */
-#define _safe_exit(status) \
-  do                       \
+#ವ್ಯಾಖ್ಯಾನಿಸು ಸುರಕ್ಷಿತ_exit(ಸ್ಥಿತಿ_2) \
+  ಮಾಡು                       \
     {                      \
       GCOV_DUMP ();        \
-      _exit (status);      \
-  } while (0)
+      _exit (ಸ್ಥಿತಿ_2);      \
+  } ಆಗ (0)
 
-#define OOM()                            \
-  do                                     \
+#ವ್ಯಾಖ್ಯಾನಿಸು OOM()                            \
+  ಮಾಡು                                     \
     {                                    \
       fprintf (stderr, "out of memory"); \
-      _safe_exit (EXIT_FAILURE);         \
-  } while (0)
+      ಸುರಕ್ಷಿತ_exit (EXIT_FAILURE);         \
+  } ಆಗ (0)
 
-typedef void (*crun_output_handler) (int errno_, const char *msg, int verbosity, void *arg);
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಶೂನ್ಯ (*crun_output_handler) (ಪೂರ್ಣಾಂಕ errno_, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ, ಪೂರ್ಣಾಂಕ verbosity, ಶೂನ್ಯ *arg);
 
-void crun_set_output_handler (crun_output_handler handler, void *arg);
+ಶೂನ್ಯ crun_ಗಣ_output_handler (crun_output_handler handler, ಶೂನ್ಯ *arg);
 
-void log_write_to_journald (int errno_, const char *msg, int verbosity, void *arg);
+ಶೂನ್ಯ log_write_ಗಮ್ಯ_journald (ಪೂರ್ಣಾಂಕ errno_, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ, ಪೂರ್ಣಾಂಕ verbosity, ಶೂನ್ಯ *arg);
 
-void log_write_to_syslog (int errno_, const char *msg, int verbosity, void *arg);
+ಶೂನ್ಯ log_write_ಗಮ್ಯ_syslog (ಪೂರ್ಣಾಂಕ errno_, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ, ಪೂರ್ಣಾಂಕ verbosity, ಶೂನ್ಯ *arg);
 
-void log_write_to_stream (int errno_, const char *msg, int verbosity, void *arg);
+ಶೂನ್ಯ log_write_ಗಮ್ಯ_ಹರಿವು (ಪೂರ್ಣಾಂಕ errno_, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ, ಪೂರ್ಣಾಂಕ verbosity, ಶೂನ್ಯ *arg);
 
-void log_write_to_stderr (int errno_, const char *msg, int verbosity, void *arg);
+ಶೂನ್ಯ log_write_ಗಮ್ಯ_stderr (ಪೂರ್ಣಾಂಕ errno_, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ, ಪೂರ್ಣಾಂಕ verbosity, ಶೂನ್ಯ *arg);
 
-int crun_error_wrap (libcrun_error_t *err, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
+ಪೂರ್ಣಾಂಕ crun_error_wrap (libcrun_error_t *err, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *fmt, ...) __attribute__ ((format (ಬರೆ, 2, 3)));
 
-int crun_error_get_errno (libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ crun_error_get_errno (libcrun_error_t *err);
 
-int crun_error_release (libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ crun_error_release (libcrun_error_t *err);
 
-void crun_error_write_warning_and_release (FILE *out, libcrun_error_t **err);
+ಶೂನ್ಯ crun_error_write_warning_and_release (FILE *ಹೊರಹೋಗು, libcrun_error_t **err);
 
-LIBCRUN_PUBLIC void libcrun_debug (const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
+LIBCRUN_ಬಹಿರಂಗ ಶೂನ್ಯ libcrun_debug (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ, ...) __attribute__ ((format (ಬರೆ, 1, 2)));
 
-LIBCRUN_PUBLIC void libcrun_warning (const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
+LIBCRUN_ಬಹಿರಂಗ ಶೂನ್ಯ libcrun_warning (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ, ...) __attribute__ ((format (ಬರೆ, 1, 2)));
 
-LIBCRUN_PUBLIC void libcrun_error (int errno_, const char *msg, ...) __attribute__ ((format (printf, 2, 3)));
+LIBCRUN_ಬಹಿರಂಗ ಶೂನ್ಯ libcrun_error (ಪೂರ್ಣಾಂಕ errno_, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ, ...) __attribute__ ((format (ಬರೆ, 2, 3)));
 
-LIBCRUN_PUBLIC int libcrun_make_error (libcrun_error_t *err, int status, const char *msg, ...) __attribute__ ((format (printf, 3, 4)));
+LIBCRUN_ಬಹಿರಂಗ ಪೂರ್ಣಾಂಕ libcrun_make_error (libcrun_error_t *err, ಪೂರ್ಣಾಂಕ ಸ್ಥಿತಿ_2, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ, ...) __attribute__ ((format (ಬರೆ, 3, 4)));
 
-#define crun_make_error libcrun_make_error
+#ವ್ಯಾಖ್ಯಾನಿಸು crun_make_error libcrun_make_error
 
-LIBCRUN_PUBLIC void libcrun_error_write_warning_and_release (FILE *out, libcrun_error_t **err);
+LIBCRUN_ಬಹಿರಂಗ ಶೂನ್ಯ libcrun_error_write_warning_and_release (FILE *ಹೊರಹೋಗು, libcrun_error_t **err);
 
-LIBCRUN_PUBLIC void libcrun_error_report_and_release (libcrun_error_t *err);
+LIBCRUN_ಬಹಿರಂಗ ಶೂನ್ಯ libcrun_error_report_and_release (libcrun_error_t *err);
 
-LIBCRUN_PUBLIC void libcrun_fail_with_error (int errno_, const char *msg, ...) __attribute__ ((noreturn)) __attribute__ ((format (printf, 2, 3)));
+LIBCRUN_ಬಹಿರಂಗ ಶೂನ್ಯ libcrun_fail_with_error (ಪೂರ್ಣಾಂಕ errno_, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ, ...) __attribute__ ((noreturn)) __attribute__ ((format (ಬರೆ, 2, 3)));
 
-LIBCRUN_PUBLIC int libcrun_set_log_format (const char *format, libcrun_error_t *err);
+LIBCRUN_ಬಹಿರಂಗ ಪೂರ್ಣಾಂಕ libcrun_ಗಣ_log_format (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *format, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_init_logging (crun_output_handler *output_handler, void **output_handler_arg, const char *id,
-                                         const char *log, libcrun_error_t *err);
+LIBCRUN_ಬಹಿರಂಗ ಪೂರ್ಣಾಂಕ libcrun_init_logging (crun_output_handler *output_handler, ಶೂನ್ಯ **output_handler_arg, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *id,
+                                         ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಲಘುಗಣಕ, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_error_release (libcrun_error_t *err);
+LIBCRUN_ಬಹಿರಂಗ ಪೂರ್ಣಾಂಕ libcrun_error_release (libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_error_get_status (libcrun_error_t err);
+LIBCRUN_ಬಹಿರಂಗ ಪೂರ್ಣಾಂಕ libcrun_error_get_ಸ್ಥಿತಿ (libcrun_error_t err);
 
-LIBCRUN_PUBLIC const char *libcrun_error_get_message (libcrun_error_t err);
+LIBCRUN_ಬಹಿರಂಗ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *libcrun_error_get_ಸಂದೇಶ (libcrun_error_t err);
 
-int json_gen_error_to_crun_error (int gen_status, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ json_gen_error_ಗಮ್ಯ_crun_error (ಪೂರ್ಣಾಂಕ gen_ಸ್ಥಿತಿ, libcrun_error_t *err);
 
-enum
+ಎಣಿಕೆ
 {
   LIBCRUN_VERBOSITY_ERROR = 0,
   LIBCRUN_VERBOSITY_WARNING,
   LIBCRUN_VERBOSITY_DEBUG,
 };
 
-LIBCRUN_PUBLIC void libcrun_set_verbosity (int verbosity);
-LIBCRUN_PUBLIC int libcrun_get_verbosity ();
+LIBCRUN_ಬಹಿರಂಗ ಶೂನ್ಯ libcrun_ಗಣ_verbosity (ಪೂರ್ಣಾಂಕ verbosity);
+LIBCRUN_ಬಹಿರಂಗ ಪೂರ್ಣಾಂಕ libcrun_get_verbosity ();
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

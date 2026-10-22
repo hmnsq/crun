@@ -16,156 +16,156 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#ವ್ಯಾಖ್ಯಾನಿಸು GNU_ಮೂಲ
 
-#include <config.h>
-#include <stdlib.h>
-#include <errno.h>
-#include "string_map.h"
-#include "utils.h"
+#ಅನ್ತರ್ಭಾವ <config.h>
+#ಅನ್ತರ್ಭಾವ <stdlib.h>
+#ಅನ್ತರ್ಭಾವ <errno.h>
+#ಅನ್ತರ್ಭಾವ "string_map.h"
+#ಅನ್ತರ್ಭಾವ "utils.h"
 
-#include <ocispec/runtime_spec_schema_config_schema.h>
+#ಅನ್ತರ್ಭಾವ <ocispec/runtime_spec_schema_config_schema.h>
 
-struct kv_s
+ರಚನೆ kv_s
 {
-  char *key;
-  char *value;
+  ಅಕ್ಷರ *ಕೀಲಿ;
+  ಅಕ್ಷರ *ಮೌಲ್ಯ;
 };
 
-struct string_map_s
+ರಚನೆ string_map_s
 {
   size_t len;
-  struct kv_s *kvs;
+  ರಚನೆ kv_s *kvs;
 
-#ifdef HAVE_HSEARCH_R
-  struct hsearch_data htab;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_HSEARCH_R
+  ರಚನೆ hsearch_ದತ್ತಾಂಶ htab;
   bool htab_initialized;
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
   bool sorted;
 };
 
-static int
-compare_kv (const void *a, const void *b)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ
+compare_kv (ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *a, ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *b)
 {
-  return strcmp (((struct kv_s *) a)->key, ((struct kv_s *) b)->key);
+  ಹಿಂತಿರುಗಿ strcmp (((ರಚನೆ kv_s *) a)->ಕೀಲಿ, ((ರಚನೆ kv_s *) b)->ಕೀಲಿ);
 }
 
-const char *
-find_string_map_value (string_map *map, const char *name)
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *
+ಕಂಡುಹಿಡಿ_string_map_ಮೌಲ್ಯ (string_map *map, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name)
 
 {
-  struct kv_s *r, key;
+  ರಚನೆ kv_s *r, ಕೀಲಿ;
 
-  if (map == NULL || map->len == 0)
-    return NULL;
+  ಆದರೆ (map == ಖಾಲಿ || map->len == 0)
+    ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-#ifdef HAVE_HSEARCH_R
-  ENTRY e, *ep;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_HSEARCH_R
+  ನಮೂದು e, *ep;
 
   /* Do not bother with hash tables for small maps.  */
-  if (map->len < 8)
-    goto fallback;
+  ಆದರೆ (map->len < 8)
+    ಹೋಗು fallback;
 
-  if (! map->htab_initialized)
+  ಆದರೆ (! map->htab_initialized)
     {
       size_t i;
 
-      if (hcreate_r (map->len, &map->htab) == 0)
-        goto fallback;
+      ಆದರೆ (hcreate_r (map->len, &map->htab) == 0)
+        ಹೋಗು fallback;
 
-      for (i = 0; i < map->len; i++)
+      ಗಾಗಿ (i = 0; i < map->len; i++)
         {
-          e.key = (char *) map->kvs[i].key;
-          e.data = map->kvs[i].value;
-          if (hsearch_r (e, ENTER, &ep, &map->htab) == 0)
+          e.ಕೀಲಿ = (ಅಕ್ಷರ *) map->kvs[i].ಕೀಲಿ;
+          e.ದತ್ತಾಂಶ = map->kvs[i].ಮೌಲ್ಯ;
+          ಆದರೆ (hsearch_r (e, ENTER, &ep, &map->htab) == 0)
             {
               hdestroy_r (&map->htab);
-              goto fallback;
+              ಹೋಗು fallback;
             }
         }
       map->htab_initialized = true;
     }
 
-  e.key = (char *) name;
-  if (hsearch_r (e, FIND, &ep, &map->htab) == 0)
-    return NULL;
+  e.ಕೀಲಿ = (ಅಕ್ಷರ *) name;
+  ಆದರೆ (hsearch_r (e, ಕಂಡುಹಿಡಿ, &ep, &map->htab) == 0)
+    ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-  return ep->data;
+  ಹಿಂತಿರುಗಿ ep->ದತ್ತಾಂಶ;
 
 fallback:
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-  if (! map->sorted)
+  ಆದರೆ (! map->sorted)
     {
-      qsort (map->kvs, map->len, sizeof (struct kv_s), compare_kv);
+      qsort (map->kvs, map->len, ಗಾತ್ರ (ರಚನೆ kv_s), compare_kv);
       map->sorted = true;
     }
 
-  key.key = (char *) name;
+  ಕೀಲಿ.ಕೀಲಿ = (ಅಕ್ಷರ *) name;
 
-  r = bsearch (&key, map->kvs, map->len, sizeof (struct kv_s), compare_kv);
-  return r ? r->value : NULL;
+  r = bsearch (&ಕೀಲಿ, map->kvs, map->len, ಗಾತ್ರ (ರಚನೆ kv_s), compare_kv);
+  ಹಿಂತಿರುಗಿ r ? r->ಮೌಲ್ಯ : ಖಾಲಿ;
 }
 
 string_map *
 make_string_map_from_json (json_map_string_string *jmap)
 {
-  struct string_map_s *new_map = xmalloc0 (sizeof (struct string_map_s));
+  ರಚನೆ string_map_s *new_map = xmalloc0 (ಗಾತ್ರ (ರಚನೆ string_map_s));
   size_t i;
 
-  if (jmap == NULL)
-    return new_map;
+  ಆದರೆ (jmap == ಖಾಲಿ)
+    ಹಿಂತಿರುಗಿ new_map;
 
   new_map->len = jmap->len;
-  new_map->kvs = xmalloc0 (sizeof (struct kv_s) * (jmap->len + 1));
+  new_map->kvs = xmalloc0 (ಗಾತ್ರ (ರಚನೆ kv_s) * (jmap->len + 1));
 
-  for (i = 0; i < jmap->len; i++)
+  ಗಾಗಿ (i = 0; i < jmap->len; i++)
     {
-      new_map->kvs[i].key = xstrdup (jmap->keys[i]);
-      new_map->kvs[i].value = xstrdup (jmap->values[i]);
+      new_map->kvs[i].ಕೀಲಿ = xstrdup (jmap->ಕೀಲಿಗಳು[i]);
+      new_map->kvs[i].ಮೌಲ್ಯ = xstrdup (jmap->ಮೌಲ್ಯಗಳು[i]);
     }
 
-  return new_map;
+  ಹಿಂತಿರುಗಿ new_map;
 }
 
-int
-string_map_get_at (string_map *map, size_t index, const char **name, const char **value)
+ಪೂರ್ಣಾಂಕ
+string_map_get_at (string_map *map, size_t ಸೂಚ್ಯಂಕ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ **name, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ **ಮೌಲ್ಯ)
 {
-  if (map == NULL || index >= map->len)
+  ಆದರೆ (map == ಖಾಲಿ || ಸೂಚ್ಯಂಕ >= map->len)
     {
       errno = ERANGE;
-      return -1;
+      ಹಿಂತಿರುಗಿ -1;
     }
 
-  *name = map->kvs[index].key;
-  *value = map->kvs[index].value;
+  *name = map->kvs[ಸೂಚ್ಯಂಕ].ಕೀಲಿ;
+  *ಮೌಲ್ಯ = map->kvs[ಸೂಚ್ಯಂಕ].ಮೌಲ್ಯ;
 
-  return 0;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-void
+ಶೂನ್ಯ
 free_string_map (string_map *map)
 {
   size_t i;
 
-  if (map == NULL)
-    return;
+  ಆದರೆ (map == ಖಾಲಿ)
+    ಹಿಂತಿರುಗಿ;
 
-  if (map->htab_initialized)
+  ಆದರೆ (map->htab_initialized)
     hdestroy_r (&map->htab);
 
-  for (i = 0; i < map->len; i++)
+  ಗಾಗಿ (i = 0; i < map->len; i++)
     {
-      free (map->kvs[i].key);
-      free (map->kvs[i].value);
+      ಬಿಡುಗಡೆ (map->kvs[i].ಕೀಲಿ);
+      ಬಿಡುಗಡೆ (map->kvs[i].ಮೌಲ್ಯ);
     }
-  free (map->kvs);
-  free (map);
+  ಬಿಡುಗಡೆ (map->kvs);
+  ಬಿಡುಗಡೆ (map);
 }
 
 size_t
-string_map_size (string_map *map)
+string_map_ಗಾತ್ರ (string_map *map)
 {
-  return map->len;
+  ಹಿಂತಿರುಗಿ map->len;
 }

@@ -15,17 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef RUN_CREATE_H
-#define RUN_CREATE_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಸತತ_CREATE_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಸತತ_CREATE_H
 
-#include "crun.h"
+#ಅನ್ತರ್ಭಾವ "crun.h"
 
-typedef int (*container_run_create_func_t) (libcrun_context_t *, libcrun_container_t *, unsigned int, libcrun_error_t *);
-typedef unsigned int (*get_options_func_t) ();
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಪೂರ್ಣಾಂಕ (*container_ಸತತ_create_func_t) (libcrun_context_t *, libcrun_container_t *, ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ, libcrun_error_t *);
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ (*get_options_func_t) ();
 
-int crun_run_create_internal (struct crun_global_arguments *global_args, int argc, char **argv,
-                              container_run_create_func_t container_run_create_func, get_options_func_t get_options_func,
-                              libcrun_context_t *crun_context, struct argp *run_argp, const char **config_file,
-                              const char **bundle, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ crun_ಸತತ_create_ಆಂತರಿಕ (ರಚನೆ crun_global_arguments *global_ವಾದಗಳು, ಪೂರ್ಣಾಂಕ argc, ಅಕ್ಷರ **argv,
+                              container_ಸತತ_create_func_t container_ಸತತ_create_func, get_options_func_t get_options_func,
+                              libcrun_context_t *crun_context, ರಚನೆ argp *ಸತತ_argp, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ **config_file,
+                              ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ **bundle, libcrun_error_t *err);
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

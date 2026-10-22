@@ -16,32 +16,32 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <argp.h>
+#ಅನ್ತರ್ಭಾವ <config.h>
+#ಅನ್ತರ್ಭಾವ <argp.h>
 
-#include "crun.h"
-#include "run_create.h"
+#ಅನ್ತರ್ಭಾವ "crun.h"
+#ಅನ್ತರ್ಭಾವ "run_create.h"
 
-static char doc[] = "OCI runtime";
+ಸ್ಥಿರ ಅಕ್ಷರ doc[] = "OCI runtime";
 
-enum
+ಎಣಿಕೆ
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
   OPTION_NO_SUBREAPER,
   OPTION_NO_NEW_KEYRING,
   OPTION_PRESERVE_FDS,
-  OPTION_NO_PIVOT,
+  OPTION_NO_ಅಚ್ಚು,
   OPTION_KEEP,
 };
 
-static const char *bundle = NULL;
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *bundle = ಖಾಲಿ;
 
-static bool keep = false;
+ಸ್ಥಿರ bool keep = false;
 
-static libcrun_context_t *crun_context;
+ಸ್ಥಿರ libcrun_context_t *crun_context;
 
-static struct argp_option options[]
+ಸ್ಥಿರ ರಚನೆ argp_option options[]
     = { { "bundle", 'b', "DIR", 0, "container bundle (default \".\")", 0 },
         { "config", 'f', "FILE", 0, "override the config file name", 0 },
         { "detach", 'd', 0, 0, "detach from the parent", 0 },
@@ -52,84 +52,84 @@ static struct argp_option options[]
         { "keep", OPTION_KEEP, 0, 0, "do not delete the container after it exits", 0 },
         { "no-subreaper", OPTION_NO_SUBREAPER, 0, 0, "do not create a subreaper process (ignored)", 0 },
         { "no-new-keyring", OPTION_NO_NEW_KEYRING, 0, 0, "keep the same session key", 0 },
-        { "no-pivot", OPTION_NO_PIVOT, 0, 0, "do not use pivot_root", 0 },
+        { "no-pivot", OPTION_NO_ಅಚ್ಚು, 0, 0, "do not use pivot_root", 0 },
         {
             0,
         } };
 
-static char args_doc[] = "run [OPTION]... CONTAINER";
+ಸ್ಥಿರ ಅಕ್ಷರ ವಾದಗಳು_doc[] = "run [OPTION]... CONTAINER";
 
-static const char *config_file = "config.json";
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *config_file = "config.json";
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+ಸ್ಥಿರ error_t
+parse_opt (ಪೂರ್ಣಾಂಕ ಕೀಲಿ, ಅಕ್ಷರ *arg, ರಚನೆ argp_state *state)
 {
-  switch (key)
+  ಆಯ್ಕೆ (ಕೀಲಿ)
     {
-    case 'd':
-      libcrun_context_set_detach (crun_context, true);
-      break;
+    ಸ್ಥಿತಿ 'd':
+      libcrun_context_ಗಣ_detach (crun_context, true);
+      ನಿಲ್ಲಿಸು;
 
-    case 'f':
-      config_file = argp_mandatory_argument (arg, state);
-      break;
+    ಸ್ಥಿತಿ 'f':
+      config_file = argp_mandatory_ವಾದ (arg, state);
+      ನಿಲ್ಲಿಸು;
 
-    case 'b':
-      bundle = argp_mandatory_argument (arg, state);
-      break;
+    ಸ್ಥಿತಿ 'b':
+      bundle = argp_mandatory_ವಾದ (arg, state);
+      ನಿಲ್ಲಿಸು;
 
-    case OPTION_KEEP:
+    ಸ್ಥಿತಿ OPTION_KEEP:
       keep = true;
-      break;
+      ನಿಲ್ಲಿಸು;
 
-    case OPTION_CONSOLE_SOCKET:
-      libcrun_context_set_console_socket (crun_context, argp_mandatory_argument (arg, state));
-      break;
+    ಸ್ಥಿತಿ OPTION_CONSOLE_SOCKET:
+      libcrun_context_ಗಣ_console_socket (crun_context, argp_mandatory_ವಾದ (arg, state));
+      ನಿಲ್ಲಿಸು;
 
-    case OPTION_PRESERVE_FDS:
-      libcrun_context_set_preserve_fds (crun_context, parse_id_or_fail (argp_mandatory_argument (arg, state), NULL, "preserve-fds"));
-      break;
+    ಸ್ಥಿತಿ OPTION_PRESERVE_FDS:
+      libcrun_context_ಗಣ_preserve_fds (crun_context, parse_id_or_fail (argp_mandatory_ವಾದ (arg, state), ಖಾಲಿ, "preserve-fds"));
+      ನಿಲ್ಲಿಸು;
 
-    case OPTION_NO_SUBREAPER:
-      break;
+    ಸ್ಥಿತಿ OPTION_NO_SUBREAPER:
+      ನಿಲ್ಲಿಸು;
 
-    case OPTION_NO_NEW_KEYRING:
-      libcrun_context_set_no_new_keyring (crun_context, true);
-      break;
+    ಸ್ಥಿತಿ OPTION_NO_NEW_KEYRING:
+      libcrun_context_ಗಣ_no_new_keyring (crun_context, true);
+      ನಿಲ್ಲಿಸು;
 
-    case OPTION_PID_FILE:
-      libcrun_context_set_pid_file (crun_context, argp_mandatory_argument (arg, state));
-      break;
+    ಸ್ಥಿತಿ OPTION_PID_FILE:
+      libcrun_context_ಗಣ_pid_file (crun_context, argp_mandatory_ವಾದ (arg, state));
+      ನಿಲ್ಲಿಸು;
 
-    case OPTION_NO_PIVOT:
-      libcrun_context_set_no_pivot (crun_context, true);
-      break;
+    ಸ್ಥಿತಿ OPTION_NO_ಅಚ್ಚು:
+      libcrun_context_ಗಣ_no_ಅಚ್ಚು (crun_context, true);
+      ನಿಲ್ಲಿಸು;
 
-    case ARGP_KEY_NO_ARGS:
+    ಸ್ಥಿತಿ ARGP_ಕೀಲಿ_NO_ವಾದಗಳು:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    ಪೂರ್ವನಿಯೋಜಿತ:
+      ಹಿಂತಿರುಗಿ ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+ಸ್ಥಿರ ರಚನೆ argp ಸತತ_argp = { options, parse_opt, ವಾದಗಳು_doc, doc, ಖಾಲಿ, ಖಾಲಿ, ಖಾಲಿ };
 
-static unsigned int
+ಸ್ಥಿರ ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ
 get_options ()
 {
-  return keep ? LIBCRUN_RUN_OPTIONS_KEEP : 0;
+  ಹಿಂತಿರುಗಿ keep ? LIBCRUN_ಸತತ_OPTIONS_KEEP : 0;
 }
 
-int
-crun_command_run (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+ಪೂರ್ಣಾಂಕ
+crun_command_ಸತತ (ರಚನೆ crun_global_arguments *global_ವಾದಗಳು, ಪೂರ್ಣಾಂಕ argc, ಅಕ್ಷರ **argv, libcrun_error_t *err)
 {
-  int ret;
+  ಪೂರ್ಣಾಂಕ ret;
 
-  crun_context = new_libcrun_context (global_args);
-  ret = crun_run_create_internal (global_args, argc, argv, libcrun_container_run, get_options, crun_context, &run_argp, &config_file, &bundle, err);
+  crun_context = new_libcrun_context (global_ವಾದಗಳು);
+  ret = crun_ಸತತ_create_ಆಂತರಿಕ (global_ವಾದಗಳು, argc, argv, libcrun_container_ಸತತ, get_options, crun_context, &ಸತತ_argp, &config_file, &bundle, err);
   libcrun_context_free (crun_context);
-  return ret;
+  ಹಿಂತಿರುಗಿ ret;
 }

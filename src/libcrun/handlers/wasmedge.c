@@ -15,203 +15,203 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE
+#ವ್ಯಾಖ್ಯಾನಿಸು GNU_ಮೂಲ
 
-#include <config.h>
-#include "../custom-handler.h"
-#include "../container.h"
-#include "../utils.h"
-#include "../linux.h"
-#include "handler-utils.h"
-#include <unistd.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <sched.h>
+#ಅನ್ತರ್ಭಾವ <config.h>
+#ಅನ್ತರ್ಭಾವ "../custom-handler.h"
+#ಅನ್ತರ್ಭಾವ "../container.h"
+#ಅನ್ತರ್ಭಾವ "../utils.h"
+#ಅನ್ತರ್ಭಾವ "../linux.h"
+#ಅನ್ತರ್ಭಾವ "handler-utils.h"
+#ಅನ್ತರ್ಭಾವ <unistd.h>
+#ಅನ್ತರ್ಭಾವ <sys/stat.h>
+#ಅನ್ತರ್ಭಾವ <errno.h>
+#ಅನ್ತರ್ಭಾವ <sys/types.h>
+#ಅನ್ತರ್ಭಾವ <fcntl.h>
+#ಅನ್ತರ್ಭಾವ <sched.h>
 
-#ifdef HAVE_DLOPEN
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_DLOPEN
 #  include <dlfcn.h>
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef HAVE_WASMEDGE
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_WASMEDGE
 #  include <wasmedge/wasmedge.h>
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#if HAVE_DLOPEN && HAVE_WASMEDGE
-static int
-libwasmedge_load (void **cookie, libcrun_error_t *err)
+#ಆದರೆ HAVE_DLOPEN && HAVE_WASMEDGE
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ
+libwasmedge_ತುಂಬು (ಶೂನ್ಯ **cookie, libcrun_error_t *err)
 {
-  void *handle;
+  ಶೂನ್ಯ *handle;
 
   handle = dlopen ("libwasmedge.so.0", RTLD_NOW);
-  if (handle == NULL)
-    return crun_make_error (err, 0, "could not load `libwasmedge.so.0`: `%s`", dlerror ());
+  ಆದರೆ (handle == ಖಾಲಿ)
+    ಹಿಂತಿರುಗಿ crun_make_error (err, 0, "could not load `libwasmedge.so.0`: `%s`", dlerror ());
   *cookie = handle;
 
-  return 0;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-static int
-libwasmedge_unload (void *cookie, libcrun_error_t *err)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ
+libwasmedge_unload (ಶೂನ್ಯ *cookie, libcrun_error_t *err)
 {
-  int r;
+  ಪೂರ್ಣಾಂಕ r;
 
-  if (cookie)
+  ಆದರೆ (cookie)
     {
       r = dlclose (cookie);
-      if (UNLIKELY (r < 0))
-        return crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
+      ಆದರೆ (UNLIKELY (r < 0))
+        ಹಿಂತಿರುಗಿ crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
     }
-  return 0;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-static int
-libwasmedge_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *container, const char *pathname, char *const argv[])
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ
+libwasmedge_exec (ಶೂನ್ಯ *cookie, __attribute__ ((ಬಳಸದ)) libcrun_container_t *container, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *pathname, ಅಕ್ಷರ *ಸ್ಥಿರಾಂಕ argv[])
 {
-  WasmEdge_ConfigureContext *(*WasmEdge_ConfigureCreate) (void);
-  void (*WasmEdge_ConfigureDelete) (WasmEdge_ConfigureContext *Cxt);
-  void (*WasmEdge_ConfigureAddProposal) (WasmEdge_ConfigureContext *Cxt, const enum WasmEdge_Proposal Prop);
-  void (*WasmEdge_ConfigureAddHostRegistration) (WasmEdge_ConfigureContext *Cxt, enum WasmEdge_HostRegistration Host);
-  WasmEdge_VMContext *(*WasmEdge_VMCreate) (const WasmEdge_ConfigureContext *ConfCxt, WasmEdge_StoreContext *StoreCxt);
-  void (*WasmEdge_VMDelete) (WasmEdge_VMContext *Cxt);
-  WasmEdge_Result (*WasmEdge_VMRegisterModuleFromFile) (WasmEdge_VMContext *Cxt, WasmEdge_String ModuleName, const char *Path);
-  WasmEdge_Result (*WasmEdge_VMRunWasmFromFile) (WasmEdge_VMContext *Cxt, const char *Path, const WasmEdge_String FuncName, const WasmEdge_Value *Params, const uint32_t ParamLen, WasmEdge_Value *Returns, const uint32_t ReturnLen);
-  void (*WasmEdge_PluginLoadFromPath) (const char *Path);
-  void (*WasmEdge_PluginInitWASINN) (const char *const *NNPreloads, const uint32_t PreloadsLen);
-  bool (*WasmEdge_ResultOK) (const WasmEdge_Result Res);
-  WasmEdge_String (*WasmEdge_StringCreateByCString) (const char *Str);
+  Wasm_ಅಂಚು_Configure_Context *(*Wasm_ಅಂಚು_Configure_Create) (ಶೂನ್ಯ);
+  ಶೂನ್ಯ (*Wasm_ಅಂಚು_Configure_Delete) (Wasm_ಅಂಚು_Configure_Context *Cxt);
+  ಶೂನ್ಯ (*Wasm_ಅಂಚು_Configure_ಕೂಡಿಸು_Proposal) (Wasm_ಅಂಚು_Configure_Context *Cxt, ಸ್ಥಿರಾಂಕ ಎಣಿಕೆ Wasm_ಅಂಚು_Proposal Prop);
+  ಶೂನ್ಯ (*Wasm_ಅಂಚು_Configure_ಕೂಡಿಸು_Host_Registration) (Wasm_ಅಂಚು_Configure_Context *Cxt, ಎಣಿಕೆ Wasm_ಅಂಚು_Host_Registration Host);
+  Wasm_ಅಂಚು_VMContext *(*Wasm_ಅಂಚು_VMCreate) (ಸ್ಥಿರಾಂಕ Wasm_ಅಂಚು_Configure_Context *ConfCxt, Wasm_ಅಂಚು_Store_Context *StoreCxt);
+  ಶೂನ್ಯ (*Wasm_ಅಂಚು_VMDelete) (Wasm_ಅಂಚು_VMContext *Cxt);
+  Wasm_ಅಂಚು_ಫಲಿತಾಂಶ (*Wasm_ಅಂಚು_VMRegister_Module_From_File) (Wasm_ಅಂಚು_VMContext *Cxt, Wasm_ಅಂಚು_String ModuleName, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ_2);
+  Wasm_ಅಂಚು_ಫಲಿತಾಂಶ (*Wasm_ಅಂಚು_VMRun_Wasm_From_File) (Wasm_ಅಂಚು_VMContext *Cxt, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ_2, ಸ್ಥಿರಾಂಕ Wasm_ಅಂಚು_String FuncName, ಸ್ಥಿರಾಂಕ Wasm_ಅಂಚು_ಮೌಲ್ಯ *Params, ಸ್ಥಿರಾಂಕ uint32_t ParamLen, Wasm_ಅಂಚು_ಮೌಲ್ಯ *Returns, ಸ್ಥಿರಾಂಕ uint32_t ReturnLen);
+  ಶೂನ್ಯ (*Wasm_ಅಂಚು_Plugin_ತುಂಬು_From_ಮಾರ್ಗ) (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ_2);
+  ಶೂನ್ಯ (*Wasm_ಅಂಚು_Plugin_Init_WASINN) (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸ್ಥಿರಾಂಕ *NNPreloads, ಸ್ಥಿರಾಂಕ uint32_t PreloadsLen);
+  bool (*Wasm_ಅಂಚು_ಫಲಿತಾಂಶ_OK) (ಸ್ಥಿರಾಂಕ Wasm_ಅಂಚು_ಫಲಿತಾಂಶ Res);
+  Wasm_ಅಂಚು_String (*Wasm_ಅಂಚು_String_Create_By_CString) (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *Str);
   uint32_t argn = 0;
   uint32_t envn = 0;
-  const char *dirs[2] = { "/:/", ".:." };
-  WasmEdge_ConfigureContext *configure;
-  WasmEdge_VMContext *vm;
-  WasmEdge_Result result;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *dirs[2] = { "/:/", ".:." };
+  Wasm_ಅಂಚು_Configure_Context *configure;
+  Wasm_ಅಂಚು_VMContext *vm;
+  Wasm_ಅಂಚು_ಫಲಿತಾಂಶ ಫಲಿತಾಂಶ;
 
-  WasmEdge_ModuleInstanceContext *wasi_module;
-  WasmEdge_ModuleInstanceContext *(*WasmEdge_VMGetImportModuleContext) (WasmEdge_VMContext *Cxt, const enum WasmEdge_HostRegistration Reg);
-  void (*WasmEdge_ModuleInstanceInitWASI) (WasmEdge_ModuleInstanceContext *Cxt, const char *const *Args, const uint32_t ArgLen, const char *const *Envs, const uint32_t EnvLen, const char *const *Dirs, const uint32_t DirLen, const char *const *Preopens, const uint32_t PreopenLen);
-  WasmEdge_ModuleInstanceInitWASI = dlsym (cookie, "WasmEdge_ModuleInstanceInitWASI");
+  Wasm_ಅಂಚು_Module_Instance_Context *wasi_module;
+  Wasm_ಅಂಚು_Module_Instance_Context *(*Wasm_ಅಂಚು_VMGet_Import_Module_Context) (Wasm_ಅಂಚು_VMContext *Cxt, ಸ್ಥಿರಾಂಕ ಎಣಿಕೆ Wasm_ಅಂಚು_Host_Registration Reg);
+  ಶೂನ್ಯ (*Wasm_ಅಂಚು_Module_Instance_Init_WASI) (Wasm_ಅಂಚು_Module_Instance_Context *Cxt, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸ್ಥಿರಾಂಕ *ವಾದಗಳು_2, ಸ್ಥಿರಾಂಕ uint32_t ArgLen, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸ್ಥಿರಾಂಕ *Envs, ಸ್ಥಿರಾಂಕ uint32_t EnvLen, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸ್ಥಿರಾಂಕ *Dirs, ಸ್ಥಿರಾಂಕ uint32_t DirLen, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸ್ಥಿರಾಂಕ *Preopens, ಸ್ಥಿರಾಂಕ uint32_t PreopenLen);
+  Wasm_ಅಂಚು_Module_Instance_Init_WASI = dlsym (cookie, "WasmEdge_ModuleInstanceInitWASI");
 
-  WasmEdge_ConfigureCreate = dlsym (cookie, "WasmEdge_ConfigureCreate");
-  WasmEdge_ConfigureDelete = dlsym (cookie, "WasmEdge_ConfigureDelete");
-  WasmEdge_ConfigureAddProposal = dlsym (cookie, "WasmEdge_ConfigureAddProposal");
-  WasmEdge_ConfigureAddHostRegistration = dlsym (cookie, "WasmEdge_ConfigureAddHostRegistration");
-  WasmEdge_VMCreate = dlsym (cookie, "WasmEdge_VMCreate");
-  WasmEdge_VMDelete = dlsym (cookie, "WasmEdge_VMDelete");
-  WasmEdge_VMRegisterModuleFromFile = dlsym (cookie, "WasmEdge_VMRegisterModuleFromFile");
-  WasmEdge_VMGetImportModuleContext = dlsym (cookie, "WasmEdge_VMGetImportModuleContext");
-  WasmEdge_VMRunWasmFromFile = dlsym (cookie, "WasmEdge_VMRunWasmFromFile");
-  WasmEdge_PluginLoadFromPath = dlsym (cookie, "WasmEdge_PluginLoadFromPath");
-  WasmEdge_PluginInitWASINN = dlsym (cookie, "WasmEdge_PluginInitWASINN");
-  WasmEdge_ResultOK = dlsym (cookie, "WasmEdge_ResultOK");
-  WasmEdge_StringCreateByCString = dlsym (cookie, "WasmEdge_StringCreateByCString");
+  Wasm_ಅಂಚು_Configure_Create = dlsym (cookie, "WasmEdge_ConfigureCreate");
+  Wasm_ಅಂಚು_Configure_Delete = dlsym (cookie, "WasmEdge_ConfigureDelete");
+  Wasm_ಅಂಚು_Configure_ಕೂಡಿಸು_Proposal = dlsym (cookie, "WasmEdge_ConfigureAddProposal");
+  Wasm_ಅಂಚು_Configure_ಕೂಡಿಸು_Host_Registration = dlsym (cookie, "WasmEdge_ConfigureAddHostRegistration");
+  Wasm_ಅಂಚು_VMCreate = dlsym (cookie, "WasmEdge_VMCreate");
+  Wasm_ಅಂಚು_VMDelete = dlsym (cookie, "WasmEdge_VMDelete");
+  Wasm_ಅಂಚು_VMRegister_Module_From_File = dlsym (cookie, "WasmEdge_VMRegisterModuleFromFile");
+  Wasm_ಅಂಚು_VMGet_Import_Module_Context = dlsym (cookie, "WasmEdge_VMGetImportModuleContext");
+  Wasm_ಅಂಚು_VMRun_Wasm_From_File = dlsym (cookie, "WasmEdge_VMRunWasmFromFile");
+  Wasm_ಅಂಚು_Plugin_ತುಂಬು_From_ಮಾರ್ಗ = dlsym (cookie, "WasmEdge_PluginLoadFromPath");
+  Wasm_ಅಂಚು_Plugin_Init_WASINN = dlsym (cookie, "WasmEdge_PluginInitWASINN");
+  Wasm_ಅಂಚು_ಫಲಿತಾಂಶ_OK = dlsym (cookie, "WasmEdge_ResultOK");
+  Wasm_ಅಂಚು_String_Create_By_CString = dlsym (cookie, "WasmEdge_StringCreateByCString");
 
-  if (WasmEdge_ConfigureCreate == NULL || WasmEdge_ConfigureDelete == NULL || WasmEdge_ConfigureAddProposal == NULL
-      || WasmEdge_ConfigureAddHostRegistration == NULL || WasmEdge_VMCreate == NULL || WasmEdge_VMDelete == NULL
-      || WasmEdge_VMRegisterModuleFromFile == NULL || WasmEdge_VMGetImportModuleContext == NULL
-      || WasmEdge_ModuleInstanceInitWASI == NULL || WasmEdge_VMRunWasmFromFile == NULL
-      || WasmEdge_ResultOK == NULL || WasmEdge_StringCreateByCString == NULL)
+  ಆದರೆ (Wasm_ಅಂಚು_Configure_Create == ಖಾಲಿ || Wasm_ಅಂಚು_Configure_Delete == ಖಾಲಿ || Wasm_ಅಂಚು_Configure_ಕೂಡಿಸು_Proposal == ಖಾಲಿ
+      || Wasm_ಅಂಚು_Configure_ಕೂಡಿಸು_Host_Registration == ಖಾಲಿ || Wasm_ಅಂಚು_VMCreate == ಖಾಲಿ || Wasm_ಅಂಚು_VMDelete == ಖಾಲಿ
+      || Wasm_ಅಂಚು_VMRegister_Module_From_File == ಖಾಲಿ || Wasm_ಅಂಚು_VMGet_Import_Module_Context == ಖಾಲಿ
+      || Wasm_ಅಂಚು_Module_Instance_Init_WASI == ಖಾಲಿ || Wasm_ಅಂಚು_VMRun_Wasm_From_File == ಖಾಲಿ
+      || Wasm_ಅಂಚು_ಫಲಿತಾಂಶ_OK == ಖಾಲಿ || Wasm_ಅಂಚು_String_Create_By_CString == ಖಾಲಿ)
     error (EXIT_FAILURE, 0, "could not find symbol in `libwasmedge.so.0`");
 
-  configure = WasmEdge_ConfigureCreate ();
-  if (UNLIKELY (configure == NULL))
+  configure = Wasm_ಅಂಚು_Configure_Create ();
+  ಆದರೆ (UNLIKELY (configure == ಖಾಲಿ))
     error (EXIT_FAILURE, 0, "could not create wasmedge configure");
 
-  WasmEdge_ConfigureAddProposal (configure, WasmEdge_Proposal_BulkMemoryOperations);
-  WasmEdge_ConfigureAddProposal (configure, WasmEdge_Proposal_ReferenceTypes);
-  WasmEdge_ConfigureAddProposal (configure, WasmEdge_Proposal_SIMD);
-  WasmEdge_ConfigureAddHostRegistration (configure, WasmEdge_HostRegistration_Wasi);
+  Wasm_ಅಂಚು_Configure_ಕೂಡಿಸು_Proposal (configure, Wasm_ಅಂಚು_Proposal_Bulk_ಸ್ಮರಣೆ_Operations);
+  Wasm_ಅಂಚು_Configure_ಕೂಡಿಸು_Proposal (configure, Wasm_ಅಂಚು_Proposal_Reference_Types);
+  Wasm_ಅಂಚು_Configure_ಕೂಡಿಸು_Proposal (configure, Wasm_ಅಂಚು_Proposal_SIMD);
+  Wasm_ಅಂಚು_Configure_ಕೂಡಿಸು_Host_Registration (configure, Wasm_ಅಂಚು_Host_Registration_Wasi);
   // Check if the necessary environment variables are set
-  const char *plugin_path_env = getenv ("WASMEDGE_PLUGIN_PATH");
-  if (plugin_path_env != NULL)
-    WasmEdge_PluginLoadFromPath (plugin_path_env);
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *plugin_ಮಾರ್ಗ_env = getenv ("WASMEDGE_PLUGIN_PATH");
+  ಆದರೆ (plugin_ಮಾರ್ಗ_env != ಖಾಲಿ)
+    Wasm_ಅಂಚು_Plugin_ತುಂಬು_From_ಮಾರ್ಗ (plugin_ಮಾರ್ಗ_env);
 
-  const char *nnpreload_env = getenv ("WASMEDGE_WASINN_PRELOAD");
-  if (nnpreload_env != NULL)
-    WasmEdge_PluginInitWASINN (&nnpreload_env, 1);
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *nnpreload_env = getenv ("WASMEDGE_WASINN_PRELOAD");
+  ಆದರೆ (nnpreload_env != ಖಾಲಿ)
+    Wasm_ಅಂಚು_Plugin_Init_WASINN (&nnpreload_env, 1);
 
-  vm = WasmEdge_VMCreate (configure, NULL);
-  if (UNLIKELY (vm == NULL))
+  vm = Wasm_ಅಂಚು_VMCreate (configure, ಖಾಲಿ);
+  ಆದರೆ (UNLIKELY (vm == ಖಾಲಿ))
     {
-      WasmEdge_ConfigureDelete (configure);
+      Wasm_ಅಂಚು_Configure_Delete (configure);
       error (EXIT_FAILURE, 0, "could not create wasmedge vm");
     }
 
-  wasi_module = WasmEdge_VMGetImportModuleContext (vm, WasmEdge_HostRegistration_Wasi);
-  if (UNLIKELY (wasi_module == NULL))
+  wasi_module = Wasm_ಅಂಚು_VMGet_Import_Module_Context (vm, Wasm_ಅಂಚು_Host_Registration_Wasi);
+  ಆದರೆ (UNLIKELY (wasi_module == ಖಾಲಿ))
     {
-      WasmEdge_VMDelete (vm);
-      WasmEdge_ConfigureDelete (configure);
+      Wasm_ಅಂಚು_VMDelete (vm);
+      Wasm_ಅಂಚು_Configure_Delete (configure);
       error (EXIT_FAILURE, 0, "could not get wasmedge wasi module context");
     }
 
-  for (char *const *arg = argv; *arg != NULL; ++arg, ++argn)
+  ಗಾಗಿ (ಅಕ್ಷರ *ಸ್ಥಿರಾಂಕ *arg = argv; *arg != ಖಾಲಿ; ++arg, ++argn)
     ;
-  extern char **environ;
-  for (char *const *env = environ; *env != NULL; ++env, ++envn)
+  ಬಾಹ್ಯ ಅಕ್ಷರ **environ;
+  ಗಾಗಿ (ಅಕ್ಷರ *ಸ್ಥಿರಾಂಕ *env = environ; *env != ಖಾಲಿ; ++env, ++envn)
     ;
 
-  WasmEdge_ModuleInstanceInitWASI (wasi_module, (const char *const *) &argv[0], argn, (const char *const *) &environ[0], envn, dirs, 1, NULL, 0);
+  Wasm_ಅಂಚು_Module_Instance_Init_WASI (wasi_module, (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸ್ಥಿರಾಂಕ *) &argv[0], argn, (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸ್ಥಿರಾಂಕ *) &environ[0], envn, dirs, 1, ಖಾಲಿ, 0);
 
-  result = WasmEdge_VMRunWasmFromFile (vm, pathname, WasmEdge_StringCreateByCString ("_start"), NULL, 0, NULL, 0);
+  ಫಲಿತಾಂಶ = Wasm_ಅಂಚು_VMRun_Wasm_From_File (vm, pathname, Wasm_ಅಂಚು_String_Create_By_CString ("_start"), ಖಾಲಿ, 0, ಖಾಲಿ, 0);
 
-  if (UNLIKELY (! WasmEdge_ResultOK (result)))
+  ಆದರೆ (UNLIKELY (! Wasm_ಅಂಚು_ಫಲಿತಾಂಶ_OK (ಫಲಿತಾಂಶ)))
     {
-      WasmEdge_VMDelete (vm);
-      WasmEdge_ConfigureDelete (configure);
+      Wasm_ಅಂಚು_VMDelete (vm);
+      Wasm_ಅಂಚು_Configure_Delete (configure);
       error (EXIT_FAILURE, 0, "could not get wasmedge result from VM");
     }
 
-  WasmEdge_VMDelete (vm);
-  WasmEdge_ConfigureDelete (configure);
-  exit (EXIT_SUCCESS);
+  Wasm_ಅಂಚು_VMDelete (vm);
+  Wasm_ಅಂಚು_Configure_Delete (configure);
+  ನಿರ್ಗಮಿಸು (EXIT_SUCCESS);
 }
 
-static int
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ
 wasmedge_can_handle_container (libcrun_container_t *container, libcrun_error_t *err)
 {
-  return wasm_can_handle_container (container, err);
+  ಹಿಂತಿರುಗಿ wasm_can_handle_container (container, err);
 }
 
 // This works only when the plugin is present in /usr/lib/wasmedge
-static int
-libwasmedge_configure_container (void *cookie arg_unused, enum handler_configure_phase phase,
-                                 libcrun_context_t *context arg_unused, libcrun_container_t *container,
-                                 const char *rootfs arg_unused, libcrun_error_t *err)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ
+libwasmedge_configure_container (ಶೂನ್ಯ *cookie arg_ಬಳಸದ, ಎಣಿಕೆ handler_configure_phase phase,
+                                 libcrun_context_t *context arg_ಬಳಸದ, libcrun_container_t *container,
+                                 ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *rootfs arg_ಬಳಸದ, libcrun_error_t *err)
 {
-  int ret;
+  ಪೂರ್ಣಾಂಕ ret;
   runtime_spec_schema_config_schema *def = container->container_def;
 
-  char **container_env = def->process->env;
-  bool has_plugin_path = false, has_preload = false;
+  ಅಕ್ಷರ **container_env = def->process->env;
+  bool has_plugin_ಮಾರ್ಗ = false, has_preload = false;
 
-  for (char **env = container_env; env && *env; env++)
+  ಗಾಗಿ (ಅಕ್ಷರ **env = container_env; env && *env; env++)
     {
-      if (strncmp (*env, "WASMEDGE_PLUGIN_PATH=", 21) == 0)
-        has_plugin_path = true;
-      else if (strncmp (*env, "WASMEDGE_WASINN_PRELOAD=", 24) == 0)
+      ಆದರೆ (ಅಕ್ಷರಸರಣಿ_ಹೋಲಿಕೆ (*env, "WASMEDGE_PLUGIN_PATH=", 21) == 0)
+        has_plugin_ಮಾರ್ಗ = true;
+      ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಅಕ್ಷರಸರಣಿ_ಹೋಲಿಕೆ (*env, "WASMEDGE_WASINN_PRELOAD=", 24) == 0)
         has_preload = true;
     }
 
-  if (! has_plugin_path && ! has_preload)
-    return 0;
+  ಆದರೆ (! has_plugin_ಮಾರ್ಗ && ! has_preload)
+    ಹಿಂತಿರುಗಿ 0;
 
-  if (phase != HANDLER_CONFIGURE_AFTER_MOUNTS)
-    return 0;
+  ಆದರೆ (phase != HANDLER_CONFIGURE_AFTER_MOUNTS)
+    ಹಿಂತಿರುಗಿ 0;
 
   // Check if /usr/lib/wasmedge is already present in spec
-  if (def->linux && def->mounts)
+  ಆದರೆ (def->linux && def->mounts)
     {
-      for (size_t i = 0; i < def->mounts_len; i++)
+      ಗಾಗಿ (size_t i = 0; i < def->mounts_len; i++)
         {
-          if (strcmp (def->mounts[i]->destination, "/usr/lib/wasmedge") == 0)
-            return 0;
+          ಆದರೆ (strcmp (def->mounts[i]->destination, "/usr/lib/wasmedge") == 0)
+            ಹಿಂತಿರುಗಿ 0;
         }
     }
 
   // Mount the plugin folder to /usr/lib/wasmedge with specific options
-  char *options[] = {
+  ಅಕ್ಷರ *options[] = {
     "ro",
     "rprivate",
     "nosuid",
@@ -220,26 +220,26 @@ libwasmedge_configure_container (void *cookie arg_unused, enum handler_configure
   };
 
   ret = libcrun_container_do_bind_mount (container, "/usr/lib/wasmedge ", "/usr/lib/wasmedge", options, 5, err);
-  if (ret < 0)
+  ಆದರೆ (ret < 0)
     {
-      if (crun_error_get_errno (err) != ENOENT)
-        return ret;
+      ಆದರೆ (crun_error_get_errno (err) != ENOENT)
+        ಹಿಂತಿರುಗಿ ret;
       crun_error_release (err);
     }
 
-  return 0;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-struct custom_handler_s handler_wasmedge = {
+ರಚನೆ custom_handler_s handler_wasmedge = {
   .name = "wasmedge",
   .alias = "wasm",
   .feature_string = "WASM:wasmedge",
-  .supports_open_tree_namespace = false,
-  .load = libwasmedge_load,
+  .supports_open_ವೃಕ್ಷ_namespace = false,
+  .ತುಂಬು = libwasmedge_ತುಂಬು,
   .unload = libwasmedge_unload,
-  .run_func = libwasmedge_exec,
+  .ಸತತ_func = libwasmedge_exec,
   .can_handle_container = wasmedge_can_handle_container,
   .configure_container = libwasmedge_configure_container,
 };
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

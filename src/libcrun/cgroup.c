@@ -16,133 +16,133 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#ವ್ಯಾಖ್ಯಾನಿಸು GNU_ಮೂಲ
 
-#include <config.h>
-#include "cgroup.h"
-#include "cgroup-cgroupfs.h"
-#include "cgroup-internal.h"
-#include "cgroup-systemd.h"
-#include "cgroup-utils.h"
-#include "cgroup-setup.h"
-#include "cgroup-resources.h"
-#include "ebpf.h"
-#include "utils.h"
-#include "status.h"
-#include <string.h>
-#include <sched.h>
-#include <sys/types.h>
-#include <signal.h>
-#include <sys/vfs.h>
-#include <inttypes.h>
-#include <time.h>
+#ಅನ್ತರ್ಭಾವ <config.h>
+#ಅನ್ತರ್ಭಾವ "cgroup.h"
+#ಅನ್ತರ್ಭಾವ "cgroup-cgroupfs.h"
+#ಅನ್ತರ್ಭಾವ "cgroup-internal.h"
+#ಅನ್ತರ್ಭಾವ "cgroup-systemd.h"
+#ಅನ್ತರ್ಭಾವ "cgroup-utils.h"
+#ಅನ್ತರ್ಭಾವ "cgroup-setup.h"
+#ಅನ್ತರ್ಭಾವ "cgroup-resources.h"
+#ಅನ್ತರ್ಭಾವ "ebpf.h"
+#ಅನ್ತರ್ಭಾವ "utils.h"
+#ಅನ್ತರ್ಭಾವ "status.h"
+#ಅನ್ತರ್ಭಾವ <string.h>
+#ಅನ್ತರ್ಭಾವ <sched.h>
+#ಅನ್ತರ್ಭಾವ <sys/types.h>
+#ಅನ್ತರ್ಭಾವ <signal.h>
+#ಅನ್ತರ್ಭಾವ <sys/vfs.h>
+#ಅನ್ತರ್ಭಾವ <inttypes.h>
+#ಅನ್ತರ್ಭಾವ <time.h>
 
-#include <linux/magic.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <libgen.h>
+#ಅನ್ತರ್ಭಾವ <linux/magic.h>
+#ಅನ್ತರ್ಭಾವ <sys/stat.h>
+#ಅನ್ತರ್ಭಾವ <sys/types.h>
+#ಅನ್ತರ್ಭಾವ <fcntl.h>
+#ಅನ್ತರ್ಭಾವ <libgen.h>
 
-static int
-libcrun_cgroup_enter_disabled (struct libcrun_cgroup_args *args arg_unused, struct libcrun_cgroup_status *out, libcrun_error_t *err arg_unused)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ
+libcrun_cgroup_enter_disabled (ರಚನೆ libcrun_cgroup_ವಾದಗಳು *ವಾದಗಳು arg_ಬಳಸದ, ರಚನೆ libcrun_cgroup_ಸ್ಥಿತಿ *ಹೊರಹೋಗು, libcrun_error_t *err arg_ಬಳಸದ)
 {
-  out->path = NULL;
-  return 0;
+  ಹೊರಹೋಗು->ಮಾರ್ಗ = ಖಾಲಿ;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-static int
-libcrun_destroy_cgroup_disabled (struct libcrun_cgroup_status *cgroup_status arg_unused,
-                                 libcrun_error_t *err arg_unused)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ
+libcrun_destroy_cgroup_disabled (ರಚನೆ libcrun_cgroup_ಸ್ಥಿತಿ *cgroup_ಸ್ಥಿತಿ arg_ಬಳಸದ,
+                                 libcrun_error_t *err arg_ಬಳಸದ)
 {
-  return 0;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-struct libcrun_cgroup_manager cgroup_manager_disabled = {
-  .precreate_cgroup = NULL,
+ರಚನೆ libcrun_cgroup_manager cgroup_manager_disabled = {
+  .precreate_cgroup = ಖಾಲಿ,
   .create_cgroup = libcrun_cgroup_enter_disabled,
   .destroy_cgroup = libcrun_destroy_cgroup_disabled,
 };
 
-static int
-get_cgroup_manager (int manager, struct libcrun_cgroup_manager **out, libcrun_error_t *err)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ
+get_cgroup_manager (ಪೂರ್ಣಾಂಕ manager, ರಚನೆ libcrun_cgroup_manager **ಹೊರಹೋಗು, libcrun_error_t *err)
 {
-  switch (manager)
+  ಆಯ್ಕೆ (manager)
     {
-    case CGROUP_MANAGER_DISABLED:
-      *out = &cgroup_manager_disabled;
-      return 0;
+    ಸ್ಥಿತಿ CGROUP_MANAGER_DISABLED:
+      *ಹೊರಹೋಗು = &cgroup_manager_disabled;
+      ಹಿಂತಿರುಗಿ 0;
 
-    case CGROUP_MANAGER_SYSTEMD:
-      *out = &cgroup_manager_systemd;
-      return 0;
+    ಸ್ಥಿತಿ CGROUP_MANAGER_SYSTEMD:
+      *ಹೊರಹೋಗು = &cgroup_manager_systemd;
+      ಹಿಂತಿರುಗಿ 0;
 
-    case CGROUP_MANAGER_CGROUPFS:
-      *out = &cgroup_manager_cgroupfs;
-      return 0;
+    ಸ್ಥಿತಿ CGROUP_MANAGER_CGROUPFS:
+      *ಹೊರಹೋಗು = &cgroup_manager_cgroupfs;
+      ಹಿಂತಿರುಗಿ 0;
     }
 
-  *out = NULL;
-  return crun_make_error (err, EINVAL, "unknown cgroup manager specified `%d`", manager);
+  *ಹೊರಹೋಗು = ಖಾಲಿ;
+  ಹಿಂತಿರುಗಿ crun_make_error (err, EINVAL, "unknown cgroup manager specified `%d`", manager);
 }
 
-static const char *
-find_delegate_cgroup (string_map *annotations)
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *
+ಕಂಡುಹಿಡಿ_delegate_cgroup (string_map *annotations)
 {
-  const char *annotation;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *annotation;
 
-  annotation = find_string_map_value (annotations, "run.oci.delegate-cgroup");
-  if (annotation)
+  annotation = ಕಂಡುಹಿಡಿ_string_map_ಮೌಲ್ಯ (annotations, "run.oci.delegate-cgroup");
+  ಆದರೆ (annotation)
     {
-      if (annotation[0] == '\0')
-        return NULL;
-      return annotation;
+      ಆದರೆ (annotation[0] == '\0')
+        ಹಿಂತಿರುಗಿ ಖಾಲಿ;
+      ಹಿಂತಿರುಗಿ annotation;
     }
 
-  return NULL;
+  ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 }
 
-int
-libcrun_cgroup_pause_unpause (struct libcrun_cgroup_status *status, const bool pause, libcrun_error_t *err)
+ಪೂರ್ಣಾಂಕ
+libcrun_cgroup_pause_unpause (ರಚನೆ libcrun_cgroup_ಸ್ಥಿತಿ *ಸ್ಥಿತಿ_2, ಸ್ಥಿರಾಂಕ bool pause, libcrun_error_t *err)
 {
-  return libcrun_cgroup_pause_unpause_path (status->path, pause, err);
+  ಹಿಂತಿರುಗಿ libcrun_cgroup_pause_unpause_ಮಾರ್ಗ (ಸ್ಥಿತಿ_2->ಮಾರ್ಗ, pause, err);
 }
 
-int
-libcrun_cgroup_is_container_paused (struct libcrun_cgroup_status *status, bool *paused, libcrun_error_t *err)
+ಪೂರ್ಣಾಂಕ
+libcrun_cgroup_is_container_paused (ರಚನೆ libcrun_cgroup_ಸ್ಥಿತಿ *ಸ್ಥಿತಿ_2, bool *paused, libcrun_error_t *err)
 {
-  const char *cgroup_path = status->path;
-  cleanup_free char *content = NULL;
-  cleanup_free char *path = NULL;
-  const char *state;
-  int cgroup_mode;
-  int ret;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *cgroup_ಮಾರ್ಗ = ಸ್ಥಿತಿ_2->ಮಾರ್ಗ;
+  cleanup_free ಅಕ್ಷರ *content = ಖಾಲಿ;
+  cleanup_free ಅಕ್ಷರ *ಮಾರ್ಗ = ಖಾಲಿ;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *state;
+  ಪೂರ್ಣಾಂಕ cgroup_ಬಹುಲಕ;
+  ಪೂರ್ಣಾಂಕ ret;
 
-  if (cgroup_path == NULL)
-    return 0;
+  ಆದರೆ (cgroup_ಮಾರ್ಗ == ಖಾಲಿ)
+    ಹಿಂತಿರುಗಿ 0;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_ಬಹುಲಕ = libcrun_get_cgroup_ಬಹುಲಕ (err);
+  ಆದರೆ (UNLIKELY (cgroup_ಬಹುಲಕ < 0))
+    ಹಿಂತಿರುಗಿ cgroup_ಬಹುಲಕ;
 
-  if (cgroup_mode == CGROUP_MODE_UNIFIED)
+  ಆದರೆ (cgroup_ಬಹುಲಕ == CGROUP_ಬಹುಲಕ_UNIFIED)
     {
       state = "1";
 
-      ret = append_paths (&path, err, CGROUP_ROOT, cgroup_path, "cgroup.freeze", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&ಮಾರ್ಗ, err, CGROUP_ಬೇರು, cgroup_ಮಾರ್ಗ, "cgroup.freeze", ಖಾಲಿ);
+      ಆದರೆ (UNLIKELY (ret < 0))
+        ಹಿಂತಿರುಗಿ ret;
     }
-  else
+  ಇಲ್ಲದಿದ್ದರೆ
     {
       state = "FROZEN";
 
-      ret = append_paths (&path, err, CGROUP_ROOT "/freezer", cgroup_path, "freezer.state", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&ಮಾರ್ಗ, err, CGROUP_ಬೇರು "/freezer", cgroup_ಮಾರ್ಗ, "freezer.state", ಖಾಲಿ);
+      ಆದರೆ (UNLIKELY (ret < 0))
+        ಹಿಂತಿರುಗಿ ret;
     }
 
-  ret = read_all_file (path, &content, NULL, err);
-  if (UNLIKELY (ret < 0))
+  ret = read_all_file (ಮಾರ್ಗ, &content, ಖಾಲಿ, err);
+  ಆದರೆ (UNLIKELY (ret < 0))
     {
       errno = crun_error_get_errno (err);
       /* If the file is missing and we were checking for freezer.state
@@ -150,202 +150,202 @@ libcrun_cgroup_is_container_paused (struct libcrun_cgroup_status *status, bool *
          simply disabled. In such case the container cannot be paused.
          On cgroup v2 freezer is always there.
       */
-      if (errno != ENOENT || cgroup_mode == CGROUP_MODE_UNIFIED)
-        return ret;
+      ಆದರೆ (errno != ENOENT || cgroup_ಬಹುಲಕ == CGROUP_ಬಹುಲಕ_UNIFIED)
+        ಹಿಂತಿರುಗಿ ret;
 
       /* Even with freezer disabled, its directory is still there. But
          when it's disabled it has type tmpfs, while on systems with
          freezer enabled, its type is cgroupfs. Use that to determine
          whether freezer is enabled or not.
       */
-      struct statfs freezer_stat;
-      if (statfs (CGROUP_ROOT "/freezer", &freezer_stat))
+      ರಚನೆ statfs freezer_stat;
+      ಆದರೆ (statfs (CGROUP_ಬೇರು "/freezer", &freezer_stat))
         {
           crun_error_release (err);
-          return crun_make_error (err, errno, "error when using statfs on `%s`", CGROUP_ROOT "/freezer");
+          ಹಿಂತಿರುಗಿ crun_make_error (err, errno, "error when using statfs on `%s`", CGROUP_ಬೇರು "/freezer");
         }
 
       /* If the freezer is mounted as cgroupfs type, then missing
          freezer.state file is an error and should be handled like before.
       */
-      if (freezer_stat.f_type == CGROUP_SUPER_MAGIC)
-        return ret;
+      ಆದರೆ (freezer_stat.f_type == CGROUP_SUPER_MAGIC)
+        ಹಿಂತಿರುಗಿ ret;
 
       /* When freezer dir is not mounted as cgroupfs, then it's
          disabled, therefore container cannot be in paused state.
       */
       crun_error_release (err);
       *paused = false;
-      return 0;
+      ಹಿಂತಿರುಗಿ 0;
     }
 
-  *paused = strstr (content, state) != NULL;
-  return 0;
+  *paused = ಅಕ್ಷರಸರಣಿ_ಹುಡುಕು (content, state) != ಖಾಲಿ;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-int
-libcrun_cgroup_join_process (struct libcrun_cgroup_status *status, const char *path, pid_t pid, pid_t init_pid,
+ಪೂರ್ಣಾಂಕ
+libcrun_cgroup_join_process (ರಚನೆ libcrun_cgroup_ಸ್ಥಿತಿ *ಸ್ಥಿತಿ_2, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, pid_t pid, pid_t init_pid,
                              libcrun_error_t *err)
 {
-  struct libcrun_cgroup_manager *cgroup_manager;
-  libcrun_error_t tmp_err = NULL;
-  int errno_;
-  int ret;
+  ರಚನೆ libcrun_cgroup_manager *cgroup_manager;
+  libcrun_error_t tmp_err = ಖಾಲಿ;
+  ಪೂರ್ಣಾಂಕ errno_;
+  ಪೂರ್ಣಾಂಕ ret;
 
-  ret = libcrun_move_process_to_cgroup (pid, init_pid, path, false, err);
-  if (LIKELY (ret >= 0))
-    return ret;
+  ret = libcrun_move_process_ಗಮ್ಯ_cgroup (pid, init_pid, ಮಾರ್ಗ, false, err);
+  ಆದರೆ (LIKELY (ret >= 0))
+    ಹಿಂತಿರುಗಿ ret;
 
   /* Moving a process requires write access to cgroup.procs of the common
      ancestor of the source and the destination cgroups, which the caller
      may lack.  See if the cgroup manager can do it instead.  */
   errno_ = crun_error_get_errno (err);
-  if (errno_ != EACCES && errno_ != EPERM)
-    return ret;
+  ಆದರೆ (errno_ != EACCES && errno_ != EPERM)
+    ಹಿಂತಿರುಗಿ ret;
 
-  if (get_cgroup_manager (status->manager, &cgroup_manager, &tmp_err) < 0)
+  ಆದರೆ (get_cgroup_manager (ಸ್ಥಿತಿ_2->manager, &cgroup_manager, &tmp_err) < 0)
     {
       crun_error_release (&tmp_err);
-      return ret;
+      ಹಿಂತಿರುಗಿ ret;
     }
-  if (cgroup_manager->attach_process == NULL)
-    return ret;
+  ಆದರೆ (cgroup_manager->attach_process == ಖಾಲಿ)
+    ಹಿಂತಿರುಗಿ ret;
 
-  if (UNLIKELY (cgroup_manager->attach_process (status, path, pid, &tmp_err) < 0))
+  ಆದರೆ (UNLIKELY (cgroup_manager->attach_process (ಸ್ಥಿತಿ_2, ಮಾರ್ಗ, pid, &tmp_err) < 0))
     {
       /* Report the original error, as it is more relevant.  */
-      libcrun_debug ("Cannot attach pid %d to cgroup `%s`: %s", pid, path, tmp_err->msg);
+      libcrun_debug ("Cannot attach pid %d to cgroup `%s`: %s", pid, ಮಾರ್ಗ, tmp_err->ಸಂದೇಶ);
       crun_error_release (&tmp_err);
-      return ret;
+      ಹಿಂತಿರುಗಿ ret;
     }
 
   crun_error_release (err);
-  return 0;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-int
-libcrun_cgroup_read_pids (struct libcrun_cgroup_status *status, bool recurse, pid_t **pids, libcrun_error_t *err)
+ಪೂರ್ಣಾಂಕ
+libcrun_cgroup_read_pids (ರಚನೆ libcrun_cgroup_ಸ್ಥಿತಿ *ಸ್ಥಿತಿ_2, bool recurse, pid_t **pids, libcrun_error_t *err)
 {
-  return libcrun_cgroup_read_pids_from_path (status->path, recurse, pids, err);
+  ಹಿಂತಿರುಗಿ libcrun_cgroup_read_pids_from_ಮಾರ್ಗ (ಸ್ಥಿತಿ_2->ಮಾರ್ಗ, recurse, pids, err);
 }
 
-int
-libcrun_cgroup_killall (struct libcrun_cgroup_status *cgroup_status, int signal, libcrun_error_t *err)
+ಪೂರ್ಣಾಂಕ
+libcrun_cgroup_killall (ರಚನೆ libcrun_cgroup_ಸ್ಥಿತಿ *cgroup_ಸ್ಥಿತಿ, ಪೂರ್ಣಾಂಕ ಸಂಕೇತ, libcrun_error_t *err)
 {
-  return cgroup_killall_path (cgroup_status->path, signal, err);
+  ಹಿಂತಿರುಗಿ cgroup_killall_ಮಾರ್ಗ (cgroup_ಸ್ಥಿತಿ->ಮಾರ್ಗ, ಸಂಕೇತ, err);
 }
 
-int
-libcrun_cgroup_destroy (struct libcrun_cgroup_status *cgroup_status, libcrun_error_t *err)
+ಪೂರ್ಣಾಂಕ
+libcrun_cgroup_destroy (ರಚನೆ libcrun_cgroup_ಸ್ಥಿತಿ *cgroup_ಸ್ಥಿತಿ, libcrun_error_t *err)
 {
-  struct libcrun_cgroup_manager *cgroup_manager = NULL;
-  int ret;
+  ರಚನೆ libcrun_cgroup_manager *cgroup_manager = ಖಾಲಿ;
+  ಪೂರ್ಣಾಂಕ ret;
 
-  ret = get_cgroup_manager (cgroup_status->manager, &cgroup_manager, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_cgroup_manager (cgroup_ಸ್ಥಿತಿ->manager, &cgroup_manager, err);
+  ಆದರೆ (UNLIKELY (ret < 0))
+    ಹಿಂತಿರುಗಿ ret;
 
-  return cgroup_manager->destroy_cgroup (cgroup_status, err);
+  ಹಿಂತಿರುಗಿ cgroup_manager->destroy_cgroup (cgroup_ಸ್ಥಿತಿ, err);
 }
 
 /* On cgroup v2, the CPU quota and period are set together, via cpu.max.
    If an update sets only one of them, take the other one from the current
    cpu.max, so it is kept (rather than reset to the default).  */
-static int
-complete_cpu_max (const char *path, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ
+complete_cpu_max (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
 {
   runtime_spec_schema_config_linux_resources_cpu *cpu;
-  cleanup_free char *cpu_max_path = NULL;
-  cleanup_free char *content = NULL;
+  cleanup_free ಅಕ್ಷರ *cpu_max_ಮಾರ್ಗ = ಖಾಲಿ;
+  cleanup_free ಅಕ್ಷರ *content = ಖಾಲಿ;
   bool has_period;
   uint64_t period;
   int64_t quota;
-  int cgroup_mode;
-  int ret;
+  ಪೂರ್ಣಾಂಕ cgroup_ಬಹುಲಕ;
+  ಪೂರ್ಣಾಂಕ ret;
 
-  if (resources == NULL || resources->cpu == NULL)
-    return 0;
+  ಆದರೆ (resources == ಖಾಲಿ || resources->cpu == ಖಾಲಿ)
+    ಹಿಂತಿರುಗಿ 0;
 
   cpu = resources->cpu;
-  if (cpu->quota_present == cpu->period_present)
-    return 0;
+  ಆದರೆ (cpu->quota_present == cpu->period_present)
+    ಹಿಂತಿರುಗಿ 0;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
-  if (cgroup_mode != CGROUP_MODE_UNIFIED)
-    return 0;
+  cgroup_ಬಹುಲಕ = libcrun_get_cgroup_ಬಹುಲಕ (err);
+  ಆದರೆ (UNLIKELY (cgroup_ಬಹುಲಕ < 0))
+    ಹಿಂತಿರುಗಿ cgroup_ಬಹುಲಕ;
+  ಆದರೆ (cgroup_ಬಹುಲಕ != CGROUP_ಬಹುಲಕ_UNIFIED)
+    ಹಿಂತಿರುಗಿ 0;
 
-  ret = append_paths (&cpu_max_path, err, CGROUP_ROOT, path, "cpu.max", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cpu_max_ಮಾರ್ಗ, err, CGROUP_ಬೇರು, ಮಾರ್ಗ, "cpu.max", ಖಾಲಿ);
+  ಆದರೆ (UNLIKELY (ret < 0))
+    ಹಿಂತಿರುಗಿ ret;
 
-  ret = read_all_file (cpu_max_path, &content, NULL, err);
-  if (UNLIKELY (ret < 0))
+  ret = read_all_file (cpu_max_ಮಾರ್ಗ, &content, ಖಾಲಿ, err);
+  ಆದರೆ (UNLIKELY (ret < 0))
     {
       /* The cpu controller might not be enabled; nothing to keep then.  */
       crun_error_release (err);
-      return 0;
+      ಹಿಂತಿರುಗಿ 0;
     }
 
   ret = parse_cpu_max (content, &quota, &period, &has_period, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ಆದರೆ (UNLIKELY (ret < 0))
+    ಹಿಂತಿರುಗಿ ret;
 
-  if (! cpu->quota_present)
+  ಆದರೆ (! cpu->quota_present)
     {
       cpu->quota = quota;
       cpu->quota_present = 1;
     }
-  else if (has_period)
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (has_period)
     {
       cpu->period = period;
       cpu->period_present = 1;
     }
 
-  return 0;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-int
-libcrun_update_cgroup_resources (struct libcrun_cgroup_status *cgroup_status,
-                                 const char *state_root,
+ಪೂರ್ಣಾಂಕ
+libcrun_update_cgroup_resources (ರಚನೆ libcrun_cgroup_ಸ್ಥಿತಿ *cgroup_ಸ್ಥಿತಿ,
+                                 ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *state_ಬೇರು,
                                  runtime_spec_schema_config_linux_resources *resources,
                                  libcrun_error_t *err)
 {
-  struct libcrun_cgroup_manager *cgroup_manager = NULL;
-  int ret;
+  ರಚನೆ libcrun_cgroup_manager *cgroup_manager = ಖಾಲಿ;
+  ಪೂರ್ಣಾಂಕ ret;
 
-  ret = get_cgroup_manager (cgroup_status->manager, &cgroup_manager, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_cgroup_manager (cgroup_ಸ್ಥಿತಿ->manager, &cgroup_manager, err);
+  ಆದರೆ (UNLIKELY (ret < 0))
+    ಹಿಂತಿರುಗಿ ret;
 
-  ret = check_memory_before_update (cgroup_status->path, resources, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = check_ಸ್ಮರಣೆ_before_update (cgroup_ಸ್ಥಿತಿ->ಮಾರ್ಗ, resources, err);
+  ಆದರೆ (UNLIKELY (ret < 0))
+    ಹಿಂತಿರುಗಿ ret;
 
-  ret = complete_cpu_max (cgroup_status->path, resources, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = complete_cpu_max (cgroup_ಸ್ಥಿತಿ->ಮಾರ್ಗ, resources, err);
+  ಆದರೆ (UNLIKELY (ret < 0))
+    ಹಿಂತಿರುಗಿ ret;
 
-  if (cgroup_manager->update_resources)
+  ಆದರೆ (cgroup_manager->update_resources)
     {
-      ret = cgroup_manager->update_resources (cgroup_status, state_root, resources, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = cgroup_manager->update_resources (cgroup_ಸ್ಥಿತಿ, state_ಬೇರು, resources, err);
+      ಆದರೆ (UNLIKELY (ret < 0))
+        ಹಿಂತಿರುಗಿ ret;
     }
-  return update_cgroup_resources (cgroup_status->path, state_root, resources, ! cgroup_status->bpf_dev_set, err);
+  ಹಿಂತಿರುಗಿ update_cgroup_resources (cgroup_ಸ್ಥಿತಿ->ಮಾರ್ಗ, state_ಬೇರು, resources, ! cgroup_ಸ್ಥಿತಿ->bpf_dev_ಗಣ, err);
 }
 
-static int
-can_ignore_cgroup_enter_errors (struct libcrun_cgroup_args *args, int cgroup_mode,
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ
+can_ignore_cgroup_enter_errors (ರಚನೆ libcrun_cgroup_ವಾದಗಳು *ವಾದಗಳು, ಪೂರ್ಣಾಂಕ cgroup_ಬಹುಲಕ,
                                 libcrun_error_t *err)
 {
-  int manager = args->manager;
-  int rootless;
+  ಪೂರ್ಣಾಂಕ manager = ವಾದಗಳು->manager;
+  ಪೂರ್ಣಾಂಕ rootless;
 
   rootless = is_rootless (err);
-  if (UNLIKELY (rootless < 0))
-    return rootless;
+  ಆದರೆ (UNLIKELY (rootless < 0))
+    ಹಿಂತಿರುಗಿ rootless;
 
   /* Ignore errors if all these conditions are met:
      - it is running as rootless.
@@ -353,357 +353,357 @@ can_ignore_cgroup_enter_errors (struct libcrun_cgroup_args *args, int cgroup_mod
      - it is not both cgroupv2 and manager=systemd.
   */
 
-  if (! rootless)
-    return 0;
+  ಆದರೆ (! rootless)
+    ಹಿಂತಿರುಗಿ 0;
 
-  if (! is_empty_string (args->cgroup_path))
-    return 0;
+  ಆದರೆ (! is_ಖಾಲಿಗಳು_string (ವಾದಗಳು->cgroup_ಮಾರ್ಗ))
+    ಹಿಂತಿರುಗಿ 0;
 
-  if (cgroup_mode == CGROUP_MODE_UNIFIED && manager == CGROUP_MANAGER_SYSTEMD)
-    return 0;
+  ಆದರೆ (cgroup_ಬಹುಲಕ == CGROUP_ಬಹುಲಕ_UNIFIED && manager == CGROUP_MANAGER_SYSTEMD)
+    ಹಿಂತಿರುಗಿ 0;
 
-  return 1;
+  ಹಿಂತಿರುಗಿ 1;
 }
 
-int
-libcrun_cgroup_preenter (struct libcrun_cgroup_args *args, int *dirfd, libcrun_error_t *err)
+ಪೂರ್ಣಾಂಕ
+libcrun_cgroup_preenter (ರಚನೆ libcrun_cgroup_ವಾದಗಳು *ವಾದಗಳು, ಪೂರ್ಣಾಂಕ *dirfd, libcrun_error_t *err)
 {
-  struct libcrun_cgroup_manager *cgroup_manager;
-  int cgroup_mode;
-  int ret;
+  ರಚನೆ libcrun_cgroup_manager *cgroup_manager;
+  ಪೂರ್ಣಾಂಕ cgroup_ಬಹುಲಕ;
+  ಪೂರ್ಣಾಂಕ ret;
 
   *dirfd = -1;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_ಬಹುಲಕ = libcrun_get_cgroup_ಬಹುಲಕ (err);
+  ಆದರೆ (UNLIKELY (cgroup_ಬಹುಲಕ < 0))
+    ಹಿಂತಿರುಗಿ cgroup_ಬಹುಲಕ;
 
-  if (cgroup_mode != CGROUP_MODE_UNIFIED)
-    return 0;
+  ಆದರೆ (cgroup_ಬಹುಲಕ != CGROUP_ಬಹುಲಕ_UNIFIED)
+    ಹಿಂತಿರುಗಿ 0;
 
-  ret = get_cgroup_manager (args->manager, &cgroup_manager, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_cgroup_manager (ವಾದಗಳು->manager, &cgroup_manager, err);
+  ಆದರೆ (UNLIKELY (ret < 0))
+    ಹಿಂತಿರುಗಿ ret;
 
-  if (cgroup_manager->precreate_cgroup == NULL)
-    return 0;
+  ಆದರೆ (cgroup_manager->precreate_cgroup == ಖಾಲಿ)
+    ಹಿಂತಿರುಗಿ 0;
 
-  return cgroup_manager->precreate_cgroup (args, dirfd, err);
+  ಹಿಂತಿರುಗಿ cgroup_manager->precreate_cgroup (ವಾದಗಳು, dirfd, err);
 }
 
 /* Remove the cgroup created by libcrun_cgroup_preenter if libcrun_cgroup_enter
    did not take it over: until then the caller has no status to destroy it with.
    Being created by us and without any process joining it, it is empty and a
    plain rmdir is enough.  */
-void
-libcrun_cgroup_preenter_cleanup (struct libcrun_cgroup_args *args)
+ಶೂನ್ಯ
+libcrun_cgroup_preenter_cleanup (ರಚನೆ libcrun_cgroup_ವಾದಗಳು *ವಾದಗಳು)
 {
-  if (args->precreated_path == NULL)
-    return;
+  ಆದರೆ (ವಾದಗಳು->precreated_ಮಾರ್ಗ == ಖಾಲಿ)
+    ಹಿಂತಿರುಗಿ;
 
-  (void) rmdir (args->precreated_path);
-  free (args->precreated_path);
-  args->precreated_path = NULL;
+  (ಶೂನ್ಯ) rmdir (ವಾದಗಳು->precreated_ಮಾರ್ಗ);
+  ಬಿಡುಗಡೆ (ವಾದಗಳು->precreated_ಮಾರ್ಗ);
+  ವಾದಗಳು->precreated_ಮಾರ್ಗ = ಖಾಲಿ;
 }
 
-int
-libcrun_cgroup_enter (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status **out, libcrun_error_t *err)
+ಪೂರ್ಣಾಂಕ
+libcrun_cgroup_enter (ರಚನೆ libcrun_cgroup_ವಾದಗಳು *ವಾದಗಳು, ರಚನೆ libcrun_cgroup_ಸ್ಥಿತಿ **ಹೊರಹೋಗು, libcrun_error_t *err)
 {
   /* status will be filled by the cgroup manager.  */
-  cleanup_cgroup_status struct libcrun_cgroup_status *status = xmalloc0 (sizeof *status);
-  struct libcrun_cgroup_manager *cgroup_manager;
-  uid_t root_uid = args->root_uid;
-  uid_t root_gid = args->root_gid;
-  int cgroup_mode;
-  int ret;
+  cleanup_cgroup_ಸ್ಥಿತಿ ರಚನೆ libcrun_cgroup_ಸ್ಥಿತಿ *ಸ್ಥಿತಿ_2 = xmalloc0 (ಗಾತ್ರ *ಸ್ಥಿತಿ_2);
+  ರಚನೆ libcrun_cgroup_manager *cgroup_manager;
+  uid_t ಬೇರು_uid = ವಾದಗಳು->ಬೇರು_uid;
+  uid_t ಬೇರು_gid = ವಾದಗಳು->ಬೇರು_gid;
+  ಪೂರ್ಣಾಂಕ cgroup_ಬಹುಲಕ;
+  ಪೂರ್ಣಾಂಕ ret;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_ಬಹುಲಕ = libcrun_get_cgroup_ಬಹುಲಕ (err);
+  ಆದರೆ (UNLIKELY (cgroup_ಬಹುಲಕ < 0))
+    ಹಿಂತಿರುಗಿ cgroup_ಬಹುಲಕ;
 
-  if (cgroup_mode == CGROUP_MODE_HYBRID)
+  ಆದರೆ (cgroup_ಬಹುಲಕ == CGROUP_ಬಹುಲಕ_HYBRID)
     {
       /* We don't really support hybrid mode, so check that cgroups2 is not using any controller.  */
 
       size_t len;
-      cleanup_free char *buffer = NULL;
+      cleanup_free ಅಕ್ಷರ *ಬಫರ್ = ಖಾಲಿ;
 
-      ret = read_all_file (CGROUP_ROOT "/unified/cgroup.controllers", &buffer, &len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      if (len > 0)
-        return crun_make_error (err, 0, "cgroups in hybrid mode not supported, drop all controllers from cgroupv2");
+      ret = read_all_file (CGROUP_ಬೇರು "/unified/cgroup.controllers", &ಬಫರ್, &len, err);
+      ಆದರೆ (UNLIKELY (ret < 0))
+        ಹಿಂತಿರುಗಿ ret;
+      ಆದರೆ (len > 0)
+        ಹಿಂತಿರುಗಿ crun_make_error (err, 0, "cgroups in hybrid mode not supported, drop all controllers from cgroupv2");
     }
 
-  ret = get_cgroup_manager (args->manager, &cgroup_manager, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_cgroup_manager (ವಾದಗಳು->manager, &cgroup_manager, err);
+  ಆದರೆ (UNLIKELY (ret < 0))
+    ಹಿಂತಿರುಗಿ ret;
 
-  status->manager = args->manager;
+  ಸ್ಥಿತಿ_2->manager = ವಾದಗಳು->manager;
 
-  ret = cgroup_manager->create_cgroup (args, status, err);
-  if (UNLIKELY (ret < 0))
+  ret = cgroup_manager->create_cgroup (ವಾದಗಳು, ಸ್ಥಿತಿ_2, err);
+  ಆದರೆ (UNLIKELY (ret < 0))
     {
-      libcrun_error_t tmp_err = NULL;
-      int ignore_cgroup_errors;
+      libcrun_error_t tmp_err = ಖಾಲಿ;
+      ಪೂರ್ಣಾಂಕ ignore_cgroup_errors;
 
-      ignore_cgroup_errors = can_ignore_cgroup_enter_errors (args, cgroup_mode, &tmp_err);
-      if (UNLIKELY (ignore_cgroup_errors < 0))
+      ignore_cgroup_errors = can_ignore_cgroup_enter_errors (ವಾದಗಳು, cgroup_ಬಹುಲಕ, &tmp_err);
+      ಆದರೆ (UNLIKELY (ignore_cgroup_errors < 0))
         {
           crun_error_release (err);
           *err = tmp_err;
-          return ignore_cgroup_errors;
+          ಹಿಂತಿರುಗಿ ignore_cgroup_errors;
         }
 
-      if (ignore_cgroup_errors)
+      ಆದರೆ (ignore_cgroup_errors)
         {
           /* Ignore cgroups errors and set there is no cgroup path to use.  */
-          free (status->path);
-          free (status->scope);
-          status->path = NULL;
-          status->scope = NULL;
-          status->manager = CGROUP_MANAGER_DISABLED;
+          ಬಿಡುಗಡೆ (ಸ್ಥಿತಿ_2->ಮಾರ್ಗ);
+          ಬಿಡುಗಡೆ (ಸ್ಥಿತಿ_2->scope);
+          ಸ್ಥಿತಿ_2->ಮಾರ್ಗ = ಖಾಲಿ;
+          ಸ್ಥಿತಿ_2->scope = ಖಾಲಿ;
+          ಸ್ಥಿತಿ_2->manager = CGROUP_MANAGER_DISABLED;
           crun_error_release (err);
 
-          goto success;
+          ಹೋಗು success;
         }
 
-      return ret;
+      ಹಿಂತಿರುಗಿ ret;
     }
 
   /* From now on the cgroup is destroyed through its status.  */
-  free (args->precreated_path);
-  args->precreated_path = NULL;
+  ಬಿಡುಗಡೆ (ವಾದಗಳು->precreated_ಮಾರ್ಗ);
+  ವಾದಗಳು->precreated_ಮಾರ್ಗ = ಖಾಲಿ;
 
-  if (status->path)
+  ಆದರೆ (ಸ್ಥಿತಿ_2->ಮಾರ್ಗ)
     {
       bool need_chown;
 
-      need_chown = root_uid != (uid_t) -1 || root_gid != (gid_t) -1;
-      if (cgroup_mode == CGROUP_MODE_UNIFIED && need_chown)
+      need_chown = ಬೇರು_uid != (uid_t) -1 || ಬೇರು_gid != (gid_t) -1;
+      ಆದರೆ (cgroup_ಬಹುಲಕ == CGROUP_ಬಹುಲಕ_UNIFIED && need_chown)
         {
-          ret = chown_cgroups (status->path, root_uid, root_gid, err);
-          if (UNLIKELY (ret < 0))
-            goto fail_destroy;
+          ret = chown_cgroups (ಸ್ಥಿತಿ_2->ಮಾರ್ಗ, ಬೇರು_uid, ಬೇರು_gid, err);
+          ಆದರೆ (UNLIKELY (ret < 0))
+            ಹೋಗು fail_destroy;
         }
 
-      if (args->resources)
+      ಆದರೆ (ವಾದಗಳು->resources)
         {
-          ret = update_cgroup_resources (status->path, args->state_root, args->resources, ! status->bpf_dev_set, err);
-          if (UNLIKELY (ret < 0))
-            goto fail_destroy;
+          ret = update_cgroup_resources (ಸ್ಥಿತಿ_2->ಮಾರ್ಗ, ವಾದಗಳು->state_ಬೇರು, ವಾದಗಳು->resources, ! ಸ್ಥಿತಿ_2->bpf_dev_ಗಣ, err);
+          ಆದರೆ (UNLIKELY (ret < 0))
+            ಹೋಗು fail_destroy;
         }
     }
 success:
-  *out = status;
-  status = NULL;
-  return 0;
+  *ಹೊರಹೋಗು = ಸ್ಥಿತಿ_2;
+  ಸ್ಥಿತಿ_2 = ಖಾಲಿ;
+  ಹಿಂತಿರುಗಿ 0;
 
 fail_destroy:
   /* The cgroup is created, but the caller does not get its status, so it
      cannot destroy it.  Do it here, so it is not left behind.  */
   {
-    libcrun_error_t tmp_err = NULL;
+    libcrun_error_t tmp_err = ಖಾಲಿ;
 
-    if (UNLIKELY (cgroup_manager->destroy_cgroup (status, &tmp_err) < 0))
+    ಆದರೆ (UNLIKELY (cgroup_manager->destroy_cgroup (ಸ್ಥಿತಿ_2, &tmp_err) < 0))
       crun_error_release (&tmp_err);
   }
-  return ret;
+  ಹಿಂತಿರುಗಿ ret;
 }
 
-int
-libcrun_cgroup_enter_finalize (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status *cgroup_status arg_unused, libcrun_error_t *err)
+ಪೂರ್ಣಾಂಕ
+libcrun_cgroup_enter_finalize (ರಚನೆ libcrun_cgroup_ವಾದಗಳು *ವಾದಗಳು, ರಚನೆ libcrun_cgroup_ಸ್ಥಿತಿ *cgroup_ಸ್ಥಿತಿ arg_ಬಳಸದ, libcrun_error_t *err)
 {
-  cleanup_free char *target_cgroup = NULL;
-  cleanup_free char *content = NULL;
-  const char *delegate_cgroup;
-  cleanup_free char *dir = NULL;
-  char *current_cgroup, *to;
-  int cgroup_mode;
-  int ret;
+  cleanup_free ಅಕ್ಷರ *ಗುರಿ_cgroup = ಖಾಲಿ;
+  cleanup_free ಅಕ್ಷರ *content = ಖಾಲಿ;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *delegate_cgroup;
+  cleanup_free ಅಕ್ಷರ *dir = ಖಾಲಿ;
+  ಅಕ್ಷರ *current_cgroup, *ಗಮ್ಯ;
+  ಪೂರ್ಣಾಂಕ cgroup_ಬಹುಲಕ;
+  ಪೂರ್ಣಾಂಕ ret;
 
-  delegate_cgroup = find_delegate_cgroup (args->annotations);
-  if (delegate_cgroup == NULL)
-    return 0;
+  delegate_cgroup = ಕಂಡುಹಿಡಿ_delegate_cgroup (ವಾದಗಳು->annotations);
+  ಆದರೆ (delegate_cgroup == ಖಾಲಿ)
+    ಹಿಂತಿರುಗಿ 0;
 
-  if (path_has_dot_dot_component (delegate_cgroup))
-    return crun_make_error (err, 0, "invalid `..` component in delegate-cgroup `%s`", delegate_cgroup);
+  ಆದರೆ (ಮಾರ್ಗ_has_dot_dot_component (delegate_cgroup))
+    ಹಿಂತಿರುಗಿ crun_make_error (err, 0, "invalid `..` component in delegate-cgroup `%s`", delegate_cgroup);
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_ಬಹುಲಕ = libcrun_get_cgroup_ಬಹುಲಕ (err);
+  ಆದರೆ (UNLIKELY (cgroup_ಬಹುಲಕ < 0))
+    ಹಿಂತಿರುಗಿ cgroup_ಬಹುಲಕ;
 
-  if (cgroup_mode != CGROUP_MODE_UNIFIED)
-    return crun_make_error (err, 0, "delegate-cgroup not supported on cgroup v1");
+  ಆದರೆ (cgroup_ಬಹುಲಕ != CGROUP_ಬಹುಲಕ_UNIFIED)
+    ಹಿಂತಿರುಗಿ crun_make_error (err, 0, "delegate-cgroup not supported on cgroup v1");
 
-  cleanup_free char *proc_path = NULL;
-  cleanup_close int fd = -1;
+  cleanup_free ಅಕ್ಷರ *proc_ಮಾರ್ಗ = ಖಾಲಿ;
+  cleanup_close ಪೂರ್ಣಾಂಕ fd = -1;
 
-  xasprintf (&proc_path, "%d/cgroup", args->pid);
-  fd = libcrun_open_proc_file (args->container, proc_path, O_RDONLY, err);
-  if (UNLIKELY (fd < 0))
-    return fd;
+  xasprintf (&proc_ಮಾರ್ಗ, "%d/cgroup", ವಾದಗಳು->pid);
+  fd = libcrun_open_proc_file (ವಾದಗಳು->container, proc_ಮಾರ್ಗ, O_RDONLY, err);
+  ಆದರೆ (UNLIKELY (fd < 0))
+    ಹಿಂತಿರುಗಿ fd;
 
-  ret = read_all_fd (fd, "cgroup path", &content, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_fd (fd, "cgroup path", &content, ಖಾಲಿ, err);
+  ಆದರೆ (UNLIKELY (ret < 0))
+    ಹಿಂತಿರುಗಿ ret;
 
-  current_cgroup = strstr (content, "0::");
-  if (UNLIKELY (current_cgroup == NULL))
-    return crun_make_error (err, 0, "cannot find cgroup2 for the current process");
+  current_cgroup = ಅಕ್ಷರಸರಣಿ_ಹುಡುಕು (content, "0::");
+  ಆದರೆ (UNLIKELY (current_cgroup == ಖಾಲಿ))
+    ಹಿಂತಿರುಗಿ crun_make_error (err, 0, "cannot find cgroup2 for the current process");
   current_cgroup += 3;
-  to = strchr (current_cgroup, '\n');
-  if (UNLIKELY (to == NULL))
-    return crun_make_error (err, 0, "cannot parse `%s`", PROC_SELF_CGROUP);
-  *to = '\0';
+  ಗಮ್ಯ = strchr (current_cgroup, '\n');
+  ಆದರೆ (UNLIKELY (ಗಮ್ಯ == ಖಾಲಿ))
+    ಹಿಂತಿರುಗಿ crun_make_error (err, 0, "cannot parse `%s`", PROC_SELF_CGROUP);
+  *ಗಮ್ಯ = '\0';
 
-  ret = append_paths (&target_cgroup, err, current_cgroup, delegate_cgroup, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&ಗುರಿ_cgroup, err, current_cgroup, delegate_cgroup, ಖಾಲಿ);
+  ಆದರೆ (UNLIKELY (ret < 0))
+    ಹಿಂತಿರುಗಿ ret;
 
-  ret = append_paths (&dir, err, CGROUP_ROOT, target_cgroup, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&dir, err, CGROUP_ಬೇರು, ಗುರಿ_cgroup, ಖಾಲಿ);
+  ಆದರೆ (UNLIKELY (ret < 0))
+    ಹಿಂತಿರುಗಿ ret;
 
   ret = crun_ensure_directory (dir, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ಆದರೆ (UNLIKELY (ret < 0))
+    ಹಿಂತಿರುಗಿ ret;
 
-  ret = move_process_to_cgroup (args->pid, NULL, target_cgroup, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = move_process_ಗಮ್ಯ_cgroup (ವಾದಗಳು->pid, ಖಾಲಿ, ಗುರಿ_cgroup, err);
+  ಆದರೆ (UNLIKELY (ret < 0))
+    ಹಿಂತಿರುಗಿ ret;
 
-  ret = enable_controllers (target_cgroup, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = enable_controllers (ಗುರಿ_cgroup, err);
+  ಆದರೆ (UNLIKELY (ret < 0))
+    ಹಿಂತಿರುಗಿ ret;
 
-  ret = chown_cgroups (target_cgroup, args->root_uid, args->root_gid, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = chown_cgroups (ಗುರಿ_cgroup, ವಾದಗಳು->ಬೇರು_uid, ವಾದಗಳು->ಬೇರು_gid, err);
+  ಆದರೆ (UNLIKELY (ret < 0))
+    ಹಿಂತಿರುಗಿ ret;
 
-  return 0;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-int
-libcrun_cgroup_has_oom (struct libcrun_cgroup_status *status, libcrun_error_t *err)
+ಪೂರ್ಣಾಂಕ
+libcrun_cgroup_has_oom (ರಚನೆ libcrun_cgroup_ಸ್ಥಿತಿ *ಸ್ಥಿತಿ_2, libcrun_error_t *err)
 {
-  cleanup_free char *content = NULL;
-  const char *path = status->path;
-  const char *prefix = NULL;
-  size_t content_size = 0;
-  int cgroup_mode;
-  char *it;
+  cleanup_free ಅಕ್ಷರ *content = ಖಾಲಿ;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ = ಸ್ಥಿತಿ_2->ಮಾರ್ಗ;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಪೂರ್ವಪ್ರತ್ಯಯ = ಖಾಲಿ;
+  size_t content_ಗಾತ್ರ = 0;
+  ಪೂರ್ಣಾಂಕ cgroup_ಬಹುಲಕ;
+  ಅಕ್ಷರ *it;
 
-  if (UNLIKELY (path == NULL || path[0] == '\0'))
-    return 0;
+  ಆದರೆ (UNLIKELY (ಮಾರ್ಗ == ಖಾಲಿ || ಮಾರ್ಗ[0] == '\0'))
+    ಹಿಂತಿರುಗಿ 0;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_ಬಹುಲಕ = libcrun_get_cgroup_ಬಹುಲಕ (err);
+  ಆದರೆ (UNLIKELY (cgroup_ಬಹುಲಕ < 0))
+    ಹಿಂತಿರುಗಿ cgroup_ಬಹುಲಕ;
 
-  switch (cgroup_mode)
+  ಆಯ್ಕೆ (cgroup_ಬಹುಲಕ)
     {
-    case CGROUP_MODE_UNIFIED:
+    ಸ್ಥಿತಿ CGROUP_ಬಹುಲಕ_UNIFIED:
       {
-        cleanup_free char *events_path = NULL;
-        int ret;
+        cleanup_free ಅಕ್ಷರ *events_ಮಾರ್ಗ = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ ret;
 
-        ret = append_paths (&events_path, err, CGROUP_ROOT, path, "memory.events", NULL);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ret = append_paths (&events_ಮಾರ್ಗ, err, CGROUP_ಬೇರು, ಮಾರ್ಗ, "memory.events", ಖಾಲಿ);
+        ಆದರೆ (UNLIKELY (ret < 0))
+          ಹಿಂತಿರುಗಿ ret;
 
         /* read_all_file always NUL terminates the output.  */
-        ret = read_all_file (events_path, &content, &content_size, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ret = read_all_file (events_ಮಾರ್ಗ, &content, &content_ಗಾತ್ರ, err);
+        ಆದರೆ (UNLIKELY (ret < 0))
+          ಹಿಂತಿರುಗಿ ret;
 
-        prefix = "oom ";
-        break;
+        ಪೂರ್ವಪ್ರತ್ಯಯ = "oom ";
+        ನಿಲ್ಲಿಸು;
       }
-    case CGROUP_MODE_LEGACY:
-    case CGROUP_MODE_HYBRID:
+    ಸ್ಥಿತಿ CGROUP_ಬಹುಲಕ_LEGACY:
+    ಸ್ಥಿತಿ CGROUP_ಬಹುಲಕ_HYBRID:
       {
-        cleanup_free char *oom_control_path = NULL;
-        int ret;
+        cleanup_free ಅಕ್ಷರ *oom_control_ಮಾರ್ಗ = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ ret;
 
-        ret = append_paths (&oom_control_path, err, CGROUP_ROOT, "memory", path, "memory.oom_control", NULL);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ret = append_paths (&oom_control_ಮಾರ್ಗ, err, CGROUP_ಬೇರು, "memory", ಮಾರ್ಗ, "memory.oom_control", ಖಾಲಿ);
+        ಆದರೆ (UNLIKELY (ret < 0))
+          ಹಿಂತಿರುಗಿ ret;
 
         /* read_all_file always NUL terminates the output.  */
-        ret = read_all_file (oom_control_path, &content, &content_size, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ret = read_all_file (oom_control_ಮಾರ್ಗ, &content, &content_ಗಾತ್ರ, err);
+        ಆದರೆ (UNLIKELY (ret < 0))
+          ಹಿಂತಿರುಗಿ ret;
 
-        prefix = "oom_kill ";
-        break;
+        ಪೂರ್ವಪ್ರತ್ಯಯ = "oom_kill ";
+        ನಿಲ್ಲಿಸು;
       }
 
-    default:
-      return crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_mode);
+    ಪೂರ್ವನಿಯೋಜಿತ:
+      ಹಿಂತಿರುಗಿ crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_ಬಹುಲಕ);
     }
 
   it = content;
-  while (it && *it)
+  ಆಗ (it && *it)
     {
-      if (has_prefix (it, prefix))
+      ಆದರೆ (has_ಪೂರ್ವಪ್ರತ್ಯಯ (it, ಪೂರ್ವಪ್ರತ್ಯಯ))
         {
-          it += strlen (prefix);
-          while (*it == ' ')
+          it += ಅಕ್ಷರಸರಣಿ_ಉದ್ದ (ಪೂರ್ವಪ್ರತ್ಯಯ);
+          ಆಗ (*it == ' ')
             it++;
 
-          return *it != '0';
+          ಹಿಂತಿರುಗಿ *it != '0';
         }
-      else
+      ಇಲ್ಲದಿದ್ದರೆ
         {
           it = strchr (it, '\n');
-          if (it == NULL)
-            return 0;
+          ಆದರೆ (it == ಖಾಲಿ)
+            ಹಿಂತಿರುಗಿ 0;
           it++;
         }
     }
 
-  return 0;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-int
-libcrun_cgroup_get_status (struct libcrun_cgroup_status *cgroup_status,
-                           libcrun_container_status_t *status,
-                           libcrun_error_t *err arg_unused)
+ಪೂರ್ಣಾಂಕ
+libcrun_cgroup_get_ಸ್ಥಿತಿ (ರಚನೆ libcrun_cgroup_ಸ್ಥಿತಿ *cgroup_ಸ್ಥಿತಿ,
+                           libcrun_container_ಸ್ಥಿತಿ_t *ಸ್ಥಿತಿ_2,
+                           libcrun_error_t *err arg_ಬಳಸದ)
 {
-  status->cgroup_path = cgroup_status->path;
-  status->scope = cgroup_status->scope;
-  return 0;
+  ಸ್ಥಿತಿ_2->cgroup_ಮಾರ್ಗ = cgroup_ಸ್ಥಿತಿ->ಮಾರ್ಗ;
+  ಸ್ಥಿತಿ_2->scope = cgroup_ಸ್ಥಿತಿ->scope;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-void
-libcrun_cgroup_status_free (struct libcrun_cgroup_status *cgroup_status)
+ಶೂನ್ಯ
+libcrun_cgroup_ಸ್ಥಿತಿ_free (ರಚನೆ libcrun_cgroup_ಸ್ಥಿತಿ *cgroup_ಸ್ಥಿತಿ)
 {
-  if (cgroup_status == NULL)
-    return;
+  ಆದರೆ (cgroup_ಸ್ಥಿತಿ == ಖಾಲಿ)
+    ಹಿಂತಿರುಗಿ;
 
-  free (cgroup_status->path);
-  free (cgroup_status->scope);
-  free (cgroup_status);
+  ಬಿಡುಗಡೆ (cgroup_ಸ್ಥಿತಿ->ಮಾರ್ಗ);
+  ಬಿಡುಗಡೆ (cgroup_ಸ್ಥಿತಿ->scope);
+  ಬಿಡುಗಡೆ (cgroup_ಸ್ಥಿತಿ);
 }
 
-struct libcrun_cgroup_status *
-libcrun_cgroup_make_status (libcrun_container_status_t *status)
+ರಚನೆ libcrun_cgroup_ಸ್ಥಿತಿ *
+libcrun_cgroup_make_ಸ್ಥಿತಿ (libcrun_container_ಸ್ಥಿತಿ_t *ಸ್ಥಿತಿ_2)
 {
-  struct libcrun_cgroup_status *ret;
+  ರಚನೆ libcrun_cgroup_ಸ್ಥಿತಿ *ret;
 
-  ret = xmalloc0 (sizeof *ret);
+  ret = xmalloc0 (ಗಾತ್ರ *ret);
 
-  if (! is_empty_string (status->cgroup_path))
-    ret->path = xstrdup (status->cgroup_path);
+  ಆದರೆ (! is_ಖಾಲಿಗಳು_string (ಸ್ಥಿತಿ_2->cgroup_ಮಾರ್ಗ))
+    ret->ಮಾರ್ಗ = xstrdup (ಸ್ಥಿತಿ_2->cgroup_ಮಾರ್ಗ);
 
-  if (! is_empty_string (status->scope))
-    ret->scope = xstrdup (status->scope);
+  ಆದರೆ (! is_ಖಾಲಿಗಳು_string (ಸ್ಥಿತಿ_2->scope))
+    ret->scope = xstrdup (ಸ್ಥಿತಿ_2->scope);
 
-  if (is_empty_string (status->cgroup_path) && is_empty_string (status->scope))
+  ಆದರೆ (is_ಖಾಲಿಗಳು_string (ಸ್ಥಿತಿ_2->cgroup_ಮಾರ್ಗ) && is_ಖಾಲಿಗಳು_string (ಸ್ಥಿತಿ_2->scope))
     ret->manager = CGROUP_MANAGER_DISABLED;
-  else
-    ret->manager = status->systemd_cgroup ? CGROUP_MANAGER_SYSTEMD : CGROUP_MANAGER_CGROUPFS;
+  ಇಲ್ಲದಿದ್ದರೆ
+    ret->manager = ಸ್ಥಿತಿ_2->systemd_cgroup ? CGROUP_MANAGER_SYSTEMD : CGROUP_MANAGER_CGROUPFS;
 
-  return ret;
+  ಹಿಂತಿರುಗಿ ret;
 }

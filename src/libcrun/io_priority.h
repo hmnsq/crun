@@ -15,14 +15,14 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef IO_PRIORITY_H
-#define IO_PRIORITY_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ IO_ಆದ್ಯತೆ_H
+#ವ್ಯಾಖ್ಯಾನಿಸು IO_ಆದ್ಯತೆ_H
 
-#include <config.h>
-#include "error.h"
-#include "container.h"
-#include "status.h"
+#ಅನ್ತರ್ಭಾವ <config.h>
+#ಅನ್ತರ್ಭಾವ "error.h"
+#ಅನ್ತರ್ಭಾವ "container.h"
+#ಅನ್ತರ್ಭಾವ "status.h"
 
-int libcrun_set_io_priority (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ libcrun_ಗಣ_io_ಆದ್ಯತೆ (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err);
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

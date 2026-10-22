@@ -15,11 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef LIST_H
-#define LIST_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ LIST_H
+#ವ್ಯಾಖ್ಯಾನಿಸು LIST_H
 
-#include "crun.h"
+#ಅನ್ತರ್ಭಾವ "crun.h"
 
-int crun_command_list (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+ಪೂರ್ಣಾಂಕ crun_command_list (ರಚನೆ crun_global_arguments *global_ವಾದಗಳು, ಪೂರ್ಣಾಂಕ argc, ಅಕ್ಷರ **argv, libcrun_error_t *error);
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

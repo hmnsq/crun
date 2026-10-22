@@ -16,79 +16,79 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#ವ್ಯಾಖ್ಯಾನಿಸು GNU_ಮೂಲ
 
-#include <config.h>
+#ಅನ್ತರ್ಭಾವ <config.h>
 
-#ifdef HAVE_LINUX_IOPRIO_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_LINUX_IOPRIO_H
 #  include <linux/ioprio.h>
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#include "linux.h"
-#include "utils.h"
-#include "io_priority.h"
-#include <sys/sysmacros.h>
+#ಅನ್ತರ್ಭಾವ "linux.h"
+#ಅನ್ತರ್ಭಾವ "utils.h"
+#ಅನ್ತರ್ಭಾವ "io_priority.h"
+#ಅನ್ತರ್ಭಾವ <sys/sysmacros.h>
 
-#ifdef HAVE_LINUX_IOPRIO_H
-static int
-syscall_ioprio_set (int which, int who, int ioprio)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_LINUX_IOPRIO_H
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ
+syscall_ioprio_ಗಣ (ಪೂರ್ಣಾಂಕ which, ಪೂರ್ಣಾಂಕ who, ಪೂರ್ಣಾಂಕ ioprio)
 {
 #  ifdef __NR_ioprio_set
-  return syscall (__NR_ioprio_set, which, who, ioprio);
-#  else
-  (void) which;
-  (void) who;
-  (void) ioprio;
+  ಹಿಂತಿರುಗಿ syscall (__NR_ioprio_set, which, who, ioprio);
+#  ಇಲ್ಲದಿದ್ದರೆ
+  (ಶೂನ್ಯ) which;
+  (ಶೂನ್ಯ) who;
+  (ಶೂನ್ಯ) ioprio;
   errno = ENOSYS;
-  return -1;
+  ಹಿಂತಿರುಗಿ -1;
 #  endif
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-int
-libcrun_set_io_priority (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err)
+ಪೂರ್ಣಾಂಕ
+libcrun_ಗಣ_io_ಆದ್ಯತೆ (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err)
 {
-#ifdef HAVE_LINUX_IOPRIO_H
-  int ret, i, class_value, value;
-  struct
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_LINUX_IOPRIO_H
+  ಪೂರ್ಣಾಂಕ ret, i, class_ಮೌಲ್ಯ, ಮೌಲ್ಯ;
+  ರಚನೆ
   {
-    const char *name;
-    int value;
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name;
+    ಪೂರ್ಣಾಂಕ ಮೌಲ್ಯ;
   } classes[] = {
     { "IOPRIO_CLASS_RT", IOPRIO_CLASS_RT },
     { "IOPRIO_CLASS_BE", IOPRIO_CLASS_BE },
     { "IOPRIO_CLASS_IDLE", IOPRIO_CLASS_IDLE },
-    { NULL, 0 },
+    { ಖಾಲಿ, 0 },
   };
 
-  if (process == NULL || process->io_priority == NULL)
-    return 0;
+  ಆದರೆ (process == ಖಾಲಿ || process->io_ಆದ್ಯತೆ == ಖಾಲಿ)
+    ಹಿಂತಿರುಗಿ 0;
 
-  class_value = -1;
-  for (i = 0; classes[i].name; i++)
-    if (strcmp (process->io_priority->_class, classes[i].name) == 0)
+  class_ಮೌಲ್ಯ = -1;
+  ಗಾಗಿ (i = 0; classes[i].name; i++)
+    ಆದರೆ (strcmp (process->io_ಆದ್ಯತೆ->_class, classes[i].name) == 0)
       {
-        class_value = i;
-        break;
+        class_ಮೌಲ್ಯ = i;
+        ನಿಲ್ಲಿಸು;
       }
-  if (UNLIKELY (class_value < 0))
-    return crun_make_error (err, 0, "invalid io priority `%s`", process->io_priority->_class);
+  ಆದರೆ (UNLIKELY (class_ಮೌಲ್ಯ < 0))
+    ಹಿಂತಿರುಗಿ crun_make_error (err, 0, "invalid io priority `%s`", process->io_ಆದ್ಯತೆ->_class);
 
-  value = IOPRIO_PRIO_VALUE (classes[class_value].value, process->io_priority->priority);
+  ಮೌಲ್ಯ = IOPRIO_PRIO_ಮೌಲ್ಯ (classes[class_ಮೌಲ್ಯ].ಮೌಲ್ಯ, process->io_ಆದ್ಯತೆ->ಆದ್ಯತೆ);
 
-  ret = syscall_ioprio_set (IOPRIO_WHO_PROCESS, pid, value);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "failed to set io priority");
+  ret = syscall_ioprio_ಗಣ (IOPRIO_WHO_PROCESS, pid, ಮೌಲ್ಯ);
+  ಆದರೆ (UNLIKELY (ret < 0))
+    ಹಿಂತಿರುಗಿ crun_make_error (err, errno, "failed to set io priority");
 
-  return 0;
-#else
+  ಹಿಂತಿರುಗಿ 0;
+#ಇಲ್ಲದಿದ್ದರೆ
   // If io_priority is not set then return without doing
   // anything.
-  if (process == NULL || process->io_priority == NULL)
-    return 0;
+  ಆದರೆ (process == ಖಾಲಿ || process->io_ಆದ್ಯತೆ == ಖಾಲಿ)
+    ಹಿಂತಿರುಗಿ 0;
 
-  (void) pid;
-  (void) process;
-  return crun_make_error (err, 0, "io priority not supported");
-#endif
+  (ಶೂನ್ಯ) pid;
+  (ಶೂನ್ಯ) process;
+  ಹಿಂತಿರುಗಿ crun_make_error (err, 0, "io priority not supported");
+#ಆದರೆ_ಅಂತ್ಯ
 }

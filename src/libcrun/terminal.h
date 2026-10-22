@@ -15,24 +15,24 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef TERMINAL_H
-#define TERMINAL_H
-#include <config.h>
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ TERMINAL_H
+#ವ್ಯಾಖ್ಯಾನಿಸು TERMINAL_H
+#ಅನ್ತರ್ಭಾವ <config.h>
 
-#include "container.h"
-#include <termios.h>
+#ಅನ್ತರ್ಭಾವ "container.h"
+#ಅನ್ತರ್ಭಾವ <termios.h>
 
-void cleanup_terminalp (void *p);
-#define cleanup_terminal __attribute__ ((cleanup (cleanup_terminalp)))
+ಶೂನ್ಯ cleanup_terminalp (ಶೂನ್ಯ *p);
+#ವ್ಯಾಖ್ಯಾನಿಸು cleanup_terminal __attribute__ ((cleanup (cleanup_terminalp)))
 
-int libcrun_new_terminal (char **pty, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ libcrun_new_terminal (ಅಕ್ಷರ **pty, libcrun_error_t *err);
 
-int libcrun_set_stdio (int ptmx_fd, char *pty, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ libcrun_ಗಣ_stdio (ಪೂರ್ಣಾಂಕ ptmx_fd, ಅಕ್ಷರ *pty, libcrun_error_t *err);
 
-int libcrun_set_raw (int fd, void **current_status, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ libcrun_ಗಣ_raw (ಪೂರ್ಣಾಂಕ fd, ಶೂನ್ಯ **current_ಸ್ಥಿತಿ, libcrun_error_t *err);
 
-int libcrun_clear_onlcr (int fd, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ libcrun_clear_onlcr (ಪೂರ್ಣಾಂಕ fd, libcrun_error_t *err);
 
-int libcrun_terminal_setup_size (int fd, unsigned short rows, unsigned short cols, libcrun_error_t *err);
+ಪೂರ್ಣಾಂಕ libcrun_terminal_ಸಿದ್ಧತೆ_ಗಾತ್ರ (ಪೂರ್ಣಾಂಕ fd, ಚಿಹ್ನೆರಹಿತ ಗಿಡ್ಡ ಅಡ್ಡಸಾಲುಗಳು, ಚಿಹ್ನೆರಹಿತ ಗಿಡ್ಡ ಲಂಬಸಾಲು_ಸಂಖ್ಯೆ, libcrun_error_t *err);
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
