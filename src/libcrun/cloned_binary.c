@@ -40,29 +40,29 @@
  */
 
 #define _GNU_SOURCE
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include <limits.h>
-#include <fcntl.h>
-#include <errno.h>
+#अन्तर्भाव <unistd.h>
+#अन्तर्भाव <stdio.h>
+#अन्तर्भाव <stdlib.h>
+#अन्तर्भाव <stdbool.h>
+#अन्तर्भाव <string.h>
+#अन्तर्भाव <limits.h>
+#अन्तर्भाव <fcntl.h>
+#अन्तर्भाव <errno.h>
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/statfs.h>
-#include <sys/vfs.h>
-#include <sys/mman.h>
-#include <sys/mount.h>
-#include <sys/sendfile.h>
-#include <sys/syscall.h>
+#अन्तर्भाव <sys/types.h>
+#अन्तर्भाव <sys/stat.h>
+#अन्तर्भाव <sys/statfs.h>
+#अन्तर्भाव <sys/vfs.h>
+#अन्तर्भाव <sys/mman.h>
+#अन्तर्भाव <sys/mount.h>
+#अन्तर्भाव <sys/sendfile.h>
+#अन्तर्भाव <sys/syscall.h>
 
-#include "utils.h"
-#include "linux.h"
+#अन्तर्भाव "utils.h"
+#अन्तर्भाव "linux.h"
 
 /* Use our own wrapper for memfd_create. */
-#if !defined(SYS_memfd_create) && defined(__NR_memfd_create)
+#यदि !defined(SYS_memfd_create) && defined(__NR_memfd_create)
 #  define SYS_memfd_create __NR_memfd_create
 #endif
 /* memfd_create(2) flags -- copied from <linux/memfd.h>. */
@@ -70,13 +70,13 @@
 #  define MFD_CLOEXEC       0x0001U
 #  define MFD_ALLOW_SEALING 0x0002U
 #endif
-int memfd_create(const char *name, unsigned int flags)
+पूर्णाङ्क memfd_create(अचर वर्ण *name, अचिन्हित पूर्णाङ्क flags)
 {
 #ifdef SYS_memfd_create
-	return syscall(SYS_memfd_create, name, flags);
-#else
-	errno = ENOSYS;
-	return -1;
+	फर्काऊ syscall(SYS_memfd_create, name, flags);
+#अन्यथा
+	त्रुटि_सं = ENOSYS;
+	फर्काऊ -1;
 #endif
 }
 
@@ -96,7 +96,7 @@ int memfd_create(const char *name, unsigned int flags)
 #  define F_SEAL_WRITE  0x0008	/* prevent writes */
 #endif
 
-#define CLONED_BINARY_ENV "_LIBCONTAINER_CLONED_BINARY"
+#define CLONED_द्विआधारी_ENV "_LIBCONTAINER_CLONED_BINARY"
 #define CRUN_MEMFD_COMMENT "crun_cloned:/proc/self/exe"
 #define CRUN_MEMFD_SEALS \
 	(F_SEAL_SEAL | F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE)
@@ -106,15 +106,15 @@ int memfd_create(const char *name, unsigned int flags)
  * /proc/self/exe a memfd). F_GET_SEALS will only succeed for memfds (or rather
  * for shmem files), and we want to be sure it's actually sealed.
  */
-static int is_self_cloned(void)
+स्थिर पूर्णाङ्क is_self_cloned(शून्य)
 {
-	int fd, ret, is_cloned = 0;
-	struct stat statbuf = {};
-	struct statfs fsbuf = {};
+	पूर्णाङ्क fd, ret, is_cloned = 0;
+	संरचना stat statbuf = {};
+	संरचना statfs fsbuf = {};
 
-	fd = open("/proc/self/exe", O_RDONLY|O_CLOEXEC);
-	if (fd < 0)
-		return -ENOTRECOVERABLE;
+	fd = खोलो("/proc/self/exe", O_RDONLY|O_CLOEXEC);
+	यदि (fd < 0)
+		फर्काऊ -ENOTRECOVERABLE;
 
 	/*
 	 * Is the binary a fully-sealed memfd? We don't need CLONED_BINARY_ENV for
@@ -123,9 +123,9 @@ static int is_self_cloned(void)
 	 * memfd to /usr/bin/crun to allow reuse).
 	 */
 	ret = fcntl(fd, F_GET_SEALS);
-	if (ret >= 0) {
+	यदि (ret >= 0) {
 		is_cloned = (ret == CRUN_MEMFD_SEALS);
-		goto out;
+		गच्छ out;
 	}
 
 	/* Is the binary on a read-only filesystem? We can't detect bind-mounts in
@@ -134,9 +134,9 @@ static int is_self_cloned(void)
 	 * such as truly read-only filesystems like squashfs/erofs as well as
 	 * things like the ostree read-only bind mount.
 	 */
-	if (fstatfs(fd, &fsbuf) >= 0 && (fsbuf.f_flags & MS_RDONLY)) {
+	यदि (fstatfs(fd, &fsbuf) >= 0 && (fsbuf.f_flags & MS_RDONLY)) {
 		is_cloned = true;
-		goto out;
+		गच्छ out;
 	}
 
 	/*
@@ -144,9 +144,9 @@ static int is_self_cloned(void)
 	 * writeable (or we can't tell if they're fully safe) and thus we must
 	 * check the environment as an extra layer of defence.
 	 */
-	if (!getenv(CLONED_BINARY_ENV)) {
+	यदि (!दो_पर्या(CLONED_द्विआधारी_ENV)) {
 		is_cloned = false;
-		goto out;
+		गच्छ out;
 	}
 
 	/*
@@ -157,48 +157,48 @@ static int is_self_cloned(void)
 	 * cannot fake (because unlinking requires being able to resolve the
 	 * path that you want to unlink).
 	 */
-	if (fstat(fd, &statbuf) >= 0)
+	यदि (ख_स्थिति(fd, &statbuf) >= 0)
 		is_cloned |= (statbuf.st_nlink == 0);
 
 out:
-	close(fd);
-	return is_cloned;
+	बंद(fd);
+	फर्काऊ is_cloned;
 }
 
 /* Read a given file into a new buffer, and providing the length. */
-static char *read_file(char *path, size_t *length)
+स्थिर वर्ण *read_file(वर्ण *path, माप_प्रकार *length)
 {
-	int fd;
-	char buf[4096], *copy = NULL;
+	पूर्णाङ्क fd;
+	वर्ण buf[4096], *copy = रिक्त;
 
-	if (!length)
-		return NULL;
+	यदि (!length)
+		फर्काऊ रिक्त;
 
-	fd = open(path, O_RDONLY | O_CLOEXEC);
-	if (fd < 0)
-		return NULL;
+	fd = खोलो(path, O_RDONLY | O_CLOEXEC);
+	यदि (fd < 0)
+		फर्काऊ रिक्त;
 
 	*length = 0;
-	for (;;) {
+	लागि (;;) {
 		ssize_t n;
 
-		n = read(fd, buf, sizeof(buf));
-		if (n < 0)
-			goto error;
-		if (!n)
-			break;
+		n = पठ(fd, buf, परिमाण(buf));
+		यदि (n < 0)
+			गच्छ error;
+		यदि (!n)
+			रोक;
 
-		copy = xrealloc(copy, (*length + n) * sizeof(*copy));
-		memcpy(copy + *length, buf, n);
+		copy = xrealloc(copy, (*length + n) * परिमाण(*copy));
+		स_नकल(copy + *length, buf, n);
 		*length += n;
 	}
-	close(fd);
-	return copy;
+	बंद(fd);
+	फर्काऊ copy;
 
 error:
-	close(fd);
-	free(copy);
-	return NULL;
+	बंद(fd);
+	मुक्त(copy);
+	फर्काऊ रिक्त;
 }
 
 /*
@@ -206,22 +206,22 @@ error:
  * NUL-delimited data, within the given length and adds a pointer to each entry
  * to the array of pointers.
  */
-static int parse_xargs(char *data, int data_length, char ***output)
+स्थिर पूर्णाङ्क parse_xargs(वर्ण *data, पूर्णाङ्क data_length, वर्ण ***output)
 {
-	int num = 0;
-	char *cur = data;
+	पूर्णाङ्क अङ्क = 0;
+	वर्ण *cur = data;
 
-	if (!data || *output != NULL)
-		return -1;
+	यदि (!data || *output != रिक्त)
+		फर्काऊ -1;
 
-	while (cur < data + data_length) {
-		num++;
-		*output = xrealloc(*output, (num + 1) * sizeof(**output));
-		(*output)[num - 1] = cur;
-		cur += strlen(cur) + 1;
+	जबसम्म (cur < data + data_length) {
+		अङ्क++;
+		*output = xrealloc(*output, (अङ्क + 1) * परिमाण(**output));
+		(*output)[अङ्क - 1] = cur;
+		cur += म_माप(cur) + 1;
 	}
-	(*output)[num] = NULL;
-	return num;
+	(*output)[अङ्क] = रिक्त;
+	फर्काऊ अङ्क;
 }
 
 /*
@@ -229,26 +229,26 @@ static int parse_xargs(char *data, int data_length, char ***output)
  * This is necessary because we are running in a context where we don't have a
  * main() that we can just get the arguments from.
  */
-static int fetchve(char ***argv)
+स्थिर पूर्णाङ्क fetchve(वर्ण ***argv)
 {
-	char *cmdline = NULL;
-	size_t cmdline_size;
+	वर्ण *cmdline = रिक्त;
+	माप_प्रकार cmdline_size;
 
 	cmdline = read_file("/proc/self/cmdline", &cmdline_size);
-	if (!cmdline)
-		goto error;
+	यदि (!cmdline)
+		गच्छ error;
 
-	if (parse_xargs(cmdline, cmdline_size, argv) <= 0)
-		goto error;
+	यदि (parse_xargs(cmdline, cmdline_size, argv) <= 0)
+		गच्छ error;
 
-	return 0;
+	फर्काऊ 0;
 
 error:
-	free(cmdline);
-	return -EINVAL;
+	मुक्त(cmdline);
+	फर्काऊ -EINVAL;
 }
 
-enum {
+गणना {
 	EFD_NONE = 0,
 	EFD_MEMFD,
 	EFD_FILE,
@@ -260,21 +260,21 @@ enum {
  * have the mkostemp(3) fallback.
  */
 #ifndef O_TMPFILE
-#  if defined(__O_TMPFILE) && defined(O_DIRECTORY)
+#  यदि defined(__O_TMPFILE) && defined(O_DIRECTORY)
 #    define O_TMPFILE (__O_TMPFILE | O_DIRECTORY)
 #  endif
 #endif
 
-static int make_execfd(int *fdtype)
+स्थिर पूर्णाङ्क make_execfd(पूर्णाङ्क *fdtype)
 {
-	int fd = -1;
-	char template[PATH_MAX] = {0};
-	char *prefix = getenv("_LIBCONTAINER_STATEDIR");
+	पूर्णाङ्क fd = -1;
+	वर्ण ढाँचा[PATH_MAX] = {0};
+	वर्ण *prefix = दो_पर्या("_LIBCONTAINER_STATEDIR");
 
-	if (!prefix || *prefix != '/')
+	यदि (!prefix || *prefix != '/')
 		prefix = "/tmp";
-	if (snprintf(template, sizeof(template), "%s/crun.XXXXXX", prefix) < 0)
-		return -1;
+	यदि (snprintf(ढाँचा, परिमाण(ढाँचा), "%s/crun.XXXXXX", prefix) < 0)
+		फर्काऊ -1;
 
 	/*
 	 * Now try memfd, it's much nicer than actually creating a file in STATEDIR
@@ -283,10 +283,10 @@ static int make_execfd(int *fdtype)
 	 */
 	*fdtype = EFD_MEMFD;
 	fd = memfd_create(CRUN_MEMFD_COMMENT, MFD_CLOEXEC | MFD_ALLOW_SEALING);
-	if (fd >= 0)
-		return fd;
-	if (errno != ENOSYS && errno != EINVAL)
-		goto error;
+	यदि (fd >= 0)
+		फर्काऊ fd;
+	यदि (त्रुटि_सं != ENOSYS && त्रुटि_सं != EINVAL)
+		गच्छ error;
 
 #ifdef O_TMPFILE
 	/*
@@ -295,9 +295,9 @@ static int make_execfd(int *fdtype)
 	 * fd re-open it and clear O_EXCL).
 	 */
 	*fdtype = EFD_FILE;
-	fd = open(prefix, O_TMPFILE | O_EXCL | O_RDWR | O_CLOEXEC, 0700);
-	if (fd >= 0) {
-		struct stat statbuf = {};
+	fd = खोलो(prefix, O_TMPFILE | O_EXCL | O_RDWR | O_CLOEXEC, 0700);
+	यदि (fd >= 0) {
+		संरचना stat statbuf = {};
 		bool working_otmpfile = false;
 
 		/*
@@ -306,18 +306,18 @@ static int make_execfd(int *fdtype)
 		 * if we get nlink != 0 (or EISDIR) then we know that this kernel
 		 * doesn't support O_TMPFILE.
 		 */
-		if (fstat(fd, &statbuf) >= 0)
+		यदि (ख_स्थिति(fd, &statbuf) >= 0)
 			working_otmpfile = (statbuf.st_nlink == 0);
 
-		if (working_otmpfile)
-			return fd;
+		यदि (working_otmpfile)
+			फर्काऊ fd;
 
 		/* Pretend that we got EISDIR since O_TMPFILE failed. */
-		close(fd);
-		errno = EISDIR;
+		बंद(fd);
+		त्रुटि_सं = EISDIR;
 	}
-	if (errno != EISDIR)
-		goto error;
+	यदि (त्रुटि_सं != EISDIR)
+		गच्छ error;
 #endif /* defined(O_TMPFILE) */
 
 	/*
@@ -325,81 +325,81 @@ static int make_execfd(int *fdtype)
 	 * then unlink it so that nothing else sees it by accident.
 	 */
 	*fdtype = EFD_FILE;
-	fd = mkostemp(template, O_CLOEXEC);
-	if (fd >= 0) {
-		if (unlink(template) >= 0)
-			return fd;
-		close(fd);
+	fd = mkostemp(ढाँचा, O_CLOEXEC);
+	यदि (fd >= 0) {
+		यदि (unlink(ढाँचा) >= 0)
+			फर्काऊ fd;
+		बंद(fd);
 	}
 
 error:
 	*fdtype = EFD_NONE;
-	return -1;
+	फर्काऊ -1;
 }
 
-static int seal_execfd(int *fd, int fdtype)
+स्थिर पूर्णाङ्क seal_execfd(पूर्णाङ्क *fd, पूर्णाङ्क fdtype)
 {
-	switch (fdtype) {
-	case EFD_MEMFD:
-		return fcntl(*fd, F_ADD_SEALS, CRUN_MEMFD_SEALS);
-	case EFD_FILE: {
+	विकल्प (fdtype) {
+	पक्ष EFD_MEMFD:
+		फर्काऊ fcntl(*fd, F_ADD_SEALS, CRUN_MEMFD_SEALS);
+	पक्ष EFD_FILE: {
 		/* Need to re-open our pseudo-memfd as an O_PATH to avoid execve(2) giving -ETXTBSY. */
-		int newfd;
-		char fdpath[PATH_MAX] = {0};
+		पूर्णाङ्क newfd;
+		वर्ण fdpath[PATH_MAX] = {0};
 
-		if (fchmod(*fd, 0100) < 0)
-			return -1;
+		यदि (fchmod(*fd, 0100) < 0)
+			फर्काऊ -1;
 
-		if (snprintf(fdpath, sizeof(fdpath), "/proc/self/fd/%d", *fd) < 0)
-			return -1;
+		यदि (snprintf(fdpath, परिमाण(fdpath), "/proc/self/fd/%d", *fd) < 0)
+			फर्काऊ -1;
 
-		newfd = open(fdpath, O_PATH | O_CLOEXEC);
-		if (newfd < 0)
-			return -1;
+		newfd = खोलो(fdpath, O_PATH | O_CLOEXEC);
+		यदि (newfd < 0)
+			फर्काऊ -1;
 
-		close(*fd);
+		बंद(*fd);
 		*fd = newfd;
-		return 0;
+		फर्काऊ 0;
 	}
-	default:
-	   break;
+	स्वभाव:
+	   रोक;
 	}
-	return -1;
+	फर्काऊ -1;
 }
 
-static int try_bindfd_mount_api(void)
+स्थिर पूर्णाङ्क try_bindfd_mount_api(शून्य)
 {
 	libcrun_error_t err;
-	int mountfd = get_bind_mount (-1, "/proc/self/exe", false, true, false, MS_PRIVATE, &err);
-	if (mountfd < 0) {
+	पूर्णाङ्क mountfd = get_bind_mount (-1, "/proc/self/exe", false, true, false, MS_PRIVATE, &err);
+	यदि (mountfd < 0) {
 		crun_error_release (&err);
-		return -1;
+		फर्काऊ -1;
 	}
-	return mountfd;
+	फर्काऊ mountfd;
 }
 
-static int try_bindfd(void)
+स्थिर पूर्णाङ्क try_bindfd(शून्य)
 {
 	mode_t mask;
-	int fd, ret = -1;
-	char template[PATH_MAX] = {0};
-	char *prefix = getenv("_LIBCONTAINER_STATEDIR");
+	पूर्णाङ्क fd, ret = -1;
+	वर्ण ढाँचा[PATH_MAX] = {0};
+	वर्ण *prefix = दो_पर्या("_LIBCONTAINER_STATEDIR");
 
-	if (!prefix || *prefix != '/')
+	यदि (!prefix || *prefix != '/')
 		prefix = "/tmp";
-	if (snprintf(template, sizeof(template), "%s/crun.XXXXXX", prefix) < 0)
-		return ret;
+	यदि (snprintf(ढाँचा, परिमाण(ढाँचा), "%s/crun.XXXXXX", prefix) < 0)
+		फर्काऊ ret;
 
 	/*
 	 * We need somewhere to mount it, mounting anything over /proc/self is a
 	 * BAD idea on the host -- even if we do it temporarily.
 	 */
 	mask = umask(0700);
-	fd = mkstemp(template);
+	fd = mkstemp(ढाँचा);
 	umask(mask);
-	if (fd < 0)
-		return ret;
-	close(fd);
+	यदि (fd < 0)
+		फर्काऊ ret;
+	बंद(fd);
 
 	/*
 	 * For obvious reasons this won't work in rootless mode because we haven't
@@ -407,14 +407,14 @@ static int try_bindfd(void)
 	 * complicated and it's only worth doing if someone actually needs it.
 	 */
 	ret = -EPERM;
-	if (mount("/proc/self/exe", template, "", MS_BIND, "") < 0)
-		goto out;
-	if (mount("", template, "", MS_REMOUNT | MS_BIND | MS_RDONLY, "") < 0)
-		goto out_umount;
+	यदि (mount("/proc/self/exe", ढाँचा, "", MS_BIND, "") < 0)
+		गच्छ out;
+	यदि (mount("", ढाँचा, "", MS_REMOUNT | MS_BIND | MS_RDONLY, "") < 0)
+		गच्छ out_umount;
 
 
 	/* Get read-only handle that we're sure can't be made read-write. */
-	ret = open(template, O_PATH | O_CLOEXEC);
+	ret = खोलो(ढाँचा, O_PATH | O_CLOEXEC);
 
 out_umount:
 	/*
@@ -422,9 +422,9 @@ out_umount:
 	 * read-write and that would be quite bad (the fd would be made read-write
 	 * too, invalidating the protection).
 	 */
-	if (umount2(template, MNT_DETACH) < 0) {
-		if (ret >= 0)
-			close(ret);
+	यदि (umount2(ढाँचा, MNT_DETACH) < 0) {
+		यदि (ret >= 0)
+			बंद(ret);
 		ret = -ENOTRECOVERABLE;
 	}
 
@@ -433,61 +433,61 @@ out:
 	 * We don't care about unlink errors, the worst that happens is that
 	 * there's an empty file left around in STATEDIR.
 	 */
-	unlink(template);
-	return ret;
+	unlink(ढाँचा);
+	फर्काऊ ret;
 }
 
-static ssize_t fd_to_fd(int outfd, int infd)
+स्थिर ssize_t fd_to_fd(पूर्णाङ्क outfd, पूर्णाङ्क infd)
 {
 	ssize_t total = 0;
-	char buffer[4096];
+	वर्ण buffer[4096];
 
-	for (;;) {
+	लागि (;;) {
 		ssize_t nread, nwritten = 0;
 
-		nread = read(infd, buffer, sizeof(buffer));
-		if (nread < 0)
-			return -1;
-		if (!nread)
-			break;
+		nread = पठ(infd, buffer, परिमाण(buffer));
+		यदि (nread < 0)
+			फर्काऊ -1;
+		यदि (!nread)
+			रोक;
 
-		do {
-			ssize_t n = write(outfd, buffer + nwritten, nread - nwritten);
-			if (n < 0)
-				return -1;
+		गर {
+			ssize_t n = लिख(outfd, buffer + nwritten, nread - nwritten);
+			यदि (n < 0)
+				फर्काऊ -1;
 			nwritten += n;
-		} while(nwritten < nread);
+		} जबसम्म(nwritten < nread);
 
 		total += nwritten;
 	}
 
-	return total;
+	फर्काऊ total;
 }
 
-static int clone_binary(void)
+स्थिर पूर्णाङ्क clone_द्विआधारी(शून्य)
 {
-	cleanup_close int execfd = -1;
-	struct stat statbuf = {};
+	cleanup_close पूर्णाङ्क execfd = -1;
+	संरचना stat statbuf = {};
 	ssize_t sent = 0;
-	int fdtype = EFD_NONE;
+	पूर्णाङ्क fdtype = EFD_NONE;
 
 	/*
 	 * Before we resort to copying, let's try creating an ro-binfd in one shot
 	 * by getting a handle for a read-only bind-mount of the execfd.
 	 */
 	execfd = try_bindfd_mount_api();
-	if (execfd >= 0) {
+	यदि (execfd >= 0) {
 		/* Transfer ownership to caller */
-		int ret_execfd = execfd;
+		पूर्णाङ्क ret_execfd = execfd;
 		execfd = -1;
-		return ret_execfd;
+		फर्काऊ ret_execfd;
 	}
 	execfd = try_bindfd();
-	if (execfd >= 0) {
+	यदि (execfd >= 0) {
 		/* Transfer ownership to caller */
-		int ret_execfd = execfd;
+		पूर्णाङ्क ret_execfd = execfd;
 		execfd = -1;
-		return ret_execfd;
+		फर्काऊ ret_execfd;
 	}
 
 	/*
@@ -495,69 +495,69 @@ static int clone_binary(void)
 	 * can seal the contents.
 	 */
 	execfd = make_execfd(&fdtype);
-	if (execfd < 0 || fdtype == EFD_NONE)
-		return -ENOTRECOVERABLE;
+	यदि (execfd < 0 || fdtype == EFD_NONE)
+		फर्काऊ -ENOTRECOVERABLE;
 
 	{
-		cleanup_close int binfd = -1;
-		binfd = open("/proc/self/exe", O_RDONLY | O_CLOEXEC);
-		if (binfd < 0)
-			goto error;
+		cleanup_close पूर्णाङ्क binfd = -1;
+		binfd = खोलो("/proc/self/exe", O_RDONLY | O_CLOEXEC);
+		यदि (binfd < 0)
+			गच्छ error;
 
-		if (fstat(binfd, &statbuf) < 0)
-			goto error;
+		यदि (ख_स्थिति(binfd, &statbuf) < 0)
+			गच्छ error;
 
-		while (sent < statbuf.st_size) {
-			int n = sendfile(execfd, binfd, NULL, statbuf.st_size - sent);
-			if (n < 0) {
+		जबसम्म (sent < statbuf.st_size) {
+			पूर्णाङ्क n = sendfile(execfd, binfd, रिक्त, statbuf.st_size - sent);
+			यदि (n < 0) {
 				/* sendfile can fail so we fallback to a dumb user-space copy. */
 				n = fd_to_fd(execfd, binfd);
-				if (n < 0)
-					goto error;
+				यदि (n < 0)
+					गच्छ error;
 			}
 			sent += n;
 		}
 	}
-	if (sent != statbuf.st_size)
-		goto error;
+	यदि (sent != statbuf.st_size)
+		गच्छ error;
 
-	if (seal_execfd(&execfd, fdtype) < 0)
-		goto error;
+	यदि (seal_execfd(&execfd, fdtype) < 0)
+		गच्छ error;
 
 	{
 		/* Transfer ownership to caller */
-		int ret_execfd = execfd;
+		पूर्णाङ्क ret_execfd = execfd;
 		execfd = -1;
-		return ret_execfd;
+		फर्काऊ ret_execfd;
 	}
 error:
-	return -EIO;
+	फर्काऊ -EIO;
 }
 
 /* Get cheap access to the environment. */
-extern char **environ;
+बाह्य वर्ण **environ;
 
-int ensure_cloned_binary(void)
+पूर्णाङ्क ensure_cloned_द्विआधारी(शून्य)
 {
-	cleanup_close int execfd = -1;
-	char **argv = NULL;
+	cleanup_close पूर्णाङ्क execfd = -1;
+	वर्ण **argv = रिक्त;
 
 	/* Check that we're not self-cloned, and if we are then bail. */
-	int cloned = is_self_cloned();
-	if (cloned > 0 || cloned == -ENOTRECOVERABLE)
-		return cloned;
+	पूर्णाङ्क cloned = is_self_cloned();
+	यदि (cloned > 0 || cloned == -ENOTRECOVERABLE)
+		फर्काऊ cloned;
 
-	if (fetchve(&argv) < 0)
-		return -EINVAL;
+	यदि (fetchve(&argv) < 0)
+		फर्काऊ -EINVAL;
 
-	execfd = clone_binary();
-	if (execfd < 0)
-		return -EIO;
+	execfd = clone_द्विआधारी();
+	यदि (execfd < 0)
+		फर्काऊ -EIO;
 
-	if (putenv(CLONED_BINARY_ENV "=1"))
-		goto error;
+	यदि (putenv(CLONED_द्विआधारी_ENV "=1"))
+		गच्छ error;
 
 	fexecve(execfd, argv, environ);
 error:
-	return -ENOEXEC;
+	फर्काऊ -ENOEXEC;
 }

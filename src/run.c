@@ -16,15 +16,15 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <argp.h>
+#अन्तर्भाव <config.h>
+#अन्तर्भाव <argp.h>
 
-#include "crun.h"
-#include "run_create.h"
+#अन्तर्भाव "crun.h"
+#अन्तर्भाव "run_create.h"
 
-static char doc[] = "OCI runtime";
+स्थिर वर्ण doc[] = "OCI runtime";
 
-enum
+गणना
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -35,13 +35,13 @@ enum
   OPTION_KEEP,
 };
 
-static const char *bundle = NULL;
+स्थिर अचर वर्ण *bundle = रिक्त;
 
-static bool keep = false;
+स्थिर bool keep = false;
 
-static libcrun_context_t *crun_context;
+स्थिर libcrun_context_t *crun_context;
 
-static struct argp_option options[]
+स्थिर संरचना argp_option options[]
     = { { "bundle", 'b', "DIR", 0, "container bundle (default \".\")", 0 },
         { "config", 'f', "FILE", 0, "override the config file name", 0 },
         { "detach", 'd', 0, 0, "detach from the parent", 0 },
@@ -57,79 +57,79 @@ static struct argp_option options[]
             0,
         } };
 
-static char args_doc[] = "run [OPTION]... CONTAINER";
+स्थिर वर्ण args_doc[] = "run [OPTION]... CONTAINER";
 
-static const char *config_file = "config.json";
+स्थिर अचर वर्ण *config_file = "config.json";
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+स्थिर error_t
+parse_opt (पूर्णाङ्क साँचो, वर्ण *arg, संरचना argp_state *state)
 {
-  switch (key)
+  विकल्प (साँचो)
     {
-    case 'd':
+    पक्ष 'd':
       libcrun_context_set_detach (crun_context, true);
-      break;
+      रोक;
 
-    case 'f':
+    पक्ष 'f':
       config_file = argp_mandatory_argument (arg, state);
-      break;
+      रोक;
 
-    case 'b':
+    पक्ष 'b':
       bundle = argp_mandatory_argument (arg, state);
-      break;
+      रोक;
 
-    case OPTION_KEEP:
+    पक्ष OPTION_KEEP:
       keep = true;
-      break;
+      रोक;
 
-    case OPTION_CONSOLE_SOCKET:
+    पक्ष OPTION_CONSOLE_SOCKET:
       libcrun_context_set_console_socket (crun_context, argp_mandatory_argument (arg, state));
-      break;
+      रोक;
 
-    case OPTION_PRESERVE_FDS:
-      libcrun_context_set_preserve_fds (crun_context, parse_id_or_fail (argp_mandatory_argument (arg, state), NULL, "preserve-fds"));
-      break;
+    पक्ष OPTION_PRESERVE_FDS:
+      libcrun_context_set_preserve_fds (crun_context, parse_id_or_fail (argp_mandatory_argument (arg, state), रिक्त, "preserve-fds"));
+      रोक;
 
-    case OPTION_NO_SUBREAPER:
-      break;
+    पक्ष OPTION_NO_SUBREAPER:
+      रोक;
 
-    case OPTION_NO_NEW_KEYRING:
+    पक्ष OPTION_NO_NEW_KEYRING:
       libcrun_context_set_no_new_keyring (crun_context, true);
-      break;
+      रोक;
 
-    case OPTION_PID_FILE:
+    पक्ष OPTION_PID_FILE:
       libcrun_context_set_pid_file (crun_context, argp_mandatory_argument (arg, state));
-      break;
+      रोक;
 
-    case OPTION_NO_PIVOT:
+    पक्ष OPTION_NO_PIVOT:
       libcrun_context_set_no_pivot (crun_context, true);
-      break;
+      रोक;
 
-    case ARGP_KEY_NO_ARGS:
+    पक्ष ARGP_साँचो_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    स्वभाव:
+      फर्काऊ ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  फर्काऊ 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+स्थिर संरचना argp run_argp = { options, parse_opt, args_doc, doc, रिक्त, रिक्त, रिक्त };
 
-static unsigned int
+स्थिर अचिन्हित पूर्णाङ्क
 get_options ()
 {
-  return keep ? LIBCRUN_RUN_OPTIONS_KEEP : 0;
+  फर्काऊ keep ? LIBCRUN_RUN_OPTIONS_KEEP : 0;
 }
 
-int
-crun_command_run (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+पूर्णाङ्क
+crun_command_run (संरचना crun_global_arguments *global_args, पूर्णाङ्क argc, वर्ण **argv, libcrun_error_t *err)
 {
-  int ret;
+  पूर्णाङ्क ret;
 
   crun_context = new_libcrun_context (global_args);
   ret = crun_run_create_internal (global_args, argc, argv, libcrun_container_run, get_options, crun_context, &run_argp, &config_file, &bundle, err);
   libcrun_context_free (crun_context);
-  return ret;
+  फर्काऊ ret;
 }
