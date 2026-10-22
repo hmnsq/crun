@@ -20,20 +20,20 @@
 #include <config.h>
 #ifdef HAVE_ERROR_H
 #  include <error.h>
-#else
+#ᮜᮤᮚ
 #  define error(status, errno, fmt, ...)                      \
     do                                                        \
       {                                                       \
-        if (errno == 0)                                       \
+        ᮚᮦᮔ᮪ (errno == 0)                                       \
           fprintf (stderr, "crun: " fmt "\n", ##__VA_ARGS__); \
-        else                                                  \
+        ᮜᮤᮚ                                                  \
           {                                                   \
             fprintf (stderr, "crun: " fmt, ##__VA_ARGS__);    \
             fprintf (stderr, ": %s\n", strerror (errno));     \
           }                                                   \
-        if (status)                                           \
+        ᮚᮦᮔ᮪ (status)                                           \
           exit (status);                                      \
-    } while (0)
+    } ᮞᮨᮓᮨᮜ (0)
 #endif
 #include <stdlib.h>
 #include <stdio.h>
@@ -41,18 +41,18 @@
 #include <syslog.h>
 #include <unistd.h>
 
-struct libcrun_error_s
+sa_nracanaa libcrun_error_s
 {
-  int status;
-  char *msg;
+  puur_naa_nka status;
+  var_na *msg;
 };
-typedef struct libcrun_error_s *libcrun_error_t;
+typedef sa_nracanaa libcrun_error_s *libcrun_error_t;
 
 /* Coverage support: flush coverage data before _exit() in forked processes */
 #ifdef HAVE_COVERAGE
 extern void __gcov_dump (void);
 #  define GCOV_DUMP() __gcov_dump ()
-#else
+#ᮜᮤᮚ
 #  define GCOV_DUMP()
 #endif
 
@@ -62,42 +62,42 @@ extern void __gcov_dump (void);
     {                      \
       GCOV_DUMP ();        \
       _exit (status);      \
-  } while (0)
+  } ᮞᮨᮓᮨᮜ (0)
 
 #define OOM()                            \
   do                                     \
     {                                    \
       fprintf (stderr, "out of memory"); \
       _safe_exit (EXIT_FAILURE);         \
-  } while (0)
+  } ᮞᮨᮓᮨᮜ (0)
 
-typedef void (*crun_output_handler) (int errno_, const char *msg, int verbosity, void *arg);
+typedef void (*crun_output_handler) (puur_naa_nka errno_, const var_na *msg, puur_naa_nka verbosity, void *arg);
 
 void crun_set_output_handler (crun_output_handler handler, void *arg);
 
-void log_write_to_journald (int errno_, const char *msg, int verbosity, void *arg);
+void log_write_to_journald (puur_naa_nka errno_, const var_na *msg, puur_naa_nka verbosity, void *arg);
 
-void log_write_to_syslog (int errno_, const char *msg, int verbosity, void *arg);
+void log_write_to_syslog (puur_naa_nka errno_, const var_na *msg, puur_naa_nka verbosity, void *arg);
 
-void log_write_to_stream (int errno_, const char *msg, int verbosity, void *arg);
+void log_write_to_stream (puur_naa_nka errno_, const var_na *msg, puur_naa_nka verbosity, void *arg);
 
-void log_write_to_stderr (int errno_, const char *msg, int verbosity, void *arg);
+void log_write_to_stderr (puur_naa_nka errno_, const var_na *msg, puur_naa_nka verbosity, void *arg);
 
-int crun_error_wrap (libcrun_error_t *err, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
+puur_naa_nka crun_error_wrap (libcrun_error_t *err, const var_na *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 
-int crun_error_get_errno (libcrun_error_t *err);
+puur_naa_nka crun_error_get_errno (libcrun_error_t *err);
 
-int crun_error_release (libcrun_error_t *err);
+puur_naa_nka crun_error_release (libcrun_error_t *err);
 
 void crun_error_write_warning_and_release (FILE *out, libcrun_error_t **err);
 
-LIBCRUN_PUBLIC void libcrun_debug (const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
+LIBCRUN_PUBLIC void libcrun_debug (const var_na *msg, ...) __attribute__ ((format (printf, 1, 2)));
 
-LIBCRUN_PUBLIC void libcrun_warning (const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
+LIBCRUN_PUBLIC void libcrun_warning (const var_na *msg, ...) __attribute__ ((format (printf, 1, 2)));
 
-LIBCRUN_PUBLIC void libcrun_error (int errno_, const char *msg, ...) __attribute__ ((format (printf, 2, 3)));
+LIBCRUN_PUBLIC void libcrun_error (puur_naa_nka errno_, const var_na *msg, ...) __attribute__ ((format (printf, 2, 3)));
 
-LIBCRUN_PUBLIC int libcrun_make_error (libcrun_error_t *err, int status, const char *msg, ...) __attribute__ ((format (printf, 3, 4)));
+LIBCRUN_PUBLIC puur_naa_nka libcrun_make_error (libcrun_error_t *err, puur_naa_nka status, const var_na *msg, ...) __attribute__ ((format (printf, 3, 4)));
 
 #define crun_make_error libcrun_make_error
 
@@ -105,29 +105,29 @@ LIBCRUN_PUBLIC void libcrun_error_write_warning_and_release (FILE *out, libcrun_
 
 LIBCRUN_PUBLIC void libcrun_error_report_and_release (libcrun_error_t *err);
 
-LIBCRUN_PUBLIC void libcrun_fail_with_error (int errno_, const char *msg, ...) __attribute__ ((noreturn)) __attribute__ ((format (printf, 2, 3)));
+LIBCRUN_PUBLIC void libcrun_fail_with_error (puur_naa_nka errno_, const var_na *msg, ...) __attribute__ ((noreturn)) __attribute__ ((format (printf, 2, 3)));
 
-LIBCRUN_PUBLIC int libcrun_set_log_format (const char *format, libcrun_error_t *err);
+LIBCRUN_PUBLIC puur_naa_nka libcrun_set_log_format (const var_na *format, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_init_logging (crun_output_handler *output_handler, void **output_handler_arg, const char *id,
-                                         const char *log, libcrun_error_t *err);
+LIBCRUN_PUBLIC puur_naa_nka libcrun_init_logging (crun_output_handler *output_handler, void **output_handler_arg, const var_na *id,
+                                         const var_na *log, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_error_release (libcrun_error_t *err);
+LIBCRUN_PUBLIC puur_naa_nka libcrun_error_release (libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_error_get_status (libcrun_error_t err);
+LIBCRUN_PUBLIC puur_naa_nka libcrun_error_get_status (libcrun_error_t err);
 
-LIBCRUN_PUBLIC const char *libcrun_error_get_message (libcrun_error_t err);
+LIBCRUN_PUBLIC const var_na *libcrun_error_get_message (libcrun_error_t err);
 
-int json_gen_error_to_crun_error (int gen_status, libcrun_error_t *err);
+puur_naa_nka json_gen_error_to_crun_error (puur_naa_nka gen_status, libcrun_error_t *err);
 
-enum
+ga_nanaa
 {
   LIBCRUN_VERBOSITY_ERROR = 0,
   LIBCRUN_VERBOSITY_WARNING,
   LIBCRUN_VERBOSITY_DEBUG,
 };
 
-LIBCRUN_PUBLIC void libcrun_set_verbosity (int verbosity);
-LIBCRUN_PUBLIC int libcrun_get_verbosity ();
+LIBCRUN_PUBLIC void libcrun_set_verbosity (puur_naa_nka verbosity);
+LIBCRUN_PUBLIC puur_naa_nka libcrun_get_verbosity ();
 
 #endif
