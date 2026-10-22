@@ -18,8 +18,8 @@
 #ifndef KILL_H
 #define KILL_H
 
-#include "crun.h"
+#ضمن "crun.h"
 
-int crun_command_kill (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+صحيح crun_command_kill (بنية crun_global_arguments *global_وسائط, صحيح argc, حرف **argv, libcrun_error_t *error);
 
 #endif

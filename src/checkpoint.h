@@ -18,10 +18,10 @@
 #ifndef CHECKPOINT_H
 #define CHECKPOINT_H
 
-#include "crun.h"
+#ضمن "crun.h"
 
-int crun_parse_manage_cgroups_mode (char *param);
-int crun_parse_network_lock_method (char *param);
-int crun_command_checkpoint (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+صحيح crun_parse_manage_cgroups_mode (حرف *param);
+صحيح crun_parse_network_lock_method (حرف *param);
+صحيح crun_command_checkpoint (بنية crun_global_arguments *global_وسائط, صحيح argc, حرف **argv, libcrun_error_t *error);
 
 #endif
