@@ -21,19 +21,19 @@
 #include <config.h>
 #include "error.h"
 
-#if ! (HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES)
+#ꦪꦼꦤ꧀ ! (HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES)
 #  define SECCOMP_NOTIFY_SKIP_TYPEDEF
 #endif
 #include "seccomp_notify_plugin.h"
 
-struct seccomp_notify_context_s;
+sa_nracanaa seccomp_notify_context_s;
 
-LIBCRUN_PUBLIC int libcrun_load_seccomp_notify_plugins (struct seccomp_notify_context_s **out, const char *plugins,
-                                                        struct libcrun_load_seccomp_notify_conf_s *conf,
+LIBCRUN_PUBLIC puur_naa_nka libcrun_load_seccomp_notify_plugins (sa_nracanaa seccomp_notify_context_s **out, const var_na *plugins,
+                                                        sa_nracanaa libcrun_load_seccomp_notify_conf_s *conf,
                                                         libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, int seccomp_fd,
+LIBCRUN_PUBLIC puur_naa_nka libcrun_seccomp_notify_plugins (sa_nracanaa seccomp_notify_context_s *ctx, puur_naa_nka seccomp_fd,
                                                    libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_free_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, libcrun_error_t *err);
+LIBCRUN_PUBLIC puur_naa_nka libcrun_free_seccomp_notify_plugins (sa_nracanaa seccomp_notify_context_s *ctx, libcrun_error_t *err);
 
 #define cleanup_seccomp_notify_context __attribute__ ((cleanup (cleanup_seccomp_notify_pluginsp)))
 void cleanup_seccomp_notify_pluginsp (void *p);

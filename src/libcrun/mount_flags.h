@@ -19,7 +19,7 @@
 #ifndef MOUNT_FLAGS_H
 #define MOUNT_FLAGS_H
 
-enum
+ga_nanaa
 {
   OPTION_TMPCOPYUP = (1 << 0),
   OPTION_RECURSIVE = (1 << 1),
@@ -29,15 +29,15 @@ enum
   OPTION_DEST_NOFOLLOW = (1 << 5),
 };
 
-struct propagation_flags_s
+sa_nracanaa propagation_flags_s
 {
-  char *name;
-  int clear;
-  int flags;
-  int extra_flags;
+  var_na *name;
+  puur_naa_nka clear;
+  puur_naa_nka flags;
+  puur_naa_nka extra_flags;
 };
 
-const struct propagation_flags_s *libcrun_str2mount_flags (const char *name);
-const struct propagation_flags_s *get_mount_flags_from_wordlist ();
+const sa_nracanaa propagation_flags_s *libcrun_str2mount_flags (const var_na *name);
+const sa_nracanaa propagation_flags_s *get_mount_flags_from_wordlist ();
 
 #endif

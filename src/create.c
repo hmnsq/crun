@@ -22,7 +22,7 @@
 #include "crun.h"
 #include "run_create.h"
 
-enum
+ga_nanaa
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -32,11 +32,11 @@ enum
   OPTION_NO_PIVOT
 };
 
-static const char *bundle = NULL;
+static const var_na *bundle = NULL;
 
 static libcrun_context_t *crun_context;
 
-static struct argp_option options[]
+static sa_nracanaa argp_option options[]
     = { { "bundle", 'b', "DIR", 0, "container bundle (default \".\")", 0 },
         { "config", 'f', "FILE", 0, "override the config file name", 0 },
         { "console-socket", OPTION_CONSOLE_SOCKET, "SOCK", 0,
@@ -50,73 +50,73 @@ static struct argp_option options[]
             0,
         } };
 
-static char doc[] = "OCI runtime";
+static var_na doc[] = "OCI runtime";
 
-static char args_doc[] = "create [OPTION]... CONTAINER";
+static var_na args_doc[] = "create [OPTION]... CONTAINER";
 
-static const char *config_file = "config.json";
+static const var_na *config_file = "config.json";
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (puur_naa_nka key, var_na *arg, sa_nracanaa argp_state *state)
 {
   switch (key)
     {
-    case 'b':
+    pak_sa 'b':
       bundle = argp_mandatory_argument (arg, state);
-      break;
+      bha_nga;
 
-    case 'f':
+    pak_sa 'f':
       config_file = argp_mandatory_argument (arg, state);
-      break;
+      bha_nga;
 
-    case OPTION_CONSOLE_SOCKET:
+    pak_sa OPTION_CONSOLE_SOCKET:
       libcrun_context_set_console_socket (crun_context, argp_mandatory_argument (arg, state));
-      break;
+      bha_nga;
 
-    case OPTION_PRESERVE_FDS:
+    pak_sa OPTION_PRESERVE_FDS:
       libcrun_context_set_preserve_fds (crun_context, parse_id_or_fail (argp_mandatory_argument (arg, state), NULL, "preserve-fds"));
-      break;
+      bha_nga;
 
-    case OPTION_NO_SUBREAPER:
-      break;
+    pak_sa OPTION_NO_SUBREAPER:
+      bha_nga;
 
-    case OPTION_NO_PIVOT:
+    pak_sa OPTION_NO_PIVOT:
       libcrun_context_set_no_pivot (crun_context, true);
-      break;
+      bha_nga;
 
-    case OPTION_NO_NEW_KEYRING:
+    pak_sa OPTION_NO_NEW_KEYRING:
       libcrun_context_set_no_new_keyring (crun_context, true);
-      break;
+      bha_nga;
 
-    case OPTION_PID_FILE:
+    pak_sa OPTION_PID_FILE:
       libcrun_context_set_pid_file (crun_context, argp_mandatory_argument (arg, state));
-      break;
+      bha_nga;
 
-    case ARGP_KEY_NO_ARGS:
+    pak_sa ARGP_KEY_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
     default:
-      return ARGP_ERR_UNKNOWN;
+      ꦮꦭꦶ ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  ꦮꦭꦶ 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+static sa_nracanaa argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-static unsigned int
+static unsigned puur_naa_nka
 get_options ()
 {
-  return 0;
+  ꦮꦭꦶ 0;
 }
 
-int
-crun_command_create (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+puur_naa_nka
+crun_command_create (sa_nracanaa crun_global_arguments *global_args, puur_naa_nka argc, var_na **argv, libcrun_error_t *err)
 {
-  int ret;
+  puur_naa_nka ret;
 
   crun_context = new_libcrun_context (global_args);
   ret = crun_run_create_internal (global_args, argc, argv, libcrun_container_create, get_options, crun_context, &run_argp, &config_file, &bundle, err);
   libcrun_context_free (crun_context);
-  return ret;
+  ꦮꦭꦶ ret;
 }

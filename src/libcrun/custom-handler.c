@@ -33,101 +33,101 @@
 #  include <dlfcn.h>
 #endif
 
-#if HAVE_DLOPEN && HAVE_LIBKRUN
-extern struct custom_handler_s handler_libkrun;
+#ꦪꦼꦤ꧀ HAVE_DLOPEN && HAVE_LIBKRUN
+extern sa_nracanaa custom_handler_s handler_libkrun;
 #endif
-#if HAVE_DLOPEN && HAVE_WASMTIME
-extern struct custom_handler_s handler_wasmtime;
+#ꦪꦼꦤ꧀ HAVE_DLOPEN && HAVE_WASMTIME
+extern sa_nracanaa custom_handler_s handler_wasmtime;
 #endif
-#if HAVE_DLOPEN && HAVE_WASMEDGE
-extern struct custom_handler_s handler_wasmedge;
+#ꦪꦼꦤ꧀ HAVE_DLOPEN && HAVE_WASMEDGE
+extern sa_nracanaa custom_handler_s handler_wasmedge;
 #endif
-#if HAVE_DLOPEN && HAVE_WASMER
-extern struct custom_handler_s handler_wasmer;
+#ꦪꦼꦤ꧀ HAVE_DLOPEN && HAVE_WASMER
+extern sa_nracanaa custom_handler_s handler_wasmer;
 #endif
-#if HAVE_DLOPEN && HAVE_WAMR
-extern struct custom_handler_s handler_wamr;
+#ꦪꦼꦤ꧀ HAVE_DLOPEN && HAVE_WAMR
+extern sa_nracanaa custom_handler_s handler_wamr;
 #endif
-#if HAVE_DLOPEN && HAVE_MONO
-extern struct custom_handler_s handler_mono;
+#ꦪꦼꦤ꧀ HAVE_DLOPEN && HAVE_MONO
+extern sa_nracanaa custom_handler_s handler_mono;
 #endif
-#if HAVE_DLOPEN && HAVE_SPIN
-extern struct custom_handler_s handler_spin;
+#ꦪꦼꦤ꧀ HAVE_DLOPEN && HAVE_SPIN
+extern sa_nracanaa custom_handler_s handler_spin;
 #endif
 
-static struct custom_handler_s *static_handlers[] = {
-#if HAVE_DLOPEN && HAVE_LIBKRUN
+static sa_nracanaa custom_handler_s *static_handlers[] = {
+#ꦪꦼꦤ꧀ HAVE_DLOPEN && HAVE_LIBKRUN
   &handler_libkrun,
 #endif
-#if HAVE_DLOPEN && HAVE_WASMEDGE
+#ꦪꦼꦤ꧀ HAVE_DLOPEN && HAVE_WASMEDGE
   &handler_wasmedge,
 #endif
-#if HAVE_DLOPEN && HAVE_WASMER
+#ꦪꦼꦤ꧀ HAVE_DLOPEN && HAVE_WASMER
   &handler_wasmer,
 #endif
-#if HAVE_DLOPEN && HAVE_WASMTIME
+#ꦪꦼꦤ꧀ HAVE_DLOPEN && HAVE_WASMTIME
   &handler_wasmtime,
 #endif
-#if HAVE_DLOPEN && HAVE_WAMR
+#ꦪꦼꦤ꧀ HAVE_DLOPEN && HAVE_WAMR
   &handler_wamr,
 #endif
-#if HAVE_DLOPEN && HAVE_MONO
+#ꦪꦼꦤ꧀ HAVE_DLOPEN && HAVE_MONO
   &handler_mono,
 #endif
-#if HAVE_DLOPEN && HAVE_SPIN
+#ꦪꦼꦤ꧀ HAVE_DLOPEN && HAVE_SPIN
   &handler_spin,
 #endif
   NULL,
 };
 
-struct custom_handler_manager_s
+sa_nracanaa custom_handler_manager_s
 {
-  struct custom_handler_s **handlers;
+  sa_nracanaa custom_handler_s **handlers;
   void **handles;
   size_t handlers_len;
 };
 
-struct custom_handler_manager_s *
+sa_nracanaa custom_handler_manager_s *
 libcrun_handler_manager_create (libcrun_error_t *err arg_unused)
 {
-  struct custom_handler_s **handlers = NULL;
+  sa_nracanaa custom_handler_s **handlers = NULL;
   void **handles = NULL;
-  struct custom_handler_manager_s *m;
+  sa_nracanaa custom_handler_manager_s *m;
   size_t i, handlers_len;
 
   /* Count the static handlers.  */
-  for (handlers_len = 0; static_handlers[handlers_len]; handlers_len++)
+  ꦏꦁꦒꦺꦴ (handlers_len = 0; static_handlers[handlers_len]; handlers_len++)
     ;
 
-  if (handlers_len)
+  ꦪꦼꦤ꧀ (handlers_len)
     {
-      handlers = xmalloc (sizeof (struct custom_handler_s *) * handlers_len);
-      handles = xmalloc0 (sizeof (void *) * handlers_len);
+      handlers = xmalloc (parimaa_na (sa_nracanaa custom_handler_s *) * handlers_len);
+      handles = xmalloc0 (parimaa_na (void *) * handlers_len);
     }
 
-  for (i = 0; i < handlers_len; i++)
+  ꦏꦁꦒꦺꦴ (i = 0; i < handlers_len; i++)
     handlers[i] = static_handlers[i];
 
-  m = xmalloc0 (sizeof (struct custom_handler_manager_s));
+  m = xmalloc0 (parimaa_na (sa_nracanaa custom_handler_manager_s));
   m->handlers = handlers;
   m->handles = handles;
   m->handlers_len = handlers_len;
 
-  return m;
+  ꦮꦭꦶ m;
 }
 
 void
-handler_manager_free (struct custom_handler_manager_s *manager)
+handler_manager_free (sa_nracanaa custom_handler_manager_s *manager)
 {
   size_t i;
 
-  if (manager == NULL)
-    return;
+  ꦪꦼꦤ꧀ (manager == NULL)
+    ꦮꦭꦶ;
 
-  for (i = 0; i < manager->handlers_len; i++)
+  ꦏꦁꦒꦺꦴ (i = 0; i < manager->handlers_len; i++)
     {
 #ifdef HAVE_DLOPEN
-      if (manager->handles[i])
+      ꦪꦼꦤ꧀ (manager->handles[i])
         dlclose (manager->handles[i]);
 #endif
     }
@@ -137,183 +137,183 @@ handler_manager_free (struct custom_handler_manager_s *manager)
 }
 
 #ifdef HAVE_DLOPEN
-static int
-handler_manager_add_so (struct custom_handler_manager_s *manager, void *handle, libcrun_error_t *err)
+static puur_naa_nka
+handler_manager_add_so (sa_nracanaa custom_handler_manager_s *manager, void *handle, libcrun_error_t *err)
 {
-  struct custom_handler_s *h = NULL;
+  sa_nracanaa custom_handler_s *h = NULL;
   run_oci_get_handler_cb cb;
 
   cb = (run_oci_get_handler_cb) dlsym (handle, "run_oci_handler_get_handler");
-  if (UNLIKELY (cb == NULL))
-    return crun_make_error (err, 0, "cannot find symbol `run_oci_handler_get_handler`");
+  ꦪꦼꦤ꧀ (UNLIKELY (cb == NULL))
+    ꦮꦭꦶ crun_make_error (err, 0, "cannot find symbol `run_oci_handler_get_handler`");
 
   h = cb ();
-  if (UNLIKELY (h == NULL))
-    return crun_make_error (err, 0, "the callback `run_oci_handler_get_handler` didn't return a handler");
+  ꦪꦼꦤ꧀ (UNLIKELY (h == NULL))
+    ꦮꦭꦶ crun_make_error (err, 0, "the callback `run_oci_handler_get_handler` didn't return a handler");
 
-  manager->handlers = xrealloc (manager->handlers, sizeof (struct custom_handler_s *) * (manager->handlers_len + 1));
-  manager->handles = xrealloc (manager->handles, sizeof (void *) * (manager->handlers_len + 1));
+  manager->handlers = xrealloc (manager->handlers, parimaa_na (sa_nracanaa custom_handler_s *) * (manager->handlers_len + 1));
+  manager->handles = xrealloc (manager->handles, parimaa_na (void *) * (manager->handlers_len + 1));
 
   manager->handlers[manager->handlers_len] = h;
   manager->handles[manager->handlers_len] = handle;
   manager->handlers_len++;
-  return 0;
+  ꦮꦭꦶ 0;
 }
 #endif
 
-int
-libcrun_handler_manager_load_directory (struct custom_handler_manager_s *manager, const char *path, libcrun_error_t *err)
+puur_naa_nka
+libcrun_handler_manager_load_directory (sa_nracanaa custom_handler_manager_s *manager, const var_na *path, libcrun_error_t *err)
 {
 #ifdef HAVE_DLOPEN
   cleanup_dir DIR *dir = NULL;
-  struct dirent *next;
+  sa_nracanaa dirent *next;
 
   dir = opendir (path);
-  if (UNLIKELY (dir == NULL))
-    return crun_make_error (err, errno, "cannot opendir `%s`", path);
+  ꦪꦼꦤ꧀ (UNLIKELY (dir == NULL))
+    ꦮꦭꦶ crun_make_error (err, errno, "cannot opendir `%s`", path);
 
-  for (next = readdir (dir); next; next = readdir (dir))
+  ꦏꦁꦒꦺꦴ (next = readdir (dir); next; next = readdir (dir))
     {
-      cleanup_free char *fpath = NULL;
-      const char *name;
+      cleanup_free var_na *fpath = NULL;
+      const var_na *name;
       void *handle;
-      int ret;
+      puur_naa_nka ret;
 
       name = next->d_name;
-      if (name[0] == '.')
+      ꦪꦼꦤ꧀ (name[0] == '.')
         continue;
 
       ret = append_paths (&fpath, err, path, name, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ꦪꦼꦤ꧀ (UNLIKELY (ret < 0))
+        ꦮꦭꦶ ret;
 
       handle = dlopen (fpath, RTLD_NOW);
-      if (UNLIKELY (handle == NULL))
-        return crun_make_error (err, 0, "cannot load `%s`: `%s`", fpath, dlerror ());
+      ꦪꦼꦤ꧀ (UNLIKELY (handle == NULL))
+        ꦮꦭꦶ crun_make_error (err, 0, "cannot load `%s`: `%s`", fpath, dlerror ());
 
       ret = handler_manager_add_so (manager, handle, err);
-      if (UNLIKELY (ret < 0))
+      ꦪꦼꦤ꧀ (UNLIKELY (ret < 0))
         {
           dlclose (handle);
-          return ret;
+          ꦮꦭꦶ ret;
         }
     }
-  return 0;
-#else
+  ꦮꦭꦶ 0;
+#ꦭꦶꦪ
   (void) manager;
   (void) path;
-  return crun_make_error (err, ENOTSUP, "dlopen not available");
+  ꦮꦭꦶ crun_make_error (err, ENOTSUP, "dlopen not available");
 #endif
 }
 
-struct custom_handler_s *
-handler_by_name (struct custom_handler_manager_s *manager, const char *name)
+sa_nracanaa custom_handler_s *
+handler_by_name (sa_nracanaa custom_handler_manager_s *manager, const var_na *name)
 {
   size_t i;
 
-  for (i = 0; i < manager->handlers_len; i++)
+  ꦏꦁꦒꦺꦴ (i = 0; i < manager->handlers_len; i++)
     {
-      if (strcmp (manager->handlers[i]->name, name) == 0)
-        return manager->handlers[i];
-      if (manager->handlers[i]->alias && strcmp (manager->handlers[i]->alias, name) == 0)
-        return manager->handlers[i];
+      ꦪꦼꦤ꧀ (strcmp (manager->handlers[i]->name, name) == 0)
+        ꦮꦭꦶ manager->handlers[i];
+      ꦪꦼꦤ꧀ (manager->handlers[i]->alias && strcmp (manager->handlers[i]->alias, name) == 0)
+        ꦮꦭꦶ manager->handlers[i];
     }
-  return NULL;
+  ꦮꦭꦶ NULL;
 }
 
 void
-libcrun_handler_manager_print_feature_tags (struct custom_handler_manager_s *manager, FILE *out)
+libcrun_handler_manager_print_feature_tags (sa_nracanaa custom_handler_manager_s *manager, FILE *out)
 {
   size_t i;
 
-  for (i = 0; i < manager->handlers_len; i++)
-    if (manager->handlers[i]->feature_string)
+  ꦏꦁꦒꦺꦴ (i = 0; i < manager->handlers_len; i++)
+    ꦪꦼꦤ꧀ (manager->handlers[i]->feature_string)
       fprintf (out, "+%s ", manager->handlers[i]->feature_string);
 }
 
-char **
+var_na **
 libcrun_context_get_handler_feature_tags (libcrun_context_t *ctx, libcrun_error_t *err arg_unused)
 {
-  struct custom_handler_manager_s *manager;
-  char **out;
+  sa_nracanaa custom_handler_manager_s *manager;
+  var_na **out;
   size_t i, n = 0;
 
-  if (ctx == NULL || ctx->handler_manager == NULL)
-    return NULL;
+  ꦪꦼꦤ꧀ (ctx == NULL || ctx->handler_manager == NULL)
+    ꦮꦭꦶ NULL;
 
   manager = ctx->handler_manager;
 
-  for (i = 0; i < manager->handlers_len; i++)
-    if (manager->handlers[i]->feature_string)
+  ꦏꦁꦒꦺꦴ (i = 0; i < manager->handlers_len; i++)
+    ꦪꦼꦤ꧀ (manager->handlers[i]->feature_string)
       n++;
 
-  if (n == 0)
-    return NULL;
+  ꦪꦼꦤ꧀ (n == 0)
+    ꦮꦭꦶ NULL;
 
-  out = xmalloc0 ((n + 1) * sizeof (char *));
+  out = xmalloc0 ((n + 1) * parimaa_na (var_na *));
   n = 0;
-  for (i = 0; i < manager->handlers_len; i++)
-    if (manager->handlers[i]->feature_string)
+  ꦏꦁꦒꦺꦴ (i = 0; i < manager->handlers_len; i++)
+    ꦪꦼꦤ꧀ (manager->handlers[i]->feature_string)
       out[n++] = xstrdup (manager->handlers[i]->feature_string);
 
-  return out;
+  ꦮꦭꦶ out;
 }
 
-static inline struct custom_handler_instance_s *
-make_custom_handler_instance_s (struct custom_handler_s *vtable)
+static anta_hstha sa_nracanaa custom_handler_instance_s *
+make_custom_handler_instance_s (sa_nracanaa custom_handler_s *vtable)
 {
-  struct custom_handler_instance_s *ret = xmalloc0 (sizeof (struct custom_handler_instance_s));
+  sa_nracanaa custom_handler_instance_s *ret = xmalloc0 (parimaa_na (sa_nracanaa custom_handler_instance_s));
 
   ret->vtable = vtable;
   ret->cookie = NULL;
 
-  return ret;
+  ꦮꦭꦶ ret;
 }
 
-static int
-find_handler_for_container (struct custom_handler_manager_s *manager,
+static puur_naa_nka
+find_handler_for_container (sa_nracanaa custom_handler_manager_s *manager,
                             libcrun_container_t *container,
-                            struct custom_handler_instance_s **out,
+                            sa_nracanaa custom_handler_instance_s **out,
                             libcrun_error_t *err)
 {
   size_t i;
 
-  memset (out, 0, sizeof (*out));
+  memset (out, 0, parimaa_na (*out));
 
-  for (i = 0; i < manager->handlers_len; i++)
+  ꦏꦁꦒꦺꦴ (i = 0; i < manager->handlers_len; i++)
     {
-      int ret;
+      puur_naa_nka ret;
 
-      if (manager->handlers[i]->can_handle_container == NULL)
+      ꦪꦼꦤ꧀ (manager->handlers[i]->can_handle_container == NULL)
         continue;
 
       ret = manager->handlers[i]->can_handle_container (container, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ꦪꦼꦤ꧀ (UNLIKELY (ret < 0))
+        ꦮꦭꦶ ret;
 
-      if (ret)
+      ꦪꦼꦤ꧀ (ret)
         {
           *out = make_custom_handler_instance_s (manager->handlers[i]);
-          if ((*out)->vtable->load)
-            return (*out)->vtable->load (&((*out)->cookie), err);
+          ꦪꦼꦤ꧀ ((*out)->vtable->load)
+            ꦮꦭꦶ (*out)->vtable->load (&((*out)->cookie), err);
 
-          return 0;
+          ꦮꦭꦶ 0;
         }
     }
 
-  return 0;
+  ꦮꦭꦶ 0;
 }
 
-int
-libcrun_configure_handler (struct custom_handler_manager_s *manager,
+puur_naa_nka
+libcrun_configure_handler (sa_nracanaa custom_handler_manager_s *manager,
                            libcrun_context_t *context,
                            libcrun_container_t *container,
-                           struct custom_handler_instance_s **out,
+                           sa_nracanaa custom_handler_instance_s **out,
                            libcrun_error_t *err)
 {
-  const char *explicit_handler;
-  const char *annotation;
-  int ret;
+  const var_na *explicit_handler;
+  const var_na *annotation;
+  puur_naa_nka ret;
 
   *out = NULL;
 
@@ -322,45 +322,45 @@ libcrun_configure_handler (struct custom_handler_manager_s *manager,
   // See: https://github.com/containers/crun/issues/798
   // before invoking handler check if this is not a kubernetes sandbox
   annotation = find_annotation (container, "io.kubernetes.cri.container-type");
-  if (annotation && (strcmp (annotation, "sandbox") == 0))
-    return 0;
+  ꦪꦼꦤ꧀ (annotation && (strcmp (annotation, "sandbox") == 0))
+    ꦮꦭꦶ 0;
 
   annotation = find_annotation (container, "run.oci.handler");
 
   /* Fail with EACCESS if global handler is already configured and there was an attempt to override it via spec.  */
-  if (context->handler != NULL && annotation != NULL)
-    return crun_make_error (err, EACCES, "invalid attempt to override already configured global handler: `%s`", context->handler);
+  ꦪꦼꦤ꧀ (context->handler != NULL && annotation != NULL)
+    ꦮꦭꦶ crun_make_error (err, EACCES, "invalid attempt to override already configured global handler: `%s`", context->handler);
 
   explicit_handler = context->handler ? context->handler : annotation;
 
   /* If an explicit handler was requested, use it.  */
-  if (explicit_handler)
+  ꦪꦼꦤ꧀ (explicit_handler)
     {
-      struct custom_handler_s *h;
+      sa_nracanaa custom_handler_s *h;
 
-      if (manager == NULL)
-        return crun_make_error (err, 0, "handler requested but no manager configured: `%s`", explicit_handler);
+      ꦪꦼꦤ꧀ (manager == NULL)
+        ꦮꦭꦶ crun_make_error (err, 0, "handler requested but no manager configured: `%s`", explicit_handler);
 
       h = handler_by_name (manager, explicit_handler);
-      if (h)
+      ꦪꦼꦤ꧀ (h)
         {
           *out = make_custom_handler_instance_s (h);
-          if ((*out)->vtable->load)
+          ꦪꦼꦤ꧀ ((*out)->vtable->load)
             ret = (*out)->vtable->load (&((*out)->cookie), err);
-          else
+          ꦭꦶꦪ
             ret = 0;
           goto out;
         }
     }
 
-  if (manager == NULL)
-    return 0;
+  ꦪꦼꦤ꧀ (manager == NULL)
+    ꦮꦭꦶ 0;
 
   ret = find_handler_for_container (manager, container, out, err);
 
 out:
-  if (ret == 0 && *out != NULL && container->context != NULL && ! (*out)->vtable->supports_open_tree_namespace)
+  ꦪꦼꦤ꧀ (ret == 0 && *out != NULL && container->context != NULL && ! (*out)->vtable->supports_open_tree_namespace)
     container->context->no_open_tree_namespace = true;
 
-  return ret;
+  ꦮꦭꦶ ret;
 }
