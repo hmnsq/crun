@@ -16,10 +16,10 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MOUNT_FLAGS_H
-#define MOUNT_FLAGS_H
+#اگر_غیر_تعریف_شدہ MOUNT_FLAGS_H
+#تعریف_کرو MOUNT_FLAGS_H
 
-enum
+شمار
 {
   OPTION_TMPCOPYUP = (1 << 0),
   OPTION_RECURSIVE = (1 << 1),
@@ -29,15 +29,15 @@ enum
   OPTION_DEST_NOFOLLOW = (1 << 5),
 };
 
-struct propagation_flags_s
+ساخت اشاعت_flags_s
 {
-  char *name;
-  int clear;
-  int flags;
-  int extra_flags;
+  حرف *name;
+  صحیح clear;
+  صحیح flags;
+  صحیح extra_flags;
 };
 
-const struct propagation_flags_s *libcrun_str2mount_flags (const char *name);
-const struct propagation_flags_s *get_mount_flags_from_wordlist ();
+ثابت ساخت اشاعت_flags_s *libcrun_str2mount_flags (ثابت حرف *name);
+ثابت ساخت اشاعت_flags_s *get_mount_flags_from_wordlist ();
 
-#endif
+#اگر_ختم

@@ -16,41 +16,41 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#تعریف_کرو GNU_ماخذ
 
-#include <config.h>
-#include "cgroup.h"
-#include "cgroup-internal.h"
-#include "cgroup-systemd.h"
-#include "cgroup-resources.h"
-#include "cgroup-utils.h"
-#include "ebpf.h"
-#include "utils.h"
-#include "status.h"
-#include <string.h>
-#include <sys/types.h>
-#include <signal.h>
-#include <sys/vfs.h>
-#include <inttypes.h>
-#include <fcntl.h>
-#include <time.h>
-#include <sys/stat.h>
-#include <sys/vfs.h>
-#include <linux/magic.h>
+#شامل <config.h>
+#شامل "cgroup.h"
+#شامل "cgroup-internal.h"
+#شامل "cgroup-systemd.h"
+#شامل "cgroup-resources.h"
+#شامل "cgroup-utils.h"
+#شامل "ebpf.h"
+#شامل "utils.h"
+#شامل "status.h"
+#شامل <string.h>
+#شامل <sys/types.h>
+#شامل <signal.h>
+#شامل <sys/vfs.h>
+#شامل <inttypes.h>
+#شامل <fcntl.h>
+#شامل <time.h>
+#شامل <sys/stat.h>
+#شامل <sys/vfs.h>
+#شامل <linux/magic.h>
 
-#ifdef HAVE_SYSTEMD
+#اگر_تعریف_شدہ HAVE_SYSTEMD
 #  include <systemd/sd-bus.h>
 #  include <limits.h>
 
-#  define SYSTEMD_PROPERTY_PREFIX "org.systemd.property."
+#  define SYSTEMD_PROPERTY_سابقہ "org.systemd.property."
 
-#  define CGROUP_BFQ_WEIGHT_MIN ((uint64_t) 1)
-#  define CGROUP_BFQ_WEIGHT_DEFAULT ((uint64_t) 100)
-#  define CGROUP_BFQ_WEIGHT_MAX ((uint64_t) 1000)
+#  define CGROUP_BFQ_وزن_MIN ((uint64_t) 1)
+#  define CGROUP_BFQ_وزن_DEFAULT ((uint64_t) 100)
+#  define CGROUP_BFQ_وزن_MAX ((uint64_t) 1000)
 
-#  define CGROUP_WEIGHT_MIN ((uint64_t) 1)
-#  define CGROUP_WEIGHT_DEFAULT ((uint64_t) 100)
-#  define CGROUP_WEIGHT_MAX ((uint64_t) 10000)
+#  define CGROUP_وزن_MIN ((uint64_t) 1)
+#  define CGROUP_وزن_DEFAULT ((uint64_t) 100)
+#  define CGROUP_وزن_MAX ((uint64_t) 10000)
 
 /* The CPU quota period used by the kernel (and systemd) by default, in us.  */
 #  define DEFAULT_CPU_QUOTA_PERIOD ((uint64_t) 100000)
@@ -59,583 +59,583 @@
 
 #  define IS_WILDCARD(x) (x <= 0)
 
-static int
-register_missing_property_from_message (const char *state_dir, const char *message, libcrun_error_t *err)
+ساکن صحیح
+رجسٹر_missing_property_from_پیغام (ثابت حرف *state_dir, ثابت حرف *پیغام_2, libcrun_error_t *err)
 {
-  cleanup_free char *file_path = NULL;
-  cleanup_free char *dir_path = NULL;
-  cleanup_free char *property = NULL;
-  char *p;
-  int ret;
+  cleanup_free حرف *file_راستہ = تہی;
+  cleanup_free حرف *dir_راستہ = تہی;
+  cleanup_free حرف *property = تہی;
+  حرف *p;
+  صحیح ret;
 
-  if (! has_prefix (message, "Cannot set property "))
-    return 0;
+  اگر (! has_سابقہ (پیغام_2, "Cannot set property "))
+    واپس 0;
 
-  property = xstrdup (message + sizeof ("Cannot set property ") - 1);
+  property = xstrdup (پیغام_2 + حجم ("Cannot set property ") - 1);
   p = strchr (property, ',');
-  if (! p)
-    return 0;
+  اگر (! p)
+    واپس 0;
   *p = '\0';
 
-  ret = append_paths (&dir_path, err, state_dir, SYSTEMD_MISSING_PROPERTIES_DIR, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&dir_راستہ, err, state_dir, SYSTEMD_MISSING_PROPERTIES_DIR, تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = crun_ensure_directory (dir_path, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = crun_ensure_directory (dir_راستہ, 0755, true, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = append_paths (&file_path, err, dir_path, property, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&file_راستہ, err, dir_راستہ, property, تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   libcrun_debug ("Registering missing property for systemd `%s`", property);
 
-  ret = write_file (file_path, NULL, 0, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = write_file (file_راستہ, تہی, 0, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return 1;
+  واپس 1;
 }
 
-static bool
-property_missing_p (char **missing_properties, const char *property)
+ساکن bool
+property_missing_p (حرف **missing_properties, ثابت حرف *property)
 {
   size_t i;
 
-  for (i = 0; missing_properties && missing_properties[i]; i++)
-    if (strcmp (missing_properties[i], property) == 0)
+  برائے (i = 0; missing_properties && missing_properties[i]; i++)
+    اگر (strcmp (missing_properties[i], property) == 0)
       {
         libcrun_debug ("Skipping property for systemd as it is not supported `%s`", property);
-        return true;
+        واپس true;
       }
 
-  return false;
+  واپس false;
 }
 
-static void
-get_systemd_scope_and_slice (const char *id, bool user_slice, const char *cgroup_path,
-                             char **scope, char **slice)
+ساکن خالی
+get_systemd_scope_and_قاش (ثابت حرف *id, bool user_قاش, ثابت حرف *cgroup_راستہ,
+                             حرف **scope, حرف **قاش)
 {
-  const char *n;
-  char *p;
+  ثابت حرف *n;
+  حرف *p;
 
-  if (cgroup_path == NULL || cgroup_path[0] == '\0')
+  اگر (cgroup_راستہ == تہی || cgroup_راستہ[0] == '\0')
     {
       xasprintf (scope, "crun-%s.scope", id);
-      return;
+      واپس;
     }
 
-  n = strchr (cgroup_path, ':');
-  if (n == NULL)
-    xasprintf (scope, "%s.scope", cgroup_path);
-  else
+  n = strchr (cgroup_راستہ, ':');
+  اگر (n == تہی)
+    xasprintf (scope, "%s.scope", cgroup_راستہ);
+  ورنہ
     {
       xasprintf (scope, "%s.scope", n + 1);
       p = strchr (*scope, ':');
-      if (p)
+      اگر (p)
         *p = '-';
     }
-  if (slice)
+  اگر (قاش)
     {
-      *slice = xstrdup (cgroup_path);
-      p = strchr (*slice, ':');
-      if (p)
+      *قاش = xstrdup (cgroup_راستہ);
+      p = strchr (*قاش, ':');
+      اگر (p)
         *p = '\0';
 
       /* Ref: https://github.com/opencontainers/runc/blob/main/docs/systemd.md#systemd-unit-name-and-placement */
-      if (is_empty_string (*slice))
+      اگر (is_خالی_خانے_string (*قاش))
         {
-          free (*slice);
-          if (user_slice)
-            *slice = xstrdup ("user.slice");
-          else
-            *slice = xstrdup ("system.slice");
+          آزاد (*قاش);
+          اگر (user_قاش)
+            *قاش = xstrdup ("user.slice");
+          ورنہ
+            *قاش = xstrdup ("system.slice");
         }
     }
 }
 
 /* set the rt-runtime for the current cgroup and its parent if the path is not a scope.  */
-static int
-setup_rt_runtime (runtime_spec_schema_config_linux_resources *resources,
-                  const char *path, libcrun_error_t *err)
+ساکن صحیح
+تیاری_rt_runtime (runtime_spec_schema_config_linux_resources *resources,
+                  ثابت حرف *راستہ, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
-  cleanup_close int dirfd = -1;
-  bool need_set_parent = true;
-  char fmt_buf[64];
-  int len;
-  int ret;
+  cleanup_free حرف *cgroup_راستہ = تہی;
+  cleanup_close صحیح dirfd = -1;
+  bool need_سیٹ_والد = true;
+  حرف fmt_buf[64];
+  صحیح len;
+  صحیح ret;
 
-  if (resources == NULL || resources->cpu == NULL)
-    return 0;
+  اگر (resources == تہی || resources->cpu == تہی)
+    واپس 0;
 
   /* Without a cgroup path append_paths() below would end up at the cgroup
      root, so refuse rather than change the root cgroup settings.  */
-  if (is_empty_string (path))
-    return crun_make_error (err, 0, "cannot set the RT runtime without a cgroup");
+  اگر (is_خالی_خانے_string (راستہ))
+    واپس crun_make_error (err, 0, "cannot set the RT runtime without a cgroup");
 
-  if (has_suffix (path, ".scope"))
-    need_set_parent = false;
+  اگر (has_suffix (راستہ, ".scope"))
+    need_سیٹ_والد = false;
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, "cpu", path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_راستہ, err, CGROUP_جڑ, "cpu", راستہ, تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = crun_ensure_directory (cgroup_path, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = crun_ensure_directory (cgroup_راستہ, 0755, true, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  dirfd = open (cgroup_path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", cgroup_path);
+  dirfd = open (cgroup_راستہ, O_DIRECTORY | O_راستہ | O_CLOEXEC);
+  اگر (UNLIKELY (dirfd < 0))
+    واپس crun_make_error (err, errno, "open `%s`", cgroup_راستہ);
 
-  if (resources->cpu->realtime_period)
+  اگر (resources->cpu->realtime_period)
     {
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, resources->cpu->realtime_period);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, حجم (fmt_buf), "%" PRIu64, resources->cpu->realtime_period);
+      اگر (UNLIKELY (len >= (صحیح) حجم (fmt_buf)))
+        واپس crun_make_error (err, 0, "internal error: static buffer too small");
 
-      if (need_set_parent)
+      اگر (need_سیٹ_والد)
         {
           ret = write_file_at_with_flags (dirfd, O_WRONLY | O_CLOEXEC, 0, "../cpu.rt_period_us", fmt_buf, len, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
 
       ret = write_file_at_with_flags (dirfd, O_WRONLY | O_CLOEXEC, 0, "cpu.rt_period_us", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  if (resources->cpu->realtime_runtime)
+  اگر (resources->cpu->realtime_runtime)
     {
-      len = snprintf (fmt_buf, sizeof (fmt_buf), "%" PRIu64, resources->cpu->realtime_runtime);
-      if (UNLIKELY (len >= (int) sizeof (fmt_buf)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (fmt_buf, حجم (fmt_buf), "%" PRIu64, resources->cpu->realtime_runtime);
+      اگر (UNLIKELY (len >= (صحیح) حجم (fmt_buf)))
+        واپس crun_make_error (err, 0, "internal error: static buffer too small");
 
-      if (need_set_parent)
+      اگر (need_سیٹ_والد)
         {
           ret = write_file_at_with_flags (dirfd, O_WRONLY | O_CLOEXEC, 0, "../cpu.rt_runtime_us", fmt_buf, len, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
 
       ret = write_file_at_with_flags (dirfd, O_WRONLY | O_CLOEXEC, 0, "cpu.rt_runtime_us", fmt_buf, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
-  return 0;
+  واپس 0;
 }
 
-static int
-setup_missing_cpu_options_for_systemd (runtime_spec_schema_config_linux_resources *resources, bool cgroup2, const char *path, libcrun_error_t *err)
+ساکن صحیح
+تیاری_missing_cpu_options_for_systemd (runtime_spec_schema_config_linux_resources *resources, bool cgroup2, ثابت حرف *راستہ, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
-  int parent;
-  int ret;
+  cleanup_free حرف *cgroup_راستہ = تہی;
+  صحیح والد_2;
+  صحیح ret;
 
-  if (resources == NULL || resources->cpu == NULL)
-    return 0;
+  اگر (resources == تہی || resources->cpu == تہی)
+    واپس 0;
 
-  if (! resources->cpu->burst_present && ! (cgroup2 && resources->cpu->idle_present))
-    return 0;
+  اگر (! resources->cpu->مدت_present && ! (cgroup2 && resources->cpu->idle_present))
+    واپس 0;
 
-  for (parent = 0; parent < 2; parent++)
+  برائے (والد_2 = 0; والد_2 < 2; والد_2++)
     {
-      cleanup_close int dirfd = -1;
+      cleanup_close صحیح dirfd = -1;
 
-      if (cgroup2)
-        ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path ? path : "", (parent ? ".." : NULL), NULL);
-      else
-        ret = append_paths (&cgroup_path, err, CGROUP_ROOT, "/cpu", path ? path : "", (parent ? ".." : NULL), NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (cgroup2)
+        ret = append_paths (&cgroup_راستہ, err, CGROUP_جڑ, راستہ ? راستہ : "", (والد_2 ? ".." : تہی), تہی);
+      ورنہ
+        ret = append_paths (&cgroup_راستہ, err, CGROUP_جڑ, "/cpu", راستہ ? راستہ : "", (والد_2 ? ".." : تہی), تہی);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      dirfd = open (cgroup_path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-      if (UNLIKELY (dirfd < 0))
-        return crun_make_error (err, errno, "open `%s`", cgroup_path);
+      dirfd = open (cgroup_راستہ, O_DIRECTORY | O_راستہ | O_CLOEXEC);
+      اگر (UNLIKELY (dirfd < 0))
+        واپس crun_make_error (err, errno, "open `%s`", cgroup_راستہ);
 
-      ret = write_cpu_burst (dirfd, cgroup2, resources->cpu, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = write_cpu_مدت (dirfd, cgroup2, resources->cpu, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
       /* cpu.idle can be set by systemd (via CPUWeight=0), but not reset.  */
-      if (cgroup2)
+      اگر (cgroup2)
         {
           ret = write_cpu_idle (dirfd, resources->cpu, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
     }
 
-  return 0;
+  واپس 0;
 }
 
-static int
-setup_cpuset_for_systemd_v1 (runtime_spec_schema_config_linux_resources *resources, const char *path, libcrun_error_t *err)
+ساکن صحیح
+تیاری_cpuset_for_systemd_v1 (runtime_spec_schema_config_linux_resources *resources, ثابت حرف *راستہ, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
-  int parent;
-  int ret;
-  int levels;
+  cleanup_free حرف *cgroup_راستہ = تہی;
+  صحیح والد_2;
+  صحیح ret;
+  صحیح سطحیں;
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, "/cpuset", path ? path : "", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_راستہ, err, CGROUP_جڑ, "/cpuset", راستہ ? راستہ : "", تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = crun_ensure_directory (cgroup_path, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = crun_ensure_directory (cgroup_راستہ, 0755, true, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = initialize_cpuset_subsystem_resources (cgroup_path, resources, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = initialize_cpuset_subsystem_resources (cgroup_راستہ, resources, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   // Check if we have a subcgroup defined. If not, we only need to write this on one level.
-  levels = has_suffix (path, ".scope") ? 1 : 2;
+  سطحیں = has_suffix (راستہ, ".scope") ? 1 : 2;
 
-  for (parent = 0; parent < levels; parent++)
+  برائے (والد_2 = 0; والد_2 < سطحیں; والد_2++)
     {
-      cleanup_close int dirfd_cpuset = -1;
-      cleanup_free char *path_to_cpuset = NULL;
+      cleanup_close صحیح dirfd_cpuset = -1;
+      cleanup_free حرف *راستہ_مقصد_cpuset = تہی;
 
-      ret = append_paths (&path_to_cpuset, err, CGROUP_ROOT "/cpuset", path, (parent ? ".." : NULL), NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&راستہ_مقصد_cpuset, err, CGROUP_جڑ "/cpuset", راستہ, (والد_2 ? ".." : تہی), تہی);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      dirfd_cpuset = open (path_to_cpuset, O_DIRECTORY | O_PATH | O_CLOEXEC);
-      if (UNLIKELY (dirfd_cpuset < 0))
-        return crun_make_error (err, errno, "open `%s`", path_to_cpuset);
+      dirfd_cpuset = open (راستہ_مقصد_cpuset, O_DIRECTORY | O_راستہ | O_CLOEXEC);
+      اگر (UNLIKELY (dirfd_cpuset < 0))
+        واپس crun_make_error (err, errno, "open `%s`", راستہ_مقصد_cpuset);
 
       ret = write_cpuset_resources (dirfd_cpuset, false, resources->cpu, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  return 0;
+  واپس 0;
 }
 
 /* Build PATH from the cgroup slice FROM, appending SUFFIX when set.  */
-static int
-compute_finalized_path (char **path, const char *from, const char *suffix, libcrun_error_t *err)
+ساکن صحیح
+compute_finalized_راستہ (حرف **راستہ, ثابت حرف *from, ثابت حرف *suffix, libcrun_error_t *err)
 {
-  if (suffix == NULL)
+  اگر (suffix == تہی)
     {
-      *path = xstrdup (from);
-      return 0;
+      *راستہ = xstrdup (from);
+      واپس 0;
     }
-  return append_paths (path, err, from, suffix, NULL);
+  واپس append_paths (راستہ, err, from, suffix, تہی);
 }
 
-static int
-systemd_finalize (struct libcrun_cgroup_args *args, char **path_out,
-                  int cgroup_mode, const char *suffix, libcrun_error_t *err)
+ساکن صحیح
+systemd_finalize (ساخت libcrun_cgroup_دلائل *دلائل, حرف **راستہ_برآمد,
+                  صحیح cgroup_منوال, ثابت حرف *suffix, libcrun_error_t *err)
 {
-  runtime_spec_schema_config_linux_resources *resources = args->resources;
-  cleanup_free char *content = NULL;
-  cleanup_free char *path = NULL;
-  pid_t pid = args->pid;
-  int ret;
-  char *from, *to;
-  char *saveptr = NULL;
+  runtime_spec_schema_config_linux_resources *resources = دلائل->resources;
+  cleanup_free حرف *content = تہی;
+  cleanup_free حرف *راستہ = تہی;
+  pid_t pid = دلائل->pid;
+  صحیح ret;
+  حرف *from, *مقصد;
+  حرف *saveptr = تہی;
 
-  cleanup_free char *proc_path = NULL;
-  cleanup_close int fd = -1;
+  cleanup_free حرف *proc_راستہ = تہی;
+  cleanup_close صحیح fd = -1;
 
-  xasprintf (&proc_path, "%d/cgroup", pid);
-  fd = libcrun_open_proc_file (args->container, proc_path, O_RDONLY, err);
-  if (UNLIKELY (fd < 0))
-    return fd;
+  xasprintf (&proc_راستہ, "%d/cgroup", pid);
+  fd = libcrun_open_proc_file (دلائل->container, proc_راستہ, O_RDONLY, err);
+  اگر (UNLIKELY (fd < 0))
+    واپس fd;
 
-  ret = read_all_fd (fd, "cgroup path", &content, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_fd (fd, "cgroup path", &content, تہی, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  switch (cgroup_mode)
+  انتخاب (cgroup_منوال)
     {
-    case CGROUP_MODE_HYBRID:
-    case CGROUP_MODE_LEGACY:
-      from = strstr (content, ":memory:");
-      if (LIKELY (from != NULL))
+    حالت CGROUP_منوال_HYBRID:
+    حالت CGROUP_منوال_LEGACY:
+      from = لڑی_تلاش (content, ":memory:");
+      اگر (LIKELY (from != تہی))
         from += 8;
-      else
+      ورنہ
         {
-          from = strstr (content, ":pids:");
-          if (UNLIKELY (from == NULL))
-            return crun_make_error (err, 0, "cannot find memory or pids controller for the current process");
+          from = لڑی_تلاش (content, ":pids:");
+          اگر (UNLIKELY (from == تہی))
+            واپس crun_make_error (err, 0, "cannot find memory or pids controller for the current process");
 
           from += 6;
         }
 
-      to = strchr (from, '\n');
-      if (UNLIKELY (to == NULL))
-        return crun_make_error (err, 0, "cannot parse `%s`", PROC_SELF_CGROUP);
-      *to = '\0';
-      ret = compute_finalized_path (&path, from, suffix, err);
-      *to = '\n';
-      if (UNLIKELY (ret < 0))
-        return ret;
+      مقصد = strchr (from, '\n');
+      اگر (UNLIKELY (مقصد == تہی))
+        واپس crun_make_error (err, 0, "cannot parse `%s`", PROC_SELF_CGROUP);
+      *مقصد = '\0';
+      ret = compute_finalized_راستہ (&راستہ, from, suffix, err);
+      *مقصد = '\n';
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      if (geteuid ())
-        return 0;
+      اگر (geteuid ())
+        واپس 0;
 
-      ret = setup_rt_runtime (resources, path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = تیاری_rt_runtime (resources, راستہ, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      ret = setup_cpuset_for_systemd_v1 (resources, path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = تیاری_cpuset_for_systemd_v1 (resources, راستہ, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      for (from = strtok_r (content, "\n", &saveptr); from; from = strtok_r (NULL, "\n", &saveptr))
+      برائے (from = strtok_r (content, "\n", &saveptr); from; from = strtok_r (تہی, "\n", &saveptr))
         {
-          char *subpath, *subsystem;
+          حرف *subpath, *subsystem;
           subsystem = strchr (from, ':') + 1;
           subpath = strchr (subsystem, ':') + 1;
           *(subpath - 1) = '\0';
 
-          if (subsystem[0] == '\0')
+          اگر (subsystem[0] == '\0')
             {
-              if (cgroup_mode == CGROUP_MODE_LEGACY)
-                continue;
+              اگر (cgroup_منوال == CGROUP_منوال_LEGACY)
+                جاری;
 
               subsystem = "unified";
             }
 
-          if (strcmp (subpath, path))
+          اگر (strcmp (subpath, راستہ))
             {
-              ret = enter_cgroup_v1_subsystem (pid, subsystem, path, true, err);
-              if (UNLIKELY (ret < 0))
+              ret = enter_cgroup_v1_subsystem (pid, subsystem, راستہ, true, err);
+              اگر (UNLIKELY (ret < 0))
                 {
                   /* If it is a named hierarchy, skip the error.  */
-                  if (strchr (subsystem, '='))
+                  اگر (strchr (subsystem, '='))
                     {
                       crun_error_release (err);
-                      continue;
+                      جاری;
                     }
-                  return ret;
+                  واپس ret;
                 }
             }
         }
 
-      break;
+      توڑو;
 
-    case CGROUP_MODE_UNIFIED:
+    حالت CGROUP_منوال_UNIFIED:
       {
-        cleanup_free char *dir = NULL;
+        cleanup_free حرف *dir = تہی;
 
-        from = strstr (content, "0::");
-        if (UNLIKELY (from == NULL))
-          return crun_make_error (err, 0, "cannot find cgroup2 for the current process");
+        from = لڑی_تلاش (content, "0::");
+        اگر (UNLIKELY (from == تہی))
+          واپس crun_make_error (err, 0, "cannot find cgroup2 for the current process");
 
         from += 3;
-        to = strchr (from, '\n');
-        if (UNLIKELY (to == NULL))
-          return crun_make_error (err, 0, "cannot parse `%s`", PROC_SELF_CGROUP);
-        *to = '\0';
-        ret = compute_finalized_path (&path, from, suffix, err);
-        *to = '\n';
-        if (UNLIKELY (ret < 0))
-          return ret;
+        مقصد = strchr (from, '\n');
+        اگر (UNLIKELY (مقصد == تہی))
+          واپس crun_make_error (err, 0, "cannot parse `%s`", PROC_SELF_CGROUP);
+        *مقصد = '\0';
+        ret = compute_finalized_راستہ (&راستہ, from, suffix, err);
+        *مقصد = '\n';
+        اگر (UNLIKELY (ret < 0))
+          واپس ret;
 
-        ret = append_paths (&dir, err, CGROUP_ROOT, path, NULL);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ret = append_paths (&dir, err, CGROUP_جڑ, راستہ, تہی);
+        اگر (UNLIKELY (ret < 0))
+          واپس ret;
 
         /* On cgroup v2, processes can be only in leaf nodes.  If a suffix is used,
            move the process immediately to the new location before enabling
            the controllers.  */
         ret = crun_ensure_directory (dir, 0755, true, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        اگر (UNLIKELY (ret < 0))
+          واپس ret;
 
-        ret = move_process_to_cgroup (pid, NULL, path, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ret = move_process_مقصد_cgroup (pid, تہی, راستہ, err);
+        اگر (UNLIKELY (ret < 0))
+          واپس ret;
 
-        ret = enable_controllers (path, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ret = enable_controllers (راستہ, err);
+        اگر (UNLIKELY (ret < 0))
+          واپس ret;
 
-        if (suffix)
+        اگر (suffix)
           {
-            ret = chown_cgroups (path, args->root_uid, args->root_gid, err);
-            if (UNLIKELY (ret < 0))
-              return ret;
+            ret = chown_cgroups (راستہ, دلائل->جڑ_uid, دلائل->جڑ_gid, err);
+            اگر (UNLIKELY (ret < 0))
+              واپس ret;
           }
       }
-      break;
+      توڑو;
 
-    default:
-      return crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_mode);
+    طےشدہ:
+      واپس crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_منوال);
     }
 
-  ret = setup_missing_cpu_options_for_systemd (resources, cgroup_mode == CGROUP_MODE_UNIFIED, path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = تیاری_missing_cpu_options_for_systemd (resources, cgroup_منوال == CGROUP_منوال_UNIFIED, راستہ, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  *path_out = path;
-  path = NULL;
+  *راستہ_برآمد = راستہ;
+  راستہ = تہی;
 
-  return 0;
+  واپس 0;
 }
 
-struct systemd_job_removed_s
+ساخت systemd_کام_removed_s
 {
-  const char *path;
-  const char *op;
-  int terminated;
+  ثابت حرف *راستہ;
+  ثابت حرف *op;
+  صحیح terminated;
   libcrun_error_t err;
 };
 
-static int
-systemd_job_removed (sd_bus_message *m, void *userdata, sd_bus_error *error arg_unused)
+ساکن صحیح
+systemd_کام_removed (sd_bus_پیغام *m, خالی *userdata, sd_bus_error *error arg_غیر_مستعمل)
 {
-  const char *path, *unit, *result;
+  ثابت حرف *راستہ, *unit, *نتیجہ;
   uint32_t id;
-  int ret;
-  struct systemd_job_removed_s *d = userdata;
+  صحیح ret;
+  ساخت systemd_کام_removed_s *d = userdata;
 
-  ret = sd_bus_message_read (m, "uoss", &id, &path, &unit, &result);
-  if (ret < 0)
-    return -1;
+  ret = sd_bus_پیغام_read (m, "uoss", &id, &راستہ, &unit, &نتیجہ);
+  اگر (ret < 0)
+    واپس -1;
 
-  if (strcmp (d->path, path) == 0)
+  اگر (strcmp (d->راستہ, راستہ) == 0)
     {
       d->terminated = 1;
-      if (strcmp (result, "done") != 0)
+      اگر (strcmp (نتیجہ, "done") != 0)
         {
-          crun_make_error (&d->err, 0, "error `%s` systemd unit `%s`: got `%s`", d->op, unit, result);
-          return -1;
+          crun_make_error (&d->err, 0, "error `%s` systemd unit `%s`: got `%s`", d->op, unit, نتیجہ);
+          واپس -1;
         }
     }
-  return 0;
+  واپس 0;
 }
 
-static int
-systemd_check_job_status_setup (sd_bus *bus, struct systemd_job_removed_s *data, libcrun_error_t *err)
+ساکن صحیح
+systemd_check_کام_حالت_تیاری (sd_bus *bus, ساخت systemd_کام_removed_s *ڈیٹا, libcrun_error_t *err)
 {
-  int ret;
+  صحیح ret;
 
-  ret = sd_bus_match_signal_async (bus, NULL, "org.freedesktop.systemd1", "/org/freedesktop/systemd1",
-                                   "org.freedesktop.systemd1.Manager", "JobRemoved", systemd_job_removed, NULL, data);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, -ret, "sd-bus match signal");
+  ret = sd_bus_مطابقت_signal_async (bus, تہی, "org.freedesktop.systemd1", "/org/freedesktop/systemd1",
+                                   "org.freedesktop.systemd1.Manager", "JobRemoved", systemd_کام_removed, تہی, ڈیٹا);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, -ret, "sd-bus match signal");
 
-  return 0;
+  واپس 0;
 }
 
-static int
-systemd_check_job_status (sd_bus *bus, struct systemd_job_removed_s *data, const char *path, const char *op,
+ساکن صحیح
+systemd_check_کام_حالت (sd_bus *bus, ساخت systemd_کام_removed_s *ڈیٹا, ثابت حرف *راستہ, ثابت حرف *op,
                           libcrun_error_t *err)
 {
-  int sd_err;
+  صحیح sd_err;
 
-  data->path = path;
-  data->op = op;
-  while (! data->terminated)
+  ڈیٹا->راستہ = راستہ;
+  ڈیٹا->op = op;
+  جب (! ڈیٹا->terminated)
     {
-      sd_err = sd_bus_process (bus, NULL);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus process");
+      sd_err = sd_bus_process (bus, تہی);
+      اگر (UNLIKELY (sd_err < 0))
+        واپس crun_make_error (err, -sd_err, "sd-bus process");
 
-      if (sd_err != 0)
-        continue;
+      اگر (sd_err != 0)
+        جاری;
 
       sd_err = sd_bus_wait (bus, (uint64_t) -1);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus wait");
+      اگر (UNLIKELY (sd_err < 0))
+        واپس crun_make_error (err, -sd_err, "sd-bus wait");
     }
 
-  if (data->err != NULL)
+  اگر (ڈیٹا->err != تہی)
     {
-      *err = data->err;
-      return -1;
+      *err = ڈیٹا->err;
+      واپس -1;
     }
 
-  return 0;
+  واپس 0;
 }
 
-int
-parse_sd_array (char *s, char **out, char **next, libcrun_error_t *err)
+صحیح
+parse_sd_array (حرف *s, حرف **برآمد, حرف **اگلا, libcrun_error_t *err)
 {
-  char endchr;
-  char *it, *dest;
+  حرف endchr;
+  حرف *it, *dest;
   bool escaped = false;
 
-  *out = NULL;
-  *next = NULL;
+  *برآمد = تہی;
+  *اگلا = تہی;
 
-  while (isspace (*s))
+  جب (خلا_ہے (*s))
     s++;
-  if (*s == '\0')
-    return 0;
-  else if (*s != '\'' && *s != '"')
-    return crun_make_error (err, 0, "invalid string `%s`", s);
+  اگر (*s == '\0')
+    واپس 0;
+  ورنہ اگر (*s != '\'' && *s != '"')
+    واپس crun_make_error (err, 0, "invalid string `%s`", s);
 
   it = s;
   endchr = *it++;
-  *out = dest = it;
+  *برآمد = dest = it;
 
-  while (1)
+  جب (1)
     {
-      if (*it == '\0')
-        return crun_make_error (err, 0, "invalid string `%s`", s);
-      if (*it == endchr && ! escaped)
+      اگر (*it == '\0')
+        واپس crun_make_error (err, 0, "invalid string `%s`", s);
+      اگر (*it == endchr && ! escaped)
         {
           *it++ = '\0';
-          while (isspace (*it))
+          جب (خلا_ہے (*it))
             it++;
-          if (*it == ',')
+          اگر (*it == ',')
             {
-              *next = ++it;
+              *اگلا = ++it;
               *dest = '\0';
-              return 0;
+              واپس 0;
             }
 
-          if (*it == ']' || *it == '\0')
+          اگر (*it == ']' || *it == '\0')
             {
               *dest = '\0';
-              return 0;
+              واپس 0;
             }
 
-          return crun_make_error (err, 0, "invalid character found `%c`", *it);
+          واپس crun_make_error (err, 0, "invalid character found `%c`", *it);
         }
 
       escaped = *it == '\\' ? ! escaped : false;
-      if (! escaped)
+      اگر (! escaped)
         *dest++ = *it;
       it++;
     }
 
-  return 0;
+  واپس 0;
 }
 
 /* Parse a gvariant string.  Support only a subset of types, just enough for systemd .  */
-static int
-append_systemd_annotation (sd_bus_message *m, const char *name, size_t name_len, const char *value,
+ساکن صحیح
+append_systemd_annotation (sd_bus_پیغام *m, ثابت حرف *name, size_t name_len, ثابت حرف *قدر,
                            libcrun_error_t *err)
 {
-  cleanup_free char *tmp_name = NULL;
-  uint32_t factor = 1;
-  const char *it;
-  int sd_err;
+  cleanup_free حرف *tmp_name = تہی;
+  uint32_t ضربی_عدد = 1;
+  ثابت حرف *it;
+  صحیح sd_err;
 
-  while (*value == ' ')
-    value++;
+  جب (*قدر == ' ')
+    قدر++;
 
-  it = value;
+  it = قدر;
 
   /* If the name has the form NameSec, convert it to NameUSec.  */
-  if (name_len > 4 && name[name_len - 4] != 'U' && name[name_len - 3] == 'S' && name[name_len - 2] == 'e'
+  اگر (name_len > 4 && name[name_len - 4] != 'U' && name[name_len - 3] == 'S' && name[name_len - 2] == 'e'
       && name[name_len - 1] == 'c')
     {
-      factor = 1000000;
+      ضربی_عدد = 1000000;
 
       tmp_name = xmalloc (name_len + 2);
-      memcpy (tmp_name, name, name_len - 3);
-      memcpy (tmp_name + name_len - 3, "USec", 5);
+      حافظہ_نقل (tmp_name, name, name_len - 3);
+      حافظہ_نقل (tmp_name + name_len - 3, "USec", 5);
 
       name = tmp_name;
     }
@@ -643,904 +643,904 @@ append_systemd_annotation (sd_bus_message *m, const char *name, size_t name_len,
   /* A *USec property is always an uint64, so, like runc does, accept any
      number of seconds (possibly with a fractional part, and with an
      optional integer type), and convert it to uint64 microseconds.  */
-  if (factor != 1)
+  اگر (ضربی_عدد != 1)
     {
-      static const char *types[] = { "uint64 ", "int64 ", "uint32 ", "int32 ", NULL };
-      const char *num = it;
-      char *endptr = NULL;
-      double v;
+      ساکن ثابت حرف *types[] = { "uint64 ", "int64 ", "uint32 ", "int32 ", تہی };
+      ثابت حرف *عدد = it;
+      حرف *endptr = تہی;
+      دوہرا v;
       size_t i;
 
-      for (i = 0; types[i]; i++)
-        if (has_prefix (num, types[i]))
+      برائے (i = 0; types[i]; i++)
+        اگر (has_سابقہ (عدد, types[i]))
           {
-            num += strlen (types[i]);
-            break;
+            عدد += لڑی_لمبائی (types[i]);
+            توڑو;
           }
 
       errno = 0;
-      v = strtod (num, &endptr);
-      if (UNLIKELY (errno != 0 || endptr == num || *endptr || v < 0 || v * factor >= 18446744073709551615.0))
-        return crun_make_error (err, errno, "invalid value for `%s`: `%s`", name, value);
+      v = strtod (عدد, &endptr);
+      اگر (UNLIKELY (errno != 0 || endptr == عدد || *endptr || v < 0 || v * ضربی_عدد >= 18446744073709551615.0))
+        واپس crun_make_error (err, errno, "invalid value for `%s`: `%s`", name, قدر);
 
-      sd_err = sd_bus_message_append (m, "(sv)", name, "t", (uint64_t) (v * factor));
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      sd_err = sd_bus_پیغام_append (m, "(sv)", name, "t", (uint64_t) (v * ضربی_عدد));
+      اگر (UNLIKELY (sd_err < 0))
+        واپس crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
-      return 0;
+      واپس 0;
     }
 
-  if ((strcmp (it, "true") == 0) || (strcmp (it, "false") == 0))
+  اگر ((strcmp (it, "true") == 0) || (strcmp (it, "false") == 0))
     {
       bool b = *it == 't';
 
-      sd_err = sd_bus_message_append (m, "(sv)", name, "b", b);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      sd_err = sd_bus_پیغام_append (m, "(sv)", name, "b", b);
+      اگر (UNLIKELY (sd_err < 0))
+        واپس crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
-      return 0;
+      واپس 0;
     }
-  else if (*it == '\'')
+  ورنہ اگر (*it == '\'')
     {
-      cleanup_free char *v_start = NULL;
-      char *end;
+      cleanup_free حرف *v_آغاز = تہی;
+      حرف *انتہا;
 
-      it = v_start = xstrdup (value);
+      it = v_آغاز = xstrdup (قدر);
 
-      end = strchr (v_start + 1, '\'');
-      if (end == NULL)
-        return crun_make_error (err, 0, "invalid variant `%s`", value);
-      *end = '\0';
+      انتہا = strchr (v_آغاز + 1, '\'');
+      اگر (انتہا == تہی)
+        واپس crun_make_error (err, 0, "invalid variant `%s`", قدر);
+      *انتہا = '\0';
 
-      sd_err = sd_bus_message_append (m, "(sv)", name, "s", it + 1);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      sd_err = sd_bus_پیغام_append (m, "(sv)", name, "s", it + 1);
+      اگر (UNLIKELY (sd_err < 0))
+        واپس crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
-      return 0;
+      واپس 0;
     }
-  else if (*it == '[')
+  ورنہ اگر (*it == '[')
     {
-      cleanup_free char *v_start = NULL;
-      size_t n_parts = 0, parts_size = 32;
-      cleanup_free char **parts = xmalloc (sizeof (char *) * parts_size);
-      char *part;
+      cleanup_free حرف *v_آغاز = تہی;
+      size_t n_parts = 0, parts_سائز = 32;
+      cleanup_free حرف **parts = xmalloc (حجم (حرف *) * parts_سائز);
+      حرف *part;
 
-      part = v_start = xstrdup (it + 1);
-      while (1)
+      part = v_آغاز = xstrdup (it + 1);
+      جب (1)
         {
-          char *out = NULL, *next = NULL;
-          int ret;
+          حرف *برآمد = تہی, *اگلا = تہی;
+          صحیح ret;
 
-          ret = parse_sd_array (part, &out, &next, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = parse_sd_array (part, &برآمد, &اگلا, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
 
-          parts[n_parts++] = out;
-          if (n_parts == parts_size - 1)
+          parts[n_parts++] = برآمد;
+          اگر (n_parts == parts_سائز - 1)
             {
-              parts_size += 32;
-              parts = xrealloc (parts, sizeof (char *) * parts_size);
+              parts_سائز += 32;
+              parts = xrealloc (parts, حجم (حرف *) * parts_سائز);
             }
-          parts[n_parts] = NULL;
-          if (next == NULL)
-            break;
+          parts[n_parts] = تہی;
+          اگر (اگلا == تہی)
+            توڑو;
 
-          part = next;
+          part = اگلا;
         }
 
-      sd_err = sd_bus_message_open_container (m, 'r', "sv");
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus open container");
+      sd_err = sd_bus_پیغام_open_container (m, 'r', "sv");
+      اگر (UNLIKELY (sd_err < 0))
+        واپس crun_make_error (err, -sd_err, "sd-bus open container");
 
-      sd_err = sd_bus_message_append (m, "s", name);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      sd_err = sd_bus_پیغام_append (m, "s", name);
+      اگر (UNLIKELY (sd_err < 0))
+        واپس crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
-      sd_err = sd_bus_message_open_container (m, 'v', "as");
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus open container");
+      sd_err = sd_bus_پیغام_open_container (m, 'v', "as");
+      اگر (UNLIKELY (sd_err < 0))
+        واپس crun_make_error (err, -sd_err, "sd-bus open container");
 
-      sd_err = sd_bus_message_append_strv (m, parts);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      sd_err = sd_bus_پیغام_append_strv (m, parts);
+      اگر (UNLIKELY (sd_err < 0))
+        واپس crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
-      sd_err = sd_bus_message_close_container (m);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus close container");
+      sd_err = sd_bus_پیغام_close_container (m);
+      اگر (UNLIKELY (sd_err < 0))
+        واپس crun_make_error (err, -sd_err, "sd-bus close container");
 
-      sd_err = sd_bus_message_close_container (m);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus close container");
+      sd_err = sd_bus_پیغام_close_container (m);
+      اگر (UNLIKELY (sd_err < 0))
+        واپس crun_make_error (err, -sd_err, "sd-bus close container");
 
-      return 0;
+      واپس 0;
     }
-  else if (has_prefix (it, "uint64 "))
+  ورنہ اگر (has_سابقہ (it, "uint64 "))
     {
-      char *endptr = NULL;
+      حرف *endptr = تہی;
       uint64_t v;
 
       errno = 0;
-      v = strtoull (it + sizeof ("uint64"), &endptr, 10);
-      if (UNLIKELY (errno != 0 || *endptr))
-        return crun_make_error (err, errno, "invalid value for `%s`", name);
+      v = strtoull (it + حجم ("uint64"), &endptr, 10);
+      اگر (UNLIKELY (errno != 0 || *endptr))
+        واپس crun_make_error (err, errno, "invalid value for `%s`", name);
 
-      sd_err = sd_bus_message_append (m, "(sv)", name, "t", (uint64_t) (v * factor));
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      sd_err = sd_bus_پیغام_append (m, "(sv)", name, "t", (uint64_t) (v * ضربی_عدد));
+      اگر (UNLIKELY (sd_err < 0))
+        واپس crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
-      return 0;
+      واپس 0;
     }
-  else if (has_prefix (it, "int64 "))
+  ورنہ اگر (has_سابقہ (it, "int64 "))
     {
-      char *endptr = NULL;
+      حرف *endptr = تہی;
       int64_t v;
 
       errno = 0;
-      v = strtoll (it + sizeof ("int64"), &endptr, 10);
-      if (UNLIKELY (errno != 0 || *endptr))
-        return crun_make_error (err, errno, "invalid value for `%s`", name);
+      v = strtoll (it + حجم ("int64"), &endptr, 10);
+      اگر (UNLIKELY (errno != 0 || *endptr))
+        واپس crun_make_error (err, errno, "invalid value for `%s`", name);
 
-      sd_err = sd_bus_message_append (m, "(sv)", name, "x", (int64_t) (v * factor));
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      sd_err = sd_bus_پیغام_append (m, "(sv)", name, "x", (int64_t) (v * ضربی_عدد));
+      اگر (UNLIKELY (sd_err < 0))
+        واپس crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
-      return 0;
+      واپس 0;
     }
-  else if (has_prefix (it, "uint32 "))
+  ورنہ اگر (has_سابقہ (it, "uint32 "))
     {
-      char *endptr = NULL;
+      حرف *endptr = تہی;
       uint32_t v;
 
       errno = 0;
-      v = strtoul (it + sizeof ("uint32"), &endptr, 10);
-      if (UNLIKELY (errno != 0 || *endptr))
-        return crun_make_error (err, errno, "invalid value for `%s`", name);
+      v = strtoul (it + حجم ("uint32"), &endptr, 10);
+      اگر (UNLIKELY (errno != 0 || *endptr))
+        واپس crun_make_error (err, errno, "invalid value for `%s`", name);
 
-      sd_err = sd_bus_message_append (m, "(sv)", name, "u", (uint32_t) (v * factor));
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      sd_err = sd_bus_پیغام_append (m, "(sv)", name, "u", (uint32_t) (v * ضربی_عدد));
+      اگر (UNLIKELY (sd_err < 0))
+        واپس crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
-      return 0;
+      واپس 0;
     }
-  else if (has_prefix (it, "int32 ") || strchr (it, ' ') == NULL)
+  ورنہ اگر (has_سابقہ (it, "int32 ") || strchr (it, ' ') == تہی)
     {
-      char *endptr = NULL;
+      حرف *endptr = تہی;
       int32_t v;
 
       /* If no type is specified, try to parse it as int32.  */
 
       errno = 0;
-      if (has_prefix (it, "int32 "))
-        v = strtol (it + sizeof ("int32"), &endptr, 10);
-      else
+      اگر (has_سابقہ (it, "int32 "))
+        v = strtol (it + حجم ("int32"), &endptr, 10);
+      ورنہ
         v = strtol (it, &endptr, 10);
-      if (UNLIKELY (errno != 0 || *endptr))
-        return crun_make_error (err, errno, "invalid value for `%s`", name);
+      اگر (UNLIKELY (errno != 0 || *endptr))
+        واپس crun_make_error (err, errno, "invalid value for `%s`", name);
 
-      sd_err = sd_bus_message_append (m, "(sv)", name, "i", (int32_t) (v * factor));
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
+      sd_err = sd_bus_پیغام_append (m, "(sv)", name, "i", (int32_t) (v * ضربی_عدد));
+      اگر (UNLIKELY (sd_err < 0))
+        واپس crun_make_error (err, -sd_err, "sd-bus message append `%s`", name);
 
-      return 0;
+      واپس 0;
     }
 
-  return crun_make_error (err, 0, "unknown type for `%s`", name);
+  واپس crun_make_error (err, 0, "unknown type for `%s`", name);
 }
 
-static int
+ساکن صحیح
 open_sd_bus_connection (sd_bus **bus, libcrun_error_t *err)
 {
-  int rootless;
-  int sd_err = 0;
+  صحیح rootless;
+  صحیح sd_err = 0;
 
   rootless = is_rootless (err);
-  if (UNLIKELY (rootless < 0))
-    return rootless;
+  اگر (UNLIKELY (rootless < 0))
+    واپس rootless;
 
-  if (rootless)
+  اگر (rootless)
     sd_err = sd_bus_default_user (bus);
-  if (! rootless || sd_err < 0)
+  اگر (! rootless || sd_err < 0)
     sd_err = sd_bus_default_system (bus);
-  if (sd_err < 0)
-    return crun_make_error (err, -sd_err, "cannot open sd-bus");
+  اگر (sd_err < 0)
+    واپس crun_make_error (err, -sd_err, "cannot open sd-bus");
 
-  return 0;
+  واپس 0;
 }
 
-static const char *
-get_string_from_unified_map (runtime_spec_schema_config_linux_resources *resources, const char *name)
+ساکن ثابت حرف *
+get_string_from_unified_map (runtime_spec_schema_config_linux_resources *resources, ثابت حرف *name)
 {
   size_t i;
 
-  if (resources == NULL || resources->unified == NULL)
-    return NULL;
+  اگر (resources == تہی || resources->unified == تہی)
+    واپس تہی;
 
-  for (i = 0; i < resources->unified->len; i++)
-    if (strcmp (resources->unified->keys[i], name) == 0)
-      return resources->unified->values[i];
-  return NULL;
+  برائے (i = 0; i < resources->unified->len; i++)
+    اگر (strcmp (resources->unified->کلیدیں[i], name) == 0)
+      واپس resources->unified->اقدار[i];
+  واپس تہی;
 }
 
-static int
-get_value_from_unified_map (runtime_spec_schema_config_linux_resources *resources, const char *name,
-                            uint64_t *value, libcrun_error_t *err)
+ساکن صحیح
+get_قدر_from_unified_map (runtime_spec_schema_config_linux_resources *resources, ثابت حرف *name,
+                            uint64_t *قدر, libcrun_error_t *err)
 {
-  char *endptr = NULL;
+  حرف *endptr = تہی;
   size_t i;
 
-  if (resources == NULL || resources->unified == NULL)
-    return 0;
+  اگر (resources == تہی || resources->unified == تہی)
+    واپس 0;
 
-  for (i = 0; i < resources->unified->len; i++)
-    if (strcmp (resources->unified->keys[i], name) == 0)
+  برائے (i = 0; i < resources->unified->len; i++)
+    اگر (strcmp (resources->unified->کلیدیں[i], name) == 0)
       {
-        if (strcmp (resources->unified->values[i], "max") == 0)
+        اگر (strcmp (resources->unified->اقدار[i], "max") == 0)
           {
-            *value = UINT64_MAX;
-            return 1;
+            *قدر = UINT64_MAX;
+            واپس 1;
           }
 
         errno = 0;
-        *value = strtoull (resources->unified->values[i], &endptr, 10);
-        if (UNLIKELY (errno))
-          return crun_make_error (err, errno, "invalid value for `%s`: %s", name,
-                                  resources->unified->values[i]);
-        if (endptr && *endptr)
-          return crun_make_error (err, 0, "invalid value for `%s`: %s", name,
-                                  resources->unified->values[i]);
-        return 1;
+        *قدر = strtoull (resources->unified->اقدار[i], &endptr, 10);
+        اگر (UNLIKELY (errno))
+          واپس crun_make_error (err, errno, "invalid value for `%s`: %s", name,
+                                  resources->unified->اقدار[i]);
+        اگر (endptr && *endptr)
+          واپس crun_make_error (err, 0, "invalid value for `%s`: %s", name,
+                                  resources->unified->اقدار[i]);
+        واپس 1;
       }
-  return 0;
+  واپس 0;
 }
 
-static inline int
-get_memory_low (runtime_spec_schema_config_linux_resources *resources, uint64_t *limit, libcrun_error_t *err)
+ساکن اندرونی صحیح
+get_حافظہ_کم (runtime_spec_schema_config_linux_resources *resources, uint64_t *حد_بندی, libcrun_error_t *err)
 {
-  if (resources->memory && resources->memory->reservation_present)
+  اگر (resources->حافظہ && resources->حافظہ->reservation_present)
     {
-      *limit = resources->memory->reservation;
-      return 1;
+      *حد_بندی = resources->حافظہ->reservation;
+      واپس 1;
     }
 
-  return get_value_from_unified_map (resources, "memory.low", limit, err);
+  واپس get_قدر_from_unified_map (resources, "memory.low", حد_بندی, err);
 }
 
-static inline int
-get_pids_max (runtime_spec_schema_config_linux_resources *resources, uint64_t *limit, libcrun_error_t *err)
+ساکن اندرونی صحیح
+get_pids_max (runtime_spec_schema_config_linux_resources *resources, uint64_t *حد_بندی, libcrun_error_t *err)
 {
-  if (resources->pids && resources->pids->limit)
+  اگر (resources->pids && resources->pids->حد_بندی)
     {
-      *limit = resources->pids->limit;
-      return 1;
+      *حد_بندی = resources->pids->حد_بندی;
+      واپس 1;
     }
 
-  return get_value_from_unified_map (resources, "pids.max", limit, err);
+  واپس get_قدر_from_unified_map (resources, "pids.max", حد_بندی, err);
 }
 
-static inline int
-get_memory_max (runtime_spec_schema_config_linux_resources *resources, uint64_t *limit, libcrun_error_t *err)
+ساکن اندرونی صحیح
+get_حافظہ_max (runtime_spec_schema_config_linux_resources *resources, uint64_t *حد_بندی, libcrun_error_t *err)
 {
-  if (resources->memory && resources->memory->limit_present)
+  اگر (resources->حافظہ && resources->حافظہ->حد_بندی_present)
     {
-      *limit = resources->memory->limit;
-      return 1;
+      *حد_بندی = resources->حافظہ->حد_بندی;
+      واپس 1;
     }
 
-  return get_value_from_unified_map (resources, "memory.max", limit, err);
+  واپس get_قدر_from_unified_map (resources, "memory.max", حد_بندی, err);
 }
 
-static inline int
-get_memory_swap_max (runtime_spec_schema_config_linux_resources *resources, uint64_t *limit, libcrun_error_t *err)
+ساکن اندرونی صحیح
+get_حافظہ_تبادلہ_max (runtime_spec_schema_config_linux_resources *resources, uint64_t *حد_بندی, libcrun_error_t *err)
 {
-  if (resources->memory && resources->memory->swap_present)
+  اگر (resources->حافظہ && resources->حافظہ->تبادلہ_present)
     {
-      runtime_spec_schema_config_linux_resources_memory *memory = resources->memory;
-      int64_t mem = memory->limit_present ? memory->limit : 0;
+      runtime_spec_schema_config_linux_resources_حافظہ *حافظہ = resources->حافظہ;
+      int64_t mem = حافظہ->حد_بندی_present ? حافظہ->حد_بندی : 0;
 
       /* The OCI swap limit is for memory+swap, while MemorySwapMax is for
          swap only, so convert it, like it is done for memory.swap.max.  */
-      if (memory->swap == -1 || (mem == -1 && memory->swap == 0))
+      اگر (حافظہ->تبادلہ == -1 || (mem == -1 && حافظہ->تبادلہ == 0))
         {
-          *limit = UINT64_MAX;
-          return 1;
+          *حد_بندی = UINT64_MAX;
+          واپس 1;
         }
       /* 0 means unset.  */
-      if (memory->swap == 0)
-        return 0;
-      if (mem <= 0)
-        return crun_make_error (err, 0, "cannot set swap limit without the memory limit");
-      if (memory->swap < mem)
-        return crun_make_error (err, 0, "cannot set memory+swap limit less than the memory limit");
+      اگر (حافظہ->تبادلہ == 0)
+        واپس 0;
+      اگر (mem <= 0)
+        واپس crun_make_error (err, 0, "cannot set swap limit without the memory limit");
+      اگر (حافظہ->تبادلہ < mem)
+        واپس crun_make_error (err, 0, "cannot set memory+swap limit less than the memory limit");
 
-      *limit = memory->swap - mem;
-      return 1;
+      *حد_بندی = حافظہ->تبادلہ - mem;
+      واپس 1;
     }
 
-  return get_value_from_unified_map (resources, "memory.swap.max", limit, err);
+  واپس get_قدر_from_unified_map (resources, "memory.swap.max", حد_بندی, err);
 }
 
-static inline int
-get_cpu_weight (runtime_spec_schema_config_linux_resources *resources, uint64_t *weight, libcrun_error_t *err)
+ساکن اندرونی صحیح
+get_cpu_وزن (runtime_spec_schema_config_linux_resources *resources, uint64_t *وزن, libcrun_error_t *err)
 {
   bool has_idle = false;
-  uint64_t value;
-  int ret;
+  uint64_t قدر;
+  صحیح ret;
 
-  ret = get_value_from_unified_map (resources, "cpu.idle", &value, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
-  if (ret > 0 && value == 1)
+  ret = get_قدر_from_unified_map (resources, "cpu.idle", &قدر, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
+  اگر (ret > 0 && قدر == 1)
     has_idle = true;
-  if (resources->cpu && resources->cpu->idle_present && resources->cpu->idle == 1)
+  اگر (resources->cpu && resources->cpu->idle_present && resources->cpu->idle == 1)
     has_idle = true;
 
   /* The unified map takes precedence, like with the cgroupfs driver.  */
-  ret = get_value_from_unified_map (resources, "cpu.weight", weight, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
-  if (ret > 0)
+  ret = get_قدر_from_unified_map (resources, "cpu.weight", وزن, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
+  اگر (ret > 0)
     {
-      if (has_idle)
-        return crun_make_error (err, 0, "cannot set both `cpu.idle` and `cpu.weight`");
+      اگر (has_idle)
+        واپس crun_make_error (err, 0, "cannot set both `cpu.idle` and `cpu.weight`");
 
-      return 1;
+      واپس 1;
     }
 
-  if (resources->cpu && resources->cpu->shares_present)
+  اگر (resources->cpu && resources->cpu->shares_present)
     {
-      if (has_idle)
-        return crun_make_error (err, 0, "cannot set both `cpu.idle` and `cpu.shares`");
+      اگر (has_idle)
+        واپس crun_make_error (err, 0, "cannot set both `cpu.idle` and `cpu.shares`");
 
       /* Docker uses shares == 0 to specify no limit.  */
-      if (resources->cpu->shares == 0)
-        return 0;
-      *weight = convert_shares_to_weight (resources->cpu->shares);
-      return 1;
+      اگر (resources->cpu->shares == 0)
+        واپس 0;
+      *وزن = convert_shares_مقصد_وزن (resources->cpu->shares);
+      واپس 1;
     }
-  if (has_idle)
+  اگر (has_idle)
     {
       /* setting CPUWeight to 0 will tell systemd to set cpu.idle.  */
-      *weight = 0;
-      return 1;
+      *وزن = 0;
+      واپس 1;
     }
-  return 0;
+  واپس 0;
 }
 
-static int
-read_uint64_value (const char *str, uint64_t *value, libcrun_error_t *err)
+ساکن صحیح
+read_uint64_قدر (ثابت حرف *str, uint64_t *قدر, libcrun_error_t *err)
 {
-  char *endptr = NULL;
+  حرف *endptr = تہی;
 
   errno = 0;
-  *value = strtoull (str, &endptr, 10);
-  if (UNLIKELY (errno))
-    return crun_make_error (err, errno, "invalid value: %s", str);
-  if (endptr && *endptr)
-    return crun_make_error (err, 0, "invalid value: %s", str);
-  return 0;
+  *قدر = strtoull (str, &endptr, 10);
+  اگر (UNLIKELY (errno))
+    واپس crun_make_error (err, errno, "invalid value: %s", str);
+  اگر (endptr && *endptr)
+    واپس crun_make_error (err, 0, "invalid value: %s", str);
+  واپس 0;
 }
 
 /* Convert io.bfq.weight to io.weight doing the inverse conversion performed by systemd with BFQ_WEIGHT.  */
-static inline uint64_t
-IO_WEIGHT (uint64_t bfq_weight)
+ساکن اندرونی uint64_t
+IO_وزن (uint64_t bfq_وزن)
 {
-  return bfq_weight <= CGROUP_BFQ_WEIGHT_DEFAULT ? CGROUP_WEIGHT_DEFAULT - (CGROUP_BFQ_WEIGHT_DEFAULT - bfq_weight) * (CGROUP_WEIGHT_DEFAULT - CGROUP_WEIGHT_MIN) / (CGROUP_BFQ_WEIGHT_DEFAULT - CGROUP_BFQ_WEIGHT_MIN) : CGROUP_WEIGHT_DEFAULT + (bfq_weight - CGROUP_BFQ_WEIGHT_DEFAULT) * (CGROUP_WEIGHT_MAX - CGROUP_WEIGHT_DEFAULT) / (CGROUP_BFQ_WEIGHT_MAX - CGROUP_BFQ_WEIGHT_DEFAULT);
+  واپس bfq_وزن <= CGROUP_BFQ_وزن_DEFAULT ? CGROUP_وزن_DEFAULT - (CGROUP_BFQ_وزن_DEFAULT - bfq_وزن) * (CGROUP_وزن_DEFAULT - CGROUP_وزن_MIN) / (CGROUP_BFQ_وزن_DEFAULT - CGROUP_BFQ_وزن_MIN) : CGROUP_وزن_DEFAULT + (bfq_وزن - CGROUP_BFQ_وزن_DEFAULT) * (CGROUP_وزن_MAX - CGROUP_وزن_DEFAULT) / (CGROUP_BFQ_وزن_MAX - CGROUP_BFQ_وزن_DEFAULT);
 }
 
-static int
-append_io_weight (sd_bus_message *m, char **missing_properties, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
+ساکن صحیح
+append_io_وزن (sd_bus_پیغام *m, حرف **missing_properties, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
 {
-  uint64_t weight;
-  int sd_err;
+  uint64_t وزن;
+  صحیح sd_err;
   size_t i;
-  int ret;
+  صحیح ret;
 
-#  define APPEND_IO_WEIGHT(value)                                                      \
-    do                                                                                 \
+#  define APPEND_IO_وزن(قدر)                                                      \
+    کرو                                                                                 \
       {                                                                                \
-        if (! property_missing_p (missing_properties, "IOWeight"))                     \
+        اگر (! property_missing_p (missing_properties, "IOWeight"))                     \
           {                                                                            \
-            sd_err = sd_bus_message_append (m, "(sv)", "IOWeight", "t", weight);       \
-            if (UNLIKELY (sd_err < 0))                                                 \
-              return crun_make_error (err, -sd_err, "sd-bus message append IOWeight"); \
+            sd_err = sd_bus_پیغام_append (m, "(sv)", "IOWeight", "t", وزن);       \
+            اگر (UNLIKELY (sd_err < 0))                                                 \
+              واپس crun_make_error (err, -sd_err, "sd-bus message append IOWeight"); \
           }                                                                            \
-    } while (0)
+    } جب (0)
 
-#  define APPEND_IO_DEVICE_WEIGHT(device, value)                                                      \
-    do                                                                                                \
+#  define APPEND_IO_DEVICE_وزن(device, قدر)                                                      \
+    کرو                                                                                                \
       {                                                                                               \
-        if (! property_missing_p (missing_properties, "IODeviceWeight"))                              \
+        اگر (! property_missing_p (missing_properties, "IODeviceWeight"))                              \
           {                                                                                           \
-            sd_err = sd_bus_message_append (m, "(sv)", "IODeviceWeight", "a(st)", 1, device, weight); \
-            if (UNLIKELY (sd_err < 0))                                                                \
-              return crun_make_error (err, -sd_err, "sd-bus message append IODeviceWeight");          \
+            sd_err = sd_bus_پیغام_append (m, "(sv)", "IODeviceWeight", "a(st)", 1, device, وزن); \
+            اگر (UNLIKELY (sd_err < 0))                                                                \
+              واپس crun_make_error (err, -sd_err, "sd-bus message append IODeviceWeight");          \
           }                                                                                           \
-    } while (0)
+    } جب (0)
 
-  if (resources->block_io && resources->block_io->weight_present)
+  اگر (resources->بلاک_io && resources->بلاک_io->وزن_present)
     {
-      weight = IO_WEIGHT (resources->block_io->weight);
-      APPEND_IO_WEIGHT (weight);
+      وزن = IO_وزن (resources->بلاک_io->وزن);
+      APPEND_IO_وزن (وزن);
     }
 
-  for (i = 0; resources->block_io && i < resources->block_io->weight_device_len; i++)
+  برائے (i = 0; resources->بلاک_io && i < resources->بلاک_io->وزن_device_len; i++)
     {
-      char name[64];
-      int len;
+      حرف name[64];
+      صحیح len;
 
-      len = snprintf (name, sizeof (name), "%" PRIu64 ":%" PRIu64,
-                      resources->block_io->weight_device[i]->major,
-                      resources->block_io->weight_device[i]->minor);
-      if (UNLIKELY (len >= (int) sizeof (name)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (name, حجم (name), "%" PRIu64 ":%" PRIu64,
+                      resources->بلاک_io->وزن_device[i]->major,
+                      resources->بلاک_io->وزن_device[i]->minor);
+      اگر (UNLIKELY (len >= (صحیح) حجم (name)))
+        واپس crun_make_error (err, 0, "internal error: static buffer too small");
 
-      weight = IO_WEIGHT (resources->block_io->weight_device[i]->weight);
-      APPEND_IO_DEVICE_WEIGHT (name, weight);
+      وزن = IO_وزن (resources->بلاک_io->وزن_device[i]->وزن);
+      APPEND_IO_DEVICE_وزن (name, وزن);
     }
 
-  for (i = 0; resources->unified && i < resources->unified->len; i++)
+  برائے (i = 0; resources->unified && i < resources->unified->len; i++)
     {
-      cleanup_free char *value = NULL;
+      cleanup_free حرف *قدر = تہی;
       bool need_conversion = false;
-      char *saveptr = NULL;
-      char *line;
+      حرف *saveptr = تہی;
+      حرف *سطر;
 
-      if (strcmp (resources->unified->keys[i], "io.bfq.weight") == 0)
+      اگر (strcmp (resources->unified->کلیدیں[i], "io.bfq.weight") == 0)
         {
           /* If io.bfq.weight was provided, it must be converted to io.weight.  */
           need_conversion = true;
         }
-      else if (strcmp (resources->unified->keys[i], "io.weight") == 0)
+      ورنہ اگر (strcmp (resources->unified->کلیدیں[i], "io.weight") == 0)
         {
           /* If io.weight was provided, then it is expected to already be
              in the range [1, 10000] so IO_WEIGHT() is not needed.  */
           need_conversion = false;
         }
-      else
+      ورنہ
         {
           /* Skip other keys.  */
-          continue;
+          جاری;
         }
 
-      value = xstrdup (resources->unified->values[i]);
+      قدر = xstrdup (resources->unified->اقدار[i]);
 
-      for (line = strtok_r (value, "\n", &saveptr); line; line = strtok_r (NULL, "\n", &saveptr))
+      برائے (سطر = strtok_r (قدر, "\n", &saveptr); سطر; سطر = strtok_r (تہی, "\n", &saveptr))
         {
-          char *sep;
+          حرف *sep;
 
-          sep = strchr (line, ' ');
-          while (sep && *sep == ' ')
+          sep = strchr (سطر, ' ');
+          جب (sep && *sep == ' ')
             *sep++ = '\0';
 
-          ret = read_uint64_value (sep ? sep : line, &weight, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
-          if (need_conversion)
-            weight = IO_WEIGHT (weight);
+          ret = read_uint64_قدر (sep ? sep : سطر, &وزن, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
+          اگر (need_conversion)
+            وزن = IO_وزن (وزن);
 
-          if (sep == NULL || strcmp (line, "default") == 0)
-            APPEND_IO_WEIGHT (weight);
-          else
-            APPEND_IO_DEVICE_WEIGHT (line, weight);
+          اگر (sep == تہی || strcmp (سطر, "default") == 0)
+            APPEND_IO_وزن (وزن);
+          ورنہ
+            APPEND_IO_DEVICE_وزن (سطر, وزن);
         }
     }
 
-  return 0;
+  واپس 0;
 }
 
 /* Adapted from systemd.  */
-static int
-bus_append_byte_array (sd_bus_message *m, const char *field, const void *buf, size_t n, libcrun_error_t *err)
+ساکن صحیح
+bus_append_byte_array (sd_bus_پیغام *m, ثابت حرف *میدان, ثابت خالی *buf, size_t n, libcrun_error_t *err)
 {
-  int ret;
+  صحیح ret;
 
-  ret = sd_bus_message_open_container (m, SD_BUS_TYPE_STRUCT, "sv");
-  if (ret < 0)
-    return crun_make_error (err, -ret, "sd-bus open container");
+  ret = sd_bus_پیغام_open_container (m, SD_BUS_TYPE_STRUCT, "sv");
+  اگر (ret < 0)
+    واپس crun_make_error (err, -ret, "sd-bus open container");
 
-  ret = sd_bus_message_append_basic (m, SD_BUS_TYPE_STRING, field);
-  if (ret < 0)
-    return crun_make_error (err, -ret, "sd_bus_message_append_basic");
+  ret = sd_bus_پیغام_append_basic (m, SD_BUS_TYPE_STRING, میدان);
+  اگر (ret < 0)
+    واپس crun_make_error (err, -ret, "sd_bus_message_append_basic");
 
-  ret = sd_bus_message_open_container (m, 'v', "ay");
-  if (ret < 0)
-    return crun_make_error (err, -ret, "sd_bus_message_open_container");
+  ret = sd_bus_پیغام_open_container (m, 'v', "ay");
+  اگر (ret < 0)
+    واپس crun_make_error (err, -ret, "sd_bus_message_open_container");
 
-  ret = sd_bus_message_append_array (m, 'y', buf, n);
-  if (ret < 0)
-    return crun_make_error (err, -ret, "sd_bus_message_append_array");
+  ret = sd_bus_پیغام_append_array (m, 'y', buf, n);
+  اگر (ret < 0)
+    واپس crun_make_error (err, -ret, "sd_bus_message_append_array");
 
-  ret = sd_bus_message_close_container (m);
-  if (ret < 0)
-    return crun_make_error (err, -ret, "sd_bus_message_close_container");
+  ret = sd_bus_پیغام_close_container (m);
+  اگر (ret < 0)
+    واپس crun_make_error (err, -ret, "sd_bus_message_close_container");
 
-  ret = sd_bus_message_close_container (m);
-  if (ret < 0)
-    return crun_make_error (err, -ret, "sd_bus_message_close_container");
+  ret = sd_bus_پیغام_close_container (m);
+  اگر (ret < 0)
+    واپس crun_make_error (err, -ret, "sd_bus_message_close_container");
 
-  return 1;
+  واپس 1;
 }
 
-static int
-append_uint64_from_unified_map (sd_bus_message *m,
-                                char **missing_properties,
-                                const char *attr,
-                                const char *key,
+ساکن صحیح
+append_uint64_from_unified_map (sd_bus_پیغام *m,
+                                حرف **missing_properties,
+                                ثابت حرف *attr,
+                                ثابت حرف *کلید,
                                 runtime_spec_schema_config_linux_resources *resources,
                                 libcrun_error_t *err)
 {
-  uint64_t value;
-  int ret;
+  uint64_t قدر;
+  صحیح ret;
 
-  if (property_missing_p (missing_properties, attr))
-    return 0;
+  اگر (property_missing_p (missing_properties, attr))
+    واپس 0;
 
-  ret = get_value_from_unified_map (resources, key, &value, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
-  if (ret)
+  ret = get_قدر_from_unified_map (resources, کلید, &قدر, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
+  اگر (ret)
     {
-      int sd_err = sd_bus_message_append (m, "(sv)", attr, "t", value);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append `%s`", attr);
+      صحیح sd_err = sd_bus_پیغام_append (m, "(sv)", attr, "t", قدر);
+      اگر (UNLIKELY (sd_err < 0))
+        واپس crun_make_error (err, -sd_err, "sd-bus message append `%s`", attr);
     }
 
-  return 0;
+  واپس 0;
 }
 
 /* append a single "DeviceAllow" attribute to the message.  type can either be 'c' or 'b'.  */
-static int
-append_device_allow (sd_bus_message *m,
-                     const char type,
-                     int major,
-                     int minor,
-                     const char *access,
+ساکن صحیح
+append_device_allow (sd_bus_پیغام *m,
+                     ثابت حرف type,
+                     صحیح major,
+                     صحیح minor,
+                     ثابت حرف *access,
                      libcrun_error_t *err)
 {
-  char device[64];
-  int sd_err;
-  int len;
+  حرف device[64];
+  صحیح sd_err;
+  صحیح len;
 
-  if (IS_WILDCARD (major) && ! IS_WILDCARD (minor))
+  اگر (IS_WILDCARD (major) && ! IS_WILDCARD (minor))
     {
       libcrun_warning ("devices rule with wildcard for major is not supported and it is ignored with systemd");
-      return 0;
+      واپس 0;
     }
 
-  if (IS_WILDCARD (major) && IS_WILDCARD (minor))
-    len = snprintf (device, sizeof (device), "%s-*", type == 'c' ? "char" : "block");
-  else if (IS_WILDCARD (minor))
-    len = snprintf (device, sizeof (device), type == 'c' ? "char-%d" : "block-%d", major);
-  else
-    len = snprintf (device, sizeof (device), "/dev/%s/%d:%d", type == 'c' ? "char" : "block", major, minor);
+  اگر (IS_WILDCARD (major) && IS_WILDCARD (minor))
+    len = snprintf (device, حجم (device), "%s-*", type == 'c' ? "char" : "block");
+  ورنہ اگر (IS_WILDCARD (minor))
+    len = snprintf (device, حجم (device), type == 'c' ? "char-%d" : "block-%d", major);
+  ورنہ
+    len = snprintf (device, حجم (device), "/dev/%s/%d:%d", type == 'c' ? "char" : "block", major, minor);
 
-  if (UNLIKELY (len >= (int) sizeof (device)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  اگر (UNLIKELY (len >= (صحیح) حجم (device)))
+    واپس crun_make_error (err, 0, "internal error: static buffer too small");
 
-  sd_err = sd_bus_message_append (m, "(sv)", "DeviceAllow", "a(ss)", 1, device, access);
-  if (UNLIKELY (sd_err < 0))
-    return crun_make_error (err, -sd_err, "sd-bus message append DeviceAllow `%s` with access `%s`", device, access);
+  sd_err = sd_bus_پیغام_append (m, "(sv)", "DeviceAllow", "a(ss)", 1, device, access);
+  اگر (UNLIKELY (sd_err < 0))
+    واپس crun_make_error (err, -sd_err, "sd-bus message append DeviceAllow `%s` with access `%s`", device, access);
 
-  return 0;
+  واپس 0;
 }
 
-#  define MODE_R 1
-#  define MODE_W 2
-#  define MODE_M 4
+#  define منوال_R 1
+#  define منوال_W 2
+#  define منوال_M 4
 
-static int
-access_to_mode (const char *access, libcrun_error_t *err)
+ساکن صحیح
+access_مقصد_منوال (ثابت حرف *access, libcrun_error_t *err)
 {
-  int mode = 0;
+  صحیح منوال = 0;
 
-  while (access && *access)
+  جب (access && *access)
     {
-      int c = *access++;
+      صحیح c = *access++;
 
-      switch (c)
+      انتخاب (c)
         {
-        case 'r':
-          mode |= MODE_R;
-          break;
+        حالت 'r':
+          منوال |= منوال_R;
+          توڑو;
 
-        case 'w':
-          mode |= MODE_W;
-          break;
+        حالت 'w':
+          منوال |= منوال_W;
+          توڑو;
 
-        case 'm':
-          mode |= MODE_M;
-          break;
+        حالت 'm':
+          منوال |= منوال_M;
+          توڑو;
 
-        default:
-          return crun_make_error (err, 0, "unknown access string specified: `%c`", c);
+        طےشدہ:
+          واپس crun_make_error (err, 0, "unknown access string specified: `%c`", c);
         }
     }
-  return mode;
+  واپس منوال;
 }
 
 /* check if the type b is included in type a.  */
-static bool
-has_same_type (const char *a, const char *b)
+ساکن bool
+has_same_type (ثابت حرف *a, ثابت حرف *b)
 {
-  bool a_all = a == NULL || strcmp (a, "a") == 0;
-  if (b == NULL || strcmp (b, "a") == 0)
-    return a_all;
+  bool a_all = a == تہی || strcmp (a, "a") == 0;
+  اگر (b == تہی || strcmp (b, "a") == 0)
+    واپس a_all;
 
-  return a_all || strcmp (a, b) == 0;
+  واپس a_all || strcmp (a, b) == 0;
 }
 
 /* check if there is already another "deny rule" specified before that already blocks the
  * device DEVICES[n].  */
-static int
-is_deny_rule_redundant (runtime_spec_schema_defs_linux_device_cgroup **devices, size_t n, libcrun_error_t *err)
+ساکن صحیح
+is_deny_قاعدہ_redundant (runtime_spec_schema_defs_linux_device_cgroup **devices, size_t n, libcrun_error_t *err)
 {
   size_t i;
-  int req_mode;
+  صحیح req_منوال;
 
-#  define CMP_DEV_NUM(a, b) ((a) == (b) || IS_WILDCARD (a) || IS_WILDCARD (b))
+#  define CMP_DEV_عدد(a, b) ((a) == (b) || IS_WILDCARD (a) || IS_WILDCARD (b))
 
-  req_mode = access_to_mode (devices[n]->access, err);
-  if (UNLIKELY (req_mode < 0))
-    return req_mode;
+  req_منوال = access_مقصد_منوال (devices[n]->access, err);
+  اگر (UNLIKELY (req_منوال < 0))
+    واپس req_منوال;
 
-  for (i = n; i > 0; i--)
+  برائے (i = n; i > 0; i--)
     {
-      size_t current_rule = i - 1;
-      int mode;
+      size_t current_قاعدہ = i - 1;
+      صحیح منوال;
 
-      if (! CMP_DEV_NUM (devices[n]->minor, devices[current_rule]->minor))
-        continue;
-      if (! CMP_DEV_NUM (devices[n]->major, devices[current_rule]->major))
-        continue;
+      اگر (! CMP_DEV_عدد (devices[n]->minor, devices[current_قاعدہ]->minor))
+        جاری;
+      اگر (! CMP_DEV_عدد (devices[n]->major, devices[current_قاعدہ]->major))
+        جاری;
 
-      if (! has_same_type (devices[n]->type, devices[current_rule]->type)
-          && has_same_type ("a", devices[current_rule]->type))
-        continue;
+      اگر (! has_same_type (devices[n]->type, devices[current_قاعدہ]->type)
+          && has_same_type ("a", devices[current_قاعدہ]->type))
+        جاری;
 
-      mode = access_to_mode (devices[i]->access, err);
-      if (UNLIKELY (mode < 0))
-        return mode;
+      منوال = access_مقصد_منوال (devices[i]->access, err);
+      اگر (UNLIKELY (منوال < 0))
+        واپس منوال;
 
-      if (devices[current_rule]->allow && (mode & req_mode))
-        return 0;
+      اگر (devices[current_قاعدہ]->allow && (منوال & req_منوال))
+        واپس 0;
 
-      req_mode &= ! mode;
+      req_منوال &= ! منوال;
 
       /* no more access bits to validate.  */
-      if (req_mode == 0)
-        return 1;
+      اگر (req_منوال == 0)
+        واپس 1;
     }
 
-  return 0;
-#  undef CMP_DEV_NUM
+  واپس 0;
+#  undef CMP_DEV_عدد
 }
 
-static size_t
-find_first_rule_no_default (runtime_spec_schema_defs_linux_device_cgroup **devices, size_t n)
+ساکن size_t
+ڈھونڈو_پہلا_قاعدہ_no_default (runtime_spec_schema_defs_linux_device_cgroup **devices, size_t n)
 {
   size_t i;
 
-  if (n == 0)
-    return 1;
+  اگر (n == 0)
+    واپس 1;
 
   /* Find the first rule that is after the last "block all".  */
-  for (i = n - 1; i-- > 0;)
+  برائے (i = n - 1; i-- > 0;)
     {
-      if ((is_empty_string (devices[i]->type) || strcmp (devices[i]->type, "a") == 0)
+      اگر ((is_خالی_خانے_string (devices[i]->type) || strcmp (devices[i]->type, "a") == 0)
           && IS_WILDCARD (devices[i]->major)
           && IS_WILDCARD (devices[i]->minor)
           && (! devices[i]->allow))
-        return i + 1;
+        واپس i + 1;
     }
 
   /* If there is not a default rule, the skip to the first rule that is not a deny rule.  */
-  for (i = 0; i < n; i++)
-    if (devices[i]->allow)
-      return i;
+  برائے (i = 0; i < n; i++)
+    اگر (devices[i]->allow)
+      واپس i;
 
   /* All blocked.  Move at the end of the array and rely on the default block all devices rule.  */
-  return n + 1;
+  واپس n + 1;
 }
 
-static bool
+ساکن bool
 has_allow_all (runtime_spec_schema_defs_linux_device_cgroup **devices, size_t n)
 {
-#  define DEV_TYPE_BLOCK 1
+#  define DEV_TYPE_بلاک 1
 #  define DEV_TYPE_CHAR 2
-  int remaining = DEV_TYPE_BLOCK | DEV_TYPE_CHAR;
+  صحیح بقایا = DEV_TYPE_بلاک | DEV_TYPE_CHAR;
   size_t i;
 
-  for (i = 0; i < n; i++)
+  برائے (i = 0; i < n; i++)
     {
-      size_t current_rule = n - i - 1;
-      if (! devices[current_rule]->allow)
-        return false;
+      size_t current_قاعدہ = n - i - 1;
+      اگر (! devices[current_قاعدہ]->allow)
+        واپس false;
 
-      if (IS_WILDCARD (devices[current_rule]->major) && IS_WILDCARD (devices[current_rule]->minor))
+      اگر (IS_WILDCARD (devices[current_قاعدہ]->major) && IS_WILDCARD (devices[current_قاعدہ]->minor))
         {
-          if (is_empty_string (devices[current_rule]->type) || strcmp (devices[current_rule]->type, "a") == 0)
-            return true;
+          اگر (is_خالی_خانے_string (devices[current_قاعدہ]->type) || strcmp (devices[current_قاعدہ]->type, "a") == 0)
+            واپس true;
 
-          if (strcmp (devices[current_rule]->type, "c") == 0)
-            remaining &= ~DEV_TYPE_CHAR;
-          else if (strcmp (devices[current_rule]->type, "b") == 0)
-            remaining &= ~DEV_TYPE_BLOCK;
+          اگر (strcmp (devices[current_قاعدہ]->type, "c") == 0)
+            بقایا &= ~DEV_TYPE_CHAR;
+          ورنہ اگر (strcmp (devices[current_قاعدہ]->type, "b") == 0)
+            بقایا &= ~DEV_TYPE_بلاک;
 
-          if (remaining == 0)
-            return true;
+          اگر (بقایا == 0)
+            واپس true;
         }
     }
-#  undef DEV_TYPE_BLOCK
+#  undef DEV_TYPE_بلاک
 #  undef DEV_TYPE_CHAR
 
-  return false;
+  واپس false;
 }
 
-static int
-append_devices (sd_bus_message *m,
+ساکن صحیح
+append_devices (sd_bus_پیغام *m,
                 runtime_spec_schema_config_linux_resources *resources,
                 libcrun_error_t *err)
 {
-  struct default_dev_s *default_devices = get_default_devices ();
-  int ret, sd_err;
+  ساخت default_dev_s *default_devices = get_default_devices ();
+  صحیح ret, sd_err;
   size_t i;
 
-  if (has_allow_all (resources->devices, resources->devices_len))
+  اگر (has_allow_all (resources->devices, resources->devices_len))
     {
-      sd_err = sd_bus_message_append (m, "(sv)", "DevicePolicy", "s", "auto");
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append DevicePolicy");
+      sd_err = sd_bus_پیغام_append (m, "(sv)", "DevicePolicy", "s", "auto");
+      اگر (UNLIKELY (sd_err < 0))
+        واپس crun_make_error (err, -sd_err, "sd-bus message append DevicePolicy");
 
-      sd_err = sd_bus_message_append (m, "(sv)", "DeviceAllow", "a(ss)", 0);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append empty DeviceAllow");
+      sd_err = sd_bus_پیغام_append (m, "(sv)", "DeviceAllow", "a(ss)", 0);
+      اگر (UNLIKELY (sd_err < 0))
+        واپس crun_make_error (err, -sd_err, "sd-bus message append empty DeviceAllow");
 
-      return 0;
+      واپس 0;
     }
 
-  sd_err = sd_bus_message_append (m, "(sv)", "DevicePolicy", "s", "strict");
-  if (UNLIKELY (sd_err < 0))
-    return crun_make_error (err, -sd_err, "sd-bus message append DevicePolicy");
+  sd_err = sd_bus_پیغام_append (m, "(sv)", "DevicePolicy", "s", "strict");
+  اگر (UNLIKELY (sd_err < 0))
+    واپس crun_make_error (err, -sd_err, "sd-bus message append DevicePolicy");
 
-  for (i = 0; default_devices[i].type; i++)
+  برائے (i = 0; default_devices[i].type; i++)
     {
       ret = append_device_allow (m, default_devices[i].type, default_devices[i].major, default_devices[i].minor, default_devices[i].access, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  for (i = find_first_rule_no_default (resources->devices, resources->devices_len); i < resources->devices_len; i++)
+  برائے (i = ڈھونڈو_پہلا_قاعدہ_no_default (resources->devices, resources->devices_len); i < resources->devices_len; i++)
     {
       runtime_spec_schema_defs_linux_device_cgroup *d = resources->devices[i];
-      char type;
+      حرف type;
 
-      if (! d->allow)
+      اگر (! d->allow)
         {
-          int redundant;
+          صحیح redundant;
 
-          redundant = is_deny_rule_redundant (resources->devices, i, err);
-          if (UNLIKELY (redundant < 0))
-            return redundant;
+          redundant = is_deny_قاعدہ_redundant (resources->devices, i, err);
+          اگر (UNLIKELY (redundant < 0))
+            واپس redundant;
 
-          if (redundant)
-            continue;
+          اگر (redundant)
+            جاری;
 
-          return crun_make_error (err, 0, "systemd does not support deny rules for devices");
+          واپس crun_make_error (err, 0, "systemd does not support deny rules for devices");
         }
 
-      if (d->type == NULL || strcmp (d->type, "a") == 0)
+      اگر (d->type == تہی || strcmp (d->type, "a") == 0)
         type = 'a';
-      else if (strcmp (d->type, "c") == 0)
+      ورنہ اگر (strcmp (d->type, "c") == 0)
         type = 'c';
-      else if (strcmp (d->type, "b") == 0)
+      ورنہ اگر (strcmp (d->type, "b") == 0)
         type = 'b';
-      else
-        return crun_make_error (err, 0, "unknown device type `%s`", d->type);
+      ورنہ
+        واپس crun_make_error (err, 0, "unknown device type `%s`", d->type);
 
-      if (type != 'a')
+      اگر (type != 'a')
         {
           ret = append_device_allow (m, type, d->major, d->minor, d->access, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
-      else
+      ورنہ
         {
           ret = append_device_allow (m, 'c', d->major, d->minor, d->access, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
           ret = append_device_allow (m, 'b', d->major, d->minor, d->access, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
     }
 
-  return 0;
+  واپس 0;
 }
 
-static bool
+ساکن bool
 has_bpf_fs ()
 {
-  struct statfs stat;
+  ساخت statfs stat;
 
-  return statfs (SYS_FS_BPF, &stat) == 0 && (stat.f_type == (typeof (stat.f_type)) BPF_FS_MAGIC);
+  واپس statfs (SYS_FS_BPF, &stat) == 0 && (stat.f_type == (typeof (stat.f_type)) BPF_FS_MAGIC);
 }
 
-static int
-bpfprog_path_from_scope (char **path, const char *scope, libcrun_error_t *err)
+ساکن صحیح
+bpfprog_راستہ_from_scope (حرف **راستہ, ثابت حرف *scope, libcrun_error_t *err)
 {
-  cleanup_free char *flat_scope = xstrdup (scope);
-  char *it;
+  cleanup_free حرف *flat_scope = xstrdup (scope);
+  حرف *it;
 
   /* Remove dots as EBPF code don't like them.  */
   it = flat_scope;
-  while ((it = strchr (it, '.')) != NULL)
+  جب ((it = strchr (it, '.')) != تہی)
     *it = '_';
 
-  return append_paths (path, err, CRUN_BPF_DIR, flat_scope, NULL);
+  واپس append_paths (راستہ, err, CRUN_BPF_DIR, flat_scope, تہی);
 }
 
-static int
-add_bpf_program (sd_bus_message *m,
+ساکن صحیح
+جوڑو_bpf_پروگرام (sd_bus_پیغام *m,
                  bool is_update,
                  runtime_spec_schema_config_linux_resources *resources,
-                 char **missing_properties,
-                 const char *scope,
-                 bool *devices_set,
+                 حرف **missing_properties,
+                 ثابت حرف *scope,
+                 bool *devices_سیٹ,
                  libcrun_error_t *err)
 {
-  int ret = 0;
-  int in_userns, sd_err;
-  const char *property_name = "BPFProgram";
-  cleanup_free struct bpf_program *program = NULL;
-  cleanup_free char *path = NULL;
+  صحیح ret = 0;
+  صحیح اندر_userns, sd_err;
+  ثابت حرف *property_name = "BPFProgram";
+  cleanup_free ساخت bpf_پروگرام *پروگرام = تہی;
+  cleanup_free حرف *راستہ = تہی;
 
-  *devices_set = false;
+  *devices_سیٹ = false;
 
   /* Only root in the initial user namespace can pin a bpf program. */
-  if (getuid () != 0 || ! has_bpf_fs () || property_missing_p (missing_properties, property_name))
-    return 0;
+  اگر (getuid () != 0 || ! has_bpf_fs () || property_missing_p (missing_properties, property_name))
+    واپس 0;
 
-  in_userns = check_running_in_user_namespace (err);
-  if (UNLIKELY (in_userns < 0))
-    return in_userns;
+  اندر_userns = check_running_اندر_user_namespace (err);
+  اگر (UNLIKELY (اندر_userns < 0))
+    واپس اندر_userns;
 
-  if (in_userns)
-    return 0;
+  اگر (اندر_userns)
+    واپس 0;
 
-  program = create_dev_bpf (resources->devices, resources->devices_len, err);
-  if (UNLIKELY (program == NULL))
+  پروگرام = create_dev_bpf (resources->devices, resources->devices_len, err);
+  اگر (UNLIKELY (پروگرام == تہی))
     {
       crun_error_release (err);
-      return 0;
+      واپس 0;
     }
 
-  ret = bpfprog_path_from_scope (&path, scope, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = bpfprog_راستہ_from_scope (&راستہ, scope, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   ret = mkdir (CRUN_BPF_DIR, 0700);
-  if (UNLIKELY (ret < 0 && errno != EEXIST))
-    return crun_make_error (err, errno, "mkdir " CRUN_BPF_DIR);
+  اگر (UNLIKELY (ret < 0 && errno != EEXIST))
+    واپس crun_make_error (err, errno, "mkdir " CRUN_BPF_DIR);
 
-  if (is_update)
+  اگر (is_update)
     {
-      cleanup_free struct bpf_program *program_loaded = NULL;
+      cleanup_free ساخت bpf_پروگرام *پروگرام_loaded = تہی;
 
-      if (resources->devices == NULL || resources->devices_len == 0)
+      اگر (resources->devices == تہی || resources->devices_len == 0)
         {
-          *devices_set = true;
-          return 0;
+          *devices_سیٹ = true;
+          واپس 0;
         }
 
-      ret = libcrun_ebpf_read_program (&program_loaded, path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_ebpf_read_پروگرام (&پروگرام_loaded, راستہ, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
       /* it is the same as the loaded program.  */
-      if (libcrun_ebpf_cmp_programs (program, program_loaded))
+      اگر (libcrun_ebpf_cmp_programs (پروگرام, پروگرام_loaded))
         {
-          *devices_set = true;
-          return 0;
+          *devices_سیٹ = true;
+          واپس 0;
         }
 
       /* Some platforms (e.g. ppc64) modify an EBPF program as it is
@@ -1550,356 +1550,356 @@ add_bpf_program (sd_bus_message *m,
        * the BPFProgram property.
        */
       {
-        cleanup_free struct bpf_program *program_new = NULL;
-        char tmp[64];
-        int len;
+        cleanup_free ساخت bpf_پروگرام *پروگرام_new = تہی;
+        حرف tmp[64];
+        صحیح len;
 
         /* A unique name, as container name can't start with a digit. */
-        len = snprintf (tmp, sizeof (tmp), "%s/%d", CRUN_BPF_DIR, getpid ());
-        if (UNLIKELY (len >= (int) sizeof (tmp)))
-          return crun_make_error (err, 0, "internal error: static buffer too small");
+        len = snprintf (tmp, حجم (tmp), "%s/%d", CRUN_BPF_DIR, getpid ());
+        اگر (UNLIKELY (len >= (صحیح) حجم (tmp)))
+          واپس crun_make_error (err, 0, "internal error: static buffer too small");
 
-        ret = libcrun_ebpf_load (program, -1, tmp, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ret = libcrun_ebpf_بھرو (پروگرام, -1, tmp, err);
+        اگر (UNLIKELY (ret < 0))
+          واپس ret;
 
-        ret = libcrun_ebpf_read_program (&program_new, tmp, err);
+        ret = libcrun_ebpf_read_پروگرام (&پروگرام_new, tmp, err);
         unlink (tmp);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        اگر (UNLIKELY (ret < 0))
+          واپس ret;
 
-        if (libcrun_ebpf_cmp_programs (program_new, program_loaded))
+        اگر (libcrun_ebpf_cmp_programs (پروگرام_new, پروگرام_loaded))
           {
-            *devices_set = true;
-            return 0;
+            *devices_سیٹ = true;
+            واپس 0;
           }
       }
 
-      return crun_make_error (err, 0, "updating device access list not supported when using BPFProgram");
+      واپس crun_make_error (err, 0, "updating device access list not supported when using BPFProgram");
     }
 
-  ret = libcrun_ebpf_load (program, -1, path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_ebpf_بھرو (پروگرام, -1, راستہ, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  sd_err = sd_bus_message_append (m, "(sv)", property_name, "a(ss)", 1, "device", path);
-  if (UNLIKELY (sd_err < 0))
-    return crun_make_error (err, -sd_err, "sd-bus message append BPFProgram");
+  sd_err = sd_bus_پیغام_append (m, "(sv)", property_name, "a(ss)", 1, "device", راستہ);
+  اگر (UNLIKELY (sd_err < 0))
+    واپس crun_make_error (err, -sd_err, "sd-bus message append BPFProgram");
 
-  *devices_set = true;
+  *devices_سیٹ = true;
 
-  return 0;
+  واپس 0;
 }
 
 /* Append CPUQuotaPeriodUSec and CPUQuotaPerSecUSec, the way runc does.  */
-static int
-append_cpu_quota (sd_bus_message *m, char **missing_properties,
+ساکن صحیح
+append_cpu_quota (sd_bus_پیغام *m, حرف **missing_properties,
                   runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
 {
   uint64_t period = (resources->cpu && resources->cpu->period_present) ? resources->cpu->period : 0;
   int64_t quota = (resources->cpu && resources->cpu->quota_present) ? resources->cpu->quota : 0;
-  const char *cpu_max = get_string_from_unified_map (resources, "cpu.max");
-  int sd_err;
+  ثابت حرف *cpu_max = get_string_from_unified_map (resources, "cpu.max");
+  صحیح sd_err;
 
   /* The unified map takes precedence, like with the cgroupfs driver.  */
-  if (cpu_max)
+  اگر (cpu_max)
     {
       uint64_t max_period;
       bool has_period;
-      int ret;
+      صحیح ret;
 
       ret = parse_cpu_max (cpu_max, &quota, &max_period, &has_period, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      if (has_period)
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
+      اگر (has_period)
         period = max_period;
     }
 
-  if (period && ! property_missing_p (missing_properties, "CPUQuotaPeriodUSec"))
+  اگر (period && ! property_missing_p (missing_properties, "CPUQuotaPeriodUSec"))
     {
-      sd_err = sd_bus_message_append (m, "(sv)", "CPUQuotaPeriodUSec", "t", period);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append CPUQuotaPeriodUSec");
+      sd_err = sd_bus_پیغام_append (m, "(sv)", "CPUQuotaPeriodUSec", "t", period);
+      اگر (UNLIKELY (sd_err < 0))
+        واپس crun_make_error (err, -sd_err, "sd-bus message append CPUQuotaPeriodUSec");
     }
 
-  if ((quota != 0 || period) && ! property_missing_p (missing_properties, "CPUQuotaPerSecUSec"))
+  اگر ((quota != 0 || period) && ! property_missing_p (missing_properties, "CPUQuotaPerSecUSec"))
     {
       /* USEC_INFINITY in systemd.  */
-      uint64_t quota_per_sec = UINT64_MAX;
+      uint64_t quota_فی_sec = UINT64_MAX;
 
-      if (quota > 0)
+      اگر (quota > 0)
         {
-          quota_per_sec = ((uint64_t) quota * 1000000) / (period ? period : DEFAULT_CPU_QUOTA_PERIOD);
+          quota_فی_sec = ((uint64_t) quota * 1000000) / (period ? period : DEFAULT_CPU_QUOTA_PERIOD);
           /* systemd converts CPUQuotaPerSecUSec to a percentage of CPU, so round it
              up to the next 10ms, to not give the container less than it asked for.  */
-          if (quota_per_sec % 10000)
-            quota_per_sec = ((quota_per_sec / 10000) + 1) * 10000;
+          اگر (quota_فی_sec % 10000)
+            quota_فی_sec = ((quota_فی_sec / 10000) + 1) * 10000;
         }
 
-      sd_err = sd_bus_message_append (m, "(sv)", "CPUQuotaPerSecUSec", "t", quota_per_sec);
-      if (UNLIKELY (sd_err < 0))
-        return crun_make_error (err, -sd_err, "sd-bus message append CPUQuotaPerSecUSec");
+      sd_err = sd_bus_پیغام_append (m, "(sv)", "CPUQuotaPerSecUSec", "t", quota_فی_sec);
+      اگر (UNLIKELY (sd_err < 0))
+        واپس crun_make_error (err, -sd_err, "sd-bus message append CPUQuotaPerSecUSec");
     }
 
-  return 0;
+  واپس 0;
 }
 
-static int
-append_resources (sd_bus_message *m,
+ساکن صحیح
+append_resources (sd_bus_پیغام *m,
                   bool is_update,
-                  const char *state_dir,
+                  ثابت حرف *state_dir,
                   runtime_spec_schema_config_linux_resources *resources,
-                  int cgroup_mode,
-                  const char *scope,
-                  bool *devices_set,
+                  صحیح cgroup_منوال,
+                  ثابت حرف *scope,
+                  bool *devices_سیٹ,
                   libcrun_error_t *err)
 {
-  uint64_t value;
-  int sd_err;
-  int ret;
-  cleanup_free char *dir = NULL;
-  cleanup_free char **missing_properties = NULL;
+  uint64_t قدر;
+  صحیح sd_err;
+  صحیح ret;
+  cleanup_free حرف *dir = تہی;
+  cleanup_free حرف **missing_properties = تہی;
 
-  *devices_set = false;
+  *devices_سیٹ = false;
 
-  ret = append_paths (&dir, err, state_dir, SYSTEMD_MISSING_PROPERTIES_DIR, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&dir, err, state_dir, SYSTEMD_MISSING_PROPERTIES_DIR, تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   missing_properties = read_dir_entries (dir, err);
-  if (UNLIKELY (missing_properties == NULL))
+  اگر (UNLIKELY (missing_properties == تہی))
     {
-      if (crun_error_get_errno (err) != ENOENT)
-        return -1;
+      اگر (crun_error_get_errno (err) != ENOENT)
+        واپس -1;
 
       /* The directory does not exist, so there are no missing features.  */
       crun_error_release (err);
     }
 
-#  define APPEND_UINT64_VALUE(name, value)                                             \
-    do                                                                                 \
+#  define APPEND_UINT64_قدر(name, قدر)                                             \
+    کرو                                                                                 \
       {                                                                                \
-        if (! property_missing_p (missing_properties, name))                           \
+        اگر (! property_missing_p (missing_properties, name))                           \
           {                                                                            \
-            sd_err = sd_bus_message_append (m, "(sv)", name, "t", value);              \
-            if (UNLIKELY (sd_err < 0))                                                 \
-              return crun_make_error (err, -sd_err, "sd-bus message append %s", name); \
+            sd_err = sd_bus_پیغام_append (m, "(sv)", name, "t", قدر);              \
+            اگر (UNLIKELY (sd_err < 0))                                                 \
+              واپس crun_make_error (err, -sd_err, "sd-bus message append %s", name); \
           }                                                                            \
-    } while (0)
+    } جب (0)
 
 #  define APPEND_UINT64(name, fn)              \
-    do                                         \
+    کرو                                         \
       {                                        \
-        ret = fn (resources, &value, err);     \
-        if (UNLIKELY (ret < 0))                \
-          return ret;                          \
-        if (ret)                               \
+        ret = fn (resources, &قدر, err);     \
+        اگر (UNLIKELY (ret < 0))                \
+          واپس ret;                          \
+        اگر (ret)                               \
           {                                    \
-            APPEND_UINT64_VALUE (name, value); \
+            APPEND_UINT64_قدر (name, قدر); \
           }                                    \
-    } while (0)
+    } جب (0)
 
-  if (resources == NULL)
-    return 0;
+  اگر (resources == تہی)
+    واپس 0;
 
-  APPEND_UINT64 ("MemoryLow", get_memory_low);
-  APPEND_UINT64 ("MemoryMax", get_memory_max);
-  APPEND_UINT64 ("MemorySwapMax", get_memory_swap_max);
+  APPEND_UINT64 ("MemoryLow", get_حافظہ_کم);
+  APPEND_UINT64 ("MemoryMax", get_حافظہ_max);
+  APPEND_UINT64 ("MemorySwapMax", get_حافظہ_تبادلہ_max);
   APPEND_UINT64 ("TasksMax", get_pids_max);
 
   ret = append_cpu_quota (m, missing_properties, resources, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  switch (cgroup_mode)
+  انتخاب (cgroup_منوال)
     {
-    case CGROUP_MODE_UNIFIED:
+    حالت CGROUP_منوال_UNIFIED:
       {
-        ret = append_io_weight (m, missing_properties, resources, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ret = append_io_وزن (m, missing_properties, resources, err);
+        اگر (UNLIKELY (ret < 0))
+          واپس ret;
 
-        APPEND_UINT64 ("CPUWeight", get_cpu_weight);
+        APPEND_UINT64 ("CPUWeight", get_cpu_وزن);
 
         ret = append_uint64_from_unified_map (m, missing_properties, "MemoryMin", "memory.min", resources, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        اگر (UNLIKELY (ret < 0))
+          واپس ret;
         ret = append_uint64_from_unified_map (m, missing_properties, "MemoryHigh", "memory.high", resources, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        اگر (UNLIKELY (ret < 0))
+          واپس ret;
         ret = append_uint64_from_unified_map (m, missing_properties, "MemoryZSwapMax", "memory.zswap.max", resources, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        اگر (UNLIKELY (ret < 0))
+          واپس ret;
 
-        if (get_string_from_unified_map (resources, "cpuset.cpus") || (resources->cpu && resources->cpu->cpus))
+        اگر (get_string_from_unified_map (resources, "cpuset.cpus") || (resources->cpu && resources->cpu->cpus))
           {
-            const char *property_name = "AllowedCPUs";
-            const char *value = get_string_from_unified_map (resources, "cpuset.cpus");
-            cleanup_free char *allowed_cpus = NULL;
+            ثابت حرف *property_name = "AllowedCPUs";
+            ثابت حرف *قدر = get_string_from_unified_map (resources, "cpuset.cpus");
+            cleanup_free حرف *allowed_cpus = تہی;
             size_t allowed_cpus_len = 0;
 
-            if (value == NULL)
-              value = resources->cpu->cpus;
+            اگر (قدر == تہی)
+              قدر = resources->cpu->cpus;
 
-            ret = cpuset_string_to_bitmask (value, &allowed_cpus, &allowed_cpus_len, err);
-            if (UNLIKELY (ret < 0))
-              return ret;
+            ret = cpuset_string_مقصد_bitmask (قدر, &allowed_cpus, &allowed_cpus_len, err);
+            اگر (UNLIKELY (ret < 0))
+              واپس ret;
 
-            if (! property_missing_p (missing_properties, property_name))
+            اگر (! property_missing_p (missing_properties, property_name))
               {
                 ret = bus_append_byte_array (m, property_name, allowed_cpus, allowed_cpus_len, err);
-                if (UNLIKELY (ret < 0))
-                  return ret;
+                اگر (UNLIKELY (ret < 0))
+                  واپس ret;
               }
           }
 
-        if (get_string_from_unified_map (resources, "cpuset.mems") || (resources->cpu && resources->cpu->mems))
+        اگر (get_string_from_unified_map (resources, "cpuset.mems") || (resources->cpu && resources->cpu->mems))
           {
-            const char *property_name = "AllowedMemoryNodes";
-            const char *value = get_string_from_unified_map (resources, "cpuset.mems");
-            cleanup_free char *allowed_mems = NULL;
+            ثابت حرف *property_name = "AllowedMemoryNodes";
+            ثابت حرف *قدر = get_string_from_unified_map (resources, "cpuset.mems");
+            cleanup_free حرف *allowed_mems = تہی;
             size_t allowed_mems_len = 0;
 
-            if (value == NULL)
-              value = resources->cpu->mems;
+            اگر (قدر == تہی)
+              قدر = resources->cpu->mems;
 
-            ret = cpuset_string_to_bitmask (value, &allowed_mems, &allowed_mems_len, err);
-            if (UNLIKELY (ret < 0))
-              return ret;
+            ret = cpuset_string_مقصد_bitmask (قدر, &allowed_mems, &allowed_mems_len, err);
+            اگر (UNLIKELY (ret < 0))
+              واپس ret;
 
-            if (! property_missing_p (missing_properties, property_name))
+            اگر (! property_missing_p (missing_properties, property_name))
               {
                 ret = bus_append_byte_array (m, property_name, allowed_mems, allowed_mems_len, err);
-                if (UNLIKELY (ret < 0))
-                  return ret;
+                اگر (UNLIKELY (ret < 0))
+                  واپس ret;
               }
           }
 
-        ret = add_bpf_program (m, is_update, resources, missing_properties, scope, devices_set, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ret = جوڑو_bpf_پروگرام (m, is_update, resources, missing_properties, scope, devices_سیٹ, err);
+        اگر (UNLIKELY (ret < 0))
+          واپس ret;
       }
-      break;
+      توڑو;
 
-    case CGROUP_MODE_LEGACY:
-    case CGROUP_MODE_HYBRID:
-      if (resources->cpu && resources->cpu->shares > 0)
-        APPEND_UINT64_VALUE ("CPUShares", resources->cpu->shares);
-      break;
+    حالت CGROUP_منوال_LEGACY:
+    حالت CGROUP_منوال_HYBRID:
+      اگر (resources->cpu && resources->cpu->shares > 0)
+        APPEND_UINT64_قدر ("CPUShares", resources->cpu->shares);
+      توڑو;
 
-    default:
-      return crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_mode);
+    طےشدہ:
+      واپس crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_منوال);
     }
 
 #  undef APPEND_UINT64
-#  undef APPEND_UINT64_VALUE
+#  undef APPEND_UINT64_قدر
 
-  if (! *devices_set && (! is_update || resources->devices))
+  اگر (! *devices_سیٹ && (! is_update || resources->devices))
     {
       ret = append_devices (m, resources, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
-  return 0;
+  واپس 0;
 }
 
-static int
-reset_failed_unit (sd_bus *bus, const char *unit)
+ساکن صحیح
+reset_failed_unit (sd_bus *bus, ثابت حرف *unit)
 {
-  int sd_err;
+  صحیح sd_err;
   sd_bus_error error = SD_BUS_ERROR_NULL;
-  sd_bus_message *m = NULL, *reply = NULL;
+  sd_bus_پیغام *m = تہی, *جواب = تہی;
 
-  sd_err = sd_bus_message_new_method_call (bus, &m, "org.freedesktop.systemd1", "/org/freedesktop/systemd1",
+  sd_err = sd_bus_پیغام_new_طریقہ_call (bus, &m, "org.freedesktop.systemd1", "/org/freedesktop/systemd1",
                                            "org.freedesktop.systemd1.Manager", "ResetFailedUnit");
-  if (UNLIKELY (sd_err < 0))
-    goto exit;
+  اگر (UNLIKELY (sd_err < 0))
+    جاؤ باہر_نکلو;
 
-  sd_err = sd_bus_message_append (m, "s", unit);
-  if (UNLIKELY (sd_err < 0))
-    goto exit;
+  sd_err = sd_bus_پیغام_append (m, "s", unit);
+  اگر (UNLIKELY (sd_err < 0))
+    جاؤ باہر_نکلو;
 
-  sd_err = sd_bus_call (bus, m, 0, &error, &reply);
-  if (UNLIKELY (sd_err < 0))
-    goto exit;
+  sd_err = sd_bus_call (bus, m, 0, &error, &جواب);
+  اگر (UNLIKELY (sd_err < 0))
+    جاؤ باہر_نکلو;
 
   sd_err = 0;
 
-exit:
-  if (m)
-    sd_bus_message_unref (m);
-  if (reply)
-    sd_bus_message_unref (reply);
+باہر_نکلو:
+  اگر (m)
+    sd_bus_پیغام_unref (m);
+  اگر (جواب)
+    sd_bus_پیغام_unref (جواب);
   sd_bus_error_free (&error);
 
-  return sd_err;
+  واپس sd_err;
 }
 
-static int
-verify_ebpf_device_filter_installed (const char *cgroup_path, libcrun_error_t *err)
+ساکن صحیح
+verify_ebpf_device_filter_installed (ثابت حرف *cgroup_راستہ, libcrun_error_t *err)
 {
-  cleanup_free uint32_t *progs = NULL;
-  cleanup_free char *full_path = NULL;
+  cleanup_free uint32_t *progs = تہی;
+  cleanup_free حرف *بھرا_راستہ = تہی;
   size_t n_progs = 0;
-  int ret;
+  صحیح ret;
 
-  ret = append_paths (&full_path, err, CGROUP_ROOT, cgroup_path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&بھرا_راستہ, err, CGROUP_جڑ, cgroup_راستہ, تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = libcrun_ebpf_query_cgroup_progs (full_path, &progs, &n_progs, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_ebpf_query_cgroup_progs (بھرا_راستہ, &progs, &n_progs, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (n_progs == 0)
-    return crun_make_error (err, 0, "systemd failed to install eBPF device filter on cgroup `%s`", full_path);
+  اگر (n_progs == 0)
+    واپس crun_make_error (err, 0, "systemd failed to install eBPF device filter on cgroup `%s`", بھرا_راستہ);
 
-  return 0;
+  واپس 0;
 }
 
 /* Release the sd-bus objects used by a D-Bus call and return RET.  */
-static int
-cleanup_sd_bus_and_return (sd_bus *bus, sd_bus_message *m, sd_bus_message *reply,
-                           sd_bus_error *error, int ret)
+ساکن صحیح
+cleanup_sd_bus_and_return (sd_bus *bus, sd_bus_پیغام *m, sd_bus_پیغام *جواب,
+                           sd_bus_error *error, صحیح ret)
 {
-  if (bus)
+  اگر (bus)
     sd_bus_unref (bus);
-  if (m)
-    sd_bus_message_unref (m);
-  if (reply)
-    sd_bus_message_unref (reply);
+  اگر (m)
+    sd_bus_پیغام_unref (m);
+  اگر (جواب)
+    sd_bus_پیغام_unref (جواب);
   sd_bus_error_free (error);
-  return ret;
+  واپس ret;
 }
 
-static int
+ساکن صحیح
 enter_systemd_cgroup_scope (runtime_spec_schema_config_linux_resources *resources,
-                            int cgroup_mode,
+                            صحیح cgroup_منوال,
                             string_map *annotations,
-                            const char *state_root,
-                            const char *scope, const char *slice,
+                            ثابت حرف *state_جڑ,
+                            ثابت حرف *scope, ثابت حرف *قاش,
                             pid_t pid,
                             bool *can_retry,
-                            bool *devices_set,
+                            bool *devices_سیٹ,
                             libcrun_error_t *err)
 {
-  sd_bus *bus = NULL;
-  sd_bus_message *m = NULL;
-  sd_bus_message *reply = NULL;
-  int sd_err, ret = 0;
+  sd_bus *bus = تہی;
+  sd_bus_پیغام *m = تہی;
+  sd_bus_پیغام *جواب = تہی;
+  صحیح sd_err, ret = 0;
   sd_bus_error error = SD_BUS_ERROR_NULL;
-  const char *object = NULL;
-  struct systemd_job_removed_s job_data = {};
-  int i;
-  const char *boolean_opts[10];
-  cleanup_free char *state_dir = NULL;
+  ثابت حرف *object = تہی;
+  ساخت systemd_کام_removed_s کام_ڈیٹا = {};
+  صحیح i;
+  ثابت حرف *boolean_opts[10];
+  cleanup_free حرف *state_dir = تہی;
 
   *can_retry = false;
-  *devices_set = false;
+  *devices_سیٹ = false;
 
-  ret = libcrun_get_state_directory (&state_dir, state_root, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_get_state_directory (&state_dir, state_جڑ, تہی, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   i = 0;
   boolean_opts[i++] = "Delegate";
@@ -1910,316 +1910,316 @@ enter_systemd_cgroup_scope (runtime_spec_schema_config_linux_resources *resource
   boolean_opts[i++] = "MemoryAccounting";
   boolean_opts[i++] = "IOAccounting";
   boolean_opts[i++] = "TasksAccounting";
-  boolean_opts[i++] = NULL;
+  boolean_opts[i++] = تہی;
 
   ret = open_sd_bus_connection (&bus, err);
-  if (UNLIKELY (ret < 0))
-    goto exit;
+  اگر (UNLIKELY (ret < 0))
+    جاؤ باہر_نکلو;
 
-  ret = systemd_check_job_status_setup (bus, &job_data, err);
-  if (UNLIKELY (ret < 0))
-    goto exit;
+  ret = systemd_check_کام_حالت_تیاری (bus, &کام_ڈیٹا, err);
+  اگر (UNLIKELY (ret < 0))
+    جاؤ باہر_نکلو;
 
-  sd_err = sd_bus_message_new_method_call (bus, &m, "org.freedesktop.systemd1", "/org/freedesktop/systemd1",
+  sd_err = sd_bus_پیغام_new_طریقہ_call (bus, &m, "org.freedesktop.systemd1", "/org/freedesktop/systemd1",
                                            "org.freedesktop.systemd1.Manager", "StartTransientUnit");
-  if (UNLIKELY (sd_err < 0))
+  اگر (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "set up dbus message");
-      goto exit;
+      جاؤ باہر_نکلو;
     }
 
-  sd_err = sd_bus_message_append (m, "ss", scope, "fail");
-  if (UNLIKELY (sd_err < 0))
+  sd_err = sd_bus_پیغام_append (m, "ss", scope, "fail");
+  اگر (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus message append scope");
-      goto exit;
+      جاؤ باہر_نکلو;
     }
 
-  sd_err = sd_bus_message_open_container (m, 'a', "(sv)");
-  if (UNLIKELY (sd_err < 0))
+  sd_err = sd_bus_پیغام_open_container (m, 'a', "(sv)");
+  اگر (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus open container");
-      goto exit;
+      جاؤ باہر_نکلو;
     }
 
-  if (slice)
+  اگر (قاش)
     {
-      sd_err = sd_bus_message_append (m, "(sv)", "Slice", "s", slice);
-      if (UNLIKELY (sd_err < 0))
+      sd_err = sd_bus_پیغام_append (m, "(sv)", "Slice", "s", قاش);
+      اگر (UNLIKELY (sd_err < 0))
         {
           ret = crun_make_error (err, -sd_err, "sd-bus message append Slice");
-          goto exit;
+          جاؤ باہر_نکلو;
         }
     }
 
-  sd_err = sd_bus_message_append (m, "(sv)", "DefaultDependencies", "b", 0);
-  if (UNLIKELY (sd_err < 0))
+  sd_err = sd_bus_پیغام_append (m, "(sv)", "DefaultDependencies", "b", 0);
+  اگر (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus message append DefaultDependencies");
-      goto exit;
+      جاؤ باہر_نکلو;
     }
 
-  if (annotations)
+  اگر (annotations)
     {
-      size_t prefix_len = sizeof (SYSTEMD_PROPERTY_PREFIX) - 1;
-      size_t annotations_len = string_map_size (annotations);
+      size_t سابقہ_len = حجم (SYSTEMD_PROPERTY_سابقہ) - 1;
+      size_t annotations_len = string_map_سائز (annotations);
       size_t i;
 
-      for (i = 0; i < annotations_len; i++)
+      برائے (i = 0; i < annotations_len; i++)
         {
-          const char *key;
-          const char *value;
+          ثابت حرف *کلید;
+          ثابت حرف *قدر;
           size_t len;
 
-          ret = string_map_get_at (annotations, i, &key, &value);
-          if (UNLIKELY (ret < 0))
+          ret = string_map_get_at (annotations, i, &کلید, &قدر);
+          اگر (UNLIKELY (ret < 0))
             {
               ret = crun_make_error (err, 0, "internal error: failed to get annotation at index %zu", i);
-              goto exit;
+              جاؤ باہر_نکلو;
             }
 
-          if (! has_prefix (key, SYSTEMD_PROPERTY_PREFIX))
-            continue;
+          اگر (! has_سابقہ (کلید, SYSTEMD_PROPERTY_سابقہ))
+            جاری;
 
-          len = strlen (key);
-          if (len < prefix_len + 3)
+          len = لڑی_لمبائی (کلید);
+          اگر (len < سابقہ_len + 3)
             {
-              ret = crun_make_error (err, EINVAL, "invalid systemd property name `%s`", key);
-              goto exit;
+              ret = crun_make_error (err, EINVAL, "invalid systemd property name `%s`", کلید);
+              جاؤ باہر_نکلو;
             }
 
-          ret = append_systemd_annotation (m, key + prefix_len, len - prefix_len,
-                                           value, err);
-          if (UNLIKELY (ret < 0))
-            goto exit;
+          ret = append_systemd_annotation (m, کلید + سابقہ_len, len - سابقہ_len,
+                                           قدر, err);
+          اگر (UNLIKELY (ret < 0))
+            جاؤ باہر_نکلو;
         }
     }
 
-  sd_err = sd_bus_message_append (m, "(sv)", "Description", "s", "libcrun container");
-  if (UNLIKELY (sd_err < 0))
+  sd_err = sd_bus_پیغام_append (m, "(sv)", "Description", "s", "libcrun container");
+  اگر (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus message append Description");
-      goto exit;
+      جاؤ باہر_نکلو;
     }
 
-  sd_err = sd_bus_message_append (m, "(sv)", "PIDs", "au", 1, pid);
-  if (UNLIKELY (sd_err < 0))
+  sd_err = sd_bus_پیغام_append (m, "(sv)", "PIDs", "au", 1, pid);
+  اگر (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus message append PIDs");
-      goto exit;
+      جاؤ باہر_نکلو;
     }
 
-  for (i = 0; boolean_opts[i]; i++)
+  برائے (i = 0; boolean_opts[i]; i++)
     {
-      sd_err = sd_bus_message_append (m, "(sv)", boolean_opts[i], "b", 1);
-      if (UNLIKELY (sd_err < 0))
+      sd_err = sd_bus_پیغام_append (m, "(sv)", boolean_opts[i], "b", 1);
+      اگر (UNLIKELY (sd_err < 0))
         {
           ret = crun_make_error (err, -sd_err, "sd-bus message append `%s`", boolean_opts[i]);
-          goto exit;
+          جاؤ باہر_نکلو;
         }
     }
 
-  ret = append_resources (m, false, state_dir, resources, cgroup_mode, scope, devices_set, err);
-  if (UNLIKELY (ret < 0))
-    goto exit;
+  ret = append_resources (m, false, state_dir, resources, cgroup_منوال, scope, devices_سیٹ, err);
+  اگر (UNLIKELY (ret < 0))
+    جاؤ باہر_نکلو;
 
-  sd_err = sd_bus_message_close_container (m);
-  if (UNLIKELY (sd_err < 0))
+  sd_err = sd_bus_پیغام_close_container (m);
+  اگر (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus close container");
-      goto exit;
+      جاؤ باہر_نکلو;
     }
 
-  sd_err = sd_bus_message_append (m, "a(sa(sv))", 0);
-  if (UNLIKELY (sd_err < 0))
+  sd_err = sd_bus_پیغام_append (m, "a(sa(sv))", 0);
+  اگر (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus message append");
-      goto exit;
+      جاؤ باہر_نکلو;
     }
 
-  sd_err = sd_bus_call (bus, m, 0, &error, &reply);
-  if (UNLIKELY (sd_err < 0))
+  sd_err = sd_bus_call (bus, m, 0, &error, &جواب);
+  اگر (UNLIKELY (sd_err < 0))
     {
-      if (reset_failed_unit (bus, scope) == 0)
+      اگر (reset_failed_unit (bus, scope) == 0)
         {
           sd_bus_error_free (&error);
-          if (reply)
-            sd_bus_message_unref (reply);
+          اگر (جواب)
+            sd_bus_پیغام_unref (جواب);
 
           error = SD_BUS_ERROR_NULL;
-          reply = NULL;
+          جواب = تہی;
 
-          sd_err = sd_bus_call (bus, m, 0, &error, &reply);
+          sd_err = sd_bus_call (bus, m, 0, &error, &جواب);
         }
-      if (sd_err < 0)
+      اگر (sd_err < 0)
         {
-          if (sd_err == -EROFS)
+          اگر (sd_err == -EROFS)
             {
-              ret = register_missing_property_from_message (state_dir, error.message, err);
-              if (UNLIKELY (ret < 0))
-                goto exit;
-              if (ret > 0)
+              ret = رجسٹر_missing_property_from_پیغام (state_dir, error.پیغام_2, err);
+              اگر (UNLIKELY (ret < 0))
+                جاؤ باہر_نکلو;
+              اگر (ret > 0)
                 *can_retry = true;
             }
-          ret = crun_make_error (err, sd_bus_error_get_errno (&error), "sd-bus call: %s", error.message ?: error.name);
-          goto exit;
+          ret = crun_make_error (err, sd_bus_error_get_errno (&error), "sd-bus call: %s", error.پیغام_2 ?: error.name);
+          جاؤ باہر_نکلو;
         }
     }
 
-  sd_err = sd_bus_message_read (reply, "o", &object);
-  if (UNLIKELY (sd_err < 0))
+  sd_err = sd_bus_پیغام_read (جواب, "o", &object);
+  اگر (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus message read");
-      goto exit;
+      جاؤ باہر_نکلو;
     }
 
-  ret = systemd_check_job_status (bus, &job_data, object, "creating", err);
+  ret = systemd_check_کام_حالت (bus, &کام_ڈیٹا, object, "creating", err);
 
-exit:
-  return cleanup_sd_bus_and_return (bus, m, reply, &error, ret);
+باہر_نکلو:
+  واپس cleanup_sd_bus_and_return (bus, m, جواب, &error, ret);
 }
 
-static int
-libcrun_destroy_systemd_cgroup_scope (struct libcrun_cgroup_status *cgroup_status,
+ساکن صحیح
+libcrun_destroy_systemd_cgroup_scope (ساخت libcrun_cgroup_حالت *cgroup_حالت,
                                       libcrun_error_t *err)
 {
-  sd_bus *bus = NULL;
-  sd_bus_message *m = NULL;
-  sd_bus_message *reply = NULL;
-  int ret = 0;
+  sd_bus *bus = تہی;
+  sd_bus_پیغام *m = تہی;
+  sd_bus_پیغام *جواب = تہی;
+  صحیح ret = 0;
   sd_bus_error error = SD_BUS_ERROR_NULL;
-  const char *object;
-  const char *scope = cgroup_status->scope;
-  struct systemd_job_removed_s job_data = {};
+  ثابت حرف *object;
+  ثابت حرف *scope = cgroup_حالت->scope;
+  ساخت systemd_کام_removed_s کام_ڈیٹا = {};
 
   ret = open_sd_bus_connection (&bus, err);
-  if (UNLIKELY (ret < 0))
-    goto exit;
+  اگر (UNLIKELY (ret < 0))
+    جاؤ باہر_نکلو;
 
-  ret = systemd_check_job_status_setup (bus, &job_data, err);
-  if (UNLIKELY (ret < 0))
-    goto exit;
+  ret = systemd_check_کام_حالت_تیاری (bus, &کام_ڈیٹا, err);
+  اگر (UNLIKELY (ret < 0))
+    جاؤ باہر_نکلو;
 
-  ret = sd_bus_message_new_method_call (bus, &m, "org.freedesktop.systemd1", "/org/freedesktop/systemd1",
+  ret = sd_bus_پیغام_new_طریقہ_call (bus, &m, "org.freedesktop.systemd1", "/org/freedesktop/systemd1",
                                         "org.freedesktop.systemd1.Manager", "StopUnit");
-  if (UNLIKELY (ret < 0))
+  اگر (UNLIKELY (ret < 0))
     {
       ret = crun_make_error (err, -ret, "set up dbus message");
-      goto exit;
+      جاؤ باہر_نکلو;
     }
 
-  ret = sd_bus_message_append (m, "ss", scope, "replace");
-  if (UNLIKELY (ret < 0))
+  ret = sd_bus_پیغام_append (m, "ss", scope, "replace");
+  اگر (UNLIKELY (ret < 0))
     {
       ret = crun_make_error (err, -ret, "sd-bus message append");
-      goto exit;
+      جاؤ باہر_نکلو;
     }
 
-  ret = sd_bus_call (bus, m, 0, &error, &reply);
-  if (UNLIKELY (ret < 0))
+  ret = sd_bus_call (bus, m, 0, &error, &جواب);
+  اگر (UNLIKELY (ret < 0))
     {
-      ret = crun_make_error (err, sd_bus_error_get_errno (&error), "sd-bus call: %s", error.message ?: error.name);
-      goto exit;
+      ret = crun_make_error (err, sd_bus_error_get_errno (&error), "sd-bus call: %s", error.پیغام_2 ?: error.name);
+      جاؤ باہر_نکلو;
     }
 
-  ret = sd_bus_message_read (reply, "o", &object);
-  if (UNLIKELY (ret < 0))
+  ret = sd_bus_پیغام_read (جواب, "o", &object);
+  اگر (UNLIKELY (ret < 0))
     {
       ret = crun_make_error (err, -ret, "sd-bus message read");
-      goto exit;
+      جاؤ باہر_نکلو;
     }
 
-  ret = systemd_check_job_status (bus, &job_data, object, "removing", err);
+  ret = systemd_check_کام_حالت (bus, &کام_ڈیٹا, object, "removing", err);
 
   /* In case of a failed unit, call reset-failed so systemd can remove it. */
   reset_failed_unit (bus, scope);
 
-exit:
-  return cleanup_sd_bus_and_return (bus, m, reply, &error, ret);
+باہر_نکلو:
+  واپس cleanup_sd_bus_and_return (bus, m, جواب, &error, ret);
 }
 
-static const char *
-find_systemd_subgroup (string_map *annotations)
+ساکن ثابت حرف *
+ڈھونڈو_systemd_subgroup (string_map *annotations)
 {
-  const char *annotation;
+  ثابت حرف *annotation;
 
-  annotation = find_string_map_value (annotations, "run.oci.systemd.subgroup");
-  if (annotation)
+  annotation = ڈھونڈو_string_map_قدر (annotations, "run.oci.systemd.subgroup");
+  اگر (annotation)
     {
-      if (annotation[0] == '\0')
-        return NULL;
-      return annotation;
+      اگر (annotation[0] == '\0')
+        واپس تہی;
+      واپس annotation;
     }
 
-  return "container";
+  واپس "container";
 }
 
-static int
-libcrun_cgroup_enter_systemd (struct libcrun_cgroup_args *args,
-                              struct libcrun_cgroup_status *out,
+ساکن صحیح
+libcrun_cgroup_enter_systemd (ساخت libcrun_cgroup_دلائل *دلائل,
+                              ساخت libcrun_cgroup_حالت *برآمد,
                               libcrun_error_t *err)
 {
-  runtime_spec_schema_config_linux_resources *resources = args->resources;
-  const char *cgroup_path = args->cgroup_path;
-  cleanup_free char *scope_path = NULL;
-  cleanup_free char *scope = NULL;
-  cleanup_free char *path = NULL;
-  cleanup_free char *slice = NULL;
-  int retries_left = 32;
-  const char *suffix;
-  const char *id = args->id;
-  pid_t pid = args->pid;
-  int cgroup_mode;
-  int rootless = 0;
-  int ret;
+  runtime_spec_schema_config_linux_resources *resources = دلائل->resources;
+  ثابت حرف *cgroup_راستہ = دلائل->cgroup_راستہ;
+  cleanup_free حرف *scope_راستہ = تہی;
+  cleanup_free حرف *scope = تہی;
+  cleanup_free حرف *راستہ = تہی;
+  cleanup_free حرف *قاش = تہی;
+  صحیح retries_بایاں = 32;
+  ثابت حرف *suffix;
+  ثابت حرف *id = دلائل->id;
+  pid_t pid = دلائل->pid;
+  صحیح cgroup_منوال;
+  صحیح rootless = 0;
+  صحیح ret;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_منوال = libcrun_get_cgroup_منوال (err);
+  اگر (UNLIKELY (cgroup_منوال < 0))
+    واپس cgroup_منوال;
 
-  if (cgroup_mode == CGROUP_MODE_UNIFIED)
+  اگر (cgroup_منوال == CGROUP_منوال_UNIFIED)
     {
       rootless = is_rootless (err);
-      if (UNLIKELY (rootless < 0))
-        return rootless;
+      اگر (UNLIKELY (rootless < 0))
+        واپس rootless;
     }
 
-  get_systemd_scope_and_slice (id, rootless == 1, cgroup_path, &scope, &slice);
+  get_systemd_scope_and_قاش (id, rootless == 1, cgroup_راستہ, &scope, &قاش);
 
-  for (;;)
+  برائے (;;)
     {
       bool can_retry = false;
 
-      ret = enter_systemd_cgroup_scope (resources, cgroup_mode, args->annotations, args->state_root,
-                                        scope, slice, pid, &can_retry, &out->bpf_dev_set, err);
-      if (LIKELY (ret >= 0))
-        break;
+      ret = enter_systemd_cgroup_scope (resources, cgroup_منوال, دلائل->annotations, دلائل->state_جڑ,
+                                        scope, قاش, pid, &can_retry, &برآمد->bpf_dev_سیٹ, err);
+      اگر (LIKELY (ret >= 0))
+        توڑو;
 
-      if (can_retry && retries_left-- > 0)
+      اگر (can_retry && retries_بایاں-- > 0)
         {
           crun_error_release (err);
-          continue;
+          جاری;
         }
 
-      return ret;
+      واپس ret;
     }
 
-  suffix = find_systemd_subgroup (args->annotations);
+  suffix = ڈھونڈو_systemd_subgroup (دلائل->annotations);
 
-  ret = systemd_finalize (args, &path, cgroup_mode, suffix, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = systemd_finalize (دلائل, &راستہ, cgroup_منوال, suffix, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   /* Remove the suffix that was added by systemd_finalize.  */
-  if (is_empty_string (suffix))
-    scope_path = xstrdup (path);
-  else
+  اگر (is_خالی_خانے_string (suffix))
+    scope_راستہ = xstrdup (راستہ);
+  ورنہ
     {
-      size_t path_len = strlen (path);
-      size_t suffix_len = strlen (suffix);
+      size_t راستہ_len = لڑی_لمبائی (راستہ);
+      size_t suffix_len = لڑی_لمبائی (suffix);
 
-      scope_path = strndup (path, path_len - suffix_len - 1);
-      if (UNLIKELY (scope_path == NULL))
+      scope_راستہ = strndup (راستہ, راستہ_len - suffix_len - 1);
+      اگر (UNLIKELY (scope_راستہ == تہی))
         OOM ();
     }
 
@@ -2227,182 +2227,182 @@ libcrun_cgroup_enter_systemd (struct libcrun_cgroup_args *args,
      the container process is moved there.  Check the scope, as the
      sub-cgroup is created by us, and would appear not frozen even if
      the scope is.  */
-  ret = libcrun_cgroup_ensure_not_frozen (scope_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_cgroup_ensure_not_frozen (scope_راستہ, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   /* Verify that systemd has actually installed the eBPF device filter if one was requested.
      eBPF programs are attached to the systemd scope, not the subgroup.  */
-  if (out->bpf_dev_set)
+  اگر (برآمد->bpf_dev_سیٹ)
     {
-      ret = verify_ebpf_device_filter_installed (scope_path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = verify_ebpf_device_filter_installed (scope_راستہ, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  out->path = path;
-  path = NULL;
+  برآمد->راستہ = راستہ;
+  راستہ = تہی;
 
-  out->scope = scope;
-  scope = NULL;
-  return 0;
+  برآمد->scope = scope;
+  scope = تہی;
+  واپس 0;
 }
 
-char *
-get_cgroup_scope_path (const char *cgroup_path, const char *scope)
+حرف *
+get_cgroup_scope_راستہ (ثابت حرف *cgroup_راستہ, ثابت حرف *scope)
 {
-  char *path_to_scope = NULL;
-  char *cur;
+  حرف *راستہ_مقصد_scope = تہی;
+  حرف *cur;
 
-  if (is_empty_string (cgroup_path))
-    return NULL;
+  اگر (is_خالی_خانے_string (cgroup_راستہ))
+    واپس تہی;
 
-  path_to_scope = xstrdup (cgroup_path);
+  راستہ_مقصد_scope = xstrdup (cgroup_راستہ);
 
-  cur = strchr (path_to_scope, '/');
-  while (cur)
+  cur = strchr (راستہ_مقصد_scope, '/');
+  جب (cur)
     {
-      char *next = strchr (cur + 1, '/');
-      if (next == NULL)
-        break;
+      حرف *اگلا = strchr (cur + 1, '/');
+      اگر (اگلا == تہی)
+        توڑو;
 
-      *next = '\0';
-      if (strcmp (cur, scope) == 0)
-        return path_to_scope;
-      *next = '/';
+      *اگلا = '\0';
+      اگر (strcmp (cur, scope) == 0)
+        واپس راستہ_مقصد_scope;
+      *اگلا = '/';
 
-      cur = next;
-      while (*cur == '/')
+      cur = اگلا;
+      جب (*cur == '/')
         cur++;
     }
 
-  return path_to_scope;
+  واپس راستہ_مقصد_scope;
 }
 
-static int
-libcrun_destroy_cgroup_systemd (struct libcrun_cgroup_status *cgroup_status,
+ساکن صحیح
+libcrun_destroy_cgroup_systemd (ساخت libcrun_cgroup_حالت *cgroup_حالت,
                                 libcrun_error_t *err)
 {
-  cleanup_free char *path_to_scope = NULL;
-  cleanup_free char *bpfprog = NULL;
-  int mode;
-  int ret;
+  cleanup_free حرف *راستہ_مقصد_scope = تہی;
+  cleanup_free حرف *bpfprog = تہی;
+  صحیح منوال;
+  صحیح ret;
 
-  mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (mode < 0))
-    return mode;
+  منوال = libcrun_get_cgroup_منوال (err);
+  اگر (UNLIKELY (منوال < 0))
+    واپس منوال;
 
-  ret = cgroup_killall_path (cgroup_status->path, SIGKILL, err);
-  if (UNLIKELY (ret < 0))
+  ret = cgroup_killall_راستہ (cgroup_حالت->راستہ, SIGKILL, err);
+  اگر (UNLIKELY (ret < 0))
     crun_error_release (err);
 
-  ret = libcrun_destroy_systemd_cgroup_scope (cgroup_status, err);
-  if (UNLIKELY (ret < 0))
+  ret = libcrun_destroy_systemd_cgroup_scope (cgroup_حالت, err);
+  اگر (UNLIKELY (ret < 0))
     crun_error_release (err);
 
-  ret = bpfprog_path_from_scope (&bpfprog, cgroup_status->scope, err);
-  if (UNLIKELY (ret < 0))
+  ret = bpfprog_راستہ_from_scope (&bpfprog, cgroup_حالت->scope, err);
+  اگر (UNLIKELY (ret < 0))
     crun_error_release (err);
-  else
+  ورنہ
     unlink (bpfprog); // Best effort.
 
-  path_to_scope = get_cgroup_scope_path (cgroup_status->path, cgroup_status->scope);
+  راستہ_مقصد_scope = get_cgroup_scope_راستہ (cgroup_حالت->راستہ, cgroup_حالت->scope);
 
-  return destroy_cgroup_path (path_to_scope, mode, err);
+  واپس destroy_cgroup_راستہ (راستہ_مقصد_scope, منوال, err);
 }
 
-static int
-libcrun_update_resources_systemd (struct libcrun_cgroup_status *cgroup_status,
-                                  const char *state_root,
+ساکن صحیح
+libcrun_update_resources_systemd (ساخت libcrun_cgroup_حالت *cgroup_حالت,
+                                  ثابت حرف *state_جڑ,
                                   runtime_spec_schema_config_linux_resources *resources,
                                   libcrun_error_t *err)
 {
-  struct systemd_job_removed_s job_data = {};
+  ساخت systemd_کام_removed_s کام_ڈیٹا = {};
   sd_bus_error error = SD_BUS_ERROR_NULL;
-  cleanup_free char *state_dir = NULL;
-  sd_bus_message *reply = NULL;
-  sd_bus_message *m = NULL;
-  sd_bus *bus = NULL;
-  int sd_err, ret;
-  int cgroup_mode;
+  cleanup_free حرف *state_dir = تہی;
+  sd_bus_پیغام *جواب = تہی;
+  sd_bus_پیغام *m = تہی;
+  sd_bus *bus = تہی;
+  صحیح sd_err, ret;
+  صحیح cgroup_منوال;
 
-  ret = libcrun_get_state_directory (&state_dir, state_root, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_get_state_directory (&state_dir, state_جڑ, تہی, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_منوال = libcrun_get_cgroup_منوال (err);
+  اگر (UNLIKELY (cgroup_منوال < 0))
+    واپس cgroup_منوال;
 
   ret = open_sd_bus_connection (&bus, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = systemd_check_job_status_setup (bus, &job_data, err);
-  if (UNLIKELY (ret < 0))
-    goto exit;
+  ret = systemd_check_کام_حالت_تیاری (bus, &کام_ڈیٹا, err);
+  اگر (UNLIKELY (ret < 0))
+    جاؤ باہر_نکلو;
 
-  sd_err = sd_bus_message_new_method_call (bus, &m, "org.freedesktop.systemd1",
+  sd_err = sd_bus_پیغام_new_طریقہ_call (bus, &m, "org.freedesktop.systemd1",
                                            "/org/freedesktop/systemd1",
                                            "org.freedesktop.systemd1.Manager",
                                            "SetUnitProperties");
-  if (UNLIKELY (sd_err < 0))
+  اگر (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "set up dbus message");
-      goto exit;
+      جاؤ باہر_نکلو;
     }
 
-  sd_err = sd_bus_message_append (m, "sb", cgroup_status->scope, 1);
-  if (UNLIKELY (sd_err < 0))
+  sd_err = sd_bus_پیغام_append (m, "sb", cgroup_حالت->scope, 1);
+  اگر (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus message append");
-      goto exit;
+      جاؤ باہر_نکلو;
     }
 
-  sd_err = sd_bus_message_open_container (m, 'a', "(sv)");
-  if (UNLIKELY (sd_err < 0))
+  sd_err = sd_bus_پیغام_open_container (m, 'a', "(sv)");
+  اگر (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus open container");
-      goto exit;
+      جاؤ باہر_نکلو;
     }
 
-  ret = append_resources (m, true, state_dir, resources, cgroup_mode, cgroup_status->scope, &cgroup_status->bpf_dev_set, err);
-  if (UNLIKELY (ret < 0))
-    goto exit;
+  ret = append_resources (m, true, state_dir, resources, cgroup_منوال, cgroup_حالت->scope, &cgroup_حالت->bpf_dev_سیٹ, err);
+  اگر (UNLIKELY (ret < 0))
+    جاؤ باہر_نکلو;
 
-  sd_err = sd_bus_message_close_container (m);
-  if (UNLIKELY (sd_err < 0))
+  sd_err = sd_bus_پیغام_close_container (m);
+  اگر (UNLIKELY (sd_err < 0))
     {
       ret = crun_make_error (err, -sd_err, "sd-bus close container");
-      goto exit;
+      جاؤ باہر_نکلو;
     }
 
-  sd_err = sd_bus_call (bus, m, 0, &error, &reply);
-  if (UNLIKELY (sd_err < 0))
+  sd_err = sd_bus_call (bus, m, 0, &error, &جواب);
+  اگر (UNLIKELY (sd_err < 0))
     {
-      ret = crun_make_error (err, sd_bus_error_get_errno (&error), "sd-bus call: %s", error.message ?: error.name);
-      goto exit;
+      ret = crun_make_error (err, sd_bus_error_get_errno (&error), "sd-bus call: %s", error.پیغام_2 ?: error.name);
+      جاؤ باہر_نکلو;
     }
 
-  if (cgroup_mode != CGROUP_MODE_UNIFIED)
+  اگر (cgroup_منوال != CGROUP_منوال_UNIFIED)
     {
-      ret = setup_rt_runtime (resources, cgroup_status->path, err);
-      if (UNLIKELY (ret < 0))
-        goto exit;
+      ret = تیاری_rt_runtime (resources, cgroup_حالت->راستہ, err);
+      اگر (UNLIKELY (ret < 0))
+        جاؤ باہر_نکلو;
 
-      ret = setup_cpuset_for_systemd_v1 (resources, cgroup_status->path, err);
-      if (UNLIKELY (ret < 0))
-        goto exit;
+      ret = تیاری_cpuset_for_systemd_v1 (resources, cgroup_حالت->راستہ, err);
+      اگر (UNLIKELY (ret < 0))
+        جاؤ باہر_نکلو;
     }
 
-  ret = setup_missing_cpu_options_for_systemd (resources, cgroup_mode == CGROUP_MODE_UNIFIED, cgroup_status->path, err);
-  if (UNLIKELY (ret < 0))
-    goto exit;
+  ret = تیاری_missing_cpu_options_for_systemd (resources, cgroup_منوال == CGROUP_منوال_UNIFIED, cgroup_حالت->راستہ, err);
+  اگر (UNLIKELY (ret < 0))
+    جاؤ باہر_نکلو;
 
   ret = 0;
 
-exit:
-  return cleanup_sd_bus_and_return (bus, m, reply, &error, ret);
+باہر_نکلو:
+  واپس cleanup_sd_bus_and_return (bus, m, جواب, &error, ret);
 }
 
 /* Ask systemd to move PID to PATH, which is either the container scope
@@ -2410,97 +2410,97 @@ exit:
    access to the cgroup.procs file of the common ancestor of the source and
    the destination cgroups, as it is the case for a rootless user in a login
    session, which is outside of user@.service.  */
-static int
-libcrun_attach_process_systemd (struct libcrun_cgroup_status *cgroup_status,
-                                const char *path, pid_t pid,
+ساکن صحیح
+libcrun_attach_process_systemd (ساخت libcrun_cgroup_حالت *cgroup_حالت,
+                                ثابت حرف *راستہ, pid_t pid,
                                 libcrun_error_t *err)
 {
-  const char *scope = cgroup_status->scope;
+  ثابت حرف *scope = cgroup_حالت->scope;
   sd_bus_error error = SD_BUS_ERROR_NULL;
-  cleanup_free char *scope_path = NULL;
-  sd_bus_message *reply = NULL;
-  const char *subcgroup;
-  const char *last;
-  sd_bus *bus = NULL;
+  cleanup_free حرف *scope_راستہ = تہی;
+  sd_bus_پیغام *جواب = تہی;
+  ثابت حرف *subcgroup;
+  ثابت حرف *آخری;
+  sd_bus *bus = تہی;
   size_t len;
-  int sd_err, ret;
+  صحیح sd_err, ret;
 
-  if (is_empty_string (scope))
-    return crun_make_error (err, 0, "cannot attach process to cgroup: no systemd scope");
+  اگر (is_خالی_خانے_string (scope))
+    واپس crun_make_error (err, 0, "cannot attach process to cgroup: no systemd scope");
 
   /* The sub-cgroup is relative to the scope cgroup.  */
-  scope_path = get_cgroup_scope_path (path, scope);
-  if (scope_path == NULL)
-    return crun_make_error (err, 0, "cannot attach process to cgroup: empty path");
-  last = strrchr (scope_path, '/');
-  if (last == NULL || strcmp (last + 1, scope) != 0)
-    return crun_make_error (err, 0, "cannot find scope `%s` in cgroup path `%s`", scope, path);
-  len = strlen (scope_path);
-  subcgroup = path[len] ? path + len : "/";
+  scope_راستہ = get_cgroup_scope_راستہ (راستہ, scope);
+  اگر (scope_راستہ == تہی)
+    واپس crun_make_error (err, 0, "cannot attach process to cgroup: empty path");
+  آخری = strrchr (scope_راستہ, '/');
+  اگر (آخری == تہی || strcmp (آخری + 1, scope) != 0)
+    واپس crun_make_error (err, 0, "cannot find scope `%s` in cgroup path `%s`", scope, راستہ);
+  len = لڑی_لمبائی (scope_راستہ);
+  subcgroup = راستہ[len] ? راستہ + len : "/";
 
   ret = open_sd_bus_connection (&bus, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  sd_err = sd_bus_call_method (bus, "org.freedesktop.systemd1", "/org/freedesktop/systemd1",
+  sd_err = sd_bus_call_طریقہ (bus, "org.freedesktop.systemd1", "/org/freedesktop/systemd1",
                                "org.freedesktop.systemd1.Manager", "AttachProcessesToUnit",
-                               &error, &reply, "ssau", scope, subcgroup, 1, (uint32_t) pid);
-  if (UNLIKELY (sd_err < 0))
+                               &error, &جواب, "ssau", scope, subcgroup, 1, (uint32_t) pid);
+  اگر (UNLIKELY (sd_err < 0))
     ret = crun_make_error (err, sd_bus_error_get_errno (&error), "sd-bus call AttachProcessesToUnit: %s",
-                           error.message ?: error.name);
+                           error.پیغام_2 ?: error.name);
 
-  return cleanup_sd_bus_and_return (bus, NULL, reply, &error, ret);
+  واپس cleanup_sd_bus_and_return (bus, تہی, جواب, &error, ret);
 }
 
-#else
-static int
-libcrun_cgroup_enter_systemd (struct libcrun_cgroup_args *args,
-                              struct libcrun_cgroup_status *out,
+#ورنہ
+ساکن صحیح
+libcrun_cgroup_enter_systemd (ساخت libcrun_cgroup_دلائل *دلائل,
+                              ساخت libcrun_cgroup_حالت *برآمد,
                               libcrun_error_t *err)
 {
-  (void) args;
-  (void) out;
+  (خالی) دلائل;
+  (خالی) برآمد;
 
-  return crun_make_error (err, ENOTSUP, "systemd not supported");
+  واپس crun_make_error (err, ENOTSUP, "systemd not supported");
 }
 
-static int
-libcrun_destroy_cgroup_systemd (struct libcrun_cgroup_status *cgroup_status,
+ساکن صحیح
+libcrun_destroy_cgroup_systemd (ساخت libcrun_cgroup_حالت *cgroup_حالت,
                                 libcrun_error_t *err)
 {
-  (void) cgroup_status;
+  (خالی) cgroup_حالت;
 
-  return crun_make_error (err, ENOTSUP, "systemd not supported");
+  واپس crun_make_error (err, ENOTSUP, "systemd not supported");
 }
 
-static int
-libcrun_update_resources_systemd (struct libcrun_cgroup_status *cgroup_status,
-                                  const char *state_root,
+ساکن صحیح
+libcrun_update_resources_systemd (ساخت libcrun_cgroup_حالت *cgroup_حالت,
+                                  ثابت حرف *state_جڑ,
                                   runtime_spec_schema_config_linux_resources *resources,
                                   libcrun_error_t *err)
 {
-  (void) cgroup_status;
-  (void) state_root;
-  (void) resources;
+  (خالی) cgroup_حالت;
+  (خالی) state_جڑ;
+  (خالی) resources;
 
-  return crun_make_error (err, ENOTSUP, "systemd not supported");
+  واپس crun_make_error (err, ENOTSUP, "systemd not supported");
 }
 
-static int
-libcrun_attach_process_systemd (struct libcrun_cgroup_status *cgroup_status,
-                                const char *path, pid_t pid,
+ساکن صحیح
+libcrun_attach_process_systemd (ساخت libcrun_cgroup_حالت *cgroup_حالت,
+                                ثابت حرف *راستہ, pid_t pid,
                                 libcrun_error_t *err)
 {
-  (void) cgroup_status;
-  (void) path;
-  (void) pid;
+  (خالی) cgroup_حالت;
+  (خالی) راستہ;
+  (خالی) pid;
 
-  return crun_make_error (err, ENOTSUP, "systemd not supported");
+  واپس crun_make_error (err, ENOTSUP, "systemd not supported");
 }
-#endif
+#اگر_ختم
 
-struct libcrun_cgroup_manager cgroup_manager_systemd = {
-  .precreate_cgroup = NULL,
+ساخت libcrun_cgroup_manager cgroup_manager_systemd = {
+  .precreate_cgroup = تہی,
   .create_cgroup = libcrun_cgroup_enter_systemd,
   .destroy_cgroup = libcrun_destroy_cgroup_systemd,
   .update_resources = libcrun_update_resources_systemd,

@@ -16,39 +16,39 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CRIU_H
-#define CRIU_H
+#اگر_غیر_تعریف_شدہ CRIU_H
+#تعریف_کرو CRIU_H
 
-#include <config.h>
-#include "container.h"
-#include "error.h"
-#include "utils.h"
+#شامل <config.h>
+#شامل "container.h"
+#شامل "error.h"
+#شامل "utils.h"
 
-#if HAVE_CRIU && HAVE_DLOPEN
+#اگر HAVE_CRIU && HAVE_DLOPEN
 
-int libcrun_container_checkpoint_linux_criu (libcrun_container_status_t *status, libcrun_container_t *container,
+صحیح libcrun_container_checkpoint_linux_criu (libcrun_container_حالت_t *حالت_2, libcrun_container_t *container,
                                              libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err);
 
-int libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcrun_container_t *container,
+صحیح libcrun_container_restore_linux_criu (libcrun_container_حالت_t *حالت_2, libcrun_container_t *container,
                                           libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err);
 
-#else
+#ورنہ
 
-static inline int
-libcrun_container_checkpoint_linux_criu (arg_unused libcrun_container_status_t *status,
-                                         arg_unused libcrun_container_t *container,
-                                         arg_unused libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
+ساکن اندرونی صحیح
+libcrun_container_checkpoint_linux_criu (arg_غیر_مستعمل libcrun_container_حالت_t *حالت_2,
+                                         arg_غیر_مستعمل libcrun_container_t *container,
+                                         arg_غیر_مستعمل libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
 {
-  return crun_make_error (err, 0, "compiled without CRIU support. Checkpointing not available");
+  واپس crun_make_error (err, 0, "compiled without CRIU support. Checkpointing not available");
 }
 
-static inline int
-libcrun_container_restore_linux_criu (arg_unused libcrun_container_status_t *status,
-                                      arg_unused libcrun_container_t *container,
-                                      arg_unused libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
+ساکن اندرونی صحیح
+libcrun_container_restore_linux_criu (arg_غیر_مستعمل libcrun_container_حالت_t *حالت_2,
+                                      arg_غیر_مستعمل libcrun_container_t *container,
+                                      arg_غیر_مستعمل libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
 {
-  return crun_make_error (err, 0, "compiled without CRIU support. Restore not available");
+  واپس crun_make_error (err, 0, "compiled without CRIU support. Restore not available");
 }
 
-#endif
-#endif
+#اگر_ختم
+#اگر_ختم

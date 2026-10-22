@@ -16,79 +16,79 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#تعریف_کرو GNU_ماخذ
 
-#include <config.h>
+#شامل <config.h>
 
-#ifdef HAVE_LINUX_IOPRIO_H
+#اگر_تعریف_شدہ HAVE_LINUX_IOPRIO_H
 #  include <linux/ioprio.h>
-#endif
+#اگر_ختم
 
-#include "linux.h"
-#include "utils.h"
-#include "io_priority.h"
-#include <sys/sysmacros.h>
+#شامل "linux.h"
+#شامل "utils.h"
+#شامل "io_priority.h"
+#شامل <sys/sysmacros.h>
 
-#ifdef HAVE_LINUX_IOPRIO_H
-static int
-syscall_ioprio_set (int which, int who, int ioprio)
+#اگر_تعریف_شدہ HAVE_LINUX_IOPRIO_H
+ساکن صحیح
+syscall_ioprio_سیٹ (صحیح which, صحیح who, صحیح ioprio)
 {
 #  ifdef __NR_ioprio_set
-  return syscall (__NR_ioprio_set, which, who, ioprio);
-#  else
-  (void) which;
-  (void) who;
-  (void) ioprio;
+  واپس syscall (__NR_ioprio_set, which, who, ioprio);
+#  ورنہ
+  (خالی) which;
+  (خالی) who;
+  (خالی) ioprio;
   errno = ENOSYS;
-  return -1;
+  واپس -1;
 #  endif
 }
-#endif
+#اگر_ختم
 
-int
-libcrun_set_io_priority (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err)
+صحیح
+libcrun_سیٹ_io_ترجیح (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err)
 {
-#ifdef HAVE_LINUX_IOPRIO_H
-  int ret, i, class_value, value;
-  struct
+#اگر_تعریف_شدہ HAVE_LINUX_IOPRIO_H
+  صحیح ret, i, class_قدر, قدر;
+  ساخت
   {
-    const char *name;
-    int value;
+    ثابت حرف *name;
+    صحیح قدر;
   } classes[] = {
     { "IOPRIO_CLASS_RT", IOPRIO_CLASS_RT },
     { "IOPRIO_CLASS_BE", IOPRIO_CLASS_BE },
     { "IOPRIO_CLASS_IDLE", IOPRIO_CLASS_IDLE },
-    { NULL, 0 },
+    { تہی, 0 },
   };
 
-  if (process == NULL || process->io_priority == NULL)
-    return 0;
+  اگر (process == تہی || process->io_ترجیح == تہی)
+    واپس 0;
 
-  class_value = -1;
-  for (i = 0; classes[i].name; i++)
-    if (strcmp (process->io_priority->_class, classes[i].name) == 0)
+  class_قدر = -1;
+  برائے (i = 0; classes[i].name; i++)
+    اگر (strcmp (process->io_ترجیح->_class, classes[i].name) == 0)
       {
-        class_value = i;
-        break;
+        class_قدر = i;
+        توڑو;
       }
-  if (UNLIKELY (class_value < 0))
-    return crun_make_error (err, 0, "invalid io priority `%s`", process->io_priority->_class);
+  اگر (UNLIKELY (class_قدر < 0))
+    واپس crun_make_error (err, 0, "invalid io priority `%s`", process->io_ترجیح->_class);
 
-  value = IOPRIO_PRIO_VALUE (classes[class_value].value, process->io_priority->priority);
+  قدر = IOPRIO_PRIO_قدر (classes[class_قدر].قدر, process->io_ترجیح->ترجیح);
 
-  ret = syscall_ioprio_set (IOPRIO_WHO_PROCESS, pid, value);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "failed to set io priority");
+  ret = syscall_ioprio_سیٹ (IOPRIO_WHO_PROCESS, pid, قدر);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "failed to set io priority");
 
-  return 0;
-#else
+  واپس 0;
+#ورنہ
   // If io_priority is not set then return without doing
   // anything.
-  if (process == NULL || process->io_priority == NULL)
-    return 0;
+  اگر (process == تہی || process->io_ترجیح == تہی)
+    واپس 0;
 
-  (void) pid;
-  (void) process;
-  return crun_make_error (err, 0, "io priority not supported");
-#endif
+  (خالی) pid;
+  (خالی) process;
+  واپس crun_make_error (err, 0, "io priority not supported");
+#اگر_ختم
 }

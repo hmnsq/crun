@@ -2,7 +2,7 @@
 /* Command-line: gperf --lookup-function-name libcrun_mount_flag_in_word_set -m 100 -tCEG -S1 src/libcrun/mount_flags.perf  */
 /* Computed positions: -k'1-4' */
 
-#if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
+#اگر !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
       && ('%' == 37) && ('&' == 38) && ('\'' == 39) && ('(' == 40) \
       && (')' == 41) && ('*' == 42) && ('+' == 43) && (',' == 44) \
       && ('-' == 45) && ('.' == 46) && ('/' == 47) && ('0' == 48) \
@@ -26,48 +26,48 @@
       && ('w' == 119) && ('x' == 120) && ('y' == 121) && ('z' == 122) \
       && ('{' == 123) && ('|' == 124) && ('}' == 125) && ('~' == 126))
 /* The character set is not based on ISO-646.  */
-#error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gperf@gnu.org>."
-#endif
+#غلطی "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gperf@gnu.org>."
+#اگر_ختم
 
-#line 19 "src/libcrun/mount_flags.perf"
+#سطر 19 "src/libcrun/mount_flags.perf"
 
-#define _GNU_SOURCE
+#تعریف_کرو GNU_ماخذ
 
-#include <config.h>
-#include <stddef.h>
-#include <stdlib.h>
+#شامل <config.h>
+#شامل <stddef.h>
+#شامل <stdlib.h>
 
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/mount.h>
+#شامل <fcntl.h>
+#شامل <unistd.h>
+#شامل <sys/mount.h>
 
-#include "utils.h"
-#include "mount_flags.h"
+#شامل "utils.h"
+#شامل "mount_flags.h"
 
-#line 34 "src/libcrun/mount_flags.perf"
-struct propagation_flags_s;
-enum
+#سطر 34 "src/libcrun/mount_flags.perf"
+ساخت اشاعت_flags_s;
+شمار
   {
-    TOTAL_KEYWORDS = 63,
-    MIN_WORD_LENGTH = 2,
-    MAX_WORD_LENGTH = 14,
-    MIN_HASH_VALUE = 2,
-    MAX_HASH_VALUE = 96
+    کل_KEYWORDS = 63,
+    MIN_لفظ_لمبائی = 2,
+    MAX_لفظ_لمبائی = 14,
+    MIN_HASH_قدر = 2,
+    MAX_HASH_قدر = 96
   };
 
 /* maximum key range = 95, duplicates = 0 */
 
-#ifdef __GNUC__
+#اگر_تعریف_شدہ __GNUC__
 __inline
-#else
-#ifdef __cplusplus
-inline
-#endif
-#endif
-static unsigned int
-hash (register const char *str, register size_t len)
+#ورنہ
+#اگر_تعریف_شدہ __cplusplus
+اندرونی
+#اگر_ختم
+#اگر_ختم
+ساکن غیرعلامتی صحیح
+hash (اندراج ثابت حرف *str, اندراج size_t len)
 {
-  static const unsigned char asso_values[] =
+  ساکن ثابت غیرعلامتی حرف asso_اقدار[] =
     {
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
@@ -96,390 +96,390 @@ hash (register const char *str, register size_t len)
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
       97, 97, 97, 97, 97, 97
     };
-  register unsigned int hval = len;
+  اندراج غیرعلامتی صحیح hval = len;
 
-  switch (hval)
+  انتخاب (hval)
     {
-      default:
-        hval += asso_values[(unsigned char)str[3]];
+      طےشدہ:
+        hval += asso_اقدار[(غیرعلامتی حرف)str[3]];
       /*FALLTHROUGH*/
-      case 3:
-        hval += asso_values[(unsigned char)str[2]];
+      حالت 3:
+        hval += asso_اقدار[(غیرعلامتی حرف)str[2]];
       /*FALLTHROUGH*/
-      case 2:
-        hval += asso_values[(unsigned char)str[1]];
+      حالت 2:
+        hval += asso_اقدار[(غیرعلامتی حرف)str[1]];
       /*FALLTHROUGH*/
-      case 1:
-        hval += asso_values[(unsigned char)str[0]];
-        break;
+      حالت 1:
+        hval += asso_اقدار[(غیرعلامتی حرف)str[0]];
+        توڑو;
     }
-  return hval;
+  واپس hval;
 }
 
-static const struct propagation_flags_s wordlist[] =
+ساکن ثابت ساخت اشاعت_flags_s wordlist[] =
   {
-#line 40 "src/libcrun/mount_flags.perf"
+#سطر 40 "src/libcrun/mount_flags.perf"
     {"rw", 1, MS_RDONLY, 0},
-#line 74 "src/libcrun/mount_flags.perf"
+#سطر 74 "src/libcrun/mount_flags.perf"
     {"rrw", 1, MS_RDONLY, OPTION_RECURSIVE},
-#line 39 "src/libcrun/mount_flags.perf"
+#سطر 39 "src/libcrun/mount_flags.perf"
     {"ro", 0, MS_RDONLY, 0},
-#line 73 "src/libcrun/mount_flags.perf"
+#سطر 73 "src/libcrun/mount_flags.perf"
     {"rro", 0, MS_RDONLY, OPTION_RECURSIVE},
-#line 83 "src/libcrun/mount_flags.perf"
+#سطر 83 "src/libcrun/mount_flags.perf"
     {"rdirsync", 0, MS_DIRSYNC, OPTION_RECURSIVE},
-#line 88 "src/libcrun/mount_flags.perf"
+#سطر 88 "src/libcrun/mount_flags.perf"
     {"rdiratime", 1, MS_NODIRATIME, OPTION_RECURSIVE},
-#line 78 "src/libcrun/mount_flags.perf"
+#سطر 78 "src/libcrun/mount_flags.perf"
     {"rnodev", 0, MS_NODEV, OPTION_RECURSIVE},
-#line 91 "src/libcrun/mount_flags.perf"
+#سطر 91 "src/libcrun/mount_flags.perf"
     {"rnorelatime", 1, MS_RELATIME, OPTION_RECURSIVE},
-#line 60 "src/libcrun/mount_flags.perf"
+#سطر 60 "src/libcrun/mount_flags.perf"
     {"nodiratime", 0, MS_NODIRATIME, 0},
-#line 89 "src/libcrun/mount_flags.perf"
+#سطر 89 "src/libcrun/mount_flags.perf"
     {"rnodiratime", 0, MS_NODIRATIME, OPTION_RECURSIVE},
-#line 53 "src/libcrun/mount_flags.perf"
+#سطر 53 "src/libcrun/mount_flags.perf"
     {"dirsync", 0, MS_DIRSYNC, 0},
-#line 76 "src/libcrun/mount_flags.perf"
+#سطر 76 "src/libcrun/mount_flags.perf"
     {"rnosuid", 0, MS_NOSUID, OPTION_RECURSIVE},
-#line 86 "src/libcrun/mount_flags.perf"
+#سطر 86 "src/libcrun/mount_flags.perf"
     {"ratime", 1, MS_NOATIME, OPTION_RECURSIVE},
-#line 59 "src/libcrun/mount_flags.perf"
+#سطر 59 "src/libcrun/mount_flags.perf"
     {"diratime", 1, MS_NODIRATIME, 0},
-#line 87 "src/libcrun/mount_flags.perf"
+#سطر 87 "src/libcrun/mount_flags.perf"
     {"rnoatime", 0, MS_NOATIME, OPTION_RECURSIVE},
-#line 63 "src/libcrun/mount_flags.perf"
+#سطر 63 "src/libcrun/mount_flags.perf"
     {"strictatime", 0, MS_STRICTATIME, 0},
-#line 92 "src/libcrun/mount_flags.perf"
+#سطر 92 "src/libcrun/mount_flags.perf"
     {"rstrictatime", 0, MS_STRICTATIME, OPTION_RECURSIVE},
-#line 58 "src/libcrun/mount_flags.perf"
+#سطر 58 "src/libcrun/mount_flags.perf"
     {"noatime", 0, MS_NOATIME, 0},
-#line 93 "src/libcrun/mount_flags.perf"
+#سطر 93 "src/libcrun/mount_flags.perf"
     {"rnostrictatime", 1, MS_STRICTATIME, OPTION_RECURSIVE},
-#line 85 "src/libcrun/mount_flags.perf"
+#سطر 85 "src/libcrun/mount_flags.perf"
     {"rnomand", 1, MS_MANDLOCK, OPTION_RECURSIVE},
-#line 64 "src/libcrun/mount_flags.perf"
+#سطر 64 "src/libcrun/mount_flags.perf"
     {"nostrictatime", 1, MS_STRICTATIME, 0},
-#line 80 "src/libcrun/mount_flags.perf"
+#سطر 80 "src/libcrun/mount_flags.perf"
     {"rnoexec", 0, MS_NOEXEC, OPTION_RECURSIVE},
-#line 44 "src/libcrun/mount_flags.perf"
+#سطر 44 "src/libcrun/mount_flags.perf"
     {"nodev", 0, MS_NODEV, 0},
-#line 84 "src/libcrun/mount_flags.perf"
+#سطر 84 "src/libcrun/mount_flags.perf"
     {"rmand", 0, MS_MANDLOCK, OPTION_RECURSIVE},
-#line 62 "src/libcrun/mount_flags.perf"
+#سطر 62 "src/libcrun/mount_flags.perf"
     {"norelatime", 1, MS_RELATIME, 0},
-#line 55 "src/libcrun/mount_flags.perf"
+#سطر 55 "src/libcrun/mount_flags.perf"
     {"mand", 0, MS_MANDLOCK, 0},
-#line 95 "src/libcrun/mount_flags.perf"
+#سطر 95 "src/libcrun/mount_flags.perf"
     {"idmap", 0, 0, OPTION_IDMAP},
-#line 57 "src/libcrun/mount_flags.perf"
+#سطر 57 "src/libcrun/mount_flags.perf"
     {"atime", 1, MS_NOATIME, 0},
-#line 56 "src/libcrun/mount_flags.perf"
+#سطر 56 "src/libcrun/mount_flags.perf"
     {"nomand", 1, MS_MANDLOCK, 0},
-#line 50 "src/libcrun/mount_flags.perf"
+#سطر 50 "src/libcrun/mount_flags.perf"
     {"noiversion", 0, 0, 0},
-#line 38 "src/libcrun/mount_flags.perf"
+#سطر 38 "src/libcrun/mount_flags.perf"
     {"rbind", 0, MS_REC|MS_BIND, 0},
-#line 68 "src/libcrun/mount_flags.perf"
+#سطر 68 "src/libcrun/mount_flags.perf"
     {"rslave", 0, MS_REC|MS_SLAVE, 0},
-#line 37 "src/libcrun/mount_flags.perf"
+#سطر 37 "src/libcrun/mount_flags.perf"
     {"bind", 0, MS_BIND, 0},
-#line 36 "src/libcrun/mount_flags.perf"
+#سطر 36 "src/libcrun/mount_flags.perf"
     {"defaults", 0, 0, 0},
-#line 90 "src/libcrun/mount_flags.perf"
+#سطر 90 "src/libcrun/mount_flags.perf"
     {"rrelatime", 0, MS_RELATIME, OPTION_RECURSIVE},
-#line 70 "src/libcrun/mount_flags.perf"
+#سطر 70 "src/libcrun/mount_flags.perf"
     {"rprivate", 0, MS_REC|MS_PRIVATE, 0},
-#line 46 "src/libcrun/mount_flags.perf"
+#سطر 46 "src/libcrun/mount_flags.perf"
     {"noexec", 0, MS_NOEXEC, 0},
-#line 81 "src/libcrun/mount_flags.perf"
+#سطر 81 "src/libcrun/mount_flags.perf"
     {"rsync", 0, MS_SYNCHRONOUS, OPTION_RECURSIVE},
-#line 54 "src/libcrun/mount_flags.perf"
+#سطر 54 "src/libcrun/mount_flags.perf"
     {"remount", 0, MS_REMOUNT, 0},
-#line 98 "src/libcrun/mount_flags.perf"
+#سطر 98 "src/libcrun/mount_flags.perf"
     {"dest-nofollow", 0, 0, OPTION_DEST_NOFOLLOW},
-#line 51 "src/libcrun/mount_flags.perf"
+#سطر 51 "src/libcrun/mount_flags.perf"
     {"silent", 0, 0, 0},
-#line 43 "src/libcrun/mount_flags.perf"
+#سطر 43 "src/libcrun/mount_flags.perf"
     {"dev", 1, MS_NODEV, 0},
-#line 77 "src/libcrun/mount_flags.perf"
+#سطر 77 "src/libcrun/mount_flags.perf"
     {"rdev", 1, MS_NODEV, OPTION_RECURSIVE},
-#line 49 "src/libcrun/mount_flags.perf"
+#سطر 49 "src/libcrun/mount_flags.perf"
     {"iversion", 0, 0, 0},
-#line 61 "src/libcrun/mount_flags.perf"
+#سطر 61 "src/libcrun/mount_flags.perf"
     {"relatime", 0, MS_RELATIME, 0},
-#line 75 "src/libcrun/mount_flags.perf"
+#سطر 75 "src/libcrun/mount_flags.perf"
     {"rsuid", 1, MS_NOSUID, OPTION_RECURSIVE},
-#line 47 "src/libcrun/mount_flags.perf"
+#سطر 47 "src/libcrun/mount_flags.perf"
     {"sync", 0, MS_SYNCHRONOUS, 0},
-#line 41 "src/libcrun/mount_flags.perf"
+#سطر 41 "src/libcrun/mount_flags.perf"
     {"suid", 1, MS_NOSUID, 0},
-#line 48 "src/libcrun/mount_flags.perf"
+#سطر 48 "src/libcrun/mount_flags.perf"
     {"async", 1, MS_SYNCHRONOUS, 0},
-#line 82 "src/libcrun/mount_flags.perf"
+#سطر 82 "src/libcrun/mount_flags.perf"
     {"rasync", 1, MS_SYNCHRONOUS, OPTION_RECURSIVE},
-#line 42 "src/libcrun/mount_flags.perf"
+#سطر 42 "src/libcrun/mount_flags.perf"
     {"nosuid", 0, MS_NOSUID, 0},
-#line 79 "src/libcrun/mount_flags.perf"
+#سطر 79 "src/libcrun/mount_flags.perf"
     {"rexec", 1, MS_NOEXEC, OPTION_RECURSIVE},
-#line 65 "src/libcrun/mount_flags.perf"
+#سطر 65 "src/libcrun/mount_flags.perf"
     {"shared", 0, MS_SHARED, 0},
-#line 66 "src/libcrun/mount_flags.perf"
+#سطر 66 "src/libcrun/mount_flags.perf"
     {"rshared", 0, MS_REC|MS_SHARED, 0},
-#line 97 "src/libcrun/mount_flags.perf"
+#سطر 97 "src/libcrun/mount_flags.perf"
     {"src-nofollow", 0, 0, OPTION_SRC_NOFOLLOW},
-#line 67 "src/libcrun/mount_flags.perf"
+#سطر 67 "src/libcrun/mount_flags.perf"
     {"slave", 0, MS_SLAVE, 0},
-#line 52 "src/libcrun/mount_flags.perf"
+#سطر 52 "src/libcrun/mount_flags.perf"
     {"loud", 0, 0, 0},
-#line 69 "src/libcrun/mount_flags.perf"
+#سطر 69 "src/libcrun/mount_flags.perf"
     {"private", 0, MS_PRIVATE, 0},
-#line 45 "src/libcrun/mount_flags.perf"
+#سطر 45 "src/libcrun/mount_flags.perf"
     {"exec", 1, MS_NOEXEC, 0},
-#line 94 "src/libcrun/mount_flags.perf"
+#سطر 94 "src/libcrun/mount_flags.perf"
     {"tmpcopyup", 0, 0, OPTION_TMPCOPYUP},
-#line 71 "src/libcrun/mount_flags.perf"
+#سطر 71 "src/libcrun/mount_flags.perf"
     {"unbindable", 0, MS_UNBINDABLE, 0},
-#line 72 "src/libcrun/mount_flags.perf"
+#سطر 72 "src/libcrun/mount_flags.perf"
     {"runbindable", 0, MS_REC|MS_UNBINDABLE, 0},
-#line 96 "src/libcrun/mount_flags.perf"
+#سطر 96 "src/libcrun/mount_flags.perf"
     {"copy-symlink", 0, 0, OPTION_COPY_SYMLINK}
   };
 
-const struct propagation_flags_s *
-libcrun_mount_flag_in_word_set (register const char *str, register size_t len)
+ثابت ساخت اشاعت_flags_s *
+libcrun_mount_flag_اندر_لفظ_سیٹ (اندراج ثابت حرف *str, اندراج size_t len)
 {
-  if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
+  اگر (len <= MAX_لفظ_لمبائی && len >= MIN_لفظ_لمبائی)
     {
-      register unsigned int key = hash (str, len);
+      اندراج غیرعلامتی صحیح کلید = hash (str, len);
 
-      if (key <= MAX_HASH_VALUE && key >= MIN_HASH_VALUE)
+      اگر (کلید <= MAX_HASH_قدر && کلید >= MIN_HASH_قدر)
         {
-          register const struct propagation_flags_s *resword;
+          اندراج ثابت ساخت اشاعت_flags_s *resword;
 
-          switch (key - 2)
+          انتخاب (کلید - 2)
             {
-              case 0:
+              حالت 0:
                 resword = &wordlist[0];
-                goto compare;
-              case 1:
+                جاؤ compare;
+              حالت 1:
                 resword = &wordlist[1];
-                goto compare;
-              case 4:
+                جاؤ compare;
+              حالت 4:
                 resword = &wordlist[2];
-                goto compare;
-              case 5:
+                جاؤ compare;
+              حالت 5:
                 resword = &wordlist[3];
-                goto compare;
-              case 9:
+                جاؤ compare;
+              حالت 9:
                 resword = &wordlist[4];
-                goto compare;
-              case 10:
+                جاؤ compare;
+              حالت 10:
                 resword = &wordlist[5];
-                goto compare;
-              case 11:
+                جاؤ compare;
+              حالت 11:
                 resword = &wordlist[6];
-                goto compare;
-              case 13:
+                جاؤ compare;
+              حالت 13:
                 resword = &wordlist[7];
-                goto compare;
-              case 15:
+                جاؤ compare;
+              حالت 15:
                 resword = &wordlist[8];
-                goto compare;
-              case 16:
+                جاؤ compare;
+              حالت 16:
                 resword = &wordlist[9];
-                goto compare;
-              case 17:
+                جاؤ compare;
+              حالت 17:
                 resword = &wordlist[10];
-                goto compare;
-              case 18:
+                جاؤ compare;
+              حالت 18:
                 resword = &wordlist[11];
-                goto compare;
-              case 19:
+                جاؤ compare;
+              حالت 19:
                 resword = &wordlist[12];
-                goto compare;
-              case 20:
+                جاؤ compare;
+              حالت 20:
                 resword = &wordlist[13];
-                goto compare;
-              case 21:
+                جاؤ compare;
+              حالت 21:
                 resword = &wordlist[14];
-                goto compare;
-              case 22:
+                جاؤ compare;
+              حالت 22:
                 resword = &wordlist[15];
-                goto compare;
-              case 23:
+                جاؤ compare;
+              حالت 23:
                 resword = &wordlist[16];
-                goto compare;
-              case 24:
+                جاؤ compare;
+              حالت 24:
                 resword = &wordlist[17];
-                goto compare;
-              case 25:
+                جاؤ compare;
+              حالت 25:
                 resword = &wordlist[18];
-                goto compare;
-              case 26:
+                جاؤ compare;
+              حالت 26:
                 resword = &wordlist[19];
-                goto compare;
-              case 28:
+                جاؤ compare;
+              حالت 28:
                 resword = &wordlist[20];
-                goto compare;
-              case 29:
+                جاؤ compare;
+              حالت 29:
                 resword = &wordlist[21];
-                goto compare;
-              case 30:
+                جاؤ compare;
+              حالت 30:
                 resword = &wordlist[22];
-                goto compare;
-              case 31:
+                جاؤ compare;
+              حالت 31:
                 resword = &wordlist[23];
-                goto compare;
-              case 32:
+                جاؤ compare;
+              حالت 32:
                 resword = &wordlist[24];
-                goto compare;
-              case 33:
+                جاؤ compare;
+              حالت 33:
                 resword = &wordlist[25];
-                goto compare;
-              case 34:
+                جاؤ compare;
+              حالت 34:
                 resword = &wordlist[26];
-                goto compare;
-              case 35:
+                جاؤ compare;
+              حالت 35:
                 resword = &wordlist[27];
-                goto compare;
-              case 36:
+                جاؤ compare;
+              حالت 36:
                 resword = &wordlist[28];
-                goto compare;
-              case 37:
+                جاؤ compare;
+              حالت 37:
                 resword = &wordlist[29];
-                goto compare;
-              case 38:
+                جاؤ compare;
+              حالت 38:
                 resword = &wordlist[30];
-                goto compare;
-              case 39:
+                جاؤ compare;
+              حالت 39:
                 resword = &wordlist[31];
-                goto compare;
-              case 40:
+                جاؤ compare;
+              حالت 40:
                 resword = &wordlist[32];
-                goto compare;
-              case 41:
+                جاؤ compare;
+              حالت 41:
                 resword = &wordlist[33];
-                goto compare;
-              case 42:
+                جاؤ compare;
+              حالت 42:
                 resword = &wordlist[34];
-                goto compare;
-              case 43:
+                جاؤ compare;
+              حالت 43:
                 resword = &wordlist[35];
-                goto compare;
-              case 44:
+                جاؤ compare;
+              حالت 44:
                 resword = &wordlist[36];
-                goto compare;
-              case 45:
+                جاؤ compare;
+              حالت 45:
                 resword = &wordlist[37];
-                goto compare;
-              case 46:
+                جاؤ compare;
+              حالت 46:
                 resword = &wordlist[38];
-                goto compare;
-              case 47:
+                جاؤ compare;
+              حالت 47:
                 resword = &wordlist[39];
-                goto compare;
-              case 48:
+                جاؤ compare;
+              حالت 48:
                 resword = &wordlist[40];
-                goto compare;
-              case 49:
+                جاؤ compare;
+              حالت 49:
                 resword = &wordlist[41];
-                goto compare;
-              case 50:
+                جاؤ compare;
+              حالت 50:
                 resword = &wordlist[42];
-                goto compare;
-              case 51:
+                جاؤ compare;
+              حالت 51:
                 resword = &wordlist[43];
-                goto compare;
-              case 52:
+                جاؤ compare;
+              حالت 52:
                 resword = &wordlist[44];
-                goto compare;
-              case 53:
+                جاؤ compare;
+              حالت 53:
                 resword = &wordlist[45];
-                goto compare;
-              case 54:
+                جاؤ compare;
+              حالت 54:
                 resword = &wordlist[46];
-                goto compare;
-              case 55:
+                جاؤ compare;
+              حالت 55:
                 resword = &wordlist[47];
-                goto compare;
-              case 56:
+                جاؤ compare;
+              حالت 56:
                 resword = &wordlist[48];
-                goto compare;
-              case 57:
+                جاؤ compare;
+              حالت 57:
                 resword = &wordlist[49];
-                goto compare;
-              case 58:
+                جاؤ compare;
+              حالت 58:
                 resword = &wordlist[50];
-                goto compare;
-              case 59:
+                جاؤ compare;
+              حالت 59:
                 resword = &wordlist[51];
-                goto compare;
-              case 60:
+                جاؤ compare;
+              حالت 60:
                 resword = &wordlist[52];
-                goto compare;
-              case 61:
+                جاؤ compare;
+              حالت 61:
                 resword = &wordlist[53];
-                goto compare;
-              case 62:
+                جاؤ compare;
+              حالت 62:
                 resword = &wordlist[54];
-                goto compare;
-              case 63:
+                جاؤ compare;
+              حالت 63:
                 resword = &wordlist[55];
-                goto compare;
-              case 65:
+                جاؤ compare;
+              حالت 65:
                 resword = &wordlist[56];
-                goto compare;
-              case 67:
+                جاؤ compare;
+              حالت 67:
                 resword = &wordlist[57];
-                goto compare;
-              case 68:
+                جاؤ compare;
+              حالت 68:
                 resword = &wordlist[58];
-                goto compare;
-              case 75:
+                جاؤ compare;
+              حالت 75:
                 resword = &wordlist[59];
-                goto compare;
-              case 84:
+                جاؤ compare;
+              حالت 84:
                 resword = &wordlist[60];
-                goto compare;
-              case 85:
+                جاؤ compare;
+              حالت 85:
                 resword = &wordlist[61];
-                goto compare;
-              case 94:
+                جاؤ compare;
+              حالت 94:
                 resword = &wordlist[62];
-                goto compare;
+                جاؤ compare;
             }
-          return 0;
+          واپس 0;
         compare:
           {
-            register const char *s = resword->name;
+            اندراج ثابت حرف *s = resword->name;
 
-            if (*str == *s && !strcmp (str + 1, s + 1))
-              return resword;
+            اگر (*str == *s && !strcmp (str + 1, s + 1))
+              واپس resword;
           }
         }
     }
-  return 0;
+  واپس 0;
 }
-#line 99 "src/libcrun/mount_flags.perf"
+#سطر 99 "src/libcrun/mount_flags.perf"
 
 
-const struct propagation_flags_s *
-libcrun_str2mount_flags (const char *name)
+ثابت ساخت اشاعت_flags_s *
+libcrun_str2mount_flags (ثابت حرف *name)
 {
-  return libcrun_mount_flag_in_word_set (name, strlen (name));
+  واپس libcrun_mount_flag_اندر_لفظ_سیٹ (name, لڑی_لمبائی (name));
 }
 
-const struct propagation_flags_s *
-get_mount_flags_from_wordlist (void)
+ثابت ساخت اشاعت_flags_s *
+get_mount_flags_from_wordlist (خالی)
 {
-  struct propagation_flags_s *flags;
+  ساخت اشاعت_flags_s *flags;
   size_t i;
-  size_t num_wordlist_flags = sizeof (wordlist) / sizeof (wordlist[0]);
+  size_t عدد_wordlist_flags = حجم (wordlist) / حجم (wordlist[0]);
 
-  flags = xmalloc0 ((sizeof (struct propagation_flags_s) + 1) * num_wordlist_flags);
-  for (i = 0; i < num_wordlist_flags; i++)
+  flags = xmalloc0 ((حجم (ساخت اشاعت_flags_s) + 1) * عدد_wordlist_flags);
+  برائے (i = 0; i < عدد_wordlist_flags; i++)
     flags[i].name = wordlist[i].name;
 
-  return flags;
+  واپس flags;
 }

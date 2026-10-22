@@ -15,11 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef KILL_H
-#define KILL_H
+#اگر_غیر_تعریف_شدہ KILL_H
+#تعریف_کرو KILL_H
 
-#include "crun.h"
+#شامل "crun.h"
 
-int crun_command_kill (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+صحیح crun_command_kill (ساخت crun_global_arguments *global_دلائل, صحیح argc, حرف **argv, libcrun_error_t *error);
 
-#endif
+#اگر_ختم

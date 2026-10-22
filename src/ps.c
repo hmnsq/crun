@@ -16,19 +16,19 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#شامل <config.h>
+#شامل <stdio.h>
+#شامل <stdlib.h>
+#شامل <argp.h>
+#شامل <string.h>
+#شامل <unistd.h>
+#شامل <errno.h>
 
-#include "crun.h"
+#شامل "crun.h"
 
-static char doc[] = "OCI runtime";
+ساکن حرف doc[] = "OCI runtime";
 
-enum
+شمار
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -37,91 +37,91 @@ enum
   OPTION_PRESERVE_FDS
 };
 
-struct ps_options_s
+ساخت ps_options_s
 {
-  int format;
+  صحیح format;
 };
 
-enum
+شمار
 {
-  PS_TABLE = 100,
+  PS_جدول = 100,
   PS_JSON,
 };
 
-static struct ps_options_s ps_options;
+ساکن ساخت ps_options_s ps_options;
 
-static struct argp_option options[] = { { "format", 'f', "FORMAT", 0, "select the output format", 0 },
+ساکن ساخت argp_option options[] = { { "format", 'f', "FORMAT", 0, "select the output format", 0 },
                                         {
                                             0,
                                         } };
 
-static char args_doc[] = "ps";
+ساکن حرف دلائل_doc[] = "ps";
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state arg_unused)
+ساکن error_t
+parse_opt (صحیح کلید, حرف *arg, ساخت argp_state *state arg_غیر_مستعمل)
 {
-  switch (key)
+  انتخاب (کلید)
     {
-    case 'f':
-      if (strcmp (arg, "table") == 0)
-        ps_options.format = PS_TABLE;
-      else if (strcmp (arg, "json") == 0)
+    حالت 'f':
+      اگر (strcmp (arg, "table") == 0)
+        ps_options.format = PS_جدول;
+      ورنہ اگر (strcmp (arg, "json") == 0)
         ps_options.format = PS_JSON;
-      else
+      ورنہ
         libcrun_fail_with_error (0, "invalid format `%s`", arg);
-      break;
+      توڑو;
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    طےشدہ:
+      واپس ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  واپس 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+ساکن ساخت argp تسلسل_argp = { options, parse_opt, دلائل_doc, doc, تہی, تہی, تہی };
 
-int
-crun_command_ps (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+صحیح
+crun_command_ps (ساخت crun_global_arguments *global_دلائل, صحیح argc, حرف **argv, libcrun_error_t *err)
 {
-  int first_arg;
-  int ret;
-  cleanup_free pid_t *pids = NULL;
-  cleanup_context libcrun_context_t *crun_context = NULL;
+  صحیح پہلا_arg;
+  صحیح ret;
+  cleanup_free pid_t *pids = تہی;
+  cleanup_context libcrun_context_t *crun_context = تہی;
   size_t i;
 
-  ps_options.format = PS_TABLE;
+  ps_options.format = PS_جدول;
 
-  argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &ps_options);
-  crun_assert_n_args (argc - first_arg, 1, 1);
+  argp_parse (&تسلسل_argp, argc, argv, ARGP_اندر_ترتیب, &پہلا_arg, &ps_options);
+  crun_assert_n_دلائل (argc - پہلا_arg, 1, 1);
 
-  crun_context = new_libcrun_context (global_args);
+  crun_context = new_libcrun_context (global_دلائل);
 
-  ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = init_libcrun_context (crun_context, argv[پہلا_arg], global_دلائل, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = libcrun_container_read_pids (crun_context, argv[first_arg], true, &pids, err);
-  if (UNLIKELY (ret < 0))
+  ret = libcrun_container_read_pids (crun_context, argv[پہلا_arg], true, &pids, err);
+  اگر (UNLIKELY (ret < 0))
     {
       libcrun_error_report_and_release (err);
-      return ret;
+      واپس ret;
     }
 
-  switch (ps_options.format)
+  انتخاب (ps_options.format)
     {
-    case PS_JSON:
-      printf ("[\n");
-      for (i = 0; pids && pids[i]; i++)
-        printf ("  %d%s\n", pids[i], pids[i + 1] ? "," : "");
-      printf ("]\n");
-      break;
+    حالت PS_JSON:
+      لکھو ("[\n");
+      برائے (i = 0; pids && pids[i]; i++)
+        لکھو ("  %d%s\n", pids[i], pids[i + 1] ? "," : "");
+      لکھو ("]\n");
+      توڑو;
 
-    case PS_TABLE:
-      printf ("PID\n");
-      for (i = 0; pids && pids[i]; i++)
-        printf ("%d\n", pids[i]);
-      break;
+    حالت PS_جدول:
+      لکھو ("PID\n");
+      برائے (i = 0; pids && pids[i]; i++)
+        لکھو ("%d\n", pids[i]);
+      توڑو;
     }
 
-  return 0;
+  واپس 0;
 }

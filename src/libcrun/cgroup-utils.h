@@ -15,37 +15,37 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CGROUP_UTILS_H
-#define CGROUP_UTILS_H
+#اگر_غیر_تعریف_شدہ CGROUP_UTILS_H
+#تعریف_کرو CGROUP_UTILS_H
 
-#include "container.h"
-#include "cgroup.h"
-#include <unistd.h>
+#شامل "container.h"
+#شامل "cgroup.h"
+#شامل <unistd.h>
 
-int libcrun_move_process_to_cgroup (pid_t pid, pid_t init_pid, const char *path, bool create_if_missing, libcrun_error_t *err);
+صحیح libcrun_move_process_مقصد_cgroup (pid_t pid, pid_t init_pid, ثابت حرف *راستہ, bool create_if_missing, libcrun_error_t *err);
 
-int libcrun_move_self_to_cgroups (const char *content, libcrun_error_t *err);
+صحیح libcrun_move_self_مقصد_cgroups (ثابت حرف *content, libcrun_error_t *err);
 
-int libcrun_cgroups_create_symlinks (int dirfd, libcrun_error_t *err);
+صحیح libcrun_cgroups_create_symlinks (صحیح dirfd, libcrun_error_t *err);
 
-int libcrun_get_cgroup_process (pid_t pid, char **path, bool absolute, libcrun_error_t *err);
+صحیح libcrun_get_cgroup_process (pid_t pid, حرف **راستہ, bool absolute, libcrun_error_t *err);
 
-int libcrun_get_cgroup_process_at (int dirfd, char **path, bool absolute, libcrun_error_t *err);
+صحیح libcrun_get_cgroup_process_at (صحیح dirfd, حرف **راستہ, bool absolute, libcrun_error_t *err);
 
-int libcrun_get_cgroup_mode (libcrun_error_t *err);
+صحیح libcrun_get_cgroup_منوال (libcrun_error_t *err);
 
-int libcrun_get_cgroup_dirfd (struct libcrun_cgroup_status *status, const char *sub_cgroup, libcrun_error_t *err);
+صحیح libcrun_get_cgroup_dirfd (ساخت libcrun_cgroup_حالت *حالت_2, ثابت حرف *sub_cgroup, libcrun_error_t *err);
 
-int maybe_make_cgroup_threaded (const char *path, libcrun_error_t *err);
+صحیح maybe_make_cgroup_threaded (ثابت حرف *راستہ, libcrun_error_t *err);
 
-int libcrun_migrate_all_pids_to_cgroup (pid_t init_pid, char *from, char *to, libcrun_error_t *err);
+صحیح libcrun_migrate_all_pids_مقصد_cgroup (pid_t init_pid, حرف *from, حرف *مقصد, libcrun_error_t *err);
 
-int destroy_cgroup_path (const char *path, int mode, libcrun_error_t *err);
+صحیح destroy_cgroup_راستہ (ثابت حرف *راستہ, صحیح منوال, libcrun_error_t *err);
 
-int get_cgroup_dirfd_path (int dirfd, char **path, libcrun_error_t *err);
+صحیح get_cgroup_dirfd_راستہ (صحیح dirfd, حرف **راستہ, libcrun_error_t *err);
 
-int libcrun_cgroup_ensure_not_frozen (const char *cgroup_path, libcrun_error_t *err);
+صحیح libcrun_cgroup_ensure_not_frozen (ثابت حرف *cgroup_راستہ, libcrun_error_t *err);
 
-int parse_cpu_max (const char *value, int64_t *quota, uint64_t *period, bool *has_period, libcrun_error_t *err);
+صحیح parse_cpu_max (ثابت حرف *قدر, int64_t *quota, uint64_t *period, bool *has_period, libcrun_error_t *err);
 
-#endif
+#اگر_ختم

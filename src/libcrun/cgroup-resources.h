@@ -15,32 +15,32 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CGROUP_RESOURCES_H
-#define CGROUP_RESOURCES_H
+#اگر_غیر_تعریف_شدہ CGROUP_RESOURCES_H
+#تعریف_کرو CGROUP_RESOURCES_H
 
-#include "container.h"
-#include "cgroup.h"
-#include <unistd.h>
+#شامل "container.h"
+#شامل "cgroup.h"
+#شامل <unistd.h>
 
-struct default_dev_s
+ساخت default_dev_s
 {
-  char type;
-  int major;
-  int minor;
-  const char *access;
+  حرف type;
+  صحیح major;
+  صحیح minor;
+  ثابت حرف *access;
 };
-struct default_dev_s *get_default_devices ();
+ساخت default_dev_s *get_default_devices ();
 
-int check_memory_before_update (const char *path, runtime_spec_schema_config_linux_resources *resources,
+صحیح check_حافظہ_before_update (ثابت حرف *راستہ, runtime_spec_schema_config_linux_resources *resources,
                                 libcrun_error_t *err);
 
-int update_cgroup_resources (const char *path,
-                             const char *state_root,
+صحیح update_cgroup_resources (ثابت حرف *راستہ,
+                             ثابت حرف *state_جڑ,
                              runtime_spec_schema_config_linux_resources *resources,
                              bool need_devices,
                              libcrun_error_t *err);
 
-struct bpf_program *create_dev_bpf (runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
+ساخت bpf_پروگرام *create_dev_bpf (runtime_spec_schema_defs_linux_device_cgroup **devs, size_t devs_len,
                                     libcrun_error_t *err);
 
-#endif
+#اگر_ختم

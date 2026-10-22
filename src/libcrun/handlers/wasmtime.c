@@ -15,90 +15,90 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE
+#تعریف_کرو GNU_ماخذ
 
-#include <config.h>
-#include "../custom-handler.h"
-#include "../container.h"
-#include "../utils.h"
-#include "../linux.h"
-#include "handler-utils.h"
-#include <unistd.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <sched.h>
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
+#شامل <config.h>
+#شامل "../custom-handler.h"
+#شامل "../container.h"
+#شامل "../utils.h"
+#شامل "../linux.h"
+#شامل "handler-utils.h"
+#شامل <unistd.h>
+#شامل <sys/stat.h>
+#شامل <errno.h>
+#شامل <sys/types.h>
+#شامل <fcntl.h>
+#شامل <sched.h>
+#شامل <assert.h>
+#شامل <stdio.h>
+#شامل <stdlib.h>
 
-#ifdef HAVE_DLOPEN
+#اگر_تعریف_شدہ HAVE_DLOPEN
 #  include <dlfcn.h>
-#endif
+#اگر_ختم
 
-#ifdef HAVE_WASMTIME
+#اگر_تعریف_شدہ HAVE_WASMTIME
 #  include <wasm.h>
 #  include <wasi.h>
 #  include <wasmtime.h>
-#endif
+#اگر_ختم
 
-#if HAVE_DLOPEN && HAVE_WASMTIME
-static int
-libwasmtime_exec (void *cookie, libcrun_container_t *container arg_unused,
-                  const char *pathname, char *const argv[])
+#اگر HAVE_DLOPEN && HAVE_WASMTIME
+ساکن صحیح
+libwasmtime_exec (خالی *cookie, libcrun_container_t *container arg_غیر_مستعمل,
+                  ثابت حرف *pathname, حرف *ثابت argv[])
 {
-  size_t args_size = 0;
-  char *const *arg;
-  wasm_byte_vec_t error_message;
-  wasm_byte_vec_t wasm_bytes;
+  size_t دلائل_سائز = 0;
+  حرف *ثابت *arg;
+  wasm_byte_vec_t error_پیغام;
+  wasm_byte_vec_t wasm_بائٹیں;
   wasm_engine_t *(*wasm_engine_new) ();
-  wasmtime_error_t *(*wasmtime_wat2wasm) (const char *wat, size_t wat_len, wasm_byte_vec_t *out);
-  void (*wasm_engine_delete) (wasm_engine_t *);
-  void (*wasm_byte_vec_delete) (wasm_byte_vec_t *);
-  void (*wasm_byte_vec_new_uninitialized) (wasm_byte_vec_t *, size_t);
-  wasi_config_t *(*wasi_config_new) (const char *);
-  wasmtime_store_t *(*wasmtime_store_new) (wasm_engine_t *engine, void *data, void (*finalizer) (void *));
+  wasmtime_error_t *(*wasmtime_wat2wasm) (ثابت حرف *wat, size_t wat_len, wasm_byte_vec_t *برآمد);
+  خالی (*wasm_engine_delete) (wasm_engine_t *);
+  خالی (*wasm_byte_vec_delete) (wasm_byte_vec_t *);
+  خالی (*wasm_byte_vec_new_uninitialized) (wasm_byte_vec_t *, size_t);
+  wasi_config_t *(*wasi_config_new) (ثابت حرف *);
+  wasmtime_store_t *(*wasmtime_store_new) (wasm_engine_t *engine, خالی *ڈیٹا, خالی (*finalizer) (خالی *));
   wasmtime_context_t *(*wasmtime_store_context) (wasmtime_store_t *store);
   wasmtime_linker_t *(*wasmtime_linker_new) (wasm_engine_t *engine);
   wasmtime_error_t *(*wasmtime_linker_define_wasi) (wasmtime_linker_t *linker);
   wasmtime_error_t *(*wasmtime_module_new) (
       wasm_engine_t *engine,
-      const uint8_t *wasm,
+      ثابت uint8_t *wasm,
       size_t wasm_len,
       wasmtime_module_t **ret);
-  void (*wasi_config_inherit_argv) (wasi_config_t *config);
-  void (*wasi_config_inherit_env) (wasi_config_t *config);
-  void (*wasi_config_set_argv) (wasi_config_t *config, int argc, const char *argv[]);
-  void (*wasi_config_inherit_stdin) (wasi_config_t *config);
-  void (*wasi_config_inherit_stdout) (wasi_config_t *config);
-  void (*wasi_config_inherit_stderr) (wasi_config_t *config);
-  wasmtime_error_t *(*wasmtime_context_set_wasi) (wasmtime_context_t *context, wasi_config_t *wasi);
+  خالی (*wasi_config_inherit_argv) (wasi_config_t *config);
+  خالی (*wasi_config_inherit_env) (wasi_config_t *config);
+  خالی (*wasi_config_سیٹ_argv) (wasi_config_t *config, صحیح argc, ثابت حرف *argv[]);
+  خالی (*wasi_config_inherit_stdin) (wasi_config_t *config);
+  خالی (*wasi_config_inherit_stdout) (wasi_config_t *config);
+  خالی (*wasi_config_inherit_stderr) (wasi_config_t *config);
+  wasmtime_error_t *(*wasmtime_context_سیٹ_wasi) (wasmtime_context_t *context, wasi_config_t *wasi);
   wasmtime_error_t *(*wasmtime_linker_module) (
       wasmtime_linker_t *linker,
       wasmtime_context_t *store,
-      const char *name,
+      ثابت حرف *name,
       size_t name_len,
-      const wasmtime_module_t *module);
+      ثابت wasmtime_module_t *module);
   wasmtime_error_t *(*wasmtime_linker_get_default) (
-      const wasmtime_linker_t *linker,
+      ثابت wasmtime_linker_t *linker,
       wasmtime_context_t *store,
-      const char *name,
+      ثابت حرف *name,
       size_t name_len,
       wasmtime_func_t *func);
   wasmtime_error_t *(*wasmtime_func_call) (
       wasmtime_context_t *store,
-      const wasmtime_func_t *func,
-      const wasmtime_val_t *args,
+      ثابت wasmtime_func_t *func,
+      ثابت wasmtime_val_t *دلائل,
       size_t nargs,
       wasmtime_val_t *results,
       size_t nresults,
       wasm_trap_t **trap);
-  void (*wasmtime_module_delete) (wasmtime_module_t *m);
-  void (*wasmtime_store_delete) (wasmtime_store_t *store);
-  void (*wasmtime_error_message) (const wasmtime_error_t *error, wasm_name_t *message);
-  void (*wasmtime_error_delete) (wasmtime_error_t *error);
-  bool (*wasi_config_preopen_dir) (wasi_config_t *config, const char *path, const char *guest_path);
+  خالی (*wasmtime_module_delete) (wasmtime_module_t *m);
+  خالی (*wasmtime_store_delete) (wasmtime_store_t *store);
+  خالی (*wasmtime_error_پیغام) (ثابت wasmtime_error_t *error, wasm_name_t *پیغام_2);
+  خالی (*wasmtime_error_delete) (wasmtime_error_t *error);
+  bool (*wasi_config_preopen_dir) (wasi_config_t *config, ثابت حرف *راستہ, ثابت حرف *guest_راستہ);
 
   wasmtime_wat2wasm = dlsym (cookie, "wasmtime_wat2wasm");
   wasm_engine_new = dlsym (cookie, "wasm_engine_new");
@@ -106,7 +106,7 @@ libwasmtime_exec (void *cookie, libcrun_container_t *container arg_unused,
   wasm_byte_vec_delete = dlsym (cookie, "wasm_byte_vec_delete");
   wasm_byte_vec_new_uninitialized = dlsym (cookie, "wasm_byte_vec_new_uninitialized");
   wasi_config_new = dlsym (cookie, "wasi_config_new");
-  wasi_config_set_argv = dlsym (cookie, "wasi_config_set_argv");
+  wasi_config_سیٹ_argv = dlsym (cookie, "wasi_config_set_argv");
   wasmtime_store_new = dlsym (cookie, "wasmtime_store_new");
   wasmtime_store_context = dlsym (cookie, "wasmtime_store_context");
   wasmtime_linker_new = dlsym (cookie, "wasmtime_linker_new");
@@ -117,132 +117,132 @@ libwasmtime_exec (void *cookie, libcrun_container_t *container arg_unused,
   wasi_config_inherit_stdin = dlsym (cookie, "wasi_config_inherit_stdin");
   wasi_config_inherit_stderr = dlsym (cookie, "wasi_config_inherit_stderr");
   wasi_config_inherit_env = dlsym (cookie, "wasi_config_inherit_env");
-  wasmtime_context_set_wasi = dlsym (cookie, "wasmtime_context_set_wasi");
+  wasmtime_context_سیٹ_wasi = dlsym (cookie, "wasmtime_context_set_wasi");
   wasmtime_linker_module = dlsym (cookie, "wasmtime_linker_module");
   wasmtime_linker_get_default = dlsym (cookie, "wasmtime_linker_get_default");
   wasmtime_func_call = dlsym (cookie, "wasmtime_func_call");
   wasmtime_module_delete = dlsym (cookie, "wasmtime_module_delete");
   wasmtime_store_delete = dlsym (cookie, "wasmtime_store_delete");
   wasmtime_error_delete = dlsym (cookie, "wasmtime_error_delete");
-  wasmtime_error_message = dlsym (cookie, "wasmtime_error_message");
+  wasmtime_error_پیغام = dlsym (cookie, "wasmtime_error_message");
   wasi_config_preopen_dir = dlsym (cookie, "wasi_config_preopen_dir");
 
-  if (wasm_engine_new == NULL || wasm_engine_delete == NULL || wasm_byte_vec_delete == NULL
-      || wasm_byte_vec_new_uninitialized == NULL || wasi_config_new == NULL || wasmtime_store_new == NULL
-      || wasmtime_store_context == NULL || wasmtime_linker_new == NULL || wasmtime_linker_define_wasi == NULL
-      || wasmtime_module_new == NULL || wasi_config_inherit_argv == NULL || wasi_config_inherit_stdout == NULL
-      || wasi_config_inherit_stdin == NULL || wasi_config_inherit_stderr == NULL
-      || wasi_config_inherit_env == NULL || wasmtime_context_set_wasi == NULL
-      || wasmtime_linker_module == NULL || wasmtime_linker_get_default == NULL || wasmtime_func_call == NULL
-      || wasmtime_module_delete == NULL || wasmtime_store_delete == NULL || wasi_config_set_argv == NULL
-      || wasmtime_error_delete == NULL || wasmtime_error_message == NULL || wasi_config_preopen_dir == NULL
-      || wasmtime_wat2wasm == NULL)
+  اگر (wasm_engine_new == تہی || wasm_engine_delete == تہی || wasm_byte_vec_delete == تہی
+      || wasm_byte_vec_new_uninitialized == تہی || wasi_config_new == تہی || wasmtime_store_new == تہی
+      || wasmtime_store_context == تہی || wasmtime_linker_new == تہی || wasmtime_linker_define_wasi == تہی
+      || wasmtime_module_new == تہی || wasi_config_inherit_argv == تہی || wasi_config_inherit_stdout == تہی
+      || wasi_config_inherit_stdin == تہی || wasi_config_inherit_stderr == تہی
+      || wasi_config_inherit_env == تہی || wasmtime_context_سیٹ_wasi == تہی
+      || wasmtime_linker_module == تہی || wasmtime_linker_get_default == تہی || wasmtime_func_call == تہی
+      || wasmtime_module_delete == تہی || wasmtime_store_delete == تہی || wasi_config_سیٹ_argv == تہی
+      || wasmtime_error_delete == تہی || wasmtime_error_پیغام == تہی || wasi_config_preopen_dir == تہی
+      || wasmtime_wat2wasm == تہی)
     error (EXIT_FAILURE, 0, "could not find symbol in `libwasmtime.so`");
 
   // Set up wasmtime context
   wasm_engine_t *engine = wasm_engine_new ();
-  assert (engine != NULL);
-  wasmtime_store_t *store = wasmtime_store_new (engine, NULL, NULL);
-  assert (store != NULL);
+  أكد (engine != تہی);
+  wasmtime_store_t *store = wasmtime_store_new (engine, تہی, تہی);
+  أكد (store != تہی);
   wasmtime_context_t *context = wasmtime_store_context (store);
 
   // Link with wasi functions defined
   wasmtime_linker_t *linker = wasmtime_linker_new (engine);
   wasmtime_error_t *err = wasmtime_linker_define_wasi (linker);
-  if (err != NULL)
+  اگر (err != تہی)
     {
-      wasmtime_error_message (err, &error_message);
+      wasmtime_error_پیغام (err, &error_پیغام);
       wasmtime_error_delete (err);
-      error (EXIT_FAILURE, 0, "failed to link wasi: %.*s", (int) error_message.size, error_message.data);
+      error (EXIT_FAILURE, 0, "failed to link wasi: %.*s", (صحیح) error_پیغام.سائز, error_پیغام.ڈیٹا);
     }
 
   wasm_byte_vec_t wasm;
   // Load and parse container entrypoint
   FILE *file = fopen (pathname, "rbe");
-  if (! file)
+  اگر (! file)
     error (EXIT_FAILURE, 0, "error loading entrypoint");
   fseek (file, 0L, SEEK_END);
-  size_t file_size = ftell (file);
-  wasm_byte_vec_new_uninitialized (&wasm, file_size);
+  size_t file_سائز = ftell (file);
+  wasm_byte_vec_new_uninitialized (&wasm, file_سائز);
   fseek (file, 0L, SEEK_SET);
-  if (fread (wasm.data, file_size, 1, file) != 1)
+  اگر (fread (wasm.ڈیٹا, file_سائز, 1, file) != 1)
     error (EXIT_FAILURE, 0, "error load");
   fclose (file);
 
   // If entrypoint contains a webassembly text format
   // compile it on the fly and convert to equivalent
   // binary format.
-  if (has_suffix (pathname, "wat") > 0)
+  اگر (has_suffix (pathname, "wat") > 0)
     {
-      wasmtime_error_t *err = wasmtime_wat2wasm ((char *) &wasm_bytes, file_size, &wasm);
-      if (err != NULL)
+      wasmtime_error_t *err = wasmtime_wat2wasm ((حرف *) &wasm_بائٹیں, file_سائز, &wasm);
+      اگر (err != تہی)
         {
-          wasmtime_error_message (err, &error_message);
+          wasmtime_error_پیغام (err, &error_پیغام);
           wasmtime_error_delete (err);
-          error (EXIT_FAILURE, 0, "failed while compiling wat to wasm binary : %.*s", (int) error_message.size, error_message.data);
+          error (EXIT_FAILURE, 0, "failed while compiling wat to wasm binary : %.*s", (صحیح) error_پیغام.سائز, error_پیغام.ڈیٹا);
         }
-      wasm = wasm_bytes;
+      wasm = wasm_بائٹیں;
     }
 
   // Compile wasm modules
-  wasmtime_module_t *module = NULL;
-  err = wasmtime_module_new (engine, (uint8_t *) wasm.data, wasm.size, &module);
-  if (! module)
+  wasmtime_module_t *module = تہی;
+  err = wasmtime_module_new (engine, (uint8_t *) wasm.ڈیٹا, wasm.سائز, &module);
+  اگر (! module)
     {
-      wasmtime_error_message (err, &error_message);
+      wasmtime_error_پیغام (err, &error_پیغام);
       wasmtime_error_delete (err);
-      error (EXIT_FAILURE, 0, "failed to compile module: %.*s", (int) error_message.size, error_message.data);
+      error (EXIT_FAILURE, 0, "failed to compile module: %.*s", (صحیح) error_پیغام.سائز, error_پیغام.ڈیٹا);
     }
   wasm_byte_vec_delete (&wasm);
 
   // Init WASI program
   wasi_config_t *wasi_config = wasi_config_new ("crun_wasi_program");
-  assert (wasi_config);
+  أكد (wasi_config);
 
   // Calculate argc for `wasi_config_set_argv`
-  for (arg = argv; *arg != NULL; ++arg)
-    args_size++;
+  برائے (arg = argv; *arg != تہی; ++arg)
+    دلائل_سائز++;
 
-  wasi_config_set_argv (wasi_config, args_size, (const char **) argv);
+  wasi_config_سیٹ_argv (wasi_config, دلائل_سائز, (ثابت حرف **) argv);
   wasi_config_inherit_env (wasi_config);
   wasi_config_inherit_stdin (wasi_config);
   wasi_config_inherit_stdout (wasi_config);
   wasi_config_inherit_stderr (wasi_config);
   wasi_config_preopen_dir (wasi_config, ".", ".");
-  wasm_trap_t *trap = NULL;
-  err = wasmtime_context_set_wasi (context, wasi_config);
-  if (err != NULL)
+  wasm_trap_t *trap = تہی;
+  err = wasmtime_context_سیٹ_wasi (context, wasi_config);
+  اگر (err != تہی)
     {
-      wasmtime_error_message (err, &error_message);
+      wasmtime_error_پیغام (err, &error_پیغام);
       wasmtime_error_delete (err);
-      error (EXIT_FAILURE, 0, "failed to instantiate WASI: %.*s", (int) error_message.size, error_message.data);
+      error (EXIT_FAILURE, 0, "failed to instantiate WASI: %.*s", (صحیح) error_پیغام.سائز, error_پیغام.ڈیٹا);
     }
 
   // Init module
   err = wasmtime_linker_module (linker, context, "", 0, module);
-  if (err != NULL)
+  اگر (err != تہی)
     {
-      wasmtime_error_message (err, &error_message);
+      wasmtime_error_پیغام (err, &error_پیغام);
       wasmtime_error_delete (err);
-      error (EXIT_FAILURE, 0, "failed to instantiate module: %.*s", (int) error_message.size, error_message.data);
+      error (EXIT_FAILURE, 0, "failed to instantiate module: %.*s", (صحیح) error_پیغام.سائز, error_پیغام.ڈیٹا);
     }
 
   // Actually run our .wasm
   wasmtime_func_t func;
   err = wasmtime_linker_get_default (linker, context, "", 0, &func);
-  if (err != NULL)
+  اگر (err != تہی)
     {
-      wasmtime_error_message (err, &error_message);
+      wasmtime_error_پیغام (err, &error_پیغام);
       wasmtime_error_delete (err);
-      error (EXIT_FAILURE, 0, "failed to locate default export for module %.*s", (int) error_message.size, error_message.data);
+      error (EXIT_FAILURE, 0, "failed to locate default export for module %.*s", (صحیح) error_پیغام.سائز, error_پیغام.ڈیٹا);
     }
 
-  err = wasmtime_func_call (context, &func, NULL, 0, NULL, 0, &trap);
-  if (err != NULL || trap != NULL)
+  err = wasmtime_func_call (context, &func, تہی, 0, تہی, 0, &trap);
+  اگر (err != تہی || trap != تہی)
     {
-      wasmtime_error_message (err, &error_message);
+      wasmtime_error_پیغام (err, &error_پیغام);
       wasmtime_error_delete (err);
-      error (EXIT_FAILURE, 0, "error calling default export: %.*s", (int) error_message.size, error_message.data);
+      error (EXIT_FAILURE, 0, "error calling default export: %.*s", (صحیح) error_پیغام.سائز, error_پیغام.ڈیٹا);
     }
 
   // Clean everything
@@ -250,51 +250,51 @@ libwasmtime_exec (void *cookie, libcrun_container_t *container arg_unused,
   wasmtime_store_delete (store);
   wasm_engine_delete (engine);
 
-  exit (EXIT_SUCCESS);
+  باہر_نکلو (EXIT_SUCCESS);
 }
 
-static int
-libwasmtime_load (void **cookie, libcrun_error_t *err)
+ساکن صحیح
+libwasmtime_بھرو (خالی **cookie, libcrun_error_t *err)
 {
-  void *handle;
+  خالی *handle;
 
   handle = dlopen ("libwasmtime.so", RTLD_NOW);
-  if (handle == NULL)
-    return crun_make_error (err, 0, "could not load `libwasmtime.so`: %s", dlerror ());
+  اگر (handle == تہی)
+    واپس crun_make_error (err, 0, "could not load `libwasmtime.so`: %s", dlerror ());
   *cookie = handle;
 
-  return 0;
+  واپس 0;
 }
 
-static int
-libwasmtime_unload (void *cookie, libcrun_error_t *err)
+ساکن صحیح
+libwasmtime_unload (خالی *cookie, libcrun_error_t *err)
 {
-  int r;
+  صحیح r;
 
-  if (cookie)
+  اگر (cookie)
     {
       r = dlclose (cookie);
-      if (UNLIKELY (r < 0))
-        return crun_make_error (err, 0, "could not unload handle: %s", dlerror ());
+      اگر (UNLIKELY (r < 0))
+        واپس crun_make_error (err, 0, "could not unload handle: %s", dlerror ());
     }
-  return 0;
+  واپس 0;
 }
 
-static int
+ساکن صحیح
 libwasmtime_can_handle_container (libcrun_container_t *container, libcrun_error_t *err)
 {
-  return wasm_can_handle_container (container, err);
+  واپس wasm_can_handle_container (container, err);
 }
 
-struct custom_handler_s handler_wasmtime = {
+ساخت custom_handler_s handler_wasmtime = {
   .name = "wasmtime",
   .alias = "wasm",
   .feature_string = "WASM:wasmtime",
-  .supports_open_tree_namespace = false,
-  .load = libwasmtime_load,
+  .supports_open_درخت_namespace = false,
+  .بھرو = libwasmtime_بھرو,
   .unload = libwasmtime_unload,
-  .run_func = libwasmtime_exec,
+  .تسلسل_func = libwasmtime_exec,
   .can_handle_container = libwasmtime_can_handle_container,
 };
 
-#endif
+#اگر_ختم

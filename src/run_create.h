@@ -15,17 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef RUN_CREATE_H
-#define RUN_CREATE_H
+#اگر_غیر_تعریف_شدہ تسلسل_CREATE_H
+#تعریف_کرو تسلسل_CREATE_H
 
-#include "crun.h"
+#شامل "crun.h"
 
-typedef int (*container_run_create_func_t) (libcrun_context_t *, libcrun_container_t *, unsigned int, libcrun_error_t *);
-typedef unsigned int (*get_options_func_t) ();
+قسمتعریف صحیح (*container_تسلسل_create_func_t) (libcrun_context_t *, libcrun_container_t *, غیرعلامتی صحیح, libcrun_error_t *);
+قسمتعریف غیرعلامتی صحیح (*get_options_func_t) ();
 
-int crun_run_create_internal (struct crun_global_arguments *global_args, int argc, char **argv,
-                              container_run_create_func_t container_run_create_func, get_options_func_t get_options_func,
-                              libcrun_context_t *crun_context, struct argp *run_argp, const char **config_file,
-                              const char **bundle, libcrun_error_t *err);
+صحیح crun_تسلسل_create_اندرونی (ساخت crun_global_arguments *global_دلائل, صحیح argc, حرف **argv,
+                              container_تسلسل_create_func_t container_تسلسل_create_func, get_options_func_t get_options_func,
+                              libcrun_context_t *crun_context, ساخت argp *تسلسل_argp, ثابت حرف **config_file,
+                              ثابت حرف **bundle, libcrun_error_t *err);
 
-#endif
+#اگر_ختم

@@ -15,216 +15,216 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE
+#تعریف_کرو GNU_ماخذ
 
-#include <config.h>
-#include "../custom-handler.h"
-#include "../container.h"
-#include "../utils.h"
-#include "../linux.h"
-#include "handler-utils.h"
-#include <unistd.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <sched.h>
-#include <stdio.h>
-#include <stdlib.h>
+#شامل <config.h>
+#شامل "../custom-handler.h"
+#شامل "../container.h"
+#شامل "../utils.h"
+#شامل "../linux.h"
+#شامل "handler-utils.h"
+#شامل <unistd.h>
+#شامل <sys/stat.h>
+#شامل <errno.h>
+#شامل <sys/types.h>
+#شامل <fcntl.h>
+#شامل <sched.h>
+#شامل <stdio.h>
+#شامل <stdlib.h>
 
-#ifdef HAVE_DLOPEN
+#اگر_تعریف_شدہ HAVE_DLOPEN
 #  include <dlfcn.h>
-#endif
+#اگر_ختم
 
-#ifdef HAVE_WAMR
+#اگر_تعریف_شدہ HAVE_WAMR
 #  include <wasm_export.h>
-#endif
+#اگر_ختم
 
-#if HAVE_DLOPEN && HAVE_WAMR
+#اگر HAVE_DLOPEN && HAVE_WAMR
 
-static int
-libwamr_load (void **cookie, libcrun_error_t *err)
+ساکن صحیح
+libwamr_بھرو (خالی **cookie, libcrun_error_t *err)
 {
-  void *handle;
+  خالی *handle;
 
   handle = dlopen ("libiwasm.so", RTLD_NOW);
-  if (handle == NULL)
-    return crun_make_error (err, 0, "could not load `libiwasm.so`: `%s`", dlerror ());
+  اگر (handle == تہی)
+    واپس crun_make_error (err, 0, "could not load `libiwasm.so`: `%s`", dlerror ());
   *cookie = handle;
 
-  return 0;
+  واپس 0;
 }
 
-static int
-libwamr_unload (void *cookie, libcrun_error_t *err)
+ساکن صحیح
+libwamr_unload (خالی *cookie, libcrun_error_t *err)
 {
-  int r;
+  صحیح r;
 
-  if (cookie)
+  اگر (cookie)
     {
       r = dlclose (cookie);
-      if (UNLIKELY (r < 0))
-        return crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
+      اگر (UNLIKELY (r < 0))
+        واپس crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
     }
-  return 0;
+  واپس 0;
 }
 
-static int
-libwamr_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *container, const char *pathname, char *const argv[])
+ساکن صحیح
+libwamr_exec (خالی *cookie, __attribute__ ((غیر_مستعمل)) libcrun_container_t *container, ثابت حرف *pathname, حرف *ثابت argv[])
 {
   // load symbols from the shared library libiwasm.so
   bool (*wasm_runtime_init) ();
-  RuntimeInitArgs init_args;
-  bool (*wasm_runtime_full_init) (RuntimeInitArgs *init_args);
+  Runtime_Init_دلائل init_دلائل;
+  bool (*wasm_runtime_بھرا_init) (Runtime_Init_دلائل *init_دلائل);
   wasm_module_t module;
-  wasm_module_t (*wasm_runtime_load) (uint8_t *buf, uint32_t size, char *error_buf, uint32_t error_buf_size);
+  wasm_module_t (*wasm_runtime_بھرو) (uint8_t *buf, uint32_t سائز, حرف *error_buf, uint32_t error_buf_سائز);
   wasm_module_inst_t module_inst;
-  wasm_module_inst_t (*wasm_runtime_instantiate) (const wasm_module_t module, uint32_t default_stack_size, uint32_t host_managed_heap_size, char *error_buf, uint32_t error_buf_size);
+  wasm_module_inst_t (*wasm_runtime_instantiate) (ثابت wasm_module_t module, uint32_t default_ڈھیر_سائز, uint32_t host_managed_ڈھیر_سائز, حرف *error_buf, uint32_t error_buf_سائز);
   wasm_function_inst_t func;
-  wasm_function_inst_t (*wasm_runtime_lookup_function) (wasm_module_inst_t const module_inst, const char *name);
+  wasm_function_inst_t (*wasm_runtime_lookup_function) (wasm_module_inst_t ثابت module_inst, ثابت حرف *name);
   wasm_exec_env_t exec_env;
-  wasm_exec_env_t (*wasm_runtime_create_exec_env) (wasm_module_inst_t module_inst, uint32_t stack_size);
+  wasm_exec_env_t (*wasm_runtime_create_exec_env) (wasm_module_inst_t module_inst, uint32_t ڈھیر_سائز);
   bool (*wasm_runtime_call_wasm) (wasm_exec_env_t exec_env, wasm_function_inst_t function, uint32_t argc, uint32_t argv[]);
-  const char *(*wasm_runtime_get_exception) (wasm_module_inst_t module_inst);
-  void (*wasm_runtime_set_exception) (wasm_module_inst_t module_inst, const char *exception);
-  void (*wasm_runtime_clear_exception) (wasm_module_inst_t module_inst);
-  void (*wasm_runtime_destroy_exec_env) (wasm_exec_env_t exec_env);
-  void (*wasm_runtime_deinstantiate) (wasm_module_inst_t module_inst);
-  void (*wasm_runtime_unload) (wasm_module_t module);
-  void (*wasm_runtime_destroy) ();
-  uint32_t (*wasm_runtime_get_wasi_exit_code) (wasm_module_inst_t module_inst);
-  bool (*wasm_application_execute_main) (wasm_module_inst_t module_inst, int32_t argc, char *argv[]);
-  void (*wasm_runtime_set_wasi_args) (wasm_module_t module, const char *dir_list[], uint32_t dir_count, const char *map_dir_list[], uint32_t map_dir_count, const char *env[], uint32_t env_count, char *argv[], int argc);
-  void (*wasm_runtime_set_wasi_addr_pool) (wasm_module_t module, const char *addr_pool[], uint32_t pool_size);
-  void (*wasm_runtime_set_wasi_ns_lookup_pool) (wasm_module_t module, const char *ns_lookup_pool[], uint32_t pool_size);
+  ثابت حرف *(*wasm_runtime_get_exception) (wasm_module_inst_t module_inst);
+  خالی (*wasm_runtime_سیٹ_exception) (wasm_module_inst_t module_inst, ثابت حرف *exception);
+  خالی (*wasm_runtime_clear_exception) (wasm_module_inst_t module_inst);
+  خالی (*wasm_runtime_destroy_exec_env) (wasm_exec_env_t exec_env);
+  خالی (*wasm_runtime_deinstantiate) (wasm_module_inst_t module_inst);
+  خالی (*wasm_runtime_unload) (wasm_module_t module);
+  خالی (*wasm_runtime_destroy) ();
+  uint32_t (*wasm_runtime_get_wasi_exit_رمز) (wasm_module_inst_t module_inst);
+  bool (*wasm_application_execute_main) (wasm_module_inst_t module_inst, int32_t argc, حرف *argv[]);
+  خالی (*wasm_runtime_سیٹ_wasi_دلائل) (wasm_module_t module, ثابت حرف *dir_list[], uint32_t dir_گنتی, ثابت حرف *map_dir_list[], uint32_t map_dir_گنتی, ثابت حرف *env[], uint32_t env_گنتی, حرف *argv[], صحیح argc);
+  خالی (*wasm_runtime_سیٹ_wasi_addr_pool) (wasm_module_t module, ثابت حرف *addr_pool[], uint32_t pool_سائز);
+  خالی (*wasm_runtime_سیٹ_wasi_ns_lookup_pool) (wasm_module_t module, ثابت حرف *ns_lookup_pool[], uint32_t pool_سائز);
 
   wasm_runtime_init = dlsym (cookie, "wasm_runtime_init");
-  wasm_runtime_full_init = dlsym (cookie, "wasm_runtime_full_init");
-  wasm_runtime_load = dlsym (cookie, "wasm_runtime_load");
+  wasm_runtime_بھرا_init = dlsym (cookie, "wasm_runtime_full_init");
+  wasm_runtime_بھرو = dlsym (cookie, "wasm_runtime_load");
   wasm_runtime_instantiate = dlsym (cookie, "wasm_runtime_instantiate");
   wasm_runtime_lookup_function = dlsym (cookie, "wasm_runtime_lookup_function");
   wasm_runtime_create_exec_env = dlsym (cookie, "wasm_runtime_create_exec_env");
   wasm_runtime_call_wasm = dlsym (cookie, "wasm_runtime_call_wasm");
   wasm_runtime_get_exception = dlsym (cookie, "wasm_runtime_get_exception");
-  wasm_runtime_set_exception = dlsym (cookie, "wasm_runtime_set_exception");
+  wasm_runtime_سیٹ_exception = dlsym (cookie, "wasm_runtime_set_exception");
   wasm_runtime_clear_exception = dlsym (cookie, "wasm_runtime_clear_exception");
   wasm_runtime_destroy_exec_env = dlsym (cookie, "wasm_runtime_destroy_exec_env");
   wasm_runtime_deinstantiate = dlsym (cookie, "wasm_runtime_deinstantiate");
   wasm_runtime_unload = dlsym (cookie, "wasm_runtime_unload");
   wasm_runtime_destroy = dlsym (cookie, "wasm_runtime_destroy");
-  wasm_runtime_get_wasi_exit_code = dlsym (cookie, "wasm_runtime_get_wasi_exit_code");
+  wasm_runtime_get_wasi_exit_رمز = dlsym (cookie, "wasm_runtime_get_wasi_exit_code");
   wasm_application_execute_main = dlsym (cookie, "wasm_application_execute_main");
-  wasm_runtime_set_wasi_args = dlsym (cookie, "wasm_runtime_set_wasi_args");
-  wasm_runtime_set_wasi_addr_pool = dlsym (cookie, "wasm_runtime_set_wasi_addr_pool");
-  wasm_runtime_set_wasi_ns_lookup_pool = dlsym (cookie, "wasm_runtime_set_wasi_ns_lookup_pool");
+  wasm_runtime_سیٹ_wasi_دلائل = dlsym (cookie, "wasm_runtime_set_wasi_args");
+  wasm_runtime_سیٹ_wasi_addr_pool = dlsym (cookie, "wasm_runtime_set_wasi_addr_pool");
+  wasm_runtime_سیٹ_wasi_ns_lookup_pool = dlsym (cookie, "wasm_runtime_set_wasi_ns_lookup_pool");
 
-  if (wasm_runtime_init == NULL)
+  اگر (wasm_runtime_init == تہی)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_init symbol in `libiwasm.so`");
-  if (wasm_runtime_full_init == NULL)
+  اگر (wasm_runtime_بھرا_init == تہی)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_full_init symbol in `libiwasm.so`");
-  if (wasm_runtime_load == NULL)
+  اگر (wasm_runtime_بھرو == تہی)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_load symbol in `libiwasm.so`");
-  if (wasm_runtime_instantiate == NULL)
+  اگر (wasm_runtime_instantiate == تہی)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_instantiate symbol in `libiwasm.so`");
-  if (wasm_runtime_lookup_function == NULL)
+  اگر (wasm_runtime_lookup_function == تہی)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_lookup_function symbol in `libiwasm.so`");
-  if (wasm_runtime_create_exec_env == NULL)
+  اگر (wasm_runtime_create_exec_env == تہی)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_create_exec_env symbol in `libiwasm.so`");
-  if (wasm_runtime_call_wasm == NULL)
+  اگر (wasm_runtime_call_wasm == تہی)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_call_wasm symbol in `libiwasm.so`");
-  if (wasm_runtime_get_exception == NULL)
+  اگر (wasm_runtime_get_exception == تہی)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_get_exception symbol in `libiwasm.so`");
-  if (wasm_runtime_set_exception == NULL)
+  اگر (wasm_runtime_سیٹ_exception == تہی)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_set_exception symbol in `libiwasm.so`");
-  if (wasm_runtime_clear_exception == NULL)
+  اگر (wasm_runtime_clear_exception == تہی)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_clear_exception symbol in `libiwasm.so`");
-  if (wasm_runtime_destroy_exec_env == NULL)
+  اگر (wasm_runtime_destroy_exec_env == تہی)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_destroy_exec_env symbol in `libiwasm.so`");
-  if (wasm_runtime_deinstantiate == NULL)
+  اگر (wasm_runtime_deinstantiate == تہی)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_deinstantiate symbol in `libiwasm.so`");
-  if (wasm_runtime_unload == NULL)
+  اگر (wasm_runtime_unload == تہی)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_unload symbol in `libiwasm.so`");
-  if (wasm_runtime_destroy == NULL)
+  اگر (wasm_runtime_destroy == تہی)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_destroy symbol in `libiwasm.so`");
-  if (wasm_runtime_get_wasi_exit_code == NULL)
+  اگر (wasm_runtime_get_wasi_exit_رمز == تہی)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_get_wasi_exit_code symbol in `libiwasm.so`");
-  if (wasm_application_execute_main == NULL)
+  اگر (wasm_application_execute_main == تہی)
     error (EXIT_FAILURE, 0, "could not find wasm_application_execute_main symbol in `libiwasm.so`");
-  if (wasm_runtime_set_wasi_args == NULL)
+  اگر (wasm_runtime_سیٹ_wasi_دلائل == تہی)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_set_wasi_args symbol in `libiwasm.so`");
-  if (wasm_runtime_set_wasi_addr_pool == NULL)
+  اگر (wasm_runtime_سیٹ_wasi_addr_pool == تہی)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_set_wasi_addr_pool symbol in `libiwasm.so`");
-  if (wasm_runtime_set_wasi_ns_lookup_pool == NULL)
+  اگر (wasm_runtime_سیٹ_wasi_ns_lookup_pool == تہی)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_set_wasi_ns_lookup_pool symbol in `libiwasm.so`");
 
-  int ret;
-  const char *exception;
-  cleanup_free char *buffer = NULL;
-  char error_buf[128];
-  size_t buffer_size;
-  uint32_t stack_size = 8096, heap_size = 0;
-  libcrun_error_t tmp_err = NULL;
-  const char *wasi_proc_exit_exception = "wasi proc exit";
-  const char *wasi_addr_pool[2] = { "0.0.0.0/0", "::/0" };
-  const char *wasi_ns_lookup_pool[1] = { "*" };
+  صحیح ret;
+  ثابت حرف *exception;
+  cleanup_free حرف *بفر = تہی;
+  حرف error_buf[128];
+  size_t بفر_سائز;
+  uint32_t ڈھیر_سائز = 8096, ڈھیر_سائز_2 = 0;
+  libcrun_error_t tmp_err = تہی;
+  ثابت حرف *wasi_proc_exit_exception = "wasi proc exit";
+  ثابت حرف *wasi_addr_pool[2] = { "0.0.0.0/0", "::/0" };
+  ثابت حرف *wasi_ns_lookup_pool[1] = { "*" };
 
-  const char *dirs[2] = { "/", "." };
-  char **container_env = container->container_def->process->env;
-  size_t env_count = container->container_def->process->env_len;
+  ثابت حرف *dirs[2] = { "/", "." };
+  حرف **container_env = container->container_def->process->env;
+  size_t env_گنتی = container->container_def->process->env_len;
 
-  int arg_count = 0;
-  char *const *arg;
-  for (arg = argv; *arg != NULL; ++arg)
-    arg_count++;
+  صحیح arg_گنتی = 0;
+  حرف *ثابت *arg;
+  برائے (arg = argv; *arg != تہی; ++arg)
+    arg_گنتی++;
 
   // initialize the wasm runtime by default configurations
-  if (! wasm_runtime_init ())
+  اگر (! wasm_runtime_init ())
     error (EXIT_FAILURE, 0, "Failed to initialize the wasm runtime");
 
   // read WASM file into a memory buffer
-  ret = read_all_file (pathname, &buffer, &buffer_size, &tmp_err);
-  if (UNLIKELY (ret < 0))
+  ret = read_all_file (pathname, &بفر, &بفر_سائز, &tmp_err);
+  اگر (UNLIKELY (ret < 0))
     {
       crun_error_release (&tmp_err);
       error (EXIT_FAILURE, 0, "Failed to read file");
     }
 
-  if (UNLIKELY (buffer_size > UINT32_MAX))
+  اگر (UNLIKELY (بفر_سائز > UINT32_MAX))
     error (EXIT_FAILURE, 0, "File size is too large");
 
   // parse the WASM file from buffer and create a WASM module
-  module = wasm_runtime_load (buffer, buffer_size, error_buf, sizeof (error_buf));
-  if (! module)
+  module = wasm_runtime_بھرو (بفر, بفر_سائز, error_buf, حجم (error_buf));
+  اگر (! module)
     error (EXIT_FAILURE, 0, "Failed to load WASM file");
 
   // instantiate the WASI environment
-  wasm_runtime_set_wasi_args (module, dirs, 1, NULL, 0, (const char **) container_env, env_count, (char **) argv, arg_count);
+  wasm_runtime_سیٹ_wasi_دلائل (module, dirs, 1, تہی, 0, (ثابت حرف **) container_env, env_گنتی, (حرف **) argv, arg_گنتی);
 
   // enable the WASI socket api
-  wasm_runtime_set_wasi_addr_pool (module, wasi_addr_pool, 2);
-  wasm_runtime_set_wasi_ns_lookup_pool (module, wasi_ns_lookup_pool, 1);
+  wasm_runtime_سیٹ_wasi_addr_pool (module, wasi_addr_pool, 2);
+  wasm_runtime_سیٹ_wasi_ns_lookup_pool (module, wasi_ns_lookup_pool, 1);
 
   // create an instance of the WASM module (WASM linear memory is ready)
-  module_inst = wasm_runtime_instantiate (module, stack_size, heap_size, error_buf, sizeof (error_buf));
-  if (! module_inst)
+  module_inst = wasm_runtime_instantiate (module, ڈھیر_سائز, ڈھیر_سائز_2, error_buf, حجم (error_buf));
+  اگر (! module_inst)
     error (EXIT_FAILURE, 0, "Failed to instantiate the WASM module");
 
   // look up a WASM function by its name (The function signature can NULL here)
   func = wasm_runtime_lookup_function (module_inst, "_start");
-  if (! func)
+  اگر (! func)
     error (EXIT_FAILURE, 0, "Failed to look up the WASM function");
 
   // create an execution environment to execute the WASM functions
-  exec_env = wasm_runtime_create_exec_env (module_inst, stack_size);
-  if (! exec_env)
+  exec_env = wasm_runtime_create_exec_env (module_inst, ڈھیر_سائز);
+  اگر (! exec_env)
     error (EXIT_FAILURE, 0, "Failed to create the execution environment");
 
   // call the WASM function
-  ret = wasm_runtime_call_wasm (exec_env, func, 0, NULL);
-  if (ret)
-    wasm_runtime_set_exception (module_inst, wasi_proc_exit_exception);
+  ret = wasm_runtime_call_wasm (exec_env, func, 0, تہی);
+  اگر (ret)
+    wasm_runtime_سیٹ_exception (module_inst, wasi_proc_exit_exception);
   exception = wasm_runtime_get_exception (module_inst);
-  if (! strstr (exception, wasi_proc_exit_exception))
+  اگر (! لڑی_تلاش (exception, wasi_proc_exit_exception))
     error (EXIT_FAILURE, 0, "Failed to call the WASM function");
   wasm_runtime_clear_exception (module_inst);
 
@@ -233,24 +233,24 @@ libwamr_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *contai
   wasm_runtime_unload (module);
   wasm_runtime_destroy ();
 
-  exit (EXIT_SUCCESS);
+  باہر_نکلو (EXIT_SUCCESS);
 }
 
-static int
+ساکن صحیح
 libwamr_can_handle_container (libcrun_container_t *container, libcrun_error_t *err)
 {
-  return wasm_can_handle_container (container, err);
+  واپس wasm_can_handle_container (container, err);
 }
 
-struct custom_handler_s handler_wamr = {
+ساخت custom_handler_s handler_wamr = {
   .name = "wamr",
   .alias = "wasm",
   .feature_string = "WASM:wamr",
-  .supports_open_tree_namespace = false,
-  .load = libwamr_load,
+  .supports_open_درخت_namespace = false,
+  .بھرو = libwamr_بھرو,
   .unload = libwamr_unload,
-  .run_func = libwamr_exec,
+  .تسلسل_func = libwamr_exec,
   .can_handle_container = libwamr_can_handle_container,
 };
 
-#endif
+#اگر_ختم

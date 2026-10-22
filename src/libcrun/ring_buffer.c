@@ -15,223 +15,223 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE
-#include <config.h>
-#include <sys/uio.h>
+#تعریف_کرو GNU_ماخذ
+#شامل <config.h>
+#شامل <sys/uio.h>
 
-#include "ring_buffer.h"
-#include "utils.h"
+#شامل "ring_buffer.h"
+#شامل "utils.h"
 
-struct ring_buffer
+ساخت ring_بفر
 {
-  char *buffer;
-  size_t size;
-  size_t head;
-  size_t tail;
+  حرف *بفر;
+  size_t سائز;
+  size_t سر;
+  size_t دم;
 };
 
 /*
  * It returns up to two regions in `iov` that can be read from.
  */
-static int
-ring_buffer_get_read_iov (struct ring_buffer *rb, struct iovec *iov)
+ساکن صحیح
+ring_بفر_get_read_iov (ساخت ring_بفر *rb, ساخت iovec *iov)
 {
-  int iov_count = 0;
+  صحیح iov_گنتی = 0;
 
   /* Buffer is empty.  */
-  if (rb->head == rb->tail)
-    return 0;
+  اگر (rb->سر == rb->دم)
+    واپس 0;
 
   /* Head before tail.  There is only one region to read from, up to tail.  */
-  if (rb->tail > rb->head)
+  اگر (rb->دم > rb->سر)
     {
-      iov[iov_count].iov_base = rb->buffer + rb->head;
-      iov[iov_count].iov_len = rb->tail - rb->head;
-      iov_count++;
+      iov[iov_گنتی].iov_base = rb->بفر + rb->سر;
+      iov[iov_گنتی].iov_len = rb->دم - rb->سر;
+      iov_گنتی++;
     }
   /* Head after tail.  There are two regions to read from, up to the
    * end of the buffer and from the beginning of the buffer to tail.  */
-  else
+  ورنہ
     {
-      iov[iov_count].iov_base = rb->buffer + rb->head;
-      iov[iov_count].iov_len = rb->size - rb->head;
-      iov_count++;
+      iov[iov_گنتی].iov_base = rb->بفر + rb->سر;
+      iov[iov_گنتی].iov_len = rb->سائز - rb->سر;
+      iov_گنتی++;
 
-      if (rb->tail > 0)
+      اگر (rb->دم > 0)
         {
-          iov[iov_count].iov_base = rb->buffer;
-          iov[iov_count].iov_len = rb->tail;
-          iov_count++;
+          iov[iov_گنتی].iov_base = rb->بفر;
+          iov[iov_گنتی].iov_len = rb->دم;
+          iov_گنتی++;
         }
     }
-  return iov_count;
+  واپس iov_گنتی;
 }
 
 /*
  * It returns up to two regions in `iov` that can be written to without overwriting
  * existing data.
  */
-static int
-ring_buffer_get_write_iov (struct ring_buffer *rb, struct iovec *iov)
+ساکن صحیح
+ring_بفر_get_write_iov (ساخت ring_بفر *rb, ساخت iovec *iov)
 {
-  int iov_count = 0;
+  صحیح iov_گنتی = 0;
 
   /* Buffer is full.  */
-  if ((rb->tail + 1) % rb->size == rb->head)
-    return 0;
+  اگر ((rb->دم + 1) % rb->سائز == rb->سر)
+    واپس 0;
 
   /* Tail before head.  There is only one region to write to, up to head.  */
-  if (rb->head > rb->tail + 1)
+  اگر (rb->سر > rb->دم + 1)
     {
-      iov[iov_count].iov_base = rb->buffer + rb->tail;
-      iov[iov_count].iov_len = rb->head - rb->tail - 1;
-      iov_count++;
+      iov[iov_گنتی].iov_base = rb->بفر + rb->دم;
+      iov[iov_گنتی].iov_len = rb->سر - rb->دم - 1;
+      iov_گنتی++;
     }
   /* Tail after or equal to head.  There are two regions to write to, up to the
    * end of the buffer and from the beginning of the buffer to head.  */
-  else
+  ورنہ
     {
-      iov[iov_count].iov_base = rb->buffer + rb->tail;
-      iov[iov_count].iov_len = rb->head == 0 ? rb->size - rb->tail - 1 : rb->size - rb->tail;
-      iov_count++;
+      iov[iov_گنتی].iov_base = rb->بفر + rb->دم;
+      iov[iov_گنتی].iov_len = rb->سر == 0 ? rb->سائز - rb->دم - 1 : rb->سائز - rb->دم;
+      iov_گنتی++;
 
-      if (rb->head > 1)
+      اگر (rb->سر > 1)
         {
-          iov[iov_count].iov_base = rb->buffer;
-          iov[iov_count].iov_len = rb->head - 1;
-          iov_count++;
+          iov[iov_گنتی].iov_base = rb->بفر;
+          iov[iov_گنتی].iov_len = rb->سر - 1;
+          iov_گنتی++;
         }
     }
-  return iov_count;
+  واپس iov_گنتی;
 }
 
 /* manually advance the head after a successful read.  */
-static void
-ring_buffer_advance_nocheck_head (struct ring_buffer *rb, size_t amount)
+ساکن خالی
+ring_بفر_advance_nocheck_سر (ساخت ring_بفر *rb, size_t amount)
 {
-  rb->head = (rb->head + amount) % rb->size;
+  rb->سر = (rb->سر + amount) % rb->سائز;
 }
 
 /* manually advance the tail after a successful write.  */
-static void
-ring_buffer_advance_nocheck_tail (struct ring_buffer *rb, size_t amount)
+ساکن خالی
+ring_بفر_advance_nocheck_دم (ساخت ring_بفر *rb, size_t amount)
 {
-  rb->tail = (rb->tail + amount) % rb->size;
+  rb->دم = (rb->دم + amount) % rb->سائز;
 }
 
 size_t
-ring_buffer_get_data_available (struct ring_buffer *rb)
+ring_بفر_get_ڈیٹا_دستیاب (ساخت ring_بفر *rb)
 {
-  if (rb->head <= rb->tail)
-    return rb->tail - rb->head;
+  اگر (rb->سر <= rb->دم)
+    واپس rb->دم - rb->سر;
 
-  return rb->size - rb->head + rb->tail;
+  واپس rb->سائز - rb->سر + rb->دم;
 }
 
 size_t
-ring_buffer_get_size (struct ring_buffer *rb)
+ring_بفر_get_سائز (ساخت ring_بفر *rb)
 {
-  return rb->size - 1;
+  واپس rb->سائز - 1;
 }
 
 size_t
-ring_buffer_get_space_available (struct ring_buffer *rb)
+ring_بفر_get_space_دستیاب (ساخت ring_بفر *rb)
 {
-  return rb->size - ring_buffer_get_data_available (rb) - 1;
+  واپس rb->سائز - ring_بفر_get_ڈیٹا_دستیاب (rb) - 1;
 }
 
-int
-ring_buffer_read (struct ring_buffer *rb, int fd, bool *is_eagain, libcrun_error_t *err)
+صحیح
+ring_بفر_read (ساخت ring_بفر *rb, صحیح fd, bool *is_eagain, libcrun_error_t *err)
 {
-  struct iovec iov[2];
-  int iov_count = 0;
+  ساخت iovec iov[2];
+  صحیح iov_گنتی = 0;
   ssize_t ret;
 
   *is_eagain = false;
 
-  iov_count = ring_buffer_get_write_iov (rb, iov);
-  if (iov_count == 0)
+  iov_گنتی = ring_بفر_get_write_iov (rb, iov);
+  اگر (iov_گنتی == 0)
     {
       *is_eagain = true;
-      return 0;
+      واپس 0;
     }
 
-  ret = readv (fd, iov, iov_count);
-  if (UNLIKELY (ret < 0))
+  ret = readv (fd, iov, iov_گنتی);
+  اگر (UNLIKELY (ret < 0))
     {
       /* A terminal that was hung up fails with EIO.  As with EAGAIN, there
          is nothing to read until the state of the fd changes.  */
-      if (errno == EIO || errno == EAGAIN || errno == EWOULDBLOCK)
+      اگر (errno == EIO || errno == EAGAIN || errno == EWOULDBLOCK)
         {
           *is_eagain = true;
-          return 0;
+          واپس 0;
         }
-      return crun_make_error (err, errno, "readv");
+      واپس crun_make_error (err, errno, "readv");
     }
   /* The same holds at EOF.  */
-  if (ret == 0)
+  اگر (ret == 0)
     *is_eagain = true;
-  ring_buffer_advance_nocheck_tail (rb, ret);
-  return ret;
+  ring_بفر_advance_nocheck_دم (rb, ret);
+  واپس ret;
 }
 
-int
-ring_buffer_write (struct ring_buffer *rb, int fd, bool *is_eagain, libcrun_error_t *err)
+صحیح
+ring_بفر_write (ساخت ring_بفر *rb, صحیح fd, bool *is_eagain, libcrun_error_t *err)
 {
   ssize_t ret;
-  struct iovec iov[2];
-  int iov_count = 0;
+  ساخت iovec iov[2];
+  صحیح iov_گنتی = 0;
 
   *is_eagain = false;
 
-  iov_count = ring_buffer_get_read_iov (rb, iov);
-  if (iov_count == 0)
+  iov_گنتی = ring_بفر_get_read_iov (rb, iov);
+  اگر (iov_گنتی == 0)
     {
       *is_eagain = true;
-      return 0;
+      واپس 0;
     }
 
-  ret = writev (fd, iov, iov_count);
-  if (UNLIKELY (ret < 0))
+  ret = writev (fd, iov, iov_گنتی);
+  اگر (UNLIKELY (ret < 0))
     {
       /* A terminal that was hung up fails with EIO.  As with EAGAIN, there
          is nothing to write until the state of the fd changes.  */
-      if (errno == EIO || errno == EAGAIN || errno == EWOULDBLOCK)
+      اگر (errno == EIO || errno == EAGAIN || errno == EWOULDBLOCK)
         {
           *is_eagain = true;
-          return 0;
+          واپس 0;
         }
-      return crun_make_error (err, errno, "writev");
+      واپس crun_make_error (err, errno, "writev");
     }
-  ring_buffer_advance_nocheck_head (rb, ret);
+  ring_بفر_advance_nocheck_سر (rb, ret);
   /* If the buffer is empty, reset the head and tail.  */
-  if (rb->head == rb->tail)
+  اگر (rb->سر == rb->دم)
     {
-      rb->head = 0;
-      rb->tail = 0;
+      rb->سر = 0;
+      rb->دم = 0;
     }
-  return ret;
+  واپس ret;
 }
 
-struct ring_buffer *
-ring_buffer_make (size_t size)
+ساخت ring_بفر *
+ring_بفر_make (size_t سائز)
 {
-  struct ring_buffer *rb = xmalloc (sizeof (struct ring_buffer));
+  ساخت ring_بفر *rb = xmalloc (حجم (ساخت ring_بفر));
 
   /* The extra byte is used to distinguish between full and empty buffer.  */
-  rb->size = size + 1;
-  rb->buffer = xmalloc (rb->size);
-  rb->head = 0;
-  rb->tail = 0;
+  rb->سائز = سائز + 1;
+  rb->بفر = xmalloc (rb->سائز);
+  rb->سر = 0;
+  rb->دم = 0;
 
-  return rb;
+  واپس rb;
 }
 
-void
-ring_buffer_free (struct ring_buffer *rb)
+خالی
+ring_بفر_free (ساخت ring_بفر *rb)
 {
-  if (rb == NULL)
-    return;
-  free (rb->buffer);
-  free (rb);
+  اگر (rb == تہی)
+    واپس;
+  آزاد (rb->بفر);
+  آزاد (rb);
 }

@@ -16,88 +16,88 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CUSTOM_HANDLER_H
-#define CUSTOM_HANDLER_H
+#اگر_غیر_تعریف_شدہ CUSTOM_HANDLER_H
+#تعریف_کرو CUSTOM_HANDLER_H
 
-#include "container.h"
-#include "utils.h"
-#include <stdio.h>
+#شامل "container.h"
+#شامل "utils.h"
+#شامل <stdio.h>
 
-struct custom_handler_s
+ساخت custom_handler_s
 {
-  const char *name;
-  const char *feature_string;
+  ثابت حرف *name;
+  ثابت حرف *feature_string;
 
-  const char *alias;
+  ثابت حرف *alias;
 
-  const bool supports_open_tree_namespace;
+  ثابت bool supports_open_درخت_namespace;
 
-  int (*load) (void **cookie, libcrun_error_t *err);
-  int (*unload) (void *cookie, libcrun_error_t *err);
+  صحیح (*بھرو) (خالی **cookie, libcrun_error_t *err);
+  صحیح (*unload) (خالی *cookie, libcrun_error_t *err);
 
-  int (*run_func) (void *cookie, libcrun_container_t *container,
-                   const char *pathname, char *const argv[]);
+  صحیح (*تسلسل_func) (خالی *cookie, libcrun_container_t *container,
+                   ثابت حرف *pathname, حرف *ثابت argv[]);
 
-  int (*exec_func) (void *cookie, libcrun_container_t *container,
-                    const char *pathname, char *const argv[]);
+  صحیح (*exec_func) (خالی *cookie, libcrun_container_t *container,
+                    ثابت حرف *pathname, حرف *ثابت argv[]);
 
-  int (*configure_container) (void *cookie, enum handler_configure_phase phase,
+  صحیح (*configure_container) (خالی *cookie, شمار handler_configure_phase phase,
                               libcrun_context_t *context, libcrun_container_t *container,
-                              const char *rootfs, libcrun_error_t *err);
+                              ثابت حرف *rootfs, libcrun_error_t *err);
 
-  int (*can_handle_container) (libcrun_container_t *container, libcrun_error_t *err);
+  صحیح (*can_handle_container) (libcrun_container_t *container, libcrun_error_t *err);
 
-  int (*modify_oci_configuration) (void *cookie, libcrun_context_t *context,
+  صحیح (*modify_oci_configuration) (خالی *cookie, libcrun_context_t *context,
                                    runtime_spec_schema_config_schema *def,
                                    libcrun_error_t *err);
 
-  int (*close_fds) (void *cookie, libcrun_container_t *container,
-                    int preserve_fds, libcrun_error_t *err);
+  صحیح (*close_fds) (خالی *cookie, libcrun_container_t *container,
+                    صحیح preserve_fds, libcrun_error_t *err);
 };
 
-struct custom_handler_manager_s;
+ساخت custom_handler_manager_s;
 
-LIBCRUN_PUBLIC struct custom_handler_manager_s *libcrun_handler_manager_create (libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_handler_manager_load_directory (struct custom_handler_manager_s *manager, const char *path, libcrun_error_t *err);
-LIBCRUN_PUBLIC void handler_manager_free (struct custom_handler_manager_s *manager);
+LIBCRUN_عوامی ساخت custom_handler_manager_s *libcrun_handler_manager_create (libcrun_error_t *err);
+LIBCRUN_عوامی صحیح libcrun_handler_manager_بھرو_directory (ساخت custom_handler_manager_s *manager, ثابت حرف *راستہ, libcrun_error_t *err);
+LIBCRUN_عوامی خالی handler_manager_free (ساخت custom_handler_manager_s *manager);
 
-LIBCRUN_PUBLIC struct custom_handler_s *handler_by_name (struct custom_handler_manager_s *manager, const char *name);
-LIBCRUN_PUBLIC void libcrun_handler_manager_print_feature_tags (struct custom_handler_manager_s *manager, FILE *out);
-LIBCRUN_PUBLIC char **libcrun_context_get_handler_feature_tags (libcrun_context_t *ctx, libcrun_error_t *err);
+LIBCRUN_عوامی ساخت custom_handler_s *handler_by_name (ساخت custom_handler_manager_s *manager, ثابت حرف *name);
+LIBCRUN_عوامی خالی libcrun_handler_manager_print_feature_لیبل_فہرست (ساخت custom_handler_manager_s *manager, FILE *برآمد);
+LIBCRUN_عوامی حرف **libcrun_context_get_handler_feature_لیبل_فہرست (libcrun_context_t *ctx, libcrun_error_t *err);
 
-struct custom_handler_instance_s
+ساخت custom_handler_instance_s
 {
-  struct custom_handler_s *vtable;
-  void *cookie;
+  ساخت custom_handler_s *vtable;
+  خالی *cookie;
 };
 
-LIBCRUN_PUBLIC int libcrun_configure_handler (struct custom_handler_manager_s *manager,
+LIBCRUN_عوامی صحیح libcrun_configure_handler (ساخت custom_handler_manager_s *manager,
                                               libcrun_context_t *context,
                                               libcrun_container_t *container,
-                                              struct custom_handler_instance_s **out,
+                                              ساخت custom_handler_instance_s **برآمد,
                                               libcrun_error_t *err);
 
-typedef struct custom_handler_s *(*run_oci_get_handler_cb) ();
+قسمتعریف ساخت custom_handler_s *(*تسلسل_oci_get_handler_cb) ();
 
-#define cleanup_custom_handler_instance __attribute__ ((cleanup (cleanup_custom_handler_instancep)))
+#تعریف_کرو cleanup_custom_handler_instance __attribute__ ((cleanup (cleanup_custom_handler_instancep)))
 
-static inline void
-cleanup_custom_handler_instancep (struct custom_handler_instance_s **p)
+ساکن اندرونی خالی
+cleanup_custom_handler_instancep (ساخت custom_handler_instance_s **p)
 {
-  struct custom_handler_instance_s *handler = (struct custom_handler_instance_s *) *p;
-  if (handler)
+  ساخت custom_handler_instance_s *handler = (ساخت custom_handler_instance_s *) *p;
+  اگر (handler)
     {
-      if (handler->vtable)
+      اگر (handler->vtable)
         {
-          libcrun_error_t tmp_err = NULL;
-          int tmp_ret;
+          libcrun_error_t tmp_err = تہی;
+          صحیح tmp_ret;
 
           tmp_ret = handler->vtable->unload (handler->cookie, &tmp_err);
-          if (UNLIKELY (tmp_ret < 0))
+          اگر (UNLIKELY (tmp_ret < 0))
             crun_error_release (&tmp_err);
         }
-      free (handler);
+      آزاد (handler);
     }
 }
 
-#endif
+#اگر_ختم

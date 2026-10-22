@@ -15,14 +15,14 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef IO_PRIORITY_H
-#define IO_PRIORITY_H
+#اگر_غیر_تعریف_شدہ IO_ترجیح_H
+#تعریف_کرو IO_ترجیح_H
 
-#include <config.h>
-#include "error.h"
-#include "container.h"
-#include "status.h"
+#شامل <config.h>
+#شامل "error.h"
+#شامل "container.h"
+#شامل "status.h"
 
-int libcrun_set_io_priority (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err);
+صحیح libcrun_سیٹ_io_ترجیح (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err);
 
-#endif
+#اگر_ختم

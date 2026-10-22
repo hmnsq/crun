@@ -28,309 +28,309 @@
  * and the caller releases it with libcrun_error_release.
  */
 
-#ifndef LIBCRUN_H
-#define LIBCRUN_H
+#اگر_غیر_تعریف_شدہ LIBCRUN_H
+#تعریف_کرو LIBCRUN_H
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <sys/types.h>
+#شامل <stdbool.h>
+#شامل <stddef.h>
+#شامل <sys/types.h>
 
-#ifdef __GNUC__
-#  define LIBCRUN_PRINTF(a, b) __attribute__ ((format (printf, a, b)))
+#اگر_تعریف_شدہ __GNUC__
+#  define LIBCRUN_PRINTF(a, b) __attribute__ ((format (لکھو, a, b)))
 #  define LIBCRUN_NORETURN __attribute__ ((noreturn))
-#elif defined __STDC_VERSION__ && __STDC_VERSION__ >= 201112L
+#وگرنہ_اگر defined __STDC_VERSION__ && __STDC_VERSION__ >= 201112L
 #  define LIBCRUN_PRINTF(a, b)
 #  define LIBCRUN_NORETURN _Noreturn
-#else
+#ورنہ
 #  define LIBCRUN_PRINTF(a, b)
 #  define LIBCRUN_NORETURN
-#endif
+#اگر_ختم
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#اگر_تعریف_شدہ __cplusplus
+خارجی "C" {
+#اگر_ختم
 
 /* Opaque handles.  */
-typedef struct libcrun_error_s *libcrun_error_t;
-typedef struct libcrun_context_s libcrun_context_t;
-typedef struct libcrun_container_s libcrun_container_t;
-typedef struct libcrun_status_s libcrun_status_t;
-typedef struct libcrun_container_list_s libcrun_container_list_t;
-typedef struct libcrun_container_iter_s libcrun_container_iter_t;
+قسمتعریف ساخت libcrun_error_s *libcrun_error_t;
+قسمتعریف ساخت libcrun_context_s libcrun_context_t;
+قسمتعریف ساخت libcrun_container_s libcrun_container_t;
+قسمتعریف ساخت libcrun_حالت_s libcrun_حالت_t;
+قسمتعریف ساخت libcrun_container_list_s libcrun_container_list_t;
+قسمتعریف ساخت libcrun_container_iter_s libcrun_container_iter_t;
 
-enum
+شمار
 {
-  LIBCRUN_RUN_OPTIONS_PREFORK = 1 << 0,
-  LIBCRUN_RUN_OPTIONS_KEEP = 1 << 1,
+  LIBCRUN_تسلسل_OPTIONS_PREFORK = 1 << 0,
+  LIBCRUN_تسلسل_OPTIONS_KEEP = 1 << 1,
 };
 
-enum
+شمار
 {
   LIBCRUN_CREATE_OPTIONS_PREFORK = 1 << 0,
 };
 
-enum
+شمار
 {
   LIBCRUN_VERBOSITY_ERROR = 0,
   LIBCRUN_VERBOSITY_WARNING,
   LIBCRUN_VERBOSITY_DEBUG,
 };
 
-typedef enum
+قسمتعریف شمار
 {
-  LIBCRUN_CONTAINER_STATUS_CREATING = 0,
-  LIBCRUN_CONTAINER_STATUS_CREATED,
-  LIBCRUN_CONTAINER_STATUS_RUNNING,
-  LIBCRUN_CONTAINER_STATUS_STOPPED,
-  LIBCRUN_CONTAINER_STATUS_PAUSED,
+  LIBCRUN_CONTAINER_حالت_CREATING = 0,
+  LIBCRUN_CONTAINER_حالت_CREATED,
+  LIBCRUN_CONTAINER_حالت_RUNNING,
+  LIBCRUN_CONTAINER_حالت_STOPPED,
+  LIBCRUN_CONTAINER_حالت_PAUSED,
 } libcrun_container_state_t;
 
-typedef void (*libcrun_output_handler) (int errno_, const char *msg, int verbosity, void *arg);
+قسمتعریف خالی (*libcrun_output_handler) (صحیح errno_, ثابت حرف *پیغام, صحیح verbosity, خالی *arg);
 
 /* Error handling.  */
-int libcrun_error_get_status (libcrun_error_t err);
-const char *libcrun_error_get_message (libcrun_error_t err);
-int libcrun_error_release (libcrun_error_t *err);
+صحیح libcrun_error_get_حالت (libcrun_error_t err);
+ثابت حرف *libcrun_error_get_پیغام (libcrun_error_t err);
+صحیح libcrun_error_release (libcrun_error_t *err);
 
 /* Create an error object; returns a negative value derived from status.  */
-int libcrun_make_error (libcrun_error_t *err, int status, const char *fmt, ...) LIBCRUN_PRINTF (3, 4);
+صحیح libcrun_make_error (libcrun_error_t *err, صحیح حالت_2, ثابت حرف *fmt, ...) LIBCRUN_PRINTF (3, 4);
 
 /* Report *err through the configured log handler and release it.  */
-void libcrun_error_report_and_release (libcrun_error_t *err);
+خالی libcrun_error_report_and_release (libcrun_error_t *err);
 
 /* Report the error and terminate the process.  */
-void libcrun_fail_with_error (int errno_, const char *fmt, ...) LIBCRUN_NORETURN LIBCRUN_PRINTF (2, 3);
+خالی libcrun_fail_with_error (صحیح errno_, ثابت حرف *fmt, ...) LIBCRUN_NORETURN LIBCRUN_PRINTF (2, 3);
 
 /* Logging.  */
-void libcrun_set_verbosity (int verbosity);
-int libcrun_get_verbosity (void);
-int libcrun_set_log_format (const char *format, libcrun_error_t *err);
-void libcrun_debug (const char *fmt, ...) LIBCRUN_PRINTF (1, 2);
-void libcrun_warning (const char *fmt, ...) LIBCRUN_PRINTF (1, 2);
-void libcrun_error (int errno_, const char *fmt, ...) LIBCRUN_PRINTF (2, 3);
+خالی libcrun_سیٹ_verbosity (صحیح verbosity);
+صحیح libcrun_get_verbosity (خالی);
+صحیح libcrun_سیٹ_log_format (ثابت حرف *format, libcrun_error_t *err);
+خالی libcrun_debug (ثابت حرف *fmt, ...) LIBCRUN_PRINTF (1, 2);
+خالی libcrun_warning (ثابت حرف *fmt, ...) LIBCRUN_PRINTF (1, 2);
+خالی libcrun_error (صحیح errno_, ثابت حرف *fmt, ...) LIBCRUN_PRINTF (2, 3);
 
 /* Context.  */
-libcrun_context_t *libcrun_context_new (const char *id, const char *state_root, libcrun_error_t *err);
-void libcrun_context_free (libcrun_context_t *ctx);
+libcrun_context_t *libcrun_context_new (ثابت حرف *id, ثابت حرف *state_جڑ, libcrun_error_t *err);
+خالی libcrun_context_free (libcrun_context_t *ctx);
 
-void libcrun_context_set_id (libcrun_context_t *ctx, const char *value);
-void libcrun_context_set_state_root (libcrun_context_t *ctx, const char *value);
-const char *libcrun_context_get_state_root (libcrun_context_t *ctx);
-void libcrun_context_set_bundle (libcrun_context_t *ctx, const char *value);
-void libcrun_context_set_console_socket (libcrun_context_t *ctx, const char *value);
-void libcrun_context_set_pid_file (libcrun_context_t *ctx, const char *value);
-const char *libcrun_context_get_pid_file (libcrun_context_t *ctx);
-void libcrun_context_set_notify_socket (libcrun_context_t *ctx, const char *value);
-void libcrun_context_set_handler (libcrun_context_t *ctx, const char *value);
-void libcrun_context_set_preserve_fds (libcrun_context_t *ctx, int preserve_fds);
-int libcrun_context_get_preserve_fds (libcrun_context_t *ctx);
-void libcrun_context_set_listen_fds (libcrun_context_t *ctx, int listen_fds);
-void libcrun_context_set_args (libcrun_context_t *ctx, int argc, char **argv);
-void libcrun_context_set_systemd_cgroup (libcrun_context_t *ctx, bool value);
-void libcrun_context_set_detach (libcrun_context_t *ctx, bool value);
-void libcrun_context_set_no_new_keyring (libcrun_context_t *ctx, bool value);
-void libcrun_context_set_no_pivot (libcrun_context_t *ctx, bool value);
-void libcrun_context_set_force_no_cgroup (libcrun_context_t *ctx, bool value);
-void libcrun_context_set_output_handler (libcrun_context_t *ctx, libcrun_output_handler handler, void *arg);
-int libcrun_context_init_logging (libcrun_context_t *ctx, const char *log, libcrun_error_t *err);
+خالی libcrun_context_سیٹ_id (libcrun_context_t *ctx, ثابت حرف *قدر);
+خالی libcrun_context_سیٹ_state_جڑ (libcrun_context_t *ctx, ثابت حرف *قدر);
+ثابت حرف *libcrun_context_get_state_جڑ (libcrun_context_t *ctx);
+خالی libcrun_context_سیٹ_bundle (libcrun_context_t *ctx, ثابت حرف *قدر);
+خالی libcrun_context_سیٹ_console_socket (libcrun_context_t *ctx, ثابت حرف *قدر);
+خالی libcrun_context_سیٹ_pid_file (libcrun_context_t *ctx, ثابت حرف *قدر);
+ثابت حرف *libcrun_context_get_pid_file (libcrun_context_t *ctx);
+خالی libcrun_context_سیٹ_notify_socket (libcrun_context_t *ctx, ثابت حرف *قدر);
+خالی libcrun_context_سیٹ_handler (libcrun_context_t *ctx, ثابت حرف *قدر);
+خالی libcrun_context_سیٹ_preserve_fds (libcrun_context_t *ctx, صحیح preserve_fds);
+صحیح libcrun_context_get_preserve_fds (libcrun_context_t *ctx);
+خالی libcrun_context_سیٹ_listen_fds (libcrun_context_t *ctx, صحیح listen_fds);
+خالی libcrun_context_سیٹ_دلائل (libcrun_context_t *ctx, صحیح argc, حرف **argv);
+خالی libcrun_context_سیٹ_systemd_cgroup (libcrun_context_t *ctx, bool قدر);
+خالی libcrun_context_سیٹ_detach (libcrun_context_t *ctx, bool قدر);
+خالی libcrun_context_سیٹ_no_new_keyring (libcrun_context_t *ctx, bool قدر);
+خالی libcrun_context_سیٹ_no_محور (libcrun_context_t *ctx, bool قدر);
+خالی libcrun_context_سیٹ_force_no_cgroup (libcrun_context_t *ctx, bool قدر);
+خالی libcrun_context_سیٹ_output_handler (libcrun_context_t *ctx, libcrun_output_handler handler, خالی *arg);
+صحیح libcrun_context_init_logging (libcrun_context_t *ctx, ثابت حرف *لوگارتھم, libcrun_error_t *err);
 
 /* Close the file descriptors inherited from the caller, honoring the
    preserve-fds and listen-fds settings in CTX.  */
-int libcrun_close_inherited_fds (libcrun_context_t *ctx, libcrun_error_t *err);
+صحیح libcrun_close_inherited_fds (libcrun_context_t *ctx, libcrun_error_t *err);
 
 /* Container object (loaded from JSON, introspected via accessors).  */
-libcrun_container_t *libcrun_container_load_from_file (const char *path, libcrun_error_t *err);
-libcrun_container_t *libcrun_container_load_from_memory (const char *json, libcrun_error_t *err);
-void libcrun_container_free (libcrun_container_t *container);
+libcrun_container_t *libcrun_container_بھرو_from_file (ثابت حرف *راستہ, libcrun_error_t *err);
+libcrun_container_t *libcrun_container_بھرو_from_حافظہ (ثابت حرف *json, libcrun_error_t *err);
+خالی libcrun_container_free (libcrun_container_t *container);
 
 /* Return the configuration of CONTAINER as a JSON string owned by CONTAINER.
    The document is generated on demand and cached, so the first call mutates
    CONTAINER and must not race with other users of the same handle.  */
-const char *libcrun_container_get_config_json (libcrun_container_t *container, libcrun_error_t *err);
-const char *libcrun_container_get_annotation (libcrun_container_t *container, const char *key);
+ثابت حرف *libcrun_container_get_config_json (libcrun_container_t *container, libcrun_error_t *err);
+ثابت حرف *libcrun_container_get_annotation (libcrun_container_t *container, ثابت حرف *کلید);
 
 /* Enumerate the annotations of container.  libcrun_container_get_annotation_at
    returns 0 and sets *key and *value (both owned by container) for an index
    below libcrun_container_get_annotations_len, -1 otherwise.  */
 size_t libcrun_container_get_annotations_len (libcrun_container_t *container);
-int libcrun_container_get_annotation_at (libcrun_container_t *container, size_t index, const char **key,
-                                         const char **value);
+صحیح libcrun_container_get_annotation_at (libcrun_container_t *container, size_t اشاریہ, ثابت حرف **کلید,
+                                         ثابت حرف **قدر);
 
 uid_t libcrun_container_get_uid (libcrun_container_t *container);
 gid_t libcrun_container_get_gid (libcrun_container_t *container);
 
 /* Lifecycle.  */
-int libcrun_container_run (libcrun_context_t *ctx, libcrun_container_t *container, unsigned int options,
+صحیح libcrun_container_تسلسل (libcrun_context_t *ctx, libcrun_container_t *container, غیرعلامتی صحیح options,
                            libcrun_error_t *err);
-int libcrun_container_create (libcrun_context_t *ctx, libcrun_container_t *container, unsigned int options,
+صحیح libcrun_container_create (libcrun_context_t *ctx, libcrun_container_t *container, غیرعلامتی صحیح options,
                               libcrun_error_t *err);
-int libcrun_container_start (libcrun_context_t *ctx, const char *id, libcrun_error_t *err);
-int libcrun_container_delete (libcrun_context_t *ctx, const char *id, bool force, libcrun_error_t *err);
-int libcrun_container_kill (libcrun_context_t *ctx, const char *id, const char *signal, libcrun_error_t *err);
-int libcrun_container_killall (libcrun_context_t *ctx, const char *id, const char *signal, libcrun_error_t *err);
-int libcrun_container_pause (libcrun_context_t *ctx, const char *id, libcrun_error_t *err);
-int libcrun_container_unpause (libcrun_context_t *ctx, const char *id, libcrun_error_t *err);
-int libcrun_container_update (libcrun_context_t *ctx, const char *id, const char *content, size_t len,
+صحیح libcrun_container_آغاز (libcrun_context_t *ctx, ثابت حرف *id, libcrun_error_t *err);
+صحیح libcrun_container_delete (libcrun_context_t *ctx, ثابت حرف *id, bool force, libcrun_error_t *err);
+صحیح libcrun_container_kill (libcrun_context_t *ctx, ثابت حرف *id, ثابت حرف *اشارہ, libcrun_error_t *err);
+صحیح libcrun_container_killall (libcrun_context_t *ctx, ثابت حرف *id, ثابت حرف *اشارہ, libcrun_error_t *err);
+صحیح libcrun_container_pause (libcrun_context_t *ctx, ثابت حرف *id, libcrun_error_t *err);
+صحیح libcrun_container_unpause (libcrun_context_t *ctx, ثابت حرف *id, libcrun_error_t *err);
+صحیح libcrun_container_update (libcrun_context_t *ctx, ثابت حرف *id, ثابت حرف *content, size_t len,
                               libcrun_error_t *err);
 
 /* JSON in, JSON out; caller frees *out with free().  */
-int libcrun_container_spec_json (bool root, char **out, libcrun_error_t *err);
-int libcrun_container_state_json (libcrun_context_t *ctx, const char *id, char **out, libcrun_error_t *err);
+صحیح libcrun_container_spec_json (bool جڑ, حرف **برآمد, libcrun_error_t *err);
+صحیح libcrun_container_state_json (libcrun_context_t *ctx, ثابت حرف *id, حرف **برآمد, libcrun_error_t *err);
 
 /* Runtime features as an OCI features JSON document; caller frees *out with free().  */
-int libcrun_container_get_features_json (libcrun_context_t *ctx, char **out, libcrun_error_t *err);
+صحیح libcrun_container_get_features_json (libcrun_context_t *ctx, حرف **برآمد, libcrun_error_t *err);
 
-struct libcrun_exec_options_s
+ساخت libcrun_exec_options_s
 {
-  size_t struct_size; /* set to sizeof (struct libcrun_exec_options_s) */
-  const char *process_json;
-  const char *cgroup;
-  bool merge_env; /* merge the container environment with the one in process_json */
+  size_t struct_سائز; /* set to sizeof (struct libcrun_exec_options_s) */
+  ثابت حرف *process_json;
+  ثابت حرف *cgroup;
+  bool ملاؤ_env; /* merge the container environment with the one in process_json */
 };
 
-int libcrun_container_exec_json (libcrun_context_t *ctx, const char *id, const char *process_json,
+صحیح libcrun_container_exec_json (libcrun_context_t *ctx, ثابت حرف *id, ثابت حرف *process_json,
                                  libcrun_error_t *err);
-int libcrun_container_exec_with_options_json (libcrun_context_t *ctx, const char *id,
-                                              const struct libcrun_exec_options_s *opts, libcrun_error_t *err);
+صحیح libcrun_container_exec_with_options_json (libcrun_context_t *ctx, ثابت حرف *id,
+                                              ثابت ساخت libcrun_exec_options_s *opts, libcrun_error_t *err);
 
 /* Status.  */
-int libcrun_container_status_load (libcrun_context_t *ctx, const char *id, libcrun_status_t **out,
+صحیح libcrun_container_حالت_بھرو (libcrun_context_t *ctx, ثابت حرف *id, libcrun_حالت_t **برآمد,
                                    libcrun_error_t *err);
-void libcrun_container_status_free (libcrun_status_t *st);
+خالی libcrun_container_حالت_free (libcrun_حالت_t *st);
 
 /* Resolve the live state of the container described by st, by probing it
    (cgroup/fifo/pid).  The result is cached in st, so this costs at most one
    probe per status object.  state and running can be NULL.  */
-int libcrun_status_get_state (libcrun_status_t *st, libcrun_container_state_t *state, int *running,
+صحیح libcrun_حالت_get_state (libcrun_حالت_t *st, libcrun_container_state_t *state, صحیح *running,
                               libcrun_error_t *err);
 
 /* Return the OCI name of state ("creating"/"created"/"running"/"stopped"/"paused"),
    as a static string (do not free).  */
-const char *libcrun_container_state_to_string (libcrun_container_state_t state);
+ثابت حرف *libcrun_container_state_مقصد_string (libcrun_container_state_t state);
 
-pid_t libcrun_status_get_pid (libcrun_status_t *st);
-const char *libcrun_status_get_bundle (libcrun_status_t *st);
-const char *libcrun_status_get_rootfs (libcrun_status_t *st);
-const char *libcrun_status_get_created (libcrun_status_t *st);
-const char *libcrun_status_get_owner (libcrun_status_t *st);
-const char *libcrun_status_get_scope (libcrun_status_t *st);
-const char *libcrun_status_get_external_descriptors (libcrun_status_t *st);
+pid_t libcrun_حالت_get_pid (libcrun_حالت_t *st);
+ثابت حرف *libcrun_حالت_get_bundle (libcrun_حالت_t *st);
+ثابت حرف *libcrun_حالت_get_rootfs (libcrun_حالت_t *st);
+ثابت حرف *libcrun_حالت_get_created (libcrun_حالت_t *st);
+ثابت حرف *libcrun_حالت_get_owner (libcrun_حالت_t *st);
+ثابت حرف *libcrun_حالت_get_scope (libcrun_حالت_t *st);
+ثابت حرف *libcrun_حالت_get_external_descriptors (libcrun_حالت_t *st);
 
 /* Live status string ("creating"/"created"/"running"/"stopped"/"paused"), obtained by
    probing the container (cgroup/fifo/pid) rather than reading the stored enum.  *out
    points to a static string (do not free).  If running is non-NULL it receives 1 when
    the container has a live process, 0 otherwise.  */
-int libcrun_container_get_state_string (libcrun_context_t *ctx, const char *id, const char **out, int *running,
+صحیح libcrun_container_get_state_string (libcrun_context_t *ctx, ثابت حرف *id, ثابت حرف **برآمد, صحیح *running,
                                         libcrun_error_t *err);
 
 /* Resolve the on-disk state directory for a container (id may be NULL for the state
    root itself); caller frees *out with free().  */
-int libcrun_get_state_dir (char **out, const char *state_root, const char *id, libcrun_error_t *err);
+صحیح libcrun_get_state_dir (حرف **برآمد, ثابت حرف *state_جڑ, ثابت حرف *id, libcrun_error_t *err);
 
 /* List containers under the state root.  Obtain a cursor with
    libcrun_container_list_iter and walk it with libcrun_container_iter_next, which
    stores a borrowed container id in *id and returns true until the list is exhausted.  */
-int libcrun_container_list (libcrun_context_t *ctx, libcrun_container_list_t **out, libcrun_error_t *err);
+صحیح libcrun_container_list (libcrun_context_t *ctx, libcrun_container_list_t **برآمد, libcrun_error_t *err);
 libcrun_container_iter_t *libcrun_container_list_iter (libcrun_container_list_t *l);
-bool libcrun_container_iter_next (libcrun_container_iter_t *it, const char **id);
-void libcrun_container_iter_free (libcrun_container_iter_t *it);
-void libcrun_container_list_free (libcrun_container_list_t *l);
+bool libcrun_container_iter_اگلا (libcrun_container_iter_t *it, ثابت حرف **id);
+خالی libcrun_container_iter_free (libcrun_container_iter_t *it);
+خالی libcrun_container_list_free (libcrun_container_list_t *l);
 
 /* All containers with their details as a JSON array; caller frees *out with free().  */
-int libcrun_container_list_json (libcrun_context_t *ctx, char **out, libcrun_error_t *err);
+صحیح libcrun_container_list_json (libcrun_context_t *ctx, حرف **برآمد, libcrun_error_t *err);
 
 /* Update the resources of a running container from an OCI resources JSON file.  */
-int libcrun_container_update_from_file (libcrun_context_t *ctx, const char *id, const char *file,
+صحیح libcrun_container_update_from_file (libcrun_context_t *ctx, ثابت حرف *id, ثابت حرف *file,
                                         libcrun_error_t *err);
 
 /* Update individual resource values.  */
-struct libcrun_update_value_s
+ساخت libcrun_update_قدر_s
 {
-  const char *section;
-  const char *name;
+  ثابت حرف *section;
+  ثابت حرف *name;
   bool numeric;
-  const char *value;
+  ثابت حرف *قدر;
 };
 
-int libcrun_container_update_from_values (libcrun_context_t *ctx, const char *id,
-                                          struct libcrun_update_value_s *values, size_t len,
+صحیح libcrun_container_update_from_اقدار (libcrun_context_t *ctx, ثابت حرف *id,
+                                          ساخت libcrun_update_قدر_s *اقدار, size_t len,
                                           libcrun_error_t *err);
 
 /* Update the Intel RDT (L3 cache / memory bandwidth) schemata.  */
-struct libcrun_intel_rdt_update
+ساخت libcrun_intel_rdt_update
 {
-  const char *l3_cache_schema;
-  const char *mem_bw_schema;
-  char *const *schemata;
+  ثابت حرف *l3_cache_schema;
+  ثابت حرف *mem_bw_schema;
+  حرف *ثابت *schemata;
 };
 
-int libcrun_container_update_intel_rdt (libcrun_context_t *ctx, const char *id,
-                                        struct libcrun_intel_rdt_update *update, libcrun_error_t *err);
+صحیح libcrun_container_update_intel_rdt (libcrun_context_t *ctx, ثابت حرف *id,
+                                        ساخت libcrun_intel_rdt_update *update, libcrun_error_t *err);
 
 /* Add or remove mounts described by an OCI mounts JSON file.  */
-int libcrun_container_add_mounts_from_file (libcrun_context_t *ctx, const char *id, const char *file,
+صحیح libcrun_container_جوڑو_mounts_from_file (libcrun_context_t *ctx, ثابت حرف *id, ثابت حرف *file,
                                             libcrun_error_t *err);
-int libcrun_container_remove_mounts_from_file (libcrun_context_t *ctx, const char *id, const char *file,
+صحیح libcrun_container_remove_mounts_from_file (libcrun_context_t *ctx, ثابت حرف *id, ثابت حرف *file,
                                                libcrun_error_t *err);
 
 /* Enumerate the PIDs in a container; caller frees *pids with free().  */
-int libcrun_container_read_pids (libcrun_context_t *ctx, const char *id, bool recurse, pid_t **pids,
+صحیح libcrun_container_read_pids (libcrun_context_t *ctx, ثابت حرف *id, bool recurse, pid_t **pids,
                                  libcrun_error_t *err);
 
 /* Checkpoint and restore (CRIU).  */
-enum libcrun_cr_cgroups_mode
+شمار libcrun_cr_cgroups_منوال
 {
-  LIBCRUN_CR_CG_MODE_DEFAULT = 0, /* soft, matching runc */
-  LIBCRUN_CR_CG_MODE_SOFT,
-  LIBCRUN_CR_CG_MODE_IGNORE,
-  LIBCRUN_CR_CG_MODE_FULL,
-  LIBCRUN_CR_CG_MODE_STRICT,
+  LIBCRUN_CR_CG_منوال_DEFAULT = 0, /* soft, matching runc */
+  LIBCRUN_CR_CG_منوال_SOFT,
+  LIBCRUN_CR_CG_منوال_IGNORE,
+  LIBCRUN_CR_CG_منوال_بھرا,
+  LIBCRUN_CR_CG_منوال_STRICT,
 };
 
-enum libcrun_cr_network_lock_method
+شمار libcrun_cr_جال_تالا_طریقہ
 {
-  LIBCRUN_CR_NETWORK_LOCK_DEFAULT = 0, /* iptables */
-  LIBCRUN_CR_NETWORK_LOCK_IPTABLES,
-  LIBCRUN_CR_NETWORK_LOCK_NFTABLES,
-  LIBCRUN_CR_NETWORK_LOCK_SKIP,
+  LIBCRUN_CR_جال_تالا_DEFAULT = 0, /* iptables */
+  LIBCRUN_CR_جال_تالا_IPTABLES,
+  LIBCRUN_CR_جال_تالا_NFTABLES,
+  LIBCRUN_CR_جال_تالا_SKIP,
 };
 
-struct libcrun_checkpoint_restore_options_s
+ساخت libcrun_checkpoint_restore_options_s
 {
-  size_t struct_size; /* set to sizeof (struct libcrun_checkpoint_restore_options_s) */
+  size_t struct_سائز; /* set to sizeof (struct libcrun_checkpoint_restore_options_s) */
 
-  const char *image_path;
-  const char *work_path;
-  const char *parent_path;
-  const char *console_socket;
-  const char *lsm_profile;
-  const char *lsm_mount_context;
+  ثابت حرف *image_راستہ;
+  ثابت حرف *work_راستہ;
+  ثابت حرف *والد_راستہ;
+  ثابت حرف *console_socket;
+  ثابت حرف *lsm_profile;
+  ثابت حرف *lsm_mount_context;
 
   bool leave_running;
   bool tcp_established;
   bool tcp_close;
   bool ext_unix_sk;
-  bool shell_job;
+  bool shell_کام;
   bool file_locks;
   bool pre_dump;
   bool detach;
 
-  int manage_cgroups_mode; /* enum libcrun_cr_cgroups_mode */
-  int network_lock_method; /* enum libcrun_cr_network_lock_method */
+  صحیح manage_cgroups_منوال; /* enum libcrun_cr_cgroups_mode */
+  صحیح جال_تالا_طریقہ; /* enum libcrun_cr_network_lock_method */
 };
 
-int libcrun_container_checkpoint (libcrun_context_t *ctx, const char *id,
-                                  struct libcrun_checkpoint_restore_options_s *opts, libcrun_error_t *err);
-int libcrun_container_restore (libcrun_context_t *ctx, const char *id,
-                               struct libcrun_checkpoint_restore_options_s *opts, libcrun_error_t *err);
+صحیح libcrun_container_checkpoint (libcrun_context_t *ctx, ثابت حرف *id,
+                                  ساخت libcrun_checkpoint_restore_options_s *opts, libcrun_error_t *err);
+صحیح libcrun_container_restore (libcrun_context_t *ctx, ثابت حرف *id,
+                               ساخت libcrun_checkpoint_restore_options_s *opts, libcrun_error_t *err);
 
 /* Feature tags contributed by the loaded handlers, as a NULL-terminated array of
    strings (e.g. "wasm:wasmedge").  Returns NULL if there are none.  Caller frees the
    array and each string with free().  */
-char **libcrun_context_get_handler_feature_tags (libcrun_context_t *ctx, libcrun_error_t *err);
+حرف **libcrun_context_get_handler_feature_لیبل_فہرست (libcrun_context_t *ctx, libcrun_error_t *err);
 
-#ifdef __cplusplus
+#اگر_تعریف_شدہ __cplusplus
 }
-#endif
+#اگر_ختم
 
-#endif
+#اگر_ختم

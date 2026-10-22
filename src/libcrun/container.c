@@ -15,100 +15,100 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE
+#تعریف_کرو GNU_ماخذ
 
-#include <config.h>
-#include <ocispec/runtime_spec_schema_config_schema.h>
-#include <stdbool.h>
-#include "container.h"
-#include "utils.h"
-#include "json_gen_utils.h"
-#include "seccomp.h"
-#include "mempolicy.h"
-#ifdef HAVE_SECCOMP
+#شامل <config.h>
+#شامل <ocispec/runtime_spec_schema_config_schema.h>
+#شامل <stdbool.h>
+#شامل "container.h"
+#شامل "utils.h"
+#شامل "json_gen_utils.h"
+#شامل "seccomp.h"
+#شامل "mempolicy.h"
+#اگر_تعریف_شدہ HAVE_SECCOMP
 #  include <seccomp.h>
-#endif
-#include "scheduler.h"
-#include "seccomp_notify.h"
-#include "custom-handler.h"
-#include <stdbool.h>
-#include <argp.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sched.h>
-#include <sys/wait.h>
-#include <string.h>
-#include <fcntl.h>
-#include "status.h"
-#include "mount_flags.h"
-#include "linux.h"
-#include "terminal.h"
-#include "io_priority.h"
-#include "cgroup.h"
-#include "cgroup-utils.h"
-#include <sys/prctl.h>
-#include <sys/auxv.h>
-#include <sys/signalfd.h>
-#include <sys/epoll.h>
-#include <sys/socket.h>
-#ifdef HAVE_CAP
+#اگر_ختم
+#شامل "scheduler.h"
+#شامل "seccomp_notify.h"
+#شامل "custom-handler.h"
+#شامل <stdbool.h>
+#شامل <argp.h>
+#شامل <unistd.h>
+#شامل <sys/stat.h>
+#شامل <sys/types.h>
+#شامل <sched.h>
+#شامل <sys/wait.h>
+#شامل <string.h>
+#شامل <fcntl.h>
+#شامل "status.h"
+#شامل "mount_flags.h"
+#شامل "linux.h"
+#شامل "terminal.h"
+#شامل "io_priority.h"
+#شامل "cgroup.h"
+#شامل "cgroup-utils.h"
+#شامل <sys/prctl.h>
+#شامل <sys/auxv.h>
+#شامل <sys/signalfd.h>
+#شامل <sys/epoll.h>
+#شامل <sys/socket.h>
+#اگر_تعریف_شدہ HAVE_CAP
 #  include <sys/capability.h>
-#endif
-#include <sys/ioctl.h>
-#include <termios.h>
-#include <grp.h>
-#include <git-version.h>
+#اگر_ختم
+#شامل <sys/ioctl.h>
+#شامل <termios.h>
+#شامل <grp.h>
+#شامل <git-version.h>
 
-#ifdef HAVE_SYSTEMD
+#اگر_تعریف_شدہ HAVE_SYSTEMD
 #  include <systemd/sd-daemon.h>
-#endif
+#اگر_ختم
 
-#include <json-c/json.h>
-#include <ocispec/json_common.h>
+#شامل <json-c/json.h>
+#شامل <ocispec/json_common.h>
 
-enum
+شمار
 {
-  SYNC_SOCKET_SYNC_MESSAGE,
-  SYNC_SOCKET_ERROR_MESSAGE,
-  SYNC_SOCKET_WARNING_MESSAGE,
-  SYNC_SOCKET_DEBUG_MESSAGE,
+  SYNC_SOCKET_SYNC_پیغام,
+  SYNC_SOCKET_ERROR_پیغام,
+  SYNC_SOCKET_WARNING_پیغام,
+  SYNC_SOCKET_DEBUG_پیغام,
 };
 
-struct container_entrypoint_s
+ساخت container_entrypoint_s
 {
   libcrun_container_t *container;
   libcrun_context_t *context;
-  int has_terminal_socket_pair;
-  int terminal_socketpair[2];
+  صحیح has_terminal_socket_pair;
+  صحیح terminal_socketpair[2];
 
   /* Used by log_write_to_sync_socket.  */
-  int sync_socket;
+  صحیح sync_socket;
 
-  int seccomp_fd;
-  int seccomp_receiver_fd;
-  int console_socket_fd;
+  صحیح seccomp_fd;
+  صحیح seccomp_receiver_fd;
+  صحیح console_socket_fd;
 
-  int hooks_out_fd;
-  int hooks_err_fd;
+  صحیح hooks_برآمد_fd;
+  صحیح hooks_err_fd;
 
   /* Absolute bundle path, to be reported to hooks run in the container.  */
-  const char *bundle;
+  ثابت حرف *bundle;
 
-  struct custom_handler_instance_s *custom_handler;
+  ساخت custom_handler_instance_s *custom_handler;
 };
 
-struct sync_socket_message_s
+ساخت sync_socket_پیغام_s
 {
-  int type;
-  int error_value;
-  char message[512];
+  صحیح type;
+  صحیح error_قدر;
+  حرف پیغام_2[512];
 };
 
-typedef runtime_spec_schema_defs_hook hook;
+قسمتعریف runtime_spec_schema_defs_hook hook;
 
 // linux hooks
-char *hooks[] = {
+حرف *hooks[] = {
   "prestart",
   "createRuntime",
   "createContainer",
@@ -118,7 +118,7 @@ char *hooks[] = {
 };
 
 // linux namespaces
-static char *namespaces[] = {
+ساکن حرف *namespaces[] = {
   "cgroup",
   "ipc",
   "mount",
@@ -128,7 +128,7 @@ static char *namespaces[] = {
   "uts"
 };
 
-static char *actions[] = {
+ساکن حرف *actions[] = {
   "SCMP_ACT_ALLOW",
   "SCMP_ACT_ERRNO",
   "SCMP_ACT_KILL",
@@ -140,7 +140,7 @@ static char *actions[] = {
   "SCMP_ACT_TRAP"
 };
 
-static char *operators[] = {
+ساکن حرف *operators[] = {
   "SCMP_CMP_NE",
   "SCMP_CMP_LT",
   "SCMP_CMP_LE",
@@ -150,7 +150,7 @@ static char *operators[] = {
   "SCMP_CMP_MASKED_EQ",
 };
 
-static char *archs[] = {
+ساکن حرف *archs[] = {
   "SCMP_ARCH_AARCH64",
   "SCMP_ARCH_ARM",
   "SCMP_ARCH_MIPS",
@@ -170,7 +170,7 @@ static char *archs[] = {
   "SCMP_ARCH_X86_64"
 };
 
-static char *mempolicy_modes[] = {
+ساکن حرف *mempolicy_modes[] = {
   "MPOL_DEFAULT",
   "MPOL_PREFERRED",
   "MPOL_BIND",
@@ -180,13 +180,13 @@ static char *mempolicy_modes[] = {
   "MPOL_WEIGHTED_INTERLEAVE"
 };
 
-static char *mempolicy_flags[] = {
+ساکن حرف *mempolicy_flags[] = {
   "MPOL_F_NUMA_BALANCING",
   "MPOL_F_RELATIVE_NODES",
   "MPOL_F_STATIC_NODES"
 };
 
-static char *potentially_unsafe_annotations[] = {
+ساکن حرف *potentially_unsafe_annotations[] = {
   "module.wasm.image/variant",
   "io.kubernetes.cri.container-type",
   "run.oci.",
@@ -194,196 +194,196 @@ static char *potentially_unsafe_annotations[] = {
   "krun.",
 };
 
-#define SYNC_SOCKET_MESSAGE_LEN(x, l) (offsetof (struct sync_socket_message_s, message) + l)
+#تعریف_کرو SYNC_SOCKET_پیغام_LEN(x, l) (offsetof (ساخت sync_socket_پیغام_s, پیغام_2) + l)
 
-static int
-sync_socket_write_msg (int fd, int verbosity, int err_value, const char *log_msg)
+ساکن صحیح
+sync_socket_write_پیغام (صحیح fd, صحیح verbosity, صحیح err_قدر, ثابت حرف *log_پیغام)
 {
-  int ret;
+  صحیح ret;
   size_t err_len;
-  struct sync_socket_message_s msg;
-  switch (verbosity)
+  ساخت sync_socket_پیغام_s پیغام;
+  انتخاب (verbosity)
     {
-    case LIBCRUN_VERBOSITY_DEBUG:
-      msg.type = SYNC_SOCKET_DEBUG_MESSAGE;
-      break;
-    case LIBCRUN_VERBOSITY_WARNING:
-      msg.type = SYNC_SOCKET_WARNING_MESSAGE;
-      break;
-    case LIBCRUN_VERBOSITY_ERROR:
-      msg.type = SYNC_SOCKET_ERROR_MESSAGE;
-      break;
+    حالت LIBCRUN_VERBOSITY_DEBUG:
+      پیغام.type = SYNC_SOCKET_DEBUG_پیغام;
+      توڑو;
+    حالت LIBCRUN_VERBOSITY_WARNING:
+      پیغام.type = SYNC_SOCKET_WARNING_پیغام;
+      توڑو;
+    حالت LIBCRUN_VERBOSITY_ERROR:
+      پیغام.type = SYNC_SOCKET_ERROR_پیغام;
+      توڑو;
     }
-  msg.error_value = err_value;
+  پیغام.error_قدر = err_قدر;
 
-  if (fd < 0)
-    return 0;
+  اگر (fd < 0)
+    واپس 0;
 
-  err_len = strlen (log_msg);
-  if (err_len >= sizeof (msg.message))
-    err_len = sizeof (msg.message) - 1;
+  err_len = لڑی_لمبائی (log_پیغام);
+  اگر (err_len >= حجم (پیغام.پیغام_2))
+    err_len = حجم (پیغام.پیغام_2) - 1;
 
-  memcpy (msg.message, log_msg, err_len);
-  msg.message[err_len] = '\0';
+  حافظہ_نقل (پیغام.پیغام_2, log_پیغام, err_len);
+  پیغام.پیغام_2[err_len] = '\0';
 
-  ret = TEMP_FAILURE_RETRY (write (fd, &msg, SYNC_SOCKET_MESSAGE_LEN (msg, err_len + 1)));
-  if (UNLIKELY (ret < 0))
-    return -1;
+  ret = عارضی_FAILURE_RETRY (اكتب (fd, &پیغام, SYNC_SOCKET_پیغام_LEN (پیغام, err_len + 1)));
+  اگر (UNLIKELY (ret < 0))
+    واپس -1;
 
-  return 0;
+  واپس 0;
 }
 
-static int
-sync_socket_write_error (int fd, libcrun_error_t *out_err)
+ساکن صحیح
+sync_socket_write_error (صحیح fd, libcrun_error_t *برآمد_err)
 {
-  if (fd < 0)
-    return 0;
-  return sync_socket_write_msg (fd, false, (*out_err)->status, (*out_err)->msg);
+  اگر (fd < 0)
+    واپس 0;
+  واپس sync_socket_write_پیغام (fd, false, (*برآمد_err)->حالت_2, (*برآمد_err)->پیغام);
 }
 
-static void
-log_write_to_sync_socket (int errno_, const char *msg, int verbosity, void *arg)
+ساکن خالی
+log_write_مقصد_sync_socket (صحیح errno_, ثابت حرف *پیغام, صحیح verbosity, خالی *arg)
 {
-  struct container_entrypoint_s *entrypoint_args = arg;
-  int fd = entrypoint_args->sync_socket;
+  ساخت container_entrypoint_s *entrypoint_دلائل = arg;
+  صحیح fd = entrypoint_دلائل->sync_socket;
 
-  if (fd < 0)
-    return;
+  اگر (fd < 0)
+    واپس;
 
-  if (sync_socket_write_msg (fd, verbosity, errno_, msg) < 0)
-    log_write_to_stderr (errno_, msg, verbosity, arg);
+  اگر (sync_socket_write_پیغام (fd, verbosity, errno_, پیغام) < 0)
+    log_write_مقصد_stderr (errno_, پیغام, verbosity, arg);
 }
 
-static bool
-is_memory_limit_too_low (runtime_spec_schema_config_schema *def)
+ساکن bool
+is_حافظہ_حد_بندی_too_کم (runtime_spec_schema_config_schema *def)
 {
-  const long memory_limit_too_low = 1024 * 1024;
+  ثابت طویل حافظہ_حد_بندی_too_کم = 1024 * 1024;
 
-  if (def->linux == NULL || def->linux->resources == NULL)
-    return false;
+  اگر (def->linux == تہی || def->linux->resources == تہی)
+    واپس false;
 
-  if (def->linux->resources->memory
-      && def->linux->resources->memory->limit_present
-      && def->linux->resources->memory->limit < memory_limit_too_low)
-    return true;
+  اگر (def->linux->resources->حافظہ
+      && def->linux->resources->حافظہ->حد_بندی_present
+      && def->linux->resources->حافظہ->حد_بندی < حافظہ_حد_بندی_too_کم)
+    واپس true;
 
-  if (def->linux->resources->unified)
+  اگر (def->linux->resources->unified)
     {
       size_t i;
 
-      for (i = 0; i < def->linux->resources->unified->len; i++)
-        if (strcmp (def->linux->resources->unified->keys[i], "memory.max") == 0)
+      برائے (i = 0; i < def->linux->resources->unified->len; i++)
+        اگر (strcmp (def->linux->resources->unified->کلیدیں[i], "memory.max") == 0)
           {
-            long limit;
+            طویل حد_بندی;
 
             errno = 0;
-            limit = strtol (def->linux->resources->unified->values[i], NULL, 10);
-            if (errno != 0)
-              return false;
-            if (limit < memory_limit_too_low)
-              return true;
+            حد_بندی = strtol (def->linux->resources->unified->اقدار[i], تہی, 10);
+            اگر (errno != 0)
+              واپس false;
+            اگر (حد_بندی < حافظہ_حد_بندی_too_کم)
+              واپس true;
           }
     }
 
-  return false;
+  واپس false;
 }
 
-static int
-sync_socket_wait_sync (libcrun_context_t *context, int fd, bool flush, libcrun_error_t *err)
+ساکن صحیح
+sync_socket_wait_sync (libcrun_context_t *context, صحیح fd, bool flush, libcrun_error_t *err)
 {
-  struct sync_socket_message_s msg;
+  ساخت sync_socket_پیغام_s پیغام;
 
-  if (fd < 0)
-    return 0;
+  اگر (fd < 0)
+    واپس 0;
 
-  while (true)
+  جب (true)
     {
-      int ret;
+      صحیح ret;
 
-      ret = TEMP_FAILURE_RETRY (read (fd, &msg, sizeof (msg)));
-      if (UNLIKELY (ret < 0))
+      ret = عارضی_FAILURE_RETRY (اقرأ (fd, &پیغام, حجم (پیغام)));
+      اگر (UNLIKELY (ret < 0))
         {
-          if (flush)
-            return 0;
-          return crun_make_error (err, errno, "read from sync socket");
+          اگر (flush)
+            واپس 0;
+          واپس crun_make_error (err, errno, "read from sync socket");
         }
 
-      if (ret == 0)
+      اگر (ret == 0)
         {
-          if (flush)
-            return 0;
+          اگر (flush)
+            واپس 0;
 
-          return crun_make_error (err, 0, "read from the init process");
+          واپس crun_make_error (err, 0, "read from the init process");
         }
 
-      if (! flush && msg.type == SYNC_SOCKET_SYNC_MESSAGE)
-        return 0;
-      else if (msg.type == SYNC_SOCKET_DEBUG_MESSAGE)
+      اگر (! flush && پیغام.type == SYNC_SOCKET_SYNC_پیغام)
+        واپس 0;
+      ورنہ اگر (پیغام.type == SYNC_SOCKET_DEBUG_پیغام)
         {
-          if (context)
-            context->output_handler (msg.error_value, msg.message, LIBCRUN_VERBOSITY_DEBUG, context->output_handler_arg);
-          continue;
+          اگر (context)
+            context->output_handler (پیغام.error_قدر, پیغام.پیغام_2, LIBCRUN_VERBOSITY_DEBUG, context->output_handler_arg);
+          جاری;
         }
-      else if (msg.type == SYNC_SOCKET_WARNING_MESSAGE)
+      ورنہ اگر (پیغام.type == SYNC_SOCKET_WARNING_پیغام)
         {
-          if (context)
-            context->output_handler (msg.error_value, msg.message, LIBCRUN_VERBOSITY_WARNING, context->output_handler_arg);
-          continue;
+          اگر (context)
+            context->output_handler (پیغام.error_قدر, پیغام.پیغام_2, LIBCRUN_VERBOSITY_WARNING, context->output_handler_arg);
+          جاری;
         }
-      else if (msg.type == SYNC_SOCKET_ERROR_MESSAGE)
-        return crun_make_error (err, msg.error_value, "%s", msg.message);
+      ورنہ اگر (پیغام.type == SYNC_SOCKET_ERROR_پیغام)
+        واپس crun_make_error (err, پیغام.error_قدر, "%s", پیغام.پیغام_2);
     }
 }
 
-static int
-sync_socket_send_sync (int fd, bool flush_errors, libcrun_error_t *err)
+ساکن صحیح
+sync_socket_send_sync (صحیح fd, bool flush_errors, libcrun_error_t *err)
 {
-  int ret;
-  struct sync_socket_message_s msg = {
+  صحیح ret;
+  ساخت sync_socket_پیغام_s پیغام = {
     0,
   };
-  msg.type = SYNC_SOCKET_SYNC_MESSAGE;
+  پیغام.type = SYNC_SOCKET_SYNC_پیغام;
 
-  if (fd < 0)
-    return 0;
+  اگر (fd < 0)
+    واپس 0;
 
-  ret = TEMP_FAILURE_RETRY (write (fd, &msg, SYNC_SOCKET_MESSAGE_LEN (msg, 0)));
-  if (UNLIKELY (ret < 0))
+  ret = عارضی_FAILURE_RETRY (اكتب (fd, &پیغام, SYNC_SOCKET_پیغام_LEN (پیغام, 0)));
+  اگر (UNLIKELY (ret < 0))
     {
-      if (flush_errors)
+      اگر (flush_errors)
         {
-          int saved_errno = errno;
-          ret = TEMP_FAILURE_RETRY (read (fd, &msg, sizeof (msg)));
-          if (ret >= 0 && msg.type == SYNC_SOCKET_ERROR_MESSAGE)
-            return crun_make_error (err, msg.error_value, "%s", msg.message);
+          صحیح saved_errno = errno;
+          ret = عارضی_FAILURE_RETRY (اقرأ (fd, &پیغام, حجم (پیغام)));
+          اگر (ret >= 0 && پیغام.type == SYNC_SOCKET_ERROR_پیغام)
+            واپس crun_make_error (err, پیغام.error_قدر, "%s", پیغام.پیغام_2);
           errno = saved_errno;
         }
-      return crun_make_error (err, errno, "write to sync socket");
+      واپس crun_make_error (err, errno, "write to sync socket");
     }
 
-  return 0;
+  واپس 0;
 }
 
-static bool
+ساکن bool
 has_cap_sys_ptrace ()
 {
-#ifdef HAVE_CAP
-  struct __user_cap_header_struct hdr = { _LINUX_CAPABILITY_VERSION_3, 0 };
-  struct __user_cap_data_struct data[2] = { { 0 } };
+#اگر_تعریف_شدہ HAVE_CAP
+  ساخت __user_cap_header_struct hdr = { LINUX_CAPABILITY_نسخہ_3, 0 };
+  ساخت __user_cap_data_struct ڈیٹا[2] = { { 0 } };
 
-  if (UNLIKELY (capget (&hdr, data) < 0))
-    return true;
+  اگر (UNLIKELY (capget (&hdr, ڈیٹا) < 0))
+    واپس true;
 
-  return (data[0].effective & (1U << CAP_SYS_PTRACE)) != 0;
-#else
-  return geteuid () == 0;
-#endif
+  واپس (ڈیٹا[0].effective & (1U << CAP_SYS_PTRACE)) != 0;
+#ورنہ
+  واپس geteuid () == 0;
+#اگر_ختم
 }
 
-static libcrun_container_t *
-make_container (runtime_spec_schema_config_schema *container_def, const char *path, const char *config)
+ساکن libcrun_container_t *
+make_container (runtime_spec_schema_config_schema *container_def, ثابت حرف *راستہ, ثابت حرف *config)
 {
-  libcrun_container_t *container = xmalloc0 (sizeof (*container));
+  libcrun_container_t *container = xmalloc0 (حجم (*container));
   container->container_def = container_def;
 
   container->host_uid = geteuid ();
@@ -395,633 +395,633 @@ make_container (runtime_spec_schema_config_schema *container_def, const char *pa
 
   /* An empty namespace path means that a new namespace is to be created,
      the same as if it is not specified.  */
-  if (container_def->linux)
+  اگر (container_def->linux)
     {
       size_t i;
 
-      for (i = 0; i < container_def->linux->namespaces_len; i++)
-        if (container_def->linux->namespaces[i]->path && container_def->linux->namespaces[i]->path[0] == '\0')
+      برائے (i = 0; i < container_def->linux->namespaces_len; i++)
+        اگر (container_def->linux->namespaces[i]->راستہ && container_def->linux->namespaces[i]->راستہ[0] == '\0')
           {
-            free (container_def->linux->namespaces[i]->path);
-            container_def->linux->namespaces[i]->path = NULL;
+            آزاد (container_def->linux->namespaces[i]->راستہ);
+            container_def->linux->namespaces[i]->راستہ = تہی;
           }
     }
 
-  if (path)
-    container->config_file = xstrdup (path);
-  if (config)
+  اگر (راستہ)
+    container->config_file = xstrdup (راستہ);
+  اگر (config)
     container->config_file_content = xstrdup (config);
 
-  return container;
+  واپس container;
 }
 
 libcrun_container_t *
-libcrun_container_load_from_memory (const char *json, libcrun_error_t *err)
+libcrun_container_بھرو_from_حافظہ (ثابت حرف *json, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *container_def;
-  cleanup_free char *oci_error = NULL;
-  container_def = runtime_spec_schema_config_schema_parse_data (json, NULL, &oci_error);
-  if (container_def == NULL)
+  cleanup_free حرف *oci_error = تہی;
+  container_def = runtime_spec_schema_config_schema_parse_ڈیٹا (json, تہی, &oci_error);
+  اگر (container_def == تہی)
     {
       crun_make_error (err, 0, "load: `%s`", oci_error);
-      return NULL;
+      واپس تہی;
     }
-  return make_container (container_def, NULL, json);
+  واپس make_container (container_def, تہی, json);
 }
 
 libcrun_container_t *
-libcrun_container_load_from_file (const char *path, libcrun_error_t *err)
+libcrun_container_بھرو_from_file (ثابت حرف *راستہ, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *container_def;
-  cleanup_free char *oci_error = NULL;
-  cleanup_free char *content = NULL;
+  cleanup_free حرف *oci_error = تہی;
+  cleanup_free حرف *content = تہی;
   size_t len;
-  int ret;
+  صحیح ret;
 
-  libcrun_debug ("Loading container from config file: `%s`", path);
-  ret = read_all_file (path, &content, &len, err);
-  if (UNLIKELY (ret < 0))
-    return NULL;
+  libcrun_debug ("Loading container from config file: `%s`", راستہ);
+  ret = read_all_file (راستہ, &content, &len, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس تہی;
 
-  container_def = runtime_spec_schema_config_schema_parse_data (content, NULL, &oci_error);
-  if (container_def == NULL)
+  container_def = runtime_spec_schema_config_schema_parse_ڈیٹا (content, تہی, &oci_error);
+  اگر (container_def == تہی)
     {
-      crun_make_error (err, 0, "load `%s`: %s", path, oci_error);
-      return NULL;
+      crun_make_error (err, 0, "load `%s`: %s", راستہ, oci_error);
+      واپس تہی;
     }
-  return make_container (container_def, NULL, content);
+  واپس make_container (container_def, تہی, content);
 }
 
-const char *
+ثابت حرف *
 libcrun_container_get_config_json (libcrun_container_t *container, libcrun_error_t *err)
 {
-  struct parser_context ctx = { 0, stderr };
-  parser_error gen_err = NULL;
+  ساخت parser_context ctx = { 0, stderr };
+  parser_error gen_err = تہی;
 
-  if (container == NULL)
+  اگر (container == تہی)
     {
       crun_make_error (err, EINVAL, "no container specified");
-      return NULL;
+      واپس تہی;
     }
 
-  if (container->config_file_content == NULL && container->container_def)
+  اگر (container->config_file_content == تہی && container->container_def)
     {
       container->config_file_content = runtime_spec_schema_config_schema_generate_json (container->container_def, &ctx, &gen_err);
-      if (container->config_file_content == NULL)
+      اگر (container->config_file_content == تہی)
         {
           crun_make_error (err, 0, "cannot generate the configuration JSON: %s", gen_err ?: "unknown error");
-          free (gen_err);
-          return NULL;
+          آزاد (gen_err);
+          واپس تہی;
         }
-      free (gen_err);
+      آزاد (gen_err);
     }
 
-  if (container->config_file_content == NULL)
+  اگر (container->config_file_content == تہی)
     {
       crun_make_error (err, 0, "the container has no configuration");
-      return NULL;
+      واپس تہی;
     }
 
-  return container->config_file_content;
+  واپس container->config_file_content;
 }
 
-const char *
-libcrun_container_get_annotation (libcrun_container_t *container, const char *key)
+ثابت حرف *
+libcrun_container_get_annotation (libcrun_container_t *container, ثابت حرف *کلید)
 {
-  if (container == NULL)
-    return NULL;
-  return find_string_map_value (container->annotations, key);
+  اگر (container == تہی)
+    واپس تہی;
+  واپس ڈھونڈو_string_map_قدر (container->annotations, کلید);
 }
 
 size_t
 libcrun_container_get_annotations_len (libcrun_container_t *container)
 {
-  if (container == NULL || container->annotations == NULL)
-    return 0;
-  return string_map_size (container->annotations);
+  اگر (container == تہی || container->annotations == تہی)
+    واپس 0;
+  واپس string_map_سائز (container->annotations);
 }
 
-int
-libcrun_container_get_annotation_at (libcrun_container_t *container, size_t index, const char **key,
-                                     const char **value)
+صحیح
+libcrun_container_get_annotation_at (libcrun_container_t *container, size_t اشاریہ, ثابت حرف **کلید,
+                                     ثابت حرف **قدر)
 {
-  if (container == NULL)
+  اگر (container == تہی)
     {
       errno = ERANGE;
-      return -1;
+      واپس -1;
     }
-  return string_map_get_at (container->annotations, index, key, value);
+  واپس string_map_get_at (container->annotations, اشاریہ, کلید, قدر);
 }
 
 uid_t
 libcrun_container_get_uid (libcrun_container_t *container)
 {
-  if (container == NULL)
-    return (uid_t) -1;
-  return container->host_uid;
+  اگر (container == تہی)
+    واپس (uid_t) -1;
+  واپس container->host_uid;
 }
 
 gid_t
 libcrun_container_get_gid (libcrun_container_t *container)
 {
-  if (container == NULL)
-    return (gid_t) -1;
-  return container->host_gid;
+  اگر (container == تہی)
+    واپس (gid_t) -1;
+  واپس container->host_gid;
 }
 
-void
+خالی
 libcrun_container_free (libcrun_container_t *ctr)
 {
-  if (ctr == NULL)
-    return;
+  اگر (ctr == تہی)
+    واپس;
 
-  if (ctr->cleanup_private_data)
-    ctr->cleanup_private_data (ctr->private_data);
+  اگر (ctr->cleanup_نجی_ڈیٹا)
+    ctr->cleanup_نجی_ڈیٹا (ctr->نجی_ڈیٹا);
 
-  if (ctr->container_def)
+  اگر (ctr->container_def)
     free_runtime_spec_schema_config_schema (ctr->container_def);
 
   free_string_map (ctr->annotations);
 
-  if (ctr->proc_fd >= 0)
+  اگر (ctr->proc_fd >= 0)
     close (ctr->proc_fd);
 
-  free (ctr->config_file_content);
-  free (ctr->config_file);
-  free (ctr);
+  آزاد (ctr->config_file_content);
+  آزاد (ctr->config_file);
+  آزاد (ctr);
 }
 
 libcrun_context_t *
-libcrun_context_new (const char *id, const char *state_root, libcrun_error_t *err)
+libcrun_context_new (ثابت حرف *id, ثابت حرف *state_جڑ, libcrun_error_t *err)
 {
-  libcrun_context_t *ctx = xmalloc0 (sizeof (*ctx));
+  libcrun_context_t *ctx = xmalloc0 (حجم (*ctx));
 
   /* Go through the setters so that the owned_* copies and the borrowed
      pointers stay in sync and are released by libcrun_context_free.  */
-  libcrun_context_set_id (ctx, id);
-  libcrun_context_set_state_root (ctx, state_root);
-  libcrun_context_set_bundle (ctx, ".");
+  libcrun_context_سیٹ_id (ctx, id);
+  libcrun_context_سیٹ_state_جڑ (ctx, state_جڑ);
+  libcrun_context_سیٹ_bundle (ctx, ".");
   ctx->fifo_exec_wait_fd = -1;
 
-  if (libcrun_init_logging (&ctx->output_handler, &ctx->output_handler_arg, id, NULL, err) < 0)
+  اگر (libcrun_init_logging (&ctx->output_handler, &ctx->output_handler_arg, id, تہی, err) < 0)
     {
       libcrun_context_free (ctx);
-      return NULL;
+      واپس تہی;
     }
 
   ctx->handler_manager = libcrun_handler_manager_create (err);
-  if (ctx->handler_manager == NULL)
+  اگر (ctx->handler_manager == تہی)
     {
       libcrun_context_free (ctx);
-      return NULL;
+      واپس تہی;
     }
 
-#ifdef CRUN_LIBDIR
-  if (access (CRUN_LIBDIR "/handlers", F_OK) == 0)
+#اگر_تعریف_شدہ CRUN_LIBDIR
+  اگر (access (CRUN_LIBDIR "/handlers", F_OK) == 0)
     {
-      if (libcrun_handler_manager_load_directory (ctx->handler_manager, CRUN_LIBDIR "/handlers", err) < 0)
+      اگر (libcrun_handler_manager_بھرو_directory (ctx->handler_manager, CRUN_LIBDIR "/handlers", err) < 0)
         {
           libcrun_context_free (ctx);
-          return NULL;
+          واپس تہی;
         }
     }
-#endif
+#اگر_ختم
 
-  return ctx;
+  واپس ctx;
 }
 
-void
+خالی
 libcrun_context_free (libcrun_context_t *ctx)
 {
-  if (ctx == NULL)
-    return;
+  اگر (ctx == تہی)
+    واپس;
 
-  free (ctx->owned_state_root);
-  free (ctx->owned_id);
-  free (ctx->owned_bundle);
-  free (ctx->owned_console_socket);
-  free (ctx->owned_pid_file);
-  free (ctx->owned_notify_socket);
-  free (ctx->owned_handler);
+  آزاد (ctx->owned_state_جڑ);
+  آزاد (ctx->owned_id);
+  آزاد (ctx->owned_bundle);
+  آزاد (ctx->owned_console_socket);
+  آزاد (ctx->owned_pid_file);
+  آزاد (ctx->owned_notify_socket);
+  آزاد (ctx->owned_handler);
 
-  if (ctx->handler_manager)
+  اگر (ctx->handler_manager)
     handler_manager_free (ctx->handler_manager);
 
-  free (ctx);
+  آزاد (ctx);
 }
 
-#define LIBCRUN_CONTEXT_SET_STRING(field)                  \
-  do                                                       \
+#تعریف_کرو LIBCRUN_CONTEXT_سیٹ_STRING(میدان)                  \
+  کرو                                                       \
     {                                                      \
-      free (ctx->owned_##field);                           \
-      ctx->owned_##field = value ? xstrdup (value) : NULL; \
-      ctx->field = ctx->owned_##field;                     \
-  } while (0)
+      آزاد (ctx->owned_##field);                           \
+      ctx->owned_##field = قدر ? xstrdup (قدر) : تہی; \
+      ctx->میدان = ctx->owned_##field;                     \
+  } جب (0)
 
-void
-libcrun_context_set_id (libcrun_context_t *ctx, const char *value)
+خالی
+libcrun_context_سیٹ_id (libcrun_context_t *ctx, ثابت حرف *قدر)
 {
-  LIBCRUN_CONTEXT_SET_STRING (id);
+  LIBCRUN_CONTEXT_سیٹ_STRING (id);
 }
 
-void
-libcrun_context_set_state_root (libcrun_context_t *ctx, const char *value)
+خالی
+libcrun_context_سیٹ_state_جڑ (libcrun_context_t *ctx, ثابت حرف *قدر)
 {
-  LIBCRUN_CONTEXT_SET_STRING (state_root);
+  LIBCRUN_CONTEXT_سیٹ_STRING (state_جڑ);
 }
 
-void
-libcrun_context_set_bundle (libcrun_context_t *ctx, const char *value)
+خالی
+libcrun_context_سیٹ_bundle (libcrun_context_t *ctx, ثابت حرف *قدر)
 {
-  LIBCRUN_CONTEXT_SET_STRING (bundle);
+  LIBCRUN_CONTEXT_سیٹ_STRING (bundle);
 }
 
-void
-libcrun_context_set_console_socket (libcrun_context_t *ctx, const char *value)
+خالی
+libcrun_context_سیٹ_console_socket (libcrun_context_t *ctx, ثابت حرف *قدر)
 {
-  LIBCRUN_CONTEXT_SET_STRING (console_socket);
+  LIBCRUN_CONTEXT_سیٹ_STRING (console_socket);
 }
 
-void
-libcrun_context_set_pid_file (libcrun_context_t *ctx, const char *value)
+خالی
+libcrun_context_سیٹ_pid_file (libcrun_context_t *ctx, ثابت حرف *قدر)
 {
-  LIBCRUN_CONTEXT_SET_STRING (pid_file);
+  LIBCRUN_CONTEXT_سیٹ_STRING (pid_file);
 }
 
-void
-libcrun_context_set_notify_socket (libcrun_context_t *ctx, const char *value)
+خالی
+libcrun_context_سیٹ_notify_socket (libcrun_context_t *ctx, ثابت حرف *قدر)
 {
-  LIBCRUN_CONTEXT_SET_STRING (notify_socket);
+  LIBCRUN_CONTEXT_سیٹ_STRING (notify_socket);
 }
 
-void
-libcrun_context_set_handler (libcrun_context_t *ctx, const char *value)
+خالی
+libcrun_context_سیٹ_handler (libcrun_context_t *ctx, ثابت حرف *قدر)
 {
-  LIBCRUN_CONTEXT_SET_STRING (handler);
+  LIBCRUN_CONTEXT_سیٹ_STRING (handler);
 }
 
-#undef LIBCRUN_CONTEXT_SET_STRING
+#تعریف_منسوخ LIBCRUN_CONTEXT_سیٹ_STRING
 
-const char *
+ثابت حرف *
 libcrun_context_get_pid_file (libcrun_context_t *ctx)
 {
-  return ctx->pid_file;
+  واپس ctx->pid_file;
 }
 
-const char *
-libcrun_context_get_state_root (libcrun_context_t *ctx)
+ثابت حرف *
+libcrun_context_get_state_جڑ (libcrun_context_t *ctx)
 {
-  if (ctx == NULL)
-    return NULL;
-  return ctx->state_root;
+  اگر (ctx == تہی)
+    واپس تہی;
+  واپس ctx->state_جڑ;
 }
 
-void
-libcrun_context_set_preserve_fds (libcrun_context_t *ctx, int preserve_fds)
+خالی
+libcrun_context_سیٹ_preserve_fds (libcrun_context_t *ctx, صحیح preserve_fds)
 {
   ctx->preserve_fds = preserve_fds;
 }
 
-int
+صحیح
 libcrun_context_get_preserve_fds (libcrun_context_t *ctx)
 {
-  return ctx->preserve_fds;
+  واپس ctx->preserve_fds;
 }
 
-void
-libcrun_context_set_listen_fds (libcrun_context_t *ctx, int listen_fds)
+خالی
+libcrun_context_سیٹ_listen_fds (libcrun_context_t *ctx, صحیح listen_fds)
 {
   ctx->listen_fds = listen_fds;
 }
 
-void
-libcrun_context_set_args (libcrun_context_t *ctx, int argc, char **argv)
+خالی
+libcrun_context_سیٹ_دلائل (libcrun_context_t *ctx, صحیح argc, حرف **argv)
 {
   ctx->argc = argc;
   ctx->argv = argv;
 }
 
-void
-libcrun_context_set_systemd_cgroup (libcrun_context_t *ctx, bool value)
+خالی
+libcrun_context_سیٹ_systemd_cgroup (libcrun_context_t *ctx, bool قدر)
 {
-  ctx->systemd_cgroup = value;
+  ctx->systemd_cgroup = قدر;
 }
 
-void
-libcrun_context_set_detach (libcrun_context_t *ctx, bool value)
+خالی
+libcrun_context_سیٹ_detach (libcrun_context_t *ctx, bool قدر)
 {
-  ctx->detach = value;
+  ctx->detach = قدر;
 }
 
-void
-libcrun_context_set_no_new_keyring (libcrun_context_t *ctx, bool value)
+خالی
+libcrun_context_سیٹ_no_new_keyring (libcrun_context_t *ctx, bool قدر)
 {
-  ctx->no_new_keyring = value;
+  ctx->no_new_keyring = قدر;
 }
 
-void
-libcrun_context_set_no_pivot (libcrun_context_t *ctx, bool value)
+خالی
+libcrun_context_سیٹ_no_محور (libcrun_context_t *ctx, bool قدر)
 {
-  ctx->no_pivot = value;
+  ctx->no_محور = قدر;
 }
 
-void
-libcrun_context_set_force_no_cgroup (libcrun_context_t *ctx, bool value)
+خالی
+libcrun_context_سیٹ_force_no_cgroup (libcrun_context_t *ctx, bool قدر)
 {
-  ctx->force_no_cgroup = value;
+  ctx->force_no_cgroup = قدر;
 }
 
-void
-libcrun_context_set_output_handler (libcrun_context_t *ctx, crun_output_handler handler, void *arg)
+خالی
+libcrun_context_سیٹ_output_handler (libcrun_context_t *ctx, crun_output_handler handler, خالی *arg)
 {
   ctx->output_handler = handler;
   ctx->output_handler_arg = arg;
 }
 
-int
-libcrun_context_init_logging (libcrun_context_t *ctx, const char *log, libcrun_error_t *err)
+صحیح
+libcrun_context_init_logging (libcrun_context_t *ctx, ثابت حرف *لوگارتھم, libcrun_error_t *err)
 {
-  return libcrun_init_logging (&ctx->output_handler, &ctx->output_handler_arg, ctx->id, log, err);
+  واپس libcrun_init_logging (&ctx->output_handler, &ctx->output_handler_arg, ctx->id, لوگارتھم, err);
 }
 
-static int
-block_signals (libcrun_error_t *err)
+ساکن صحیح
+بلاک_اشارات (libcrun_error_t *err)
 {
-  int ret;
-  sigset_t mask;
-  sigfillset (&mask);
-  ret = sigprocmask (SIG_BLOCK, &mask, NULL);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "sigprocmask");
-  return 0;
+  صحیح ret;
+  sigset_t نقاب;
+  sigfillset (&نقاب);
+  ret = sigprocmask (SIG_بلاک, &نقاب, تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "sigprocmask");
+  واپس 0;
 }
 
-static int
-unblock_signals (libcrun_error_t *err)
+ساکن صحیح
+unblock_اشارات (libcrun_error_t *err)
 {
-  int i;
-  int ret;
-  sigset_t mask;
-  struct sigaction act = {};
+  صحیح i;
+  صحیح ret;
+  sigset_t نقاب;
+  ساخت sigaction act = {};
 
-  sigfillset (&mask);
-  ret = sigprocmask (SIG_UNBLOCK, &mask, NULL);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "sigprocmask");
+  sigfillset (&نقاب);
+  ret = sigprocmask (SIG_UNBLOCK, &نقاب, تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "sigprocmask");
 
   act.sa_handler = SIG_DFL;
-  for (i = 0; i < NSIG; i++)
+  برائے (i = 0; i < NSIG; i++)
     {
-      ret = sigaction (i, &act, NULL);
-      if (ret < 0 && errno != EINVAL)
-        return crun_make_error (err, errno, "sigaction");
+      ret = sigaction (i, &act, تہی);
+      اگر (ret < 0 && errno != EINVAL)
+        واپس crun_make_error (err, errno, "sigaction");
     }
 
-  return 0;
+  واپس 0;
 }
 
 /* must be used on the host before pivot_root(2).  */
-static int
+ساکن صحیح
 initialize_security (libcrun_container_t *container, runtime_spec_schema_config_schema_process *proc, libcrun_error_t *err)
 {
-  int ret;
+  صحیح ret;
 
   ret = libcrun_init_caps (container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (UNLIKELY (proc == NULL))
-    return 0;
+  اگر (UNLIKELY (proc == تہی))
+    واپس 0;
 
-  if (proc->apparmor_profile)
+  اگر (proc->apparmor_profile)
     {
       ret = libcrun_initialize_apparmor (err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
   ret = libcrun_initialize_selinux (container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return 0;
+  واپس 0;
 }
 
 /* Emit the "annotations" map.  Returns a json_gen_status; callers can wrap
    the call with GEN_OR_FAIL.  */
-static int
+ساکن صحیح
 gen_annotations (json_gen_ctx *gen, json_map_string_string *annotations)
 {
   size_t i;
-  int r;
+  صحیح r;
 
-  GEN_KEY (gen, "annotations");
+  GEN_کلید (gen, "annotations");
   GEN_OR_FAIL (json_gen_map_open (gen));
 
-  for (i = 0; i < annotations->len; i++)
+  برائے (i = 0; i < annotations->len; i++)
     {
       /* An annotation whose value is null in the document is parsed into a
          NULL, which cannot be emitted as a JSON string; leave it out.  */
-      if (annotations->keys[i] == NULL || annotations->values[i] == NULL)
-        continue;
+      اگر (annotations->کلیدیں[i] == تہی || annotations->اقدار[i] == تہی)
+        جاری;
 
-      GEN_STR (gen, annotations->keys[i]);
-      GEN_STR (gen, annotations->values[i]);
+      GEN_STR (gen, annotations->کلیدیں[i]);
+      GEN_STR (gen, annotations->اقدار[i]);
     }
 
-  return json_gen_map_close (gen);
+  واپس json_gen_map_close (gen);
 
 gen_error:
-  return r;
+  واپس r;
 }
 
 /* Return the bundle path to report in the container state.  crun always
    chdir()s into the bundle, so fall back to getcwd() when the caller has no
    absolute bundle path, as can happen when libcrun is used as a library.
    *ALLOCATED must be freed by the caller.  */
-static const char *
-get_bundle_path (const char *bundle, char **allocated)
+ساکن ثابت حرف *
+get_bundle_راستہ (ثابت حرف *bundle, حرف **allocated)
 {
-  if (bundle != NULL && bundle[0] == '/')
-    return bundle;
+  اگر (bundle != تہی && bundle[0] == '/')
+    واپس bundle;
 
-  *allocated = getcwd (NULL, 0);
-  if (*allocated == NULL)
+  *allocated = getcwd (تہی, 0);
+  اگر (*allocated == تہی)
     OOM ();
-  return *allocated;
+  واپس *allocated;
 }
 
-static int
-do_hooks (runtime_spec_schema_config_schema *def, pid_t pid, const char *id, bool keep_going, const char *bundle,
-          const char *cwd, const char *status, const char *name, hook **hooks, size_t hooks_len, int out_fd,
-          int err_fd, bool can_ignore_chdir_errors, libcrun_error_t *err)
+ساکن صحیح
+do_hooks (runtime_spec_schema_config_schema *def, pid_t pid, ثابت حرف *id, bool keep_going, ثابت حرف *bundle,
+          ثابت حرف *cwd, ثابت حرف *حالت_2, ثابت حرف *name, hook **hooks, size_t hooks_len, صحیح برآمد_fd,
+          صحیح err_fd, bool can_ignore_chdir_errors, libcrun_error_t *err)
 {
   size_t i, stdin_len;
-  int r, ret;
-  char *stdin = NULL;
-  cleanup_free char *bundle_allocated = NULL;
-  const char *rootfs = def->root ? def->root->path : "";
-  cleanup_json_gen json_gen_ctx *gen = NULL;
+  صحیح r, ret;
+  حرف *stdin = تہی;
+  cleanup_free حرف *bundle_allocated = تہی;
+  ثابت حرف *rootfs = def->جڑ ? def->جڑ->راستہ : "";
+  cleanup_json_gen json_gen_ctx *gen = تہی;
 
-  bundle = get_bundle_path (bundle, &bundle_allocated);
+  bundle = get_bundle_راستہ (bundle, &bundle_allocated);
 
-  if (! json_gen_init (&gen, NULL))
-    return crun_make_error (err, 0, "json_gen_init failed");
+  اگر (! json_gen_init (&gen, تہی))
+    واپس crun_make_error (err, 0, "json_gen_init failed");
 
   json_gen_config (gen, json_gen_beautify, 0);
 
   GEN_OR_FAIL (json_gen_map_open (gen));
 
-  GEN_KEY (gen, "ociVersion");
+  GEN_کلید (gen, "ociVersion");
   GEN_STR (gen, "1.0");
 
-  GEN_KEY (gen, "id");
+  GEN_کلید (gen, "id");
   GEN_STR (gen, id);
 
-  GEN_KEY (gen, "pid");
+  GEN_کلید (gen, "pid");
   GEN_OR_FAIL (map_int (gen, pid));
 
-  GEN_KEY (gen, "root");
+  GEN_کلید (gen, "root");
   GEN_STR (gen, rootfs);
 
-  GEN_KEY (gen, "bundle");
+  GEN_کلید (gen, "bundle");
   GEN_STR (gen, bundle);
 
-  GEN_KEY (gen, "status");
-  GEN_STR (gen, status);
+  GEN_کلید (gen, "status");
+  GEN_STR (gen, حالت_2);
 
-  if (def && def->annotations && def->annotations->len)
+  اگر (def && def->annotations && def->annotations->len)
     GEN_OR_FAIL (gen_annotations (gen, def->annotations));
 
   GEN_OR_FAIL (json_gen_map_close (gen));
 
-  GEN_OR_FAIL (json_gen_get_buf (gen, (const char **) &stdin, &stdin_len));
+  GEN_OR_FAIL (json_gen_get_buf (gen, (ثابت حرف **) &stdin, &stdin_len));
 
   ret = 0;
 
   bool error_created = false;
-  for (i = 0; i < hooks_len; i++)
+  برائے (i = 0; i < hooks_len; i++)
     {
-      char **env = environ;
+      حرف **env = environ;
 
-      if (hooks[i]->env)
+      اگر (hooks[i]->env)
         env = hooks[i]->env;
 
       /* Release the error from the previous iteration, if any.  */
-      if (error_created)
+      اگر (error_created)
         {
           crun_error_release (err);
           error_created = false;
         }
 
-      ret = run_process_with_stdin_timeout_envp (hooks[i]->path, hooks[i]->args, cwd, hooks[i]->timeout, env,
-                                                 stdin, stdin_len, out_fd, err_fd, can_ignore_chdir_errors, err);
-      if (UNLIKELY (ret < 0))
+      ret = تسلسل_process_with_stdin_timeout_envp (hooks[i]->راستہ, hooks[i]->دلائل, cwd, hooks[i]->timeout, env,
+                                                 stdin, stdin_len, برآمد_fd, err_fd, can_ignore_chdir_errors, err);
+      اگر (UNLIKELY (ret < 0))
         error_created = true;
 
-      if (UNLIKELY (ret != 0))
+      اگر (UNLIKELY (ret != 0))
         {
-          if (keep_going)
-            libcrun_warning ("error running %s hook #%zu: `%s` (exit code: %d)", name, i, hooks[i]->path, ret);
-          else
+          اگر (keep_going)
+            libcrun_warning ("error running %s hook #%zu: `%s` (exit code: %d)", name, i, hooks[i]->راستہ, ret);
+          ورنہ
             {
-              libcrun_error (0, "error running %s hook #%zu: `%s` (exit code: %d)", name, i, hooks[i]->path, ret);
-              break;
+              libcrun_error (0, "error running %s hook #%zu: `%s` (exit code: %d)", name, i, hooks[i]->راستہ, ret);
+              توڑو;
             }
         }
     }
 
-  return ret;
+  واپس ret;
 
 gen_error:
-  return json_gen_error_to_crun_error (r, err);
+  واپس json_gen_error_مقصد_crun_error (r, err);
 }
 
-static int
-get_json_gen_result (json_gen_ctx *gen, char **out, size_t *out_len)
+ساکن صحیح
+get_json_gen_نتیجہ (json_gen_ctx *gen, حرف **برآمد, size_t *برآمد_len)
 {
-  const char *buf = NULL;
+  ثابت حرف *buf = تہی;
   size_t buf_len = 0;
-  int r;
+  صحیح r;
 
   r = json_gen_get_buf (gen, &buf, &buf_len);
-  if (UNLIKELY (r != json_gen_status_ok))
-    return r;
+  اگر (UNLIKELY (r != json_gen_حالت_ok))
+    واپس r;
 
-  *out_len = buf_len;
+  *برآمد_len = buf_len;
 
-  *out = xmalloc (buf_len + 1);
-  memcpy (*out, buf, buf_len);
-  (*out)[buf_len] = '\0';
+  *برآمد = xmalloc (buf_len + 1);
+  حافظہ_نقل (*برآمد, buf, buf_len);
+  (*برآمد)[buf_len] = '\0';
 
-  return json_gen_status_ok;
+  واپس json_gen_حالت_ok;
 }
 
-static int
-get_seccomp_receiver_fd_payload (libcrun_container_t *container, const char *status, pid_t own_pid,
-                                 char **seccomp_fd_payload, size_t *seccomp_fd_payload_len, libcrun_error_t *err)
+ساکن صحیح
+get_seccomp_receiver_fd_payload (libcrun_container_t *container, ثابت حرف *حالت_2, pid_t own_pid,
+                                 حرف **seccomp_fd_payload, size_t *seccomp_fd_payload_len, libcrun_error_t *err)
 {
-  int r;
-  json_gen_ctx *gen = NULL;
+  صحیح r;
+  json_gen_ctx *gen = تہی;
   runtime_spec_schema_config_schema *def = container->container_def;
-  const char *const OCI_VERSION = "0.2.0";
+  ثابت حرف *ثابت OCI_نسخہ = "0.2.0";
 
-  if (! json_gen_init (&gen, NULL))
-    return crun_make_error (err, 0, "json_gen_init failed");
+  اگر (! json_gen_init (&gen, تہی))
+    واپس crun_make_error (err, 0, "json_gen_init failed");
 
   json_gen_config (gen, json_gen_beautify, 1);
 
   GEN_OR_FAIL (json_gen_map_open (gen));
 
-  GEN_KEY (gen, "ociVersion");
-  GEN_STR (gen, OCI_VERSION);
+  GEN_کلید (gen, "ociVersion");
+  GEN_STR (gen, OCI_نسخہ);
 
-  GEN_KEY (gen, "fds");
+  GEN_کلید (gen, "fds");
   GEN_OR_FAIL (json_gen_array_open (gen));
 
-  GEN_KEY (gen, "seccompFd");
+  GEN_کلید (gen, "seccompFd");
   GEN_OR_FAIL (json_gen_array_close (gen));
 
-  GEN_KEY (gen, "pid");
+  GEN_کلید (gen, "pid");
   GEN_OR_FAIL (map_int (gen, own_pid));
 
-  if (def && def->linux && def->linux->seccomp)
+  اگر (def && def->linux && def->linux->seccomp)
     {
-      const char *metadata = def->linux->seccomp->listener_metadata;
+      ثابت حرف *metadata = def->linux->seccomp->listener_metadata;
 
-      if (metadata)
+      اگر (metadata)
         {
-          GEN_KEY (gen, "metadata");
+          GEN_کلید (gen, "metadata");
           GEN_STR (gen, metadata);
         }
     }
 
   /* State.  */
-  GEN_KEY (gen, "state");
+  GEN_کلید (gen, "state");
   GEN_OR_FAIL (json_gen_map_open (gen));
 
-  GEN_KEY (gen, "ociVersion");
-  GEN_STR (gen, OCI_VERSION);
+  GEN_کلید (gen, "ociVersion");
+  GEN_STR (gen, OCI_نسخہ);
 
-  if (container->context && container->context->id)
+  اگر (container->context && container->context->id)
     {
-      GEN_KEY (gen, "id");
+      GEN_کلید (gen, "id");
       GEN_STR (gen, container->context->id);
     }
 
-  GEN_KEY (gen, "status");
-  GEN_STR (gen, status);
+  GEN_کلید (gen, "status");
+  GEN_STR (gen, حالت_2);
 
-  GEN_KEY (gen, "pid");
+  GEN_کلید (gen, "pid");
   GEN_OR_FAIL (map_int (gen, own_pid));
 
-  if (container->context && container->context->bundle)
+  اگر (container->context && container->context->bundle)
     {
-      GEN_KEY (gen, "bundle");
+      GEN_کلید (gen, "bundle");
       GEN_STR (gen, container->context->bundle);
     }
 
-  if (def && def->annotations && def->annotations->len)
+  اگر (def && def->annotations && def->annotations->len)
     GEN_OR_FAIL (gen_annotations (gen, def->annotations));
 
   GEN_OR_FAIL (json_gen_map_close (gen));
@@ -1029,123 +1029,123 @@ get_seccomp_receiver_fd_payload (libcrun_container_t *container, const char *sta
 
   GEN_OR_FAIL (json_gen_map_close (gen));
 
-  r = get_json_gen_result (gen, seccomp_fd_payload, seccomp_fd_payload_len);
+  r = get_json_gen_نتیجہ (gen, seccomp_fd_payload, seccomp_fd_payload_len);
 
 gen_error:
   json_gen_free (gen);
 
-  return json_gen_error_to_crun_error (r, err);
+  واپس json_gen_error_مقصد_crun_error (r, err);
 }
 
-static int
-send_sync_cb (void *data, libcrun_error_t *err)
+ساکن صحیح
+send_sync_cb (خالی *ڈیٹا, libcrun_error_t *err)
 {
-  int sync_socket_fd = *((int *) data);
-  int ret;
+  صحیح sync_socket_fd = *((صحیح *) ڈیٹا);
+  صحیح ret;
 
   /* sync 2.  */
   ret = sync_socket_send_sync (sync_socket_fd, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   /* sync 3.  */
-  return sync_socket_wait_sync (NULL, sync_socket_fd, false, err);
+  واپس sync_socket_wait_sync (تہی, sync_socket_fd, false, err);
 }
 
-static int
+ساکن صحیح
 maybe_chown_std_streams (uid_t container_uid, gid_t container_gid, libcrun_error_t *err)
 {
-  int ret, i;
+  صحیح ret, i;
 
-  for (i = 0; i < 3; i++)
+  برائے (i = 0; i < 3; i++)
     {
-      if (! isatty (i))
+      اگر (! isatty (i))
         {
-          struct stat statbuf;
+          ساخت stat statbuf;
           ret = fstat (i, &statbuf);
-          if (UNLIKELY (ret < 0))
+          اگر (UNLIKELY (ret < 0))
             {
-              if (errno == EBADF)
-                continue;
-              return crun_make_error (err, errno, "fstat fd `%d`", i);
+              اگر (errno == EBADF)
+                جاری;
+              واپس crun_make_error (err, errno, "fstat fd `%d`", i);
             }
 
           /* Skip chown for device files */
-          if (S_ISCHR (statbuf.st_mode) || S_ISBLK (statbuf.st_mode))
-            continue;
+          اگر (S_ISCHR (statbuf.st_mode) || S_ISBLK (statbuf.st_mode))
+            جاری;
 
           ret = fchown (i, container_uid, container_gid);
-          if (UNLIKELY (ret < 0))
+          اگر (UNLIKELY (ret < 0))
             {
               /* EINVAL means the user is not mapped in the current userns.
                  Ignore EPERM and EROFS as well as there is no reason to fail
                  so early, and let the container payload deal with it.
                  EBADF means fd is closed.
               */
-              if (errno == EINVAL || errno == EPERM || errno == EROFS || errno == EBADF)
-                continue;
+              اگر (errno == EINVAL || errno == EPERM || errno == EROFS || errno == EBADF)
+                جاری;
 
-              return crun_make_error (err, errno, "fchown std stream `%i`", i);
+              واپس crun_make_error (err, errno, "fchown std stream `%i`", i);
             }
         }
     }
-  return 0;
+  واپس 0;
 }
 
-int
-libcrun_container_notify_handler (struct container_entrypoint_s *args,
-                                  enum handler_configure_phase phase,
-                                  libcrun_container_t *container, const char *rootfs,
+صحیح
+libcrun_container_notify_handler (ساخت container_entrypoint_s *دلائل,
+                                  شمار handler_configure_phase phase,
+                                  libcrun_container_t *container, ثابت حرف *rootfs,
                                   libcrun_error_t *err)
 {
-  struct custom_handler_s *h;
+  ساخت custom_handler_s *h;
 
-  if (args->custom_handler == NULL)
-    return 0;
+  اگر (دلائل->custom_handler == تہی)
+    واپس 0;
 
-  h = args->custom_handler->vtable;
-  if (h == NULL || h->configure_container == NULL)
-    return 0;
+  h = دلائل->custom_handler->vtable;
+  اگر (h == تہی || h->configure_container == تہی)
+    واپس 0;
 
-  return h->configure_container (args->custom_handler->cookie, phase,
-                                 args->context, container,
+  واپس h->configure_container (دلائل->custom_handler->cookie, phase,
+                                 دلائل->context, container,
                                  rootfs, err);
 }
 
 /* Resolve and normalize the container rootfs path.  */
-static int
-resolve_rootfs_path (libcrun_container_t *container, char **rootfs, libcrun_error_t *err)
+ساکن صحیح
+resolve_rootfs_راستہ (libcrun_container_t *container, حرف **rootfs, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  if (def->root && def->root->path)
+  اگر (def->جڑ && def->جڑ->راستہ)
     {
-      *rootfs = realpath (def->root->path, NULL);
-      if (UNLIKELY (*rootfs == NULL))
+      *rootfs = realpath (def->جڑ->راستہ, تہی);
+      اگر (UNLIKELY (*rootfs == تہی))
         {
-          int saved_errno = errno;
+          صحیح saved_errno = errno;
 
           /* If realpath failed for any reason, try the relative directory.  */
-          if (def->root->path[0] == '/')
+          اگر (def->جڑ->راستہ[0] == '/')
             {
-              cleanup_free char *cwd = NULL;
-              libcrun_error_t tmp_err = NULL;
+              cleanup_free حرف *cwd = تہی;
+              libcrun_error_t tmp_err = تہی;
               ssize_t len;
-              int proc_fd;
+              صحیح proc_fd;
 
               proc_fd = libcrun_get_cached_proc_fd (container, &tmp_err);
-              if (LIKELY (proc_fd >= 0))
+              اگر (LIKELY (proc_fd >= 0))
                 {
-                  len = safe_readlinkat (proc_fd, "self/cwd", &cwd, 0, &tmp_err);
-                  if (LIKELY (len > 0))
+                  len = محفوظ_readlinkat (proc_fd, "self/cwd", &cwd, 0, &tmp_err);
+                  اگر (LIKELY (len > 0))
                     {
                       /* If the rootfs is under the current working directory, just use its relative path.  */
-                      if (has_dir_prefix (def->root->path, cwd))
+                      اگر (has_dir_سابقہ (def->جڑ->راستہ, cwd))
                         {
-                          const char *it = consume_slashes (def->root->path + len);
-                          if (LIKELY (*it))
+                          ثابت حرف *it = consume_slashes (def->جڑ->راستہ + len);
+                          اگر (LIKELY (*it))
                             {
-                              int ret = faccessat (AT_FDCWD, it, F_OK, 0);
-                              if (LIKELY (ret == 0))
+                              صحیح ret = faccessat (AT_FDCWD, it, F_OK, 0);
+                              اگر (LIKELY (ret == 0))
                                 *rootfs = xstrdup (it);
                             }
                         }
@@ -1154,107 +1154,107 @@ resolve_rootfs_path (libcrun_container_t *container, char **rootfs, libcrun_erro
               crun_error_release (&tmp_err);
             }
 
-          if (*rootfs == NULL)
+          اگر (*rootfs == تہی)
             {
-              if (saved_errno == ENOENT)
-                return crun_make_error (err, ENOENT, "the rootfs path `%s` does not exist", def->root->path);
+              اگر (saved_errno == ENOENT)
+                واپس crun_make_error (err, ENOENT, "the rootfs path `%s` does not exist", def->جڑ->راستہ);
 
-              *rootfs = xstrdup (def->root->path);
+              *rootfs = xstrdup (def->جڑ->راستہ);
             }
         }
     }
-  return 0;
+  واپس 0;
 }
 
 /* Initialize the environment variables.  */
-static int
-setup_environment (runtime_spec_schema_config_schema *def, uid_t container_uid, libcrun_error_t *err)
+ساکن صحیح
+تیاری_environment (runtime_spec_schema_config_schema *def, uid_t container_uid, libcrun_error_t *err)
 {
-  int ret;
+  صحیح ret;
 
-  if (clearenv ())
-    return crun_make_error (err, errno, "clearenv");
+  اگر (clearenv ())
+    واپس crun_make_error (err, errno, "clearenv");
 
-  if (def->process)
+  اگر (def->process)
     {
       size_t i;
 
-      for (i = 0; i < def->process->env_len; i++)
+      برائے (i = 0; i < def->process->env_len; i++)
         {
           /* A null element of the array of variables is parsed into a NULL,
              which putenv(3) cannot be handed.  */
-          if (def->process->env[i] == NULL)
-            return crun_make_error (err, EINVAL, "environment variable is not specified");
+          اگر (def->process->env[i] == تہی)
+            واپس crun_make_error (err, EINVAL, "environment variable is not specified");
 
-          if (putenv (def->process->env[i]) < 0)
-            return crun_make_error (err, errno, "putenv `%s`", def->process->env[i]);
+          اگر (putenv (def->process->env[i]) < 0)
+            واپس crun_make_error (err, errno, "putenv `%s`", def->process->env[i]);
         }
     }
 
-  if (is_empty_string (getenv ("HOME")))
+  اگر (is_خالی_خانے_string (getenv ("HOME")))
     {
-      ret = set_home_env (container_uid);
-      if (UNLIKELY (ret < 0))
+      ret = سیٹ_home_env (container_uid);
+      اگر (UNLIKELY (ret < 0))
         {
           libcrun_warning ("cannot detect HOME environment variable, setting default");
-          if (UNLIKELY (setenv ("HOME", "/", 1) < 0))
-            return crun_make_error (err, errno, "setenv HOME");
+          اگر (UNLIKELY (setenv ("HOME", "/", 1) < 0))
+            واپس crun_make_error (err, errno, "setenv HOME");
         }
     }
 
-  return 0;
+  واپس 0;
 }
 
 /* Configure terminal and console for interactive containers.  */
-static int
-setup_terminal (struct container_entrypoint_s *entrypoint_args, libcrun_container_t *container,
-                int console_socket, int console_socketpair, int has_terminal, libcrun_error_t *err)
+ساکن صحیح
+تیاری_terminal (ساخت container_entrypoint_s *entrypoint_دلائل, libcrun_container_t *container,
+                صحیح console_socket, صحیح console_socketpair, صحیح has_terminal, libcrun_error_t *err)
 {
-  cleanup_close int terminal_fd = -1;
-  int ret;
+  cleanup_close صحیح terminal_fd = -1;
+  صحیح ret;
 
-  if (! has_terminal)
-    return 0;
+  اگر (! has_terminal)
+    واپس 0;
 
   fflush (stderr);
 
-  if (console_socket >= 0 || (entrypoint_args->has_terminal_socket_pair && console_socketpair >= 0))
+  اگر (console_socket >= 0 || (entrypoint_دلائل->has_terminal_socket_pair && console_socketpair >= 0))
     {
-      terminal_fd = libcrun_set_terminal (container, err);
-      if (UNLIKELY (terminal_fd < 0))
-        return terminal_fd;
+      terminal_fd = libcrun_سیٹ_terminal (container, err);
+      اگر (UNLIKELY (terminal_fd < 0))
+        واپس terminal_fd;
     }
 
-  if (console_socket >= 0)
+  اگر (console_socket >= 0)
     {
-      ret = send_fd_to_socket (console_socket, terminal_fd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = send_fd_مقصد_socket (console_socket, terminal_fd, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
-  else if (entrypoint_args->has_terminal_socket_pair && console_socketpair >= 0)
+  ورنہ اگر (entrypoint_دلائل->has_terminal_socket_pair && console_socketpair >= 0)
     {
-      ret = send_fd_to_socket (console_socketpair, terminal_fd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = send_fd_مقصد_socket (console_socketpair, terminal_fd, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  return 0;
+  واپس 0;
 }
 
 /* Resolve and validate the container's executable path.  */
-static int
-setup_executable_path (struct container_entrypoint_s *entrypoint_args, runtime_spec_schema_config_schema *def,
-                       char **exec_path, libcrun_error_t *err)
+ساکن صحیح
+تیاری_executable_راستہ (ساخت container_entrypoint_s *entrypoint_دلائل, runtime_spec_schema_config_schema *def,
+                       حرف **exec_راستہ, libcrun_error_t *err)
 {
-  int ret;
+  صحیح ret;
 
-  if (def->process && def->process->args)
+  اگر (def->process && def->process->دلائل)
     {
-      ret = find_executable (exec_path, def->process->args[0], def->process->cwd, err);
-      if (UNLIKELY (ret < 0))
+      ret = ڈھونڈو_executable (exec_راستہ, def->process->دلائل[0], def->process->cwd, err);
+      اگر (UNLIKELY (ret < 0))
         {
-          if (entrypoint_args->custom_handler == NULL && crun_error_get_errno (err) == ENOENT)
-            return ret;
+          اگر (entrypoint_دلائل->custom_handler == تہی && crun_error_get_errno (err) == ENOENT)
+            واپس ret;
 
           /* If it fails for any other reason, ignore the failure.  We'll try again the lookup
              once the process switched to the use that runs in the container.  This might be necessary
@@ -1264,748 +1264,748 @@ setup_executable_path (struct container_entrypoint_s *entrypoint_args, runtime_s
         }
     }
 
-  return 0;
+  واپس 0;
 }
 
 /* Apply security settings for the container process.  */
-static int
-apply_security_settings (struct container_entrypoint_s *entrypoint_args, runtime_spec_schema_config_schema *def,
+ساکن صحیح
+apply_security_settings (ساخت container_entrypoint_s *entrypoint_دلائل, runtime_spec_schema_config_schema *def,
                          libcrun_container_t *container, pid_t own_pid, libcrun_error_t *err)
 {
-  int ret;
+  صحیح ret;
   runtime_spec_schema_config_schema_process_capabilities *capabilities;
-  int no_new_privs;
+  صحیح no_new_privs;
 
-  if (def->process && ! def->process->no_new_privileges)
+  اگر (def->process && ! def->process->no_new_privileges)
     {
-      char **seccomp_flags = NULL;
+      حرف **seccomp_flags = تہی;
       size_t seccomp_flags_len = 0;
-      cleanup_free char *seccomp_fd_payload = NULL;
+      cleanup_free حرف *seccomp_fd_payload = تہی;
       size_t seccomp_fd_payload_len = 0;
 
-      if (def->linux && def->linux->seccomp)
+      اگر (def->linux && def->linux->seccomp)
         {
           seccomp_flags = def->linux->seccomp->flags;
           seccomp_flags_len = def->linux->seccomp->flags_len;
         }
 
-      if (entrypoint_args->seccomp_receiver_fd >= 0)
+      اگر (entrypoint_دلائل->seccomp_receiver_fd >= 0)
         {
           ret = get_seccomp_receiver_fd_payload (container, "creating", own_pid, &seccomp_fd_payload, &seccomp_fd_payload_len, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
 
-      ret = libcrun_apply_seccomp (entrypoint_args->seccomp_fd, entrypoint_args->seccomp_receiver_fd,
+      ret = libcrun_apply_seccomp (entrypoint_دلائل->seccomp_fd, entrypoint_دلائل->seccomp_receiver_fd,
                                    seccomp_fd_payload, seccomp_fd_payload_len, seccomp_flags, seccomp_flags_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      close_and_reset (&entrypoint_args->seccomp_fd);
-      close_and_reset (&entrypoint_args->seccomp_receiver_fd);
+      close_and_reset (&entrypoint_دلائل->seccomp_fd);
+      close_and_reset (&entrypoint_دلائل->seccomp_receiver_fd);
     }
 
-  capabilities = def->process ? def->process->capabilities : NULL;
+  capabilities = def->process ? def->process->capabilities : تہی;
   no_new_privs = def->process ? def->process->no_new_privileges : 1;
-  ret = libcrun_set_caps (capabilities, container->container_uid, container->container_gid, no_new_privs,
-                          entrypoint_args->custom_handler != NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_سیٹ_caps (capabilities, container->container_uid, container->container_gid, no_new_privs,
+                          entrypoint_دلائل->custom_handler != تہی, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return 0;
+  واپس 0;
 }
 
 /* Create the process that joins the existing PID namespace now that the
    host mounts are not visible anymore, and continue the setup from there.  */
-static int
-do_delayed_pidns_fork (int sync_socket, pid_t *own_pid, libcrun_error_t *err)
+ساکن صحیح
+do_delayed_pidns_fork (صحیح sync_socket, pid_t *own_pid, libcrun_error_t *err)
 {
   pid_t pid;
-  int ret;
+  صحیح ret;
 
   pid = fork ();
-  if (UNLIKELY (pid < 0))
-    return crun_make_error (err, errno, "fork");
+  اگر (UNLIKELY (pid < 0))
+    واپس crun_make_error (err, errno, "fork");
 
-  if (pid)
+  اگر (pid)
     {
       /* Report the new PID to the parent and exit immediately.  */
       ret = sync_socket_send_sync (sync_socket, false, err);
-      if (LIKELY (ret == 0))
+      اگر (LIKELY (ret == 0))
         {
-          ret = TEMP_FAILURE_RETRY (write (sync_socket, &pid, sizeof (pid)));
-          if (LIKELY (ret == sizeof (pid)))
-            _safe_exit (EXIT_SUCCESS);
+          ret = عارضی_FAILURE_RETRY (اكتب (sync_socket, &pid, حجم (pid)));
+          اگر (LIKELY (ret == حجم (pid)))
+            محفوظ_exit (EXIT_SUCCESS);
         }
 
       kill (pid, SIGKILL);
-      _safe_exit (EXIT_FAILURE);
+      محفوظ_exit (EXIT_FAILURE);
     }
 
   /* sync receive own pid.  */
-  ret = TEMP_FAILURE_RETRY (read (sync_socket, own_pid, sizeof (*own_pid)));
-  if (UNLIKELY (ret != sizeof (*own_pid)))
+  ret = عارضی_FAILURE_RETRY (اقرأ (sync_socket, own_pid, حجم (*own_pid)));
+  اگر (UNLIKELY (ret != حجم (*own_pid)))
     {
-      if (ret >= 0)
+      اگر (ret >= 0)
         errno = 0;
-      return crun_make_error (err, errno, "read from sync socket");
+      واپس crun_make_error (err, errno, "read from sync socket");
     }
 
-  return 0;
+  واپس 0;
 }
 
-struct delayed_pidns_fork_s
+ساخت delayed_pidns_fork_s
 {
   libcrun_container_t *container;
-  int sync_socket;
+  صحیح sync_socket;
   pid_t *own_pid;
 };
 
-static int
-delayed_pidns_fork_cb (void *data, libcrun_error_t *err)
+ساکن صحیح
+delayed_pidns_fork_cb (خالی *ڈیٹا, libcrun_error_t *err)
 {
-  struct delayed_pidns_fork_s *d = data;
+  ساخت delayed_pidns_fork_s *d = ڈیٹا;
 
-  if (! libcrun_container_delayed_pidns_fork (d->container))
-    return 0;
+  اگر (! libcrun_container_delayed_pidns_fork (d->container))
+    واپس 0;
 
-  return do_delayed_pidns_fork (d->sync_socket, d->own_pid, err);
+  واپس do_delayed_pidns_fork (d->sync_socket, d->own_pid, err);
 }
 
-static int
-container_init_setup (void *args, pid_t *own_pid, char *notify_socket,
-                      int sync_socket, char **exec_path, libcrun_error_t *err)
+ساکن صحیح
+container_init_تیاری (خالی *دلائل, pid_t *own_pid, حرف *notify_socket,
+                      صحیح sync_socket, حرف **exec_راستہ, libcrun_error_t *err)
 {
-  struct container_entrypoint_s *entrypoint_args = args;
-  libcrun_container_t *container = entrypoint_args->container;
-  bool chdir_done = false;
-  int ret;
-  int has_terminal;
-  cleanup_close int console_socket = -1;
-  cleanup_close int console_socketpair = -1;
+  ساخت container_entrypoint_s *entrypoint_دلائل = دلائل;
+  libcrun_container_t *container = entrypoint_دلائل->container;
+  bool chdir_مکمل = false;
+  صحیح ret;
+  صحیح has_terminal;
+  cleanup_close صحیح console_socket = -1;
+  cleanup_close صحیح console_socketpair = -1;
   runtime_spec_schema_config_schema *def = container->container_def;
-  cleanup_free char *rootfs = NULL;
-  struct delayed_pidns_fork_s delayed_pidns_fork = {
+  cleanup_free حرف *rootfs = تہی;
+  ساخت delayed_pidns_fork_s delayed_pidns_fork = {
     .container = container,
     .sync_socket = sync_socket,
     .own_pid = own_pid,
   };
 
   ret = initialize_security (container, def->process, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = libcrun_configure_network (container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_configure_جال (container, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = resolve_rootfs_path (container, &rootfs, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = resolve_rootfs_راستہ (container, &rootfs, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   /* Configure terminal socket pair for container communication.  */
-  if (entrypoint_args->terminal_socketpair[0] >= 0)
+  اگر (entrypoint_دلائل->terminal_socketpair[0] >= 0)
     {
-      close_and_reset (&entrypoint_args->terminal_socketpair[0]);
-      console_socketpair = entrypoint_args->terminal_socketpair[1];
+      close_and_reset (&entrypoint_دلائل->terminal_socketpair[0]);
+      console_socketpair = entrypoint_دلائل->terminal_socketpair[1];
     }
 
   /* sync 1.  */
-  ret = sync_socket_wait_sync (NULL, sync_socket, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = sync_socket_wait_sync (تہی, sync_socket, false, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   has_terminal = container->container_def->process && container->container_def->process->terminal;
-  if (has_terminal && entrypoint_args->context->console_socket)
-    console_socket = entrypoint_args->console_socket_fd;
+  اگر (has_terminal && entrypoint_دلائل->context->console_socket)
+    console_socket = entrypoint_دلائل->console_socket_fd;
 
-  ret = libcrun_set_sysctl (container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_سیٹ_sysctl (container, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = libcrun_container_notify_handler (entrypoint_args, HANDLER_CONFIGURE_BEFORE_MOUNTS, container, rootfs, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_container_notify_handler (entrypoint_دلائل, HANDLER_CONFIGURE_BEFORE_MOUNTS, container, rootfs, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = libcrun_do_pivot_root (container, entrypoint_args->context->no_pivot, &rootfs, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_do_محور_جڑ (container, entrypoint_دلائل->context->no_محور, &rootfs, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   /* sync 2 and 3 are sent as part of libcrun_set_mounts.  */
-  ret = libcrun_set_mounts (entrypoint_args, container, rootfs, send_sync_cb, &sync_socket, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_سیٹ_mounts (entrypoint_دلائل, container, rootfs, send_sync_cb, &sync_socket, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   /* The createContainer hooks MUST run after the mounts are set up but before
      the pivot_root.  When these hooks are present can_use_open_tree_namespace()
      forces the deferred-pivot path, so the actual pivot happens later in
      libcrun_finalize_mounts().  */
-  if (def->hooks && def->hooks->create_container_len)
+  اگر (def->hooks && def->hooks->create_container_len)
     {
-      libcrun_error_t tmp_err = NULL;
-      int in_userns = check_running_in_user_namespace (&tmp_err);
-      if (tmp_err)
+      libcrun_error_t tmp_err = تہی;
+      صحیح اندر_userns = check_running_اندر_user_namespace (&tmp_err);
+      اگر (tmp_err)
         crun_error_release (&tmp_err);
-      ret = do_hooks (def, getpid (), container->context->id, false, entrypoint_args->bundle, NULL, "created", "createContainer",
+      ret = do_hooks (def, getpid (), container->context->id, false, entrypoint_دلائل->bundle, تہی, "created", "createContainer",
                       (hook **) def->hooks->create_container,
-                      def->hooks->create_container_len, entrypoint_args->hooks_out_fd, entrypoint_args->hooks_err_fd,
-                      in_userns > 0, err);
-      if (UNLIKELY (ret != 0))
-        return ret;
+                      def->hooks->create_container_len, entrypoint_دلائل->hooks_برآمد_fd, entrypoint_دلائل->hooks_err_fd,
+                      اندر_userns > 0, err);
+      اگر (UNLIKELY (ret != 0))
+        واپس ret;
     }
 
-  ret = libcrun_finalize_mounts (entrypoint_args, container, rootfs, delayed_pidns_fork_cb, &delayed_pidns_fork, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_finalize_mounts (entrypoint_دلائل, container, rootfs, delayed_pidns_fork_cb, &delayed_pidns_fork, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (def->process)
+  اگر (def->process)
     {
-      ret = libcrun_set_selinux_label (container, def->process, false, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_سیٹ_selinux_label (container, def->process, false, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      ret = libcrun_set_apparmor_profile (container, def->process, false, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_سیٹ_apparmor_profile (container, def->process, false, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  ret = mark_or_close_fds_ge_than (container, entrypoint_args->context->preserve_fds + 3, false, err);
-  if (UNLIKELY (ret < 0))
+  ret = mark_or_close_fds_ge_than (container, entrypoint_دلائل->context->preserve_fds + 3, false, err);
+  اگر (UNLIKELY (ret < 0))
     libcrun_error_report_and_release (err);
 
   ret = libcrun_reopen_dev_null (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   ret = maybe_chown_std_streams (container->container_uid, container->container_gid, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = setup_environment (def, container->container_uid, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = تیاری_environment (def, container->container_uid, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   /* Set primary process to 1 explicitly if nothing is configured and LISTEN_FD is not set.  */
-  if (entrypoint_args->context->listen_fds > 0 && getenv ("LISTEN_PID") == NULL)
+  اگر (entrypoint_دلائل->context->listen_fds > 0 && getenv ("LISTEN_PID") == تہی)
     {
       libcrun_warning ("setting LISTEN_PID=1 since no previous configuration was found");
-      if (UNLIKELY (setenv ("LISTEN_PID", "1", 1) < 0))
-        return crun_make_error (err, errno, "setenv LISTEN_PID");
+      اگر (UNLIKELY (setenv ("LISTEN_PID", "1", 1) < 0))
+        واپس crun_make_error (err, errno, "setenv LISTEN_PID");
     }
 
   /* Attempt to chdir immediately here, before doing the setresuid.  If we fail here, let's
      try again later once the process switched to the user that runs in the container.  */
-  if (def->process && def->process->cwd)
+  اگر (def->process && def->process->cwd)
     {
-      ret = libcrun_safe_chdir (def->process->cwd, err);
-      if (LIKELY (ret == 0))
-        chdir_done = true;
-      else
+      ret = libcrun_محفوظ_chdir (def->process->cwd, err);
+      اگر (LIKELY (ret == 0))
+        chdir_مکمل = true;
+      ورنہ
         crun_error_release (err);
     }
 
   ret = setsid ();
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "setsid");
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "setsid");
 
-  ret = setup_terminal (entrypoint_args, container, console_socket, console_socketpair, has_terminal, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = تیاری_terminal (entrypoint_دلائل, container, console_socket, console_socketpair, has_terminal, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   close_and_reset (&console_socket);
   close_and_reset (&console_socketpair);
 
-  ret = setup_executable_path (entrypoint_args, def, exec_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = تیاری_executable_راستہ (entrypoint_دلائل, def, exec_راستہ, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = libcrun_set_hostname (container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_سیٹ_hostname (container, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = libcrun_set_domainname (container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_سیٹ_domainname (container, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (container->container_def->linux && container->container_def->linux->personality)
+  اگر (container->container_def->linux && container->container_def->linux->personality)
     {
-      ret = libcrun_set_personality (container->container_def->linux->personality, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_سیٹ_personality (container->container_def->linux->personality, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  if (def->process && def->process->user)
+  اگر (def->process && def->process->user)
     umask (def->process->user->umask_present ? def->process->user->umask : 0022);
 
-  ret = apply_security_settings (entrypoint_args, def, container, *own_pid, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = apply_security_settings (entrypoint_دلائل, def, container, *own_pid, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (UNLIKELY (def->process && def->process->args && *exec_path == NULL))
+  اگر (UNLIKELY (def->process && def->process->دلائل && *exec_راستہ == تہی))
     {
-      ret = find_executable (exec_path, def->process->args[0], def->process->cwd, err);
-      if (UNLIKELY (ret < 0))
+      ret = ڈھونڈو_executable (exec_راستہ, def->process->دلائل[0], def->process->cwd, err);
+      اگر (UNLIKELY (ret < 0))
         {
-          if (entrypoint_args->custom_handler == NULL || is_empty_string (def->process->args[0]))
-            return ret;
+          اگر (entrypoint_دلائل->custom_handler == تہی || is_خالی_خانے_string (def->process->دلائل[0]))
+            واپس ret;
 
           /* If a custom handler is used, pass argv0 as specified.  e.g. with wasm the file could miss the +x bit.  */
           crun_error_release (err);
-          *exec_path = xstrdup (def->process->args[0]);
+          *exec_راستہ = xstrdup (def->process->دلائل[0]);
         }
     }
 
   /* The chdir was not already performed, so try again now after switching to the UID/GID in the container.  */
-  if (! chdir_done && def->process && def->process->cwd)
+  اگر (! chdir_مکمل && def->process && def->process->cwd)
     {
-      ret = libcrun_safe_chdir (def->process->cwd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_محفوظ_chdir (def->process->cwd, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  if (notify_socket && putenv (notify_socket) < 0)
-    return crun_make_error (err, errno, "putenv `%s`", notify_socket);
+  اگر (notify_socket && putenv (notify_socket) < 0)
+    واپس crun_make_error (err, errno, "putenv `%s`", notify_socket);
 
-  return 0;
+  واپس 0;
 }
 
-static int
-open_hooks_output (libcrun_container_t *container, int *out_fd, int *err_fd, libcrun_error_t *err)
+ساکن صحیح
+open_hooks_output (libcrun_container_t *container, صحیح *برآمد_fd, صحیح *err_fd, libcrun_error_t *err)
 {
-  const char *annotation;
+  ثابت حرف *annotation;
 
-  *err_fd = *out_fd = -1;
+  *err_fd = *برآمد_fd = -1;
 
   libcrun_debug ("Opening hooks output");
-  annotation = find_annotation (container, "run.oci.hooks.stdout");
-  if (annotation)
+  annotation = ڈھونڈو_annotation (container, "run.oci.hooks.stdout");
+  اگر (annotation)
     {
       libcrun_debug ("Found `run.oci.hooks.stdout` annotation");
-      *out_fd = TEMP_FAILURE_RETRY (open (annotation, O_CREAT | O_WRONLY | O_APPEND | O_CLOEXEC, 0700));
-      if (UNLIKELY (*out_fd < 0))
-        return crun_make_error (err, errno, "open `%s`", annotation);
+      *برآمد_fd = عارضی_FAILURE_RETRY (open (annotation, O_CREAT | O_WRONLY | O_APPEND | O_CLOEXEC, 0700));
+      اگر (UNLIKELY (*برآمد_fd < 0))
+        واپس crun_make_error (err, errno, "open `%s`", annotation);
     }
 
-  annotation = find_annotation (container, "run.oci.hooks.stderr");
-  if (annotation)
+  annotation = ڈھونڈو_annotation (container, "run.oci.hooks.stderr");
+  اگر (annotation)
     {
       libcrun_debug ("Found `run.oci.hooks.stderr` annotation");
-      *err_fd = TEMP_FAILURE_RETRY (open (annotation, O_CREAT | O_WRONLY | O_APPEND | O_CLOEXEC, 0700));
-      if (UNLIKELY (*err_fd < 0))
-        return crun_make_error (err, errno, "open `%s`", annotation);
+      *err_fd = عارضی_FAILURE_RETRY (open (annotation, O_CREAT | O_WRONLY | O_APPEND | O_CLOEXEC, 0700));
+      اگر (UNLIKELY (*err_fd < 0))
+        واپس crun_make_error (err, errno, "open `%s`", annotation);
     }
 
-  return 0;
+  واپس 0;
 }
 
 /* The environment the process was started with lives on the initial stack, right after the
    argv strings and before the string AT_EXECFN points to.  clearenv(3) only drops the pointers
    to it, so when there is no execv to replace the stack, erase it or the container process can
    still read it, e.g. through /proc/self/environ.  */
-static void
-erase_initial_environment (char **argv, int argc)
+ساکن خالی
+erase_initial_environment (حرف **argv, صحیح argc)
 {
-  char *start = argv[argc - 1] + strlen (argv[argc - 1]) + 1;
-  char *end = (char *) getauxval (AT_EXECFN);
+  حرف *آغاز = argv[argc - 1] + لڑی_لمبائی (argv[argc - 1]) + 1;
+  حرف *انتہا = (حرف *) getauxval (AT_EXECFN);
 
-  if (end > start)
-    memset (start, 0, end - start);
+  اگر (انتہا > آغاز)
+    memset (آغاز, 0, انتہا - آغاز);
 }
 
-static void
-rewrite_argv (char **argv, int argc, const char *name, char **args, size_t args_len)
+ساکن خالی
+rewrite_argv (حرف **argv, صحیح argc, ثابت حرف *name, حرف **دلائل, size_t دلائل_len)
 {
-  cleanup_free char *decorated_name = NULL;
-  size_t available_len = argv[argc - 1] - argv[0] + strlen (argv[argc - 1]) + 1;
-  cleanup_free char *new_argv = NULL;
+  cleanup_free حرف *decorated_name = تہی;
+  size_t دستیاب_len = argv[argc - 1] - argv[0] + لڑی_لمبائی (argv[argc - 1]) + 1;
+  cleanup_free حرف *new_argv = تہی;
   size_t i, so_far = 0, needed = 0;
 
   needed = xasprintf (&decorated_name, "[libcrun:%s]", name) + 1;
-  for (i = 0; i < args_len; i++)
-    needed += strlen (args[i]) + 1;
+  برائے (i = 0; i < دلائل_len; i++)
+    needed += لڑی_لمبائی (دلائل[i]) + 1;
 
   new_argv = xmalloc0 (needed + 1);
   strcpy (new_argv, decorated_name);
-  so_far = strlen (decorated_name) + 1;
+  so_far = لڑی_لمبائی (decorated_name) + 1;
 
-  if (available_len >= needed)
+  اگر (دستیاب_len >= needed)
     {
-      for (i = 0; i < args_len; i++)
+      برائے (i = 0; i < دلائل_len; i++)
         {
-          strcpy (new_argv + so_far, args[i]);
-          so_far += strlen (args[i]) + 1;
+          strcpy (new_argv + so_far, دلائل[i]);
+          so_far += لڑی_لمبائی (دلائل[i]) + 1;
         }
     }
 
-  if (so_far >= available_len)
-    so_far = available_len - 1;
+  اگر (so_far >= دستیاب_len)
+    so_far = دستیاب_len - 1;
 
-  memset (argv[0], 0, available_len);
-  memcpy (argv[0], new_argv, so_far);
+  memset (argv[0], 0, دستیاب_len);
+  حافظہ_نقل (argv[0], new_argv, so_far);
 }
 
 /* Entrypoint to the container.  */
-static int
-container_init (void *args, char *notify_socket, int sync_socket, libcrun_error_t *err)
+ساکن صحیح
+container_init (خالی *دلائل, حرف *notify_socket, صحیح sync_socket, libcrun_error_t *err)
 {
-  struct container_entrypoint_s *entrypoint_args = args;
-  int ret;
-  runtime_spec_schema_config_schema *def = entrypoint_args->container->container_def;
-  cleanup_free char *exec_path = NULL;
-  __attribute__ ((unused)) cleanup_free char *notify_socket_cleanup = notify_socket;
+  ساخت container_entrypoint_s *entrypoint_دلائل = دلائل;
+  صحیح ret;
+  runtime_spec_schema_config_schema *def = entrypoint_دلائل->container->container_def;
+  cleanup_free حرف *exec_راستہ = تہی;
+  __attribute__ ((غیر_مستعمل)) cleanup_free حرف *notify_socket_cleanup = notify_socket;
   pid_t own_pid = 0;
 
-  entrypoint_args->sync_socket = sync_socket;
+  entrypoint_دلائل->sync_socket = sync_socket;
 
-  crun_set_output_handler (log_write_to_sync_socket, args);
+  crun_سیٹ_output_handler (log_write_مقصد_sync_socket, دلائل);
 
   /* sync receive own pid.  */
-  ret = TEMP_FAILURE_RETRY (read (sync_socket, &own_pid, sizeof (own_pid)));
-  if (UNLIKELY (ret != sizeof (own_pid)))
+  ret = عارضی_FAILURE_RETRY (اقرأ (sync_socket, &own_pid, حجم (own_pid)));
+  اگر (UNLIKELY (ret != حجم (own_pid)))
     {
-      if (ret >= 0)
+      اگر (ret >= 0)
         errno = 0;
-      return crun_make_error (err, errno, "read from sync socket");
+      واپس crun_make_error (err, errno, "read from sync socket");
     }
 
-  ret = container_init_setup (args, &own_pid, notify_socket, sync_socket, &exec_path, err);
-  if (UNLIKELY (ret < 0))
+  ret = container_init_تیاری (دلائل, &own_pid, notify_socket, sync_socket, &exec_راستہ, err);
+  اگر (UNLIKELY (ret < 0))
     {
       /* If it fails to write the error using the sync socket, then fallback
          to stderr.  */
-      if (sync_socket_write_error (sync_socket, err) == 0)
+      اگر (sync_socket_write_error (sync_socket, err) == 0)
         {
           crun_error_release (err);
           /* A return value of > 0 means to fail with an error without err being set so to avoid
              printing it twice.  */
-          return 1;
+          واپس 1;
         }
-      return ret;
+      واپس ret;
     }
 
-  entrypoint_args->sync_socket = -1;
+  entrypoint_دلائل->sync_socket = -1;
 
-  ret = unblock_signals (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = unblock_اشارات (err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   /* sync 4.  */
   ret = sync_socket_send_sync (sync_socket, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   close_and_reset (&sync_socket);
 
-  if (entrypoint_args->context->fifo_exec_wait_fd >= 0)
+  اگر (entrypoint_دلائل->context->fifo_exec_wait_fd >= 0)
     {
-      char buffer[1];
-      fd_set read_set;
-      cleanup_close int fd = entrypoint_args->context->fifo_exec_wait_fd;
-      entrypoint_args->context->fifo_exec_wait_fd = -1;
+      حرف بفر[1];
+      fd_set read_سیٹ;
+      cleanup_close صحیح fd = entrypoint_دلائل->context->fifo_exec_wait_fd;
+      entrypoint_دلائل->context->fifo_exec_wait_fd = -1;
 
-      FD_ZERO (&read_set);
-      FD_SET (fd, &read_set);
-      do
+      FD_ZERO (&read_سیٹ);
+      FD_SET (fd, &read_سیٹ);
+      کرو
         {
-          ret = select (fd + 1, &read_set, NULL, NULL, NULL);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "select");
+          ret = select (fd + 1, &read_سیٹ, تہی, تہی, تہی);
+          اگر (UNLIKELY (ret < 0))
+            واپس crun_make_error (err, errno, "select");
 
-          ret = TEMP_FAILURE_RETRY (read (fd, buffer, sizeof (buffer)));
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "read from the exec fifo");
-      } while (ret == 0);
+          ret = عارضی_FAILURE_RETRY (اقرأ (fd, بفر, حجم (بفر)));
+          اگر (UNLIKELY (ret < 0))
+            واپس crun_make_error (err, errno, "read from the exec fifo");
+      } جب (ret == 0);
 
-      close_and_reset (&entrypoint_args->context->fifo_exec_wait_fd);
+      close_and_reset (&entrypoint_دلائل->context->fifo_exec_wait_fd);
     }
 
-  crun_set_output_handler (log_write_to_stderr, NULL);
+  crun_سیٹ_output_handler (log_write_مقصد_stderr, تہی);
 
-  if (def->process && def->process->no_new_privileges)
+  اگر (def->process && def->process->no_new_privileges)
     {
-      char **seccomp_flags = NULL;
+      حرف **seccomp_flags = تہی;
       size_t seccomp_flags_len = 0;
-      cleanup_free char *seccomp_fd_payload = NULL;
+      cleanup_free حرف *seccomp_fd_payload = تہی;
       size_t seccomp_fd_payload_len = 0;
 
-      if (def->linux && def->linux->seccomp)
+      اگر (def->linux && def->linux->seccomp)
         {
           seccomp_flags = def->linux->seccomp->flags;
           seccomp_flags_len = def->linux->seccomp->flags_len;
         }
 
-      if (entrypoint_args->seccomp_receiver_fd >= 0)
+      اگر (entrypoint_دلائل->seccomp_receiver_fd >= 0)
         {
-          ret = get_seccomp_receiver_fd_payload (entrypoint_args->container, "creating", own_pid, &seccomp_fd_payload, &seccomp_fd_payload_len, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = get_seccomp_receiver_fd_payload (entrypoint_دلائل->container, "creating", own_pid, &seccomp_fd_payload, &seccomp_fd_payload_len, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
 
-      ret = libcrun_apply_seccomp (entrypoint_args->seccomp_fd, entrypoint_args->seccomp_receiver_fd,
+      ret = libcrun_apply_seccomp (entrypoint_دلائل->seccomp_fd, entrypoint_دلائل->seccomp_receiver_fd,
                                    seccomp_fd_payload, seccomp_fd_payload_len, seccomp_flags,
                                    seccomp_flags_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      close_and_reset (&entrypoint_args->seccomp_fd);
-      close_and_reset (&entrypoint_args->seccomp_receiver_fd);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
+      close_and_reset (&entrypoint_دلائل->seccomp_fd);
+      close_and_reset (&entrypoint_دلائل->seccomp_receiver_fd);
     }
 
-  if (UNLIKELY (def->process == NULL))
-    return crun_make_error (err, 0, "block `process` not found");
+  اگر (UNLIKELY (def->process == تہی))
+    واپس crun_make_error (err, 0, "block `process` not found");
 
-  if (UNLIKELY (exec_path == NULL))
-    return crun_make_error (err, 0, "executable path not specified");
+  اگر (UNLIKELY (exec_راستہ == تہی))
+    واپس crun_make_error (err, 0, "executable path not specified");
 
-  if (def->hooks && def->hooks->start_container_len)
+  اگر (def->hooks && def->hooks->آغاز_container_len)
     {
-      libcrun_container_t *container = entrypoint_args->container;
-      libcrun_error_t tmp_err = NULL;
-      int in_userns = check_running_in_user_namespace (&tmp_err);
-      if (tmp_err)
+      libcrun_container_t *container = entrypoint_دلائل->container;
+      libcrun_error_t tmp_err = تہی;
+      صحیح اندر_userns = check_running_اندر_user_namespace (&tmp_err);
+      اگر (tmp_err)
         crun_error_release (&tmp_err);
 
-      ret = do_hooks (def, getpid (), container->context->id, false, entrypoint_args->bundle, NULL, "created", "startContainer",
-                      (hook **) def->hooks->start_container,
-                      def->hooks->start_container_len, entrypoint_args->hooks_out_fd, entrypoint_args->hooks_err_fd,
-                      in_userns > 0, err);
-      if (UNLIKELY (ret != 0))
-        return ret;
+      ret = do_hooks (def, getpid (), container->context->id, false, entrypoint_دلائل->bundle, تہی, "created", "startContainer",
+                      (hook **) def->hooks->آغاز_container,
+                      def->hooks->آغاز_container_len, entrypoint_دلائل->hooks_برآمد_fd, entrypoint_دلائل->hooks_err_fd,
+                      اندر_userns > 0, err);
+      اگر (UNLIKELY (ret != 0))
+        واپس ret;
 
       /* Seek stdout/stderr to the end.  If the hooks were using the same files,
          the container process overwrites what was previously written.  */
-      (void) lseek (1, 0, SEEK_END);
-      (void) lseek (2, 0, SEEK_END);
+      (خالی) lseek (1, 0, SEEK_END);
+      (خالی) lseek (2, 0, SEEK_END);
     }
 
-  if (entrypoint_args->custom_handler)
+  اگر (entrypoint_دلائل->custom_handler)
     {
       /* Files marked with O_CLOEXEC are closed at execv time, so make sure they are closed now.
          This is a best effort operation, because the seccomp filter is already in place and it could
          stop some syscalls used by mark_or_close_fds_ge_than.
       */
-      if (entrypoint_args->custom_handler->vtable->close_fds)
+      اگر (entrypoint_دلائل->custom_handler->vtable->close_fds)
         {
-          ret = entrypoint_args->custom_handler->vtable->close_fds (entrypoint_args->custom_handler->cookie,
-                                                                    entrypoint_args->container,
-                                                                    entrypoint_args->context->preserve_fds,
+          ret = entrypoint_دلائل->custom_handler->vtable->close_fds (entrypoint_دلائل->custom_handler->cookie,
+                                                                    entrypoint_دلائل->container,
+                                                                    entrypoint_دلائل->context->preserve_fds,
                                                                     err);
         }
-      else
+      ورنہ
         {
-          ret = mark_or_close_fds_ge_than (entrypoint_args->container, entrypoint_args->context->preserve_fds + 3, true, err);
+          ret = mark_or_close_fds_ge_than (entrypoint_دلائل->container, entrypoint_دلائل->context->preserve_fds + 3, true, err);
         }
-      if (UNLIKELY (ret < 0))
+      اگر (UNLIKELY (ret < 0))
         crun_error_release (err);
 
-      prctl (PR_SET_NAME, entrypoint_args->custom_handler->vtable->name);
+      prctl (PR_سیٹ_NAME, entrypoint_دلائل->custom_handler->vtable->name);
 
-      if (entrypoint_args->context->argv)
+      اگر (entrypoint_دلائل->context->argv)
         {
-          erase_initial_environment (entrypoint_args->context->argv, entrypoint_args->context->argc);
-          rewrite_argv (entrypoint_args->context->argv, entrypoint_args->context->argc,
-                        entrypoint_args->custom_handler->vtable->name, def->process->args,
-                        def->process->args_len);
+          erase_initial_environment (entrypoint_دلائل->context->argv, entrypoint_دلائل->context->argc);
+          rewrite_argv (entrypoint_دلائل->context->argv, entrypoint_دلائل->context->argc,
+                        entrypoint_دلائل->custom_handler->vtable->name, def->process->دلائل,
+                        def->process->دلائل_len);
 
           /* It is a quite destructive operation as we might be referencing data from the old
              argv, so make sure the context is not reused.  */
-          entrypoint_args->context->argv = NULL;
-          entrypoint_args->context = NULL;
+          entrypoint_دلائل->context->argv = تہی;
+          entrypoint_دلائل->context = تہی;
         }
 
-      ret = libcrun_set_selinux_label (entrypoint_args->container, def->process, true, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_سیٹ_selinux_label (entrypoint_دلائل->container, def->process, true, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      ret = libcrun_set_apparmor_profile (entrypoint_args->container, def->process, true, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_سیٹ_apparmor_profile (entrypoint_دلائل->container, def->process, true, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      ret = entrypoint_args->custom_handler->vtable->run_func (entrypoint_args->custom_handler->cookie,
-                                                               entrypoint_args->container,
-                                                               exec_path,
-                                                               def->process->args);
-      if (ret != 0)
-        return crun_make_error (err, 0, "exec container process failed with handler as `%s`", entrypoint_args->custom_handler->vtable->name);
+      ret = entrypoint_دلائل->custom_handler->vtable->تسلسل_func (entrypoint_دلائل->custom_handler->cookie,
+                                                               entrypoint_دلائل->container,
+                                                               exec_راستہ,
+                                                               def->process->دلائل);
+      اگر (ret != 0)
+        واپس crun_make_error (err, 0, "exec container process failed with handler as `%s`", entrypoint_دلائل->custom_handler->vtable->name);
 
-      return ret;
+      واپس ret;
     }
 
   /* Attempt to close all the files that are not needed to prevent execv to have access to them.
      This is a best effort operation since the seccomp profile is already in place now and might block
      some of the syscalls needed by mark_or_close_fds_ge_than.  */
-  ret = mark_or_close_fds_ge_than (entrypoint_args->container, entrypoint_args->context->preserve_fds + 3, true, err);
-  if (UNLIKELY (ret < 0))
+  ret = mark_or_close_fds_ge_than (entrypoint_دلائل->container, entrypoint_دلائل->context->preserve_fds + 3, true, err);
+  اگر (UNLIKELY (ret < 0))
     crun_error_release (err);
 
-  TEMP_FAILURE_RETRY (execv (exec_path, def->process->args));
+  عارضی_FAILURE_RETRY (execv (exec_راستہ, def->process->دلائل));
 
-  if (errno == ENOENT)
-    return crun_make_error (err, errno, "exec container process (missing dynamic library?) `%s`", exec_path);
+  اگر (errno == ENOENT)
+    واپس crun_make_error (err, errno, "exec container process (missing dynamic library?) `%s`", exec_راستہ);
 
-  return crun_make_error (err, errno, "exec container process `%s`", exec_path);
+  واپس crun_make_error (err, errno, "exec container process `%s`", exec_راستہ);
 }
 
-static int
-read_container_config_from_state (libcrun_container_t **container, const char *state_root, const char *id,
+ساکن صحیح
+read_container_config_from_state (libcrun_container_t **container, ثابت حرف *state_جڑ, ثابت حرف *id,
                                   libcrun_error_t *err)
 {
-  cleanup_free char *config_file = NULL;
-  cleanup_free char *dir = NULL;
-  int ret;
+  cleanup_free حرف *config_file = تہی;
+  cleanup_free حرف *dir = تہی;
+  صحیح ret;
 
-  *container = NULL;
+  *container = تہی;
 
-  ret = libcrun_get_state_directory (&dir, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_get_state_directory (&dir, state_جڑ, id, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = append_paths (&config_file, err, dir, "config.json", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&config_file, err, dir, "config.json", تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  *container = libcrun_container_load_from_file (config_file, err);
-  if (*container == NULL)
-    return -1;
+  *container = libcrun_container_بھرو_from_file (config_file, err);
+  اگر (*container == تہی)
+    واپس -1;
 
-  return 0;
+  واپس 0;
 }
 
-static int
-run_poststop_hooks (arg_unused libcrun_context_t *context, libcrun_container_t *container,
+ساکن صحیح
+تسلسل_poststop_hooks (arg_غیر_مستعمل libcrun_context_t *context, libcrun_container_t *container,
                     runtime_spec_schema_config_schema *def,
-                    libcrun_container_status_t *status, const char *state_root, const char *id, libcrun_error_t *err)
+                    libcrun_container_حالت_t *حالت_2, ثابت حرف *state_جڑ, ثابت حرف *id, libcrun_error_t *err)
 {
-  cleanup_container libcrun_container_t *container_cleanup = NULL;
-  int ret;
+  cleanup_container libcrun_container_t *container_cleanup = تہی;
+  صحیح ret;
 
-  if (def == NULL)
+  اگر (def == تہی)
     {
-      if (container == NULL)
+      اگر (container == تہی)
         {
-          ret = read_container_config_from_state (&container_cleanup, state_root, id, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = read_container_config_from_state (&container_cleanup, state_جڑ, id, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
           container = container_cleanup;
         }
 
       def = container->container_def;
     }
 
-  if (def->hooks && def->hooks->poststop_len)
+  اگر (def->hooks && def->hooks->poststop_len)
     {
-      cleanup_close int hooks_out_fd = -1;
-      cleanup_close int hooks_err_fd = -1;
+      cleanup_close صحیح hooks_برآمد_fd = -1;
+      cleanup_close صحیح hooks_err_fd = -1;
 
-      if (container == NULL)
+      اگر (container == تہی)
         {
-          ret = read_container_config_from_state (&container_cleanup, state_root, id, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = read_container_config_from_state (&container_cleanup, state_جڑ, id, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
           container = container_cleanup;
         }
 
-      ret = open_hooks_output (container, &hooks_out_fd, &hooks_err_fd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = open_hooks_output (container, &hooks_برآمد_fd, &hooks_err_fd, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      ret = do_hooks (def, 0, id, true, status->bundle, status->bundle, "stopped", "poststop", (hook **) def->hooks->poststop,
-                      def->hooks->poststop_len, hooks_out_fd, hooks_err_fd, false, err);
-      if (UNLIKELY (ret != 0))
+      ret = do_hooks (def, 0, id, true, حالت_2->bundle, حالت_2->bundle, "stopped", "poststop", (hook **) def->hooks->poststop,
+                      def->hooks->poststop_len, hooks_برآمد_fd, hooks_err_fd, false, err);
+      اگر (UNLIKELY (ret != 0))
         {
-          if (ret < 0)
+          اگر (ret < 0)
             libcrun_error_report_and_release (err);
-          else
+          ورنہ
             libcrun_error (0, "poststop hook failed with exit code: %d", ret);
         }
     }
-  return 0;
+  واپس 0;
 }
 
-static bool
+ساکن bool
 has_new_pid_namespace (runtime_spec_schema_config_schema *def)
 {
   size_t i;
 
-  if (def->linux == NULL || def->linux->namespaces == NULL)
-    return false;
+  اگر (def->linux == تہی || def->linux->namespaces == تہی)
+    واپس false;
 
-  for (i = 0; i < def->linux->namespaces_len; i++)
+  برائے (i = 0; i < def->linux->namespaces_len; i++)
     {
-      if (strcmp (def->linux->namespaces[i]->type, "pid") == 0 && def->linux->namespaces[i]->path == NULL)
-        return true;
+      اگر (strcmp (def->linux->namespaces[i]->type, "pid") == 0 && def->linux->namespaces[i]->راستہ == تہی)
+        واپس true;
     }
-  return false;
+  واپس false;
 }
 
 /* Delete the container state.  CONTAINER is the container the caller already has
    available, or NULL.  When it is not NULL, the poststop hooks are run even if the
    status file was never written, e.g. when the container creation failed.  */
-static int
-container_delete_internal (libcrun_context_t *context, libcrun_container_t *container,
-                           runtime_spec_schema_config_schema *def, const char *id, bool force, bool killall,
+ساکن صحیح
+container_delete_اندرونی (libcrun_context_t *context, libcrun_container_t *container,
+                           runtime_spec_schema_config_schema *def, ثابت حرف *id, bool force, bool killall,
                            libcrun_error_t *err)
 {
-  cleanup_cgroup_status struct libcrun_cgroup_status *cgroup_status = NULL;
-  cleanup_container_status libcrun_container_status_t status = {};
-  cleanup_container libcrun_container_t *container_cleanup = NULL;
-  const char *state_root = context->state_root;
-  int ret;
+  cleanup_cgroup_حالت ساخت libcrun_cgroup_حالت *cgroup_حالت = تہی;
+  cleanup_container_حالت libcrun_container_حالت_t حالت_2 = {};
+  cleanup_container libcrun_container_t *container_cleanup = تہی;
+  ثابت حرف *state_جڑ = context->state_جڑ;
+  صحیح ret;
 
-  ret = libcrun_read_container_status (&status, state_root, id, err);
-  if (UNLIKELY (ret < 0))
+  ret = libcrun_read_container_حالت (&حالت_2, state_جڑ, id, err);
+  اگر (UNLIKELY (ret < 0))
     {
-      if (force && crun_error_get_errno (err) == ENOENT)
+      اگر (force && crun_error_get_errno (err) == ENOENT)
         {
-          libcrun_error_t tmp_err = NULL;
+          libcrun_error_t tmp_err = تہی;
 
           crun_error_release (err);
 
-          if (container)
+          اگر (container)
             {
-              libcrun_container_status_t partial_status = {
-                .bundle = (char *) context->bundle,
+              libcrun_container_حالت_t partial_حالت = {
+                .bundle = (حرف *) context->bundle,
               };
 
-              ret = run_poststop_hooks (context, container, def, &partial_status, state_root, id, err);
-              if (UNLIKELY (ret < 0))
+              ret = تسلسل_poststop_hooks (context, container, def, &partial_حالت, state_جڑ, id, err);
+              اگر (UNLIKELY (ret < 0))
                 crun_error_write_warning_and_release (context->output_handler_arg, &err);
             }
 
-          libcrun_container_delete_status (state_root, id, &tmp_err);
+          libcrun_container_delete_حالت (state_جڑ, id, &tmp_err);
           crun_error_release (&tmp_err);
-          return 0;
+          واپس 0;
         }
       crun_error_release (err);
-      return libcrun_container_delete_status (state_root, id, err);
+      واپس libcrun_container_delete_حالت (state_جڑ, id, err);
     }
 
-  cgroup_status = libcrun_cgroup_make_status (&status);
+  cgroup_حالت = libcrun_cgroup_make_حالت (&حالت_2);
 
-  if (! force)
+  اگر (! force)
     {
-      ret = libcrun_is_container_running (&status, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      if (ret == 1)
+      ret = libcrun_is_container_running (&حالت_2, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
+      اگر (ret == 1)
         {
-          ret = libcrun_status_has_read_exec_fifo (state_root, id, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
-          if (ret == 0)
-            return crun_make_error (err, 0, "the container `%s` is not in `created` or `stopped` state", id);
+          ret = libcrun_حالت_has_read_exec_fifo (state_جڑ, id, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
+          اگر (ret == 0)
+            واپس crun_make_error (err, 0, "the container `%s` is not in `created` or `stopped` state", id);
 
           /* If the container is in "created" state, then do the equivalent of delete --force.  */
           killall = force = true;
         }
     }
 
-  if (def == NULL)
+  اگر (def == تہی)
     {
-      if (container == NULL)
+      اگر (container == تہی)
         {
-          ret = read_container_config_from_state (&container_cleanup, state_root, id, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = read_container_config_from_state (&container_cleanup, state_جڑ, id, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
 
           container = container_cleanup;
         }
@@ -2013,375 +2013,375 @@ container_delete_internal (libcrun_context_t *context, libcrun_container_t *cont
       def = container->container_def;
     }
 
-  if (killall && force)
+  اگر (killall && force)
     {
       /* If the container has a pid namespace, it is enough to kill the first
          process (pid=1 in the namespace).
       */
-      if (has_new_pid_namespace (def))
+      اگر (has_new_pid_namespace (def))
         {
-          ret = libcrun_kill_linux (&status, SIGKILL, err);
-          if (UNLIKELY (ret < 0))
+          ret = libcrun_kill_linux (&حالت_2, SIGKILL, err);
+          اگر (UNLIKELY (ret < 0))
             {
-              if (crun_error_get_errno (err) != ESRCH)
-                return ret;
+              اگر (crun_error_get_errno (err) != ESRCH)
+                واپس ret;
 
               crun_error_release (err);
             }
         }
-      else if (status.cgroup_path)
+      ورنہ اگر (حالت_2.cgroup_راستہ)
         {
-          ret = libcrun_cgroup_killall (cgroup_status, SIGKILL, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = libcrun_cgroup_killall (cgroup_حالت, SIGKILL, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
     }
 
-  if (def->linux && def->linux->intel_rdt)
+  اگر (def->linux && def->linux->intel_rdt)
     {
       ret = libcrun_destroy_intelrdt (id, def, err);
-      if (UNLIKELY (ret < 0))
+      اگر (UNLIKELY (ret < 0))
         libcrun_error_report_and_release (err);
     }
 
-  if (status.cgroup_path)
+  اگر (حالت_2.cgroup_راستہ)
     {
       /* If the cgroup cannot be destroyed, there are still processes in it.
          Keep the container status, it is the only record of the cgroup, so
          that the delete can be retried.  */
-      ret = libcrun_cgroup_destroy (cgroup_status, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_cgroup_destroy (cgroup_حالت, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  ret = run_poststop_hooks (context, container, def, &status, state_root, id, err);
-  if (UNLIKELY (ret < 0))
+  ret = تسلسل_poststop_hooks (context, container, def, &حالت_2, state_جڑ, id, err);
+  اگر (UNLIKELY (ret < 0))
     libcrun_error_report_and_release (err);
 
-  return libcrun_container_delete_status (state_root, id, err);
+  واپس libcrun_container_delete_حالت (state_جڑ, id, err);
 }
 
-int
-libcrun_container_delete (libcrun_context_t *context, const char *id, bool force, libcrun_error_t *err)
+صحیح
+libcrun_container_delete (libcrun_context_t *context, ثابت حرف *id, bool force, libcrun_error_t *err)
 {
-  return container_delete_internal (context, NULL, NULL, id, force, true, err);
+  واپس container_delete_اندرونی (context, تہی, تہی, id, force, true, err);
 }
 
-int
-libcrun_container_kill (libcrun_context_t *context, const char *id, const char *signal, libcrun_error_t *err)
+صحیح
+libcrun_container_kill (libcrun_context_t *context, ثابت حرف *id, ثابت حرف *اشارہ, libcrun_error_t *err)
 {
-  int sig, ret;
-  const char *state_root = context->state_root;
-  cleanup_container_status libcrun_container_status_t status = {};
+  صحیح sig, ret;
+  ثابت حرف *state_جڑ = context->state_جڑ;
+  cleanup_container_حالت libcrun_container_حالت_t حالت_2 = {};
 
-  sig = str2sig (signal);
-  if (UNLIKELY (sig < 0))
-    return crun_make_error (err, 0, "unknown signal `%s`", signal);
+  sig = str2sig (اشارہ);
+  اگر (UNLIKELY (sig < 0))
+    واپس crun_make_error (err, 0, "unknown signal `%s`", اشارہ);
 
-  ret = libcrun_read_container_status (&status, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_read_container_حالت (&حالت_2, state_جڑ, id, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return libcrun_kill_linux (&status, sig, err);
+  واپس libcrun_kill_linux (&حالت_2, sig, err);
 }
 
-int
-libcrun_container_killall (libcrun_context_t *context, const char *id, const char *signal, libcrun_error_t *err)
+صحیح
+libcrun_container_killall (libcrun_context_t *context, ثابت حرف *id, ثابت حرف *اشارہ, libcrun_error_t *err)
 {
-  int sig, ret;
-  const char *state_root = context->state_root;
-  cleanup_container_status libcrun_container_status_t status = {};
-  cleanup_cgroup_status struct libcrun_cgroup_status *cgroup_status = NULL;
+  صحیح sig, ret;
+  ثابت حرف *state_جڑ = context->state_جڑ;
+  cleanup_container_حالت libcrun_container_حالت_t حالت_2 = {};
+  cleanup_cgroup_حالت ساخت libcrun_cgroup_حالت *cgroup_حالت = تہی;
 
-  sig = str2sig (signal);
-  if (UNLIKELY (sig < 0))
-    return crun_make_error (err, 0, "unknown signal `%s`", signal);
+  sig = str2sig (اشارہ);
+  اگر (UNLIKELY (sig < 0))
+    واپس crun_make_error (err, 0, "unknown signal `%s`", اشارہ);
 
-  ret = libcrun_read_container_status (&status, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_read_container_حالت (&حالت_2, state_جڑ, id, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  cgroup_status = libcrun_cgroup_make_status (&status);
+  cgroup_حالت = libcrun_cgroup_make_حالت (&حالت_2);
 
-  ret = libcrun_cgroup_killall (cgroup_status, sig, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
-  return 0;
+  ret = libcrun_cgroup_killall (cgroup_حالت, sig, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
+  واپس 0;
 }
 
-static int
-write_container_status (libcrun_container_t *container, libcrun_context_t *context,
-                        pid_t pid, struct libcrun_cgroup_status *cgroup_status,
+ساکن صحیح
+write_container_حالت (libcrun_container_t *container, libcrun_context_t *context,
+                        pid_t pid, ساخت libcrun_cgroup_حالت *cgroup_حالت,
                         libcrun_error_t *err)
 {
-  cleanup_free char *bundle_allocated = NULL;
-  const char *bundle = get_bundle_path (context->bundle, &bundle_allocated);
-  cleanup_free char *owner = get_user_name (geteuid ());
-  char *external_descriptors = libcrun_get_external_descriptors (container);
-  char *rootfs = container->container_def->root ? container->container_def->root->path : "";
-  char created[35];
+  cleanup_free حرف *bundle_allocated = تہی;
+  ثابت حرف *bundle = get_bundle_راستہ (context->bundle, &bundle_allocated);
+  cleanup_free حرف *owner = get_user_name (geteuid ());
+  حرف *external_descriptors = libcrun_get_external_descriptors (container);
+  حرف *rootfs = container->container_def->جڑ ? container->container_def->جڑ->راستہ : "";
+  حرف created[35];
 
-  libcrun_container_status_t status = {
+  libcrun_container_حالت_t حالت_2 = {
     .pid = pid,
     .rootfs = rootfs,
-    .bundle = (char *) bundle,
+    .bundle = (حرف *) bundle,
     .created = created,
     .owner = owner,
     .systemd_cgroup = context->systemd_cgroup,
     .detached = context->detach,
     .no_new_keyring = context->no_new_keyring,
     .external_descriptors = external_descriptors,
-    .cgroup_path = NULL,
-    .scope = NULL,
+    .cgroup_راستہ = تہی,
+    .scope = تہی,
   };
 
-  get_current_timestamp (created, sizeof (created));
+  get_current_timestamp (created, حجم (created));
 
-  if (cgroup_status)
+  اگر (cgroup_حالت)
     {
-      int ret;
+      صحیح ret;
 
-      ret = libcrun_cgroup_get_status (cgroup_status, &status, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_cgroup_get_حالت (cgroup_حالت, &حالت_2, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  if (external_descriptors == NULL)
-    return crun_make_error (err, 0, "invalid internal state.  No external descriptors found");
-  return libcrun_write_container_status (context->state_root, context->id, &status, err);
+  اگر (external_descriptors == تہی)
+    واپس crun_make_error (err, 0, "invalid internal state.  No external descriptors found");
+  واپس libcrun_write_container_حالت (context->state_جڑ, context->id, &حالت_2, err);
 }
 
-static int
-reap_subprocesses (pid_t *main_process, int *main_process_exit, int *last_process, libcrun_error_t *err)
+ساکن صحیح
+reap_subprocesses (pid_t *main_process, صحیح *main_process_exit, صحیح *آخری_process, libcrun_error_t *err)
 {
-  *last_process = 0;
-  while (1)
+  *آخری_process = 0;
+  جب (1)
     {
-      int status;
-      int r = waitpid_ignore_stopped (-1, &status, WNOHANG);
-      if (r < 0)
+      صحیح حالت_2;
+      صحیح r = waitpid_ignore_stopped (-1, &حالت_2, WNOHANG);
+      اگر (r < 0)
         {
-          if (errno == EINTR)
-            continue;
-          if (errno == ECHILD)
+          اگر (errno == EINTR)
+            جاری;
+          اگر (errno == ECHILD)
             {
-              *last_process = 1;
-              return 0;
+              *آخری_process = 1;
+              واپس 0;
             }
-          return crun_make_error (err, errno, "waitpid");
+          واپس crun_make_error (err, errno, "waitpid");
         }
-      if (r == 0)
-        break;
-      if (r != *main_process)
-        continue;
+      اگر (r == 0)
+        توڑو;
+      اگر (r != *main_process)
+        جاری;
 
-      *main_process_exit = get_process_exit_status (status);
+      *main_process_exit = get_process_exit_حالت (حالت_2);
 
       /* Once reaped, the pid can be reused by an unrelated process.  */
       *main_process = 0;
     }
-  return 0;
+  واپس 0;
 }
 
-static int
-send_sd_notify (const char *ready_str, libcrun_error_t *err)
+ساکن صحیح
+send_sd_notify (ثابت حرف *ready_str, libcrun_error_t *err)
 {
-#ifdef HAVE_SYSTEMD
-  int ret = sd_notify (0, ready_str);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, -ret, "sd_notify");
+#اگر_تعریف_شدہ HAVE_SYSTEMD
+  صحیح ret = sd_notify (0, ready_str);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, -ret, "sd_notify");
 
-#  if HAVE_SD_NOTIFY_BARRIER
+#  اگر HAVE_SD_NOTIFY_BARRIER
   /* Hard-code a 30 seconds timeout.  Ignore errors.  */
   sd_notify_barrier (0, 30 * 1000000);
 #  endif
-#else
-  (void) ready_str;
-  (void) err;
-#endif
-  return 0;
+#ورنہ
+  (خالی) ready_str;
+  (خالی) err;
+#اگر_ختم
+  واپس 0;
 }
 
-static int
-handle_notify_socket (int notify_socketfd, libcrun_error_t *err)
+ساکن صحیح
+handle_notify_socket (صحیح notify_socketfd, libcrun_error_t *err)
 {
-#ifdef HAVE_SYSTEMD
-  int ret;
-  char buf[256];
-  const char *ready_str = "READY=1";
+#اگر_تعریف_شدہ HAVE_SYSTEMD
+  صحیح ret;
+  حرف buf[256];
+  ثابت حرف *ready_str = "READY=1";
 
-  ret = recvfrom (notify_socketfd, buf, sizeof (buf) - 1, 0, NULL, NULL);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "recvfrom notify socket");
+  ret = recvfrom (notify_socketfd, buf, حجم (buf) - 1, 0, تہی, تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "recvfrom notify socket");
 
   buf[ret] = '\0';
-  if (strstr (buf, ready_str))
+  اگر (لڑی_تلاش (buf, ready_str))
     {
       ret = send_sd_notify (ready_str, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      return 1;
+      واپس 1;
     }
-  return 0;
-#else
-  (void) notify_socketfd;
-  (void) err;
-  return 1;
-#endif
+  واپس 0;
+#ورنہ
+  (خالی) notify_socketfd;
+  (خالی) err;
+  واپس 1;
+#اگر_ختم
 }
 
-struct wait_for_process_args
+ساخت wait_for_process_دلائل
 {
   pid_t pid;
   libcrun_context_t *context;
-  int terminal_fd;
-  int notify_socket;
-  int *container_ready_fd;
-  int seccomp_notify_fd;
-  const char *seccomp_notify_plugins;
+  صحیح terminal_fd;
+  صحیح notify_socket;
+  صحیح *container_ready_fd;
+  صحیح seccomp_notify_fd;
+  ثابت حرف *seccomp_notify_plugins;
 };
 
-static int
-write_pid_file (const char *pid_file, pid_t pid, libcrun_error_t *err)
+ساکن صحیح
+write_pid_file (ثابت حرف *pid_file, pid_t pid, libcrun_error_t *err)
 {
-  char buf[32];
-  int buf_len = snprintf (buf, sizeof (buf), "%d", pid);
-  if (UNLIKELY (buf_len >= (int) sizeof (buf)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
-  return write_file_at_with_flags (AT_FDCWD, O_CREAT | O_TRUNC, 0700, pid_file, buf, buf_len, err);
+  حرف buf[32];
+  صحیح buf_len = snprintf (buf, حجم (buf), "%d", pid);
+  اگر (UNLIKELY (buf_len >= (صحیح) حجم (buf)))
+    واپس crun_make_error (err, 0, "internal error: static buffer too small");
+  واپس write_file_at_with_flags (AT_FDCWD, O_CREAT | O_TRUNC, 0700, pid_file, buf, buf_len, err);
 }
 
-#define MAX_EVENTS 10
+#تعریف_کرو MAX_EVENTS 10
 
-static bool
-is_fd_pollable (int fd)
+ساکن bool
+is_fd_pollable (صحیح fd)
 {
-  struct epoll_event ev = { .events = EPOLLIN };
-  cleanup_close int epollfd = epoll_create1 (EPOLL_CLOEXEC);
+  ساخت epoll_event ev = { .events = EPOLLIN };
+  cleanup_close صحیح epollfd = epoll_create1 (EPOLL_CLOEXEC);
 
-  if (epollfd < 0)
-    return true;
+  اگر (epollfd < 0)
+    واپس true;
 
-  return epoll_ctl (epollfd, EPOLL_CTL_ADD, fd, &ev) == 0 || errno != EPERM;
+  واپس epoll_ctl (epollfd, EPOLL_CTL_جوڑو, fd, &ev) == 0 || errno != EPERM;
 }
 
-static int
-wait_for_process (struct wait_for_process_args *args, libcrun_error_t *err)
+ساکن صحیح
+wait_for_process (ساخت wait_for_process_دلائل *دلائل, libcrun_error_t *err)
 {
-  cleanup_channel_fd_pair struct channel_fd_pair *from_terminal = NULL;
-  cleanup_channel_fd_pair struct channel_fd_pair *to_terminal = NULL;
-  int ret, container_exit_code = 0, last_process;
-  cleanup_close int terminal_fd_from = -1;
-  cleanup_close int terminal_fd_to = -1;
+  cleanup_channel_fd_pair ساخت channel_fd_pair *from_terminal = تہی;
+  cleanup_channel_fd_pair ساخت channel_fd_pair *مقصد_terminal = تہی;
+  صحیح ret, container_exit_رمز = 0, آخری_process;
+  cleanup_close صحیح terminal_fd_from = -1;
+  cleanup_close صحیح terminal_fd_مقصد = -1;
   bool stdin_pollable = false, stdout_pollable = false;
-  cleanup_close int epollfd = -1;
-  cleanup_close int signalfd = -1;
-  sigset_t mask;
-  int in_fds[MAX_EVENTS];
-  int in_fds_len = 0;
-  int out_fds[MAX_EVENTS];
-  int out_fds_len = 0;
+  cleanup_close صحیح epollfd = -1;
+  cleanup_close صحیح signalfd = -1;
+  sigset_t نقاب;
+  صحیح اندر_fds[MAX_EVENTS];
+  صحیح اندر_fds_len = 0;
+  صحیح برآمد_fds[MAX_EVENTS];
+  صحیح برآمد_fds_len = 0;
   size_t i;
 
-  cleanup_seccomp_notify_context struct seccomp_notify_context_s *seccomp_notify_ctx = NULL;
+  cleanup_seccomp_notify_context ساخت seccomp_notify_context_s *seccomp_notify_ctx = تہی;
 
-  container_exit_code = 0;
+  container_exit_رمز = 0;
 
-  if (args == NULL || args->context == NULL)
-    return crun_make_error (err, 0, "internal error: context is empty");
+  اگر (دلائل == تہی || دلائل->context == تہی)
+    واپس crun_make_error (err, 0, "internal error: context is empty");
 
-  for (i = 0; i < MAX_EVENTS; i++)
+  برائے (i = 0; i < MAX_EVENTS; i++)
     {
-      in_fds[i] = -1;
-      out_fds[i] = -1;
+      اندر_fds[i] = -1;
+      برآمد_fds[i] = -1;
     }
 
-  if (args->context->pid_file)
+  اگر (دلائل->context->pid_file)
     {
-      ret = write_pid_file (args->context->pid_file, args->pid, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = write_pid_file (دلائل->context->pid_file, دلائل->pid, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
   /* Also exit if there is nothing more to wait for.  */
-  if (args->context->detach && args->notify_socket < 0)
-    return 0;
+  اگر (دلائل->context->detach && دلائل->notify_socket < 0)
+    واپس 0;
 
-  if (args->container_ready_fd)
+  اگر (دلائل->container_ready_fd)
     {
       ret = 0;
-      TEMP_FAILURE_RETRY (write (*args->container_ready_fd, &ret, sizeof (ret)));
-      close_and_reset (args->container_ready_fd);
+      عارضی_FAILURE_RETRY (اكتب (*دلائل->container_ready_fd, &ret, حجم (ret)));
+      close_and_reset (دلائل->container_ready_fd);
     }
 
-  sigfillset (&mask);
-  ret = sigprocmask (SIG_BLOCK, &mask, NULL);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "sigprocmask");
+  sigfillset (&نقاب);
+  ret = sigprocmask (SIG_بلاک, &نقاب, تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "sigprocmask");
 
-  signalfd = create_signalfd (&mask, err);
-  if (UNLIKELY (signalfd < 0))
-    return signalfd;
+  signalfd = create_signalfd (&نقاب, err);
+  اگر (UNLIKELY (signalfd < 0))
+    واپس signalfd;
 
-  ret = reap_subprocesses (&args->pid, &container_exit_code, &last_process, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = reap_subprocesses (&دلائل->pid, &container_exit_رمز, &آخری_process, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (last_process)
-    return container_exit_code;
+  اگر (آخری_process)
+    واپس container_exit_رمز;
 
-  if (args->seccomp_notify_fd >= 0)
+  اگر (دلائل->seccomp_notify_fd >= 0)
     {
-      cleanup_free char *state_root = NULL;
-      cleanup_free char *oci_config_path = NULL;
+      cleanup_free حرف *state_جڑ = تہی;
+      cleanup_free حرف *oci_config_راستہ = تہی;
 
-      struct libcrun_load_seccomp_notify_conf_s conf;
-      memset (&conf, 0, sizeof conf);
+      ساخت libcrun_بھرو_seccomp_notify_conf_s conf;
+      memset (&conf, 0, حجم conf);
 
-      ret = libcrun_get_state_directory (&state_root, args->context->state_root, args->context->id, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_get_state_directory (&state_جڑ, دلائل->context->state_جڑ, دلائل->context->id, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      ret = append_paths (&oci_config_path, err, state_root, "config.json", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&oci_config_راستہ, err, state_جڑ, "config.json", تہی);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      conf.runtime_root_path = state_root;
-      conf.name = args->context->id;
-      conf.bundle_path = args->context->bundle;
-      conf.oci_config_path = oci_config_path;
+      conf.runtime_جڑ_راستہ = state_جڑ;
+      conf.name = دلائل->context->id;
+      conf.bundle_راستہ = دلائل->context->bundle;
+      conf.oci_config_راستہ = oci_config_راستہ;
 
-      ret = set_blocking_fd (args->seccomp_notify_fd, false, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = سیٹ_blocking_fd (دلائل->seccomp_notify_fd, false, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      ret = libcrun_load_seccomp_notify_plugins (&seccomp_notify_ctx,
-                                                 args->seccomp_notify_plugins,
+      ret = libcrun_بھرو_seccomp_notify_plugins (&seccomp_notify_ctx,
+                                                 دلائل->seccomp_notify_plugins,
                                                  &conf, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      in_fds[in_fds_len++] = args->seccomp_notify_fd;
+      اندر_fds[اندر_fds_len++] = دلائل->seccomp_notify_fd;
     }
 
-  if (args->terminal_fd >= 0)
+  اگر (دلائل->terminal_fd >= 0)
     {
       /* The terminal_fd is dup()ed so that it can be registered with
          epoll multiple times using different masks.  */
-      terminal_fd_from = dup (args->terminal_fd);
-      if (UNLIKELY (terminal_fd_from < 0))
-        return crun_make_error (err, errno, "dup terminal fd");
-      terminal_fd_to = dup (args->terminal_fd);
-      if (UNLIKELY (terminal_fd_to < 0))
-        return crun_make_error (err, errno, "dup terminal fd");
+      terminal_fd_from = dup (دلائل->terminal_fd);
+      اگر (UNLIKELY (terminal_fd_from < 0))
+        واپس crun_make_error (err, errno, "dup terminal fd");
+      terminal_fd_مقصد = dup (دلائل->terminal_fd);
+      اگر (UNLIKELY (terminal_fd_مقصد < 0))
+        واپس crun_make_error (err, errno, "dup terminal fd");
 
-      int i, non_blocking_fds[] = { terminal_fd_from, terminal_fd_to, 0, 1, -1 };
-      for (i = 0; non_blocking_fds[i] >= 0; i++)
+      صحیح i, non_blocking_fds[] = { terminal_fd_from, terminal_fd_مقصد, 0, 1, -1 };
+      برائے (i = 0; non_blocking_fds[i] >= 0; i++)
         {
-          ret = set_blocking_fd (non_blocking_fds[i], false, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = سیٹ_blocking_fd (non_blocking_fds[i], false, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
 
       /* stdin and stdout can be something epoll does not support, such as
@@ -2391,165 +2391,165 @@ wait_for_process (struct wait_for_process_args *args, libcrun_error_t *err)
       stdout_pollable = is_fd_pollable (1);
 
       from_terminal = channel_fd_pair_new (terminal_fd_from, 1, BUFSIZ);
-      if (stdin_pollable)
-        to_terminal = channel_fd_pair_new (0, terminal_fd_to, BUFSIZ);
+      اگر (stdin_pollable)
+        مقصد_terminal = channel_fd_pair_new (0, terminal_fd_مقصد, BUFSIZ);
     }
 
-  in_fds[in_fds_len++] = signalfd;
-  if (args->notify_socket >= 0)
-    in_fds[in_fds_len++] = args->notify_socket;
-  if (args->terminal_fd >= 0)
+  اندر_fds[اندر_fds_len++] = signalfd;
+  اگر (دلائل->notify_socket >= 0)
+    اندر_fds[اندر_fds_len++] = دلائل->notify_socket;
+  اگر (دلائل->terminal_fd >= 0)
     {
-      if (stdin_pollable)
+      اگر (stdin_pollable)
         {
-          in_fds[in_fds_len++] = 0;
-          out_fds[out_fds_len++] = terminal_fd_to;
+          اندر_fds[اندر_fds_len++] = 0;
+          برآمد_fds[برآمد_fds_len++] = terminal_fd_مقصد;
         }
 
-      in_fds[in_fds_len++] = terminal_fd_from;
-      if (stdout_pollable)
-        out_fds[out_fds_len++] = 1;
+      اندر_fds[اندر_fds_len++] = terminal_fd_from;
+      اگر (stdout_pollable)
+        برآمد_fds[برآمد_fds_len++] = 1;
     }
 
-  epollfd = epoll_helper (in_fds, NULL, out_fds, NULL, err);
-  if (UNLIKELY (epollfd < 0))
-    return epollfd;
+  epollfd = epoll_helper (اندر_fds, تہی, برآمد_fds, تہی, err);
+  اگر (UNLIKELY (epollfd < 0))
+    واپس epollfd;
 
-  while (1)
+  جب (1)
     {
-      struct epoll_event events[MAX_EVENTS];
-      struct signalfd_siginfo si;
-      struct winsize ws;
-      int i, nr_events;
+      ساخت epoll_event events[MAX_EVENTS];
+      ساخت signalfd_siginfo si;
+      ساخت winsize ws;
+      صحیح i, nr_events;
       ssize_t res;
 
-      nr_events = TEMP_FAILURE_RETRY (epoll_wait (epollfd, events, MAX_EVENTS, -1));
-      if (UNLIKELY (nr_events < 0))
-        return crun_make_error (err, errno, "epoll_wait");
+      nr_events = عارضی_FAILURE_RETRY (epoll_wait (epollfd, events, MAX_EVENTS, -1));
+      اگر (UNLIKELY (nr_events < 0))
+        واپس crun_make_error (err, errno, "epoll_wait");
 
-      for (i = 0; i < nr_events; i++)
+      برائے (i = 0; i < nr_events; i++)
         {
-          if (events[i].data.fd == 0 || events[i].data.fd == terminal_fd_to)
+          اگر (events[i].ڈیٹا.fd == 0 || events[i].ڈیٹا.fd == terminal_fd_مقصد)
             {
-              ret = channel_fd_pair_process (to_terminal, epollfd, err);
-              if (UNLIKELY (ret < 0))
-                return crun_error_wrap (err, "copy to terminal fd");
+              ret = channel_fd_pair_process (مقصد_terminal, epollfd, err);
+              اگر (UNLIKELY (ret < 0))
+                واپس crun_error_wrap (err, "copy to terminal fd");
             }
-          else if (events[i].data.fd == 1 || events[i].data.fd == terminal_fd_from)
+          ورنہ اگر (events[i].ڈیٹا.fd == 1 || events[i].ڈیٹا.fd == terminal_fd_from)
             {
               ret = channel_fd_pair_process (from_terminal, epollfd, err);
-              if (UNLIKELY (ret < 0))
-                return crun_error_wrap (err, "copy from terminal fd");
+              اگر (UNLIKELY (ret < 0))
+                واپس crun_error_wrap (err, "copy from terminal fd");
             }
-          else if (events[i].data.fd == args->seccomp_notify_fd)
+          ورنہ اگر (events[i].ڈیٹا.fd == دلائل->seccomp_notify_fd)
             {
               ret = libcrun_seccomp_notify_plugins (seccomp_notify_ctx,
-                                                    args->seccomp_notify_fd, err);
-              if (UNLIKELY (ret < 0))
-                return ret;
+                                                    دلائل->seccomp_notify_fd, err);
+              اگر (UNLIKELY (ret < 0))
+                واپس ret;
             }
-          else if (events[i].data.fd == args->notify_socket)
+          ورنہ اگر (events[i].ڈیٹا.fd == دلائل->notify_socket)
             {
-              ret = handle_notify_socket (args->notify_socket, err);
-              if (UNLIKELY (ret < 0))
-                return ret;
-              if (ret && args->context->detach)
-                return 0;
+              ret = handle_notify_socket (دلائل->notify_socket, err);
+              اگر (UNLIKELY (ret < 0))
+                واپس ret;
+              اگر (ret && دلائل->context->detach)
+                واپس 0;
             }
-          else if (events[i].data.fd == signalfd)
+          ورنہ اگر (events[i].ڈیٹا.fd == signalfd)
             {
-              res = TEMP_FAILURE_RETRY (read (signalfd, &si, sizeof (si)));
-              if (UNLIKELY (res < 0))
-                return crun_make_error (err, errno, "read from signalfd");
-              if (si.ssi_signo == SIGCHLD)
+              res = عارضی_FAILURE_RETRY (اقرأ (signalfd, &si, حجم (si)));
+              اگر (UNLIKELY (res < 0))
+                واپس crun_make_error (err, errno, "read from signalfd");
+              اگر (si.ssi_signo == SIGCHLD)
                 {
-                  ret = reap_subprocesses (&args->pid, &container_exit_code,
-                                           &last_process, err);
-                  if (UNLIKELY (ret < 0))
-                    return ret;
-                  if (last_process)
-                    return container_exit_code;
+                  ret = reap_subprocesses (&دلائل->pid, &container_exit_رمز,
+                                           &آخری_process, err);
+                  اگر (UNLIKELY (ret < 0))
+                    واپس ret;
+                  اگر (آخری_process)
+                    واپس container_exit_رمز;
                 }
-              else if (si.ssi_signo == SIGWINCH)
+              ورنہ اگر (si.ssi_signo == SIGWINCH)
                 {
                   /* Ignore the signal if the terminal is not available.  */
-                  if (args->terminal_fd > 0)
+                  اگر (دلائل->terminal_fd > 0)
                     {
                       ret = ioctl (0, TIOCGWINSZ, &ws);
-                      if (UNLIKELY (ret < 0))
-                        return crun_make_error (err, errno, "ioctl TIOCGWINSZ copy terminal size from stdin");
+                      اگر (UNLIKELY (ret < 0))
+                        واپس crun_make_error (err, errno, "ioctl TIOCGWINSZ copy terminal size from stdin");
 
-                      ret = ioctl (args->terminal_fd, TIOCSWINSZ, &ws);
-                      if (UNLIKELY (ret < 0))
-                        return crun_make_error (err, errno, "ioctl TIOCSWINSZ copy terminal size to pty");
+                      ret = ioctl (دلائل->terminal_fd, TIOCSWINSZ, &ws);
+                      اگر (UNLIKELY (ret < 0))
+                        واپس crun_make_error (err, errno, "ioctl TIOCSWINSZ copy terminal size to pty");
                     }
                 }
-              else if (args->pid > 0)
+              ورنہ اگر (دلائل->pid > 0)
                 {
                   /* Send any other signal to the child process, if it was not reaped yet.  */
-                  ret = kill (args->pid, si.ssi_signo);
+                  ret = kill (دلائل->pid, si.ssi_signo);
                 }
             }
-          else
+          ورنہ
             {
-              return crun_make_error (err, 0, "internal error: unknown fd from epoll_wait");
+              واپس crun_make_error (err, 0, "internal error: unknown fd from epoll_wait");
             }
         }
     }
 
-  return 0;
+  واپس 0;
 }
 
-static void
-flush_fd_to_err (libcrun_context_t *context, int terminal_fd)
+ساکن خالی
+flush_fd_مقصد_err (libcrun_context_t *context, صحیح terminal_fd)
 {
-  char buf[256];
-  int flags;
+  حرف buf[256];
+  صحیح flags;
 
-  if (terminal_fd < 0 || stderr == NULL)
-    return;
+  اگر (terminal_fd < 0 || stderr == تہی)
+    واپس;
 
   flags = fcntl (terminal_fd, F_GETFL, 0);
-  if (flags == -1)
-    return;
-  if (fcntl (terminal_fd, F_SETFL, flags | O_NONBLOCK) < 0)
-    return;
+  اگر (flags == -1)
+    واپس;
+  اگر (fcntl (terminal_fd, F_SETFL, flags | O_NONBLOCK) < 0)
+    واپس;
 
-  for (;;)
+  برائے (;;)
     {
-      int ret = TEMP_FAILURE_RETRY (read (terminal_fd, buf, sizeof (buf) - 1));
-      if (ret <= 0)
-        break;
+      صحیح ret = عارضی_FAILURE_RETRY (اقرأ (terminal_fd, buf, حجم (buf) - 1));
+      اگر (ret <= 0)
+        توڑو;
       buf[ret] = '\0';
-      if (context->output_handler)
+      اگر (context->output_handler)
         context->output_handler (0, buf, LIBCRUN_VERBOSITY_ERROR, context->output_handler_arg);
     }
-  (void) fcntl (terminal_fd, F_SETFL, flags);
+  (خالی) fcntl (terminal_fd, F_SETFL, flags);
   fflush (stderr);
   fsync (1);
   fsync (2);
 }
 
-static int
+ساکن صحیح
 cleanup_watch (libcrun_context_t *context, runtime_spec_schema_config_schema *def,
-               struct libcrun_cgroup_status *cgroup_status, pid_t init_pid, int sync_socket,
-               int terminal_fd, libcrun_error_t *err)
+               ساخت libcrun_cgroup_حالت *cgroup_حالت, pid_t init_pid, صحیح sync_socket,
+               صحیح terminal_fd, libcrun_error_t *err)
 {
-  const char *oom_message = NULL;
-  libcrun_error_t tmp_err = NULL;
-  int ret;
+  ثابت حرف *oom_پیغام = تہی;
+  libcrun_error_t tmp_err = تہی;
+  صحیح ret;
 
-  if (init_pid)
+  اگر (init_pid)
     {
       /* Try to detect whether the cgroup has a OOM.  */
-      if (cgroup_status)
+      اگر (cgroup_حالت)
         {
-          int has_oom;
+          صحیح has_oom;
 
-          has_oom = libcrun_cgroup_has_oom (cgroup_status, &tmp_err);
-          if (has_oom > 0)
-            oom_message = "OOM: the memory limit could be too low";
-          else if (has_oom < 0)
+          has_oom = libcrun_cgroup_has_oom (cgroup_حالت, &tmp_err);
+          اگر (has_oom > 0)
+            oom_پیغام = "OOM: the memory limit could be too low";
+          ورنہ اگر (has_oom < 0)
             {
               /* If the detection has failed for any reason, e.g. the cgroup was
                  already deleted by the time it was checked, just ignore the
@@ -2558,677 +2558,677 @@ cleanup_watch (libcrun_context_t *context, runtime_spec_schema_config_schema *de
             }
         }
       /* If the OOM wasn't detected, look into the static configuration.  */
-      if (oom_message == NULL && is_memory_limit_too_low (def))
-        oom_message = "the memory limit could be too low";
+      اگر (oom_پیغام == تہی && is_حافظہ_حد_بندی_too_کم (def))
+        oom_پیغام = "the memory limit could be too low";
 
       kill (init_pid, SIGKILL);
-      waitpid_ignore_stopped (init_pid, NULL, 0);
+      waitpid_ignore_stopped (init_pid, تہی, 0);
     }
 
   ret = sync_socket_wait_sync (context, sync_socket, true, &tmp_err);
-  if (UNLIKELY (ret < 0))
+  اگر (UNLIKELY (ret < 0))
     {
       crun_error_release (err);
       *err = tmp_err;
     }
 
-  if (terminal_fd >= 0)
-    flush_fd_to_err (context, terminal_fd);
+  اگر (terminal_fd >= 0)
+    flush_fd_مقصد_err (context, terminal_fd);
 
-  if (oom_message)
-    return crun_error_wrap (err, "%s", oom_message);
+  اگر (oom_پیغام)
+    واپس crun_error_wrap (err, "%s", oom_پیغام);
 
-  return -1;
+  واپس -1;
 }
 
 /* Find the uid:gid that is mapped to root inside the container user namespace.  */
-void
-get_root_in_the_userns (runtime_spec_schema_config_schema *def, uid_t host_uid, gid_t host_gid, uid_t *uid,
+خالی
+get_جڑ_اندر_the_userns (runtime_spec_schema_config_schema *def, uid_t host_uid, gid_t host_gid, uid_t *uid,
                         gid_t *gid)
 {
   *uid = -1;
   *gid = -1;
 
   /* Not root in the namespace.  */
-  if (host_uid)
-    return;
+  اگر (host_uid)
+    واپس;
 
-  if (def->linux && def->linux->uid_mappings)
+  اگر (def->linux && def->linux->uid_mappings)
     {
       size_t i;
 
-      for (i = 0; i < def->linux->uid_mappings_len; i++)
-        if (def->linux->uid_mappings[i]->container_id == 0)
+      برائے (i = 0; i < def->linux->uid_mappings_len; i++)
+        اگر (def->linux->uid_mappings[i]->container_id == 0)
           {
             *uid = def->linux->uid_mappings[i]->host_id;
-            break;
+            توڑو;
           }
     }
-  if (def->linux && def->linux->gid_mappings)
+  اگر (def->linux && def->linux->gid_mappings)
     {
       size_t i;
 
-      for (i = 0; i < def->linux->gid_mappings_len; i++)
-        if (def->linux->gid_mappings[i]->container_id == 0)
+      برائے (i = 0; i < def->linux->gid_mappings_len; i++)
+        اگر (def->linux->gid_mappings[i]->container_id == 0)
           {
             *gid = def->linux->gid_mappings[i]->host_id;
-            break;
+            توڑو;
           }
     }
 
   /* If the uid and the gid are not changed, do not attempt any chown.  */
-  if (*uid == host_uid && *gid == host_gid)
+  اگر (*uid == host_uid && *gid == host_gid)
     *uid = *gid = -1;
 }
 
-static int
-get_seccomp_receiver_fd (libcrun_container_t *container, int *fd, int *self_receiver_fd, const char **plugins,
+ساکن صحیح
+get_seccomp_receiver_fd (libcrun_container_t *container, صحیح *fd, صحیح *self_receiver_fd, ثابت حرف **plugins,
                          libcrun_error_t *err)
 {
-  const char *tmp;
+  ثابت حرف *tmp;
   runtime_spec_schema_config_schema *def = container->container_def;
 
   *fd = -1;
   *self_receiver_fd = -1;
 
-  tmp = find_annotation (container, "run.oci.seccomp.plugins");
-  if (tmp)
+  tmp = ڈھونڈو_annotation (container, "run.oci.seccomp.plugins");
+  اگر (tmp)
     {
-      int fds[2];
-      int ret;
+      صحیح fds[2];
+      صحیح ret;
 
       ret = create_socket_pair (fds, err);
-      if (UNLIKELY (ret < 0))
-        return crun_error_wrap (err, "create socket pair");
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_error_wrap (err, "create socket pair");
 
       *fd = fds[0];
       *self_receiver_fd = fds[1];
       *plugins = tmp;
-      return 0;
+      واپس 0;
     }
 
-  if (def && def->linux && def->linux->seccomp && def->linux->seccomp->listener_path)
-    tmp = def->linux->seccomp->listener_path;
-  else
-    tmp = find_annotation (container, "run.oci.seccomp.receiver");
-  if (tmp == NULL)
+  اگر (def && def->linux && def->linux->seccomp && def->linux->seccomp->listener_راستہ)
+    tmp = def->linux->seccomp->listener_راستہ;
+  ورنہ
+    tmp = ڈھونڈو_annotation (container, "run.oci.seccomp.receiver");
+  اگر (tmp == تہی)
     tmp = getenv ("RUN_OCI_SECCOMP_RECEIVER");
-  if (tmp)
+  اگر (tmp)
     {
-      if (tmp[0] != '/')
-        return crun_make_error (err, 0, "the seccomp receiver `%s` is not an absolute path", tmp);
+      اگر (tmp[0] != '/')
+        واپس crun_make_error (err, 0, "the seccomp receiver `%s` is not an absolute path", tmp);
 
       *fd = open_unix_domain_client_socket (tmp, 0, err);
-      if (UNLIKELY (*fd < 0))
-        return crun_error_wrap (err, "open seccomp receiver");
+      اگر (UNLIKELY (*fd < 0))
+        واپس crun_error_wrap (err, "open seccomp receiver");
     }
 
-  return 0;
+  واپس 0;
 }
 
-static bool
+ساکن bool
 has_seccomp_receiver (libcrun_container_t *container)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
 
-  if (def && def->linux && def->linux->seccomp && def->linux->seccomp->listener_path)
-    return true;
+  اگر (def && def->linux && def->linux->seccomp && def->linux->seccomp->listener_راستہ)
+    واپس true;
 
-  if (find_annotation (container, "run.oci.seccomp.receiver") != NULL || getenv ("RUN_OCI_SECCOMP_RECEIVER") != NULL)
-    return true;
+  اگر (ڈھونڈو_annotation (container, "run.oci.seccomp.receiver") != تہی || getenv ("RUN_OCI_SECCOMP_RECEIVER") != تہی)
+    واپس true;
 
-  return false;
+  واپس false;
 }
 
-static int
-setup_container_hooks_output (libcrun_container_t *container, runtime_spec_schema_config_schema *def,
-                              struct container_entrypoint_s *container_args, int *hooks_out_fd,
-                              int *hooks_err_fd, libcrun_error_t *err)
+ساکن صحیح
+تیاری_container_hooks_output (libcrun_container_t *container, runtime_spec_schema_config_schema *def,
+                              ساخت container_entrypoint_s *container_دلائل, صحیح *hooks_برآمد_fd,
+                              صحیح *hooks_err_fd, libcrun_error_t *err)
 {
-  int ret;
+  صحیح ret;
 
-  if (def->hooks
+  اگر (def->hooks
       && (def->hooks->prestart_len || def->hooks->poststart_len || def->hooks->create_runtime_len
-          || def->hooks->create_container_len || def->hooks->start_container_len))
+          || def->hooks->create_container_len || def->hooks->آغاز_container_len))
     {
-      ret = open_hooks_output (container, hooks_out_fd, hooks_err_fd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      container_args->hooks_out_fd = *hooks_out_fd;
-      container_args->hooks_err_fd = *hooks_err_fd;
+      ret = open_hooks_output (container, hooks_برآمد_fd, hooks_err_fd, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
+      container_دلائل->hooks_برآمد_fd = *hooks_برآمد_fd;
+      container_دلائل->hooks_err_fd = *hooks_err_fd;
     }
-  return 0;
+  واپس 0;
 }
 
-static int
-setup_container_keyring (libcrun_container_t *container, libcrun_context_t *context, libcrun_error_t *err)
+ساکن صحیح
+تیاری_container_keyring (libcrun_container_t *container, libcrun_context_t *context, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  int ret;
+  صحیح ret;
 
-  if (! context->no_new_keyring)
+  اگر (! context->no_new_keyring)
     {
-      const char *label = NULL;
+      ثابت حرف *label = تہی;
 
       libcrun_debug ("Creating new keyring");
 
-      if (def->process)
+      اگر (def->process)
         {
           label = def->process->selinux_label;
-          if (label)
+          اگر (label)
             libcrun_debug ("Using SELinux process label: `%s`", label);
         }
 
       ret = libcrun_create_keyring (container, container->context->id, label, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
-  return 0;
+  واپس 0;
 }
 
-static int
-setup_terminal_socket_pair (libcrun_container_t *container, libcrun_context_t *context,
-                            struct container_entrypoint_s *container_args, int *socket_pair_0,
-                            int *socket_pair_1, libcrun_error_t *err)
+ساکن صحیح
+تیاری_terminal_socket_pair (libcrun_container_t *container, libcrun_context_t *context,
+                            ساخت container_entrypoint_s *container_دلائل, صحیح *socket_pair_0,
+                            صحیح *socket_pair_1, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  int ret;
-  int detach = context->detach;
+  صحیح ret;
+  صحیح detach = context->detach;
 
-  if (def->process && def->process->terminal && ! detach && context->console_socket == NULL)
+  اگر (def->process && def->process->terminal && ! detach && context->console_socket == تہی)
     {
       libcrun_debug ("Creating terminal socket pair");
-      container_args->has_terminal_socket_pair = 1;
-      ret = create_socket_pair (container_args->terminal_socketpair, err);
-      if (UNLIKELY (ret < 0))
-        return crun_error_wrap (err, "create terminal socket");
+      container_دلائل->has_terminal_socket_pair = 1;
+      ret = create_socket_pair (container_دلائل->terminal_socketpair, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_error_wrap (err, "create terminal socket");
 
-      *socket_pair_0 = container_args->terminal_socketpair[0];
-      *socket_pair_1 = container_args->terminal_socketpair[1];
+      *socket_pair_0 = container_دلائل->terminal_socketpair[0];
+      *socket_pair_1 = container_دلائل->terminal_socketpair[1];
     }
-  return 0;
+  واپس 0;
 }
 
-static int
-setup_seccomp (libcrun_container_t *container, const char *seccomp_bpf_data,
-               struct libcrun_seccomp_gen_ctx_s *seccomp_gen_ctx, int *seccomp_fd, libcrun_error_t *err)
+ساکن صحیح
+تیاری_seccomp (libcrun_container_t *container, ثابت حرف *seccomp_bpf_ڈیٹا,
+               ساخت libcrun_seccomp_gen_ctx_s *seccomp_gen_ctx, صحیح *seccomp_fd, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  int ret;
+  صحیح ret;
 
-  if (find_annotation (container, "run.oci.seccomp.plugins") != NULL && has_seccomp_receiver (container))
+  اگر (ڈھونڈو_annotation (container, "run.oci.seccomp.plugins") != تہی && has_seccomp_receiver (container))
     {
-      return crun_make_error (err, 0, "seccomp plugins and seccomp receivers cannot be declared at the same time");
+      واپس crun_make_error (err, 0, "seccomp plugins and seccomp receivers cannot be declared at the same time");
     }
 
-  if (def->linux && (def->linux->seccomp || seccomp_bpf_data))
+  اگر (def->linux && (def->linux->seccomp || seccomp_bpf_ڈیٹا))
     {
-      unsigned int seccomp_gen_options = 0;
-      const char *annotation;
+      غیرعلامتی صحیح seccomp_gen_options = 0;
+      ثابت حرف *annotation;
 
       libcrun_debug ("Initializing seccomp");
-      annotation = find_annotation (container, "run.oci.seccomp_fail_unknown_syscall");
-      if (annotation && strcmp (annotation, "0") != 0)
+      annotation = ڈھونڈو_annotation (container, "run.oci.seccomp_fail_unknown_syscall");
+      اگر (annotation && strcmp (annotation, "0") != 0)
         seccomp_gen_options = LIBCRUN_SECCOMP_FAIL_UNKNOWN_SYSCALL;
 
-      if (seccomp_bpf_data)
+      اگر (seccomp_bpf_ڈیٹا)
         seccomp_gen_options |= LIBCRUN_SECCOMP_SKIP_CACHE;
 
       libcrun_seccomp_gen_ctx_init (seccomp_gen_ctx, container, true, seccomp_gen_options);
 
       ret = libcrun_open_seccomp_bpf (seccomp_gen_ctx, seccomp_fd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
-  return 0;
+  واپس 0;
 }
 
-static int
-setup_console_socket (libcrun_context_t *context, runtime_spec_schema_config_schema *def,
-                      struct container_entrypoint_s *container_args, int *console_socket_fd,
+ساکن صحیح
+تیاری_console_socket (libcrun_context_t *context, runtime_spec_schema_config_schema *def,
+                      ساخت container_entrypoint_s *container_دلائل, صحیح *console_socket_fd,
                       libcrun_error_t *err)
 {
-  if (context->console_socket && def->process && def->process->terminal)
+  اگر (context->console_socket && def->process && def->process->terminal)
     {
       *console_socket_fd = open_unix_domain_client_socket (context->console_socket, 0, err);
-      if (UNLIKELY (*console_socket_fd < 0))
-        return crun_error_wrap (err, "open console socket");
-      container_args->console_socket_fd = *console_socket_fd;
+      اگر (UNLIKELY (*console_socket_fd < 0))
+        واپس crun_error_wrap (err, "open console socket");
+      container_دلائل->console_socket_fd = *console_socket_fd;
     }
-  return 0;
+  واپس 0;
 }
 
-static int
-setup_cgroup_manager (libcrun_context_t *context, libcrun_container_t *container,
-                      struct libcrun_cgroup_args *cg, int *cgroup_dirfd,
-                      struct libcrun_dirfd_s *cgroup_dirfd_s, libcrun_error_t *err)
+ساکن صحیح
+تیاری_cgroup_manager (libcrun_context_t *context, libcrun_container_t *container,
+                      ساخت libcrun_cgroup_دلائل *cg, صحیح *cgroup_dirfd,
+                      ساخت libcrun_dirfd_s *cgroup_dirfd_s, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  int cgroup_manager;
-  uid_t root_uid = -1;
-  gid_t root_gid = -1;
-  int ret;
+  صحیح cgroup_manager;
+  uid_t جڑ_uid = -1;
+  gid_t جڑ_gid = -1;
+  صحیح ret;
 
   cgroup_manager = CGROUP_MANAGER_CGROUPFS;
-  if (context->systemd_cgroup)
+  اگر (context->systemd_cgroup)
     {
       libcrun_debug ("Using systemd cgroup manager");
       cgroup_manager = CGROUP_MANAGER_SYSTEMD;
     }
-  else if (context->force_no_cgroup)
+  ورنہ اگر (context->force_no_cgroup)
     {
       libcrun_debug ("Disabling cgroup manager");
       cgroup_manager = CGROUP_MANAGER_DISABLED;
     }
-  else
+  ورنہ
     libcrun_debug ("Using cgroupfs cgroup manager");
 
   /* If we are root (either on the host or in a namespace), then chown the cgroup to root
      in the container user namespace.  */
-  get_root_in_the_userns (def, container->host_uid, container->host_gid, &root_uid, &root_gid);
+  get_جڑ_اندر_the_userns (def, container->host_uid, container->host_gid, &جڑ_uid, &جڑ_gid);
   libcrun_debug ("Using container host UID `%d` and GID `%d`", container->host_uid, container->host_gid);
 
-  memset (cg, 0, sizeof (*cg));
+  memset (cg, 0, حجم (*cg));
 
-  cg->cgroup_path = def->linux ? def->linux->cgroups_path : "";
+  cg->cgroup_راستہ = def->linux ? def->linux->cgroups_راستہ : "";
   cg->manager = cgroup_manager;
   cg->id = context->id;
-  cg->resources = def->linux ? def->linux->resources : NULL;
+  cg->resources = def->linux ? def->linux->resources : تہی;
   cg->annotations = container->annotations;
-  cg->root_uid = root_uid;
-  cg->root_gid = root_gid;
-  cg->state_root = context->state_root;
+  cg->جڑ_uid = جڑ_uid;
+  cg->جڑ_gid = جڑ_gid;
+  cg->state_جڑ = context->state_جڑ;
   cg->container = container;
 
   ret = libcrun_cgroup_preenter (cg, cgroup_dirfd, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   cgroup_dirfd_s->dirfd = cgroup_dirfd;
   cgroup_dirfd_s->joined = false;
 
-  return 0;
+  واپس 0;
 }
 
-static int
-set_scheduler (pid_t pid, runtime_spec_schema_config_schema *def, libcrun_error_t *err)
+ساکن صحیح
+سیٹ_scheduler (pid_t pid, runtime_spec_schema_config_schema *def, libcrun_error_t *err)
 {
-  int ret;
+  صحیح ret;
 
-  ret = libcrun_set_scheduler (pid, def->process, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_سیٹ_scheduler (pid, def->process, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = libcrun_reset_cpu_affinity_mask (pid, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_reset_cpu_affinity_نقاب (pid, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = libcrun_set_io_priority (pid, def->process, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_سیٹ_io_ترجیح (pid, def->process, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return 0;
+  واپس 0;
 }
 
-static int
-seccomp_generation (int seccomp_fd, const char *seccomp_bpf_data,
-                    struct libcrun_seccomp_gen_ctx_s *seccomp_gen_ctx, libcrun_error_t *err)
+ساکن صحیح
+seccomp_generation (صحیح seccomp_fd, ثابت حرف *seccomp_bpf_ڈیٹا,
+                    ساخت libcrun_seccomp_gen_ctx_s *seccomp_gen_ctx, libcrun_error_t *err)
 {
-  int ret;
+  صحیح ret;
 
-  if (seccomp_fd >= 0)
+  اگر (seccomp_fd >= 0)
     {
-      if (seccomp_bpf_data != NULL)
+      اگر (seccomp_bpf_ڈیٹا != تہی)
         {
-          ret = libcrun_copy_seccomp (seccomp_gen_ctx, seccomp_bpf_data, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = libcrun_copy_seccomp (seccomp_gen_ctx, seccomp_bpf_ڈیٹا, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
-      else
+      ورنہ
         {
           ret = libcrun_generate_seccomp (seccomp_gen_ctx, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
     }
-  return 0;
+  واپس 0;
 }
 
-static int
-terminal_setup (runtime_spec_schema_config_schema *def, libcrun_context_t *context,
-                int socket_pair_0, int *terminal_fd, void **orig_terminal, libcrun_error_t *err)
+ساکن صحیح
+terminal_تیاری (runtime_spec_schema_config_schema *def, libcrun_context_t *context,
+                صحیح socket_pair_0, صحیح *terminal_fd, خالی **orig_terminal, libcrun_error_t *err)
 {
-  int ret;
-  int detach = context->detach;
+  صحیح ret;
+  صحیح detach = context->detach;
 
-  if (def->process && def->process->terminal && ! detach && context->console_socket == NULL)
+  اگر (def->process && def->process->terminal && ! detach && context->console_socket == تہی)
     {
       libcrun_debug ("Receiving console socket fd");
       *terminal_fd = receive_fd_from_socket (socket_pair_0, err);
-      if (UNLIKELY (*terminal_fd < 0))
-        return -1;
+      اگر (UNLIKELY (*terminal_fd < 0))
+        واپس -1;
 
       ret = libcrun_clear_onlcr (*terminal_fd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      ret = libcrun_set_raw (0, orig_terminal, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_سیٹ_raw (0, orig_terminal, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
-  return 0;
+  واپس 0;
 }
 
-static int
-libcrun_container_run_internal (libcrun_container_t *container, libcrun_context_t *context,
-                                int *container_ready_fd, libcrun_error_t *err)
+ساکن صحیح
+libcrun_container_تسلسل_اندرونی (libcrun_container_t *container, libcrun_context_t *context,
+                                صحیح *container_ready_fd, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  int ret;
+  صحیح ret;
   pid_t pid;
-  int detach = context->detach;
-  cleanup_cgroup_status struct libcrun_cgroup_status *cgroup_status = NULL;
-  cleanup_close int terminal_fd = -1;
-  cleanup_terminal void *orig_terminal = NULL;
-  cleanup_close int sync_socket = -1;
-  cleanup_close int notify_socket = -1;
-  cleanup_close int socket_pair_0 = -1;
-  cleanup_close int socket_pair_1 = -1;
-  cleanup_close int seccomp_fd = -1;
-  cleanup_close int console_socket_fd = -1;
-  cleanup_close int hooks_out_fd = -1;
-  cleanup_close int hooks_err_fd = -1;
-  cleanup_close int own_seccomp_receiver_fd = -1;
-  cleanup_close int seccomp_notify_fd = -1;
-  const char *seccomp_notify_plugins = NULL;
-  cleanup_cgroup_preenter struct libcrun_cgroup_args cg = {};
-  cleanup_free char *bundle_allocated = NULL;
-  struct container_entrypoint_s container_args = {
+  صحیح detach = context->detach;
+  cleanup_cgroup_حالت ساخت libcrun_cgroup_حالت *cgroup_حالت = تہی;
+  cleanup_close صحیح terminal_fd = -1;
+  cleanup_terminal خالی *orig_terminal = تہی;
+  cleanup_close صحیح sync_socket = -1;
+  cleanup_close صحیح notify_socket = -1;
+  cleanup_close صحیح socket_pair_0 = -1;
+  cleanup_close صحیح socket_pair_1 = -1;
+  cleanup_close صحیح seccomp_fd = -1;
+  cleanup_close صحیح console_socket_fd = -1;
+  cleanup_close صحیح hooks_برآمد_fd = -1;
+  cleanup_close صحیح hooks_err_fd = -1;
+  cleanup_close صحیح own_seccomp_receiver_fd = -1;
+  cleanup_close صحیح seccomp_notify_fd = -1;
+  ثابت حرف *seccomp_notify_plugins = تہی;
+  cleanup_cgroup_preenter ساخت libcrun_cgroup_دلائل cg = {};
+  cleanup_free حرف *bundle_allocated = تہی;
+  ساخت container_entrypoint_s container_دلائل = {
     .container = container,
     .context = context,
-    .bundle = get_bundle_path (context->bundle, &bundle_allocated),
+    .bundle = get_bundle_راستہ (context->bundle, &bundle_allocated),
     .terminal_socketpair = { -1, -1 },
     .console_socket_fd = -1,
-    .hooks_out_fd = -1,
+    .hooks_برآمد_fd = -1,
     .hooks_err_fd = -1,
     .seccomp_receiver_fd = -1,
-    .custom_handler = NULL,
+    .custom_handler = تہی,
   };
-  cleanup_close int cgroup_dirfd = -1;
-  struct libcrun_dirfd_s cgroup_dirfd_s;
-  struct libcrun_seccomp_gen_ctx_s seccomp_gen_ctx;
-  const char *seccomp_bpf_data = find_annotation (container, "run.oci.seccomp_bpf_data");
-  int cgroup_mode;
+  cleanup_close صحیح cgroup_dirfd = -1;
+  ساخت libcrun_dirfd_s cgroup_dirfd_s;
+  ساخت libcrun_seccomp_gen_ctx_s seccomp_gen_ctx;
+  ثابت حرف *seccomp_bpf_ڈیٹا = ڈھونڈو_annotation (container, "run.oci.seccomp_bpf_data");
+  صحیح cgroup_منوال;
 
-  if (! context->force_no_cgroup)
+  اگر (! context->force_no_cgroup)
     {
-      cgroup_mode = libcrun_get_cgroup_mode (err);
-      if (UNLIKELY (cgroup_mode < 0))
-        return cgroup_mode;
+      cgroup_منوال = libcrun_get_cgroup_منوال (err);
+      اگر (UNLIKELY (cgroup_منوال < 0))
+        واپس cgroup_منوال;
 
-      if (cgroup_mode != CGROUP_MODE_UNIFIED)
+      اگر (cgroup_منوال != CGROUP_منوال_UNIFIED)
         libcrun_warning ("cgroup v1 is deprecated and will be removed in a future release.  Use cgroup v2");
     }
 
-  ret = setup_container_hooks_output (container, def, &container_args, &hooks_out_fd, &hooks_err_fd, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = تیاری_container_hooks_output (container, def, &container_دلائل, &hooks_برآمد_fd, &hooks_err_fd, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   container->context = context;
 
-  if (! detach || context->notify_socket)
+  اگر (! detach || context->notify_socket)
     {
       libcrun_debug ("Setting child subreaper");
-      ret = prctl (PR_SET_CHILD_SUBREAPER, 1, 0, 0, 0);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "prctl set child subreaper");
+      ret = prctl (PR_سیٹ_بچہ_SUBREAPER, 1, 0, 0, 0);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "prctl set child subreaper");
     }
 
-  ret = setup_container_keyring (container, context, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = تیاری_container_keyring (container, context, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = setup_terminal_socket_pair (container, context, &container_args, &socket_pair_0, &socket_pair_1, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = تیاری_terminal_socket_pair (container, context, &container_دلائل, &socket_pair_0, &socket_pair_1, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = block_signals (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = بلاک_اشارات (err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   umask (0);
 
-  ret = libcrun_set_mempolicy (def, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_سیٹ_mempolicy (def, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = setup_seccomp (container, seccomp_bpf_data, &seccomp_gen_ctx, &seccomp_fd, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
-  container_args.seccomp_fd = seccomp_fd;
+  ret = تیاری_seccomp (container, seccomp_bpf_ڈیٹا, &seccomp_gen_ctx, &seccomp_fd, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
+  container_دلائل.seccomp_fd = seccomp_fd;
 
-  if (seccomp_fd >= 0)
+  اگر (seccomp_fd >= 0)
     {
-      ret = get_seccomp_receiver_fd (container, &container_args.seccomp_receiver_fd, &own_seccomp_receiver_fd,
+      ret = get_seccomp_receiver_fd (container, &container_دلائل.seccomp_receiver_fd, &own_seccomp_receiver_fd,
                                      &seccomp_notify_plugins, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  ret = setup_console_socket (context, def, &container_args, &console_socket_fd, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = تیاری_console_socket (context, def, &container_دلائل, &console_socket_fd, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = setup_cgroup_manager (context, container, &cg, &cgroup_dirfd, &cgroup_dirfd_s, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = تیاری_cgroup_manager (context, container, &cg, &cgroup_dirfd, &cgroup_dirfd_s, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = libcrun_configure_handler (container_args.context->handler_manager,
-                                   container_args.context,
+  ret = libcrun_configure_handler (container_دلائل.context->handler_manager,
+                                   container_دلائل.context,
                                    container,
-                                   &(container_args.custom_handler),
+                                   &(container_دلائل.custom_handler),
                                    err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (container_args.custom_handler && container_args.custom_handler->vtable->modify_oci_configuration)
+  اگر (container_دلائل.custom_handler && container_دلائل.custom_handler->vtable->modify_oci_configuration)
     {
       libcrun_debug ("Using custom handler to modify OCI configuration");
-      ret = container_args.custom_handler->vtable->modify_oci_configuration (container_args.custom_handler->cookie,
-                                                                             container_args.context,
+      ret = container_دلائل.custom_handler->vtable->modify_oci_configuration (container_دلائل.custom_handler->cookie,
+                                                                             container_دلائل.context,
                                                                              container->container_def,
                                                                              err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  pid = libcrun_run_linux_container (container, container_init, &container_args, &sync_socket, &cgroup_dirfd_s, err);
-  if (UNLIKELY (pid < 0))
-    return pid;
+  pid = libcrun_تسلسل_linux_container (container, container_init, &container_دلائل, &sync_socket, &cgroup_dirfd_s, err);
+  اگر (UNLIKELY (pid < 0))
+    واپس pid;
 
   cg.pid = pid;
   cg.joined = cgroup_dirfd_s.joined;
   libcrun_debug ("Running container on PID: `%d`", pid);
 
-  if (context->fifo_exec_wait_fd < 0 && context->notify_socket)
+  اگر (context->fifo_exec_wait_fd < 0 && context->notify_socket)
     {
       libcrun_debug ("Using notify socket: `%s`", context->notify_socket);
       /* Do not open the notify socket here on "create".  "start" will take care of it.  */
       ret = get_notify_fd (context, container, &notify_socket, err);
-      if (UNLIKELY (ret < 0))
-        goto fail;
+      اگر (UNLIKELY (ret < 0))
+        جاؤ fail;
     }
 
-  if (container_args.terminal_socketpair[1] >= 0)
+  اگر (container_دلائل.terminal_socketpair[1] >= 0)
     close_and_reset (&socket_pair_1);
 
-  ret = libcrun_cgroup_enter (&cg, &cgroup_status, err);
-  if (UNLIKELY (ret < 0))
-    goto fail;
+  ret = libcrun_cgroup_enter (&cg, &cgroup_حالت, err);
+  اگر (UNLIKELY (ret < 0))
+    جاؤ fail;
 
   ret = libcrun_apply_intelrdt (context->id, container, pid, LIBCRUN_INTELRDT_CREATE_UPDATE_MOVE, err);
-  if (UNLIKELY (ret < 0))
-    goto fail;
+  اگر (UNLIKELY (ret < 0))
+    جاؤ fail;
 
-  ret = libcrun_move_network_devices (container, pid, err);
-  if (UNLIKELY (ret < 0))
-    goto fail;
+  ret = libcrun_move_جال_devices (container, pid, err);
+  اگر (UNLIKELY (ret < 0))
+    جاؤ fail;
 
   /* sync send own pid.  */
-  ret = TEMP_FAILURE_RETRY (write (sync_socket, &pid, sizeof (pid)));
-  if (UNLIKELY (ret != sizeof (pid)))
+  ret = عارضی_FAILURE_RETRY (اكتب (sync_socket, &pid, حجم (pid)));
+  اگر (UNLIKELY (ret != حجم (pid)))
     {
-      if (ret >= 0)
+      اگر (ret >= 0)
         errno = 0;
       crun_make_error (err, errno, "write to sync socket");
-      goto fail;
+      جاؤ fail;
     }
 
   /* sync 1.  */
   ret = sync_socket_send_sync (sync_socket, true, err);
-  if (UNLIKELY (ret < 0))
-    goto fail;
+  اگر (UNLIKELY (ret < 0))
+    جاؤ fail;
 
   /* sync 2.  */
   ret = sync_socket_wait_sync (context, sync_socket, false, err);
-  if (UNLIKELY (ret < 0))
-    goto fail;
+  اگر (UNLIKELY (ret < 0))
+    جاؤ fail;
 
-  ret = libcrun_cgroup_enter_finalize (&cg, cgroup_status, err);
-  if (UNLIKELY (ret < 0))
-    goto fail;
+  ret = libcrun_cgroup_enter_finalize (&cg, cgroup_حالت, err);
+  اگر (UNLIKELY (ret < 0))
+    جاؤ fail;
 
   /* If the container process is created later, the scheduler is set on it then.  */
-  if (! libcrun_container_delayed_pidns_fork (container))
+  اگر (! libcrun_container_delayed_pidns_fork (container))
     {
-      ret = set_scheduler (pid, def, err);
-      if (UNLIKELY (ret < 0))
-        goto fail;
+      ret = سیٹ_scheduler (pid, def, err);
+      اگر (UNLIKELY (ret < 0))
+        جاؤ fail;
     }
 
   /* The container is waiting that we write back.  In this phase we can launch the
      prestart hooks.  */
-  if (def->hooks && def->hooks->prestart_len)
+  اگر (def->hooks && def->hooks->prestart_len)
     {
       libcrun_debug ("Running `prestart` hooks");
       ret = do_hooks (def, pid, context->id, false, context->bundle, context->bundle, "created", "prestart", (hook **) def->hooks->prestart,
-                      def->hooks->prestart_len, hooks_out_fd, hooks_err_fd, false, err);
-      if (UNLIKELY (ret != 0))
-        goto fail;
+                      def->hooks->prestart_len, hooks_برآمد_fd, hooks_err_fd, false, err);
+      اگر (UNLIKELY (ret != 0))
+        جاؤ fail;
     }
-  if (def->hooks && def->hooks->create_runtime_len)
+  اگر (def->hooks && def->hooks->create_runtime_len)
     {
       libcrun_debug ("Running `create` hooks");
       ret = do_hooks (def, pid, context->id, false, context->bundle, context->bundle, "created", "createRuntime", (hook **) def->hooks->create_runtime,
-                      def->hooks->create_runtime_len, hooks_out_fd, hooks_err_fd, false, err);
-      if (UNLIKELY (ret != 0))
-        goto fail;
+                      def->hooks->create_runtime_len, hooks_برآمد_fd, hooks_err_fd, false, err);
+      اگر (UNLIKELY (ret != 0))
+        جاؤ fail;
     }
 
-  ret = seccomp_generation (seccomp_fd, seccomp_bpf_data, &seccomp_gen_ctx, err);
-  if (UNLIKELY (ret < 0))
-    goto fail;
+  ret = seccomp_generation (seccomp_fd, seccomp_bpf_ڈیٹا, &seccomp_gen_ctx, err);
+  اگر (UNLIKELY (ret < 0))
+    جاؤ fail;
   close_and_reset (&seccomp_fd);
 
   /* sync 3.  */
   ret = sync_socket_send_sync (sync_socket, true, err);
-  if (UNLIKELY (ret < 0))
-    goto fail;
+  اگر (UNLIKELY (ret < 0))
+    جاؤ fail;
 
   /* The process joining an existing PID namespace is created once the container root is in place.  */
-  if (libcrun_container_delayed_pidns_fork (container))
+  اگر (libcrun_container_delayed_pidns_fork (container))
     {
       pid_t new_pid = 0;
 
       ret = sync_socket_wait_sync (context, sync_socket, false, err);
-      if (UNLIKELY (ret < 0))
-        goto fail;
+      اگر (UNLIKELY (ret < 0))
+        جاؤ fail;
 
-      ret = TEMP_FAILURE_RETRY (read (sync_socket, &new_pid, sizeof (new_pid)));
-      if (UNLIKELY (ret != sizeof (new_pid)))
+      ret = عارضی_FAILURE_RETRY (اقرأ (sync_socket, &new_pid, حجم (new_pid)));
+      اگر (UNLIKELY (ret != حجم (new_pid)))
         {
-          if (ret >= 0)
+          اگر (ret >= 0)
             errno = 0;
           crun_make_error (err, errno, "read pid from sync socket");
-          goto fail;
+          جاؤ fail;
         }
 
       /* Cleanup the first process.  */
-      waitpid_ignore_stopped (pid, NULL, 0);
+      waitpid_ignore_stopped (pid, تہی, 0);
 
       pid = new_pid;
 
-      ret = set_scheduler (pid, def, err);
-      if (UNLIKELY (ret < 0))
-        goto fail;
+      ret = سیٹ_scheduler (pid, def, err);
+      اگر (UNLIKELY (ret < 0))
+        جاؤ fail;
 
       ret = libcrun_handle_pidfd_receiver (pid, container, err);
-      if (UNLIKELY (ret < 0))
-        goto fail;
+      اگر (UNLIKELY (ret < 0))
+        جاؤ fail;
 
       /* sync send own pid.  */
-      ret = TEMP_FAILURE_RETRY (write (sync_socket, &pid, sizeof (pid)));
-      if (UNLIKELY (ret != sizeof (pid)))
+      ret = عارضی_FAILURE_RETRY (اكتب (sync_socket, &pid, حجم (pid)));
+      اگر (UNLIKELY (ret != حجم (pid)))
         {
-          if (ret >= 0)
+          اگر (ret >= 0)
             errno = 0;
           crun_make_error (err, errno, "write to sync socket");
-          goto fail;
+          جاؤ fail;
         }
     }
 
-  ret = terminal_setup (def, context, socket_pair_0, &terminal_fd, &orig_terminal, err);
-  if (UNLIKELY (ret < 0))
-    goto fail;
+  ret = terminal_تیاری (def, context, socket_pair_0, &terminal_fd, &orig_terminal, err);
+  اگر (UNLIKELY (ret < 0))
+    جاؤ fail;
 
   close_and_reset (&socket_pair_0);
 
   /* sync 4.  */
   ret = sync_socket_wait_sync (context, sync_socket, false, err);
-  if (UNLIKELY (ret < 0))
-    goto fail;
+  اگر (UNLIKELY (ret < 0))
+    جاؤ fail;
 
   ret = close_and_reset (&sync_socket);
-  if (UNLIKELY (ret < 0))
+  اگر (UNLIKELY (ret < 0))
     {
       crun_make_error (err, errno, "close sync_socket failed");
-      goto fail;
+      جاؤ fail;
     }
 
   libcrun_debug ("Writing container status");
-  ret = write_container_status (container, context, pid, cgroup_status, err);
-  if (UNLIKELY (ret < 0))
-    goto fail;
+  ret = write_container_حالت (container, context, pid, cgroup_حالت, err);
+  اگر (UNLIKELY (ret < 0))
+    جاؤ fail;
 
   /* Run poststart hooks here only if the container is created using "run".  For create+start, the
      hooks will be executed as part of the start command.  */
-  if (context->fifo_exec_wait_fd < 0 && def->hooks && def->hooks->poststart_len)
+  اگر (context->fifo_exec_wait_fd < 0 && def->hooks && def->hooks->poststart_len)
     {
       libcrun_debug ("Running `poststart` hooks");
       ret = do_hooks (def, pid, context->id, false, context->bundle, context->bundle, "running", "poststart", (hook **) def->hooks->poststart,
-                      def->hooks->poststart_len, hooks_out_fd, hooks_err_fd, false, err);
-      if (UNLIKELY (ret != 0))
-        goto fail;
+                      def->hooks->poststart_len, hooks_برآمد_fd, hooks_err_fd, false, err);
+      اگر (UNLIKELY (ret != 0))
+        جاؤ fail;
     }
 
   /* Let's receive the seccomp notify fd and handle it as part of wait_for_process().  */
-  if (own_seccomp_receiver_fd >= 0)
+  اگر (own_seccomp_receiver_fd >= 0)
     {
       libcrun_debug ("Receiving seccomp fd");
       seccomp_notify_fd = receive_fd_from_socket (own_seccomp_receiver_fd, err);
-      if (UNLIKELY (seccomp_notify_fd < 0))
-        goto fail;
+      اگر (UNLIKELY (seccomp_notify_fd < 0))
+        جاؤ fail;
 
       ret = close_and_reset (&own_seccomp_receiver_fd);
-      if (UNLIKELY (ret < 0))
+      اگر (UNLIKELY (ret < 0))
         {
           crun_make_error (err, errno, "close seccomp receiver fd failed");
-          goto fail;
+          جاؤ fail;
         }
     }
 
   {
-    struct wait_for_process_args args = {
+    ساخت wait_for_process_دلائل دلائل = {
       .pid = pid,
       .context = context,
       .terminal_fd = terminal_fd,
@@ -3237,398 +3237,398 @@ libcrun_container_run_internal (libcrun_container_t *container, libcrun_context_
       .seccomp_notify_fd = seccomp_notify_fd,
       .seccomp_notify_plugins = seccomp_notify_plugins,
     };
-    ret = wait_for_process (&args, err);
+    ret = wait_for_process (&دلائل, err);
   }
-  if (! context->detach)
+  اگر (! context->detach)
     {
-      libcrun_error_t tmp_err = NULL;
-      cleanup_watch (context, def, cgroup_status, 0, sync_socket, terminal_fd, &tmp_err);
+      libcrun_error_t tmp_err = تہی;
+      cleanup_watch (context, def, cgroup_حالت, 0, sync_socket, terminal_fd, &tmp_err);
       crun_error_release (&tmp_err);
     }
 
-  return ret;
+  واپس ret;
 
 fail:
-  ret = cleanup_watch (context, def, cgroup_status, pid, sync_socket, terminal_fd, err);
-  if (cgroup_status)
+  ret = cleanup_watch (context, def, cgroup_حالت, pid, sync_socket, terminal_fd, err);
+  اگر (cgroup_حالت)
     {
-      libcrun_error_t tmp_err = NULL;
-      libcrun_cgroup_destroy (cgroup_status, &tmp_err);
+      libcrun_error_t tmp_err = تہی;
+      libcrun_cgroup_destroy (cgroup_حالت, &tmp_err);
       crun_error_release (&tmp_err);
     }
-  return ret;
+  واپس ret;
 }
 
-static int
+ساکن صحیح
 check_config_file (runtime_spec_schema_config_schema *def, libcrun_context_t *context, libcrun_error_t *err)
 {
-  if (UNLIKELY (def->linux == NULL))
-    return crun_make_error (err, 0, "invalid config file, no `linux` block specified");
+  اگر (UNLIKELY (def->linux == تہی))
+    واپس crun_make_error (err, 0, "invalid config file, no `linux` block specified");
 
-  if (context->handler == NULL)
+  اگر (context->handler == تہی)
     {
-      if (UNLIKELY (def->root == NULL))
-        return crun_make_error (err, 0, "invalid config file, no `root` block specified");
-      if (UNLIKELY (def->mounts == NULL))
-        return crun_make_error (err, 0, "invalid config file, no `mounts` block specified");
+      اگر (UNLIKELY (def->جڑ == تہی))
+        واپس crun_make_error (err, 0, "invalid config file, no `root` block specified");
+      اگر (UNLIKELY (def->mounts == تہی))
+        واپس crun_make_error (err, 0, "invalid config file, no `mounts` block specified");
     }
-  return 0;
+  واپس 0;
 }
 
-static int
-libcrun_copy_config_file (const char *id, const char *state_root, libcrun_container_t *container, libcrun_error_t *err)
+ساکن صحیح
+libcrun_copy_config_file (ثابت حرف *id, ثابت حرف *state_جڑ, libcrun_container_t *container, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_free char *dest_path = NULL;
-  cleanup_free char *dir = NULL;
-  cleanup_free char *buffer = NULL;
+  صحیح ret;
+  cleanup_free حرف *dest_راستہ = تہی;
+  cleanup_free حرف *dir = تہی;
+  cleanup_free حرف *بفر = تہی;
   size_t len;
 
-  ret = libcrun_get_state_directory (&dir, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_get_state_directory (&dir, state_جڑ, id, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = append_paths (&dest_path, err, dir, "config.json", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&dest_راستہ, err, dir, "config.json", تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (container->config_file == NULL && container->config_file_content == NULL)
-    return crun_make_error (err, 0, "config file not specified");
+  اگر (container->config_file == تہی && container->config_file_content == تہی)
+    واپس crun_make_error (err, 0, "config file not specified");
 
-  if (container->config_file == NULL)
+  اگر (container->config_file == تہی)
     {
-      libcrun_debug ("Writing config file to: `%s`", dest_path);
-      ret = write_file (dest_path, container->config_file_content, strlen (container->config_file_content), err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      libcrun_debug ("Writing config file to: `%s`", dest_راستہ);
+      ret = write_file (dest_راستہ, container->config_file_content, لڑی_لمبائی (container->config_file_content), err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
-  else
+  ورنہ
     {
       libcrun_debug ("Reading config file: `%s`", container->config_file);
-      ret = read_all_file (container->config_file, &buffer, &len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = read_all_file (container->config_file, &بفر, &len, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      libcrun_debug ("Writing config file to: `%s`", dest_path);
-      ret = write_file (dest_path, buffer, len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      libcrun_debug ("Writing config file to: `%s`", dest_راستہ);
+      ret = write_file (dest_راستہ, بفر, len, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  return 0;
+  واپس 0;
 }
 
-static void
-force_delete_container_status (libcrun_context_t *context, libcrun_container_t *container,
+ساکن خالی
+force_delete_container_حالت (libcrun_context_t *context, libcrun_container_t *container,
                                runtime_spec_schema_config_schema *def)
 {
-  libcrun_error_t tmp_err = NULL;
-  container_delete_internal (context, container, def, context->id, true, false, &tmp_err);
+  libcrun_error_t tmp_err = تہی;
+  container_delete_اندرونی (context, container, def, context->id, true, false, &tmp_err);
   libcrun_error_report_and_release (&tmp_err);
 }
 
 /* Serialize ERR to FD as an int errno followed by a NUL-terminated message.
    Used by forked children to report a failure to the parent process.  */
-static void
-write_error_to_pipe (int fd, libcrun_error_t *err)
+ساکن خالی
+write_error_مقصد_pipe (صحیح fd, libcrun_error_t *err)
 {
-  const char *msg = (*err)->msg;
-  int errcode = crun_error_get_errno (err);
+  ثابت حرف *پیغام = (*err)->پیغام;
+  صحیح errcode = crun_error_get_errno (err);
 
-  TEMP_FAILURE_RETRY (write (fd, &errcode, sizeof (errcode)));
-  TEMP_FAILURE_RETRY (write (fd, msg, strlen (msg) + 1));
+  عارضی_FAILURE_RETRY (اكتب (fd, &errcode, حجم (errcode)));
+  عارضی_FAILURE_RETRY (اكتب (fd, پیغام, لڑی_لمبائی (پیغام) + 1));
 }
 
-int
-libcrun_container_run (libcrun_context_t *context, libcrun_container_t *container, unsigned int options,
+صحیح
+libcrun_container_تسلسل (libcrun_context_t *context, libcrun_container_t *container, غیرعلامتی صحیح options,
                        libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  int ret;
-  int detach = context->detach;
-  int container_ret_status[2];
-  cleanup_close int pipefd0 = -1;
-  cleanup_close int pipefd1 = -1;
-  libcrun_error_t tmp_err = NULL;
+  صحیح ret;
+  صحیح detach = context->detach;
+  صحیح container_ret_حالت[2];
+  cleanup_close صحیح pipefd0 = -1;
+  cleanup_close صحیح pipefd1 = -1;
+  libcrun_error_t tmp_err = تہی;
 
   container->context = context;
 
-  ret = validate_options (options, LIBCRUN_RUN_OPTIONS_PREFORK | LIBCRUN_RUN_OPTIONS_KEEP, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = validate_options (options, LIBCRUN_تسلسل_OPTIONS_PREFORK | LIBCRUN_تسلسل_OPTIONS_KEEP, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   ret = check_config_file (def, context, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (def->process && def->process->terminal && detach && context->console_socket == NULL)
-    return crun_make_error (err, 0, "use --console-socket with --detach when a terminal is used");
+  اگر (def->process && def->process->terminal && detach && context->console_socket == تہی)
+    واپس crun_make_error (err, 0, "use --console-socket with --detach when a terminal is used");
 
-  ret = libcrun_status_check_directories (context->state_root, context->id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_حالت_check_directories (context->state_جڑ, context->id, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (! detach && (options & LIBCRUN_RUN_OPTIONS_PREFORK) == 0)
+  اگر (! detach && (options & LIBCRUN_تسلسل_OPTIONS_PREFORK) == 0)
     {
-      ret = libcrun_copy_config_file (context->id, context->state_root, container, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_copy_config_file (context->id, context->state_جڑ, container, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      ret = libcrun_container_run_internal (container, context, NULL, err);
-      if (! (options & LIBCRUN_RUN_OPTIONS_KEEP))
-        force_delete_container_status (context, container, def);
-      return ret;
+      ret = libcrun_container_تسلسل_اندرونی (container, context, تہی, err);
+      اگر (! (options & LIBCRUN_تسلسل_OPTIONS_KEEP))
+        force_delete_container_حالت (context, container, def);
+      واپس ret;
     }
 
-  ret = pipe2 (container_ret_status, O_CLOEXEC);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "pipe");
-  pipefd0 = container_ret_status[0];
-  pipefd1 = container_ret_status[1];
+  ret = pipe2 (container_ret_حالت, O_CLOEXEC);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "pipe");
+  pipefd0 = container_ret_حالت[0];
+  pipefd1 = container_ret_حالت[1];
 
   ret = fork ();
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fork");
-  if (ret)
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "fork");
+  اگر (ret)
     {
-      int status;
+      صحیح حالت_2;
       close_and_reset (&pipefd1);
 
-      waitpid_ignore_stopped (ret, NULL, 0);
+      waitpid_ignore_stopped (ret, تہی, 0);
 
-      ret = TEMP_FAILURE_RETRY (read (pipefd0, &status, sizeof (status)));
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "read from sync pipe");
+      ret = عارضی_FAILURE_RETRY (اقرأ (pipefd0, &حالت_2, حجم (حالت_2)));
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "read from sync pipe");
 
-      if (status < 0)
+      اگر (حالت_2 < 0)
         {
-          int errno_;
-          char buf[512];
-          ret = TEMP_FAILURE_RETRY (read (pipefd0, &errno_, sizeof (errno_)));
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "read from sync pipe");
+          صحیح errno_;
+          حرف buf[512];
+          ret = عارضی_FAILURE_RETRY (اقرأ (pipefd0, &errno_, حجم (errno_)));
+          اگر (UNLIKELY (ret < 0))
+            واپس crun_make_error (err, errno, "read from sync pipe");
 
-          ret = TEMP_FAILURE_RETRY (read (pipefd0, buf, sizeof (buf) - 1));
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "read from sync pipe");
+          ret = عارضی_FAILURE_RETRY (اقرأ (pipefd0, buf, حجم (buf) - 1));
+          اگر (UNLIKELY (ret < 0))
+            واپس crun_make_error (err, errno, "read from sync pipe");
           buf[ret] = '\0';
 
-          return crun_make_error (err, errno_, "%s", buf);
+          واپس crun_make_error (err, errno_, "%s", buf);
         }
 
-      return status;
+      واپس حالت_2;
     }
 
   close_and_reset (&pipefd0);
 
   /* forked process.  */
   ret = detach_process ();
-  if (UNLIKELY (ret < 0))
+  اگر (UNLIKELY (ret < 0))
     libcrun_fail_with_error (errno, "detach process");
 
-  ret = libcrun_copy_config_file (context->id, context->state_root, container, &tmp_err);
-  if (UNLIKELY (ret < 0))
-    goto fail;
+  ret = libcrun_copy_config_file (context->id, context->state_جڑ, container, &tmp_err);
+  اگر (UNLIKELY (ret < 0))
+    جاؤ fail;
 
-  ret = libcrun_container_run_internal (container, context, NULL, &tmp_err);
-  TEMP_FAILURE_RETRY (write (pipefd1, &ret, sizeof (ret)));
-  if (UNLIKELY (ret < 0))
-    goto fail;
+  ret = libcrun_container_تسلسل_اندرونی (container, context, تہی, &tmp_err);
+  عارضی_FAILURE_RETRY (اكتب (pipefd1, &ret, حجم (ret)));
+  اگر (UNLIKELY (ret < 0))
+    جاؤ fail;
 
-  exit (EXIT_SUCCESS);
+  باہر_نکلو (EXIT_SUCCESS);
 fail:
 
-  if (! (options & LIBCRUN_RUN_OPTIONS_KEEP))
-    force_delete_container_status (context, container, def);
-  if (tmp_err)
+  اگر (! (options & LIBCRUN_تسلسل_OPTIONS_KEEP))
+    force_delete_container_حالت (context, container, def);
+  اگر (tmp_err)
     {
-      write_error_to_pipe (pipefd1, &tmp_err);
+      write_error_مقصد_pipe (pipefd1, &tmp_err);
       crun_error_release (&tmp_err);
     }
 
-  exit (EXIT_FAILURE);
+  باہر_نکلو (EXIT_FAILURE);
 }
 
-int
-libcrun_container_create (libcrun_context_t *context, libcrun_container_t *container, unsigned int options,
+صحیح
+libcrun_container_create (libcrun_context_t *context, libcrun_container_t *container, غیرعلامتی صحیح options,
                           libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  int ret;
-  int container_ready_pipe[2];
-  cleanup_close int pipefd0 = -1;
-  cleanup_close int pipefd1 = -1;
-  cleanup_close int exec_fifo_fd = -1;
+  صحیح ret;
+  صحیح container_ready_pipe[2];
+  cleanup_close صحیح pipefd0 = -1;
+  cleanup_close صحیح pipefd1 = -1;
+  cleanup_close صحیح exec_fifo_fd = -1;
   context->detach = 1;
 
   libcrun_debug ("Creating container: `%s`", context->id);
   container->context = context;
 
   ret = validate_options (options, LIBCRUN_CREATE_OPTIONS_PREFORK, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   ret = check_config_file (def, context, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (def->process && def->process->terminal && context->console_socket == NULL)
-    return crun_make_error (err, 0, "use --console-socket with create when a terminal is used");
+  اگر (def->process && def->process->terminal && context->console_socket == تہی)
+    واپس crun_make_error (err, 0, "use --console-socket with create when a terminal is used");
 
-  ret = libcrun_status_check_directories (context->state_root, context->id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_حالت_check_directories (context->state_جڑ, context->id, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  exec_fifo_fd = libcrun_status_create_exec_fifo (context->state_root, context->id, err);
-  if (UNLIKELY (exec_fifo_fd < 0))
-    return exec_fifo_fd;
+  exec_fifo_fd = libcrun_حالت_create_exec_fifo (context->state_جڑ, context->id, err);
+  اگر (UNLIKELY (exec_fifo_fd < 0))
+    واپس exec_fifo_fd;
 
   context->fifo_exec_wait_fd = exec_fifo_fd;
   exec_fifo_fd = -1;
 
-  if ((options & LIBCRUN_RUN_OPTIONS_PREFORK) == 0)
+  اگر ((options & LIBCRUN_تسلسل_OPTIONS_PREFORK) == 0)
     {
       libcrun_debug ("Running with prefork enabled");
-      ret = libcrun_copy_config_file (context->id, context->state_root, container, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      ret = libcrun_container_run_internal (container, context, NULL, err);
-      if (UNLIKELY (ret < 0))
-        force_delete_container_status (context, container, def);
-      return ret;
+      ret = libcrun_copy_config_file (context->id, context->state_جڑ, container, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
+      ret = libcrun_container_تسلسل_اندرونی (container, context, تہی, err);
+      اگر (UNLIKELY (ret < 0))
+        force_delete_container_حالت (context, container, def);
+      واپس ret;
     }
 
   ret = pipe2 (container_ready_pipe, O_CLOEXEC);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "pipe");
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "pipe");
   pipefd0 = container_ready_pipe[0];
   pipefd1 = container_ready_pipe[1];
 
   ret = fork ();
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fork");
-  if (ret)
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "fork");
+  اگر (ret)
     {
-      int exit_code;
+      صحیح exit_رمز;
       close_and_reset (&pipefd1);
 
-      waitpid_ignore_stopped (ret, NULL, 0);
+      waitpid_ignore_stopped (ret, تہی, 0);
 
-      ret = TEMP_FAILURE_RETRY (read (pipefd0, &exit_code, sizeof (exit_code)));
-      if (UNLIKELY (ret <= 0))
-        return crun_make_error (err, ret < 0 ? errno : 0, "waiting for container to be ready");
+      ret = عارضی_FAILURE_RETRY (اقرأ (pipefd0, &exit_رمز, حجم (exit_رمز)));
+      اگر (UNLIKELY (ret <= 0))
+        واپس crun_make_error (err, ret < 0 ? errno : 0, "waiting for container to be ready");
 
-      if (ret != sizeof (exit_code) || exit_code < 0)
-        return crun_make_error (err, 0, "internal error: read invalid exit code");
+      اگر (ret != حجم (exit_رمز) || exit_رمز < 0)
+        واپس crun_make_error (err, 0, "internal error: read invalid exit code");
 
-      if (exit_code == 0)
-        return 0;
+      اگر (exit_رمز == 0)
+        واپس 0;
 
-      libcrun_debug ("Exit code is `%d`, deleting container", exit_code);
-      libcrun_error_t tmp_err = NULL;
-      container_delete_internal (context, NULL, def, context->id, true, true, &tmp_err);
+      libcrun_debug ("Exit code is `%d`, deleting container", exit_رمز);
+      libcrun_error_t tmp_err = تہی;
+      container_delete_اندرونی (context, تہی, def, context->id, true, true, &tmp_err);
       libcrun_error_report_and_release (&tmp_err);
-      return crun_make_error (err, 0, "error creating container");
+      واپس crun_make_error (err, 0, "error creating container");
     }
 
   /* forked process.  */
   ret = detach_process ();
-  if (UNLIKELY (ret < 0))
+  اگر (UNLIKELY (ret < 0))
     libcrun_fail_with_error (errno, "detach process");
 
-  ret = libcrun_copy_config_file (context->id, context->state_root, container, err);
-  if (UNLIKELY (ret < 0))
+  ret = libcrun_copy_config_file (context->id, context->state_جڑ, container, err);
+  اگر (UNLIKELY (ret < 0))
     {
-      int errcode = crun_error_get_errno (err);
+      صحیح errcode = crun_error_get_errno (err);
       crun_error_release (err);
       libcrun_fail_with_error (errcode, "copy config file");
     }
 
-  ret = libcrun_container_run_internal (container, context, &pipefd1, err);
-  if (UNLIKELY (ret < 0))
+  ret = libcrun_container_تسلسل_اندرونی (container, context, &pipefd1, err);
+  اگر (UNLIKELY (ret < 0))
     {
-      force_delete_container_status (context, container, def);
-      libcrun_error ((*err)->status, "%s", (*err)->msg);
+      force_delete_container_حالت (context, container, def);
+      libcrun_error ((*err)->حالت_2, "%s", (*err)->پیغام);
       crun_error_release (err);
-      crun_set_output_handler (log_write_to_stderr, NULL);
+      crun_سیٹ_output_handler (log_write_مقصد_stderr, تہی);
     }
 
-  if (pipefd1 >= 0)
-    TEMP_FAILURE_RETRY (write (pipefd1, &ret, sizeof (ret)));
-  exit (ret ? EXIT_FAILURE : 0);
+  اگر (pipefd1 >= 0)
+    عارضی_FAILURE_RETRY (اكتب (pipefd1, &ret, حجم (ret)));
+  باہر_نکلو (ret ? EXIT_FAILURE : 0);
 }
 
-int
-libcrun_container_start (libcrun_context_t *context, const char *id, libcrun_error_t *err)
+صحیح
+libcrun_container_آغاز (libcrun_context_t *context, ثابت حرف *id, libcrun_error_t *err)
 {
-  cleanup_container libcrun_container_t *container = NULL;
-  const char *state_root = context->state_root;
+  cleanup_container libcrun_container_t *container = تہی;
+  ثابت حرف *state_جڑ = context->state_جڑ;
   runtime_spec_schema_config_schema *def;
-  cleanup_container_status libcrun_container_status_t status = {};
-  cleanup_close int fd = -1;
-  int ret;
+  cleanup_container_حالت libcrun_container_حالت_t حالت_2 = {};
+  cleanup_close صحیح fd = -1;
+  صحیح ret;
 
-  ret = libcrun_read_container_status (&status, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_read_container_حالت (&حالت_2, state_جڑ, id, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = libcrun_is_container_running (&status, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_is_container_running (&حالت_2, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (! ret)
-    return crun_make_error (err, 0, "container `%s` is not running", id);
+  اگر (! ret)
+    واپس crun_make_error (err, 0, "container `%s` is not running", id);
 
-  ret = read_container_config_from_state (&container, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_container_config_from_state (&container, state_جڑ, id, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (context->notify_socket)
+  اگر (context->notify_socket)
     {
       ret = get_notify_fd (context, container, &fd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  ret = libcrun_status_write_exec_fifo (context->state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_حالت_write_exec_fifo (context->state_جڑ, id, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   def = container->container_def;
 
-  if (context->notify_socket)
+  اگر (context->notify_socket)
     {
-      if (fd >= 0)
+      اگر (fd >= 0)
         {
-          fd_set read_set;
+          fd_set read_سیٹ;
 
-          while (1)
+          جب (1)
             {
-              struct timeval timeout = {
+              ساخت timeval timeout = {
                 .tv_sec = 0,
                 .tv_usec = 10000,
               };
-              FD_ZERO (&read_set);
-              FD_SET (fd, &read_set);
+              FD_ZERO (&read_سیٹ);
+              FD_SET (fd, &read_سیٹ);
 
-              ret = select (fd + 1, &read_set, NULL, NULL, &timeout);
-              if (UNLIKELY (ret < 0))
-                return crun_make_error (err, errno, "select failed");
-              if (ret)
+              ret = select (fd + 1, &read_سیٹ, تہی, تہی, &timeout);
+              اگر (UNLIKELY (ret < 0))
+                واپس crun_make_error (err, errno, "select failed");
+              اگر (ret)
                 {
                   ret = handle_notify_socket (fd, err);
-                  if (UNLIKELY (ret < 0))
-                    return ret;
-                  if (ret)
-                    break;
+                  اگر (UNLIKELY (ret < 0))
+                    واپس ret;
+                  اگر (ret)
+                    توڑو;
                 }
-              else
+              ورنہ
                 {
-                  ret = libcrun_is_container_running (&status, err);
-                  if (UNLIKELY (ret < 0))
-                    return ret;
-                  if (! ret)
-                    return 0;
+                  ret = libcrun_is_container_running (&حالت_2, err);
+                  اگر (UNLIKELY (ret < 0))
+                    واپس ret;
+                  اگر (! ret)
+                    واپس 0;
                 }
             }
         }
@@ -3636,57 +3636,57 @@ libcrun_container_start (libcrun_context_t *context, const char *id, libcrun_err
 
   /* The container is considered running only after we got the notification from the
      notify_socket, if any.  */
-  if (def->hooks && def->hooks->poststart_len)
+  اگر (def->hooks && def->hooks->poststart_len)
     {
-      cleanup_close int hooks_out_fd = -1;
-      cleanup_close int hooks_err_fd = -1;
+      cleanup_close صحیح hooks_برآمد_fd = -1;
+      cleanup_close صحیح hooks_err_fd = -1;
 
-      ret = open_hooks_output (container, &hooks_out_fd, &hooks_err_fd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = open_hooks_output (container, &hooks_برآمد_fd, &hooks_err_fd, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      ret = do_hooks (def, status.pid, context->id, false, status.bundle, status.bundle, "running", "poststart", (hook **) def->hooks->poststart,
-                      def->hooks->poststart_len, hooks_out_fd, hooks_err_fd, false, err);
-      if (UNLIKELY (ret != 0))
+      ret = do_hooks (def, حالت_2.pid, context->id, false, حالت_2.bundle, حالت_2.bundle, "running", "poststart", (hook **) def->hooks->poststart,
+                      def->hooks->poststart_len, hooks_برآمد_fd, hooks_err_fd, false, err);
+      اگر (UNLIKELY (ret != 0))
         {
-          libcrun_error_t tmp_err = NULL;
-          container_delete_internal (context, container, def, id, true, true, &tmp_err);
+          libcrun_error_t tmp_err = تہی;
+          container_delete_اندرونی (context, container, def, id, true, true, &tmp_err);
           libcrun_error_report_and_release (&tmp_err);
-          return ret;
+          واپس ret;
         }
     }
 
-  return 0;
+  واپس 0;
 }
 
-int
-libcrun_get_container_state_string (const char *id, libcrun_container_status_t *status, const char *state_root,
-                                    const char **container_status, int *running, libcrun_error_t *err)
+صحیح
+libcrun_get_container_state_string (ثابت حرف *id, libcrun_container_حالت_t *حالت_2, ثابت حرف *state_جڑ,
+                                    ثابت حرف **container_حالت, صحیح *running, libcrun_error_t *err)
 {
-  int ret, has_fifo = 0;
+  صحیح ret, has_fifo = 0;
   bool paused = false;
 
-  ret = libcrun_is_container_running (status, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_is_container_running (حالت_2, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
   *running = ret;
 
-  if (*running)
+  اگر (*running)
     {
-      ret = libcrun_status_has_read_exec_fifo (state_root, id, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_حالت_has_read_exec_fifo (state_جڑ, id, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
       has_fifo = ret;
     }
 
-  if (*running && ! has_fifo)
+  اگر (*running && ! has_fifo)
     {
-      cleanup_cgroup_status struct libcrun_cgroup_status *cgroup_status = NULL;
+      cleanup_cgroup_حالت ساخت libcrun_cgroup_حالت *cgroup_حالت = تہی;
 
-      cgroup_status = libcrun_cgroup_make_status (status);
+      cgroup_حالت = libcrun_cgroup_make_حالت (حالت_2);
 
-      ret = libcrun_cgroup_is_container_paused (cgroup_status, &paused, err);
-      if (UNLIKELY (ret < 0))
+      ret = libcrun_cgroup_is_container_paused (cgroup_حالت, &paused, err);
+      اگر (UNLIKELY (ret < 0))
         {
           /*
             The cgroup might have been cleaned up by the time we try to read it, ignore both
@@ -3696,123 +3696,123 @@ libcrun_get_container_state_string (const char *id, libcrun_container_status_t *
           */
 
           errno = crun_error_get_errno (err);
-          if (errno == ENOENT || errno == ENODEV)
+          اگر (errno == ENOENT || errno == ENODEV)
             {
               crun_error_release (err);
-              *container_status = "stopped";
-              return 0;
+              *container_حالت = "stopped";
+              واپس 0;
             }
 
-          return ret;
+          واپس ret;
         }
     }
 
-  if (! *running)
-    *container_status = "stopped";
-  else if (has_fifo)
-    *container_status = "created";
-  else if (paused)
-    *container_status = "paused";
-  else
-    *container_status = "running";
+  اگر (! *running)
+    *container_حالت = "stopped";
+  ورنہ اگر (has_fifo)
+    *container_حالت = "created";
+  ورنہ اگر (paused)
+    *container_حالت = "paused";
+  ورنہ
+    *container_حالت = "running";
 
-  return 0;
+  واپس 0;
 }
 
-int
-libcrun_container_state_json (libcrun_context_t *context, const char *id, char **out, libcrun_error_t *err)
+صحیح
+libcrun_container_state_json (libcrun_context_t *context, ثابت حرف *id, حرف **برآمد, libcrun_error_t *err)
 {
-  char *buffer = NULL;
+  حرف *بفر = تہی;
   size_t len = 0;
   FILE *f;
-  int ret;
+  صحیح ret;
 
-  f = open_memstream (&buffer, &len);
-  if (f == NULL)
-    return crun_make_error (err, errno, "open_memstream");
+  f = open_memstream (&بفر, &len);
+  اگر (f == تہی)
+    واپس crun_make_error (err, errno, "open_memstream");
 
   ret = libcrun_container_state (context, id, f, err);
   fclose (f);
-  if (UNLIKELY (ret < 0))
+  اگر (UNLIKELY (ret < 0))
     {
-      free (buffer);
-      return ret;
+      آزاد (بفر);
+      واپس ret;
     }
 
-  *out = buffer;
-  return 0;
+  *برآمد = بفر;
+  واپس 0;
 }
 
-int
-libcrun_container_state (libcrun_context_t *context, const char *id, FILE *out, libcrun_error_t *err)
+صحیح
+libcrun_container_state (libcrun_context_t *context, ثابت حرف *id, FILE *برآمد, libcrun_error_t *err)
 {
-  const char *const OCI_CONFIG_VERSION = "1.0.0";
-  libcrun_container_status_t status = {};
-  const char *state_root = context->state_root;
-  const char *container_status = NULL;
-  json_gen_ctx *gen = NULL;
-  const char *buf;
-  int ret = 0;
-  int r = json_gen_status_ok;
-  int running;
+  ثابت حرف *ثابت OCI_CONFIG_نسخہ = "1.0.0";
+  libcrun_container_حالت_t حالت_2 = {};
+  ثابت حرف *state_جڑ = context->state_جڑ;
+  ثابت حرف *container_حالت = تہی;
+  json_gen_ctx *gen = تہی;
+  ثابت حرف *buf;
+  صحیح ret = 0;
+  صحیح r = json_gen_حالت_ok;
+  صحیح running;
   size_t len;
 
-  ret = libcrun_read_container_status (&status, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_read_container_حالت (&حالت_2, state_جڑ, id, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = libcrun_get_container_state_string (id, &status, state_root, &container_status, &running, err);
-  if (UNLIKELY (ret < 0))
-    goto exit;
+  ret = libcrun_get_container_state_string (id, &حالت_2, state_جڑ, &container_حالت, &running, err);
+  اگر (UNLIKELY (ret < 0))
+    جاؤ باہر_نکلو;
 
   ret = 0;
-  if (! json_gen_init (&gen, NULL))
-    return crun_make_error (err, 0, "json_gen_init failed");
+  اگر (! json_gen_init (&gen, تہی))
+    واپس crun_make_error (err, 0, "json_gen_init failed");
 
   json_gen_config (gen, json_gen_beautify, 1);
 
   GEN_OR_FAIL (json_gen_map_open (gen));
-  GEN_KEY (gen, "ociVersion");
-  GEN_STR (gen, OCI_CONFIG_VERSION);
+  GEN_کلید (gen, "ociVersion");
+  GEN_STR (gen, OCI_CONFIG_نسخہ);
 
-  GEN_KEY (gen, "id");
+  GEN_کلید (gen, "id");
   GEN_STR (gen, id);
 
-  GEN_KEY (gen, "pid");
-  GEN_OR_FAIL (map_int (gen, running ? status.pid : 0));
+  GEN_کلید (gen, "pid");
+  GEN_OR_FAIL (map_int (gen, running ? حالت_2.pid : 0));
 
-  GEN_KEY (gen, "status");
-  GEN_STR (gen, container_status);
+  GEN_کلید (gen, "status");
+  GEN_STR (gen, container_حالت);
 
-  GEN_KEY (gen, "bundle");
-  GEN_STR (gen, status.bundle);
+  GEN_کلید (gen, "bundle");
+  GEN_STR (gen, حالت_2.bundle);
 
-  GEN_KEY (gen, "rootfs");
-  GEN_STR (gen, status.rootfs);
+  GEN_کلید (gen, "rootfs");
+  GEN_STR (gen, حالت_2.rootfs);
 
-  GEN_KEY (gen, "created");
-  GEN_STR (gen, status.created);
+  GEN_کلید (gen, "created");
+  GEN_STR (gen, حالت_2.created);
 
-  if (status.scope)
+  اگر (حالت_2.scope)
     {
-      GEN_KEY (gen, "systemd-scope");
-      GEN_STR (gen, status.scope);
+      GEN_کلید (gen, "systemd-scope");
+      GEN_STR (gen, حالت_2.scope);
     }
 
-  if (status.owner)
+  اگر (حالت_2.owner)
     {
-      GEN_KEY (gen, "owner");
-      GEN_STR (gen, status.owner);
+      GEN_کلید (gen, "owner");
+      GEN_STR (gen, حالت_2.owner);
     }
 
   {
-    cleanup_container libcrun_container_t *container = NULL;
+    cleanup_container libcrun_container_t *container = تہی;
 
-    ret = read_container_config_from_state (&container, state_root, id, err);
-    if (UNLIKELY (ret < 0))
-      goto exit;
+    ret = read_container_config_from_state (&container, state_جڑ, id, err);
+    اگر (UNLIKELY (ret < 0))
+      جاؤ باہر_نکلو;
 
-    if (container->container_def->annotations && container->container_def->annotations->len)
+    اگر (container->container_def->annotations && container->container_def->annotations->len)
       GEN_OR_FAIL (gen_annotations (gen, container->container_def->annotations));
   }
 
@@ -3820,224 +3820,224 @@ libcrun_container_state (libcrun_context_t *context, const char *id, FILE *out, 
 
   GEN_OR_FAIL (json_gen_get_buf (gen, &buf, &len));
 
-  fprintf (out, "%s\n", buf);
+  fprintf (برآمد, "%s\n", buf);
 
-exit:
-  if (gen)
+باہر_نکلو:
+  اگر (gen)
     json_gen_free (gen);
-  libcrun_free_container_status (&status);
-  return ret;
+  libcrun_free_container_حالت (&حالت_2);
+  واپس ret;
 
 gen_error:
-  ret = json_gen_error_to_crun_error (r, err);
-  goto exit;
+  ret = json_gen_error_مقصد_crun_error (r, err);
+  جاؤ باہر_نکلو;
 }
 
-int
-libcrun_container_exec (libcrun_context_t *context, const char *id, runtime_spec_schema_config_schema_process *process,
+صحیح
+libcrun_container_exec (libcrun_context_t *context, ثابت حرف *id, runtime_spec_schema_config_schema_process *process,
                         libcrun_error_t *err)
 {
-  struct libcrun_container_exec_options_s opts;
-  memset (&opts, 0, sizeof (opts));
+  ساخت libcrun_container_exec_options_s opts;
+  memset (&opts, 0, حجم (opts));
 
-  opts.struct_size = sizeof (opts);
+  opts.struct_سائز = حجم (opts);
   opts.process = process;
 
-  return libcrun_container_exec_with_options (context, id, &opts, err);
+  واپس libcrun_container_exec_with_options (context, id, &opts, err);
 }
 
-int
-libcrun_container_exec_process_file (libcrun_context_t *context, const char *id, const char *path, libcrun_error_t *err)
+صحیح
+libcrun_container_exec_process_file (libcrun_context_t *context, ثابت حرف *id, ثابت حرف *راستہ, libcrun_error_t *err)
 {
-  struct libcrun_container_exec_options_s opts;
-  memset (&opts, 0, sizeof (opts));
+  ساخت libcrun_container_exec_options_s opts;
+  memset (&opts, 0, حجم (opts));
 
-  opts.struct_size = sizeof (opts);
-  opts.path = path;
+  opts.struct_سائز = حجم (opts);
+  opts.راستہ = راستہ;
 
-  return libcrun_container_exec_with_options (context, id, &opts, err);
+  واپس libcrun_container_exec_with_options (context, id, &opts, err);
 }
 
-static int
-exec_from_process_json (libcrun_context_t *context, const char *id, const char *process_json, const char *cgroup,
-                        bool merge_env, libcrun_error_t *err)
+ساکن صحیح
+exec_from_process_json (libcrun_context_t *context, ثابت حرف *id, ثابت حرف *process_json, ثابت حرف *cgroup,
+                        bool ملاؤ_env, libcrun_error_t *err)
 {
-  struct parser_context parser_ctx = { .options = 0, .errfile = stderr };
-  struct libcrun_container_exec_options_s opts;
+  ساخت parser_context parser_ctx = { .options = 0, .errfile = stderr };
+  ساخت libcrun_container_exec_options_s opts;
   runtime_spec_schema_config_schema_process *process;
-  parser_error parser_err = NULL;
-  json_object *doc = NULL;
-  int ret;
+  parser_error parser_err = تہی;
+  json_object *doc = تہی;
+  صحیح ret;
 
   ret = parse_json_file (&doc, process_json, &parser_ctx, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   process = make_runtime_spec_schema_config_schema_process (doc, &parser_ctx, &parser_err);
   json_object_put (doc);
-  if (process == NULL)
+  اگر (process == تہی)
     {
       ret = crun_make_error (err, 0, "cannot parse process: `%s`", parser_err ? parser_err : "unknown error");
-      free (parser_err);
-      return ret;
+      آزاد (parser_err);
+      واپس ret;
     }
 
-  memset (&opts, 0, sizeof (opts));
-  opts.struct_size = sizeof (opts);
+  memset (&opts, 0, حجم (opts));
+  opts.struct_سائز = حجم (opts);
   opts.process = process;
   opts.cgroup = cgroup;
-  opts.merge_env = merge_env;
+  opts.ملاؤ_env = ملاؤ_env;
 
   ret = libcrun_container_exec_with_options (context, id, &opts, err);
   free_runtime_spec_schema_config_schema_process (process);
-  return ret;
+  واپس ret;
 }
 
-int
-libcrun_container_exec_json (libcrun_context_t *context, const char *id, const char *process_json, libcrun_error_t *err)
+صحیح
+libcrun_container_exec_json (libcrun_context_t *context, ثابت حرف *id, ثابت حرف *process_json, libcrun_error_t *err)
 {
-  return exec_from_process_json (context, id, process_json, NULL, false, err);
+  واپس exec_from_process_json (context, id, process_json, تہی, false, err);
 }
 
-int
-libcrun_container_exec_with_options_json (libcrun_context_t *context, const char *id,
-                                          const struct libcrun_exec_options_s *opts, libcrun_error_t *err)
+صحیح
+libcrun_container_exec_with_options_json (libcrun_context_t *context, ثابت حرف *id,
+                                          ثابت ساخت libcrun_exec_options_s *opts, libcrun_error_t *err)
 {
-  if (opts == NULL || opts->struct_size == 0)
-    return crun_make_error (err, EINVAL, "invalid exec options");
+  اگر (opts == تہی || opts->struct_سائز == 0)
+    واپس crun_make_error (err, EINVAL, "invalid exec options");
 
-  return exec_from_process_json (context, id, opts->process_json, opts->cgroup, opts->merge_env, err);
+  واپس exec_from_process_json (context, id, opts->process_json, opts->cgroup, opts->ملاؤ_env, err);
 }
 
-#define cleanup_process_schema __attribute__ ((cleanup (cleanup_process_schemap)))
+#تعریف_کرو cleanup_process_schema __attribute__ ((cleanup (cleanup_process_schemap)))
 
-static inline void
+ساکن اندرونی خالی
 cleanup_process_schemap (runtime_spec_schema_config_schema_process **p)
 {
   runtime_spec_schema_config_schema_process *process = *p;
-  if (process)
-    (void) free_runtime_spec_schema_config_schema_process (process);
+  اگر (process)
+    (خالی) free_runtime_spec_schema_config_schema_process (process);
 }
 
 /* Build the seccomp receiver payload (when needed), apply the seccomp profile and
    close the seccomp file descriptors.  Used from exec_process_entrypoint both before
    and after the capabilities are set, depending on process->no_new_privileges.  */
-static int
-apply_seccomp_for_exec (libcrun_container_t *container, pid_t own_pid, int seccomp_fd,
-                        int seccomp_receiver_fd, char **seccomp_flags, size_t seccomp_flags_len,
+ساکن صحیح
+apply_seccomp_for_exec (libcrun_container_t *container, pid_t own_pid, صحیح seccomp_fd,
+                        صحیح seccomp_receiver_fd, حرف **seccomp_flags, size_t seccomp_flags_len,
                         libcrun_error_t *err)
 {
-  cleanup_free char *seccomp_fd_payload = NULL;
+  cleanup_free حرف *seccomp_fd_payload = تہی;
   size_t seccomp_fd_payload_len = 0;
-  int ret;
+  صحیح ret;
 
-  if (seccomp_receiver_fd >= 0)
+  اگر (seccomp_receiver_fd >= 0)
     {
       ret = get_seccomp_receiver_fd_payload (container, "running", own_pid, &seccomp_fd_payload, &seccomp_fd_payload_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
   ret = libcrun_apply_seccomp (seccomp_fd, seccomp_receiver_fd, seccomp_fd_payload,
                                seccomp_fd_payload_len, seccomp_flags, seccomp_flags_len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   close_and_reset (&seccomp_fd);
   close_and_reset (&seccomp_receiver_fd);
-  return 0;
+  واپس 0;
 }
 
-static int
+ساکن صحیح
 exec_process_entrypoint (libcrun_context_t *context,
                          libcrun_container_t *container,
                          runtime_spec_schema_config_schema_process *process,
-                         int *pipefd1,
-                         int seccomp_fd,
-                         int seccomp_receiver_fd,
-                         struct custom_handler_instance_s *custom_handler,
-                         bool merge_env,
+                         صحیح *pipefd1,
+                         صحیح seccomp_fd,
+                         صحیح seccomp_receiver_fd,
+                         ساخت custom_handler_instance_s *custom_handler,
+                         bool ملاؤ_env,
                          libcrun_error_t *err)
 {
-  runtime_spec_schema_config_schema_process_capabilities *capabilities = NULL;
-  cleanup_free char *exec_path = NULL;
+  runtime_spec_schema_config_schema_process_capabilities *capabilities = تہی;
+  cleanup_free حرف *exec_راستہ = تہی;
   uid_t container_uid;
   gid_t container_gid;
-  const char *cwd;
-  bool chdir_done = false;
+  ثابت حرف *cwd;
+  bool chdir_مکمل = false;
   size_t seccomp_flags_len = 0;
-  char **seccomp_flags = NULL;
+  حرف **seccomp_flags = تہی;
   pid_t own_pid = 0;
   size_t i;
-  int ret;
+  صحیح ret;
 
   container_uid = process->user ? process->user->uid : 0;
   container_gid = process->user ? process->user->gid : 0;
 
-  TEMP_FAILURE_RETRY (read (*pipefd1, &own_pid, sizeof (own_pid)));
+  عارضی_FAILURE_RETRY (اقرأ (*pipefd1, &own_pid, حجم (own_pid)));
 
   cwd = process->cwd ? process->cwd : "/";
-  if (LIKELY (libcrun_safe_chdir (cwd, err) == 0))
-    chdir_done = true;
-  else
+  اگر (LIKELY (libcrun_محفوظ_chdir (cwd, err) == 0))
+    chdir_مکمل = true;
+  ورنہ
     crun_error_release (err);
 
-  ret = unblock_signals (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = unblock_اشارات (err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   ret = clearenv ();
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "clearenv");
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "clearenv");
 
-  if ((merge_env || ! process->env_len) && container->container_def->process && container->container_def->process->env_len)
+  اگر ((ملاؤ_env || ! process->env_len) && container->container_def->process && container->container_def->process->env_len)
     {
-      char *e;
+      حرف *e;
 
-      for (i = 0; i < container->container_def->process->env_len; i++)
+      برائے (i = 0; i < container->container_def->process->env_len; i++)
         {
           e = container->container_def->process->env[i];
-          if (putenv (e) < 0)
-            return crun_make_error (err, errno, "putenv `%s`", e);
+          اگر (putenv (e) < 0)
+            واپس crun_make_error (err, errno, "putenv `%s`", e);
         }
     }
-  if (process->env_len)
+  اگر (process->env_len)
     {
-      for (i = 0; i < process->env_len; i++)
-        if (putenv (process->env[i]) < 0)
-          return crun_make_error (err, errno, "putenv `%s`", process->env[i]);
+      برائے (i = 0; i < process->env_len; i++)
+        اگر (putenv (process->env[i]) < 0)
+          واپس crun_make_error (err, errno, "putenv `%s`", process->env[i]);
     }
 
-  if (is_empty_string (getenv ("HOME")))
+  اگر (is_خالی_خانے_string (getenv ("HOME")))
     {
-      ret = set_home_env (container_uid);
-      if (UNLIKELY (ret < 0))
+      ret = سیٹ_home_env (container_uid);
+      اگر (UNLIKELY (ret < 0))
         {
           libcrun_warning ("cannot detect HOME environment variable, setting default");
-          if (UNLIKELY (setenv ("HOME", "/", 1) < 0))
-            return crun_make_error (err, errno, "setenv HOME");
+          اگر (UNLIKELY (setenv ("HOME", "/", 1) < 0))
+            واپس crun_make_error (err, errno, "setenv HOME");
         }
     }
 
-  ret = libcrun_set_selinux_label (container, process, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_سیٹ_selinux_label (container, process, false, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = libcrun_set_apparmor_profile (container, process, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_سیٹ_apparmor_profile (container, process, false, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (container->container_def->linux && container->container_def->linux->seccomp)
+  اگر (container->container_def->linux && container->container_def->linux->seccomp)
     {
       seccomp_flags = container->container_def->linux->seccomp->flags;
       seccomp_flags_len = container->container_def->linux->seccomp->flags_len;
     }
 
-  ret = find_executable (&exec_path, process->args[0], process->cwd, err);
-  if (UNLIKELY (ret < 0))
+  ret = ڈھونڈو_executable (&exec_راستہ, process->دلائل[0], process->cwd, err);
+  اگر (UNLIKELY (ret < 0))
     {
-      if (crun_error_get_errno (err) == ENOENT)
-        return ret;
+      اگر (crun_error_get_errno (err) == ENOENT)
+        واپس ret;
 
       /* If it fails for any other reason, ignore the failure.  We'll try again the lookup
          once the process switched to the use that runs in the container.  This might be necessary
@@ -4046,100 +4046,100 @@ exec_process_entrypoint (libcrun_context_t *context,
       crun_error_release (err);
     }
 
-  if (container->container_def->linux && container->container_def->linux->personality)
+  اگر (container->container_def->linux && container->container_def->linux->personality)
     {
-      ret = libcrun_set_personality (container->container_def->linux->personality, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_سیٹ_personality (container->container_def->linux->personality, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
   ret = mark_or_close_fds_ge_than (container, context->preserve_fds + 3, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   ret = libcrun_reopen_dev_null (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (! process->no_new_privileges)
+  اگر (! process->no_new_privileges)
     {
       ret = apply_seccomp_for_exec (container, own_pid, seccomp_fd, seccomp_receiver_fd,
                                     seccomp_flags, seccomp_flags_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
   ret = libcrun_container_setgroups (container, process, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   ret = maybe_chown_std_streams (container_uid, container_gid, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (process->capabilities)
+  اگر (process->capabilities)
     capabilities = process->capabilities;
-  else if (container->container_def->process)
+  ورنہ اگر (container->container_def->process)
     capabilities = container->container_def->process->capabilities;
 
-  ret = libcrun_set_caps (capabilities, container_uid, container_gid, process->no_new_privileges,
-                          custom_handler != NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_سیٹ_caps (capabilities, container_uid, container_gid, process->no_new_privileges,
+                          custom_handler != تہی, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (UNLIKELY (exec_path == NULL))
+  اگر (UNLIKELY (exec_راستہ == تہی))
     {
-      ret = find_executable (&exec_path, process->args[0], process->cwd, err);
-      if (UNLIKELY (ret < 0))
+      ret = ڈھونڈو_executable (&exec_راستہ, process->دلائل[0], process->cwd, err);
+      اگر (UNLIKELY (ret < 0))
         {
-          if (custom_handler == NULL || is_empty_string (process->args[0]))
-            return ret;
+          اگر (custom_handler == تہی || is_خالی_خانے_string (process->دلائل[0]))
+            واپس ret;
 
           /* If a custom handler is used, pass argv0 as specified.  e.g. with wasm the file could miss the +x bit.  */
           crun_error_release (err);
-          exec_path = xstrdup (process->args[0]);
+          exec_راستہ = xstrdup (process->دلائل[0]);
         }
     }
 
-  if (! chdir_done)
+  اگر (! chdir_مکمل)
     {
-      ret = libcrun_safe_chdir (cwd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_محفوظ_chdir (cwd, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  if (process->no_new_privileges)
+  اگر (process->no_new_privileges)
     {
       ret = apply_seccomp_for_exec (container, own_pid, seccomp_fd, seccomp_receiver_fd,
                                     seccomp_flags, seccomp_flags_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  if (process->user)
+  اگر (process->user)
     umask (process->user->umask_present ? process->user->umask : 0022);
 
   ret = 0;
-  TEMP_FAILURE_RETRY (write (*pipefd1, &ret, sizeof (ret)));
-  TEMP_FAILURE_RETRY (close (*pipefd1));
+  عارضی_FAILURE_RETRY (اكتب (*pipefd1, &ret, حجم (ret)));
+  عارضی_FAILURE_RETRY (close (*pipefd1));
   *pipefd1 = -1;
 
-  if (custom_handler)
+  اگر (custom_handler)
     {
-      if (custom_handler->vtable->exec_func == NULL)
-        return crun_make_error (err, 0, "the handler does not support exec");
+      اگر (custom_handler->vtable->exec_func == تہی)
+        واپس crun_make_error (err, 0, "the handler does not support exec");
 
-      if (context->argv)
+      اگر (context->argv)
         erase_initial_environment (context->argv, context->argc);
 
       ret = custom_handler->vtable->exec_func (custom_handler->cookie,
                                                container,
-                                               exec_path,
-                                               process->args);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, -ret, "exec container process failed with handler as `%s`", custom_handler->vtable->name);
+                                               exec_راستہ,
+                                               process->دلائل);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, -ret, "exec container process failed with handler as `%s`", custom_handler->vtable->name);
 
-      _safe_exit (EXIT_FAILURE);
+      محفوظ_exit (EXIT_FAILURE);
     }
 
   /* Attempt to close all the files that are not needed to prevent execv to have access to them.
@@ -4147,399 +4147,399 @@ exec_process_entrypoint (libcrun_context_t *context,
      stop some syscalls used by mark_or_close_fds_ge_than.
   */
   ret = mark_or_close_fds_ge_than (container, context->preserve_fds + 3, true, err);
-  if (UNLIKELY (ret < 0))
+  اگر (UNLIKELY (ret < 0))
     crun_error_release (err);
 
-  TEMP_FAILURE_RETRY (execv (exec_path, process->args));
-  libcrun_fail_with_error (errno, "exec `%s`", exec_path);
+  عارضی_FAILURE_RETRY (execv (exec_راستہ, process->دلائل));
+  libcrun_fail_with_error (errno, "exec `%s`", exec_راستہ);
 }
 
 /* Close the file descriptors inherited from the caller, other than those
    to be passed to the container process.  */
-int
+صحیح
 libcrun_close_inherited_fds (libcrun_context_t *context, libcrun_error_t *err)
 {
-  return mark_or_close_fds_ge_than (NULL, context->preserve_fds + 3, true, err);
+  واپس mark_or_close_fds_ge_than (تہی, context->preserve_fds + 3, true, err);
 }
 
-int
-libcrun_load_process_from_file (const char *path, runtime_spec_schema_config_schema_process **process,
+صحیح
+libcrun_بھرو_process_from_file (ثابت حرف *راستہ, runtime_spec_schema_config_schema_process **process,
                                 libcrun_error_t *err)
 {
-  struct parser_context ctx = { 0, stderr };
-  cleanup_free char *content = NULL;
-  parser_error parser_err = NULL;
-  json_object *doc = NULL;
+  ساخت parser_context ctx = { 0, stderr };
+  cleanup_free حرف *content = تہی;
+  parser_error parser_err = تہی;
+  json_object *doc = تہی;
   size_t len;
-  int ret;
+  صحیح ret;
 
-  ret = read_all_file (path, &content, &len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file (راستہ, &content, &len, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   ret = parse_json_file (&doc, content, &ctx, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   *process = make_runtime_spec_schema_config_schema_process (doc, &ctx, &parser_err);
-  if (UNLIKELY (*process == NULL))
+  اگر (UNLIKELY (*process == تہی))
     {
       ret = crun_make_error (err, 0, "cannot parse process file: `%s`", parser_err);
-      free (parser_err);
-      if (doc)
+      آزاد (parser_err);
+      اگر (doc)
         json_object_put (doc);
-      return ret;
+      واپس ret;
     }
 
-  free (parser_err);
-  if (doc)
+  آزاد (parser_err);
+  اگر (doc)
     json_object_put (doc);
 
-  return 0;
+  واپس 0;
 }
 
-int
-libcrun_container_exec_with_options (libcrun_context_t *context, const char *id,
-                                     struct libcrun_container_exec_options_s *opts,
+صحیح
+libcrun_container_exec_with_options (libcrun_context_t *context, ثابت حرف *id,
+                                     ساخت libcrun_container_exec_options_s *opts,
                                      libcrun_error_t *err)
 {
-  cleanup_custom_handler_instance struct custom_handler_instance_s *custom_handler = NULL;
-  int container_status, ret;
+  cleanup_custom_handler_instance ساخت custom_handler_instance_s *custom_handler = تہی;
+  صحیح container_حالت, ret;
   bool container_paused = false;
   pid_t pid;
-  libcrun_container_status_t status = {};
-  const char *state_root = context->state_root;
-  cleanup_close int terminal_fd = -1;
-  cleanup_close int seccomp_fd = -1;
-  cleanup_terminal void *orig_terminal = NULL;
-  cleanup_container libcrun_container_t *container = NULL;
-  int container_ret_status[2];
-  cleanup_close int pipefd0 = -1;
-  cleanup_close int pipefd1 = -1;
-  cleanup_close int seccomp_receiver_fd = -1;
-  cleanup_close int own_seccomp_receiver_fd = -1;
-  cleanup_close int seccomp_notify_fd = -1;
-  const char *seccomp_notify_plugins = NULL;
-  __attribute__ ((unused)) cleanup_process_schema runtime_spec_schema_config_schema_process *process_cleanup = NULL;
+  libcrun_container_حالت_t حالت_2 = {};
+  ثابت حرف *state_جڑ = context->state_جڑ;
+  cleanup_close صحیح terminal_fd = -1;
+  cleanup_close صحیح seccomp_fd = -1;
+  cleanup_terminal خالی *orig_terminal = تہی;
+  cleanup_container libcrun_container_t *container = تہی;
+  صحیح container_ret_حالت[2];
+  cleanup_close صحیح pipefd0 = -1;
+  cleanup_close صحیح pipefd1 = -1;
+  cleanup_close صحیح seccomp_receiver_fd = -1;
+  cleanup_close صحیح own_seccomp_receiver_fd = -1;
+  cleanup_close صحیح seccomp_notify_fd = -1;
+  ثابت حرف *seccomp_notify_plugins = تہی;
+  __attribute__ ((غیر_مستعمل)) cleanup_process_schema runtime_spec_schema_config_schema_process *process_cleanup = تہی;
   runtime_spec_schema_config_schema_process *process = opts->process;
-  struct libcrun_seccomp_gen_ctx_s seccomp_gen_ctx;
-  int ret_from_child = 0;
+  ساخت libcrun_seccomp_gen_ctx_s seccomp_gen_ctx;
+  صحیح ret_from_بچہ = 0;
 
-  ret = libcrun_read_container_status (&status, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_read_container_حالت (&حالت_2, state_جڑ, id, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = libcrun_is_container_running (&status, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
-  container_status = ret;
+  ret = libcrun_is_container_running (&حالت_2, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
+  container_حالت = ret;
 
-  ret = read_container_config_from_state (&container, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_container_config_from_state (&container, state_جڑ, id, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   container->context = context;
 
-  if (container_status == 0)
-    return crun_make_error (err, 0, "the container `%s` is not running", id);
+  اگر (container_حالت == 0)
+    واپس crun_make_error (err, 0, "the container `%s` is not running", id);
 
   {
-    cleanup_cgroup_status struct libcrun_cgroup_status *cgroup_status = NULL;
+    cleanup_cgroup_حالت ساخت libcrun_cgroup_حالت *cgroup_حالت = تہی;
 
-    cgroup_status = libcrun_cgroup_make_status (&status);
+    cgroup_حالت = libcrun_cgroup_make_حالت (&حالت_2);
 
-    ret = libcrun_cgroup_is_container_paused (cgroup_status, &container_paused, err);
-    if (UNLIKELY (ret < 0))
-      return ret;
+    ret = libcrun_cgroup_is_container_paused (cgroup_حالت, &container_paused, err);
+    اگر (UNLIKELY (ret < 0))
+      واپس ret;
   }
 
-  if (UNLIKELY (container_paused))
-    return crun_make_error (err, 0, "cannot exec in a paused container `%s`", id);
+  اگر (UNLIKELY (container_paused))
+    واپس crun_make_error (err, 0, "cannot exec in a paused container `%s`", id);
 
   ret = libcrun_configure_handler (context->handler_manager,
                                    context,
                                    container,
                                    &custom_handler,
                                    err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = block_signals (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = بلاک_اشارات (err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   libcrun_seccomp_gen_ctx_init (&seccomp_gen_ctx, container, false, 0);
 
   ret = libcrun_open_seccomp_bpf (&seccomp_gen_ctx, &seccomp_fd, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (seccomp_fd >= 0)
+  اگر (seccomp_fd >= 0)
     {
       ret = get_seccomp_receiver_fd (container, &seccomp_receiver_fd,
                                      &own_seccomp_receiver_fd,
                                      &seccomp_notify_plugins, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  if (sizeof (*opts) != opts->struct_size)
-    return crun_make_error (err, EINVAL, "invalid libcrun_container_exec_options_s struct");
+  اگر (حجم (*opts) != opts->struct_سائز)
+    واپس crun_make_error (err, EINVAL, "invalid libcrun_container_exec_options_s struct");
 
-  if (opts->path)
+  اگر (opts->راستہ)
     {
-      if (process)
-        return crun_make_error (err, EINVAL, "cannot specify both exec file and options");
+      اگر (process)
+        واپس crun_make_error (err, EINVAL, "cannot specify both exec file and options");
 
-      ret = libcrun_load_process_from_file (opts->path, &process, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_بھرو_process_from_file (opts->راستہ, &process, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
       process_cleanup = process;
     }
 
   /* This must be done before we enter a user namespace.  If the process does
      not specify any rlimits, use the ones from the container configuration.  */
-  if (process->rlimits_len == 0 && container->container_def->process)
-    ret = libcrun_set_rlimits (container->container_def->process->rlimits,
+  اگر (process->rlimits_len == 0 && container->container_def->process)
+    ret = libcrun_سیٹ_rlimits (container->container_def->process->rlimits,
                                container->container_def->process->rlimits_len, err);
-  else
-    ret = libcrun_set_rlimits (process->rlimits, process->rlimits_len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ورنہ
+    ret = libcrun_سیٹ_rlimits (process->rlimits, process->rlimits_len, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = libcrun_set_mempolicy (container->container_def, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_سیٹ_mempolicy (container->container_def, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = pipe2 (container_ret_status, O_CLOEXEC);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "pipe");
-  pipefd0 = container_ret_status[0];
-  pipefd1 = container_ret_status[1];
+  ret = pipe2 (container_ret_حالت, O_CLOEXEC);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "pipe");
+  pipefd0 = container_ret_حالت[0];
+  pipefd1 = container_ret_حالت[1];
 
   /* If the new process block doesn't specify a SELinux label, AppArmor profile, user,
      I/O priority or scheduler, then use the configuration from the original config file.  */
-  if (container->container_def->process)
+  اگر (container->container_def->process)
     {
-      if (process->io_priority == NULL && container->container_def->process->io_priority)
+      اگر (process->io_ترجیح == تہی && container->container_def->process->io_ترجیح)
         {
-          process->io_priority = clone_runtime_spec_schema_config_schema_process_io_priority (container->container_def->process->io_priority);
-          if (process->io_priority == NULL)
+          process->io_ترجیح = clone_runtime_spec_schema_config_schema_process_io_ترجیح (container->container_def->process->io_ترجیح);
+          اگر (process->io_ترجیح == تہی)
             OOM ();
         }
 
-      if (process->scheduler == NULL && container->container_def->process->scheduler)
+      اگر (process->scheduler == تہی && container->container_def->process->scheduler)
         {
           process->scheduler = clone_runtime_spec_schema_config_schema_process_scheduler (container->container_def->process->scheduler);
-          if (process->scheduler == NULL)
+          اگر (process->scheduler == تہی)
             OOM ();
         }
 
-      if (process->selinux_label == NULL && container->container_def->process->selinux_label)
+      اگر (process->selinux_label == تہی && container->container_def->process->selinux_label)
         process->selinux_label = xstrdup (container->container_def->process->selinux_label);
 
-      if (process->apparmor_profile == NULL && container->container_def->process->apparmor_profile)
+      اگر (process->apparmor_profile == تہی && container->container_def->process->apparmor_profile)
         process->apparmor_profile = xstrdup (container->container_def->process->apparmor_profile);
 
-      if (process->user == NULL && container->container_def->process->user)
+      اگر (process->user == تہی && container->container_def->process->user)
         {
           process->user = clone_runtime_spec_schema_config_schema_process_user (container->container_def->process->user);
-          if (process->user == NULL)
+          اگر (process->user == تہی)
             OOM ();
         }
     }
 
   ret = initialize_security (container, process, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   /* Do not leak the session keyring of the caller into the container.  The
      keyring created for the container cannot be joined, so use an anonymous one.  */
-  if (! context->no_new_keyring && ! status.no_new_keyring)
+  اگر (! context->no_new_keyring && ! حالت_2.no_new_keyring)
     {
       libcrun_debug ("Creating new keyring for the exec process");
 
-      ret = libcrun_create_keyring (container, NULL, process->selinux_label, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_create_keyring (container, تہی, process->selinux_label, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  ret = prctl (PR_SET_DUMPABLE, 0, 0, 0, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "prctl unset dumpable");
+  ret = prctl (PR_سیٹ_DUMPABLE, 0, 0, 0, 0);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "prctl unset dumpable");
 
-  pid = libcrun_join_process (context, container, status.pid, &status, opts->cgroup, context->detach,
-                              process, process->terminal ? &terminal_fd : NULL, err);
-  if (UNLIKELY (pid < 0))
-    return pid;
+  pid = libcrun_join_process (context, container, حالت_2.pid, &حالت_2, opts->cgroup, context->detach,
+                              process, process->terminal ? &terminal_fd : تہی, err);
+  اگر (UNLIKELY (pid < 0))
+    واپس pid;
 
   /* Process to exec.  */
-  if (pid == 0)
+  اگر (pid == 0)
     {
-      TEMP_FAILURE_RETRY (close (pipefd0));
+      عارضی_FAILURE_RETRY (close (pipefd0));
       pipefd0 = -1;
 
-      exec_process_entrypoint (context, container, process, &pipefd1, seccomp_fd, seccomp_receiver_fd, custom_handler, opts->merge_env, err);
+      exec_process_entrypoint (context, container, process, &pipefd1, seccomp_fd, seccomp_receiver_fd, custom_handler, opts->ملاؤ_env, err);
       /* It gets here only on errors.  */
-      if (*err)
+      اگر (*err)
         {
-          if (pipefd1 < 0)
-            libcrun_fail_with_error ((*err)->status, "%s", (*err)->msg);
-          else
+          اگر (pipefd1 < 0)
+            libcrun_fail_with_error ((*err)->حالت_2, "%s", (*err)->پیغام);
+          ورنہ
             {
-              write_error_to_pipe (pipefd1, err);
-              TEMP_FAILURE_RETRY (close (pipefd1));
+              write_error_مقصد_pipe (pipefd1, err);
+              عارضی_FAILURE_RETRY (close (pipefd1));
               pipefd1 = -1;
             }
         }
-      _safe_exit (EXIT_FAILURE);
+      محفوظ_exit (EXIT_FAILURE);
     }
 
-  TEMP_FAILURE_RETRY (close (pipefd1));
+  عارضی_FAILURE_RETRY (close (pipefd1));
   pipefd1 = -1;
 
-  TEMP_FAILURE_RETRY (write (pipefd0, &pid, sizeof (pid)));
+  عارضی_FAILURE_RETRY (اكتب (pipefd0, &pid, حجم (pid)));
 
-  if (seccomp_fd >= 0)
+  اگر (seccomp_fd >= 0)
     close_and_reset (&seccomp_fd);
 
-  if (terminal_fd >= 0)
+  اگر (terminal_fd >= 0)
     {
-      unsigned short rows = 0, cols = 0;
+      غیرعلامتی مختصر صفیں = 0, ستون_تعداد = 0;
 
-      if (process->console_size)
+      اگر (process->console_سائز)
         {
-          cols = process->console_size->width;
-          rows = process->console_size->height;
+          ستون_تعداد = process->console_سائز->چوڑائی;
+          صفیں = process->console_سائز->اونچائی;
         }
 
-      ret = libcrun_terminal_setup_size (terminal_fd, rows, cols, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_terminal_تیاری_سائز (terminal_fd, صفیں, ستون_تعداد, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      if (context->console_socket)
+      اگر (context->console_socket)
         {
-          int ret;
-          cleanup_close int console_socket_fd = open_unix_domain_client_socket (context->console_socket, 0, err);
-          if (UNLIKELY (console_socket_fd < 0))
-            return console_socket_fd;
-          ret = send_fd_to_socket (console_socket_fd, terminal_fd, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          صحیح ret;
+          cleanup_close صحیح console_socket_fd = open_unix_domain_client_socket (context->console_socket, 0, err);
+          اگر (UNLIKELY (console_socket_fd < 0))
+            واپس console_socket_fd;
+          ret = send_fd_مقصد_socket (console_socket_fd, terminal_fd, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
           close_and_reset (&terminal_fd);
         }
-      else
+      ورنہ
         {
           ret = libcrun_clear_onlcr (terminal_fd, err);
-          if (UNLIKELY (ret < 0))
+          اگر (UNLIKELY (ret < 0))
             {
-              flush_fd_to_err (context, terminal_fd);
-              return ret;
+              flush_fd_مقصد_err (context, terminal_fd);
+              واپس ret;
             }
 
-          ret = libcrun_set_raw (0, &orig_terminal, err);
-          if (UNLIKELY (ret < 0))
+          ret = libcrun_سیٹ_raw (0, &orig_terminal, err);
+          اگر (UNLIKELY (ret < 0))
             {
-              flush_fd_to_err (context, terminal_fd);
-              return ret;
+              flush_fd_مقصد_err (context, terminal_fd);
+              واپس ret;
             }
         }
     }
 
-  ret = TEMP_FAILURE_RETRY (read (pipefd0, &ret_from_child, sizeof (ret_from_child)));
-  if (ret != sizeof (ret_from_child))
+  ret = عارضی_FAILURE_RETRY (اقرأ (pipefd0, &ret_from_بچہ, حجم (ret_from_بچہ)));
+  اگر (ret != حجم (ret_from_بچہ))
     ret = crun_make_error (err, 0, "read pipe failed");
-  else if (ret_from_child != 0)
+  ورنہ اگر (ret_from_بچہ != 0)
     {
-      cleanup_free char *msg = NULL;
+      cleanup_free حرف *پیغام = تہی;
       size_t len = 0;
 
-      ret = read_all_fd (pipefd0, "error stream", &msg, &len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = read_all_fd (pipefd0, "error stream", &پیغام, &len, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
       /* the string from read_all_fd is always NUL terminated.  */
-      ret = crun_make_error (err, ret_from_child, "%s", msg);
+      ret = crun_make_error (err, ret_from_بچہ, "%s", پیغام);
     }
-  else
+  ورنہ
     {
       /* Let's receive the seccomp notify fd and handle it as part of wait_for_process().  */
-      if (own_seccomp_receiver_fd >= 0)
+      اگر (own_seccomp_receiver_fd >= 0)
         {
           seccomp_notify_fd = receive_fd_from_socket (own_seccomp_receiver_fd, err);
-          if (UNLIKELY (seccomp_notify_fd < 0))
-            return seccomp_notify_fd;
+          اگر (UNLIKELY (seccomp_notify_fd < 0))
+            واپس seccomp_notify_fd;
 
           ret = close_and_reset (&own_seccomp_receiver_fd);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "close seccomp receiver fd failed");
+          اگر (UNLIKELY (ret < 0))
+            واپس crun_make_error (err, errno, "close seccomp receiver fd failed");
         }
 
       {
-        struct wait_for_process_args args = {
+        ساخت wait_for_process_دلائل دلائل = {
           .pid = pid,
           .context = context,
           .terminal_fd = terminal_fd,
           .notify_socket = -1,
-          .container_ready_fd = NULL,
+          .container_ready_fd = تہی,
           .seccomp_notify_fd = seccomp_notify_fd,
           .seccomp_notify_plugins = seccomp_notify_plugins,
         };
 
-        ret = wait_for_process (&args, err);
+        ret = wait_for_process (&دلائل, err);
       }
     }
 
-  flush_fd_to_err (context, terminal_fd);
-  return ret;
+  flush_fd_مقصد_err (context, terminal_fd);
+  واپس ret;
 }
 
-int
-libcrun_container_update (libcrun_context_t *context, const char *id, const char *content, size_t len arg_unused,
+صحیح
+libcrun_container_update (libcrun_context_t *context, ثابت حرف *id, ثابت حرف *content, size_t len arg_غیر_مستعمل,
                           libcrun_error_t *err)
 {
-  cleanup_custom_handler_instance struct custom_handler_instance_s *custom_handler = NULL;
-  runtime_spec_schema_config_linux_resources *resources = NULL;
-  cleanup_container libcrun_container_t *container = NULL;
-  const char *state_root = context->state_root;
-  struct parser_context ctx = { 0, stderr };
-  libcrun_container_status_t status = {};
-  parser_error parser_err = NULL;
-  json_object *doc = NULL;
-  int ret;
+  cleanup_custom_handler_instance ساخت custom_handler_instance_s *custom_handler = تہی;
+  runtime_spec_schema_config_linux_resources *resources = تہی;
+  cleanup_container libcrun_container_t *container = تہی;
+  ثابت حرف *state_جڑ = context->state_جڑ;
+  ساخت parser_context ctx = { 0, stderr };
+  libcrun_container_حالت_t حالت_2 = {};
+  parser_error parser_err = تہی;
+  json_object *doc = تہی;
+  صحیح ret;
 
-  ret = libcrun_read_container_status (&status, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_read_container_حالت (&حالت_2, state_جڑ, id, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = read_container_config_from_state (&container, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_container_config_from_state (&container, state_جڑ, id, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   ret = libcrun_configure_handler (context->handler_manager,
                                    context,
                                    container,
                                    &custom_handler,
                                    err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   ret = parse_json_file (&doc, content, &ctx, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   resources = make_runtime_spec_schema_config_linux_resources (doc, &ctx, &parser_err);
-  if (UNLIKELY (resources == NULL))
+  اگر (UNLIKELY (resources == تہی))
     {
       ret = crun_make_error (err, 0, "cannot parse resources: %s", parser_err);
-      goto cleanup;
+      جاؤ cleanup;
     }
 
-  if (custom_handler && custom_handler->vtable->modify_oci_configuration)
+  اگر (custom_handler && custom_handler->vtable->modify_oci_configuration)
     {
       /* Adapt RESOURCES to be used from the modify_oci_configuration hook.  */
-      cleanup_free runtime_spec_schema_config_linux *linux = xmalloc0 (sizeof (*linux));
-      cleanup_free runtime_spec_schema_config_schema *def = xmalloc0 (sizeof (*def));
+      cleanup_free runtime_spec_schema_config_linux *linux = xmalloc0 (حجم (*linux));
+      cleanup_free runtime_spec_schema_config_schema *def = xmalloc0 (حجم (*def));
 
       def->linux = linux;
       linux->resources = resources;
@@ -4548,86 +4548,86 @@ libcrun_container_update (libcrun_context_t *context, const char *id, const char
                                                               context,
                                                               def,
                                                               err);
-      if (UNLIKELY (ret < 0))
-        goto cleanup;
+      اگر (UNLIKELY (ret < 0))
+        جاؤ cleanup;
     }
 
-  ret = libcrun_linux_container_update (&status, state_root, resources, err);
+  ret = libcrun_linux_container_update (&حالت_2, state_جڑ, resources, err);
 
 cleanup:
-  if (doc)
+  اگر (doc)
     json_object_put (doc);
-  free (parser_err);
-  if (resources)
+  آزاد (parser_err);
+  اگر (resources)
     free_runtime_spec_schema_config_linux_resources (resources);
 
-  return ret;
+  واپس ret;
 }
 
-int
-libcrun_container_update_from_file (libcrun_context_t *context, const char *id, const char *file, libcrun_error_t *err)
+صحیح
+libcrun_container_update_from_file (libcrun_context_t *context, ثابت حرف *id, ثابت حرف *file, libcrun_error_t *err)
 {
-  cleanup_free char *content = NULL;
+  cleanup_free حرف *content = تہی;
   size_t len;
-  int ret;
+  صحیح ret;
 
   ret = read_all_file (file, &content, &len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return libcrun_container_update (context, id, content, len, err);
+  واپس libcrun_container_update (context, id, content, len, err);
 }
 
-static int
-compare_update_values (const void *a, const void *b)
+ساکن صحیح
+compare_update_اقدار (ثابت خالی *a, ثابت خالی *b)
 {
-  const struct libcrun_update_value_s *aa = a;
-  const struct libcrun_update_value_s *bb = b;
-  int ret;
+  ثابت ساخت libcrun_update_قدر_s *aa = a;
+  ثابت ساخت libcrun_update_قدر_s *bb = b;
+  صحیح ret;
 
   ret = strcmp (aa->section, bb->section);
-  if (ret)
-    return ret;
-  return strcmp (aa->name, bb->name);
+  اگر (ret)
+    واپس ret;
+  واپس strcmp (aa->name, bb->name);
 }
 
-int
-libcrun_container_update_from_values (libcrun_context_t *context, const char *id,
-                                      struct libcrun_update_value_s *values, size_t len,
+صحیح
+libcrun_container_update_from_اقدار (libcrun_context_t *context, ثابت حرف *id,
+                                      ساخت libcrun_update_قدر_s *اقدار, size_t len,
                                       libcrun_error_t *err)
 {
-  const char *current_section = NULL;
-  const char *buf;
-  json_gen_ctx *gen = NULL;
+  ثابت حرف *current_section = تہی;
+  ثابت حرف *buf;
+  json_gen_ctx *gen = تہی;
   size_t i, buf_len;
-  int ret;
+  صحیح ret;
 
-  if (! json_gen_init (&gen, NULL))
-    return crun_make_error (err, 0, "json_gen_init failed");
+  اگر (! json_gen_init (&gen, تہی))
+    واپس crun_make_error (err, 0, "json_gen_init failed");
   json_gen_map_open (gen);
 
-  qsort (values, len, sizeof (struct libcrun_update_value_s), compare_update_values);
+  qsort (اقدار, len, حجم (ساخت libcrun_update_قدر_s), compare_update_اقدار);
 
-  for (i = 0; i < len; i++)
+  برائے (i = 0; i < len; i++)
     {
-      if (current_section == NULL || strcmp (values[i].section, current_section))
+      اگر (current_section == تہی || strcmp (اقدار[i].section, current_section))
         {
-          if (i > 0)
+          اگر (i > 0)
             json_gen_map_close (gen);
 
-          current_section = values[i].section;
-          json_gen_string (gen, current_section, strlen (current_section));
+          current_section = اقدار[i].section;
+          json_gen_string (gen, current_section, لڑی_لمبائی (current_section));
           json_gen_map_open (gen);
         }
 
-      json_gen_string (gen, values[i].name, strlen (values[i].name));
+      json_gen_string (gen, اقدار[i].name, لڑی_لمبائی (اقدار[i].name));
 
-      if (values[i].numeric)
-        json_gen_number (gen, values[i].value, strlen (values[i].value));
-      else
-        json_gen_string (gen, values[i].value, strlen (values[i].value));
+      اگر (اقدار[i].numeric)
+        json_gen_نمبر (gen, اقدار[i].قدر, لڑی_لمبائی (اقدار[i].قدر));
+      ورنہ
+        json_gen_string (gen, اقدار[i].قدر, لڑی_لمبائی (اقدار[i].قدر));
     }
-  if (len)
+  اگر (len)
     json_gen_map_close (gen);
 
   json_gen_map_close (gen);
@@ -4638,147 +4638,147 @@ libcrun_container_update_from_values (libcrun_context_t *context, const char *id
 
   json_gen_free (gen);
 
-  return ret;
+  واپس ret;
 }
 
-static void
-populate_array_field (char ***field, char *array[], size_t num_elements)
+ساکن خالی
+populate_array_میدان (حرف ***میدان, حرف *array[], size_t عدد_elements)
 {
   size_t i;
 
-  *field = xmalloc0 ((num_elements + 1) * sizeof (char *));
-  for (i = 0; i < num_elements; i++)
-    (*field)[i] = xstrdup (array[i]);
+  *میدان = xmalloc0 ((عدد_elements + 1) * حجم (حرف *));
+  برائے (i = 0; i < عدد_elements; i++)
+    (*میدان)[i] = xstrdup (array[i]);
 
-  (*field)[i] = NULL;
+  (*میدان)[i] = تہی;
 }
 
-#ifdef HAVE_CAP
-static void
-populate_capabilities (struct features_info_s *info, char ***capabilities, size_t *num_capabilities)
+#اگر_تعریف_شدہ HAVE_CAP
+ساکن خالی
+populate_capabilities (ساخت features_info_s *info, حرف ***capabilities, size_t *عدد_capabilities)
 {
-  size_t index = 0;
-  cap_value_t i;
-  char *endptr;
-  int j;
+  size_t اشاریہ = 0;
+  cap_قدر_t i;
+  حرف *endptr;
+  صحیح j;
 
-  *num_capabilities = 0;
-  for (i = 0;; i++)
+  *عدد_capabilities = 0;
+  برائے (i = 0;; i++)
     {
-      char *v = cap_to_name (i);
-      if (v == NULL)
-        break;
+      حرف *v = cap_مقصد_name (i);
+      اگر (v == تہی)
+        توڑو;
       strtol (v, &endptr, 10);
-      if (endptr != v)
+      اگر (endptr != v)
         {
           // Non-numeric or non-zero value encountered, break the loop
-          break;
+          توڑو;
         }
-      (*num_capabilities)++;
+      (*عدد_capabilities)++;
     }
 
-  *capabilities = xmalloc0 ((*num_capabilities + 1) * sizeof (const char *));
-  for (i = 0; i < (cap_value_t) *num_capabilities; i++)
+  *capabilities = xmalloc0 ((*عدد_capabilities + 1) * حجم (ثابت حرف *));
+  برائے (i = 0; i < (cap_قدر_t) *عدد_capabilities; i++)
     {
-      char *v = cap_to_name (i);
-      if (v == NULL)
-        break;
+      حرف *v = cap_مقصد_name (i);
+      اگر (v == تہی)
+        توڑو;
       strtol (v, &endptr, 10);
-      if (endptr != v)
+      اگر (endptr != v)
         {
           // Non-numeric or non-zero value encountered, break the loop
-          break;
+          توڑو;
         }
 
       // Convert capability name to uppercase
-      for (j = 0; v[j] != '\0'; j++)
-        v[j] = toupper (v[j]);
+      برائے (j = 0; v[j] != '\0'; j++)
+        v[j] = بڑا_حرف (v[j]);
 
-      (*capabilities)[index] = v;
-      index++;
+      (*capabilities)[اشاریہ] = v;
+      اشاریہ++;
     }
 
-  (*capabilities)[index] = NULL; // Terminate the array with NULL
-  populate_array_field (&(info->linux.capabilities), *capabilities, *num_capabilities);
+  (*capabilities)[اشاریہ] = تہی; // Terminate the array with NULL
+  populate_array_میدان (&(info->linux.capabilities), *capabilities, *عدد_capabilities);
 }
-#endif
+#اگر_ختم
 
-static void
-retrieve_mount_options (struct features_info_s **info)
+ساکن خالی
+retrieve_mount_options (ساخت features_info_s **info)
 {
-  cleanup_free const struct propagation_flags_s *mount_options_list = NULL;
-  size_t num_mount_options = 0;
+  cleanup_free ثابت ساخت اشاعت_flags_s *mount_options_list = تہی;
+  size_t عدد_mount_options = 0;
 
   // Retrieve mount options from wordlist
   mount_options_list = get_mount_flags_from_wordlist ();
 
   // Calculate the number of mount options
-  while (mount_options_list[num_mount_options].name != NULL)
-    num_mount_options++;
+  جب (mount_options_list[عدد_mount_options].name != تہی)
+    عدد_mount_options++;
 
   // Allocate memory for mount options in info struct
-  (*info)->mount_options = xmalloc0 ((num_mount_options + 1) * sizeof (char *));
+  (*info)->mount_options = xmalloc0 ((عدد_mount_options + 1) * حجم (حرف *));
 
   // Copy mount options to info struct
-  for (size_t i = 0; i < num_mount_options; i++)
+  برائے (size_t i = 0; i < عدد_mount_options; i++)
     (*info)->mount_options[i] = xstrdup (mount_options_list[i].name);
 }
 
-int
-libcrun_container_get_features (libcrun_context_t *context, struct features_info_s **info, libcrun_error_t *err arg_unused)
+صحیح
+libcrun_container_get_features (libcrun_context_t *context, ساخت features_info_s **info, libcrun_error_t *err arg_غیر_مستعمل)
 {
   // Allocate memory for the features_info_s structure
-  size_t num_namspaces = sizeof (namespaces) / sizeof (namespaces[0]);
-  size_t num_operators = sizeof (operators) / sizeof (operators[0]);
-  size_t num_actions = sizeof (actions) / sizeof (actions[0]);
-  size_t num_hooks = sizeof (hooks) / sizeof (hooks[0]);
-  size_t num_archs = sizeof (archs) / sizeof (archs[0]);
-  size_t num_unsafe_annotations = sizeof (potentially_unsafe_annotations) / sizeof (potentially_unsafe_annotations[0]);
-  cleanup_free char **capabilities = NULL;
-  size_t num_capabilities = 0;
-  size_t num_mempolicy_modes = sizeof (mempolicy_modes) / sizeof (mempolicy_modes[0]);
-  size_t num_mempolicy_flags = sizeof (mempolicy_flags) / sizeof (mempolicy_flags[0]);
+  size_t عدد_namspaces = حجم (namespaces) / حجم (namespaces[0]);
+  size_t عدد_operators = حجم (operators) / حجم (operators[0]);
+  size_t عدد_actions = حجم (actions) / حجم (actions[0]);
+  size_t عدد_hooks = حجم (hooks) / حجم (hooks[0]);
+  size_t عدد_archs = حجم (archs) / حجم (archs[0]);
+  size_t عدد_unsafe_annotations = حجم (potentially_unsafe_annotations) / حجم (potentially_unsafe_annotations[0]);
+  cleanup_free حرف **capabilities = تہی;
+  size_t عدد_capabilities = 0;
+  size_t عدد_mempolicy_modes = حجم (mempolicy_modes) / حجم (mempolicy_modes[0]);
+  size_t عدد_mempolicy_flags = حجم (mempolicy_flags) / حجم (mempolicy_flags[0]);
 
-  *info = xmalloc0 (sizeof (struct features_info_s));
+  *info = xmalloc0 (حجم (ساخت features_info_s));
 
   // Hardcoded feature information
-  (*info)->oci_version_min = xstrdup ("1.0.0");
-  (*info)->oci_version_max = xstrdup ("1.1.0+dev");
+  (*info)->oci_نسخہ_min = xstrdup ("1.0.0");
+  (*info)->oci_نسخہ_max = xstrdup ("1.1.0+dev");
 
   // Populate hooks
-  populate_array_field (&((*info)->hooks), hooks, num_hooks);
+  populate_array_میدان (&((*info)->hooks), hooks, عدد_hooks);
 
   // Populate mount_options
   retrieve_mount_options (info);
 
   // Populate namespaces
-  populate_array_field (&((*info)->linux.namespaces), namespaces, num_namspaces);
+  populate_array_میدان (&((*info)->linux.namespaces), namespaces, عدد_namspaces);
 
-#ifdef HAVE_CAP
+#اگر_تعریف_شدہ HAVE_CAP
   // Populate capabilities
-  populate_capabilities (*info, &capabilities, &num_capabilities);
-#endif
+  populate_capabilities (*info, &capabilities, &عدد_capabilities);
+#اگر_ختم
 
   // Hardcode the values for cgroup
   (*info)->linux.cgroup.v1 = true;
   (*info)->linux.cgroup.v2 = true;
-#ifdef HAVE_SYSTEMD
+#اگر_تعریف_شدہ HAVE_SYSTEMD
   (*info)->linux.cgroup.systemd = true;
   (*info)->linux.cgroup.systemd_user = true;
-#endif
+#اگر_ختم
 
   // Put seccomp values
-#ifdef HAVE_SECCOMP
+#اگر_تعریف_شدہ HAVE_SECCOMP
   (*info)->linux.seccomp.enabled = true;
   // Populate actions
-  populate_array_field (&((*info)->linux.seccomp.actions), actions, num_actions);
+  populate_array_میدان (&((*info)->linux.seccomp.actions), actions, عدد_actions);
   // Populate operators
-  populate_array_field (&((*info)->linux.seccomp.operators), operators, num_operators);
+  populate_array_میدان (&((*info)->linux.seccomp.operators), operators, عدد_operators);
   // Populate archs
-  populate_array_field (&((*info)->linux.seccomp.archs), archs, num_archs);
-#else
+  populate_array_میدان (&((*info)->linux.seccomp.archs), archs, عدد_archs);
+#ورنہ
   (*info)->linux.seccomp.enabled = false;
-#endif
+#اگر_ختم
 
   // Put values for apparmor and selinux
   (*info)->linux.apparmor.enabled = true;
@@ -4788,458 +4788,458 @@ libcrun_container_get_features (libcrun_context_t *context, struct features_info
 
   (*info)->linux.net_devices.enabled = true;
 
-  populate_array_field (&((*info)->linux.memory_policy.mode), mempolicy_modes, num_mempolicy_modes);
-  populate_array_field (&((*info)->linux.memory_policy.flags), mempolicy_flags, num_mempolicy_flags);
+  populate_array_میدان (&((*info)->linux.حافظہ_policy.منوال), mempolicy_modes, عدد_mempolicy_modes);
+  populate_array_میدان (&((*info)->linux.حافظہ_policy.flags), mempolicy_flags, عدد_mempolicy_flags);
 
   // Put the values for mount extensions
   (*info)->linux.mount_ext.idmap.enabled = true;
 
   // Populate the values for annotations
-#ifdef HAVE_SECCOMP
+#اگر_تعریف_شدہ HAVE_SECCOMP
   {
-    const struct scmp_version *version = seccomp_version ();
-    char *version_string = NULL;
+    ثابت ساخت scmp_نسخہ *نسخہ = seccomp_نسخہ ();
+    حرف *نسخہ_string = تہی;
 
-    xasprintf (&version_string, "%u.%u.%u", version->major, version->minor, version->micro);
-    (*info)->annotations.io_github_seccomp_libseccomp_version = version_string;
+    xasprintf (&نسخہ_string, "%u.%u.%u", نسخہ->major, نسخہ->minor, نسخہ->micro);
+    (*info)->annotations.io_github_seccomp_libseccomp_نسخہ = نسخہ_string;
   }
-#endif
+#اگر_ختم
 
-  if (context->handler_manager && handler_by_name (context->handler_manager, "wasm"))
-    (*info)->annotations.run_oci_crun_wasm = true;
+  اگر (context->handler_manager && handler_by_name (context->handler_manager, "wasm"))
+    (*info)->annotations.تسلسل_oci_crun_wasm = true;
 
-#if HAVE_CRIU
-  (*info)->annotations.run_oci_crun_checkpoint_enabled = true;
-#endif
-  (*info)->annotations.run_oci_crun_commit = GIT_VERSION;
-  (*info)->annotations.run_oci_crun_version = PACKAGE_VERSION;
+#اگر HAVE_CRIU
+  (*info)->annotations.تسلسل_oci_crun_checkpoint_enabled = true;
+#اگر_ختم
+  (*info)->annotations.تسلسل_oci_crun_commit = GIT_نسخہ;
+  (*info)->annotations.تسلسل_oci_crun_نسخہ = PACKAGE_نسخہ;
 
-  populate_array_field (&((*info)->potentially_unsafe_annotations), potentially_unsafe_annotations, num_unsafe_annotations);
+  populate_array_میدان (&((*info)->potentially_unsafe_annotations), potentially_unsafe_annotations, عدد_unsafe_annotations);
 
-  return 0;
+  واپس 0;
 }
 
-static void
-features_add_string (json_gen_ctx *json_gen, const char *key, const char *value)
+ساکن خالی
+features_جوڑو_string (json_gen_ctx *json_gen, ثابت حرف *کلید, ثابت حرف *قدر)
 {
-  json_gen_string (json_gen, key, strlen (key));
-  json_gen_string (json_gen, value, strlen (value));
+  json_gen_string (json_gen, کلید, لڑی_لمبائی (کلید));
+  json_gen_string (json_gen, قدر, لڑی_لمبائی (قدر));
 }
 
-static void
-features_add_bool (json_gen_ctx *json_gen, const char *key, int value)
+ساکن خالی
+features_جوڑو_bool (json_gen_ctx *json_gen, ثابت حرف *کلید, صحیح قدر)
 {
-  json_gen_string (json_gen, key, strlen (key));
-  json_gen_bool (json_gen, value);
+  json_gen_string (json_gen, کلید, لڑی_لمبائی (کلید));
+  json_gen_bool (json_gen, قدر);
 }
 
-static void
-features_add_bool_str (json_gen_ctx *json_gen, const char *key, int value)
+ساکن خالی
+features_جوڑو_bool_str (json_gen_ctx *json_gen, ثابت حرف *کلید, صحیح قدر)
 {
-  features_add_string (json_gen, key, value ? "true" : "false");
+  features_جوڑو_string (json_gen, کلید, قدر ? "true" : "false");
 }
 
-static void
-features_add_array (json_gen_ctx *json_gen, const char *key, char **array)
+ساکن خالی
+features_جوڑو_array (json_gen_ctx *json_gen, ثابت حرف *کلید, حرف **array)
 {
   size_t i;
 
-  json_gen_string (json_gen, key, strlen (key));
+  json_gen_string (json_gen, کلید, لڑی_لمبائی (کلید));
   json_gen_array_open (json_gen);
-  if (array)
-    for (i = 0; array[i] != NULL; i++)
-      json_gen_string (json_gen, array[i], strlen (array[i]));
+  اگر (array)
+    برائے (i = 0; array[i] != تہی; i++)
+      json_gen_string (json_gen, array[i], لڑی_لمبائی (array[i]));
   json_gen_array_close (json_gen);
 }
 
-static void
-features_add_linux_info (json_gen_ctx *json_gen, const struct linux_info_s *linux)
+ساکن خالی
+features_جوڑو_linux_info (json_gen_ctx *json_gen, ثابت ساخت linux_info_s *linux)
 {
-  json_gen_string (json_gen, "linux", strlen ("linux"));
+  json_gen_string (json_gen, "linux", لڑی_لمبائی ("linux"));
   json_gen_map_open (json_gen);
 
-  features_add_array (json_gen, "namespaces", linux->namespaces);
-  features_add_array (json_gen, "capabilities", linux->capabilities);
+  features_جوڑو_array (json_gen, "namespaces", linux->namespaces);
+  features_جوڑو_array (json_gen, "capabilities", linux->capabilities);
 
-  json_gen_string (json_gen, "cgroup", strlen ("cgroup"));
+  json_gen_string (json_gen, "cgroup", لڑی_لمبائی ("cgroup"));
   json_gen_map_open (json_gen);
-  features_add_bool (json_gen, "v1", linux->cgroup.v1);
-  features_add_bool (json_gen, "v2", linux->cgroup.v2);
-  features_add_bool (json_gen, "systemd", linux->cgroup.systemd);
-  features_add_bool (json_gen, "systemdUser", linux->cgroup.systemd_user);
+  features_جوڑو_bool (json_gen, "v1", linux->cgroup.v1);
+  features_جوڑو_bool (json_gen, "v2", linux->cgroup.v2);
+  features_جوڑو_bool (json_gen, "systemd", linux->cgroup.systemd);
+  features_جوڑو_bool (json_gen, "systemdUser", linux->cgroup.systemd_user);
   json_gen_map_close (json_gen);
 
-  json_gen_string (json_gen, "seccomp", strlen ("seccomp"));
+  json_gen_string (json_gen, "seccomp", لڑی_لمبائی ("seccomp"));
   json_gen_map_open (json_gen);
-  features_add_bool (json_gen, "enabled", linux->seccomp.enabled);
-  if (linux->seccomp.actions)
-    features_add_array (json_gen, "actions", linux->seccomp.actions);
-  if (linux->seccomp.operators)
-    features_add_array (json_gen, "operators", linux->seccomp.operators);
+  features_جوڑو_bool (json_gen, "enabled", linux->seccomp.enabled);
+  اگر (linux->seccomp.actions)
+    features_جوڑو_array (json_gen, "actions", linux->seccomp.actions);
+  اگر (linux->seccomp.operators)
+    features_جوڑو_array (json_gen, "operators", linux->seccomp.operators);
   json_gen_map_close (json_gen);
 
-  json_gen_string (json_gen, "apparmor", strlen ("apparmor"));
+  json_gen_string (json_gen, "apparmor", لڑی_لمبائی ("apparmor"));
   json_gen_map_open (json_gen);
-  features_add_bool (json_gen, "enabled", linux->apparmor.enabled);
+  features_جوڑو_bool (json_gen, "enabled", linux->apparmor.enabled);
   json_gen_map_close (json_gen);
 
-  json_gen_string (json_gen, "selinux", strlen ("selinux"));
+  json_gen_string (json_gen, "selinux", لڑی_لمبائی ("selinux"));
   json_gen_map_open (json_gen);
-  features_add_bool (json_gen, "enabled", linux->selinux.enabled);
+  features_جوڑو_bool (json_gen, "enabled", linux->selinux.enabled);
   json_gen_map_close (json_gen);
 
-  json_gen_string (json_gen, "mountExtensions", strlen ("mountExtensions"));
+  json_gen_string (json_gen, "mountExtensions", لڑی_لمبائی ("mountExtensions"));
   json_gen_map_open (json_gen);
-  json_gen_string (json_gen, "idmap", strlen ("idmap"));
+  json_gen_string (json_gen, "idmap", لڑی_لمبائی ("idmap"));
   json_gen_map_open (json_gen);
-  features_add_bool (json_gen, "enabled", linux->mount_ext.idmap.enabled);
+  features_جوڑو_bool (json_gen, "enabled", linux->mount_ext.idmap.enabled);
   json_gen_map_close (json_gen);
   json_gen_map_close (json_gen);
 
-  json_gen_string (json_gen, "intelRdt", strlen ("intelRdt"));
+  json_gen_string (json_gen, "intelRdt", لڑی_لمبائی ("intelRdt"));
   json_gen_map_open (json_gen);
-  features_add_bool (json_gen, "enabled", linux->intel_rdt.enabled);
+  features_جوڑو_bool (json_gen, "enabled", linux->intel_rdt.enabled);
   json_gen_map_close (json_gen);
 
-  json_gen_string (json_gen, "netDevices", strlen ("netDevices"));
+  json_gen_string (json_gen, "netDevices", لڑی_لمبائی ("netDevices"));
   json_gen_map_open (json_gen);
-  features_add_bool (json_gen, "enabled", linux->net_devices.enabled);
+  features_جوڑو_bool (json_gen, "enabled", linux->net_devices.enabled);
   json_gen_map_close (json_gen);
 
-  json_gen_string (json_gen, "memoryPolicy", strlen ("memoryPolicy"));
+  json_gen_string (json_gen, "memoryPolicy", لڑی_لمبائی ("memoryPolicy"));
   json_gen_map_open (json_gen);
-  if (linux->memory_policy.mode)
-    features_add_array (json_gen, "modes", linux->memory_policy.mode);
-  if (linux->memory_policy.flags)
-    features_add_array (json_gen, "flags", linux->memory_policy.flags);
+  اگر (linux->حافظہ_policy.منوال)
+    features_جوڑو_array (json_gen, "modes", linux->حافظہ_policy.منوال);
+  اگر (linux->حافظہ_policy.flags)
+    features_جوڑو_array (json_gen, "flags", linux->حافظہ_policy.flags);
   json_gen_map_close (json_gen);
 
   json_gen_map_close (json_gen);
 }
 
-static void
-features_add_annotations_info (json_gen_ctx *json_gen, const struct annotations_info_s *annotation)
+ساکن خالی
+features_جوڑو_annotations_info (json_gen_ctx *json_gen, ثابت ساخت annotations_info_s *annotation)
 {
-  json_gen_string (json_gen, "annotations", strlen ("annotations"));
+  json_gen_string (json_gen, "annotations", لڑی_لمبائی ("annotations"));
   json_gen_map_open (json_gen);
 
-  if (! is_empty_string (annotation->io_github_seccomp_libseccomp_version))
-    features_add_string (json_gen, "io.github.seccomp.libseccomp.version", annotation->io_github_seccomp_libseccomp_version);
+  اگر (! is_خالی_خانے_string (annotation->io_github_seccomp_libseccomp_نسخہ))
+    features_جوڑو_string (json_gen, "io.github.seccomp.libseccomp.version", annotation->io_github_seccomp_libseccomp_نسخہ);
 
-  features_add_bool_str (json_gen, "org.opencontainers.runc.checkpoint.enabled", annotation->run_oci_crun_checkpoint_enabled);
-  features_add_bool_str (json_gen, "run.oci.crun.checkpoint.enabled", annotation->run_oci_crun_checkpoint_enabled);
+  features_جوڑو_bool_str (json_gen, "org.opencontainers.runc.checkpoint.enabled", annotation->تسلسل_oci_crun_checkpoint_enabled);
+  features_جوڑو_bool_str (json_gen, "run.oci.crun.checkpoint.enabled", annotation->تسلسل_oci_crun_checkpoint_enabled);
 
-  features_add_string (json_gen, "run.oci.crun.commit", annotation->run_oci_crun_commit);
-  features_add_string (json_gen, "run.oci.crun.version", annotation->run_oci_crun_version);
+  features_جوڑو_string (json_gen, "run.oci.crun.commit", annotation->تسلسل_oci_crun_commit);
+  features_جوڑو_string (json_gen, "run.oci.crun.version", annotation->تسلسل_oci_crun_نسخہ);
 
-  features_add_bool_str (json_gen, "run.oci.crun.wasm", annotation->run_oci_crun_wasm);
+  features_جوڑو_bool_str (json_gen, "run.oci.crun.wasm", annotation->تسلسل_oci_crun_wasm);
 
   json_gen_map_close (json_gen);
 }
 
-int
-libcrun_container_get_features_json (libcrun_context_t *context, char **out, libcrun_error_t *err)
+صحیح
+libcrun_container_get_features_json (libcrun_context_t *context, حرف **برآمد, libcrun_error_t *err)
 {
-  cleanup_struct_features struct features_info_s *info = NULL;
-  const char *buffer = NULL;
+  cleanup_struct_features ساخت features_info_s *info = تہی;
+  ثابت حرف *بفر = تہی;
   json_gen_ctx *json_gen;
-  size_t buffer_len;
-  int ret;
+  size_t بفر_len;
+  صحیح ret;
 
-  *out = NULL;
+  *برآمد = تہی;
 
   ret = libcrun_container_get_features (context, &info, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (! json_gen_init (&json_gen, NULL))
-    return crun_make_error (err, 0, "cannot initialize JSON generator");
+  اگر (! json_gen_init (&json_gen, تہی))
+    واپس crun_make_error (err, 0, "cannot initialize JSON generator");
 
   json_gen_config (json_gen, json_gen_beautify, 1);
 
   json_gen_map_open (json_gen);
 
-  features_add_string (json_gen, "ociVersionMin", info->oci_version_min);
-  features_add_string (json_gen, "ociVersionMax", info->oci_version_max);
-  features_add_array (json_gen, "hooks", info->hooks);
-  features_add_array (json_gen, "mountOptions", info->mount_options);
-  features_add_linux_info (json_gen, &info->linux);
-  features_add_annotations_info (json_gen, &info->annotations);
-  features_add_array (json_gen, "potentiallyUnsafeConfigAnnotations", info->potentially_unsafe_annotations);
+  features_جوڑو_string (json_gen, "ociVersionMin", info->oci_نسخہ_min);
+  features_جوڑو_string (json_gen, "ociVersionMax", info->oci_نسخہ_max);
+  features_جوڑو_array (json_gen, "hooks", info->hooks);
+  features_جوڑو_array (json_gen, "mountOptions", info->mount_options);
+  features_جوڑو_linux_info (json_gen, &info->linux);
+  features_جوڑو_annotations_info (json_gen, &info->annotations);
+  features_جوڑو_array (json_gen, "potentiallyUnsafeConfigAnnotations", info->potentially_unsafe_annotations);
 
   json_gen_map_close (json_gen);
 
-  json_gen_get_buf (json_gen, &buffer, &buffer_len);
-  *out = xstrdup (buffer);
+  json_gen_get_buf (json_gen, &بفر, &بفر_len);
+  *برآمد = xstrdup (بفر);
   json_gen_free (json_gen);
 
-  return 0;
+  واپس 0;
 }
 
 /* Read the container status and fail if the container is not running.  */
-static int
-read_status_require_running (libcrun_context_t *context, const char *id,
-                             libcrun_container_status_t *status, libcrun_error_t *err)
+ساکن صحیح
+read_حالت_require_running (libcrun_context_t *context, ثابت حرف *id,
+                             libcrun_container_حالت_t *حالت_2, libcrun_error_t *err)
 {
-  int ret;
+  صحیح ret;
 
-  ret = libcrun_read_container_status (status, context->state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_read_container_حالت (حالت_2, context->state_جڑ, id, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = libcrun_is_container_running (status, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
-  if (ret == 0)
-    return crun_make_error (err, 0, "the container `%s` is not running", id);
+  ret = libcrun_is_container_running (حالت_2, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
+  اگر (ret == 0)
+    واپس crun_make_error (err, 0, "the container `%s` is not running", id);
 
-  return 0;
+  واپس 0;
 }
 
-int
-libcrun_container_pause (libcrun_context_t *context, const char *id, libcrun_error_t *err)
+صحیح
+libcrun_container_pause (libcrun_context_t *context, ثابت حرف *id, libcrun_error_t *err)
 {
-  int ret;
-  libcrun_container_status_t status = {};
+  صحیح ret;
+  libcrun_container_حالت_t حالت_2 = {};
 
-  ret = read_status_require_running (context, id, &status, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_حالت_require_running (context, id, &حالت_2, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return libcrun_container_pause_linux (&status, err);
+  واپس libcrun_container_pause_linux (&حالت_2, err);
 }
 
-int
-libcrun_container_unpause (libcrun_context_t *context, const char *id, libcrun_error_t *err)
+صحیح
+libcrun_container_unpause (libcrun_context_t *context, ثابت حرف *id, libcrun_error_t *err)
 {
-  int ret;
-  libcrun_container_status_t status = {};
+  صحیح ret;
+  libcrun_container_حالت_t حالت_2 = {};
 
-  ret = read_status_require_running (context, id, &status, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_حالت_require_running (context, id, &حالت_2, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return libcrun_container_unpause_linux (&status, err);
+  واپس libcrun_container_unpause_linux (&حالت_2, err);
 }
 
 /* Translate the public options struct into the internal representation used by
    the linux/CRIU layer.  Strings are borrowed (not copied).  */
-static void
-cr_options_from_public (libcrun_checkpoint_restore_t *dst, struct libcrun_checkpoint_restore_options_s *src)
+ساکن خالی
+cr_options_from_عوامی (libcrun_checkpoint_restore_t *dst, ساخت libcrun_checkpoint_restore_options_s *src)
 {
-  memset (dst, 0, sizeof (*dst));
-  dst->image_path = (char *) src->image_path;
-  dst->work_path = (char *) src->work_path;
-  dst->parent_path = (char *) src->parent_path;
+  memset (dst, 0, حجم (*dst));
+  dst->image_راستہ = (حرف *) src->image_راستہ;
+  dst->work_راستہ = (حرف *) src->work_راستہ;
+  dst->والد_راستہ = (حرف *) src->والد_راستہ;
   dst->console_socket = src->console_socket;
-  dst->lsm_profile = (char *) src->lsm_profile;
-  dst->lsm_mount_context = (char *) src->lsm_mount_context;
+  dst->lsm_profile = (حرف *) src->lsm_profile;
+  dst->lsm_mount_context = (حرف *) src->lsm_mount_context;
   dst->leave_running = src->leave_running;
   dst->tcp_established = src->tcp_established;
   dst->tcp_close = src->tcp_close;
   dst->ext_unix_sk = src->ext_unix_sk;
-  dst->shell_job = src->shell_job;
+  dst->shell_کام = src->shell_کام;
   dst->file_locks = src->file_locks;
   dst->pre_dump = src->pre_dump;
   dst->detach = src->detach;
-  dst->manage_cgroups_mode = src->manage_cgroups_mode;
-  dst->network_lock_method = src->network_lock_method;
+  dst->manage_cgroups_منوال = src->manage_cgroups_منوال;
+  dst->جال_تالا_طریقہ = src->جال_تالا_طریقہ;
 }
 
-int
-libcrun_container_checkpoint (libcrun_context_t *context, const char *id,
-                              struct libcrun_checkpoint_restore_options_s *cr_options, libcrun_error_t *err)
+صحیح
+libcrun_container_checkpoint (libcrun_context_t *context, ثابت حرف *id,
+                              ساخت libcrun_checkpoint_restore_options_s *cr_options, libcrun_error_t *err)
 {
-  int ret;
-  const char *state_root = context->state_root;
-  libcrun_container_status_t status = {};
+  صحیح ret;
+  ثابت حرف *state_جڑ = context->state_جڑ;
+  libcrun_container_حالت_t حالت_2 = {};
   libcrun_checkpoint_restore_t cr;
-  cleanup_container libcrun_container_t *container = NULL;
+  cleanup_container libcrun_container_t *container = تہی;
 
-  cr_options_from_public (&cr, cr_options);
+  cr_options_from_عوامی (&cr, cr_options);
 
-  ret = read_status_require_running (context, id, &status, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_حالت_require_running (context, id, &حالت_2, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = read_container_config_from_state (&container, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_container_config_from_state (&container, state_جڑ, id, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   /* Needed to use the same paths (e.g. the shared empty directory used for
      masked paths) as the container runtime and restore do.  */
   container->context = context;
 
-  ret = libcrun_container_checkpoint_linux (&status, container, &cr, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_container_checkpoint_linux (&حالت_2, container, &cr, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (! (cr_options->leave_running || cr_options->pre_dump))
-    return container_delete_internal (context, NULL, NULL, id, true, true, err);
+  اگر (! (cr_options->leave_running || cr_options->pre_dump))
+    واپس container_delete_اندرونی (context, تہی, تہی, id, true, true, err);
 
-  return 0;
+  واپس 0;
 }
 
 /* The dummy process only keeps the cgroup populated until the container is restored there.
    Its cgroup is below the container cgroup, so once the container runs it can freeze or kill
    the dummy process: never depend on it after that point.  */
-static void
-restore_proxy_process (int proxy_pid_pipe)
+ساکن خالی
+restore_proxy_process (صحیح proxy_pid_pipe)
 {
-  char c;
+  حرف c;
 
   /* Wait to be killed by the parent, or for the parent to go away.  */
-  TEMP_FAILURE_RETRY (read (proxy_pid_pipe, &c, sizeof (c)));
+  عارضی_FAILURE_RETRY (اقرأ (proxy_pid_pipe, &c, حجم (c)));
 }
 
-static int
-restore_terminate_proxy_process (pid_t proxy_pid, const char *proxy_cgroup, pid_t container_pid, int cgroup_manager, libcrun_error_t *err)
+ساکن صحیح
+restore_terminate_proxy_process (pid_t proxy_pid, ثابت حرف *proxy_cgroup, pid_t container_pid, صحیح cgroup_manager, libcrun_error_t *err)
 {
-  int mode;
-  int ret;
+  صحیح منوال;
+  صحیح ret;
 
-  if (cgroup_manager == CGROUP_MANAGER_SYSTEMD)
+  اگر (cgroup_manager == CGROUP_MANAGER_SYSTEMD)
     {
-      char ready_str[64];
+      حرف ready_str[64];
 
-      ret = snprintf (ready_str, sizeof (ready_str), "MAINPID=%d", container_pid);
-      if (UNLIKELY (ret >= (int) sizeof (ready_str)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      ret = snprintf (ready_str, حجم (ready_str), "MAINPID=%d", container_pid);
+      اگر (UNLIKELY (ret >= (صحیح) حجم (ready_str)))
+        واپس crun_make_error (err, 0, "internal error: static buffer too small");
 
       ret = send_sd_notify (ready_str, err);
       /* Do not fail on errors.  */
-      if (UNLIKELY (ret < 0))
+      اگر (UNLIKELY (ret < 0))
         crun_error_release (err);
     }
 
-  mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (mode < 0))
-    return mode;
+  منوال = libcrun_get_cgroup_منوال (err);
+  اگر (UNLIKELY (منوال < 0))
+    واپس منوال;
 
   /* SIGKILL terminates a process frozen with cgroup v2, while the cgroup v1 freezer does not
      deliver it until the cgroup is thawed, so do not wait for it there.  */
   kill (proxy_pid, SIGKILL);
-  TEMP_FAILURE_RETRY (waitpid (proxy_pid, NULL, mode == CGROUP_MODE_UNIFIED ? 0 : WNOHANG));
+  عارضی_FAILURE_RETRY (waitpid (proxy_pid, تہی, منوال == CGROUP_منوال_UNIFIED ? 0 : WNOHANG));
 
-  return destroy_cgroup_path (proxy_cgroup, mode, err);
+  واپس destroy_cgroup_راستہ (proxy_cgroup, منوال, err);
 }
 
-int
-libcrun_container_restore (libcrun_context_t *context, const char *id arg_unused,
-                           struct libcrun_checkpoint_restore_options_s *cr_options, libcrun_error_t *err)
+صحیح
+libcrun_container_restore (libcrun_context_t *context, ثابت حرف *id arg_غیر_مستعمل,
+                           ساخت libcrun_checkpoint_restore_options_s *cr_options, libcrun_error_t *err)
 {
-  cleanup_cgroup_status struct libcrun_cgroup_status *cgroup_status = NULL;
-  cleanup_container libcrun_container_t *container = NULL;
-  cleanup_close int proxy_pid_pipe0 = -1;
-  cleanup_close int proxy_pid_pipe1 = -1;
+  cleanup_cgroup_حالت ساخت libcrun_cgroup_حالت *cgroup_حالت = تہی;
+  cleanup_container libcrun_container_t *container = تہی;
+  cleanup_close صحیح proxy_pid_pipe0 = -1;
+  cleanup_close صحیح proxy_pid_pipe1 = -1;
   runtime_spec_schema_config_schema *def;
-  libcrun_container_status_t status = {};
-  struct libcrun_seccomp_gen_ctx_s seccomp_gen_ctx;
+  libcrun_container_حالت_t حالت_2 = {};
+  ساخت libcrun_seccomp_gen_ctx_s seccomp_gen_ctx;
   libcrun_checkpoint_restore_t cr;
   cleanup_pid pid_t proxy_pid = -1;
-  cleanup_close int seccomp_fd = -1;
-  const char *seccomp_bpf_data;
-  int proxy_pid_pipe[2];
-  int cgroup_manager;
-  uid_t root_uid = -1;
-  gid_t root_gid = -1;
-  int ret;
+  cleanup_close صحیح seccomp_fd = -1;
+  ثابت حرف *seccomp_bpf_ڈیٹا;
+  صحیح proxy_pid_pipe[2];
+  صحیح cgroup_manager;
+  uid_t جڑ_uid = -1;
+  gid_t جڑ_gid = -1;
+  صحیح ret;
 
-  cr_options_from_public (&cr, cr_options);
+  cr_options_from_عوامی (&cr, cr_options);
 
-  container = libcrun_container_load_from_file ("config.json", err);
-  if (container == NULL)
-    return -1;
+  container = libcrun_container_بھرو_from_file ("config.json", err);
+  اگر (container == تہی)
+    واپس -1;
 
   container->context = context;
   def = container->container_def;
 
   ret = check_config_file (def, context, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = libcrun_status_check_directories (context->state_root, context->id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_حالت_check_directories (context->state_جڑ, context->id, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = libcrun_copy_config_file (context->id, context->state_root, container, err);
-  if (UNLIKELY (ret < 0))
-    goto fail;
+  ret = libcrun_copy_config_file (context->id, context->state_جڑ, container, err);
+  اگر (UNLIKELY (ret < 0))
+    جاؤ fail;
 
   /* CRIU restores the seccomp filters of the checkpointed processes, but
      exec loads the filter from the seccomp.bpf file in the state directory,
      so it must be generated again for the restored container.  */
-  seccomp_bpf_data = find_annotation (container, "run.oci.seccomp_bpf_data");
+  seccomp_bpf_ڈیٹا = ڈھونڈو_annotation (container, "run.oci.seccomp_bpf_data");
 
-  ret = setup_seccomp (container, seccomp_bpf_data, &seccomp_gen_ctx, &seccomp_fd, err);
-  if (UNLIKELY (ret < 0))
-    goto fail;
+  ret = تیاری_seccomp (container, seccomp_bpf_ڈیٹا, &seccomp_gen_ctx, &seccomp_fd, err);
+  اگر (UNLIKELY (ret < 0))
+    جاؤ fail;
 
-  ret = seccomp_generation (seccomp_fd, seccomp_bpf_data, &seccomp_gen_ctx, err);
-  if (UNLIKELY (ret < 0))
-    goto fail;
+  ret = seccomp_generation (seccomp_fd, seccomp_bpf_ڈیٹا, &seccomp_gen_ctx, err);
+  اگر (UNLIKELY (ret < 0))
+    جاؤ fail;
   close_and_reset (&seccomp_fd);
 
   cgroup_manager = CGROUP_MANAGER_CGROUPFS;
-  if (context->systemd_cgroup)
+  اگر (context->systemd_cgroup)
     cgroup_manager = CGROUP_MANAGER_SYSTEMD;
-  else if (context->force_no_cgroup)
+  ورنہ اگر (context->force_no_cgroup)
     cgroup_manager = CGROUP_MANAGER_DISABLED;
 
   def = container->container_def;
 
   /* If we are root (either on the host or in a namespace),
    * then chown the cgroup to root in the container user namespace. */
-  get_root_in_the_userns (def, container->host_uid, container->host_gid, &root_uid, &root_gid);
+  get_جڑ_اندر_the_userns (def, container->host_uid, container->host_gid, &جڑ_uid, &جڑ_gid);
 
   /* If the root in the container is different than the current root user, attempt to chown
      the std streams before entering the user namespace.  Otherwise we might lose access
      to the user (as it is not mapped in the user namespace) and cannot chown them.  */
-  if (root_uid > 0 || root_gid > 0)
+  اگر (جڑ_uid > 0 || جڑ_gid > 0)
     {
-      ret = maybe_chown_std_streams (root_uid, root_gid, err);
-      if (UNLIKELY (ret < 0))
-        goto fail;
+      ret = maybe_chown_std_streams (جڑ_uid, جڑ_gid, err);
+      اگر (UNLIKELY (ret < 0))
+        جاؤ fail;
     }
 
   /* CRIU runs as a child process, so the restored processes would inherit the session keyring.  */
-  ret = setup_container_keyring (container, context, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = تیاری_container_keyring (container, context, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   {
-    cleanup_close int cgroup_dirfd = -1;
+    cleanup_close صحیح cgroup_dirfd = -1;
     bool needs_proxy_process;
-    cleanup_cgroup_preenter struct libcrun_cgroup_args cg = {
-      .resources = def->linux ? def->linux->resources : NULL,
+    cleanup_cgroup_preenter ساخت libcrun_cgroup_دلائل cg = {
+      .resources = def->linux ? def->linux->resources : تہی,
       .annotations = container->annotations,
-      .cgroup_path = def->linux ? def->linux->cgroups_path : "",
+      .cgroup_راستہ = def->linux ? def->linux->cgroups_راستہ : "",
       .manager = cgroup_manager,
-      .root_uid = root_uid,
-      .root_gid = root_gid,
+      .جڑ_uid = جڑ_uid,
+      .جڑ_gid = جڑ_gid,
       .id = context->id,
-      .state_root = context->state_root,
+      .state_جڑ = context->state_جڑ,
       .container = container,
     };
 
     /* The CRIU restore code uses bundle, rootfs and cgroup_path of status.   The cgroup_path is set later.  */
-    status.bundle = (char *) context->bundle;
-    status.rootfs = def->root->path;
+    حالت_2.bundle = (حرف *) context->bundle;
+    حالت_2.rootfs = def->جڑ->راستہ;
 
     ret = libcrun_cgroup_preenter (&cg, &cgroup_dirfd, err);
-    if (UNLIKELY (ret < 0))
-      goto fail;
+    اگر (UNLIKELY (ret < 0))
+      جاؤ fail;
 
     needs_proxy_process = cgroup_dirfd < 0;
 
     /* If the target cgroup was already created (with cgroupfs), we can restore the container directly there.  */
-    if (! needs_proxy_process)
+    اگر (! needs_proxy_process)
       {
-        cleanup_free char *cgroup_path = NULL;
+        cleanup_free حرف *cgroup_راستہ = تہی;
 
-        ret = get_cgroup_dirfd_path (cgroup_dirfd, &cgroup_path, err);
-        if (UNLIKELY (ret < 0))
-          goto fail;
+        ret = get_cgroup_dirfd_راستہ (cgroup_dirfd, &cgroup_راستہ, err);
+        اگر (UNLIKELY (ret < 0))
+          جاؤ fail;
 
         /* Complete the configuration for the cgroup before the container is
            restored there: CRIU resumes the restored processes before it
@@ -5248,37 +5248,37 @@ libcrun_container_restore (libcrun_context_t *context, const char *id arg_unused
            and the controllers were enabled by precreate_cgroup.  */
         cg.joined = true;
 
-        ret = libcrun_cgroup_enter (&cg, &cgroup_status, err);
-        if (UNLIKELY (ret < 0))
-          goto fail;
+        ret = libcrun_cgroup_enter (&cg, &cgroup_حالت, err);
+        اگر (UNLIKELY (ret < 0))
+          جاؤ fail;
 
         /* Restore the container directly in the desired cgroup.  */
-        status.cgroup_path = cgroup_path;
+        حالت_2.cgroup_راستہ = cgroup_راستہ;
 
-        ret = libcrun_container_restore_linux (&status, container, &cr, err);
-        if (UNLIKELY (ret < 0))
-          goto fail;
+        ret = libcrun_container_restore_linux (&حالت_2, container, &cr, err);
+        اگر (UNLIKELY (ret < 0))
+          جاؤ fail;
 
         /* Now that the container is restored, keep any signal for it, so that
            it is forwarded to the init by wait_for_process, rather than acted
            upon by crun.  This cannot be done earlier, as CRIU, which is run as
            a child process, would inherit the blocked signals.  */
-        ret = block_signals (err);
-        if (UNLIKELY (ret < 0))
-          goto fail;
+        ret = بلاک_اشارات (err);
+        اگر (UNLIKELY (ret < 0))
+          جاؤ fail;
 
         /* Use the container first process PID to finalize the cgroup.  */
-        cg.pid = status.pid;
+        cg.pid = حالت_2.pid;
       }
-    else
+    ورنہ
       {
         /* When using systemd, we need a process first that must exist before a cgroup is created.
            Create a dummy process that sits and waits until the container is restored.  */
         ret = pipe2 (proxy_pid_pipe, O_CLOEXEC);
-        if (UNLIKELY (ret < 0))
+        اگر (UNLIKELY (ret < 0))
           {
             ret = crun_make_error (err, errno, "pipe");
-            goto fail;
+            جاؤ fail;
           }
 
         /* Only used for auto cleanup.  */
@@ -5286,18 +5286,18 @@ libcrun_container_restore (libcrun_context_t *context, const char *id arg_unused
         proxy_pid_pipe1 = proxy_pid_pipe[1];
 
         proxy_pid = fork ();
-        if (UNLIKELY (proxy_pid < 0))
+        اگر (UNLIKELY (proxy_pid < 0))
           {
             ret = crun_make_error (err, errno, "fork");
-            goto fail;
+            جاؤ fail;
           }
 
-        if (proxy_pid == 0)
+        اگر (proxy_pid == 0)
           {
             close_and_reset (&proxy_pid_pipe1);
 
             restore_proxy_process (proxy_pid_pipe0);
-            _safe_exit (EXIT_SUCCESS);
+            محفوظ_exit (EXIT_SUCCESS);
           }
 
         close_and_reset (&proxy_pid_pipe0);
@@ -5306,49 +5306,49 @@ libcrun_container_restore (libcrun_context_t *context, const char *id arg_unused
         cg.pid = proxy_pid;
 
         /* Complete the configuration for the cgroup.  It contains only the dummy process.  */
-        ret = libcrun_cgroup_enter (&cg, &cgroup_status, err);
-        if (UNLIKELY (ret < 0))
-          goto fail;
+        ret = libcrun_cgroup_enter (&cg, &cgroup_حالت, err);
+        اگر (UNLIKELY (ret < 0))
+          جاؤ fail;
       }
 
-    ret = libcrun_cgroup_enter_finalize (&cg, cgroup_status, err);
-    if (UNLIKELY (ret < 0))
-      goto fail;
+    ret = libcrun_cgroup_enter_finalize (&cg, cgroup_حالت, err);
+    اگر (UNLIKELY (ret < 0))
+      جاؤ fail;
 
     /* When using a dummy process, the container is restored here once the cgroup is configured.  */
-    if (needs_proxy_process)
+    اگر (needs_proxy_process)
       {
-        cleanup_free char *target_cgroup = NULL;
-        cleanup_free char *proxy_cgroup = NULL;
+        cleanup_free حرف *ہدف_cgroup = تہی;
+        cleanup_free حرف *proxy_cgroup = تہی;
 
-        ret = libcrun_get_cgroup_process (proxy_pid, &target_cgroup, false, err);
-        if (UNLIKELY (ret < 0))
-          goto fail;
+        ret = libcrun_get_cgroup_process (proxy_pid, &ہدف_cgroup, false, err);
+        اگر (UNLIKELY (ret < 0))
+          جاؤ fail;
 
         /* Move the dummy process to a sub-cgroup.  */
-        ret = append_paths (&proxy_cgroup, err, target_cgroup, ".proxy-crun", NULL);
-        if (UNLIKELY (ret < 0))
-          goto fail;
+        ret = append_paths (&proxy_cgroup, err, ہدف_cgroup, ".proxy-crun", تہی);
+        اگر (UNLIKELY (ret < 0))
+          جاؤ fail;
 
-        ret = libcrun_move_process_to_cgroup (proxy_pid, 0, proxy_cgroup, true, err);
-        if (UNLIKELY (ret < 0))
-          goto fail;
+        ret = libcrun_move_process_مقصد_cgroup (proxy_pid, 0, proxy_cgroup, true, err);
+        اگر (UNLIKELY (ret < 0))
+          جاؤ fail;
 
         /* Restore the container in the same cgroup where the dummy process was.  */
-        status.cgroup_path = target_cgroup;
+        حالت_2.cgroup_راستہ = ہدف_cgroup;
 
-        ret = libcrun_container_restore_linux (&status, container, &cr, err);
-        if (UNLIKELY (ret < 0))
-          goto fail;
+        ret = libcrun_container_restore_linux (&حالت_2, container, &cr, err);
+        اگر (UNLIKELY (ret < 0))
+          جاؤ fail;
 
         /* See the comment for the other libcrun_container_restore_linux call.  */
-        ret = block_signals (err);
-        if (UNLIKELY (ret < 0))
-          goto fail;
+        ret = بلاک_اشارات (err);
+        اگر (UNLIKELY (ret < 0))
+          جاؤ fail;
 
         /* The container is running, so do not fail because of the dummy process.  */
-        ret = restore_terminate_proxy_process (proxy_pid, proxy_cgroup, status.pid, cgroup_manager, err);
-        if (UNLIKELY (ret < 0))
+        ret = restore_terminate_proxy_process (proxy_pid, proxy_cgroup, حالت_2.pid, cgroup_manager, err);
+        اگر (UNLIKELY (ret < 0))
           crun_error_release (err);
         proxy_pid = -1;
 
@@ -5357,259 +5357,259 @@ libcrun_container_restore (libcrun_context_t *context, const char *id arg_unused
   }
 
   context->detach = cr_options->detach;
-  ret = write_container_status (container, context, status.pid, cgroup_status, err);
-  if (UNLIKELY (ret < 0))
-    goto fail;
+  ret = write_container_حالت (container, context, حالت_2.pid, cgroup_حالت, err);
+  اگر (UNLIKELY (ret < 0))
+    جاؤ fail;
 
   {
     /* Wait the same way run and exec do: apart from waiting for the container
        init, this writes the pid file, forwards any signal to the init, and
        reaps every child, not only the init.  */
-    struct wait_for_process_args args = {
-      .pid = status.pid,
+    ساخت wait_for_process_دلائل دلائل = {
+      .pid = حالت_2.pid,
       .context = context,
       .terminal_fd = -1,
       .notify_socket = -1,
-      .container_ready_fd = NULL,
+      .container_ready_fd = تہی,
       .seccomp_notify_fd = -1,
-      .seccomp_notify_plugins = NULL,
+      .seccomp_notify_plugins = تہی,
     };
 
-    return wait_for_process (&args, err);
+    واپس wait_for_process (&دلائل, err);
   }
 
 fail:
   /* Once restored, the container is running.  Without a status file nothing
      can reach it anymore, so do not leave it behind.  */
-  if (status.pid > 0)
+  اگر (حالت_2.pid > 0)
     {
-      kill (status.pid, SIGKILL);
-      waitpid_ignore_stopped (status.pid, NULL, 0);
+      kill (حالت_2.pid, SIGKILL);
+      waitpid_ignore_stopped (حالت_2.pid, تہی, 0);
     }
-  if (cgroup_status)
+  اگر (cgroup_حالت)
     {
-      libcrun_error_t tmp_err = NULL;
-      libcrun_cgroup_destroy (cgroup_status, &tmp_err);
+      libcrun_error_t tmp_err = تہی;
+      libcrun_cgroup_destroy (cgroup_حالت, &tmp_err);
       crun_error_release (&tmp_err);
     }
   {
-    libcrun_error_t tmp_err = NULL;
+    libcrun_error_t tmp_err = تہی;
 
-    if (libcrun_container_delete_status (context->state_root, context->id, &tmp_err) < 0)
+    اگر (libcrun_container_delete_حالت (context->state_جڑ, context->id, &tmp_err) < 0)
       crun_error_release (&tmp_err);
   }
-  return ret;
+  واپس ret;
 }
 
-int
-libcrun_container_read_pids (libcrun_context_t *context, const char *id, bool recurse, pid_t **pids, libcrun_error_t *err)
+صحیح
+libcrun_container_read_pids (libcrun_context_t *context, ثابت حرف *id, bool recurse, pid_t **pids, libcrun_error_t *err)
 {
-  cleanup_cgroup_status struct libcrun_cgroup_status *cgroup_status = NULL;
-  cleanup_container_status libcrun_container_status_t status = {};
-  int ret;
+  cleanup_cgroup_حالت ساخت libcrun_cgroup_حالت *cgroup_حالت = تہی;
+  cleanup_container_حالت libcrun_container_حالت_t حالت_2 = {};
+  صحیح ret;
 
-  ret = libcrun_read_container_status (&status, context->state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_read_container_حالت (&حالت_2, context->state_جڑ, id, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (status.cgroup_path == NULL || status.cgroup_path[0] == '\0')
-    return crun_make_error (err, 0, "the container is not using cgroups");
+  اگر (حالت_2.cgroup_راستہ == تہی || حالت_2.cgroup_راستہ[0] == '\0')
+    واپس crun_make_error (err, 0, "the container is not using cgroups");
 
-  cgroup_status = libcrun_cgroup_make_status (&status);
+  cgroup_حالت = libcrun_cgroup_make_حالت (&حالت_2);
 
-  return libcrun_cgroup_read_pids (cgroup_status, recurse, pids, err);
+  واپس libcrun_cgroup_read_pids (cgroup_حالت, recurse, pids, err);
 }
 
-int
-libcrun_container_list_json (libcrun_context_t *context, char **out, libcrun_error_t *err)
+صحیح
+libcrun_container_list_json (libcrun_context_t *context, حرف **برآمد, libcrun_error_t *err)
 {
-  libcrun_container_list_t *list = NULL, *it;
-  const char *content = NULL;
-  json_gen_ctx *gen = NULL;
+  libcrun_container_list_t *list = تہی, *it;
+  ثابت حرف *content = تہی;
+  json_gen_ctx *gen = تہی;
   size_t len;
-  int ret;
+  صحیح ret;
 
-  *out = NULL;
+  *برآمد = تہی;
 
-  ret = libcrun_get_containers_list (&list, context->state_root, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_get_containers_list (&list, context->state_جڑ, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (! json_gen_init (&gen, NULL))
+  اگر (! json_gen_init (&gen, تہی))
     {
       ret = crun_make_error (err, 0, "cannot allocate json generator");
-      goto exit;
+      جاؤ باہر_نکلو;
     }
 
   json_gen_config (gen, json_gen_beautify, 1);
   json_gen_array_open (gen);
 
-  for (it = list; it; it = it->next)
+  برائے (it = list; it; it = it->اگلا)
     {
-      libcrun_container_status_t status;
-      int running = 0;
-      int pid;
-      const char *container_status = NULL;
+      libcrun_container_حالت_t حالت_2;
+      صحیح running = 0;
+      صحیح pid;
+      ثابت حرف *container_حالت = تہی;
 
-      ret = libcrun_read_container_status (&status, context->state_root, it->name, err);
-      if (UNLIKELY (ret < 0))
-        goto exit;
+      ret = libcrun_read_container_حالت (&حالت_2, context->state_جڑ, it->name, err);
+      اگر (UNLIKELY (ret < 0))
+        جاؤ باہر_نکلو;
 
-      pid = status.pid;
+      pid = حالت_2.pid;
 
-      ret = libcrun_get_container_state_string (it->name, &status, context->state_root, &container_status,
+      ret = libcrun_get_container_state_string (it->name, &حالت_2, context->state_جڑ, &container_حالت,
                                                 &running, err);
-      if (UNLIKELY (ret < 0))
+      اگر (UNLIKELY (ret < 0))
         {
           libcrun_error_report_and_release (err);
-          continue;
+          جاری;
         }
 
-      if (! running)
+      اگر (! running)
         pid = 0;
 
       json_gen_map_open (gen);
-      json_gen_string (gen, "id", strlen ("id"));
-      json_gen_string (gen, it->name, strlen (it->name));
-      json_gen_string (gen, "pid", strlen ("pid"));
+      json_gen_string (gen, "id", لڑی_لمبائی ("id"));
+      json_gen_string (gen, it->name, لڑی_لمبائی (it->name));
+      json_gen_string (gen, "pid", لڑی_لمبائی ("pid"));
       map_int (gen, pid);
-      json_gen_string (gen, "status", strlen ("status"));
-      json_gen_string (gen, container_status, strlen (container_status));
-      json_gen_string (gen, "bundle", strlen ("bundle"));
-      json_gen_string (gen, status.bundle, strlen (status.bundle));
-      json_gen_string (gen, "created", strlen ("created"));
-      json_gen_string (gen, status.created, strlen (status.created));
-      json_gen_string (gen, "owner", strlen ("owner"));
-      json_gen_string (gen, status.owner, safe_strlen (status.owner));
+      json_gen_string (gen, "status", لڑی_لمبائی ("status"));
+      json_gen_string (gen, container_حالت, لڑی_لمبائی (container_حالت));
+      json_gen_string (gen, "bundle", لڑی_لمبائی ("bundle"));
+      json_gen_string (gen, حالت_2.bundle, لڑی_لمبائی (حالت_2.bundle));
+      json_gen_string (gen, "created", لڑی_لمبائی ("created"));
+      json_gen_string (gen, حالت_2.created, لڑی_لمبائی (حالت_2.created));
+      json_gen_string (gen, "owner", لڑی_لمبائی ("owner"));
+      json_gen_string (gen, حالت_2.owner, محفوظ_strlen (حالت_2.owner));
       json_gen_map_close (gen);
 
-      libcrun_free_container_status (&status);
+      libcrun_free_container_حالت (&حالت_2);
     }
 
   json_gen_array_close (gen);
-  if (json_gen_get_buf (gen, &content, &len) != json_gen_status_ok)
+  اگر (json_gen_get_buf (gen, &content, &len) != json_gen_حالت_ok)
     {
       ret = libcrun_make_error (err, 0, "cannot generate json list");
-      goto exit;
+      جاؤ باہر_نکلو;
     }
 
-  *out = xstrdup (content);
+  *برآمد = xstrdup (content);
   ret = 0;
 
-exit:
-  if (list)
+باہر_نکلو:
+  اگر (list)
     libcrun_free_containers_list (list);
-  if (gen)
+  اگر (gen)
     json_gen_free (gen);
 
-  return ret;
+  واپس ret;
 }
 
-int
-libcrun_write_json_containers_list (libcrun_context_t *context, FILE *out, libcrun_error_t *err)
+صحیح
+libcrun_write_json_containers_list (libcrun_context_t *context, FILE *برآمد, libcrun_error_t *err)
 {
-  cleanup_free char *content = NULL;
+  cleanup_free حرف *content = تہی;
   size_t len;
-  int ret;
+  صحیح ret;
 
   ret = libcrun_container_list_json (context, &content, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  len = strlen (content);
-  if (len && fwrite (content, 1, len, out) != len)
-    return crun_make_error (err, errno, "error writing to file");
+  len = لڑی_لمبائی (content);
+  اگر (len && fwrite (content, 1, len, برآمد) != len)
+    واپس crun_make_error (err, errno, "error writing to file");
 
-  return 0;
+  واپس 0;
 }
 
-int
-libcrun_container_update_intel_rdt (libcrun_context_t *context, const char *id, struct libcrun_intel_rdt_update *update, libcrun_error_t *err)
+صحیح
+libcrun_container_update_intel_rdt (libcrun_context_t *context, ثابت حرف *id, ساخت libcrun_intel_rdt_update *update, libcrun_error_t *err)
 {
-  cleanup_container libcrun_container_t *container = NULL;
-  int ret;
+  cleanup_container libcrun_container_t *container = تہی;
+  صحیح ret;
 
-  ret = read_container_config_from_state (&container, context->state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_container_config_from_state (&container, context->state_جڑ, id, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return libcrun_update_intel_rdt (id, container, update->l3_cache_schema, update->mem_bw_schema, update->schemata, err);
+  واپس libcrun_update_intel_rdt (id, container, update->l3_cache_schema, update->mem_bw_schema, update->schemata, err);
 }
 
-static int
-libcrun_container_add_or_remove_mounts_from_file (libcrun_context_t *context, const char *id, const char *file, bool add, libcrun_error_t *err)
+ساکن صحیح
+libcrun_container_جوڑو_or_remove_mounts_from_file (libcrun_context_t *context, ثابت حرف *id, ثابت حرف *file, bool جوڑو, libcrun_error_t *err)
 {
-  cleanup_custom_handler_instance struct custom_handler_instance_s *custom_handler = NULL;
-  cleanup_container libcrun_container_t *container = NULL;
-  cleanup_free runtime_spec_schema_defs_mount **mounts = NULL;
-  const char *state_root = context->state_root;
-  cleanup_free parser_error parser_err = NULL;
-  struct parser_context pctx = { 0, stderr };
-  libcrun_container_status_t status = {};
-  cleanup_free char *content = NULL;
-  json_object *doc = NULL;
+  cleanup_custom_handler_instance ساخت custom_handler_instance_s *custom_handler = تہی;
+  cleanup_container libcrun_container_t *container = تہی;
+  cleanup_free runtime_spec_schema_defs_mount **mounts = تہی;
+  ثابت حرف *state_جڑ = context->state_جڑ;
+  cleanup_free parser_error parser_err = تہی;
+  ساخت parser_context pctx = { 0, stderr };
+  libcrun_container_حالت_t حالت_2 = {};
+  cleanup_free حرف *content = تہی;
+  json_object *doc = تہی;
   size_t n_mounts = 0, len, i;
-  int ret = 1;
+  صحیح ret = 1;
 
   ret = read_all_file (file, &content, &len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = libcrun_read_container_status (&status, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_read_container_حالت (&حالت_2, state_جڑ, id, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = read_container_config_from_state (&container, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_container_config_from_state (&container, state_جڑ, id, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   ret = parse_json_file (&doc, content, &pctx, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (! json_object_is_type (doc, json_type_array))
+  اگر (! json_object_is_type (doc, json_type_array))
     {
       ret = crun_make_error (err, 0, "mounts must be an array");
-      goto cleanup;
+      جاؤ cleanup;
     }
-  else
+  ورنہ
     {
-      n_mounts = json_object_array_length (doc);
+      n_mounts = json_object_array_لمبائی (doc);
 
-      mounts = xmalloc0 ((n_mounts + 1) * sizeof (*mounts));
-      for (i = 0; i < n_mounts; i++)
+      mounts = xmalloc0 ((n_mounts + 1) * حجم (*mounts));
+      برائے (i = 0; i < n_mounts; i++)
         {
           mounts[i] = make_runtime_spec_schema_defs_mount (json_object_array_get_idx (doc, i), &pctx, &parser_err);
-          if (mounts[i] == NULL)
+          اگر (mounts[i] == تہی)
             {
               ret = crun_make_error (err, 0, "cannot parse mount: %s", parser_err);
-              goto cleanup;
+              جاؤ cleanup;
             }
         }
     }
 
-  if (add)
-    ret = libcrun_make_runtime_mounts (container, &status, mounts, n_mounts, err);
-  else
-    ret = libcrun_destroy_runtime_mounts (container, &status, mounts, n_mounts, err);
+  اگر (جوڑو)
+    ret = libcrun_make_runtime_mounts (container, &حالت_2, mounts, n_mounts, err);
+  ورنہ
+    ret = libcrun_destroy_runtime_mounts (container, &حالت_2, mounts, n_mounts, err);
 
 cleanup:
-  if (doc)
+  اگر (doc)
     json_object_put (doc);
-  if (mounts)
-    for (i = 0; i < n_mounts; i++)
+  اگر (mounts)
+    برائے (i = 0; i < n_mounts; i++)
       free_runtime_spec_schema_defs_mount (mounts[i]);
-  return ret;
+  واپس ret;
 }
 
-int
-libcrun_container_add_mounts_from_file (libcrun_context_t *context, const char *id, const char *file, libcrun_error_t *err)
+صحیح
+libcrun_container_جوڑو_mounts_from_file (libcrun_context_t *context, ثابت حرف *id, ثابت حرف *file, libcrun_error_t *err)
 {
-  return libcrun_container_add_or_remove_mounts_from_file (context, id, file, true, err);
+  واپس libcrun_container_جوڑو_or_remove_mounts_from_file (context, id, file, true, err);
 }
 
-int
-libcrun_container_remove_mounts_from_file (libcrun_context_t *context, const char *id, const char *file, libcrun_error_t *err)
+صحیح
+libcrun_container_remove_mounts_from_file (libcrun_context_t *context, ثابت حرف *id, ثابت حرف *file, libcrun_error_t *err)
 {
-  return libcrun_container_add_or_remove_mounts_from_file (context, id, file, false, err);
+  واپس libcrun_container_جوڑو_or_remove_mounts_from_file (context, id, file, false, err);
 }

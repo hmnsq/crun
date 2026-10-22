@@ -15,119 +15,119 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ERROR_H
-#define ERROR_H
-#include <config.h>
-#ifdef HAVE_ERROR_H
+#اگر_غیر_تعریف_شدہ ERROR_H
+#تعریف_کرو ERROR_H
+#شامل <config.h>
+#اگر_تعریف_شدہ HAVE_ERROR_H
 #  include <error.h>
-#else
-#  define error(status, errno, fmt, ...)                      \
-    do                                                        \
+#ورنہ
+#  define error(حالت_2, errno, fmt, ...)                      \
+    کرو                                                        \
       {                                                       \
-        if (errno == 0)                                       \
+        اگر (errno == 0)                                       \
           fprintf (stderr, "crun: " fmt "\n", ##__VA_ARGS__); \
-        else                                                  \
+        ورنہ                                                  \
           {                                                   \
             fprintf (stderr, "crun: " fmt, ##__VA_ARGS__);    \
             fprintf (stderr, ": %s\n", strerror (errno));     \
           }                                                   \
-        if (status)                                           \
-          exit (status);                                      \
-    } while (0)
-#endif
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <syslog.h>
-#include <unistd.h>
+        اگر (حالت_2)                                           \
+          باہر_نکلو (حالت_2);                                      \
+    } جب (0)
+#اگر_ختم
+#شامل <stdlib.h>
+#شامل <stdio.h>
+#شامل <stdbool.h>
+#شامل <syslog.h>
+#شامل <unistd.h>
 
-struct libcrun_error_s
+ساخت libcrun_error_s
 {
-  int status;
-  char *msg;
+  صحیح حالت_2;
+  حرف *پیغام;
 };
-typedef struct libcrun_error_s *libcrun_error_t;
+قسمتعریف ساخت libcrun_error_s *libcrun_error_t;
 
 /* Coverage support: flush coverage data before _exit() in forked processes */
-#ifdef HAVE_COVERAGE
-extern void __gcov_dump (void);
+#اگر_تعریف_شدہ HAVE_COVERAGE
+خارجی خالی __gcov_dump (خالی);
 #  define GCOV_DUMP() __gcov_dump ()
-#else
+#ورنہ
 #  define GCOV_DUMP()
-#endif
+#اگر_ختم
 
 /* Use this instead of _exit() to ensure coverage data is flushed */
-#define _safe_exit(status) \
-  do                       \
+#تعریف_کرو محفوظ_exit(حالت_2) \
+  کرو                       \
     {                      \
       GCOV_DUMP ();        \
-      _exit (status);      \
-  } while (0)
+      _exit (حالت_2);      \
+  } جب (0)
 
-#define OOM()                            \
-  do                                     \
+#تعریف_کرو OOM()                            \
+  کرو                                     \
     {                                    \
       fprintf (stderr, "out of memory"); \
-      _safe_exit (EXIT_FAILURE);         \
-  } while (0)
+      محفوظ_exit (EXIT_FAILURE);         \
+  } جب (0)
 
-typedef void (*crun_output_handler) (int errno_, const char *msg, int verbosity, void *arg);
+قسمتعریف خالی (*crun_output_handler) (صحیح errno_, ثابت حرف *پیغام, صحیح verbosity, خالی *arg);
 
-void crun_set_output_handler (crun_output_handler handler, void *arg);
+خالی crun_سیٹ_output_handler (crun_output_handler handler, خالی *arg);
 
-void log_write_to_journald (int errno_, const char *msg, int verbosity, void *arg);
+خالی log_write_مقصد_journald (صحیح errno_, ثابت حرف *پیغام, صحیح verbosity, خالی *arg);
 
-void log_write_to_syslog (int errno_, const char *msg, int verbosity, void *arg);
+خالی log_write_مقصد_syslog (صحیح errno_, ثابت حرف *پیغام, صحیح verbosity, خالی *arg);
 
-void log_write_to_stream (int errno_, const char *msg, int verbosity, void *arg);
+خالی log_write_مقصد_دھارا (صحیح errno_, ثابت حرف *پیغام, صحیح verbosity, خالی *arg);
 
-void log_write_to_stderr (int errno_, const char *msg, int verbosity, void *arg);
+خالی log_write_مقصد_stderr (صحیح errno_, ثابت حرف *پیغام, صحیح verbosity, خالی *arg);
 
-int crun_error_wrap (libcrun_error_t *err, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
+صحیح crun_error_wrap (libcrun_error_t *err, ثابت حرف *fmt, ...) __attribute__ ((format (لکھو, 2, 3)));
 
-int crun_error_get_errno (libcrun_error_t *err);
+صحیح crun_error_get_errno (libcrun_error_t *err);
 
-int crun_error_release (libcrun_error_t *err);
+صحیح crun_error_release (libcrun_error_t *err);
 
-void crun_error_write_warning_and_release (FILE *out, libcrun_error_t **err);
+خالی crun_error_write_warning_and_release (FILE *برآمد, libcrun_error_t **err);
 
-LIBCRUN_PUBLIC void libcrun_debug (const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
+LIBCRUN_عوامی خالی libcrun_debug (ثابت حرف *پیغام, ...) __attribute__ ((format (لکھو, 1, 2)));
 
-LIBCRUN_PUBLIC void libcrun_warning (const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
+LIBCRUN_عوامی خالی libcrun_warning (ثابت حرف *پیغام, ...) __attribute__ ((format (لکھو, 1, 2)));
 
-LIBCRUN_PUBLIC void libcrun_error (int errno_, const char *msg, ...) __attribute__ ((format (printf, 2, 3)));
+LIBCRUN_عوامی خالی libcrun_error (صحیح errno_, ثابت حرف *پیغام, ...) __attribute__ ((format (لکھو, 2, 3)));
 
-LIBCRUN_PUBLIC int libcrun_make_error (libcrun_error_t *err, int status, const char *msg, ...) __attribute__ ((format (printf, 3, 4)));
+LIBCRUN_عوامی صحیح libcrun_make_error (libcrun_error_t *err, صحیح حالت_2, ثابت حرف *پیغام, ...) __attribute__ ((format (لکھو, 3, 4)));
 
-#define crun_make_error libcrun_make_error
+#تعریف_کرو crun_make_error libcrun_make_error
 
-LIBCRUN_PUBLIC void libcrun_error_write_warning_and_release (FILE *out, libcrun_error_t **err);
+LIBCRUN_عوامی خالی libcrun_error_write_warning_and_release (FILE *برآمد, libcrun_error_t **err);
 
-LIBCRUN_PUBLIC void libcrun_error_report_and_release (libcrun_error_t *err);
+LIBCRUN_عوامی خالی libcrun_error_report_and_release (libcrun_error_t *err);
 
-LIBCRUN_PUBLIC void libcrun_fail_with_error (int errno_, const char *msg, ...) __attribute__ ((noreturn)) __attribute__ ((format (printf, 2, 3)));
+LIBCRUN_عوامی خالی libcrun_fail_with_error (صحیح errno_, ثابت حرف *پیغام, ...) __attribute__ ((noreturn)) __attribute__ ((format (لکھو, 2, 3)));
 
-LIBCRUN_PUBLIC int libcrun_set_log_format (const char *format, libcrun_error_t *err);
+LIBCRUN_عوامی صحیح libcrun_سیٹ_log_format (ثابت حرف *format, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_init_logging (crun_output_handler *output_handler, void **output_handler_arg, const char *id,
-                                         const char *log, libcrun_error_t *err);
+LIBCRUN_عوامی صحیح libcrun_init_logging (crun_output_handler *output_handler, خالی **output_handler_arg, ثابت حرف *id,
+                                         ثابت حرف *لوگارتھم, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_error_release (libcrun_error_t *err);
+LIBCRUN_عوامی صحیح libcrun_error_release (libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_error_get_status (libcrun_error_t err);
+LIBCRUN_عوامی صحیح libcrun_error_get_حالت (libcrun_error_t err);
 
-LIBCRUN_PUBLIC const char *libcrun_error_get_message (libcrun_error_t err);
+LIBCRUN_عوامی ثابت حرف *libcrun_error_get_پیغام (libcrun_error_t err);
 
-int json_gen_error_to_crun_error (int gen_status, libcrun_error_t *err);
+صحیح json_gen_error_مقصد_crun_error (صحیح gen_حالت, libcrun_error_t *err);
 
-enum
+شمار
 {
   LIBCRUN_VERBOSITY_ERROR = 0,
   LIBCRUN_VERBOSITY_WARNING,
   LIBCRUN_VERBOSITY_DEBUG,
 };
 
-LIBCRUN_PUBLIC void libcrun_set_verbosity (int verbosity);
-LIBCRUN_PUBLIC int libcrun_get_verbosity ();
+LIBCRUN_عوامی خالی libcrun_سیٹ_verbosity (صحیح verbosity);
+LIBCRUN_عوامی صحیح libcrun_get_verbosity ();
 
-#endif
+#اگر_ختم

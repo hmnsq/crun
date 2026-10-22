@@ -16,282 +16,282 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#تعریف_کرو GNU_ماخذ
 
-#include <config.h>
-#include "linux.h"
-#include "utils.h"
-#include "status.h"
-#include <string.h>
-#include <sched.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/mount.h>
-#ifdef HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H
+#شامل <config.h>
+#شامل "linux.h"
+#شامل "utils.h"
+#شامل "status.h"
+#شامل <string.h>
+#شامل <sched.h>
+#شامل <fcntl.h>
+#شامل <unistd.h>
+#شامل <sys/mount.h>
+#اگر_تعریف_شدہ HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H
 #  include <linux/mount.h>
-#endif
-#if defined HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H || defined HAVE_FSCONFIG_CMD_CREATE_SYS_MOUNT_H
+#اگر_ختم
+#اگر defined HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H || defined HAVE_FSCONFIG_CMD_CREATE_SYS_MOUNT_H
 #  define HAVE_NEW_MOUNT_API
-#endif
+#اگر_ختم
 
-#include <sys/prctl.h>
-#ifdef HAVE_CAP
+#شامل <sys/prctl.h>
+#اگر_تعریف_شدہ HAVE_CAP
 #  include <sys/capability.h>
-#endif
-#include <sys/time.h>
-#include <sys/resource.h>
-#include <sys/sysmacros.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <grp.h>
-#include <signal.h>
-#include "terminal.h"
-#include "cgroup.h"
-#include "cgroup-utils.h"
-#include "status.h"
-#include "criu.h"
-#include "scheduler.h"
-#include "intelrdt.h"
-#include "io_priority.h"
-#include "net_device.h"
+#اگر_ختم
+#شامل <sys/time.h>
+#شامل <sys/resource.h>
+#شامل <sys/sysmacros.h>
+#شامل <sys/types.h>
+#شامل <sys/stat.h>
+#شامل <grp.h>
+#شامل <signal.h>
+#شامل "terminal.h"
+#شامل "cgroup.h"
+#شامل "cgroup-utils.h"
+#شامل "status.h"
+#شامل "criu.h"
+#شامل "scheduler.h"
+#شامل "intelrdt.h"
+#شامل "io_priority.h"
+#شامل "net_device.h"
 
-#include <sys/socket.h>
-#include <libgen.h>
-#include <sys/wait.h>
-#include <sys/vfs.h>
-#include <sys/statvfs.h>
-#include <limits.h>
-#include <inttypes.h>
-#include <sys/personality.h>
-#include <net/if.h>
-#include <sys/xattr.h>
-#include <linux/netlink.h>
-#include <linux/rtnetlink.h>
-#include <sched.h>
-#include <linux/sched.h>
-#include <linux/magic.h>
-#include <linux/nsfs.h>
+#شامل <sys/socket.h>
+#شامل <libgen.h>
+#شامل <sys/wait.h>
+#شامل <sys/vfs.h>
+#شامل <sys/statvfs.h>
+#شامل <limits.h>
+#شامل <inttypes.h>
+#شامل <sys/personality.h>
+#شامل <net/if.h>
+#شامل <sys/xattr.h>
+#شامل <linux/netlink.h>
+#شامل <linux/rtnetlink.h>
+#شامل <sched.h>
+#شامل <linux/sched.h>
+#شامل <linux/magic.h>
+#شامل <linux/nsfs.h>
 
-#include <json-c/json.h>
-#include <ocispec/json_common.h>
+#شامل <json-c/json.h>
+#شامل <ocispec/json_common.h>
 
-#include "mount_flags.h"
-#include "syscalls.h"
+#شامل "mount_flags.h"
+#شامل "syscalls.h"
 
-#ifndef RLIMIT_RTTIME
+#اگر_غیر_تعریف_شدہ RLIMIT_RTTIME
 #  define RLIMIT_RTTIME 15
-#endif
+#اگر_ختم
 
-#ifndef OPEN_TREE_CLONE
+#اگر_غیر_تعریف_شدہ OPEN_TREE_CLONE
 #  define OPEN_TREE_CLONE 1
-#endif
+#اگر_ختم
 
-#ifndef OPEN_TREE_CLOEXEC
+#اگر_غیر_تعریف_شدہ OPEN_TREE_CLOEXEC
 #  define OPEN_TREE_CLOEXEC O_CLOEXEC
-#endif
+#اگر_ختم
 
-#ifndef OPEN_TREE_NAMESPACE
-#  define OPEN_TREE_NAMESPACE 2
-#endif
+#اگر_غیر_تعریف_شدہ OPEN_درخت_NAMESPACE
+#  define OPEN_درخت_NAMESPACE 2
+#اگر_ختم
 
-#ifndef MOVE_MOUNT_F_EMPTY_PATH
+#اگر_غیر_تعریف_شدہ MOVE_MOUNT_F_EMPTY_PATH
 #  define MOVE_MOUNT_F_EMPTY_PATH 0x00000004
-#endif
+#اگر_ختم
 
-#ifndef MOVE_MOUNT_T_EMPTY_PATH
+#اگر_غیر_تعریف_شدہ MOVE_MOUNT_T_EMPTY_PATH
 #  define MOVE_MOUNT_T_EMPTY_PATH 0x00000040
-#endif
+#اگر_ختم
 
-#ifndef FSOPEN_CLOEXEC
+#اگر_غیر_تعریف_شدہ FSOPEN_CLOEXEC
 #  define FSOPEN_CLOEXEC 0x00000001
-#endif
+#اگر_ختم
 
-#ifndef FSMOUNT_CLOEXEC
+#اگر_غیر_تعریف_شدہ FSMOUNT_CLOEXEC
 #  define FSMOUNT_CLOEXEC 0x00000001
-#endif
+#اگر_ختم
 
-#ifndef FSCONFIG_CMD_CREATE
+#اگر_غیر_تعریف_شدہ FSCONFIG_CMD_CREATE
 #  define FSCONFIG_CMD_CREATE 6
-#endif
+#اگر_ختم
 
-#define ALL_PROPAGATIONS_NO_REC (MS_SHARED | MS_PRIVATE | MS_SLAVE | MS_UNBINDABLE)
-#define ALL_PROPAGATIONS (MS_REC | ALL_PROPAGATIONS_NO_REC)
+#تعریف_کرو ALL_PROPAGATIONS_NO_REC (MS_SHARED | MS_PRIVATE | MS_SLAVE | MS_UNBINDABLE)
+#تعریف_کرو ALL_PROPAGATIONS (MS_REC | ALL_PROPAGATIONS_NO_REC)
 
 /* The per-mount flags a remount clears unless they are explicitly set.  */
-#define REMOUNT_CLEAR_FLAGS (MS_RDONLY | MS_NOSUID | MS_NODEV | MS_NOEXEC | MS_NOSYMFOLLOW)
+#تعریف_کرو REMOUNT_CLEAR_FLAGS (MS_RDONLY | MS_NOSUID | MS_NODEV | MS_NOEXEC | MS_NOSYMFOLLOW)
 
-#ifndef ST_NOSYMFOLLOW
+#اگر_غیر_تعریف_شدہ ST_NOSYMFOLLOW
 #  define ST_NOSYMFOLLOW 0x2000
-#endif
+#اگر_ختم
 
-#define MOUNT_ATIME_FLAGS (MS_NOATIME | MS_NODIRATIME | MS_RELATIME | MS_STRICTATIME)
+#تعریف_کرو MOUNT_ATIME_FLAGS (MS_NOATIME | MS_NODIRATIME | MS_RELATIME | MS_STRICTATIME)
 
 /* Convert the ST_ flags reported by statfs(2) to the MS_ flags of mount(2).  */
-static unsigned long
-mount_flags_from_statfs (unsigned long f_flags)
+ساکن غیرعلامتی طویل
+mount_flags_from_statfs (غیرعلامتی طویل f_flags)
 {
-  unsigned long flags = 0;
+  غیرعلامتی طویل flags = 0;
 
-  if (f_flags & ST_RDONLY)
+  اگر (f_flags & ST_RDONLY)
     flags |= MS_RDONLY;
-  if (f_flags & ST_NOSUID)
+  اگر (f_flags & ST_NOSUID)
     flags |= MS_NOSUID;
-  if (f_flags & ST_NODEV)
+  اگر (f_flags & ST_NODEV)
     flags |= MS_NODEV;
-  if (f_flags & ST_NOEXEC)
+  اگر (f_flags & ST_NOEXEC)
     flags |= MS_NOEXEC;
-  if (f_flags & ST_NOSYMFOLLOW)
+  اگر (f_flags & ST_NOSYMFOLLOW)
     flags |= MS_NOSYMFOLLOW;
-  if (f_flags & ST_NOATIME)
+  اگر (f_flags & ST_NOATIME)
     flags |= MS_NOATIME;
-  if (f_flags & ST_NODIRATIME)
+  اگر (f_flags & ST_NODIRATIME)
     flags |= MS_NODIRATIME;
-  if (f_flags & ST_RELATIME)
+  اگر (f_flags & ST_RELATIME)
     flags |= MS_RELATIME;
   /* There is no ST_ flag for strictatime: it is the mode when neither noatime
      nor relatime is set.  */
-  if (! (flags & (MS_NOATIME | MS_RELATIME)))
+  اگر (! (flags & (MS_NOATIME | MS_RELATIME)))
     flags |= MS_STRICTATIME;
 
-  return flags;
+  واپس flags;
 }
 
-struct remount_s
+ساخت remount_s
 {
-  struct remount_s *next;
-  char *target;
-  int targetfd;
-  unsigned long flags;
-  char *data;
+  ساخت remount_s *اگلا;
+  حرف *ہدف;
+  صحیح targetfd;
+  غیرعلامتی طویل flags;
+  حرف *ڈیٹا;
 };
 
-struct private_data_s
+ساخت نجی_ڈیٹا_s
 {
-  struct remount_s *remounts;
+  ساخت remount_s *remounts;
 
   /* Filled by libcrun_run_linux_container().  Useful to query what
      namespaces are available.  */
-  int unshare_flags;
-  int unshare_cgroupns;
+  صحیح unshare_flags;
+  صحیح unshare_cgroupns;
 
-  char *host_notify_socket_path;
-  char *container_notify_socket_path;
-  char *unified_cgroup_path;
+  حرف *host_notify_socket_راستہ;
+  حرف *container_notify_socket_راستہ;
+  حرف *unified_cgroup_راستہ;
 
   bool mount_dev_from_host;
-  unsigned long rootfs_propagation;
+  غیرعلامتی طویل rootfs_اشاعت;
   bool deny_setgroups;
 
-  int procfd;
+  صحیح procfd;
 
-  const char *rootfs;
-  int rootfsfd;
+  ثابت حرف *rootfs;
+  صحیح rootfsfd;
 
-  int notify_socket_tree_fd;
-  int old_root_fd;
+  صحیح notify_socket_درخت_fd;
+  صحیح old_جڑ_fd;
 
-  struct libcrun_fd_map *mount_fds;
-  struct libcrun_fd_map *dev_fds;
-  struct libcrun_fd_map *needed_devs_fds;
+  ساخت libcrun_fd_map *mount_fds;
+  ساخت libcrun_fd_map *dev_fds;
+  ساخت libcrun_fd_map *needed_devs_fds;
 
-  char **copy_symlink_targets;
+  حرف **copy_symlink_targets;
   size_t n_copy_symlink_targets;
 
   /* Used to save stdin, stdout, stderr during checkpointing to descriptors.json
    * and needed during restore. */
-  char *external_descriptors;
+  حرف *external_descriptors;
 
   /* Cached shared empty directory for masked paths optimization */
-  int maskdir_fd;
-  char *maskdir_proc_path;
+  صحیح maskdir_fd;
+  حرف *maskdir_proc_راستہ;
   bool maskdir_bind_failed;
   bool maskdir_move_failed;
   bool maskdir_warned;
   bool joined_mount_ns;
-  bool needs_pivot;
-  bool no_pivot;
+  bool needs_محور;
+  bool no_محور;
   /* Set once the process root is the container rootfs and the host root
      can no longer be reached by path.  */
-  bool host_root_switched;
+  bool host_جڑ_switched;
   /* The process joining an existing PID namespace is created only once
      the container root is in place.  */
   bool delayed_pidns_fork;
   /* The rootfs path on the host, used to recognize bind mount sources
      inside the container rootfs.  */
-  char *host_rootfs;
+  حرف *host_rootfs;
 };
 
-struct linux_namespace_s
+ساخت linux_namespace_s
 {
-  const char *name;
-  const char *ns_file;
-  int value;
+  ثابت حرف *name;
+  ثابت حرف *ns_file;
+  صحیح قدر;
 };
 
-static void
-cleanup_private_data (void *private_data)
+ساکن خالی
+cleanup_نجی_ڈیٹا (خالی *نجی_ڈیٹا)
 {
-  struct private_data_s *p = private_data;
+  ساخت نجی_ڈیٹا_s *p = نجی_ڈیٹا;
 
-  if (p->rootfsfd >= 0)
-    TEMP_FAILURE_RETRY (close (p->rootfsfd));
-  if (p->procfd >= 0)
-    TEMP_FAILURE_RETRY (close (p->procfd));
-  if (p->maskdir_fd >= 0)
-    TEMP_FAILURE_RETRY (close (p->maskdir_fd));
-  if (p->old_root_fd >= 0)
-    TEMP_FAILURE_RETRY (close (p->old_root_fd));
-  if (p->mount_fds)
+  اگر (p->rootfsfd >= 0)
+    عارضی_FAILURE_RETRY (close (p->rootfsfd));
+  اگر (p->procfd >= 0)
+    عارضی_FAILURE_RETRY (close (p->procfd));
+  اگر (p->maskdir_fd >= 0)
+    عارضی_FAILURE_RETRY (close (p->maskdir_fd));
+  اگر (p->old_جڑ_fd >= 0)
+    عارضی_FAILURE_RETRY (close (p->old_جڑ_fd));
+  اگر (p->mount_fds)
     cleanup_close_mapp (&(p->mount_fds));
-  if (p->dev_fds)
+  اگر (p->dev_fds)
     cleanup_close_mapp (&(p->dev_fds));
-  if (p->needed_devs_fds)
+  اگر (p->needed_devs_fds)
     cleanup_close_mapp (&(p->needed_devs_fds));
 
-  if (p->copy_symlink_targets)
+  اگر (p->copy_symlink_targets)
     {
       size_t i;
-      for (i = 0; i < p->n_copy_symlink_targets; i++)
-        free (p->copy_symlink_targets[i]);
-      free (p->copy_symlink_targets);
+      برائے (i = 0; i < p->n_copy_symlink_targets; i++)
+        آزاد (p->copy_symlink_targets[i]);
+      آزاد (p->copy_symlink_targets);
     }
-  free (p->unified_cgroup_path);
-  free (p->host_notify_socket_path);
-  free (p->container_notify_socket_path);
-  free (p->external_descriptors);
-  free (p->maskdir_proc_path);
-  free (p->host_rootfs);
-  free (p);
+  آزاد (p->unified_cgroup_راستہ);
+  آزاد (p->host_notify_socket_راستہ);
+  آزاد (p->container_notify_socket_راستہ);
+  آزاد (p->external_descriptors);
+  آزاد (p->maskdir_proc_راستہ);
+  آزاد (p->host_rootfs);
+  آزاد (p);
 }
 
-static struct private_data_s *
-get_private_data (struct libcrun_container_s *container)
+ساکن ساخت نجی_ڈیٹا_s *
+get_نجی_ڈیٹا (ساخت libcrun_container_s *container)
 {
-  if (container->private_data == NULL)
+  اگر (container->نجی_ڈیٹا == تہی)
     {
-      struct private_data_s *p = xmalloc0 (sizeof (*p));
-      container->private_data = p;
+      ساخت نجی_ڈیٹا_s *p = xmalloc0 (حجم (*p));
+      container->نجی_ڈیٹا = p;
       p->rootfsfd = -1;
       p->procfd = -1;
-      p->notify_socket_tree_fd = -1;
-      p->old_root_fd = -1;
+      p->notify_socket_درخت_fd = -1;
+      p->old_جڑ_fd = -1;
       p->maskdir_fd = -1;
-      container->cleanup_private_data = cleanup_private_data;
+      container->cleanup_نجی_ڈیٹا = cleanup_نجی_ڈیٹا;
     }
-  return container->private_data;
+  واپس container->نجی_ڈیٹا;
 }
 
-#ifndef CLONE_NEWTIME
+#اگر_غیر_تعریف_شدہ CLONE_NEWTIME
 #  define CLONE_NEWTIME 0x00000080
-#endif
-#ifndef CLONE_NEWCGROUP
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ CLONE_NEWCGROUP
 #  define CLONE_NEWCGROUP 0x02000000
-#endif
-#ifndef AT_RECURSIVE
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ AT_RECURSIVE
 #  define AT_RECURSIVE 0x8000
-#endif
+#اگر_ختم
 
-static struct linux_namespace_s namespaces[] = { { "mount", "mnt", CLONE_NEWNS },
+ساکن ساخت linux_namespace_s namespaces[] = { { "mount", "mnt", CLONE_NEWNS },
                                                  { "network", "net", CLONE_NEWNET },
                                                  { "ipc", "ipc", CLONE_NEWIPC },
                                                  { "pid", "pid", CLONE_NEWPID },
@@ -299,251 +299,251 @@ static struct linux_namespace_s namespaces[] = { { "mount", "mnt", CLONE_NEWNS }
                                                  { "user", "user", CLONE_NEWUSER },
                                                  { "cgroup", "cgroup", CLONE_NEWCGROUP },
                                                  { "time", "time", CLONE_NEWTIME },
-                                                 { NULL, NULL, 0 } };
+                                                 { تہی, تہی, 0 } };
 
-static int
-get_and_reset (int *old)
+ساکن صحیح
+get_and_reset (صحیح *old)
 {
-  int tmp = *old;
+  صحیح tmp = *old;
   *old = -1;
-  return tmp;
+  واپس tmp;
 }
 
-int
-libcrun_find_namespace (const char *name)
+صحیح
+libcrun_ڈھونڈو_namespace (ثابت حرف *name)
 {
-  struct linux_namespace_s *it;
-  for (it = namespaces; it->name; it++)
-    if (strcmp (it->name, name) == 0)
-      return it->value;
-  return -1;
+  ساخت linux_namespace_s *it;
+  برائے (it = namespaces; it->name; it++)
+    اگر (strcmp (it->name, name) == 0)
+      واپس it->قدر;
+  واپس -1;
 }
 
-static int
-syscall_keyctl_join (const char *name)
+ساکن صحیح
+syscall_keyctl_join (ثابت حرف *name)
 {
-#define KEYCTL_JOIN_SESSION_KEYRING 0x1
-  return (int) syscall (__NR_keyctl, KEYCTL_JOIN_SESSION_KEYRING, name, 0);
+#تعریف_کرو KEYCTL_JOIN_SESSION_KEYRING 0x1
+  واپس (صحیح) syscall (__NR_keyctl, KEYCTL_JOIN_SESSION_KEYRING, name, 0);
 }
 
-static int
-syscall_pidfd_open (pid_t pid, unsigned int flags)
+ساکن صحیح
+syscall_pidfd_open (pid_t pid, غیرعلامتی صحیح flags)
 {
-#if defined __NR_pidfd_open
-  return (int) syscall (__NR_pidfd_open, pid, flags);
-#else
-  (void) pid;
-  (void) flags;
+#اگر defined __NR_pidfd_open
+  واپس (صحیح) syscall (__NR_pidfd_open, pid, flags);
+#ورنہ
+  (خالی) pid;
+  (خالی) flags;
   errno = ENOSYS;
-  return -1;
-#endif
+  واپس -1;
+#اگر_ختم
 }
 
-static int
-syscall_pidfd_send_signal (int pidfd, int sig, siginfo_t *info, unsigned int flags)
+ساکن صحیح
+syscall_pidfd_send_signal (صحیح pidfd, صحیح sig, siginfo_t *info, غیرعلامتی صحیح flags)
 {
-#if defined __NR_pidfd_send_signal
-  return (int) syscall (__NR_pidfd_send_signal, pidfd, sig, info, flags);
-#else
-  (void) pidfd;
-  (void) sig;
-  (void) info;
-  (void) flags;
+#اگر defined __NR_pidfd_send_signal
+  واپس (صحیح) syscall (__NR_pidfd_send_signal, pidfd, sig, info, flags);
+#ورنہ
+  (خالی) pidfd;
+  (خالی) sig;
+  (خالی) info;
+  (خالی) flags;
   errno = ENOSYS;
-  return -1;
-#endif
+  واپس -1;
+#اگر_ختم
 }
 
 /* Translate MS_* mount flags to MOUNT_ATTR_* values for mount_setattr().  */
-static uint64_t
-ms_flags_to_mount_attr (uint64_t ms_flags)
+ساکن uint64_t
+ms_flags_مقصد_mount_attr (uint64_t ms_flags)
 {
   uint64_t attr = 0;
 
-  if (ms_flags & MS_RDONLY)
+  اگر (ms_flags & MS_RDONLY)
     attr |= MOUNT_ATTR_RDONLY;
-  if (ms_flags & MS_NOSUID)
+  اگر (ms_flags & MS_NOSUID)
     attr |= MOUNT_ATTR_NOSUID;
-  if (ms_flags & MS_NODEV)
+  اگر (ms_flags & MS_NODEV)
     attr |= MOUNT_ATTR_NODEV;
-  if (ms_flags & MS_NOEXEC)
+  اگر (ms_flags & MS_NOEXEC)
     attr |= MOUNT_ATTR_NOEXEC;
-  if (ms_flags & MS_NOATIME)
+  اگر (ms_flags & MS_NOATIME)
     attr |= MOUNT_ATTR_NOATIME;
-  if (ms_flags & MS_STRICTATIME)
+  اگر (ms_flags & MS_STRICTATIME)
     attr |= MOUNT_ATTR_STRICTATIME;
-  if (ms_flags & MS_NODIRATIME)
+  اگر (ms_flags & MS_NODIRATIME)
     attr |= MOUNT_ATTR_NODIRATIME;
-  if (ms_flags & MS_NOSYMFOLLOW)
+  اگر (ms_flags & MS_NOSYMFOLLOW)
     attr |= MOUNT_ATTR_NOSYMFOLLOW;
 
-  return attr;
+  واپس attr;
 }
 
-static int
-do_mount_setattr (bool recursive, const char *target, int targetfd, uint64_t clear, uint64_t set, libcrun_error_t *err)
+ساکن صحیح
+do_mount_setattr (bool recursive, ثابت حرف *ہدف, صحیح targetfd, uint64_t clear, uint64_t سیٹ, libcrun_error_t *err)
 {
-  struct mount_attr_s attr = {
+  ساخت mount_attr_s attr = {
     0,
   };
-  int ret;
+  صحیح ret;
 
-  set &= ~MS_BIND;
+  سیٹ &= ~MS_BIND;
   clear &= ~MS_BIND;
 
-  attr.propagation = set & ALL_PROPAGATIONS_NO_REC;
-  attr.attr_set = ms_flags_to_mount_attr (set & (~ALL_PROPAGATIONS));
-  attr.attr_clr = ms_flags_to_mount_attr (clear & (~ALL_PROPAGATIONS));
+  attr.اشاعت = سیٹ & ALL_PROPAGATIONS_NO_REC;
+  attr.attr_set = ms_flags_مقصد_mount_attr (سیٹ & (~ALL_PROPAGATIONS));
+  attr.attr_clr = ms_flags_مقصد_mount_attr (clear & (~ALL_PROPAGATIONS));
 
   /* Like mount(2) does, if any atime flag is set, set all the atime ones
      anew: relatime is the default, noatime and strictatime override it
      (strictatime wins), and nodiratime is independent.  Otherwise, the
      atime flags of the mount are kept.  */
-  if (set & (MS_NOATIME | MS_NODIRATIME | MS_RELATIME | MS_STRICTATIME))
+  اگر (سیٹ & (MS_NOATIME | MS_NODIRATIME | MS_RELATIME | MS_STRICTATIME))
     {
       attr.attr_set &= ~(MOUNT_ATTR__ATIME | MOUNT_ATTR_NODIRATIME);
-      if (set & MS_STRICTATIME)
+      اگر (سیٹ & MS_STRICTATIME)
         attr.attr_set |= MOUNT_ATTR_STRICTATIME;
-      else if (set & MS_NOATIME)
+      ورنہ اگر (سیٹ & MS_NOATIME)
         attr.attr_set |= MOUNT_ATTR_NOATIME;
-      else
+      ورنہ
         attr.attr_set |= MOUNT_ATTR_RELATIME;
-      if (set & MS_NODIRATIME)
+      اگر (سیٹ & MS_NODIRATIME)
         attr.attr_set |= MOUNT_ATTR_NODIRATIME;
       attr.attr_clr |= MOUNT_ATTR__ATIME | MOUNT_ATTR_NODIRATIME;
     }
   /* The kernel rejects a partial MOUNT_ATTR__ATIME in attr_clr, so clearing
      any of the atime modes resets the mount to the relatime default.  */
-  else if (clear & (MS_NOATIME | MS_RELATIME | MS_STRICTATIME))
+  ورنہ اگر (clear & (MS_NOATIME | MS_RELATIME | MS_STRICTATIME))
     attr.attr_clr |= MOUNT_ATTR__ATIME;
 
-  ret = syscall_mount_setattr (targetfd, "", (recursive ? AT_RECURSIVE : 0) | AT_EMPTY_PATH, &attr);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "mount_setattr `/%s`", target);
+  ret = syscall_mount_setattr (targetfd, "", (recursive ? AT_RECURSIVE : 0) | AT_خالی_خانے_راستہ, &attr);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "mount_setattr `/%s`", ہدف);
 
-  return 0;
+  واپس 0;
 }
 
-int
-get_bind_mount (int dirfd, const char *src, bool recursive, bool rdonly, bool nofollow, unsigned long propagation, libcrun_error_t *err)
+صحیح
+get_bind_mount (صحیح dirfd, ثابت حرف *src, bool recursive, bool rdonly, bool nofollow, غیرعلامتی طویل اشاعت, libcrun_error_t *err)
 {
-  cleanup_close int open_tree_fd = -1;
-  struct mount_attr_s attr = {
+  cleanup_close صحیح open_درخت_fd = -1;
+  ساخت mount_attr_s attr = {
     0,
   };
-  int recursive_flag = (recursive ? AT_RECURSIVE : 0);
-  int ret;
+  صحیح recursive_flag = (recursive ? AT_RECURSIVE : 0);
+  صحیح ret;
 
   /* Several callers pass a source straight from the configuration, where it
      is optional, so it can be missing altogether.  Callers that mean the
      directory referred to by dirfd pass an empty string, never NULL.  */
-  if (UNLIKELY (src == NULL))
-    return crun_make_error (err, EINVAL, "mount source is not specified");
+  اگر (UNLIKELY (src == تہی))
+    واپس crun_make_error (err, EINVAL, "mount source is not specified");
 
-  if (rdonly)
+  اگر (rdonly)
     attr.attr_set = MS_RDONLY;
 
-  attr.propagation = propagation;
+  attr.اشاعت = اشاعت;
 
-  if (dirfd < 0)
+  اگر (dirfd < 0)
     dirfd = AT_FDCWD;
 
   errno = 0;
-  open_tree_fd = syscall_open_tree (dirfd, src,
+  open_درخت_fd = syscall_open_درخت (dirfd, src,
                                     AT_NO_AUTOMOUNT | OPEN_TREE_CLOEXEC
                                         | OPEN_TREE_CLONE | recursive_flag
-                                        | (src[0] == '\0' ? AT_EMPTY_PATH : 0)
+                                        | (src[0] == '\0' ? AT_خالی_خانے_راستہ : 0)
                                         | (nofollow ? AT_SYMLINK_NOFOLLOW : 0));
-  if (UNLIKELY (open_tree_fd < 0))
-    return crun_make_error (err, errno, "open_tree `%s`", src);
+  اگر (UNLIKELY (open_درخت_fd < 0))
+    واپس crun_make_error (err, errno, "open_tree `%s`", src);
 
-  ret = syscall_mount_setattr (open_tree_fd, "", AT_EMPTY_PATH | recursive_flag, &attr);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "mount_setattr `%s`", src);
+  ret = syscall_mount_setattr (open_درخت_fd, "", AT_خالی_خانے_راستہ | recursive_flag, &attr);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "mount_setattr `%s`", src);
 
-  return get_and_reset (&open_tree_fd);
+  واپس get_and_reset (&open_درخت_fd);
 }
 
-int
-parse_idmapped_mount_option (runtime_spec_schema_config_schema *def, bool is_uids, char *option, char **out, size_t *len, libcrun_error_t *err)
+صحیح
+parse_idmapped_mount_option (runtime_spec_schema_config_schema *def, bool is_uids, حرف *option, حرف **برآمد, size_t *len, libcrun_error_t *err)
 {
   size_t written = 0, allocated = 256;
-  cleanup_free char *mappings = NULL;
-  const char *it;
-  int ret;
+  cleanup_free حرف *mappings = تہی;
+  ثابت حرف *it;
+  صحیح ret;
 
   mappings = xmalloc (allocated);
 
-  for (it = option; *it;)
+  برائے (it = option; *it;)
     {
       bool relative = false;
-      long value[3];
+      طویل قدر[3];
       size_t i;
 
-      if (*it == '\0')
-        break;
+      اگر (*it == '\0')
+        توڑو;
 
-      if (*it == '#')
+      اگر (*it == '#')
         it++;
 
-      if (*it == '@')
+      اگر (*it == '@')
         {
           relative = true;
           it++;
         }
 
       /* read a triplet: file system id - host id - size.  */
-      for (i = 0; i < 3; i++)
+      برائے (i = 0; i < 3; i++)
         {
-          char *endptr = NULL;
+          حرف *endptr = تہی;
 
-          if (i > 0 && *it == '-')
+          اگر (i > 0 && *it == '-')
             it++;
 
-          if (*it == '\0')
-            return crun_make_error (err, 0, "invalid mapping specified `%s`", option);
+          اگر (*it == '\0')
+            واپس crun_make_error (err, 0, "invalid mapping specified `%s`", option);
 
           errno = 0;
-          value[i] = strtol (it, &endptr, 10);
-          if (errno || endptr == it)
-            return crun_make_error (err, errno, "invalid mapping specified `%s`", option);
+          قدر[i] = strtol (it, &endptr, 10);
+          اگر (errno || endptr == it)
+            واپس crun_make_error (err, errno, "invalid mapping specified `%s`", option);
 
           it = endptr;
         }
 
-      if (relative)
+      اگر (relative)
         {
           runtime_spec_schema_defs_id_mapping **mappings;
           size_t mappings_len;
 
-          if (def == NULL
-              || def->linux == NULL
+          اگر (def == تہی
+              || def->linux == تہی
               || (is_uids && def->linux->uid_mappings_len == 0)
               || (! is_uids && def->linux->gid_mappings_len == 0))
-            return crun_make_error (err, 0, "specified a relative mapping without user namespace mappings");
+            واپس crun_make_error (err, 0, "specified a relative mapping without user namespace mappings");
 
           mappings_len = (is_uids ? def->linux->uid_mappings_len : def->linux->gid_mappings_len);
           mappings = is_uids ? def->linux->uid_mappings : def->linux->gid_mappings;
 
-          for (i = 0; i < mappings_len; i++)
-            if (value[1] >= (int64_t) mappings[i]->container_id
-                && value[1] < (int64_t) mappings[i]->container_id + (int64_t) mappings[i]->size)
-              break;
+          برائے (i = 0; i < mappings_len; i++)
+            اگر (قدر[1] >= (int64_t) mappings[i]->container_id
+                && قدر[1] < (int64_t) mappings[i]->container_id + (int64_t) mappings[i]->سائز)
+              توڑو;
 
-          if (i == mappings_len)
-            return crun_make_error (err, 0, "could not find a user namespace mapping for the relative mapping `%s`", option);
+          اگر (i == mappings_len)
+            واپس crun_make_error (err, 0, "could not find a user namespace mapping for the relative mapping `%s`", option);
 
-          value[1] += mappings[i]->host_id - mappings[i]->container_id;
+          قدر[1] += mappings[i]->host_id - mappings[i]->container_id;
         }
-      if (written > allocated - 64)
+      اگر (written > allocated - 64)
         {
           allocated += 256;
           mappings = xrealloc (mappings, allocated);
         }
 
-      ret = snprintf (mappings + written, allocated - written, "%ld %ld %ld\n", value[0], value[1], value[2]);
-      if (UNLIKELY (ret >= (int) (allocated - written)))
-        return crun_make_error (err, 0, "internal error: allocated buffer too small");
+      ret = snprintf (mappings + written, allocated - written, "%ld %ld %ld\n", قدر[0], قدر[1], قدر[2]);
+      اگر (UNLIKELY (ret >= (صحیح) (allocated - written)))
+        واپس crun_make_error (err, 0, "internal error: allocated buffer too small");
 
       written += ret;
     }
@@ -551,624 +551,624 @@ parse_idmapped_mount_option (runtime_spec_schema_config_schema *def, bool is_uid
 
   *len = written;
 
-  *out = mappings;
-  mappings = NULL;
+  *برآمد = mappings;
+  mappings = تہی;
 
-  return 0;
+  واپس 0;
 }
 
-static int
-format_mount_mappings (char **out,
+ساکن صحیح
+format_mount_mappings (حرف **برآمد,
                        runtime_spec_schema_defs_id_mapping **mappings,
                        size_t mappings_len,
                        size_t *written,
                        libcrun_error_t *err)
 {
   /* 64 is more than enough room to print 3 uint32.  */
-  const size_t max_len_mapping = 64;
-  cleanup_free char *ret = NULL;
+  ثابت size_t max_len_mapping = 64;
+  cleanup_free حرف *ret = تہی;
   size_t s;
 
   *written = 0;
 
   ret = xmalloc (max_len_mapping * mappings_len + 1);
-  for (s = 0; s < mappings_len; s++)
+  برائے (s = 0; s < mappings_len; s++)
     {
       size_t len;
 
       len = snprintf (ret + *written, max_len_mapping, "%" PRIu32 " %" PRIu32 " %" PRIu32 "\n",
                       mappings[s]->container_id,
                       mappings[s]->host_id,
-                      mappings[s]->size);
-      if (UNLIKELY (len >= max_len_mapping))
-        return crun_make_error (err, 0, "internal error: allocated buffer too small");
+                      mappings[s]->سائز);
+      اگر (UNLIKELY (len >= max_len_mapping))
+        واپس crun_make_error (err, 0, "internal error: allocated buffer too small");
 
       *written += len;
     }
-  *out = ret;
-  ret = NULL;
-  return 0;
+  *برآمد = ret;
+  ret = تہی;
+  واپس 0;
 }
 
-static int
-format_mount_mapping (char **ret, uint32_t container_id, uint32_t host_id,
-                      uint32_t size, size_t *written, libcrun_error_t *err)
+ساکن صحیح
+format_mount_mapping (حرف **ret, uint32_t container_id, uint32_t host_id,
+                      uint32_t سائز, size_t *written, libcrun_error_t *err)
 {
   runtime_spec_schema_defs_id_mapping mapping = {
     .container_id = container_id,
     .host_id = host_id,
-    .size = size,
+    .سائز = سائز,
   };
   runtime_spec_schema_defs_id_mapping *mappings[] = {
     &mapping,
-    NULL,
+    تہی,
   };
 
-  return format_mount_mappings (ret, mappings, 1, written, err);
+  واپس format_mount_mappings (ret, mappings, 1, written, err);
 }
 
-static bool
+ساکن bool
 has_same_mappings (runtime_spec_schema_config_schema *def, runtime_spec_schema_defs_mount *mnt)
 {
   size_t s;
 
-  if (def->linux == NULL)
-    return mnt->uid_mappings_len == 0 && mnt->gid_mappings_len == 0;
+  اگر (def->linux == تہی)
+    واپس mnt->uid_mappings_len == 0 && mnt->gid_mappings_len == 0;
 
-  if (mnt->uid_mappings_len != def->linux->uid_mappings_len)
-    return false;
+  اگر (mnt->uid_mappings_len != def->linux->uid_mappings_len)
+    واپس false;
 
-  if (mnt->gid_mappings_len != def->linux->gid_mappings_len)
-    return false;
+  اگر (mnt->gid_mappings_len != def->linux->gid_mappings_len)
+    واپس false;
 
-  for (s = 0; s < mnt->uid_mappings_len; s++)
+  برائے (s = 0; s < mnt->uid_mappings_len; s++)
     {
-      if (mnt->uid_mappings[s]->container_id != def->linux->uid_mappings[s]->container_id)
-        return false;
-      if (mnt->uid_mappings[s]->host_id != def->linux->uid_mappings[s]->host_id)
-        return false;
-      if (mnt->uid_mappings[s]->size != def->linux->uid_mappings[s]->size)
-        return false;
+      اگر (mnt->uid_mappings[s]->container_id != def->linux->uid_mappings[s]->container_id)
+        واپس false;
+      اگر (mnt->uid_mappings[s]->host_id != def->linux->uid_mappings[s]->host_id)
+        واپس false;
+      اگر (mnt->uid_mappings[s]->سائز != def->linux->uid_mappings[s]->سائز)
+        واپس false;
     }
 
-  for (s = 0; s < mnt->gid_mappings_len; s++)
+  برائے (s = 0; s < mnt->gid_mappings_len; s++)
     {
-      if (mnt->gid_mappings[s]->container_id != def->linux->gid_mappings[s]->container_id)
-        return false;
-      if (mnt->gid_mappings[s]->host_id != def->linux->gid_mappings[s]->host_id)
-        return false;
-      if (mnt->gid_mappings[s]->size != def->linux->gid_mappings[s]->size)
-        return false;
+      اگر (mnt->gid_mappings[s]->container_id != def->linux->gid_mappings[s]->container_id)
+        واپس false;
+      اگر (mnt->gid_mappings[s]->host_id != def->linux->gid_mappings[s]->host_id)
+        واپس false;
+      اگر (mnt->gid_mappings[s]->سائز != def->linux->gid_mappings[s]->سائز)
+        واپس false;
     }
 
-  return true;
+  واپس true;
 }
 
-static pid_t
+ساکن pid_t
 maybe_create_userns_for_idmapped_mount (libcrun_container_t *container,
                                         runtime_spec_schema_config_schema *def,
                                         runtime_spec_schema_defs_mount *mnt,
-                                        const char *options, pid_t *pid_out,
+                                        ثابت حرف *options, pid_t *pid_برآمد,
                                         libcrun_error_t *err)
 {
   cleanup_pid pid_t pid = -1;
-  bool need_new_userns = mnt->uid_mappings_len ? ! has_same_mappings (def, mnt) : options != NULL;
+  bool need_new_userns = mnt->uid_mappings_len ? ! has_same_mappings (def, mnt) : options != تہی;
 
-  if (! need_new_userns)
-    return 0;
+  اگر (! need_new_userns)
+    واپس 0;
 
-  pid = syscall_clone (CLONE_NEWUSER | SIGCHLD, NULL);
-  if (UNLIKELY (pid < 0))
-    return crun_make_error (err, errno, "clone");
+  pid = syscall_clone (CLONE_NEWUSER | SIGCHLD, تہی);
+  اگر (UNLIKELY (pid < 0))
+    واپس crun_make_error (err, errno, "clone");
 
-  if (pid == 0)
+  اگر (pid == 0)
     {
-      prctl (PR_SET_PDEATHSIG, SIGKILL);
-      while (1)
+      prctl (PR_سیٹ_PDEATHSIG, SIGKILL);
+      جب (1)
         pause ();
-      _safe_exit (EXIT_SUCCESS);
+      محفوظ_exit (EXIT_SUCCESS);
     }
 
-  if (mnt->uid_mappings_len)
+  اگر (mnt->uid_mappings_len)
     {
-      cleanup_free char *uid_map = NULL;
-      cleanup_free char *gid_map = NULL;
+      cleanup_free حرف *uid_map = تہی;
+      cleanup_free حرف *gid_map = تہی;
       size_t written = 0;
-      int ret;
+      صحیح ret;
 
       ret = format_mount_mappings (&uid_map, mnt->uid_mappings, mnt->uid_mappings_len, &written, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      cleanup_close int fd = -1;
+      cleanup_close صحیح fd = -1;
 
       fd = libcrun_open_proc_pid_file (container, pid, "uid_map", O_WRONLY, err);
-      if (UNLIKELY (fd < 0))
-        return fd;
+      اگر (UNLIKELY (fd < 0))
+        واپس fd;
 
-      ret = safe_write (fd, "uid_map", uid_map, written, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = محفوظ_write (fd, "uid_map", uid_map, written, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
       ret = format_mount_mappings (&gid_map, mnt->gid_mappings, mnt->gid_mappings_len, &written, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
       close_and_reset (&fd);
 
       fd = libcrun_open_proc_pid_file (container, pid, "gid_map", O_WRONLY, err);
-      if (UNLIKELY (fd < 0))
-        return fd;
+      اگر (UNLIKELY (fd < 0))
+        واپس fd;
 
-      ret = safe_write (fd, "gid_map", gid_map, written, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = محفوظ_write (fd, "gid_map", gid_map, written, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
-  else
+  ورنہ
     {
-      cleanup_free char *dup_options = NULL;
-      char *option, *saveptr = NULL;
+      cleanup_free حرف *dup_options = تہی;
+      حرف *option, *saveptr = تہی;
 
-      if (! options)
-        return crun_make_error (err, 0, "internal error: no mappings found");
+      اگر (! options)
+        واپس crun_make_error (err, 0, "internal error: no mappings found");
 
       dup_options = xstrdup (options);
 
       /* If there are no OCI mappings specified, then parse the annotation.  */
-      for (option = strtok_r (dup_options, ";", &saveptr); option; option = strtok_r (NULL, ";", &saveptr))
+      برائے (option = strtok_r (dup_options, ";", &saveptr); option; option = strtok_r (تہی, ";", &saveptr))
         {
-          cleanup_free char *mappings = NULL;
-          cleanup_close int map_fd = -1;
+          cleanup_free حرف *mappings = تہی;
+          cleanup_close صحیح map_fd = -1;
           bool is_uids = false;
           size_t len = 0;
-          int ret;
+          صحیح ret;
 
-          if (has_prefix (option, "uids="))
+          اگر (has_سابقہ (option, "uids="))
             {
               is_uids = true;
               map_fd = libcrun_open_proc_pid_file (container, pid, "uid_map", O_WRONLY, err);
-              if (UNLIKELY (map_fd < 0))
-                return map_fd;
+              اگر (UNLIKELY (map_fd < 0))
+                واپس map_fd;
             }
-          else if (has_prefix (option, "gids="))
+          ورنہ اگر (has_سابقہ (option, "gids="))
             {
               map_fd = libcrun_open_proc_pid_file (container, pid, "gid_map", O_WRONLY, err);
-              if (UNLIKELY (map_fd < 0))
-                return map_fd;
+              اگر (UNLIKELY (map_fd < 0))
+                واپس map_fd;
             }
-          else
-            return crun_make_error (err, 0, "invalid option `%s` specified", option);
+          ورنہ
+            واپس crun_make_error (err, 0, "invalid option `%s` specified", option);
 
           ret = parse_idmapped_mount_option (def, is_uids, option + 5 /* strlen ("uids="), strlen ("gids=")*/, &mappings, &len, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
 
-          ret = safe_write (map_fd, is_uids ? "uid_map" : "gid_map", mappings, len, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = محفوظ_write (map_fd, is_uids ? "uid_map" : "gid_map", mappings, len, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
     }
 
-  *pid_out = pid;
+  *pid_برآمد = pid;
   pid = -1;
-  return 0;
+  واپس 0;
 }
 
-int
-libcrun_create_keyring (libcrun_container_t *container, const char *name, const char *label, libcrun_error_t *err)
+صحیح
+libcrun_create_keyring (libcrun_container_t *container, ثابت حرف *name, ثابت حرف *label, libcrun_error_t *err)
 {
-  cleanup_close int labelfd = -1;
-  bool label_set = false;
-  int ret;
+  cleanup_close صحیح labelfd = -1;
+  bool label_سیٹ = false;
+  صحیح ret;
 
-  if (label)
+  اگر (label)
     {
       labelfd = libcrun_open_proc_file (container, "self/attr/keycreate", O_WRONLY, err);
-      if (UNLIKELY (labelfd < 0))
+      اگر (UNLIKELY (labelfd < 0))
         {
-          if (crun_error_get_errno (err) != ENOENT)
-            return labelfd;
+          اگر (crun_error_get_errno (err) != ENOENT)
+            واپس labelfd;
 
           crun_error_release (err);
         }
 
-      if (labelfd >= 0)
+      اگر (labelfd >= 0)
         {
-          ret = write (labelfd, label, strlen (label));
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "write to `/proc/self/attr/keycreate`");
+          ret = اكتب (labelfd, label, لڑی_لمبائی (label));
+          اگر (UNLIKELY (ret < 0))
+            واپس crun_make_error (err, errno, "write to `/proc/self/attr/keycreate`");
 
-          label_set = true;
+          label_سیٹ = true;
         }
     }
 
   ret = syscall_keyctl_join (name);
-  if (UNLIKELY (ret < 0))
+  اگر (UNLIKELY (ret < 0))
     {
-      if (errno == ENOSYS)
+      اگر (errno == ENOSYS)
         {
           libcrun_warning ("could not create a new keyring: keyctl_join is not supported");
           ret = 0;
-          goto out;
+          جاؤ برآمد;
         }
       ret = crun_make_error (err, errno, "join keyctl `%s`", name ? name : "");
-      goto out;
+      جاؤ برآمد;
     }
 
-out:
+برآمد:
   /* Best effort attempt to reset the SELinux label used for new keyrings.  */
-  if (label_set && write (labelfd, "", 0) < 0)
+  اگر (label_سیٹ && اكتب (labelfd, "", 0) < 0)
     {
       /* Braces around empty body, to fix warning for [-Wunused-result] and error for [-Werror=empty-body]. */
     }
-  return ret;
+  واپس ret;
 }
 
-static void
+ساکن خالی
 get_uid_gid_from_def (runtime_spec_schema_config_schema *def, uid_t *uid, gid_t *gid)
 {
   *uid = 0;
   *gid = 0;
 
-  if (def->process && def->process->user)
+  اگر (def->process && def->process->user)
     {
-      if (def->process->user->uid)
+      اگر (def->process->user->uid)
         *uid = def->process->user->uid;
-      if (def->process->user->gid)
+      اگر (def->process->user->gid)
         *gid = def->process->user->gid;
     }
 }
 
-static unsigned long
-get_mount_flags (const char *name, int current_flags, int *found, unsigned long *extra_flags, uint64_t *rec_clear, uint64_t *rec_set)
+ساکن غیرعلامتی طویل
+get_mount_flags (ثابت حرف *name, صحیح current_flags, صحیح *ملا, غیرعلامتی طویل *extra_flags, uint64_t *rec_clear, uint64_t *rec_سیٹ)
 {
-  const struct propagation_flags_s *prop;
+  ثابت ساخت اشاعت_flags_s *prop;
 
   prop = libcrun_str2mount_flags (name);
 
-  if (found)
-    *found = prop ? 1 : 0;
+  اگر (ملا)
+    *ملا = prop ? 1 : 0;
 
-  if (prop == NULL)
-    return 0;
+  اگر (prop == تہی)
+    واپس 0;
 
-  if (prop->extra_flags & OPTION_RECURSIVE)
+  اگر (prop->extra_flags & OPTION_RECURSIVE)
     {
-      if (rec_clear && prop->clear)
+      اگر (rec_clear && prop->clear)
         *rec_clear |= prop->flags;
 
-      if (rec_set && ! prop->clear)
-        *rec_set |= prop->flags;
+      اگر (rec_سیٹ && ! prop->clear)
+        *rec_سیٹ |= prop->flags;
     }
 
-  if (extra_flags)
+  اگر (extra_flags)
     *extra_flags |= prop->extra_flags;
 
-  if (prop->clear)
-    return current_flags & ~prop->flags;
+  اگر (prop->clear)
+    واپس current_flags & ~prop->flags;
 
-  return current_flags | prop->flags;
+  واپس current_flags | prop->flags;
 }
 
 /* Whether any of the mount options sets or clears a mount flag, other
    than MS_BIND, MS_REC and the propagation ones.  */
-static bool
+ساکن bool
 has_mount_flag_options (runtime_spec_schema_defs_mount *mount)
 {
   size_t i;
 
-  for (i = 0; i < mount->options_len; i++)
+  برائے (i = 0; i < mount->options_len; i++)
     {
-      const struct propagation_flags_s *prop;
+      ثابت ساخت اشاعت_flags_s *prop;
 
-      if (mount->options[i] == NULL)
-        continue;
+      اگر (mount->options[i] == تہی)
+        جاری;
 
       prop = libcrun_str2mount_flags (mount->options[i]);
-      if (prop && (prop->flags & ~(MS_BIND | ALL_PROPAGATIONS)))
-        return true;
+      اگر (prop && (prop->flags & ~(MS_BIND | ALL_PROPAGATIONS)))
+        واپس true;
     }
 
-  return false;
+  واپس false;
 }
 
-static unsigned long
-get_mount_flags_or_option (const char *name, int current_flags, unsigned long *extra_flags, char **option, uint64_t *rec_clear, uint64_t *rec_set)
+ساکن غیرعلامتی طویل
+get_mount_flags_or_option (ثابت حرف *name, صحیح current_flags, غیرعلامتی طویل *extra_flags, حرف **option, uint64_t *rec_clear, uint64_t *rec_سیٹ)
 {
-  int found;
-  __attribute__ ((unused)) cleanup_free char *prev = NULL;
-  unsigned long flags;
+  صحیح ملا;
+  __attribute__ ((غیر_مستعمل)) cleanup_free حرف *پچھلا = تہی;
+  غیرعلامتی طویل flags;
 
   /* A null element of the array of options in the configuration is parsed
      into a NULL, which is not an option to be honored.  */
-  if (name == NULL)
-    return 0;
+  اگر (name == تہی)
+    واپس 0;
 
-  flags = get_mount_flags (name, current_flags, &found, extra_flags, rec_clear, rec_set);
-  if (found)
+  flags = get_mount_flags (name, current_flags, &ملا, extra_flags, rec_clear, rec_سیٹ);
+  اگر (ملا)
     {
       /* MS_SYNCHRONOUS and MS_DIRSYNC cannot be set through fsmount()
          attr_flags.  Pass them also as data so that fsconfig(SET_FLAG)
          can set SB_SYNCHRONOUS / SB_DIRSYNC on the superblock.  */
-      const char *data_flag = NULL;
-      if ((flags & MS_SYNCHRONOUS) && ! (current_flags & MS_SYNCHRONOUS))
-        data_flag = "sync";
-      else if ((flags & MS_DIRSYNC) && ! (current_flags & MS_DIRSYNC))
-        data_flag = "dirsync";
+      ثابت حرف *ڈیٹا_flag = تہی;
+      اگر ((flags & MS_SYNCHRONOUS) && ! (current_flags & MS_SYNCHRONOUS))
+        ڈیٹا_flag = "sync";
+      ورنہ اگر ((flags & MS_DIRSYNC) && ! (current_flags & MS_DIRSYNC))
+        ڈیٹا_flag = "dirsync";
 
-      if (data_flag)
+      اگر (ڈیٹا_flag)
         {
-          prev = *option;
-          if (*option && **option)
-            xasprintf (option, "%s,%s", *option, data_flag);
-          else
-            *option = xstrdup (data_flag);
+          پچھلا = *option;
+          اگر (*option && **option)
+            xasprintf (option, "%s,%s", *option, ڈیٹا_flag);
+          ورنہ
+            *option = xstrdup (ڈیٹا_flag);
         }
-      return flags;
+      واپس flags;
     }
 
-  prev = *option;
-  if (*option && **option)
+  پچھلا = *option;
+  اگر (*option && **option)
     xasprintf (option, "%s,%s", *option, name);
-  else
+  ورنہ
     *option = xstrdup (name);
 
-  return 0;
+  واپس 0;
 }
 
-int
-pivot_root (const char *new_root, const char *put_old)
+صحیح
+محور_جڑ (ثابت حرف *new_جڑ, ثابت حرف *put_old)
 {
-  return syscall (__NR_pivot_root, new_root, put_old);
+  واپس syscall (__NR_pivot_root, new_جڑ, put_old);
 }
 
-static void
-free_remount (struct remount_s *r)
+ساکن خالی
+free_remount (ساخت remount_s *r)
 {
-  if (r == NULL)
-    return;
-  if (r->targetfd >= 0)
+  اگر (r == تہی)
+    واپس;
+  اگر (r->targetfd >= 0)
     close (r->targetfd);
-  free (r->data);
-  free (r->target);
-  free (r);
+  آزاد (r->ڈیٹا);
+  آزاد (r->ہدف);
+  آزاد (r);
 }
 
-static struct remount_s *
-make_remount (int targetfd, const char *target, unsigned long flags, const char *data, struct remount_s *next)
+ساکن ساخت remount_s *
+make_remount (صحیح targetfd, ثابت حرف *ہدف, غیرعلامتی طویل flags, ثابت حرف *ڈیٹا, ساخت remount_s *اگلا)
 {
-  struct remount_s *ret = xmalloc (sizeof (*ret));
-  ret->target = xstrdup (target);
+  ساخت remount_s *ret = xmalloc (حجم (*ret));
+  ret->ہدف = xstrdup (ہدف);
   ret->flags = flags;
-  ret->data = data ? xstrdup (data) : NULL;
-  ret->next = next;
+  ret->ڈیٹا = ڈیٹا ? xstrdup (ڈیٹا) : تہی;
+  ret->اگلا = اگلا;
   ret->targetfd = targetfd;
-  return ret;
+  واپس ret;
 }
 
-static int
-do_remount (int targetfd, const char *target, unsigned long flags, const char *data, libcrun_error_t *err)
+ساکن صحیح
+do_remount (صحیح targetfd, ثابت حرف *ہدف, غیرعلامتی طویل flags, ثابت حرف *ڈیٹا, libcrun_error_t *err)
 {
-  proc_fd_path_t target_buffer;
-  int ret;
-  const char *real_target = target;
+  proc_fd_راستہ_t ہدف_بفر;
+  صحیح ret;
+  ثابت حرف *real_ہدف = ہدف;
 
-  if (targetfd >= 0)
+  اگر (targetfd >= 0)
     {
-      unsigned long set_flags = flags & ~(MS_REMOUNT | MS_BIND);
-      unsigned long clear_flags = REMOUNT_CLEAR_FLAGS & ~set_flags;
-      ret = do_mount_setattr (false, target, targetfd, clear_flags, flags & ~MS_REMOUNT, err);
-      if (LIKELY (ret == 0))
-        return 0;
+      غیرعلامتی طویل سیٹ_flags = flags & ~(MS_REMOUNT | MS_BIND);
+      غیرعلامتی طویل clear_flags = REMOUNT_CLEAR_FLAGS & ~سیٹ_flags;
+      ret = do_mount_setattr (false, ہدف, targetfd, clear_flags, flags & ~MS_REMOUNT, err);
+      اگر (LIKELY (ret == 0))
+        واپس 0;
       crun_error_release (err);
 
-      get_proc_self_fd_path (target_buffer, targetfd);
-      real_target = target_buffer;
+      get_proc_self_fd_راستہ (ہدف_بفر, targetfd);
+      real_ہدف = ہدف_بفر;
     }
 
   /* Older kernels (seen on 4.18) fail with EINVAL if data is set when
      setting MS_RDONLY.  */
-  if (flags & (MS_REMOUNT | MS_RDONLY))
-    data = NULL;
+  اگر (flags & (MS_REMOUNT | MS_RDONLY))
+    ڈیٹا = تہی;
 
-  ret = mount (NULL, real_target, NULL, flags, data);
-  if (UNLIKELY (ret < 0))
+  ret = mount (تہی, real_ہدف, تہی, flags, ڈیٹا);
+  اگر (UNLIKELY (ret < 0))
     {
-      unsigned long current_flags, remount_flags;
-      struct statfs sfs;
+      غیرعلامتی طویل current_flags, remount_flags;
+      ساخت statfs sfs;
 
-      ret = statfs (real_target, &sfs);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "statfs `%s`", real_target);
+      ret = statfs (real_ہدف, &sfs);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "statfs `%s`", real_ہدف);
 
       current_flags = mount_flags_from_statfs (sfs.f_flags);
 
       remount_flags = current_flags & (MS_NOSUID | MS_NODEV | MS_NOEXEC | MS_NOSYMFOLLOW);
-      if (! (flags & MOUNT_ATIME_FLAGS))
+      اگر (! (flags & MOUNT_ATIME_FLAGS))
         remount_flags |= current_flags & MOUNT_ATIME_FLAGS;
 
-      if ((flags | remount_flags) != flags)
+      اگر ((flags | remount_flags) != flags)
         {
-          ret = mount (NULL, real_target, NULL, flags | remount_flags, data);
-          if (LIKELY (ret == 0))
-            return 0;
+          ret = mount (تہی, real_ہدف, تہی, flags | remount_flags, ڈیٹا);
+          اگر (LIKELY (ret == 0))
+            واپس 0;
 
           /* If it still fails and MS_RDONLY is present in the mount, try adding it.  */
-          if (current_flags & MS_RDONLY)
-            ret = mount (NULL, real_target, NULL, flags | remount_flags | MS_RDONLY, data);
+          اگر (current_flags & MS_RDONLY)
+            ret = mount (تہی, real_ہدف, تہی, flags | remount_flags | MS_RDONLY, ڈیٹا);
         }
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "remount `%s`", target);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "remount `%s`", ہدف);
     }
-  return 0;
+  واپس 0;
 }
 
-static int
+ساکن صحیح
 finalize_mounts (libcrun_container_t *container, libcrun_error_t *err)
 {
-  int ret = 0;
-  struct remount_s *r = get_private_data (container)->remounts;
-  while (r)
+  صحیح ret = 0;
+  ساخت remount_s *r = get_نجی_ڈیٹا (container)->remounts;
+  جب (r)
     {
-      struct remount_s *next = r->next;
+      ساخت remount_s *اگلا = r->اگلا;
 
       /* Try mount_setattr() first to avoid the statfs+retry fallback.  */
-      if (r->targetfd >= 0 && (r->flags & MS_RDONLY))
+      اگر (r->targetfd >= 0 && (r->flags & MS_RDONLY))
         {
           /* Clear the flags which are not set, like do_remount does.  */
-          unsigned long set_flags = r->flags & ~(MS_REMOUNT | MS_BIND);
-          unsigned long clear_flags = REMOUNT_CLEAR_FLAGS & ~set_flags;
+          غیرعلامتی طویل سیٹ_flags = r->flags & ~(MS_REMOUNT | MS_BIND);
+          غیرعلامتی طویل clear_flags = REMOUNT_CLEAR_FLAGS & ~سیٹ_flags;
 
-          ret = do_mount_setattr (false, r->target, r->targetfd, clear_flags, r->flags & ~MS_REMOUNT, err);
-          if (LIKELY (ret == 0))
+          ret = do_mount_setattr (false, r->ہدف, r->targetfd, clear_flags, r->flags & ~MS_REMOUNT, err);
+          اگر (LIKELY (ret == 0))
             {
               free_remount (r);
-              r = next;
-              continue;
+              r = اگلا;
+              جاری;
             }
           crun_error_release (err);
         }
 
-      ret = do_remount (r->targetfd, r->target, r->flags, r->data, err);
-      if (UNLIKELY (ret < 0))
-        goto cleanup;
+      ret = do_remount (r->targetfd, r->ہدف, r->flags, r->ڈیٹا, err);
+      اگر (UNLIKELY (ret < 0))
+        جاؤ cleanup;
 
       free_remount (r);
-      r = next;
+      r = اگلا;
     }
 
 cleanup:
-  while (r)
+  جب (r)
     {
-      struct remount_s *next = r->next;
+      ساخت remount_s *اگلا = r->اگلا;
       free_remount (r);
-      r = next;
+      r = اگلا;
     }
 
-  get_private_data (container)->remounts = NULL;
-  return ret;
+  get_نجی_ڈیٹا (container)->remounts = تہی;
+  واپس ret;
 }
 
-static int
-open_mount_target (libcrun_container_t *container, const char *target_rel, libcrun_error_t *err)
+ساکن صحیح
+open_mount_ہدف (libcrun_container_t *container, ثابت حرف *ہدف_rel, libcrun_error_t *err)
 {
-  const char *rootfs = get_private_data (container)->rootfs;
-  int rootfsfd = get_private_data (container)->rootfsfd;
+  ثابت حرف *rootfs = get_نجی_ڈیٹا (container)->rootfs;
+  صحیح rootfsfd = get_نجی_ڈیٹا (container)->rootfsfd;
 
-  if (rootfsfd < 0)
-    return crun_make_error (err, 0, "invalid rootfs state");
+  اگر (rootfsfd < 0)
+    واپس crun_make_error (err, 0, "invalid rootfs state");
 
-  return safe_openat (rootfsfd, rootfs, target_rel, O_PATH | O_CLOEXEC, 0, err);
+  واپس محفوظ_openat (rootfsfd, rootfs, ہدف_rel, O_راستہ | O_CLOEXEC, 0, err);
 }
 
 /* Attempt to open a mount of the specified type.  */
-static int
-fsopen_mount (const char *type, const char *source_name, const char *labeltype, const char *label, const char *data)
+ساکن صحیح
+fsopen_mount (ثابت حرف *type, ثابت حرف *ماخذ_name, ثابت حرف *labeltype, ثابت حرف *label, ثابت حرف *ڈیٹا)
 {
-#ifdef HAVE_NEW_MOUNT_API
-  cleanup_close int fsfd = -1;
-  int ret;
+#اگر_تعریف_شدہ HAVE_NEW_MOUNT_API
+  cleanup_close صحیح fsfd = -1;
+  صحیح ret;
 
   fsfd = syscall_fsopen (type, FSOPEN_CLOEXEC);
-  if (UNLIKELY (fsfd < 0))
-    return fsfd;
+  اگر (UNLIKELY (fsfd < 0))
+    واپس fsfd;
 
   /* Best-effort: pseudo file systems (tmpfs, proc, ...) ignore "source",
      so a failure here is expected and harmless.  Real failures surface
      at FSCONFIG_CMD_CREATE below.  */
-  (void) syscall_fsconfig (fsfd, FSCONFIG_SET_STRING, "source", source_name ? source_name : type, 0);
+  (خالی) syscall_fsconfig (fsfd, FSCONFIG_SET_STRING, "source", ماخذ_name ? ماخذ_name : type, 0);
 
-  if (labeltype)
+  اگر (labeltype)
     {
       ret = syscall_fsconfig (fsfd, FSCONFIG_SET_STRING, labeltype, label, 0);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  if (data && data[0])
+  اگر (ڈیٹا && ڈیٹا[0])
     {
-      cleanup_free char *data_copy = xstrdup (data);
-      char *saveptr = NULL;
-      char *token;
+      cleanup_free حرف *ڈیٹا_copy = xstrdup (ڈیٹا);
+      حرف *saveptr = تہی;
+      حرف *token;
 
-      for (token = strtok_r (data_copy, ",", &saveptr); token; token = strtok_r (NULL, ",", &saveptr))
+      برائے (token = strtok_r (ڈیٹا_copy, ",", &saveptr); token; token = strtok_r (تہی, ",", &saveptr))
         {
-          char *eq = strchr (token, '=');
-          if (eq)
+          حرف *eq = strchr (token, '=');
+          اگر (eq)
             {
               *eq = '\0';
 
               ret = syscall_fsconfig (fsfd, FSCONFIG_SET_STRING, token, eq + 1, 0);
             }
-          else
-            ret = syscall_fsconfig (fsfd, FSCONFIG_SET_FLAG, token, NULL, 0);
+          ورنہ
+            ret = syscall_fsconfig (fsfd, FSCONFIG_SET_FLAG, token, تہی, 0);
 
-          if (UNLIKELY (ret < 0))
-            return ret;
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
     }
 
-  ret = syscall_fsconfig (fsfd, FSCONFIG_CMD_CREATE, NULL, NULL, 0);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = syscall_fsconfig (fsfd, FSCONFIG_CMD_CREATE, تہی, تہی, 0);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return syscall_fsmount (fsfd, FSMOUNT_CLOEXEC, 0);
-#else
-  (void) type;
-  (void) source_name;
-  (void) data;
+  واپس syscall_fsmount (fsfd, FSMOUNT_CLOEXEC, 0);
+#ورنہ
+  (خالی) type;
+  (خالی) ماخذ_name;
+  (خالی) ڈیٹا;
   errno = ENOSYS;
-  return -1;
-#endif
+  واپس -1;
+#اگر_ختم
 }
 
-static int
-get_procfd (struct private_data_s *data, libcrun_error_t *err)
+ساکن صحیح
+get_procfd (ساخت نجی_ڈیٹا_s *ڈیٹا, libcrun_error_t *err)
 {
-  int fd;
+  صحیح fd;
 
-  if (data->procfd >= 0)
-    return data->procfd;
+  اگر (ڈیٹا->procfd >= 0)
+    واپس ڈیٹا->procfd;
 
-  fd = fsopen_mount ("proc", NULL, NULL, NULL, NULL);
-  if (fd < 0)
+  fd = fsopen_mount ("proc", تہی, تہی, تہی, تہی);
+  اگر (fd < 0)
     fd = open ("/proc", O_DIRECTORY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `/proc`");
+  اگر (UNLIKELY (fd < 0))
+    واپس crun_make_error (err, errno, "open `/proc`");
 
-  data->procfd = fd;
-  return fd;
+  ڈیٹا->procfd = fd;
+  واپس fd;
 }
 
-static int
-get_old_root_fd (struct private_data_s *data)
+ساکن صحیح
+get_old_جڑ_fd (ساخت نجی_ڈیٹا_s *ڈیٹا)
 {
-  if (data->old_root_fd >= 0)
-    return data->old_root_fd;
+  اگر (ڈیٹا->old_جڑ_fd >= 0)
+    واپس ڈیٹا->old_جڑ_fd;
 
-  data->old_root_fd = open ("/", O_PATH | O_CLOEXEC);
-  return data->old_root_fd;
+  ڈیٹا->old_جڑ_fd = open ("/", O_راستہ | O_CLOEXEC);
+  واپس ڈیٹا->old_جڑ_fd;
 }
 
-static int
-fs_move_mount_to (int fd, int dirfd, const char *name)
+ساکن صحیح
+fs_move_mount_مقصد (صحیح fd, صحیح dirfd, ثابت حرف *name)
 {
-#ifdef HAVE_NEW_MOUNT_API
-  if (name)
-    return syscall_move_mount (fd, "", dirfd, name, MOVE_MOUNT_F_EMPTY_PATH);
+#اگر_تعریف_شدہ HAVE_NEW_MOUNT_API
+  اگر (name)
+    واپس syscall_move_mount (fd, "", dirfd, name, MOVE_MOUNT_F_EMPTY_PATH);
 
-  return syscall_move_mount (fd, "", dirfd, "", MOVE_MOUNT_T_EMPTY_PATH | MOVE_MOUNT_F_EMPTY_PATH);
-#else
-  (void) fd;
-  (void) dirfd;
-  (void) name;
-  (void) syscall_move_mount;
+  واپس syscall_move_mount (fd, "", dirfd, "", MOVE_MOUNT_T_EMPTY_PATH | MOVE_MOUNT_F_EMPTY_PATH);
+#ورنہ
+  (خالی) fd;
+  (خالی) dirfd;
+  (خالی) name;
+  (خالی) syscall_move_mount;
   errno = ENOSYS;
-  return -1;
-#endif
+  واپس -1;
+#اگر_ختم
 }
 
-enum
+شمار
 {
   /* Do not apply any label to the mount.  */
   LABEL_NONE = 0,
@@ -1177,7 +1177,7 @@ enum
   /* Apply the label using setxattr.  */
   LABEL_XATTR = 2,
 
-  LABEL_MASK = 0x0f,
+  LABEL_نقاب = 0x0f,
 
   /* Do not defer a readonly remount — apply MS_RDONLY directly.  */
   MOUNT_NO_DEFERRED_REMOUNT = 0x10,
@@ -1186,282 +1186,282 @@ enum
   MOUNT_NO_REMOUNT = 0x20,
 };
 
-static int do_mount (libcrun_container_t *container, const char *source, int targetfd,
-                     const char *target, const char *fstype, unsigned long mountflags,
-                     const void *data, int extra_flags, libcrun_error_t *err);
+ساکن صحیح do_mount (libcrun_container_t *container, ثابت حرف *ماخذ, صحیح targetfd,
+                     ثابت حرف *ہدف, ثابت حرف *fstype, غیرعلامتی طویل mountflags,
+                     ثابت خالی *ڈیٹا, صحیح extra_flags, libcrun_error_t *err);
 
-static bool
-mount_option_exists (runtime_spec_schema_defs_mount *mnt, const char *option)
+ساکن bool
+mount_option_exists (runtime_spec_schema_defs_mount *mnt, ثابت حرف *option)
 {
   size_t i;
-  for (i = 0; i < mnt->options_len; i++)
-    if (mnt->options[i] != NULL && strcmp (mnt->options[i], option) == 0)
-      return true;
-  return false;
+  برائے (i = 0; i < mnt->options_len; i++)
+    اگر (mnt->options[i] != تہی && strcmp (mnt->options[i], option) == 0)
+      واپس true;
+  واپس false;
 }
 
-static runtime_spec_schema_defs_mount *
-find_mount_for (libcrun_container_t *container, const char *destination)
+ساکن runtime_spec_schema_defs_mount *
+ڈھونڈو_mount_for (libcrun_container_t *container, ثابت حرف *destination)
 {
   size_t i;
   runtime_spec_schema_config_schema *def = container->container_def;
 
-  for (i = 0; i < def->mounts_len; i++)
+  برائے (i = 0; i < def->mounts_len; i++)
     {
-      if (strcmp (def->mounts[i]->destination, destination) == 0)
-        return def->mounts[i];
+      اگر (strcmp (def->mounts[i]->destination, destination) == 0)
+        واپس def->mounts[i];
     }
-  return NULL;
+  واپس تہی;
 }
 
-static void
-warn_tmpfs_fallback_once (struct private_data_s *private_data, const char *reason)
+ساکن خالی
+warn_tmpfs_fallback_once (ساخت نجی_ڈیٹا_s *نجی_ڈیٹا, ثابت حرف *reason)
 {
-  if (! private_data->maskdir_warned)
+  اگر (! نجی_ڈیٹا->maskdir_warned)
     {
       libcrun_warning ("Falling back to tmpfs for masked dirs (reason: %s)", reason);
-      private_data->maskdir_warned = true;
+      نجی_ڈیٹا->maskdir_warned = true;
     }
 }
 
 /* Get or create the cached shared empty directory for masked paths optimization.
  * Creates directory and FD once per container, caches /proc/self/fd path for fast mounting.
  */
-static int
-get_shared_empty_dir_cached (libcrun_container_t *container, char **proc_fd_path, libcrun_error_t *err)
+ساکن صحیح
+get_shared_خالی_خانے_dir_cached (libcrun_container_t *container, حرف **proc_fd_راستہ, libcrun_error_t *err)
 {
-  struct private_data_s *private_data = get_private_data (container);
-  cleanup_close int fd = -1;
-  cleanup_free char *empty_dir_path = NULL;
-  proc_fd_path_t fd_path;
-  int ret;
+  ساخت نجی_ڈیٹا_s *نجی_ڈیٹا = get_نجی_ڈیٹا (container);
+  cleanup_close صحیح fd = -1;
+  cleanup_free حرف *خالی_خانے_dir_راستہ = تہی;
+  proc_fd_راستہ_t fd_راستہ;
+  صحیح ret;
 
   /* Fast path: return cached proc fd path if already set up */
-  if (private_data->maskdir_proc_path != NULL)
+  اگر (نجی_ڈیٹا->maskdir_proc_راستہ != تہی)
     {
-      if (proc_fd_path)
-        *proc_fd_path = private_data->maskdir_proc_path;
-      return 0;
+      اگر (proc_fd_راستہ)
+        *proc_fd_راستہ = نجی_ڈیٹا->maskdir_proc_راستہ;
+      واپس 0;
     }
 
   /* Slow path: create directory and cache everything once */
-  ret = get_shared_empty_directory_path (&empty_dir_path, container->context->state_root, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_shared_خالی_خانے_directory_راستہ (&خالی_خانے_dir_راستہ, container->context->state_جڑ, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   /* Open directory and cache FD (once per container) */
-  fd = get_bind_mount (-1, empty_dir_path, true, true, false, MS_PRIVATE, err);
-  if (fd < 0)
-    return fd;
+  fd = get_bind_mount (-1, خالی_خانے_dir_راستہ, true, true, false, MS_PRIVATE, err);
+  اگر (fd < 0)
+    واپس fd;
 
-  get_self_fd_path (fd_path, fd);
-  private_data->maskdir_proc_path = xstrdup (fd_path);
+  get_self_fd_راستہ (fd_راستہ, fd);
+  نجی_ڈیٹا->maskdir_proc_راستہ = xstrdup (fd_راستہ);
 
-  private_data->maskdir_fd = fd;
+  نجی_ڈیٹا->maskdir_fd = fd;
   fd = -1; /* Don't auto-close */
 
-  if (proc_fd_path)
-    *proc_fd_path = private_data->maskdir_proc_path;
-  return 0;
+  اگر (proc_fd_راستہ)
+    *proc_fd_راستہ = نجی_ڈیٹا->maskdir_proc_راستہ;
+  واپس 0;
 }
 
-static bool
-is_dev_null (const struct stat *st)
+ساکن bool
+is_dev_null (ثابت ساخت stat *st)
 {
   /* 1:3 is the null device, see Documentation/admin-guide/devices.txt.  */
-  return S_ISCHR (st->st_mode) && st->st_rdev == makedev (1, 3);
+  واپس S_ISCHR (st->st_mode) && st->st_rdev == makedev (1, 3);
 }
 
 /* Check that fd refers to the null device.  Once the root is the container
    rootfs, /dev/null is whatever the rootfs provides there.  */
-static int
-ensure_dev_null (int fd, libcrun_error_t *err)
+ساکن صحیح
+ensure_dev_null (صحیح fd, libcrun_error_t *err)
 {
-  struct stat st;
+  ساخت stat st;
 
-  if (UNLIKELY (fstat (fd, &st) < 0))
-    return crun_make_error (err, errno, "stat `/dev/null`");
+  اگر (UNLIKELY (fstat (fd, &st) < 0))
+    واپس crun_make_error (err, errno, "stat `/dev/null`");
 
-  if (UNLIKELY (! is_dev_null (&st)))
-    return crun_make_error (err, 0, "`/dev/null` is not the null device");
+  اگر (UNLIKELY (! is_dev_null (&st)))
+    واپس crun_make_error (err, 0, "`/dev/null` is not the null device");
 
-  return 0;
+  واپس 0;
 }
 
 /* Whether FD is the root of a read-only tmpfs that can hold no inode
    other than its root, so it is safe to show in place of any directory.  */
-static bool
-is_empty_ro_tmpfs (int fd)
+ساکن bool
+is_خالی_خانے_ro_tmpfs (صحیح fd)
 {
-  struct statfs sfs;
+  ساخت statfs sfs;
 
-  if (fstatfs (fd, &sfs) < 0)
-    return false;
+  اگر (fstatfs (fd, &sfs) < 0)
+    واپس false;
 
-  return sfs.f_type == TMPFS_MAGIC && (sfs.f_flags & ST_RDONLY) && sfs.f_files == 1;
+  واپس sfs.f_type == TMPFS_MAGIC && (sfs.f_flags & ST_RDONLY) && sfs.f_files == 1;
 }
 
-static int
-mount_masked_dir (libcrun_container_t *container, int pathfd, const char *rel_path, libcrun_error_t *err)
+ساکن صحیح
+mount_masked_dir (libcrun_container_t *container, صحیح pathfd, ثابت حرف *rel_راستہ, libcrun_error_t *err)
 {
-  struct private_data_s *private_data = get_private_data (container);
-  cleanup_close int newfd = -1;
-  libcrun_error_t tmp_err = NULL;
-  int ret;
+  ساخت نجی_ڈیٹا_s *نجی_ڈیٹا = get_نجی_ڈیٹا (container);
+  cleanup_close صحیح newfd = -1;
+  libcrun_error_t tmp_err = تہی;
+  صحیح ret;
 
-  if (private_data->maskdir_fd < 0)
+  اگر (نجی_ڈیٹا->maskdir_fd < 0)
     {
-      if (private_data->maskdir_bind_failed)
-        goto fallback_to_tmpfs;
+      اگر (نجی_ڈیٹا->maskdir_bind_failed)
+        جاؤ fallback_مقصد_tmpfs;
 
-      ret = get_shared_empty_dir_cached (container, NULL, &tmp_err);
-      if (ret < 0)
+      ret = get_shared_خالی_خانے_dir_cached (container, تہی, &tmp_err);
+      اگر (ret < 0)
         {
-          private_data->maskdir_bind_failed = true;
-          warn_tmpfs_fallback_once (private_data, tmp_err->msg);
+          نجی_ڈیٹا->maskdir_bind_failed = true;
+          warn_tmpfs_fallback_once (نجی_ڈیٹا, tmp_err->پیغام);
           crun_error_release (&tmp_err);
-          goto fallback_to_tmpfs;
+          جاؤ fallback_مقصد_tmpfs;
         }
     }
 
-  if (private_data->maskdir_fd >= 0)
+  اگر (نجی_ڈیٹا->maskdir_fd >= 0)
     {
-      int rootfsfd = private_data->rootfsfd;
-      struct stat before, after;
+      صحیح rootfsfd = نجی_ڈیٹا->rootfsfd;
+      ساخت stat before, after;
 
-      ret = fstat (private_data->maskdir_fd, &before);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "fstat masked dir `%s`", rel_path);
+      ret = fstat (نجی_ڈیٹا->maskdir_fd, &before);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "fstat masked dir `%s`", rel_راستہ);
 
-      ret = fs_move_mount_to (private_data->maskdir_fd, pathfd, NULL);
-      if (LIKELY (ret == 0))
+      ret = fs_move_mount_مقصد (نجی_ڈیٹا->maskdir_fd, pathfd, تہی);
+      اگر (LIKELY (ret == 0))
         {
-          newfd = get_bind_mount (rootfsfd, rel_path, true, true, false, MS_PRIVATE, err);
-          if (UNLIKELY (newfd < 0))
-            return newfd;
+          newfd = get_bind_mount (rootfsfd, rel_راستہ, true, true, false, MS_PRIVATE, err);
+          اگر (UNLIKELY (newfd < 0))
+            واپس newfd;
 
           ret = fstat (newfd, &after);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "fstat masked dir `%s`", rel_path);
+          اگر (UNLIKELY (ret < 0))
+            واپس crun_make_error (err, errno, "fstat masked dir `%s`", rel_راستہ);
 
-          if (before.st_dev != after.st_dev || before.st_ino != after.st_ino)
-            return crun_make_error (err, 0, "race condition detected remounting masked path `/%s`", rel_path);
+          اگر (before.st_dev != after.st_dev || before.st_ino != after.st_ino)
+            واپس crun_make_error (err, 0, "race condition detected remounting masked path `/%s`", rel_راستہ);
 
-          TEMP_FAILURE_RETRY (close (private_data->maskdir_fd));
-          private_data->maskdir_fd = newfd;
+          عارضی_FAILURE_RETRY (close (نجی_ڈیٹا->maskdir_fd));
+          نجی_ڈیٹا->maskdir_fd = newfd;
           newfd = -1;
 
-          return 0;
+          واپس 0;
         }
 
       /* tmp_err is NULL here: get_shared_empty_dir_cached() succeeded and did not set it. */
-      crun_make_error (&tmp_err, errno, "move mount masked dir `%s`", rel_path);
+      crun_make_error (&tmp_err, errno, "move mount masked dir `%s`", rel_راستہ);
 
-      TEMP_FAILURE_RETRY (close (private_data->maskdir_fd));
-      private_data->maskdir_fd = -1;
-      private_data->maskdir_move_failed = true;
+      عارضی_FAILURE_RETRY (close (نجی_ڈیٹا->maskdir_fd));
+      نجی_ڈیٹا->maskdir_fd = -1;
+      نجی_ڈیٹا->maskdir_move_failed = true;
     }
 
-  private_data->maskdir_bind_failed = true;
-  warn_tmpfs_fallback_once (private_data, tmp_err ? tmp_err->msg : "unknown error");
+  نجی_ڈیٹا->maskdir_bind_failed = true;
+  warn_tmpfs_fallback_once (نجی_ڈیٹا, tmp_err ? tmp_err->پیغام : "unknown error");
   crun_error_release (&tmp_err);
 
-fallback_to_tmpfs:
-  libcrun_debug ("using tmpfs fallback for %s", rel_path);
-  ret = do_mount (container, "tmpfs", pathfd, rel_path, "tmpfs", MS_RDONLY, "nr_blocks=1,nr_inodes=1",
+fallback_مقصد_tmpfs:
+  libcrun_debug ("using tmpfs fallback for %s", rel_راستہ);
+  ret = do_mount (container, "tmpfs", pathfd, rel_راستہ, "tmpfs", MS_RDONLY, "nr_blocks=1,nr_inodes=1",
                   LABEL_MOUNT | MOUNT_NO_DEFERRED_REMOUNT, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   /* Reuse this tmpfs for the other masked directories, so that they do not
      need a tmpfs instance each.  */
-  if (! private_data->maskdir_move_failed)
+  اگر (! نجی_ڈیٹا->maskdir_move_failed)
     {
-      ret = get_bind_mount (private_data->rootfsfd, rel_path, true, true, false, MS_PRIVATE, &tmp_err);
-      if (ret >= 0 && is_empty_ro_tmpfs (ret))
-        private_data->maskdir_fd = ret;
-      else
+      ret = get_bind_mount (نجی_ڈیٹا->rootfsfd, rel_راستہ, true, true, false, MS_PRIVATE, &tmp_err);
+      اگر (ret >= 0 && is_خالی_خانے_ro_tmpfs (ret))
+        نجی_ڈیٹا->maskdir_fd = ret;
+      ورنہ
         {
-          if (ret >= 0)
-            TEMP_FAILURE_RETRY (close (ret));
-          private_data->maskdir_move_failed = true;
+          اگر (ret >= 0)
+            عارضی_FAILURE_RETRY (close (ret));
+          نجی_ڈیٹا->maskdir_move_failed = true;
           crun_error_release (&tmp_err);
         }
     }
 
-  return 0;
+  واپس 0;
 }
 
-static int
-do_masked_or_readonly_path (libcrun_container_t *container, const char *rel_path, bool readonly, bool keep_flags,
+ساکن صحیح
+do_masked_or_readonly_راستہ (libcrun_container_t *container, ثابت حرف *rel_راستہ, bool readonly, bool keep_flags,
                             libcrun_error_t *err)
 {
-  unsigned long mount_flags = 0;
-  const char *rootfs = get_private_data (container)->rootfs;
-  cleanup_close int pathfd = -1;
-  struct statfs sfs;
-  int ret;
-  mode_t mode;
+  غیرعلامتی طویل mount_flags = 0;
+  ثابت حرف *rootfs = get_نجی_ڈیٹا (container)->rootfs;
+  cleanup_close صحیح pathfd = -1;
+  ساخت statfs sfs;
+  صحیح ret;
+  mode_t منوال;
 
   /* The paths come from linux.maskedPaths and linux.readonlyPaths, so a null
      entry in either array reaches us as a NULL pointer.  */
-  if (UNLIKELY (rel_path == NULL))
-    return crun_make_error (err, EINVAL, "invalid null path in `maskedPaths` or `readonlyPaths`");
+  اگر (UNLIKELY (rel_راستہ == تہی))
+    واپس crun_make_error (err, EINVAL, "invalid null path in `maskedPaths` or `readonlyPaths`");
 
-  if (rel_path[0] == '/')
-    rel_path++;
+  اگر (rel_راستہ[0] == '/')
+    rel_راستہ++;
 
-  pathfd = safe_openat (get_private_data (container)->rootfsfd, rootfs, rel_path, O_PATH | O_CLOEXEC, 0, err);
-  if (UNLIKELY (pathfd < 0))
+  pathfd = محفوظ_openat (get_نجی_ڈیٹا (container)->rootfsfd, rootfs, rel_راستہ, O_راستہ | O_CLOEXEC, 0, err);
+  اگر (UNLIKELY (pathfd < 0))
     {
       errno = crun_error_get_errno (err);
-      if (errno != ENOENT && errno != EACCES)
-        return pathfd;
+      اگر (errno != ENOENT && errno != EACCES)
+        واپس pathfd;
 
-      if (errno == EACCES)
-        libcrun_debug ("skipping inaccessible path `%s`", rel_path);
+      اگر (errno == EACCES)
+        libcrun_debug ("skipping inaccessible path `%s`", rel_راستہ);
       crun_error_release (err);
-      return 0;
+      واپس 0;
     }
 
-  if (readonly)
+  اگر (readonly)
     {
-      int procfd = get_procfd (get_private_data (container), err);
-      proc_fd_path_t source_buffer;
-      cleanup_close int mountfd = -1;
+      صحیح procfd = get_procfd (get_نجی_ڈیٹا (container), err);
+      proc_fd_راستہ_t ماخذ_بفر;
+      cleanup_close صحیح mountfd = -1;
 
-      if (UNLIKELY (procfd < 0))
-        return procfd;
+      اگر (UNLIKELY (procfd < 0))
+        واپس procfd;
 
-      get_self_fd_path (source_buffer, pathfd);
+      get_self_fd_راستہ (ماخذ_بفر, pathfd);
 
       /* Try open_tree + mount_setattr to apply MS_RDONLY atomically.
          Only when keep_flags is false, since keep_flags needs statfs
          to inherit parent mount flags.  */
-      if (! keep_flags)
+      اگر (! keep_flags)
         {
-          mountfd = get_bind_mount (procfd, source_buffer, true, true, false, MS_PRIVATE, err);
-          if (mountfd >= 0)
-            ret = fs_move_mount_to (mountfd, pathfd, NULL);
-          else
+          mountfd = get_bind_mount (procfd, ماخذ_بفر, true, true, false, MS_PRIVATE, err);
+          اگر (mountfd >= 0)
+            ret = fs_move_mount_مقصد (mountfd, pathfd, تہی);
+          ورنہ
             ret = -1;
 
-          if (ret < 0)
+          اگر (ret < 0)
             crun_error_release (err);
         }
 
-      if (keep_flags || ret < 0)
+      اگر (keep_flags || ret < 0)
         {
           mount_flags = MS_BIND | MS_PRIVATE | MS_RDONLY | MS_REC;
-          if (keep_flags)
+          اگر (keep_flags)
             {
-              cleanup_close int sfd = openat (procfd, source_buffer, O_PATH | O_CLOEXEC);
-              if (UNLIKELY (sfd < 0))
-                return crun_make_error (err, errno, "openat procfd for `%s`", rel_path);
+              cleanup_close صحیح sfd = openat (procfd, ماخذ_بفر, O_راستہ | O_CLOEXEC);
+              اگر (UNLIKELY (sfd < 0))
+                واپس crun_make_error (err, errno, "openat procfd for `%s`", rel_راستہ);
 
               ret = fstatfs (sfd, &sfs);
-              if (UNLIKELY (ret < 0))
-                return crun_make_error (err, errno, "fstatfs `%s`", rel_path);
+              اگر (UNLIKELY (ret < 0))
+                واپس crun_make_error (err, errno, "fstatfs `%s`", rel_راستہ);
               mount_flags = mount_flags | sfs.f_flags;
 
               /* Parent might contain MS_REMOUNT but the new readonly path is not
@@ -1472,497 +1472,497 @@ do_masked_or_readonly_path (libcrun_container_t *container, const char *rel_path
             }
 
           close_and_reset (&mountfd);
-          mountfd = get_bind_mount (procfd, source_buffer, true, true, false, MS_PRIVATE, err);
-          if (mountfd >= 0)
+          mountfd = get_bind_mount (procfd, ماخذ_بفر, true, true, false, MS_PRIVATE, err);
+          اگر (mountfd >= 0)
             {
-              ret = do_mount_setattr (true, rel_path, mountfd, 0, mount_flags & ~(MS_BIND | MS_PRIVATE), err);
-              if (UNLIKELY (ret < 0))
-                return ret;
+              ret = do_mount_setattr (true, rel_راستہ, mountfd, 0, mount_flags & ~(MS_BIND | MS_PRIVATE), err);
+              اگر (UNLIKELY (ret < 0))
+                واپس ret;
 
-              ret = fs_move_mount_to (mountfd, pathfd, NULL);
-              if (UNLIKELY (ret < 0))
-                return crun_make_error (err, errno, "move mount for readonly path `%s`", rel_path);
+              ret = fs_move_mount_مقصد (mountfd, pathfd, تہی);
+              اگر (UNLIKELY (ret < 0))
+                واپس crun_make_error (err, errno, "move mount for readonly path `%s`", rel_راستہ);
             }
-          else
+          ورنہ
             {
-              proc_fd_path_t abs_source;
+              proc_fd_راستہ_t abs_ماخذ;
 
               crun_error_release (err);
-              get_proc_self_fd_path (abs_source, pathfd);
-              ret = do_mount (container, abs_source, pathfd, rel_path, NULL, mount_flags, NULL,
+              get_proc_self_fd_راستہ (abs_ماخذ, pathfd);
+              ret = do_mount (container, abs_ماخذ, pathfd, rel_راستہ, تہی, mount_flags, تہی,
                               LABEL_NONE, err);
-              if (UNLIKELY (ret < 0))
-                return ret;
+              اگر (UNLIKELY (ret < 0))
+                واپس ret;
             }
         }
     }
-  else
+  ورنہ
     {
-      ret = get_file_type_fd (pathfd, &mode);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "cannot stat `%s`", rel_path);
+      ret = get_file_type_fd (pathfd, &منوال);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "cannot stat `%s`", rel_راستہ);
 
-      if ((mode & S_IFMT) == S_IFDIR)
-        ret = mount_masked_dir (container, pathfd, rel_path, err);
-      else
+      اگر ((منوال & S_IFMT) == S_IFDIR)
+        ret = mount_masked_dir (container, pathfd, rel_راستہ, err);
+      ورنہ
         {
-          cleanup_close int nullfd = -1;
-          cleanup_close int mountfd = -1;
+          cleanup_close صحیح nullfd = -1;
+          cleanup_close صحیح mountfd = -1;
 
           /* If the root is already the container rootfs, this is its
              /dev/null: mask with it only if it is the null device.  */
-          nullfd = open ("/dev/null", O_PATH | O_CLOEXEC);
-          if (UNLIKELY (nullfd < 0))
-            return crun_make_error (err, errno, "open `/dev/null`");
+          nullfd = open ("/dev/null", O_راستہ | O_CLOEXEC);
+          اگر (UNLIKELY (nullfd < 0))
+            واپس crun_make_error (err, errno, "open `/dev/null`");
 
           ret = ensure_dev_null (nullfd, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
 
           mountfd = get_bind_mount (nullfd, "", false, true, false, MS_PRIVATE, err);
-          if (mountfd >= 0)
-            ret = fs_move_mount_to (mountfd, pathfd, NULL);
+          اگر (mountfd >= 0)
+            ret = fs_move_mount_مقصد (mountfd, pathfd, تہی);
 
-          if (mountfd < 0 || ret < 0)
+          اگر (mountfd < 0 || ret < 0)
             {
-              proc_fd_path_t null_path;
+              proc_fd_راستہ_t null_راستہ;
 
               crun_error_release (err);
-              get_proc_self_fd_path (null_path, nullfd);
-              ret = do_mount (container, null_path, pathfd, rel_path, NULL, MS_BIND | MS_RDONLY, NULL,
+              get_proc_self_fd_راستہ (null_راستہ, nullfd);
+              ret = do_mount (container, null_راستہ, pathfd, rel_راستہ, تہی, MS_BIND | MS_RDONLY, تہی,
                               LABEL_MOUNT | MOUNT_NO_DEFERRED_REMOUNT, err);
             }
         }
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
-  return 0;
+  واپس 0;
 }
 
-static const char *
+ساکن ثابت حرف *
 get_selinux_context_type (libcrun_container_t *container, libcrun_error_t *err)
 {
-  const char *context_type;
+  ثابت حرف *context_type;
 
-  context_type = find_annotation (container, "run.oci.mount_context_type");
-  if (context_type)
+  context_type = ڈھونڈو_annotation (container, "run.oci.mount_context_type");
+  اگر (context_type)
     {
-      if (strcmp (context_type, "context") != 0
+      اگر (strcmp (context_type, "context") != 0
           && strcmp (context_type, "fscontext") != 0
           && strcmp (context_type, "defcontext") != 0
           && strcmp (context_type, "rootcontext") != 0)
         {
           crun_make_error (err, 0, "invalid mount context type `%s` (must be one of: context, fscontext, defcontext, rootcontext)", context_type);
-          return NULL;
+          واپس تہی;
         }
-      return context_type;
+      واپس context_type;
     }
 
-  return "context";
+  واپس "context";
 }
 
 /* improve the error message on mount(2) failures.  It always returns the original ret.  */
-static int
-diagnose_mount_failure (int ret, libcrun_error_t *err, libcrun_container_t *container,
-                        const char *fstype)
+ساکن صحیح
+diagnose_mount_failure (صحیح ret, libcrun_error_t *err, libcrun_container_t *container,
+                        ثابت حرف *fstype)
 {
-  if (fstype && strcmp (fstype, "cgroup2") == 0 && get_private_data (container)->unified_cgroup_path)
+  اگر (fstype && strcmp (fstype, "cgroup2") == 0 && get_نجی_ڈیٹا (container)->unified_cgroup_راستہ)
     {
-      if (access (get_private_data (container)->unified_cgroup_path, R_OK) < 0 && errno == EACCES)
+      اگر (access (get_نجی_ڈیٹا (container)->unified_cgroup_راستہ, R_OK) < 0 && errno == EACCES)
         {
           /* The current cgroup is not accessible.  */
           crun_error_wrap (err, "the current cgroup is not accessible (too restrictive umask?)");
-          return ret;
+          واپس ret;
         }
     }
-  return ret;
+  واپس ret;
 }
 
 /* When creating a fresh sysfs mount fails inside a user namespace, fall back to
    bind mounting the host /sys.  Returns 0 when the fallback handled the mount,
    > 0 when it does not apply (the caller must report the original failure),
    < 0 on error.  */
-static int
-sysfs_userns_fallback (libcrun_container_t *container, const char *target,
-                       const char *real_target, int targetfd,
-                       unsigned long mountflags, const char *fstype,
+ساکن صحیح
+sysfs_userns_fallback (libcrun_container_t *container, ثابت حرف *ہدف,
+                       ثابت حرف *real_ہدف, صحیح targetfd,
+                       غیرعلامتی طویل mountflags, ثابت حرف *fstype,
                        libcrun_error_t *err)
 {
   runtime_spec_schema_defs_mount *cgroup_mount;
-  cleanup_close int mountfd = -1;
-  cleanup_close int sysfd = -1;
-  int sys_old_root_fd = -1;
-  int ret;
+  cleanup_close صحیح mountfd = -1;
+  cleanup_close صحیح sysfd = -1;
+  صحیح sys_old_جڑ_fd = -1;
+  صحیح ret;
 
-  if (! ((mountflags & MS_RDONLY) && targetfd > 0 && fstype && strcmp (fstype, "sysfs") == 0))
-    return 1;
+  اگر (! ((mountflags & MS_RDONLY) && targetfd > 0 && fstype && strcmp (fstype, "sysfs") == 0))
+    واپس 1;
 
   /* If we are running in an user namespace, just bind mount /sys if creating
      sysfs failed.  */
-  ret = check_running_in_user_namespace (err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = check_running_اندر_user_namespace (err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (ret == 0)
-    return 1;
+  اگر (ret == 0)
+    واپس 1;
 
-  cgroup_mount = find_mount_for (container, "/sys/fs/cgroup");
-  sys_old_root_fd = get_old_root_fd (get_private_data (container));
+  cgroup_mount = ڈھونڈو_mount_for (container, "/sys/fs/cgroup");
+  sys_old_جڑ_fd = get_old_جڑ_fd (get_نجی_ڈیٹا (container));
 
   /* The bind brings the host mounts below /sys along.  The later do_remount
      only affects the top mount, so make the whole tree read-only here.  */
-  if (sys_old_root_fd >= 0)
-    mountfd = get_bind_mount (sys_old_root_fd, "sys", true, true, false, MS_PRIVATE, err);
-  if (mountfd < 0)
+  اگر (sys_old_جڑ_fd >= 0)
+    mountfd = get_bind_mount (sys_old_جڑ_fd, "sys", true, true, false, MS_PRIVATE, err);
+  اگر (mountfd < 0)
     {
       crun_error_release (err);
       mountfd = get_bind_mount (AT_FDCWD, "/sys", true, true, false, MS_PRIVATE, err);
     }
 
-  if (cgroup_mount == NULL)
+  اگر (cgroup_mount == تہی)
     {
-      if (mountfd >= 0)
+      اگر (mountfd >= 0)
         {
-          ret = fs_move_mount_to (mountfd, targetfd, NULL);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "move mount `/sys` to `%s`", real_target);
+          ret = fs_move_mount_مقصد (mountfd, targetfd, تہی);
+          اگر (UNLIKELY (ret < 0))
+            واپس crun_make_error (err, errno, "move mount `/sys` to `%s`", real_ہدف);
         }
-      else
+      ورنہ
         {
           crun_error_release (err);
-          if (sys_old_root_fd >= 0)
+          اگر (sys_old_جڑ_fd >= 0)
             {
-              cleanup_free char *sys_path = NULL;
-              proc_fd_path_t sys_root_path;
+              cleanup_free حرف *sys_راستہ = تہی;
+              proc_fd_راستہ_t sys_جڑ_راستہ;
 
-              get_proc_self_fd_path (sys_root_path, sys_old_root_fd);
-              xasprintf (&sys_path, "%s/sys", sys_root_path);
-              ret = mount (sys_path, real_target, NULL, MS_BIND | MS_REC, NULL);
+              get_proc_self_fd_راستہ (sys_جڑ_راستہ, sys_old_جڑ_fd);
+              xasprintf (&sys_راستہ, "%s/sys", sys_جڑ_راستہ);
+              ret = mount (sys_راستہ, real_ہدف, تہی, MS_BIND | MS_REC, تہی);
             }
-          else
-            ret = mount ("/sys", real_target, NULL, MS_BIND | MS_REC, NULL);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "bind mount `/sys` from the host");
+          ورنہ
+            ret = mount ("/sys", real_ہدف, تہی, MS_BIND | MS_REC, تہی);
+          اگر (UNLIKELY (ret < 0))
+            واپس crun_make_error (err, errno, "bind mount `/sys` from the host");
         }
 
-      sysfd = open_mount_target (container, target, err);
-      if (UNLIKELY (sysfd < 0))
-        return sysfd;
+      sysfd = open_mount_ہدف (container, ہدف, err);
+      اگر (UNLIKELY (sysfd < 0))
+        واپس sysfd;
 
-      ret = do_remount (sysfd, target,
+      ret = do_remount (sysfd, ہدف,
                         MS_REMOUNT | MS_BIND | (mountflags & ~ALL_PROPAGATIONS),
-                        NULL, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+                        تہی, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      return do_masked_or_readonly_path (container, "/sys/fs/cgroup", true, false, err);
+      واپس do_masked_or_readonly_راستہ (container, "/sys/fs/cgroup", true, false, err);
     }
 
-  if (UNLIKELY (mountfd < 0))
-    return mountfd;
+  اگر (UNLIKELY (mountfd < 0))
+    واپس mountfd;
 
-  ret = fs_move_mount_to (mountfd, targetfd, NULL);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "move mount to `%s`", real_target);
+  ret = fs_move_mount_مقصد (mountfd, targetfd, تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "move mount to `%s`", real_ہدف);
 
-  sysfd = open_mount_target (container, target, err);
-  if (UNLIKELY (sysfd < 0))
-    return sysfd;
+  sysfd = open_mount_ہدف (container, ہدف, err);
+  اگر (UNLIKELY (sysfd < 0))
+    واپس sysfd;
 
-  ret = do_remount (sysfd, target,
+  ret = do_remount (sysfd, ہدف,
                     MS_REMOUNT | MS_BIND | (mountflags & ~ALL_PROPAGATIONS),
-                    NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+                    تہی, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (mount_option_exists (cgroup_mount, "ro") || mount_option_exists (cgroup_mount, "rro"))
+  اگر (mount_option_exists (cgroup_mount, "ro") || mount_option_exists (cgroup_mount, "rro"))
     {
-      ret = do_masked_or_readonly_path (container, "/sys/fs/cgroup", true, false, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = do_masked_or_readonly_راستہ (container, "/sys/fs/cgroup", true, false, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  return 0;
+  واپس 0;
 }
 
-#ifdef HAVE_FGETXATTR
+#اگر_تعریف_شدہ HAVE_FGETXATTR
 /* Best-effort application of the SELinux security.selinux xattr to a
    freshly mounted target when LABEL_XATTR labeling is requested.  */
-static void
-apply_selinux_xattr (libcrun_container_t *container, int fd, int extra_flags, const char *label)
+ساکن خالی
+apply_selinux_xattr (libcrun_container_t *container, صحیح fd, صحیح extra_flags, ثابت حرف *label)
 {
-  libcrun_error_t tmp_err = NULL;
-  int procfd;
+  libcrun_error_t tmp_err = تہی;
+  صحیح procfd;
 
-  if ((extra_flags & LABEL_MASK) != LABEL_XATTR)
-    return;
+  اگر ((extra_flags & LABEL_نقاب) != LABEL_XATTR)
+    واپس;
 
   /* Best-effort: swallow any error so it does not leak into the caller.  */
-  procfd = get_procfd (get_private_data (container), &tmp_err);
-  if (procfd >= 0)
+  procfd = get_procfd (get_نجی_ڈیٹا (container), &tmp_err);
+  اگر (procfd >= 0)
     {
-      proc_fd_path_t proc_self_path;
-      cleanup_close int xfd = -1;
+      proc_fd_راستہ_t proc_self_راستہ;
+      cleanup_close صحیح xfd = -1;
 
-      get_self_fd_path (proc_self_path, fd);
-      xfd = openat (procfd, proc_self_path, O_RDONLY | O_CLOEXEC);
-      if (xfd >= 0)
-        (void) fsetxattr (xfd, "security.selinux", label, strlen (label), 0);
+      get_self_fd_راستہ (proc_self_راستہ, fd);
+      xfd = openat (procfd, proc_self_راستہ, O_RDONLY | O_CLOEXEC);
+      اگر (xfd >= 0)
+        (خالی) fsetxattr (xfd, "security.selinux", label, لڑی_لمبائی (label), 0);
     }
   crun_error_release (&tmp_err);
 }
-#endif
+#اگر_ختم
 
 /* After a mount replaced the rootfs (target is empty), the current
    targetfd sits underneath the new mount.  Re-enter the mount namespace
    and reopen the rootfs, refreshing both *fd and the cached rootfsfd.  */
-static int
-do_mount_replace_rootfs (libcrun_container_t *container, int *fd, libcrun_error_t *err)
+ساکن صحیح
+do_mount_replace_rootfs (libcrun_container_t *container, صحیح *fd, libcrun_error_t *err)
 {
-  int procfd = get_procfd (get_private_data (container), err);
-  int tmp;
-  int ret;
+  صحیح procfd = get_procfd (get_نجی_ڈیٹا (container), err);
+  صحیح tmp;
+  صحیح ret;
 
-  if (UNLIKELY (procfd < 0))
-    return procfd;
+  اگر (UNLIKELY (procfd < 0))
+    واپس procfd;
 
   {
-    cleanup_close int nsfd = openat (procfd, "self/ns/mnt", O_RDONLY | O_CLOEXEC);
-    if (UNLIKELY (nsfd < 0))
-      return crun_make_error (err, errno, "open `/proc/self/ns/mnt`");
+    cleanup_close صحیح nsfd = openat (procfd, "self/ns/mnt", O_RDONLY | O_CLOEXEC);
+    اگر (UNLIKELY (nsfd < 0))
+      واپس crun_make_error (err, errno, "open `/proc/self/ns/mnt`");
 
     ret = setns (nsfd, CLONE_NEWNS);
-    if (UNLIKELY (ret < 0))
-      return crun_make_error (err, errno, "setns `CLONE_NEWNS`");
+    اگر (UNLIKELY (ret < 0))
+      واپس crun_make_error (err, errno, "setns `CLONE_NEWNS`");
   }
 
   close_and_reset (fd);
-  *fd = open (get_private_data (container)->rootfs, O_PATH | O_CLOEXEC);
-  if (UNLIKELY (*fd < 0))
-    return crun_make_error (err, errno, "reopen rootfs after mount on /");
+  *fd = open (get_نجی_ڈیٹا (container)->rootfs, O_راستہ | O_CLOEXEC);
+  اگر (UNLIKELY (*fd < 0))
+    واپس crun_make_error (err, errno, "reopen rootfs after mount on /");
 
   tmp = dup (*fd);
-  if (UNLIKELY (tmp < 0))
-    return crun_make_error (err, errno, "dup");
+  اگر (UNLIKELY (tmp < 0))
+    واپس crun_make_error (err, errno, "dup");
 
-  TEMP_FAILURE_RETRY (close (get_private_data (container)->rootfsfd));
-  get_private_data (container)->rootfsfd = tmp;
+  عارضی_FAILURE_RETRY (close (get_نجی_ڈیٹا (container)->rootfsfd));
+  get_نجی_ڈیٹا (container)->rootfsfd = tmp;
 
-  return 0;
+  واپس 0;
 }
 
 /* Apply the propagation flags (MS_SHARED, MS_SLAVE, ...) to a mount,
    preferring mount_setattr when a target fd is available and falling
    back to mount(2).  */
-static int
-apply_propagation_flags (const char *target, int targetfd, const char *real_target,
-                         unsigned long mountflags, libcrun_error_t *err)
+ساکن صحیح
+apply_اشاعت_flags (ثابت حرف *ہدف, صحیح targetfd, ثابت حرف *real_ہدف,
+                         غیرعلامتی طویل mountflags, libcrun_error_t *err)
 {
-  bool propagation_done = false;
-  int ret;
+  bool اشاعت_مکمل = false;
+  صحیح ret;
 
-  if (targetfd >= 0)
+  اگر (targetfd >= 0)
     {
-      libcrun_error_t tmp_err = NULL;
-      ret = do_mount_setattr ((mountflags & MS_REC) != 0, target, targetfd, 0, mountflags & ALL_PROPAGATIONS, &tmp_err);
-      if (LIKELY (ret == 0))
-        propagation_done = true;
-      else
+      libcrun_error_t tmp_err = تہی;
+      ret = do_mount_setattr ((mountflags & MS_REC) != 0, ہدف, targetfd, 0, mountflags & ALL_PROPAGATIONS, &tmp_err);
+      اگر (LIKELY (ret == 0))
+        اشاعت_مکمل = true;
+      ورنہ
         crun_error_release (&tmp_err);
     }
 
-  if (! propagation_done)
+  اگر (! اشاعت_مکمل)
     {
-      ret = mount (NULL, real_target, NULL, mountflags & ALL_PROPAGATIONS, NULL);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "set propagation for `%s`", target);
+      ret = mount (تہی, real_ہدف, تہی, mountflags & ALL_PROPAGATIONS, تہی);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "set propagation for `%s`", ہدف);
     }
 
-  return 0;
+  واپس 0;
 }
 
 /* Perform (or defer) the remount needed to apply bind/read-only/single
    instance flags.  A read-write remount and MOUNT_NO_DEFERRED_REMOUNT are
    done immediately; otherwise the remount is queued to run later.  *fd is
    consumed when the remount is deferred.  */
-static int
-schedule_or_do_remount (libcrun_container_t *container, int *fd, int targetfd,
-                        const char *target, const char *real_target,
-                        bool single_instance, unsigned long mountflags,
-                        const void *data, int extra_flags, libcrun_error_t *err)
+ساکن صحیح
+جدول_وقت_or_do_remount (libcrun_container_t *container, صحیح *fd, صحیح targetfd,
+                        ثابت حرف *ہدف, ثابت حرف *real_ہدف,
+                        bool single_instance, غیرعلامتی طویل mountflags,
+                        ثابت خالی *ڈیٹا, صحیح extra_flags, libcrun_error_t *err)
 {
-  unsigned long remount_flags = MS_REMOUNT | (single_instance ? 0 : MS_BIND) | (mountflags & ~ALL_PROPAGATIONS);
-  struct remount_s *r;
+  غیرعلامتی طویل remount_flags = MS_REMOUNT | (single_instance ? 0 : MS_BIND) | (mountflags & ~ALL_PROPAGATIONS);
+  ساخت remount_s *r;
 
-  if ((remount_flags & MS_RDONLY) == 0 || (extra_flags & MOUNT_NO_DEFERRED_REMOUNT))
-    return do_remount (*fd >= 0 ? *fd : targetfd, real_target, remount_flags, data, err);
+  اگر ((remount_flags & MS_RDONLY) == 0 || (extra_flags & MOUNT_NO_DEFERRED_REMOUNT))
+    واپس do_remount (*fd >= 0 ? *fd : targetfd, real_ہدف, remount_flags, ڈیٹا, err);
 
-  if (*fd < 0)
+  اگر (*fd < 0)
     {
       *fd = dup (targetfd);
-      if (UNLIKELY (*fd < 0))
-        return crun_make_error (err, errno, "dup `%d`", targetfd);
+      اگر (UNLIKELY (*fd < 0))
+        واپس crun_make_error (err, errno, "dup `%d`", targetfd);
     }
 
   /* The remount owns the fd.  */
-  r = make_remount (get_and_reset (fd), target, remount_flags, data, get_private_data (container)->remounts);
-  get_private_data (container)->remounts = r;
+  r = make_remount (get_and_reset (fd), ہدف, remount_flags, ڈیٹا, get_نجی_ڈیٹا (container)->remounts);
+  get_نجی_ڈیٹا (container)->remounts = r;
 
-  return 0;
+  واپس 0;
 }
 
-static int
-do_mount (libcrun_container_t *container, const char *source, int targetfd,
-          const char *target, const char *fstype, unsigned long mountflags, const void *data,
-          int extra_flags, libcrun_error_t *err)
+ساکن صحیح
+do_mount (libcrun_container_t *container, ثابت حرف *ماخذ, صحیح targetfd,
+          ثابت حرف *ہدف, ثابت حرف *fstype, غیرعلامتی طویل mountflags, ثابت خالی *ڈیٹا,
+          صحیح extra_flags, libcrun_error_t *err)
 {
-  cleanup_free char *data_with_label = NULL;
-  const char *data_without_label = data;
-  proc_fd_path_t target_buffer;
-  const char *context_type = NULL;
-  cleanup_close int ms_move_fd = -1;
-  const char *real_target = target;
+  cleanup_free حرف *ڈیٹا_with_label = تہی;
+  ثابت حرف *ڈیٹا_without_label = ڈیٹا;
+  proc_fd_راستہ_t ہدف_بفر;
+  ثابت حرف *context_type = تہی;
+  cleanup_close صحیح ms_move_fd = -1;
+  ثابت حرف *real_ہدف = ہدف;
   bool single_instance = false;
   bool needs_remount = false;
-  cleanup_close int fd = -1;
-  const char *label = NULL;
-  int ret = 0;
+  cleanup_close صحیح fd = -1;
+  ثابت حرف *label = تہی;
+  صحیح ret = 0;
 
-  if (container->container_def->linux && container->container_def->linux->mount_label)
+  اگر (container->container_def->linux && container->container_def->linux->mount_label)
     label = container->container_def->linux->mount_label;
-  else
-    extra_flags = (extra_flags & ~LABEL_MASK) | LABEL_NONE;
+  ورنہ
+    extra_flags = (extra_flags & ~LABEL_نقاب) | LABEL_NONE;
 
-  if (targetfd >= 0)
+  اگر (targetfd >= 0)
     {
-      get_proc_self_fd_path (target_buffer, targetfd);
-      real_target = target_buffer;
+      get_proc_self_fd_راستہ (ہدف_بفر, targetfd);
+      real_ہدف = ہدف_بفر;
       needs_remount = true;
     }
 
-  if ((extra_flags & LABEL_MASK) == LABEL_MOUNT)
+  اگر ((extra_flags & LABEL_نقاب) == LABEL_MOUNT)
     {
       context_type = get_selinux_context_type (container, err);
-      if (UNLIKELY (context_type == NULL))
-        return -1;
+      اگر (UNLIKELY (context_type == تہی))
+        واپس -1;
 
-      ret = add_selinux_mount_label (&data_with_label, data, label, context_type, err);
-      if (ret < 0)
-        return ret;
-      data = data_with_label;
+      ret = جوڑو_selinux_mount_label (&ڈیٹا_with_label, ڈیٹا, label, context_type, err);
+      اگر (ret < 0)
+        واپس ret;
+      ڈیٹا = ڈیٹا_with_label;
     }
 
-  if (mountflags & MS_MOVE)
+  اگر (mountflags & MS_MOVE)
     {
-      if ((mountflags & MS_BIND) || fstype)
-        return crun_make_error (err, 0, "internal error: cannot use MS_MOVE with MS_BIND or fstype");
+      اگر ((mountflags & MS_BIND) || fstype)
+        واپس crun_make_error (err, 0, "internal error: cannot use MS_MOVE with MS_BIND or fstype");
 
-      ret = mount (source, real_target, NULL, MS_MOVE, NULL);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "move mount `%s` to `%s`", source, target);
+      ret = mount (ماخذ, real_ہدف, تہی, MS_MOVE, تہی);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "move mount `%s` to `%s`", ماخذ, ہدف);
       mountflags &= ~MS_MOVE;
 
       /* We need to reopen the path as the previous targetfd is underneath the new mountpoint.  */
-      ms_move_fd = open_mount_target (container, target, err);
-      if (UNLIKELY (ms_move_fd < 0))
-        return ms_move_fd;
+      ms_move_fd = open_mount_ہدف (container, ہدف, err);
+      اگر (UNLIKELY (ms_move_fd < 0))
+        واپس ms_move_fd;
       targetfd = ms_move_fd;
     }
 
-  if ((fstype && fstype[0]) || (mountflags & MS_BIND))
+  اگر ((fstype && fstype[0]) || (mountflags & MS_BIND))
     {
-      unsigned long flags = mountflags & ~(ALL_PROPAGATIONS_NO_REC | MS_RDONLY);
+      غیرعلامتی طویل flags = mountflags & ~(ALL_PROPAGATIONS_NO_REC | MS_RDONLY);
 
       ret = -1;
 
-      if (targetfd >= 0)
+      اگر (targetfd >= 0)
         {
-          if (mountflags & MS_BIND)
+          اگر (mountflags & MS_BIND)
             {
-              cleanup_close int bindfd = -1;
-              libcrun_error_t tmp_err = NULL;
+              cleanup_close صحیح bindfd = -1;
+              libcrun_error_t tmp_err = تہی;
 
-              bindfd = get_bind_mount (AT_FDCWD, source,
+              bindfd = get_bind_mount (AT_FDCWD, ماخذ,
                                        (mountflags & MS_REC) != 0,
                                        false, false, 0, &tmp_err);
-              if (bindfd < 0)
+              اگر (bindfd < 0)
                 {
-                  int old_root_fd = get_old_root_fd (get_private_data (container));
+                  صحیح old_جڑ_fd = get_old_جڑ_fd (get_نجی_ڈیٹا (container));
 
-                  if (old_root_fd >= 0 && source && source[0] == '/')
+                  اگر (old_جڑ_fd >= 0 && ماخذ && ماخذ[0] == '/')
                     {
                       crun_error_release (&tmp_err);
-                      bindfd = get_bind_mount (old_root_fd, (source[1] == '\0') ? "." : source + 1,
+                      bindfd = get_bind_mount (old_جڑ_fd, (ماخذ[1] == '\0') ? "." : ماخذ + 1,
                                                (mountflags & MS_REC) != 0,
                                                false, false, 0, &tmp_err);
                     }
                 }
-              if (bindfd >= 0)
-                ret = fs_move_mount_to (bindfd, targetfd, NULL);
-              if (ret < 0)
+              اگر (bindfd >= 0)
+                ret = fs_move_mount_مقصد (bindfd, targetfd, تہی);
+              اگر (ret < 0)
                 crun_error_release (&tmp_err);
             }
-          else
+          ورنہ
             {
-              cleanup_close int newfs = fsopen_mount (fstype, source, context_type, label, data_without_label);
-              if (newfs >= 0)
-                ret = fs_move_mount_to (newfs, targetfd, NULL);
+              cleanup_close صحیح newfs = fsopen_mount (fstype, ماخذ, context_type, label, ڈیٹا_without_label);
+              اگر (newfs >= 0)
+                ret = fs_move_mount_مقصد (newfs, targetfd, تہی);
             }
         }
 
-      if (ret < 0)
+      اگر (ret < 0)
         {
-          ret = mount (source, real_target, fstype, flags, data);
-          if (ret < 0 && (mountflags & MS_BIND) && source && source[0] == '/')
+          ret = mount (ماخذ, real_ہدف, fstype, flags, ڈیٹا);
+          اگر (ret < 0 && (mountflags & MS_BIND) && ماخذ && ماخذ[0] == '/')
             {
-              int old_root_fd = get_old_root_fd (get_private_data (container));
+              صحیح old_جڑ_fd = get_old_جڑ_fd (get_نجی_ڈیٹا (container));
 
-              if (old_root_fd >= 0)
+              اگر (old_جڑ_fd >= 0)
                 {
-                  cleanup_free char *proc_source_buf = NULL;
-                  proc_fd_path_t old_root_path;
+                  cleanup_free حرف *proc_ماخذ_buf = تہی;
+                  proc_fd_راستہ_t old_جڑ_راستہ;
 
-                  get_proc_self_fd_path (old_root_path, old_root_fd);
-                  xasprintf (&proc_source_buf, "%s/%s", old_root_path, source + 1);
-                  ret = mount (proc_source_buf, real_target, fstype, flags, data);
+                  get_proc_self_fd_راستہ (old_جڑ_راستہ, old_جڑ_fd);
+                  xasprintf (&proc_ماخذ_buf, "%s/%s", old_جڑ_راستہ, ماخذ + 1);
+                  ret = mount (proc_ماخذ_buf, real_ہدف, fstype, flags, ڈیٹا);
                 }
             }
         }
-      if (UNLIKELY (ret < 0))
+      اگر (UNLIKELY (ret < 0))
         {
-          int saved_errno = errno;
+          صحیح saved_errno = errno;
 
-          ret = sysfs_userns_fallback (container, target, real_target, targetfd,
+          ret = sysfs_userns_fallback (container, ہدف, real_ہدف, targetfd,
                                        mountflags, fstype, err);
-          if (ret == 0)
-            return 0;
-          if (UNLIKELY (ret < 0))
-            return ret;
+          اگر (ret == 0)
+            واپس 0;
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
 
           /* ret > 0: the fallback does not apply, report the original failure.  */
-          ret = crun_make_error (err, saved_errno, "mount `%s` to `%s`", source, target);
+          ret = crun_make_error (err, saved_errno, "mount `%s` to `%s`", ماخذ, ہدف);
 
-          return diagnose_mount_failure (ret, err, container, fstype);
+          واپس diagnose_mount_failure (ret, err, container, fstype);
         }
 
-      if (targetfd >= 0)
+      اگر (targetfd >= 0)
         {
           /* We need to reopen the path as the previous targetfd is underneath the new mountpoint.  */
-          fd = open_mount_target (container, target, err);
-          if (UNLIKELY (fd < 0))
-            return fd;
+          fd = open_mount_ہدف (container, ہدف, err);
+          اگر (UNLIKELY (fd < 0))
+            واپس fd;
 
           /* We are replacing the rootfs, reopen it.  */
-          if (is_empty_string (target))
+          اگر (is_خالی_خانے_string (ہدف))
             {
               ret = do_mount_replace_rootfs (container, &fd, err);
-              if (UNLIKELY (ret < 0))
-                return ret;
+              اگر (UNLIKELY (ret < 0))
+                واپس ret;
             }
 
-#ifdef HAVE_FGETXATTR
+#اگر_تعریف_شدہ HAVE_FGETXATTR
           apply_selinux_xattr (container, fd, extra_flags, label);
-#endif
+#اگر_ختم
 
           targetfd = fd;
 
@@ -1971,271 +1971,271 @@ do_mount (libcrun_container_t *container, const char *source, int targetfd,
              classic mount(2) fallbacks below (used when mount_setattr is not
              available, e.g. kernels < 5.12) operate on the shadowed path and
              fail with EINVAL.  */
-          get_proc_self_fd_path (target_buffer, targetfd);
-          real_target = target_buffer;
+          get_proc_self_fd_راستہ (ہدف_بفر, targetfd);
+          real_ہدف = ہدف_بفر;
         }
     }
 
-  if (mountflags & ALL_PROPAGATIONS_NO_REC)
+  اگر (mountflags & ALL_PROPAGATIONS_NO_REC)
     {
-      ret = apply_propagation_flags (target, targetfd, real_target, mountflags, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = apply_اشاعت_flags (ہدف, targetfd, real_ہدف, mountflags, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  if (mountflags & (MS_BIND | MS_RDONLY))
+  اگر (mountflags & (MS_BIND | MS_RDONLY))
     needs_remount = true;
 
-  if (data && fstype && strcmp (fstype, "proc") == 0)
+  اگر (ڈیٹا && fstype && strcmp (fstype, "proc") == 0)
     {
       single_instance = true;
       needs_remount = true;
     }
 
-  if (needs_remount && ! (extra_flags & MOUNT_NO_REMOUNT))
+  اگر (needs_remount && ! (extra_flags & MOUNT_NO_REMOUNT))
     {
-      ret = schedule_or_do_remount (container, &fd, targetfd, target, real_target,
-                                    single_instance, mountflags, data, extra_flags, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = جدول_وقت_or_do_remount (container, &fd, targetfd, ہدف, real_ہدف,
+                                    single_instance, mountflags, ڈیٹا, extra_flags, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  return ret;
+  واپس ret;
 }
 
-static void
-try_umount (int targetfd, const char *target)
+ساکن خالی
+try_umount (صحیح targetfd, ثابت حرف *ہدف)
 {
-  proc_fd_path_t target_buffer;
-  const char *real_target = target;
+  proc_fd_راستہ_t ہدف_بفر;
+  ثابت حرف *real_ہدف = ہدف;
 
-  if (targetfd >= 0)
+  اگر (targetfd >= 0)
     {
-      get_proc_self_fd_path (target_buffer, targetfd);
-      real_target = target_buffer;
+      get_proc_self_fd_راستہ (ہدف_بفر, targetfd);
+      real_ہدف = ہدف_بفر;
     }
 
-  umount2 (real_target, MNT_DETACH);
+  umount2 (real_ہدف, MNT_DETACH);
 }
 
-static bool
+ساکن bool
 container_has_cgroupns (libcrun_container_t *container)
 {
-  return get_private_data (container)->unshare_flags & CLONE_NEWCGROUP;
+  واپس get_نجی_ڈیٹا (container)->unshare_flags & CLONE_NEWCGROUP;
 }
 
-static int
-do_mount_cgroup_v2 (libcrun_container_t *container, int targetfd, const char *target,
-                    unsigned long mountflags, const char *data, libcrun_error_t *err)
+ساکن صحیح
+do_mount_cgroup_v2 (libcrun_container_t *container, صحیح targetfd, ثابت حرف *ہدف,
+                    غیرعلامتی طویل mountflags, ثابت حرف *ڈیٹا, libcrun_error_t *err)
 {
-  int ret;
-  int cgroup_mode;
+  صحیح ret;
+  صحیح cgroup_منوال;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_منوال = libcrun_get_cgroup_منوال (err);
+  اگر (UNLIKELY (cgroup_منوال < 0))
+    واپس cgroup_منوال;
 
-  ret = do_mount (container, "cgroup2", targetfd, target, "cgroup2", mountflags, data, LABEL_NONE, err);
-  if (UNLIKELY (ret < 0))
+  ret = do_mount (container, "cgroup2", targetfd, ہدف, "cgroup2", mountflags, ڈیٹا, LABEL_NONE, err);
+  اگر (UNLIKELY (ret < 0))
     {
-      int saved_errno = crun_error_get_errno (err);
-      if (saved_errno == EPERM || saved_errno == EBUSY)
+      صحیح saved_errno = crun_error_get_errno (err);
+      اگر (saved_errno == EPERM || saved_errno == EBUSY)
         {
-          const char *unified_cgroup_path;
-          const char *src_cgroup;
+          ثابت حرف *unified_cgroup_راستہ;
+          ثابت حرف *src_cgroup;
 
           crun_error_release (err);
 
-          if (saved_errno == EBUSY)
+          اگر (saved_errno == EBUSY)
             {
               /* If we got EBUSY it means the cgroup file system is already mounted at the targetfd and we
                  cannot stack another one on top of it.  Attempt mounting a tmpfs below the cgroup mount.  */
 
-              ret = do_mount (container, "tmpfs", targetfd, target, "tmpfs", MS_PRIVATE, "nr_blocks=1,nr_inodes=1", LABEL_NONE, err);
-              if (LIKELY (ret == 0))
+              ret = do_mount (container, "tmpfs", targetfd, ہدف, "tmpfs", MS_PRIVATE, "nr_blocks=1,nr_inodes=1", LABEL_NONE, err);
+              اگر (LIKELY (ret == 0))
                 {
-                  ret = do_mount (container, "cgroup2", targetfd, target, "cgroup2", mountflags, data, LABEL_NONE, err);
-                  if (LIKELY (ret == 0))
-                    return ret;
+                  ret = do_mount (container, "cgroup2", targetfd, ہدف, "cgroup2", mountflags, ڈیٹا, LABEL_NONE, err);
+                  اگر (LIKELY (ret == 0))
+                    واپس ret;
 
                   /* Best-effort cleanup for the tmpfs, if it fails there is nothing to worry about.  */
-                  try_umount (targetfd, target);
+                  try_umount (targetfd, ہدف);
                 }
 
               /* If the previous method failed, fall back to bind mounting the current cgroup.  */
               crun_error_release (err);
             }
 
-          unified_cgroup_path = get_private_data (container)->unified_cgroup_path;
+          unified_cgroup_راستہ = get_نجی_ڈیٹا (container)->unified_cgroup_راستہ;
 
           /* If everything else failed, bind mount from the current cgroup.  */
-          src_cgroup = unified_cgroup_path && container_has_cgroupns (container) ? unified_cgroup_path : CGROUP_ROOT;
-          return do_mount (container, src_cgroup, targetfd, target, NULL,
-                           MS_BIND | mountflags, NULL, LABEL_NONE, err);
+          src_cgroup = unified_cgroup_راستہ && container_has_cgroupns (container) ? unified_cgroup_راستہ : CGROUP_جڑ;
+          واپس do_mount (container, src_cgroup, targetfd, ہدف, تہی,
+                           MS_BIND | mountflags, تہی, LABEL_NONE, err);
         }
 
-      return ret;
+      واپس ret;
     }
 
-  return 0;
+  واپس 0;
 }
 
-static int
-do_mount_cgroup_systemd_v1 (libcrun_container_t *container, const char *source, int targetfd, const char *target,
-                            unsigned long mountflags, libcrun_error_t *err)
+ساکن صحیح
+do_mount_cgroup_systemd_v1 (libcrun_container_t *container, ثابت حرف *ماخذ, صحیح targetfd, ثابت حرف *ہدف,
+                            غیرعلامتی طویل mountflags, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_close int fd = -1;
-  const char *subsystem = "systemd";
-  cleanup_free char *subsystem_path = NULL;
-  cleanup_close int tmpfsdirfd = -1;
+  صحیح ret;
+  cleanup_close صحیح fd = -1;
+  ثابت حرف *subsystem = "systemd";
+  cleanup_free حرف *subsystem_راستہ = تہی;
+  cleanup_close صحیح tmpfsdirfd = -1;
 
   mountflags = mountflags & ~MS_BIND;
 
-  ret = do_mount (container, source, targetfd, target, "tmpfs", mountflags, "size=1024k", LABEL_NONE, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = do_mount (container, ماخذ, targetfd, ہدف, "tmpfs", mountflags, "size=1024k", LABEL_NONE, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   /* Get a reference to the newly created cgroup directory.  */
-  tmpfsdirfd = open_mount_target (container, target, err);
-  if (UNLIKELY (tmpfsdirfd < 0))
-    return tmpfsdirfd;
+  tmpfsdirfd = open_mount_ہدف (container, ہدف, err);
+  اگر (UNLIKELY (tmpfsdirfd < 0))
+    واپس tmpfsdirfd;
   targetfd = tmpfsdirfd;
 
   ret = mkdirat (targetfd, subsystem, 0755);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "mkdirat `%s`", subsystem);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "mkdirat `%s`", subsystem);
 
-  ret = append_paths (&subsystem_path, err, target, subsystem, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&subsystem_راستہ, err, ہدف, subsystem, تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  fd = openat (targetfd, subsystem, O_CLOEXEC | O_PATH | O_DIRECTORY | O_NOFOLLOW);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "openat `%s`", subsystem_path);
+  fd = openat (targetfd, subsystem, O_CLOEXEC | O_راستہ | O_DIRECTORY | O_NOFOLLOW);
+  اگر (UNLIKELY (fd < 0))
+    واپس crun_make_error (err, errno, "openat `%s`", subsystem_راستہ);
 
-  return do_mount (container, "cgroup", fd, subsystem_path, "cgroup", mountflags, "none,name=systemd,xattr", LABEL_NONE,
+  واپس do_mount (container, "cgroup", fd, subsystem_راستہ, "cgroup", mountflags, "none,name=systemd,xattr", LABEL_NONE,
                    err);
 }
 
-static int
-do_mount_cgroup_v1 (libcrun_container_t *container, const char *source, int targetfd, const char *target,
-                    unsigned long mountflags, libcrun_error_t *err)
+ساکن صحیح
+do_mount_cgroup_v1 (libcrun_container_t *container, ثابت حرف *ماخذ, صحیح targetfd, ثابت حرف *ہدف,
+                    غیرعلامتی طویل mountflags, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_free char *content = NULL;
-  char *from;
-  cleanup_close int tmpfsdirfd = -1;
-  char *saveptr = NULL;
+  صحیح ret;
+  cleanup_free حرف *content = تہی;
+  حرف *from;
+  cleanup_close صحیح tmpfsdirfd = -1;
+  حرف *saveptr = تہی;
 
-  ret = do_mount (container, source, targetfd, target, "tmpfs", mountflags & ~MS_RDONLY, "size=1024k", LABEL_MOUNT,
+  ret = do_mount (container, ماخذ, targetfd, ہدف, "tmpfs", mountflags & ~MS_RDONLY, "size=1024k", LABEL_MOUNT,
                   err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  tmpfsdirfd = open_mount_target (container, target, err);
-  if (UNLIKELY (tmpfsdirfd < 0))
-    return tmpfsdirfd;
+  tmpfsdirfd = open_mount_ہدف (container, ہدف, err);
+  اگر (UNLIKELY (tmpfsdirfd < 0))
+    واپس tmpfsdirfd;
   targetfd = tmpfsdirfd;
 
   {
-    int procfd = get_procfd (get_private_data (container), err);
-    if (UNLIKELY (procfd < 0))
-      return procfd;
+    صحیح procfd = get_procfd (get_نجی_ڈیٹا (container), err);
+    اگر (UNLIKELY (procfd < 0))
+      واپس procfd;
 
-    ret = read_all_file_at (procfd, SELF_CGROUP, &content, NULL, err);
+    ret = read_all_file_at (procfd, SELF_CGROUP, &content, تہی, err);
   }
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (UNLIKELY (content == NULL || content[0] == '\0'))
-    return crun_make_error (err, 0, "invalid content from `%s`", PROC_SELF_CGROUP);
+  اگر (UNLIKELY (content == تہی || content[0] == '\0'))
+    واپس crun_make_error (err, 0, "invalid content from `%s`", PROC_SELF_CGROUP);
 
-  for (from = strtok_r (content, "\n", &saveptr); from; from = strtok_r (NULL, "\n", &saveptr))
+  برائے (from = strtok_r (content, "\n", &saveptr); from; from = strtok_r (تہی, "\n", &saveptr))
     {
-      cleanup_free char *source_path = NULL;
-      cleanup_free char *source_subsystem = NULL;
-      cleanup_free char *subsystem_path = NULL;
-      char *subpath, *subsystem, *subsystem_fqn, *it;
-      cleanup_close int subsystemfd = -1;
+      cleanup_free حرف *ماخذ_راستہ = تہی;
+      cleanup_free حرف *ماخذ_subsystem = تہی;
+      cleanup_free حرف *subsystem_راستہ = تہی;
+      حرف *subpath, *subsystem, *subsystem_fqn, *it;
+      cleanup_close صحیح subsystemfd = -1;
       subsystem = strchr (from, ':') + 1;
       subpath = strchr (subsystem, ':') + 1;
       *(subpath - 1) = '\0';
 
-      if (subsystem[0] == '\0')
-        continue;
+      اگر (subsystem[0] == '\0')
+        جاری;
 
       /* subsystem_fqn includes name= for named hierarchies.  */
       subsystem_fqn = subsystem;
 
-      it = strstr (subsystem, "name=");
-      if (it)
+      it = لڑی_تلاش (subsystem, "name=");
+      اگر (it)
         subsystem = it + 5;
 
-      if (strcmp (subsystem, "net_prio,net_cls") == 0)
+      اگر (strcmp (subsystem, "net_prio,net_cls") == 0)
         subsystem = "net_cls,net_prio";
-      if (strcmp (subsystem, "cpuacct,cpu") == 0)
+      اگر (strcmp (subsystem, "cpuacct,cpu") == 0)
         subsystem = "cpu,cpuacct";
 
-      ret = append_paths (&source_subsystem, err, CGROUP_ROOT, subsystem, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&ماخذ_subsystem, err, CGROUP_جڑ, subsystem, تہی);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
       /* if there is already a mount specified, do not add a default one.  */
-      if (find_mount_for (container, source_subsystem) != NULL)
-        continue;
+      اگر (ڈھونڈو_mount_for (container, ماخذ_subsystem) != تہی)
+        جاری;
 
-      ret = append_paths (&source_path, err, source_subsystem, subpath, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&ماخذ_راستہ, err, ماخذ_subsystem, subpath, تہی);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      ret = append_paths (&subsystem_path, err, target, subsystem, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&subsystem_راستہ, err, ہدف, subsystem, تہی);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
       ret = mkdirat (targetfd, subsystem, 0755);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "mkdirat `%s`", subsystem_path);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "mkdirat `%s`", subsystem_راستہ);
 
-      subsystemfd = openat (targetfd, subsystem, O_CLOEXEC | O_PATH | O_DIRECTORY | O_NOFOLLOW);
-      if (UNLIKELY (subsystemfd < 0))
-        return crun_make_error (err, errno, "open `%s`", subsystem_path);
+      subsystemfd = openat (targetfd, subsystem, O_CLOEXEC | O_راستہ | O_DIRECTORY | O_NOFOLLOW);
+      اگر (UNLIKELY (subsystemfd < 0))
+        واپس crun_make_error (err, errno, "open `%s`", subsystem_راستہ);
 
-      if (container_has_cgroupns (container))
+      اگر (container_has_cgroupns (container))
         {
-          ret = do_mount (container, source_path, subsystemfd, subsystem_path, "cgroup", mountflags, subsystem_fqn,
+          ret = do_mount (container, ماخذ_راستہ, subsystemfd, subsystem_راستہ, "cgroup", mountflags, subsystem_fqn,
                           LABEL_NONE, err);
-          if (UNLIKELY (ret < 0))
+          اگر (UNLIKELY (ret < 0))
             {
-              if (crun_error_get_errno (err) == ENOENT || crun_error_get_errno (err) == ENODEV)
+              اگر (crun_error_get_errno (err) == ENOENT || crun_error_get_errno (err) == ENODEV)
                 {
                   /* We are trying to mount a subsystem that is not present.  */
                   crun_error_release (err);
-                  continue;
+                  جاری;
                 }
-              return ret;
+              واپس ret;
             }
         }
-      else
+      ورنہ
         {
-          ret = do_mount (container, source_path, subsystemfd, subsystem_path, NULL, MS_BIND | mountflags, NULL,
+          ret = do_mount (container, ماخذ_راستہ, subsystemfd, subsystem_راستہ, تہی, MS_BIND | mountflags, تہی,
                           LABEL_NONE, err);
-          if (UNLIKELY (ret < 0))
+          اگر (UNLIKELY (ret < 0))
             {
-              if (crun_error_get_errno (err) != ENOENT)
-                return ret;
+              اگر (crun_error_get_errno (err) != ENOENT)
+                واپس ret;
 
               crun_error_release (err);
 
               /* We might already be in a container.  Mount the source subsystem.  */
-              ret = do_mount (container, source_subsystem, subsystemfd, subsystem_path, NULL, MS_BIND | mountflags,
-                              NULL, LABEL_NONE, err);
-              if (UNLIKELY (ret < 0))
+              ret = do_mount (container, ماخذ_subsystem, subsystemfd, subsystem_راستہ, تہی, MS_BIND | mountflags,
+                              تہی, LABEL_NONE, err);
+              اگر (UNLIKELY (ret < 0))
                 {
                   /* If it still fails with ENOENT, ignore the error as the controller might have been
                      dropped and doesn't exist.  */
-                  if (crun_error_get_errno (err) != ENOENT)
-                    return ret;
+                  اگر (crun_error_get_errno (err) != ENOENT)
+                    واپس ret;
 
                   crun_error_release (err);
                 }
@@ -2244,35 +2244,35 @@ do_mount_cgroup_v1 (libcrun_container_t *container, const char *source, int targ
     }
 
   ret = libcrun_cgroups_create_symlinks (targetfd, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return 0;
+  واپس 0;
 }
 
-static int
-do_mount_cgroup (libcrun_container_t *container, const char *source, int targetfd, const char *target,
-                 unsigned long mountflags, const char *data, libcrun_error_t *err)
+ساکن صحیح
+do_mount_cgroup (libcrun_container_t *container, ثابت حرف *ماخذ, صحیح targetfd, ثابت حرف *ہدف,
+                 غیرعلامتی طویل mountflags, ثابت حرف *ڈیٹا, libcrun_error_t *err)
 {
-  int cgroup_mode;
+  صحیح cgroup_منوال;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_منوال = libcrun_get_cgroup_منوال (err);
+  اگر (UNLIKELY (cgroup_منوال < 0))
+    واپس cgroup_منوال;
 
-  switch (cgroup_mode)
+  انتخاب (cgroup_منوال)
     {
-    case CGROUP_MODE_UNIFIED:
-      return do_mount_cgroup_v2 (container, targetfd, target, mountflags, data, err);
-    case CGROUP_MODE_LEGACY:
-    case CGROUP_MODE_HYBRID:
-      return do_mount_cgroup_v1 (container, source, targetfd, target, mountflags, err);
+    حالت CGROUP_منوال_UNIFIED:
+      واپس do_mount_cgroup_v2 (container, targetfd, ہدف, mountflags, ڈیٹا, err);
+    حالت CGROUP_منوال_LEGACY:
+    حالت CGROUP_منوال_HYBRID:
+      واپس do_mount_cgroup_v1 (container, ماخذ, targetfd, ہدف, mountflags, err);
     }
 
-  return crun_make_error (err, 0, "unknown cgroup mode `%d`", cgroup_mode);
+  واپس crun_make_error (err, 0, "unknown cgroup mode `%d`", cgroup_منوال);
 }
 
-struct device_s needed_devs[] = { { "/dev/null", "c", 1, 3, 0666, 0, 0 },
+ساخت device_s needed_devs[] = { { "/dev/null", "c", 1, 3, 0666, 0, 0 },
                                   { "/dev/zero", "c", 1, 5, 0666, 0, 0 },
                                   { "/dev/full", "c", 1, 7, 0666, 0, 0 },
                                   { "/dev/tty", "c", 5, 0, 0666, 0, 0 },
@@ -2284,73 +2284,73 @@ struct device_s needed_devs[] = { { "/dev/null", "c", 1, 3, 0666, 0, 0 },
    while the host file system is still reachable.  Failures are ignored:
    the fds are optional optimizations and a later mount(2) fallback
    handles the missing entries.  */
-static void
+ساکن خالی
 preopen_needed_devs_and_notify (libcrun_container_t *container)
 {
-  struct private_data_s *private_data = get_private_data (container);
+  ساخت نجی_ڈیٹا_s *نجی_ڈیٹا = get_نجی_ڈیٹا (container);
   size_t i;
 
-  if (private_data->needed_devs_fds)
+  اگر (نجی_ڈیٹا->needed_devs_fds)
     {
-      struct libcrun_fd_map *dev_fds = private_data->needed_devs_fds;
+      ساخت libcrun_fd_map *dev_fds = نجی_ڈیٹا->needed_devs_fds;
 
-      for (i = 0; needed_devs[i].path; i++)
+      برائے (i = 0; needed_devs[i].راستہ; i++)
         {
-          if (i < dev_fds->nfds && dev_fds->fds[i] >= 0)
-            continue;
+          اگر (i < dev_fds->nfds && dev_fds->fds[i] >= 0)
+            جاری;
 
-          int fd = syscall_open_tree (AT_FDCWD, needed_devs[i].path,
+          صحیح fd = syscall_open_درخت (AT_FDCWD, needed_devs[i].راستہ,
                                       OPEN_TREE_CLONE | OPEN_TREE_CLOEXEC);
-          if (fd >= 0 && i < dev_fds->nfds)
+          اگر (fd >= 0 && i < dev_fds->nfds)
             dev_fds->fds[i] = fd;
-          else if (fd >= 0)
+          ورنہ اگر (fd >= 0)
             close (fd);
         }
     }
 
-  if (private_data->notify_socket_tree_fd < 0
-      && private_data->host_notify_socket_path)
+  اگر (نجی_ڈیٹا->notify_socket_درخت_fd < 0
+      && نجی_ڈیٹا->host_notify_socket_راستہ)
     {
-      int fd = syscall_open_tree (AT_FDCWD, private_data->host_notify_socket_path,
+      صحیح fd = syscall_open_درخت (AT_FDCWD, نجی_ڈیٹا->host_notify_socket_راستہ,
                                   OPEN_TREE_CLONE | AT_RECURSIVE | OPEN_TREE_CLOEXEC);
-      if (fd >= 0)
-        private_data->notify_socket_tree_fd = fd;
+      اگر (fd >= 0)
+        نجی_ڈیٹا->notify_socket_درخت_fd = fd;
     }
 }
 
 /* Check if the specified path is a direct child of /dev.  If it is
  return a pointer to the basename.  */
-static const char *
-relative_path_under_dev (const char *path)
+ساکن ثابت حرف *
+relative_راستہ_under_dev (ثابت حرف *راستہ)
 {
-  if (path[0] != '/')
-    return path;
-  if (strncmp (path, "/dev/", 5) == 0)
+  اگر (راستہ[0] != '/')
+    واپس راستہ;
+  اگر (لڑی_موازنہ (راستہ, "/dev/", 5) == 0)
     {
-      if (strchr (path + 5, '/'))
-        return NULL;
-      return path + 5;
+      اگر (strchr (راستہ + 5, '/'))
+        واپس تہی;
+      واپس راستہ + 5;
     }
-  return NULL;
+  واپس تہی;
 }
 
-static int
-mknod_and_set_attrs (libcrun_container_t *container, int dirfd, const char *name, struct device_s *device,
+ساکن صحیح
+mknod_and_سیٹ_attrs (libcrun_container_t *container, صحیح dirfd, ثابت حرف *name, ساخت device_s *device,
                      mode_t type, dev_t dev, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
-  proc_fd_path_t fd_path;
-  const char *what = "new";
+  cleanup_close صحیح fd = -1;
+  proc_fd_راستہ_t fd_راستہ;
+  ثابت حرف *what = "new";
   bool exists = false;
-  struct stat st;
-  int procfd;
-  int ret;
+  ساخت stat st;
+  صحیح procfd;
+  صحیح ret;
 
-  ret = mknodat (dirfd, name, device->mode | type, dev);
-  if (UNLIKELY (ret < 0))
+  ret = mknodat (dirfd, name, device->منوال | type, dev);
+  اگر (UNLIKELY (ret < 0))
     {
-      if (errno != EEXIST)
-        return crun_make_error (err, errno, "mknodat `%s`", device->path);
+      اگر (errno != EEXIST)
+        واپس crun_make_error (err, errno, "mknodat `%s`", device->راستہ);
       /* The runtime spec requires an error if the existing file
          does not match the requested device, so check it below.  */
       exists = true;
@@ -2359,127 +2359,127 @@ mknod_and_set_attrs (libcrun_container_t *container, int dirfd, const char *name
 
   /* Get a handle and verify that it matches the expected inode type
      and major:minor before operating on it.  */
-  fd = openat (dirfd, name, O_PATH | O_NOFOLLOW | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open %s device `%s`", what, device->path);
+  fd = openat (dirfd, name, O_راستہ | O_NOFOLLOW | O_CLOEXEC);
+  اگر (UNLIKELY (fd < 0))
+    واپس crun_make_error (err, errno, "open %s device `%s`", what, device->راستہ);
 
   ret = fstat (fd, &st);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fstat %s device `%s`", what, device->path);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "fstat %s device `%s`", what, device->راستہ);
 
-  if (UNLIKELY ((st.st_mode & S_IFMT) != type))
-    return crun_make_error (err, 0, "%s device `%s` has incorrect file type %#o, expected %#o",
-                            what, device->path, st.st_mode & S_IFMT, type);
+  اگر (UNLIKELY ((st.st_mode & S_IFMT) != type))
+    واپس crun_make_error (err, 0, "%s device `%s` has incorrect file type %#o, expected %#o",
+                            what, device->راستہ, st.st_mode & S_IFMT, type);
 
-  if (UNLIKELY (type != S_IFIFO && st.st_rdev != dev))
-    return crun_make_error (err, 0, "%s device `%s` has incorrect major:minor %u:%u, expected %u:%u",
-                            what, device->path, major (st.st_rdev), minor (st.st_rdev),
+  اگر (UNLIKELY (type != S_IFIFO && st.st_rdev != dev))
+    واپس crun_make_error (err, 0, "%s device `%s` has incorrect major:minor %u:%u, expected %u:%u",
+                            what, device->راستہ, major (st.st_rdev), minor (st.st_rdev),
                             major (dev), minor (dev));
 
   /* Leave the existing inode's mode and owner as is.  */
-  if (exists)
-    return 0;
+  اگر (exists)
+    واپس 0;
 
   /* fchmod(2) does not work on O_PATH fds, so go through /proc.  */
-  procfd = get_procfd (get_private_data (container), err);
-  if (UNLIKELY (procfd < 0))
-    return procfd;
+  procfd = get_procfd (get_نجی_ڈیٹا (container), err);
+  اگر (UNLIKELY (procfd < 0))
+    واپس procfd;
 
-  get_self_fd_path (fd_path, fd);
-  ret = fchmodat (procfd, fd_path, device->mode, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fchmod `%s`", device->path);
+  get_self_fd_راستہ (fd_راستہ, fd);
+  ret = fchmodat (procfd, fd_راستہ, device->منوال, 0);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "fchmod `%s`", device->راستہ);
 
-  ret = fchownat (fd, "", device->uid, device->gid, AT_EMPTY_PATH);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fchown `%s`", device->path);
+  ret = fchownat (fd, "", device->uid, device->gid, AT_خالی_خانے_راستہ);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "fchown `%s`", device->راستہ);
 
-  return 1;
+  واپس 1;
 }
 
-int
-libcrun_create_dev (libcrun_container_t *container, int devfd, int srcfd,
-                    struct device_s *device, bool binds, bool ensure_parent_dir,
+صحیح
+libcrun_create_dev (libcrun_container_t *container, صحیح devfd, صحیح srcfd,
+                    ساخت device_s *device, bool binds, bool ensure_والد_dir,
                     libcrun_error_t *err)
 {
-  int ret;
+  صحیح ret;
   dev_t dev;
   mode_t type = (device->type[0] == 'b') ? S_IFBLK : ((device->type[0] == 'p') ? S_IFIFO : S_IFCHR);
-  const char *fullname = device->path;
-  const char *rootfs = get_private_data (container)->rootfs;
-  if (is_empty_string (fullname))
-    return crun_make_error (err, EINVAL, "device path is empty");
+  ثابت حرف *fullname = device->راستہ;
+  ثابت حرف *rootfs = get_نجی_ڈیٹا (container)->rootfs;
+  اگر (is_خالی_خانے_string (fullname))
+    واپس crun_make_error (err, EINVAL, "device path is empty");
   // Normalize the path by removing trailing slashes.
-  cleanup_free char *normalized_path = xstrdup (fullname);
-  consume_trailing_slashes (normalized_path);
-  if (normalized_path[0] == '\0')
-    strcpy (normalized_path, "/");
-  const char *rel_dev = relative_path_under_dev (normalized_path);
+  cleanup_free حرف *normalized_راستہ = xstrdup (fullname);
+  consume_trailing_slashes (normalized_راستہ);
+  اگر (normalized_راستہ[0] == '\0')
+    strcpy (normalized_راستہ, "/");
+  ثابت حرف *rel_dev = relative_راستہ_under_dev (normalized_راستہ);
 
-  if (binds)
+  اگر (binds)
     {
-      cleanup_close int fd = -1;
+      cleanup_close صحیح fd = -1;
 
-      if (rel_dev)
+      اگر (rel_dev)
         {
-          fd = openat (devfd, rel_dev, O_NOFOLLOW | O_CLOEXEC | O_PATH | O_NONBLOCK);
-          if (UNLIKELY (fd < 0))
+          fd = openat (devfd, rel_dev, O_NOFOLLOW | O_CLOEXEC | O_راستہ | O_NONBLOCK);
+          اگر (UNLIKELY (fd < 0))
             {
-              if (errno == ENOENT)
+              اگر (errno == ENOENT)
                 fd = openat (devfd, rel_dev, O_CREAT | O_NOFOLLOW | O_CLOEXEC | O_NONBLOCK, 0700);
 
-              if (UNLIKELY (fd < 0))
-                return crun_make_error (err, errno, "openat `%s`", device->path);
+              اگر (UNLIKELY (fd < 0))
+                واپس crun_make_error (err, errno, "openat `%s`", device->راستہ);
             }
         }
-      else
+      ورنہ
         {
-          const char *rel_path = consume_slashes (normalized_path);
+          ثابت حرف *rel_راستہ = consume_slashes (normalized_راستہ);
 
-          fd = crun_safe_create_and_open_ref_at (false, get_private_data (container)->rootfsfd, rootfs, rel_path, 0755, err);
-          if (UNLIKELY (fd < 0))
-            return fd;
+          fd = crun_محفوظ_create_and_open_ref_at (false, get_نجی_ڈیٹا (container)->rootfsfd, rootfs, rel_راستہ, 0755, err);
+          اگر (UNLIKELY (fd < 0))
+            واپس fd;
         }
 
-      if (srcfd >= 0)
+      اگر (srcfd >= 0)
         {
-          ret = do_mount_setattr (false, normalized_path, srcfd, 0, MS_NOSUID | MS_NOEXEC, err);
-          if (LIKELY (ret == 0))
+          ret = do_mount_setattr (false, normalized_راستہ, srcfd, 0, MS_NOSUID | MS_NOEXEC, err);
+          اگر (LIKELY (ret == 0))
             {
               ret = syscall_move_mount (srcfd, "", fd, "", MOVE_MOUNT_T_EMPTY_PATH | MOVE_MOUNT_F_EMPTY_PATH);
-              if (LIKELY (ret >= 0))
-                return 0;
+              اگر (LIKELY (ret >= 0))
+                واپس 0;
             }
-          else
+          ورنہ
             crun_error_release (err);
         }
 
       {
-        cleanup_close int mountfd = -1;
+        cleanup_close صحیح mountfd = -1;
 
         /* Try open_tree+mount_setattr to apply flags atomically.  */
         mountfd = get_bind_mount (-1, fullname, false, false, false, MS_PRIVATE, err);
-        if (mountfd >= 0)
+        اگر (mountfd >= 0)
           {
-            ret = do_mount_setattr (false, normalized_path, mountfd, 0, MS_NOSUID | MS_NOEXEC, err);
-            if (LIKELY (ret == 0))
+            ret = do_mount_setattr (false, normalized_راستہ, mountfd, 0, MS_NOSUID | MS_NOEXEC, err);
+            اگر (LIKELY (ret == 0))
               {
-                ret = fs_move_mount_to (mountfd, fd, NULL);
-                if (LIKELY (ret == 0))
-                  return 0;
+                ret = fs_move_mount_مقصد (mountfd, fd, تہی);
+                اگر (LIKELY (ret == 0))
+                  واپس 0;
               }
-            else
+            ورنہ
               crun_error_release (err);
           }
-        else
+        ورنہ
           crun_error_release (err);
       }
 
-      ret = do_mount (container, fullname, fd, normalized_path, NULL, MS_BIND | MS_PRIVATE | MS_NOEXEC | MS_NOSUID, NULL, LABEL_MOUNT, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = do_mount (container, fullname, fd, normalized_راستہ, تہی, MS_BIND | MS_PRIVATE | MS_NOEXEC | MS_NOSUID, تہی, LABEL_MOUNT, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
-  else
+  ورنہ
     {
       dev = makedev (device->major, device->minor);
 
@@ -2487,181 +2487,181 @@ libcrun_create_dev (libcrun_container_t *container, int devfd, int srcfd,
          fails when the destination already exists or is a symlink, it is safe to use it directly.
          If it is not a direct child, then first get a fd to the dirfd.
       */
-      if (rel_dev)
+      اگر (rel_dev)
         {
-          ret = mknod_and_set_attrs (container, devfd, rel_dev, device, type, dev, err);
-          if (ret <= 0)
-            return ret;
+          ret = mknod_and_سیٹ_attrs (container, devfd, rel_dev, device, type, dev, err);
+          اگر (ret <= 0)
+            واپس ret;
         }
-      else
+      ورنہ
         {
-          cleanup_close int dirfd = -1;
-          cleanup_free char *dirname = NULL;
-          char *basename, *found;
+          cleanup_close صحیح dirfd = -1;
+          cleanup_free حرف *dirname = تہی;
+          حرف *basename, *ملا;
 
-          dirname = xstrdup (normalized_path);
+          dirname = xstrdup (normalized_راستہ);
 
-          found = strrchr (dirname, '/');
-          if (found)
-            *found = '\0';
+          ملا = strrchr (dirname, '/');
+          اگر (ملا)
+            *ملا = '\0';
 
-          basename = found ? found + 1 : dirname;
+          basename = ملا ? ملا + 1 : dirname;
 
-          if (dirname[0] == '\0')
+          اگر (dirname[0] == '\0')
             {
-              dirfd = dup (get_private_data (container)->rootfsfd);
-              if (UNLIKELY (dirfd < 0))
-                return crun_make_error (err, errno, "dup fd for `%s`", rootfs);
+              dirfd = dup (get_نجی_ڈیٹا (container)->rootfsfd);
+              اگر (UNLIKELY (dirfd < 0))
+                واپس crun_make_error (err, errno, "dup fd for `%s`", rootfs);
             }
-          else
+          ورنہ
             {
-              dirfd = safe_openat (get_private_data (container)->rootfsfd, rootfs, dirname, O_DIRECTORY | O_PATH | O_CLOEXEC, 0, err);
-              if (dirfd < 0 && ensure_parent_dir)
+              dirfd = محفوظ_openat (get_نجی_ڈیٹا (container)->rootfsfd, rootfs, dirname, O_DIRECTORY | O_راستہ | O_CLOEXEC, 0, err);
+              اگر (dirfd < 0 && ensure_والد_dir)
                 {
                   crun_error_release (err);
 
-                  dirfd = crun_safe_create_and_open_ref_at (true, get_private_data (container)->rootfsfd, rootfs, dirname, 0755, err);
+                  dirfd = crun_محفوظ_create_and_open_ref_at (true, get_نجی_ڈیٹا (container)->rootfsfd, rootfs, dirname, 0755, err);
                 }
-              if (UNLIKELY (dirfd < 0))
-                return dirfd;
+              اگر (UNLIKELY (dirfd < 0))
+                واپس dirfd;
             }
 
-          ret = mknod_and_set_attrs (container, dirfd, basename, device, type, dev, err);
-          if (ret <= 0)
-            return ret;
+          ret = mknod_and_سیٹ_attrs (container, dirfd, basename, device, type, dev, err);
+          اگر (ret <= 0)
+            واپس ret;
         }
     }
-  return 0;
+  واپس 0;
 }
 
-struct symlink_s
+ساخت symlink_s
 {
-  const char *path;
-  const char *target;
+  ثابت حرف *راستہ;
+  ثابت حرف *ہدف;
   bool force;
 };
 
-static struct symlink_s symlinks[] = { { "/proc/self/fd", "fd", false },
+ساکن ساخت symlink_s symlinks[] = { { "/proc/self/fd", "fd", false },
                                        { "/proc/self/fd/0", "stdin", false },
                                        { "/proc/self/fd/1", "stdout", false },
                                        { "/proc/self/fd/2", "stderr", false },
                                        { "/proc/kcore", "core", false },
                                        { "pts/ptmx", "ptmx", true },
-                                       { NULL, NULL, false } };
+                                       { تہی, تہی, false } };
 
-static int
+ساکن صحیح
 create_missing_devs (libcrun_container_t *container, bool binds, libcrun_error_t *err)
 {
-  int ret;
+  صحیح ret;
   size_t i;
-  struct device_s *it;
-  cleanup_close int devfd = -1;
+  ساخت device_s *it;
+  cleanup_close صحیح devfd = -1;
   runtime_spec_schema_config_schema *def = container->container_def;
-  const char *rootfs = get_private_data (container)->rootfs;
-  cleanup_close_map struct libcrun_fd_map *dev_fds = NULL;
-  cleanup_close_map struct libcrun_fd_map *needed_fds = NULL;
+  ثابت حرف *rootfs = get_نجی_ڈیٹا (container)->rootfs;
+  cleanup_close_map ساخت libcrun_fd_map *dev_fds = تہی;
+  cleanup_close_map ساخت libcrun_fd_map *needed_fds = تہی;
 
-  dev_fds = get_private_data (container)->dev_fds;
-  get_private_data (container)->dev_fds = NULL;
+  dev_fds = get_نجی_ڈیٹا (container)->dev_fds;
+  get_نجی_ڈیٹا (container)->dev_fds = تہی;
 
-  needed_fds = get_private_data (container)->needed_devs_fds;
-  get_private_data (container)->needed_devs_fds = NULL;
+  needed_fds = get_نجی_ڈیٹا (container)->needed_devs_fds;
+  get_نجی_ڈیٹا (container)->needed_devs_fds = تہی;
 
-  if (! def || ! def->linux)
-    return 0;
+  اگر (! def || ! def->linux)
+    واپس 0;
 
-  devfd = safe_openat (get_private_data (container)->rootfsfd, rootfs, "dev", O_CLOEXEC | O_PATH | O_DIRECTORY, 0, err);
-  if (UNLIKELY (devfd < 0))
-    return devfd;
+  devfd = محفوظ_openat (get_نجی_ڈیٹا (container)->rootfsfd, rootfs, "dev", O_CLOEXEC | O_راستہ | O_DIRECTORY, 0, err);
+  اگر (UNLIKELY (devfd < 0))
+    واپس devfd;
 
-  for (i = 0; i < def->linux->devices_len; i++)
+  برائے (i = 0; i < def->linux->devices_len; i++)
     {
-      struct device_s device = {
-        def->linux->devices[i]->path,
+      ساخت device_s device = {
+        def->linux->devices[i]->راستہ,
         def->linux->devices[i]->type,
         def->linux->devices[i]->major,
         def->linux->devices[i]->minor,
-        def->linux->devices[i]->file_mode,
+        def->linux->devices[i]->file_منوال,
         def->linux->devices[i]->uid,
         def->linux->devices[i]->gid,
       };
 
-      if (! def->linux->devices[i]->file_mode_present)
-        device.mode = 0666;
+      اگر (! def->linux->devices[i]->file_منوال_present)
+        device.منوال = 0666;
       ret = libcrun_create_dev (container, devfd, dev_fds->fds[i], &device, binds, true, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  for (it = needed_devs, i = 0; it->path; it++, i++)
+  برائے (it = needed_devs, i = 0; it->راستہ; it++, i++)
     {
-      cleanup_close int srcfd = (needed_fds && i < needed_fds->nfds) ? needed_fds->fds[i] : -1;
+      cleanup_close صحیح srcfd = (needed_fds && i < needed_fds->nfds) ? needed_fds->fds[i] : -1;
 
       /* make sure the parent directory exists only on the first iteration.  */
       ret = libcrun_create_dev (container, devfd, srcfd, it, binds, it == needed_devs, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      if (srcfd >= 0)
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
+      اگر (srcfd >= 0)
         needed_fds->fds[i] = -1;
     }
 
-  for (i = 0; symlinks[i].target; i++)
+  برائے (i = 0; symlinks[i].ہدف; i++)
     {
     retry_symlink:
-      ret = symlinkat (symlinks[i].path, devfd, symlinks[i].target);
-      if (UNLIKELY (ret < 0))
+      ret = symlinkat (symlinks[i].راستہ, devfd, symlinks[i].ہدف);
+      اگر (UNLIKELY (ret < 0))
         {
-          int saved_errno = errno;
+          صحیح saved_errno = errno;
 
-          if (errno == EEXIST && ! symlinks[i].force)
-            continue;
+          اگر (errno == EEXIST && ! symlinks[i].force)
+            جاری;
 
           /* If the symlink should be forced, make sure to unlink any existing file at the same path.  */
-          if (errno == EEXIST)
+          اگر (errno == EEXIST)
             {
             retry_unlink:
-              ret = unlinkat (devfd, symlinks[i].target, 0);
-              if (ret < 0 && errno == EISDIR)
-                ret = unlinkat (devfd, symlinks[i].target, AT_REMOVEDIR);
-              if (ret < 0 && errno == EBUSY)
+              ret = unlinkat (devfd, symlinks[i].ہدف, 0);
+              اگر (ret < 0 && errno == EISDIR)
+                ret = unlinkat (devfd, symlinks[i].ہدف, AT_REMOVEDIR);
+              اگر (ret < 0 && errno == EBUSY)
                 {
-                  cleanup_close int tfd = openat (devfd, symlinks[i].target, O_CLOEXEC | O_PATH | O_NOFOLLOW);
-                  if (tfd >= 0)
+                  cleanup_close صحیح tfd = openat (devfd, symlinks[i].ہدف, O_CLOEXEC | O_راستہ | O_NOFOLLOW);
+                  اگر (tfd >= 0)
                     {
-                      proc_fd_path_t procpath;
+                      proc_fd_راستہ_t procpath;
 
-                      get_proc_self_fd_path (procpath, tfd);
-                      if (umount2 (procpath, MNT_DETACH) == 0)
-                        goto retry_unlink;
+                      get_proc_self_fd_راستہ (procpath, tfd);
+                      اگر (umount2 (procpath, MNT_DETACH) == 0)
+                        جاؤ retry_unlink;
                     }
                 }
-              if (ret == 0)
-                goto retry_symlink;
+              اگر (ret == 0)
+                جاؤ retry_symlink;
             }
-          return crun_make_error (err, saved_errno, "symlinkat `/dev/%s`", symlinks[i].target);
+          واپس crun_make_error (err, saved_errno, "symlinkat `/dev/%s`", symlinks[i].ہدف);
         }
     }
 
-  if (container->container_def->process && container->container_def->process->terminal)
+  اگر (container->container_def->process && container->container_def->process->terminal)
     {
       ret = create_file_if_missing_at (devfd, "console", 0620, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  return 0;
+  واپس 0;
 }
 
 /* Advance to the next path component, skipping empty and "." ones.  */
-static const char *
-next_path_component (const char *p, size_t *len)
+ساکن ثابت حرف *
+اگلا_راستہ_component (ثابت حرف *p, size_t *len)
 {
-  for (;;)
+  برائے (;;)
     {
       p = consume_slashes (p);
       *len = strcspn (p, "/");
-      if (*len != 1 || p[0] != '.')
-        return p;
+      اگر (*len != 1 || p[0] != '.')
+        واپس p;
       p++;
     }
 }
@@ -2671,350 +2671,350 @@ next_path_component (const char *p, size_t *len)
    as they are, not resolved lexically: if a path component before them
    is a symlink, the path may refer to something else entirely, and
    treating it as a duplicate would leave it unmasked.  */
-static bool
-same_path (const char *a, const char *b)
+ساکن bool
+same_راستہ (ثابت حرف *a, ثابت حرف *b)
 {
   size_t la, lb;
 
-  for (;;)
+  برائے (;;)
     {
-      a = next_path_component (a, &la);
-      b = next_path_component (b, &lb);
-      if (la != lb || memcmp (a, b, la) != 0)
-        return false;
-      if (la == 0)
-        return true;
+      a = اگلا_راستہ_component (a, &la);
+      b = اگلا_راستہ_component (b, &lb);
+      اگر (la != lb || memcmp (a, b, la) != 0)
+        واپس false;
+      اگر (la == 0)
+        واپس true;
       a += la;
       b += lb;
     }
 }
 
 /* Whether paths[i] is the same as one of the paths before it.  */
-static bool
-is_duplicate_path (char **paths, size_t i)
+ساکن bool
+is_duplicate_راستہ (حرف **paths, size_t i)
 {
   size_t j;
 
-  if (paths[i] == NULL)
-    return false;
+  اگر (paths[i] == تہی)
+    واپس false;
 
-  for (j = 0; j < i; j++)
-    if (paths[j] && same_path (paths[j], paths[i]))
-      return true;
+  برائے (j = 0; j < i; j++)
+    اگر (paths[j] && same_راستہ (paths[j], paths[i]))
+      واپس true;
 
-  return false;
+  واپس false;
 }
 
-static int
+ساکن صحیح
 do_masked_and_readonly_paths (libcrun_container_t *container, libcrun_error_t *err)
 {
   size_t i;
-  int ret;
+  صحیح ret;
   runtime_spec_schema_config_schema *def = container->container_def;
 
-  if (! def || ! def->linux)
-    return 0;
+  اگر (! def || ! def->linux)
+    واپس 0;
 
-  for (i = 0; i < def->linux->masked_paths_len; i++)
+  برائے (i = 0; i < def->linux->masked_paths_len; i++)
     {
-      if (is_duplicate_path (def->linux->masked_paths, i))
-        continue;
+      اگر (is_duplicate_راستہ (def->linux->masked_paths, i))
+        جاری;
 
-      ret = do_masked_or_readonly_path (container, def->linux->masked_paths[i], false, false, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = do_masked_or_readonly_راستہ (container, def->linux->masked_paths[i], false, false, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
-  for (i = 0; i < def->linux->readonly_paths_len; i++)
+  برائے (i = 0; i < def->linux->readonly_paths_len; i++)
     {
-      ret = do_masked_or_readonly_path (container, def->linux->readonly_paths[i], true, true, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = do_masked_or_readonly_راستہ (container, def->linux->readonly_paths[i], true, true, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
-  return 0;
+  واپس 0;
 }
 
-static int
-do_pivot (libcrun_container_t *container, const char *rootfs, libcrun_error_t *err)
+ساکن صحیح
+do_محور (libcrun_container_t *container, ثابت حرف *rootfs, libcrun_error_t *err)
 {
-  cleanup_close int oldrootfd = -1;
-  cleanup_close int newrootfd = -1;
-  int ret;
+  cleanup_close صحیح oldrootfd = -1;
+  cleanup_close صحیح newrootfd = -1;
+  صحیح ret;
 
-  oldrootfd = open ("/", O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (oldrootfd < 0))
-    return crun_make_error (err, errno, "open `/`");
+  oldrootfd = open ("/", O_DIRECTORY | O_راستہ | O_CLOEXEC);
+  اگر (UNLIKELY (oldrootfd < 0))
+    واپس crun_make_error (err, errno, "open `/`");
 
-  newrootfd = open (rootfs, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (newrootfd < 0))
-    return crun_make_error (err, errno, "open `%s`", rootfs);
+  newrootfd = open (rootfs, O_DIRECTORY | O_راستہ | O_CLOEXEC);
+  اگر (UNLIKELY (newrootfd < 0))
+    واپس crun_make_error (err, errno, "open `%s`", rootfs);
 
   ret = fchdir (newrootfd);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fchdir `%s`", rootfs);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "fchdir `%s`", rootfs);
 
-  ret = pivot_root (".", ".");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "pivot_root");
+  ret = محور_جڑ (".", ".");
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "pivot_root");
 
   ret = fchdir (oldrootfd);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fchdir `%s`", rootfs);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "fchdir `%s`", rootfs);
 
-  ret = do_mount (container, NULL, -1, ".", NULL, MS_REC | MS_PRIVATE, NULL, LABEL_MOUNT, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = do_mount (container, تہی, -1, ".", تہی, MS_REC | MS_PRIVATE, تہی, LABEL_MOUNT, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   ret = umount2 (".", MNT_DETACH);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "umount2 oldroot");
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "umount2 oldroot");
 
-  do
+  کرو
     {
       ret = umount2 (".", MNT_DETACH);
-      if (ret < 0 && errno == EINVAL)
-        break;
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "umount2 oldroot");
-  } while (ret == 0);
+      اگر (ret < 0 && errno == EINVAL)
+        توڑو;
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "umount2 oldroot");
+  } جب (ret == 0);
 
   ret = chdir ("/");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "chdir to newroot");
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "chdir to newroot");
 
-  return 0;
+  واپس 0;
 }
 
-static int
-append_tmpfs_mode_if_missing (libcrun_container_t *container, runtime_spec_schema_defs_mount *mount, char **data, libcrun_error_t *err)
+ساکن صحیح
+append_tmpfs_منوال_if_missing (libcrun_container_t *container, runtime_spec_schema_defs_mount *mount, حرف **ڈیٹا, libcrun_error_t *err)
 {
-  const char *rootfs = get_private_data (container)->rootfs;
-  bool empty_data = is_empty_string (*data);
-  cleanup_close int fd = -1;
-  struct stat st;
-  int ret;
+  ثابت حرف *rootfs = get_نجی_ڈیٹا (container)->rootfs;
+  bool خالی_خانے_ڈیٹا = is_خالی_خانے_string (*ڈیٹا);
+  cleanup_close صحیح fd = -1;
+  ساخت stat st;
+  صحیح ret;
 
-  if (*data != NULL && strstr (*data, "mode="))
-    return 0;
+  اگر (*ڈیٹا != تہی && لڑی_تلاش (*ڈیٹا, "mode="))
+    واپس 0;
 
-  fd = safe_openat (get_private_data (container)->rootfsfd, rootfs, mount->destination, O_CLOEXEC | O_PATH, 0, err);
-  if (fd < 0)
+  fd = محفوظ_openat (get_نجی_ڈیٹا (container)->rootfsfd, rootfs, mount->destination, O_CLOEXEC | O_راستہ, 0, err);
+  اگر (fd < 0)
     {
-      if (crun_error_get_errno (err) != ENOENT)
-        return fd;
+      اگر (crun_error_get_errno (err) != ENOENT)
+        واپس fd;
 
       crun_error_release (err);
-      return 0;
+      واپس 0;
     }
   ret = fstat (fd, &st);
-  if (ret < 0)
-    return crun_make_error (err, errno, "fstat `%s`", mount->destination);
+  اگر (ret < 0)
+    واپس crun_make_error (err, errno, "fstat `%s`", mount->destination);
 
-  xasprintf (data, "%s%smode=%o", empty_data ? "" : *data, empty_data ? "" : ",", st.st_mode & 07777);
-  return 0;
+  xasprintf (ڈیٹا, "%s%smode=%o", خالی_خانے_ڈیٹا ? "" : *ڈیٹا, خالی_خانے_ڈیٹا ? "" : ",", st.st_mode & 07777);
+  واپس 0;
 }
 
-static int
-get_default_flags (libcrun_container_t *container, const char *destination, char **data)
+ساکن صحیح
+get_default_flags (libcrun_container_t *container, ثابت حرف *destination, حرف **ڈیٹا)
 {
-  if (strcmp (destination, "/proc") == 0)
-    return 0;
-  if (strcmp (destination, "/dev/cgroup") == 0 || strcmp (destination, "/sys/fs/cgroup") == 0)
+  اگر (strcmp (destination, "/proc") == 0)
+    واپس 0;
+  اگر (strcmp (destination, "/dev/cgroup") == 0 || strcmp (destination, "/sys/fs/cgroup") == 0)
     {
-      *data = xstrdup ("none,name=");
-      return MS_NOEXEC | MS_NOSUID | MS_STRICTATIME;
+      *ڈیٹا = xstrdup ("none,name=");
+      واپس MS_NOEXEC | MS_NOSUID | MS_STRICTATIME;
     }
-  if (strcmp (destination, "/dev") == 0)
+  اگر (strcmp (destination, "/dev") == 0)
     {
-      *data = xstrdup ("mode=755");
-      return MS_NOEXEC | MS_STRICTATIME;
+      *ڈیٹا = xstrdup ("mode=755");
+      واپس MS_NOEXEC | MS_STRICTATIME;
     }
-  if (strcmp (destination, "/dev/shm") == 0)
+  اگر (strcmp (destination, "/dev/shm") == 0)
     {
-      *data = xstrdup ("mode=1777,size=65536k");
-      return MS_NOEXEC | MS_NOSUID | MS_NODEV;
+      *ڈیٹا = xstrdup ("mode=1777,size=65536k");
+      واپس MS_NOEXEC | MS_NOSUID | MS_NODEV;
     }
-  if (strcmp (destination, "/dev/mqueue") == 0)
-    return MS_NOEXEC | MS_NOSUID | MS_NODEV;
-  if (strcmp (destination, "/dev/pts") == 0)
+  اگر (strcmp (destination, "/dev/mqueue") == 0)
+    واپس MS_NOEXEC | MS_NOSUID | MS_NODEV;
+  اگر (strcmp (destination, "/dev/pts") == 0)
     {
-      if (container->host_uid == 0)
-        *data = xstrdup ("newinstance,ptmxmode=0666,mode=620,gid=5");
-      else
-        *data = xstrdup ("newinstance,ptmxmode=0666,mode=620");
-      return MS_NOEXEC | MS_NOSUID;
+      اگر (container->host_uid == 0)
+        *ڈیٹا = xstrdup ("newinstance,ptmxmode=0666,mode=620,gid=5");
+      ورنہ
+        *ڈیٹا = xstrdup ("newinstance,ptmxmode=0666,mode=620");
+      واپس MS_NOEXEC | MS_NOSUID;
     }
-  if (strcmp (destination, "/sys") == 0)
-    return MS_NOEXEC | MS_NOSUID | MS_NODEV;
+  اگر (strcmp (destination, "/sys") == 0)
+    واپس MS_NOEXEC | MS_NOSUID | MS_NODEV;
 
-  return 0;
+  واپس 0;
 }
 
-static const char *
+ساکن ثابت حرف *
 get_force_cgroup_v1_annotation (libcrun_container_t *container)
 {
-  return find_annotation (container, "run.oci.systemd.force_cgroup_v1");
+  واپس ڈھونڈو_annotation (container, "run.oci.systemd.force_cgroup_v1");
 }
 
-static int
-check_valid_no_follow_file_system (int fd, const char *destination, libcrun_error_t *err)
+ساکن صحیح
+check_valid_no_follow_file_system (صحیح fd, ثابت حرف *destination, libcrun_error_t *err)
 {
-  struct statfs sfs;
+  ساخت statfs sfs;
 
-  int ret = fstatfs (fd, &sfs);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "statfs `%s`", destination);
+  صحیح ret = fstatfs (fd, &sfs);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "statfs `%s`", destination);
 
-  switch (sfs.f_type)
+  انتخاب (sfs.f_type)
     {
-    case PROC_SUPER_MAGIC:
-    case SYSFS_MAGIC:
-    case DEVPTS_SUPER_MAGIC:
-      return crun_make_error (err, 0, "override of the mount destination `/%s` is not allowed", destination);
+    حالت PROC_SUPER_MAGIC:
+    حالت SYSFS_MAGIC:
+    حالت DEVPTS_SUPER_MAGIC:
+      واپس crun_make_error (err, 0, "override of the mount destination `/%s` is not allowed", destination);
     }
 
-  return 0;
+  واپس 0;
 }
 
-static int
-safe_create_symlink (int rootfsfd, const char *rootfs, const char *target, const char *destination, libcrun_error_t *err)
+ساکن صحیح
+محفوظ_create_symlink (صحیح rootfsfd, ثابت حرف *rootfs, ثابت حرف *ہدف, ثابت حرف *destination, libcrun_error_t *err)
 {
-  cleanup_close int parent_dir_fd = -1;
-  cleanup_free char *buffer = NULL;
-  char *part;
-  int ret;
+  cleanup_close صحیح والد_dir_fd = -1;
+  cleanup_free حرف *بفر = تہی;
+  حرف *part;
+  صحیح ret;
 
-  if (is_empty_string (destination))
-    return crun_make_error (err, 0, "empty destination for symlink `%s`", target);
+  اگر (is_خالی_خانے_string (destination))
+    واپس crun_make_error (err, 0, "empty destination for symlink `%s`", ہدف);
 
-  buffer = xstrdup (destination);
-  part = dirname (buffer);
+  بفر = xstrdup (destination);
+  part = dirname (بفر);
 
-  parent_dir_fd = crun_safe_create_and_open_ref_at (true, rootfsfd, rootfs, part, 0755, err);
-  if (UNLIKELY (parent_dir_fd < 0))
-    return parent_dir_fd;
+  والد_dir_fd = crun_محفوظ_create_and_open_ref_at (true, rootfsfd, rootfs, part, 0755, err);
+  اگر (UNLIKELY (والد_dir_fd < 0))
+    واپس والد_dir_fd;
 
   /* It is safe to reuse the buffer since it was created with xstrdup (destination).  */
-  strcpy (buffer, destination);
-  part = basename (buffer);
+  strcpy (بفر, destination);
+  part = basename (بفر);
 
-  ret = symlinkat (target, parent_dir_fd, part);
-  if (UNLIKELY (ret < 0))
+  ret = symlinkat (ہدف, والد_dir_fd, part);
+  اگر (UNLIKELY (ret < 0))
     {
       /* If it exists, check if it has the same content, if so just ignore the error.  */
-      if (errno == EEXIST)
+      اگر (errno == EEXIST)
         {
-          cleanup_free char *link = NULL;
+          cleanup_free حرف *link = تہی;
           ssize_t len;
 
-          len = safe_readlinkat (parent_dir_fd, part, &link, 0, err);
-          if (UNLIKELY (len < 0))
-            return len;
+          len = محفوظ_readlinkat (والد_dir_fd, part, &link, 0, err);
+          اگر (UNLIKELY (len < 0))
+            واپس len;
 
-          if ((((size_t) len) == strlen (target)) && strncmp (link, target, len) == 0)
-            return 0;
+          اگر ((((size_t) len) == لڑی_لمبائی (ہدف)) && لڑی_موازنہ (link, ہدف, len) == 0)
+            واپس 0;
 
-          return crun_make_error (err, 0, "symlink `%s` already exists with a different content", destination);
+          واپس crun_make_error (err, 0, "symlink `%s` already exists with a different content", destination);
         }
-      return crun_make_error (err, errno, "symlinkat `%s`", target);
+      واپس crun_make_error (err, errno, "symlinkat `%s`", ہدف);
     }
 
-  return 0;
+  واپس 0;
 }
 
-static int
-handle_copy_symlink (libcrun_container_t *container, const char *rootfs,
+ساکن صحیح
+handle_copy_symlink (libcrun_container_t *container, ثابت حرف *rootfs,
                      runtime_spec_schema_defs_mount *mount,
-                     const char *link_target, libcrun_error_t *err)
+                     ثابت حرف *link_ہدف, libcrun_error_t *err)
 {
-  cleanup_free char *target = NULL;
+  cleanup_free حرف *ہدف = تہی;
 
-  if (link_target == NULL)
+  اگر (link_ہدف == تہی)
     {
-      int old_root_fd = get_old_root_fd (get_private_data (container));
-      const char *source = mount->source;
+      صحیح old_جڑ_fd = get_old_جڑ_fd (get_نجی_ڈیٹا (container));
+      ثابت حرف *ماخذ = mount->ماخذ;
       ssize_t len;
 
-      if (old_root_fd >= 0 && source[0] == '/')
-        len = safe_readlinkat (old_root_fd, source + 1, &target, 0, err);
-      else
-        len = safe_readlinkat (AT_FDCWD, source, &target, 0, err);
-      if (UNLIKELY (len < 0))
-        return len;
-      link_target = target;
+      اگر (old_جڑ_fd >= 0 && ماخذ[0] == '/')
+        len = محفوظ_readlinkat (old_جڑ_fd, ماخذ + 1, &ہدف, 0, err);
+      ورنہ
+        len = محفوظ_readlinkat (AT_FDCWD, ماخذ, &ہدف, 0, err);
+      اگر (UNLIKELY (len < 0))
+        واپس len;
+      link_ہدف = ہدف;
     }
 
-  return safe_create_symlink (get_private_data (container)->rootfsfd, rootfs,
-                              link_target, mount->destination, err);
+  واپس محفوظ_create_symlink (get_نجی_ڈیٹا (container)->rootfsfd, rootfs,
+                              link_ہدف, mount->destination, err);
 }
 
-static int
-prepare_sysfs_or_proc_mount (libcrun_container_t *container, const char *target,
-                             int *targetfd, libcrun_error_t *err)
+ساکن صحیح
+prepare_sysfs_or_proc_mount (libcrun_container_t *container, ثابت حرف *ہدف,
+                             صحیح *targetfd, libcrun_error_t *err)
 {
-  int ret;
+  صحیح ret;
 
   /* Enforce sysfs and proc to be mounted on a regular directory.  */
-  ret = openat (get_private_data (container)->rootfsfd, target,
+  ret = openat (get_نجی_ڈیٹا (container)->rootfsfd, ہدف,
                 O_CLOEXEC | O_NOFOLLOW | O_DIRECTORY);
-  if (UNLIKELY (ret < 0))
+  اگر (UNLIKELY (ret < 0))
     {
-      if (errno == ENOENT)
+      اگر (errno == ENOENT)
         {
-          if (strchr (target, '/'))
-            return crun_make_error (err, 0, "invalid target `%s`: it must be mounted at the root", target);
+          اگر (strchr (ہدف, '/'))
+            واپس crun_make_error (err, 0, "invalid target `%s`: it must be mounted at the root", ہدف);
 
-          ret = mkdirat (get_private_data (container)->rootfsfd, target, 0755);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "mkdirat `%s`", target);
+          ret = mkdirat (get_نجی_ڈیٹا (container)->rootfsfd, ہدف, 0755);
+          اگر (UNLIKELY (ret < 0))
+            واپس crun_make_error (err, errno, "mkdirat `%s`", ہدف);
 
           /* Try opening it again.  */
-          ret = openat (get_private_data (container)->rootfsfd, target,
+          ret = openat (get_نجی_ڈیٹا (container)->rootfsfd, ہدف,
                         O_CLOEXEC | O_NOFOLLOW | O_DIRECTORY);
         }
-      else if (errno == ENOTDIR)
-        return crun_make_error (err, errno, "the target `/%s` is invalid", target);
+      ورنہ اگر (errno == ENOTDIR)
+        واپس crun_make_error (err, errno, "the target `/%s` is invalid", ہدف);
 
-      if (ret < 0)
-        return crun_make_error (err, errno, "open `%s`", target);
+      اگر (ret < 0)
+        واپس crun_make_error (err, errno, "open `%s`", ہدف);
     }
 
   *targetfd = ret;
-  return 0;
+  واپس 0;
 }
 
-static int
-handle_tmpcopyup (libcrun_container_t *container, const char *rootfs, const char *target,
-                  int copy_from_fd, libcrun_error_t *err)
+ساکن صحیح
+handle_tmpcopyup (libcrun_container_t *container, ثابت حرف *rootfs, ثابت حرف *ہدف,
+                  صحیح copy_from_fd, libcrun_error_t *err)
 {
-  int destfd, ret;
-  cleanup_close int tmpfd = copy_from_fd;
+  صحیح destfd, ret;
+  cleanup_close صحیح tmpfd = copy_from_fd;
 
-  target = consume_slashes (target);
+  ہدف = consume_slashes (ہدف);
 
-  if (is_empty_string (target))
-    return crun_make_error (err, 0, "tmpcopyup on `/` is not supported");
+  اگر (is_خالی_خانے_string (ہدف))
+    واپس crun_make_error (err, 0, "tmpcopyup on `/` is not supported");
 
-  destfd = safe_openat (get_private_data (container)->rootfsfd, rootfs, target,
+  destfd = محفوظ_openat (get_نجی_ڈیٹا (container)->rootfsfd, rootfs, ہدف,
                         O_CLOEXEC | O_DIRECTORY, 0, err);
-  if (UNLIKELY (destfd < 0))
-    return crun_error_wrap (err, "open `%s` to write for tmpcopyup", target);
+  اگر (UNLIKELY (destfd < 0))
+    واپس crun_error_wrap (err, "open `%s` to write for tmpcopyup", ہدف);
 
   // copy_recursive_fd_to_fd closes tmpfd and destfd
-  ret = copy_recursive_fd_to_fd (tmpfd, destfd, target, target, err);
+  ret = copy_recursive_fd_مقصد_fd (tmpfd, destfd, ہدف, ہدف, err);
   tmpfd = -1;
-  return ret;
+  واپس ret;
 }
 
-static int
-get_mount_label_how (const char *type, bool is_sysfs_or_proc)
+ساکن صحیح
+get_mount_label_how (ثابت حرف *type, bool is_sysfs_or_proc)
 {
-  if (is_sysfs_or_proc)
-    return LABEL_NONE;
+  اگر (is_sysfs_or_proc)
+    واپس LABEL_NONE;
 
-  if (strcmp (type, "mqueue") == 0)
-    return LABEL_XATTR;
+  اگر (strcmp (type, "mqueue") == 0)
+    واپس LABEL_XATTR;
 
-  return LABEL_MOUNT;
+  واپس LABEL_MOUNT;
 }
 
 /* The kernel does not let a mount inherited from a more privileged mount
@@ -3023,400 +3023,400 @@ get_mount_label_how (const char *type, bool is_sysfs_or_proc)
    that, so, for a container with a user namespace, return the flags of
    SOURCE that are to be kept, i.e. those not explicitly cleared by the
    mount options.  */
-static unsigned long
-get_bind_mount_locked_flags (int source_mountfd, const char *source, runtime_spec_schema_defs_mount *mount)
+ساکن غیرعلامتی طویل
+get_bind_mount_locked_flags (صحیح ماخذ_mountfd, ثابت حرف *ماخذ, runtime_spec_schema_defs_mount *mount)
 {
-  unsigned long cleared = 0;
-  struct statfs sfs;
+  غیرعلامتی طویل cleared = 0;
+  ساخت statfs sfs;
   size_t i;
-  int ret;
+  صحیح ret;
 
-  if (source_mountfd >= 0)
-    ret = fstatfs (source_mountfd, &sfs);
-  else
-    ret = statfs (source, &sfs);
-  if (UNLIKELY (ret < 0))
-    return 0;
+  اگر (ماخذ_mountfd >= 0)
+    ret = fstatfs (ماخذ_mountfd, &sfs);
+  ورنہ
+    ret = statfs (ماخذ, &sfs);
+  اگر (UNLIKELY (ret < 0))
+    واپس 0;
 
-  for (i = 0; i < mount->options_len; i++)
+  برائے (i = 0; i < mount->options_len; i++)
     {
-      const struct propagation_flags_s *prop;
+      ثابت ساخت اشاعت_flags_s *prop;
 
-      if (mount->options[i] == NULL)
-        continue;
+      اگر (mount->options[i] == تہی)
+        جاری;
 
       prop = libcrun_str2mount_flags (mount->options[i]);
-      if (prop == NULL || (prop->extra_flags & OPTION_RECURSIVE))
-        continue;
+      اگر (prop == تہی || (prop->extra_flags & OPTION_RECURSIVE))
+        جاری;
 
-      if (prop->clear)
+      اگر (prop->clear)
         cleared |= prop->flags;
-      else
+      ورنہ
         cleared &= ~prop->flags;
     }
 
-  return sfs.f_flags & (MS_RDONLY | MS_NOSUID | MS_NODEV | MS_NOEXEC) & ~cleared;
+  واپس sfs.f_flags & (MS_RDONLY | MS_NOSUID | MS_NODEV | MS_NOEXEC) & ~cleared;
 }
 
 /* If PATH is lexically inside the container rootfs ROOTFS, return the part
    of it relative to ROOTFS, otherwise NULL.  Such a bind mount source refers
    to what is in the container rootfs at the time of the mount, including the
    mounts done before it, so it cannot be opened beforehand.  */
-static const char *
-get_path_in_rootfs (const char *rootfs, const char *path)
+ساکن ثابت حرف *
+get_راستہ_اندر_rootfs (ثابت حرف *rootfs, ثابت حرف *راستہ)
 {
   size_t len;
 
-  if (rootfs == NULL || path == NULL)
-    return NULL;
+  اگر (rootfs == تہی || راستہ == تہی)
+    واپس تہی;
 
-  len = strlen (rootfs);
-  while (len > 0 && rootfs[len - 1] == '/')
+  len = لڑی_لمبائی (rootfs);
+  جب (len > 0 && rootfs[len - 1] == '/')
     len--;
 
   /* With "/" as the rootfs, every path is in it, and there is nothing to
      do differently.  */
-  if (len == 0)
-    return NULL;
+  اگر (len == 0)
+    واپس تہی;
 
-  if (strncmp (path, rootfs, len) != 0 || (path[len] != '/' && path[len] != '\0'))
-    return NULL;
+  اگر (لڑی_موازنہ (راستہ, rootfs, len) != 0 || (راستہ[len] != '/' && راستہ[len] != '\0'))
+    واپس تہی;
 
-  return consume_slashes (path + len);
+  واپس consume_slashes (راستہ + len);
 }
 
-static int
-process_single_mount (libcrun_container_t *container, const char *rootfs,
+ساکن صحیح
+process_single_mount (libcrun_container_t *container, ثابت حرف *rootfs,
                       runtime_spec_schema_defs_mount *mount,
-                      struct libcrun_fd_map *mount_fds, size_t mount_index,
-                      const char *systemd_cgroup_v1, libcrun_error_t *err)
+                      ساخت libcrun_fd_map *mount_fds, size_t mount_اشاریہ,
+                      ثابت حرف *systemd_cgroup_v1, libcrun_error_t *err)
 {
-  const char *target = consume_slashes (mount->destination);
-  cleanup_close int source_mountfd = -1;
-  cleanup_free char *data = NULL;
-  char *type;
-  char *source;
-  unsigned long flags = 0;
-  unsigned long extra_flags = 0;
-  mode_t src_mode = S_IFDIR;
-  cleanup_close int copy_from_fd = -1;
-  cleanup_close int targetfd = -1;
+  ثابت حرف *ہدف = consume_slashes (mount->destination);
+  cleanup_close صحیح ماخذ_mountfd = -1;
+  cleanup_free حرف *ڈیٹا = تہی;
+  حرف *type;
+  حرف *ماخذ;
+  غیرعلامتی طویل flags = 0;
+  غیرعلامتی طویل extra_flags = 0;
+  mode_t src_منوال = S_IFDIR;
+  cleanup_close صحیح copy_from_fd = -1;
+  cleanup_close صحیح targetfd = -1;
   bool mounted = false;
   bool is_sysfs_or_proc;
   uint64_t rec_clear = 0;
-  uint64_t rec_set = 0;
-  int no_remount = 0;
-  int ret;
+  uint64_t rec_سیٹ = 0;
+  صحیح no_remount = 0;
+  صحیح ret;
 
-  if (mount_fds)
-    source_mountfd = get_and_reset (&(mount_fds->fds[mount_index]));
+  اگر (mount_fds)
+    ماخذ_mountfd = get_and_reset (&(mount_fds->fds[mount_اشاریہ]));
 
   type = mount->type;
 
-  if (mount->options == NULL)
-    flags = get_default_flags (container, mount->destination, &data);
-  else
+  اگر (mount->options == تہی)
+    flags = get_default_flags (container, mount->destination, &ڈیٹا);
+  ورنہ
     {
       size_t j;
 
-      for (j = 0; j < mount->options_len; j++)
-        flags |= get_mount_flags_or_option (mount->options[j], flags, &extra_flags, &data, &rec_clear, &rec_set);
+      برائے (j = 0; j < mount->options_len; j++)
+        flags |= get_mount_flags_or_option (mount->options[j], flags, &extra_flags, &ڈیٹا, &rec_clear, &rec_سیٹ);
     }
 
-  if (type == NULL && (flags & MS_BIND) == 0)
-    return crun_make_error (err, 0, "invalid mount type for `%s`", mount->destination);
+  اگر (type == تہی && (flags & MS_BIND) == 0)
+    واپس crun_make_error (err, 0, "invalid mount type for `%s`", mount->destination);
 
-  if ((flags & MS_BIND) && source_mountfd < 0 && ! (extra_flags & OPTION_COPY_SYMLINK))
+  اگر ((flags & MS_BIND) && ماخذ_mountfd < 0 && ! (extra_flags & OPTION_COPY_SYMLINK))
     {
-      const char *rel_source = get_path_in_rootfs (get_private_data (container)->host_rootfs, mount->source);
+      ثابت حرف *rel_ماخذ = get_راستہ_اندر_rootfs (get_نجی_ڈیٹا (container)->host_rootfs, mount->ماخذ);
 
-      if (rel_source)
+      اگر (rel_ماخذ)
         {
-          unsigned long propagation = (flags & (MS_SHARED | MS_SLAVE | MS_UNBINDABLE)) ? 0 : MS_PRIVATE;
+          غیرعلامتی طویل اشاعت = (flags & (MS_SHARED | MS_SLAVE | MS_UNBINDABLE)) ? 0 : MS_PRIVATE;
 
-          source_mountfd = get_bind_mount (get_private_data (container)->rootfsfd, rel_source, (flags & MS_REC) != 0,
-                                           false, (extra_flags & OPTION_SRC_NOFOLLOW) != 0, propagation, err);
-          if (UNLIKELY (source_mountfd < 0))
-            return crun_error_wrap (err, "open mount source `%s`", mount->source);
+          ماخذ_mountfd = get_bind_mount (get_نجی_ڈیٹا (container)->rootfsfd, rel_ماخذ, (flags & MS_REC) != 0,
+                                           false, (extra_flags & OPTION_SRC_NOFOLLOW) != 0, اشاعت, err);
+          اگر (UNLIKELY (ماخذ_mountfd < 0))
+            واپس crun_error_wrap (err, "open mount source `%s`", mount->ماخذ);
         }
     }
 
-  if ((flags & MS_BIND) && mount->source && has_mount_flag_options (mount)
-      && (get_private_data (container)->unshare_flags & CLONE_NEWUSER))
-    flags |= get_bind_mount_locked_flags (source_mountfd, mount->source, mount);
+  اگر ((flags & MS_BIND) && mount->ماخذ && has_mount_flag_options (mount)
+      && (get_نجی_ڈیٹا (container)->unshare_flags & CLONE_NEWUSER))
+    flags |= get_bind_mount_locked_flags (ماخذ_mountfd, mount->ماخذ, mount);
 
-  if (flags & MS_BIND)
+  اگر (flags & MS_BIND)
     {
       /* A remount sets exactly the requested flags and clears any other
          one.  A bind mount without mount flag options (e.g. "bind",
          "rbind,rprivate") keeps the flags of the source, so it must not
          be remounted.  */
-      if (! has_mount_flag_options (mount))
+      اگر (! has_mount_flag_options (mount))
         no_remount = MOUNT_NO_REMOUNT;
 
-      if (path_is_slash_dev (mount->destination))
-        get_private_data (container)->mount_dev_from_host = true;
+      اگر (راستہ_is_slash_dev (mount->destination))
+        get_نجی_ڈیٹا (container)->mount_dev_from_host = true;
       /* It is used only for error messages.  */
       type = "bind";
     }
   is_sysfs_or_proc = strcmp (type, "sysfs") == 0 || strcmp (type, "proc") == 0;
 
-  if (strcmp (type, "tmpfs") == 0)
+  اگر (strcmp (type, "tmpfs") == 0)
     {
-      ret = append_tmpfs_mode_if_missing (container, mount, &data, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_tmpfs_منوال_if_missing (container, mount, &ڈیٹا, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  if (mount->source && (flags & MS_BIND))
+  اگر (mount->ماخذ && (flags & MS_BIND))
     {
-      proc_fd_path_t proc_buf;
-      const char *path = mount->source;
+      proc_fd_راستہ_t proc_buf;
+      ثابت حرف *راستہ = mount->ماخذ;
 
-      if ((extra_flags & OPTION_COPY_SYMLINK) && (extra_flags & (OPTION_SRC_NOFOLLOW | OPTION_DEST_NOFOLLOW)))
-        return crun_make_error (err, 0, "`copy-symlink` is mutually exclusive with `src-nofollow` and `dest-nofollow`");
+      اگر ((extra_flags & OPTION_COPY_SYMLINK) && (extra_flags & (OPTION_SRC_NOFOLLOW | OPTION_DEST_NOFOLLOW)))
+        واپس crun_make_error (err, 0, "`copy-symlink` is mutually exclusive with `src-nofollow` and `dest-nofollow`");
 
       bool is_cached_symlink = (extra_flags & OPTION_COPY_SYMLINK)
-                               && get_private_data (container)->copy_symlink_targets
-                               && mount_index < get_private_data (container)->n_copy_symlink_targets
-                               && get_private_data (container)->copy_symlink_targets[mount_index];
+                               && get_نجی_ڈیٹا (container)->copy_symlink_targets
+                               && mount_اشاریہ < get_نجی_ڈیٹا (container)->n_copy_symlink_targets
+                               && get_نجی_ڈیٹا (container)->copy_symlink_targets[mount_اشاریہ];
 
       /* When the source is a cached symlink, skip the pre-opened fd since
          get_bind_mount() followed the symlink and the fd points to the target.
          For regular files with copy-symlink, the pre-opened fd is still valid.  */
-      if (source_mountfd >= 0 && ! is_cached_symlink)
+      اگر (ماخذ_mountfd >= 0 && ! is_cached_symlink)
         {
-          get_self_fd_path (proc_buf, source_mountfd);
-          path = proc_buf;
+          get_self_fd_راستہ (proc_buf, ماخذ_mountfd);
+          راستہ = proc_buf;
 
-          ret = get_file_type_at (source_mountfd, &src_mode, true, NULL);
+          ret = get_file_type_at (ماخذ_mountfd, &src_منوال, true, تہی);
         }
-      else if (is_cached_symlink)
+      ورنہ اگر (is_cached_symlink)
         {
-          src_mode = S_IFLNK;
+          src_منوال = S_IFLNK;
           ret = 0;
         }
-      else if (path[0] == '/')
+      ورنہ اگر (راستہ[0] == '/')
         {
-          int old_root_fd = get_old_root_fd (get_private_data (container));
+          صحیح old_جڑ_fd = get_old_جڑ_fd (get_نجی_ڈیٹا (container));
           bool nofollow = (extra_flags & (OPTION_SRC_NOFOLLOW | OPTION_COPY_SYMLINK)) ? true : false;
 
-          if (old_root_fd >= 0)
-            ret = get_file_type_at (old_root_fd, &src_mode, nofollow, (path[1] == '\0') ? NULL : path + 1);
-          else
-            ret = get_file_type_at (AT_FDCWD, &src_mode, nofollow, path);
+          اگر (old_جڑ_fd >= 0)
+            ret = get_file_type_at (old_جڑ_fd, &src_منوال, nofollow, (راستہ[1] == '\0') ? تہی : راستہ + 1);
+          ورنہ
+            ret = get_file_type_at (AT_FDCWD, &src_منوال, nofollow, راستہ);
         }
-      else
-        ret = get_file_type (&src_mode, (extra_flags & (OPTION_SRC_NOFOLLOW | OPTION_COPY_SYMLINK)) ? true : false, path);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "cannot stat `%s`", path);
+      ورنہ
+        ret = get_file_type (&src_منوال, (extra_flags & (OPTION_SRC_NOFOLLOW | OPTION_COPY_SYMLINK)) ? true : false, راستہ);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "cannot stat `%s`", راستہ);
 
-      if (S_ISLNK (src_mode) && (extra_flags & OPTION_DEST_NOFOLLOW) && source_mountfd < 0)
+      اگر (S_ISLNK (src_منوال) && (extra_flags & OPTION_DEST_NOFOLLOW) && ماخذ_mountfd < 0)
         {
-          int bind_dirfd = AT_FDCWD;
-          const char *bind_source = mount->source;
-          int old_root_fd = get_old_root_fd (get_private_data (container));
+          صحیح bind_dirfd = AT_FDCWD;
+          ثابت حرف *bind_ماخذ = mount->ماخذ;
+          صحیح old_جڑ_fd = get_old_جڑ_fd (get_نجی_ڈیٹا (container));
 
-          if (old_root_fd >= 0 && mount->source && mount->source[0] == '/')
+          اگر (old_جڑ_fd >= 0 && mount->ماخذ && mount->ماخذ[0] == '/')
             {
-              bind_dirfd = old_root_fd;
-              bind_source = (mount->source[1] == '\0') ? "." : mount->source + 1;
+              bind_dirfd = old_جڑ_fd;
+              bind_ماخذ = (mount->ماخذ[1] == '\0') ? "." : mount->ماخذ + 1;
             }
-          ret = get_bind_mount (bind_dirfd, bind_source, true, true, extra_flags & OPTION_SRC_NOFOLLOW, MS_PRIVATE, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = get_bind_mount (bind_dirfd, bind_ماخذ, true, true, extra_flags & OPTION_SRC_NOFOLLOW, MS_PRIVATE, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
 
-          source_mountfd = ret;
+          ماخذ_mountfd = ret;
         }
     }
 
-  if (S_ISLNK (src_mode) && (extra_flags & OPTION_COPY_SYMLINK))
+  اگر (S_ISLNK (src_منوال) && (extra_flags & OPTION_COPY_SYMLINK))
     {
-      const char *cached_target = NULL;
+      ثابت حرف *cached_ہدف = تہی;
 
-      if (get_private_data (container)->copy_symlink_targets
-          && mount_index < get_private_data (container)->n_copy_symlink_targets)
-        cached_target = get_private_data (container)->copy_symlink_targets[mount_index];
+      اگر (get_نجی_ڈیٹا (container)->copy_symlink_targets
+          && mount_اشاریہ < get_نجی_ڈیٹا (container)->n_copy_symlink_targets)
+        cached_ہدف = get_نجی_ڈیٹا (container)->copy_symlink_targets[mount_اشاریہ];
 
-      ret = handle_copy_symlink (container, rootfs, mount, cached_target, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = handle_copy_symlink (container, rootfs, mount, cached_ہدف, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
       mounted = true;
     }
-  else if (is_sysfs_or_proc)
+  ورنہ اگر (is_sysfs_or_proc)
     {
-      ret = prepare_sysfs_or_proc_mount (container, target, &targetfd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = prepare_sysfs_or_proc_mount (container, ہدف, &targetfd, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
-  else
+  ورنہ
     {
-      bool is_dir = S_ISDIR (src_mode);
+      bool is_dir = S_ISDIR (src_منوال);
 
-      if (extra_flags & OPTION_DEST_NOFOLLOW)
+      اگر (extra_flags & OPTION_DEST_NOFOLLOW)
         {
           /* If dest-nofollow is specified, expect the target to exist.  */
-          ret = safe_openat (get_private_data (container)->rootfsfd, rootfs, target, O_PATH | O_NOFOLLOW | O_CLOEXEC, 0, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = محفوظ_openat (get_نجی_ڈیٹا (container)->rootfsfd, rootfs, ہدف, O_راستہ | O_NOFOLLOW | O_CLOEXEC, 0, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
           targetfd = ret;
 
-          ret = check_valid_no_follow_file_system (targetfd, target, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = check_valid_no_follow_file_system (targetfd, ہدف, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
-      else
+      ورنہ
         {
           /* Make sure any other directory/file is created and take a O_PATH reference to it.  */
-          ret = crun_safe_create_and_open_ref_at (is_dir, get_private_data (container)->rootfsfd, rootfs, target, 0755, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = crun_محفوظ_create_and_open_ref_at (is_dir, get_نجی_ڈیٹا (container)->rootfsfd, rootfs, ہدف, 0755, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
           targetfd = ret;
         }
     }
 
-  if (extra_flags & OPTION_TMPCOPYUP)
+  اگر (extra_flags & OPTION_TMPCOPYUP)
     {
-      if (strcmp (type, "tmpfs") != 0)
-        return crun_make_error (err, 0, "tmpcopyup can be used only with tmpfs");
+      اگر (strcmp (type, "tmpfs") != 0)
+        واپس crun_make_error (err, 0, "tmpcopyup can be used only with tmpfs");
 
       /* targetfd is opened with O_PATH, reopen the fd so it can read.  */
       copy_from_fd = openat (targetfd, ".", O_CLOEXEC | O_RDONLY | O_DIRECTORY);
-      if (UNLIKELY (copy_from_fd < 0))
+      اگر (UNLIKELY (copy_from_fd < 0))
         {
-          if (errno != ENOTDIR)
-            return crun_make_error (err, errno, "cannot reopen `%s`", target);
+          اگر (errno != ENOTDIR)
+            واپس crun_make_error (err, errno, "cannot reopen `%s`", ہدف);
         }
     }
 
-  source = mount->source ? mount->source : type;
+  ماخذ = mount->ماخذ ? mount->ماخذ : type;
 
   /* Check if there is already a mount for the requested file system.  */
-  if (! mounted && source_mountfd >= 0)
+  اگر (! mounted && ماخذ_mountfd >= 0)
     {
-      ret = fs_move_mount_to (source_mountfd, targetfd, NULL);
-      if (LIKELY (ret == 0))
+      ret = fs_move_mount_مقصد (ماخذ_mountfd, targetfd, تہی);
+      اگر (LIKELY (ret == 0))
         {
-          unsigned long remaining_flags = flags & ~MS_BIND;
+          غیرعلامتی طویل بقایا_flags = flags & ~MS_BIND;
 
           /* A remount is needed not only to set some flags, but also to
              clear the ones set on the source (e.g. "bind,dev" on a nodev
              source), in which case remaining_flags might be empty.  */
-          if (remaining_flags || has_mount_flag_options (mount))
+          اگر (بقایا_flags || has_mount_flag_options (mount))
             {
-              ret = do_mount (container, NULL, source_mountfd, target, NULL, remaining_flags, data, LABEL_NONE | no_remount, err);
-              if (UNLIKELY (ret < 0))
-                return ret;
+              ret = do_mount (container, تہی, ماخذ_mountfd, ہدف, تہی, بقایا_flags, ڈیٹا, LABEL_NONE | no_remount, err);
+              اگر (UNLIKELY (ret < 0))
+                واپس ret;
             }
 
           mounted = true;
 
-          if (is_empty_string (target))
+          اگر (is_خالی_خانے_string (ہدف))
             {
-              int new_rootfsfd = open (rootfs, O_PATH | O_CLOEXEC);
-              if (UNLIKELY (new_rootfsfd < 0))
-                return crun_make_error (err, errno, "reopen rootfs after mount on /");
+              صحیح new_rootfsfd = open (rootfs, O_راستہ | O_CLOEXEC);
+              اگر (UNLIKELY (new_rootfsfd < 0))
+                واپس crun_make_error (err, errno, "reopen rootfs after mount on /");
 
-              TEMP_FAILURE_RETRY (close (get_private_data (container)->rootfsfd));
-              get_private_data (container)->rootfsfd = new_rootfsfd;
+              عارضی_FAILURE_RETRY (close (get_نجی_ڈیٹا (container)->rootfsfd));
+              get_نجی_ڈیٹا (container)->rootfsfd = new_rootfsfd;
             }
         }
-      else if (get_private_data (container)->delayed_pidns_fork && strcmp (type, "proc") == 0)
+      ورنہ اگر (get_نجی_ڈیٹا (container)->delayed_pidns_fork && strcmp (type, "proc") == 0)
         {
           /* The process is not in the container PID namespace yet, so
              mount(2) would create a proc instance for the wrong one.  */
-          return crun_make_error (err, 0, "the proc mount `%s` was not opened in the target PID namespace", target);
+          واپس crun_make_error (err, 0, "the proc mount `%s` was not opened in the target PID namespace", ہدف);
         }
-      else if (get_private_data (container)->host_root_switched)
+      ورنہ اگر (get_نجی_ڈیٹا (container)->host_جڑ_switched)
         {
           /* The host root is unreachable now -- even through a fd, since
              mount(2) requires the source to live in the current mount
              namespace.  The path-based fallback below would resolve SOURCE
              inside the container and bind the wrong tree.  */
-          return crun_make_error (err, errno, "move_mount `%s` to `%s`", source, target);
+          واپس crun_make_error (err, errno, "move_mount `%s` to `%s`", ماخذ, ہدف);
         }
-      else if (errno != ENOSYS)
+      ورنہ اگر (errno != ENOSYS)
         {
           /* ENOSYS only means the kernel lacks the new mount API.  Anything
              else is worth reporting: it is otherwise invisible, and it decides
              whether the mount is set up from the pre-opened fd or from the
              source path.  */
           libcrun_warning ("move_mount `%s` to `%s` failed, falling back to mount(2): %s",
-                           source, target, strerror (errno));
+                           ماخذ, ہدف, strerror (errno));
         }
     }
 
-  if (! mounted)
+  اگر (! mounted)
     {
-      if (systemd_cgroup_v1 && strcmp (mount->destination, systemd_cgroup_v1) == 0)
+      اگر (systemd_cgroup_v1 && strcmp (mount->destination, systemd_cgroup_v1) == 0)
         {
           /* Override the cgroup mount with a single named cgroup name=systemd.  */
-          ret = do_mount_cgroup_systemd_v1 (container, source, targetfd, target, flags, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = do_mount_cgroup_systemd_v1 (container, ماخذ, targetfd, ہدف, flags, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
-      else if (strcmp (type, "cgroup") == 0)
+      ورنہ اگر (strcmp (type, "cgroup") == 0)
         {
-          ret = do_mount_cgroup (container, source, targetfd, target, flags, data, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = do_mount_cgroup (container, ماخذ, targetfd, ہدف, flags, ڈیٹا, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
-      else
+      ورنہ
         {
-          int extra_flags = get_mount_label_how (type, is_sysfs_or_proc) | no_remount;
+          صحیح extra_flags = get_mount_label_how (type, is_sysfs_or_proc) | no_remount;
 
-          ret = do_mount (container, source, targetfd, target, type, flags, data, extra_flags, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = do_mount (container, ماخذ, targetfd, ہدف, type, flags, ڈیٹا, extra_flags, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
     }
 
-  if (copy_from_fd >= 0)
+  اگر (copy_from_fd >= 0)
     {
       // handle_tmpcopyup closes copy_from_fd
-      ret = handle_tmpcopyup (container, rootfs, target, copy_from_fd, err);
+      ret = handle_tmpcopyup (container, rootfs, ہدف, copy_from_fd, err);
       copy_from_fd = -1;
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  if (rec_clear || rec_set)
+  اگر (rec_clear || rec_سیٹ)
     {
-      const bool is_dir = S_ISDIR (src_mode);
-      cleanup_close int dfd = -1;
+      ثابت bool is_dir = S_ISDIR (src_منوال);
+      cleanup_close صحیح dfd = -1;
 
-      dfd = safe_openat (get_private_data (container)->rootfsfd, rootfs, target, O_RDONLY | O_PATH | O_CLOEXEC | (is_dir ? O_DIRECTORY : 0), 0, err);
-      if (UNLIKELY (dfd < 0))
-        return crun_error_wrap (err, "open mount target `/%s`", target);
+      dfd = محفوظ_openat (get_نجی_ڈیٹا (container)->rootfsfd, rootfs, ہدف, O_RDONLY | O_راستہ | O_CLOEXEC | (is_dir ? O_DIRECTORY : 0), 0, err);
+      اگر (UNLIKELY (dfd < 0))
+        واپس crun_error_wrap (err, "open mount target `/%s`", ہدف);
 
-      ret = do_mount_setattr (true, target, dfd, rec_clear, rec_set, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = do_mount_setattr (true, ہدف, dfd, rec_clear, rec_سیٹ, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  return 0;
+  واپس 0;
 }
 
-static int
-do_mounts (libcrun_container_t *container, const char *rootfs, libcrun_error_t *err)
+ساکن صحیح
+do_mounts (libcrun_container_t *container, ثابت حرف *rootfs, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  const char *systemd_cgroup_v1 = get_force_cgroup_v1_annotation (container);
-  cleanup_close_map struct libcrun_fd_map *mount_fds = NULL;
+  ثابت حرف *systemd_cgroup_v1 = get_force_cgroup_v1_annotation (container);
+  cleanup_close_map ساخت libcrun_fd_map *mount_fds = تہی;
   size_t i;
-  int ret;
+  صحیح ret;
 
-  mount_fds = get_private_data (container)->mount_fds;
-  get_private_data (container)->mount_fds = NULL;
+  mount_fds = get_نجی_ڈیٹا (container)->mount_fds;
+  get_نجی_ڈیٹا (container)->mount_fds = تہی;
 
-  for (i = 0; i < def->mounts_len; i++)
+  برائے (i = 0; i < def->mounts_len; i++)
     {
       ret = process_single_mount (container, rootfs, def->mounts[i], mount_fds, i, systemd_cgroup_v1, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
-  return 0;
+  واپس 0;
 }
 
 /*
@@ -3425,252 +3425,252 @@ do_mounts (libcrun_container_t *container, const char *rootfs, libcrun_error_t *
  *  Allows external plugins and handlers to perform bind `mounts` on container.
  *  returns: 0 if successful anything else states `error` and configures `err` with relevant error.
  */
-int
-libcrun_container_do_bind_mount (libcrun_container_t *container, char *mount_source, char *mount_destination, char **mount_options, size_t mount_options_len, libcrun_error_t *err)
+صحیح
+libcrun_container_do_bind_mount (libcrun_container_t *container, حرف *mount_ماخذ, حرف *mount_destination, حرف **mount_options, size_t mount_options_len, libcrun_error_t *err)
 {
-  const char *target = consume_slashes (mount_destination);
-  cleanup_free char *data = NULL;
-  unsigned long flags = 0;
-  unsigned long extra_flags = 0;
-  cleanup_close int targetfd = -1;
-  int is_dir = 1;
+  ثابت حرف *ہدف = consume_slashes (mount_destination);
+  cleanup_free حرف *ڈیٹا = تہی;
+  غیرعلامتی طویل flags = 0;
+  غیرعلامتی طویل extra_flags = 0;
+  cleanup_close صحیح targetfd = -1;
+  صحیح is_dir = 1;
   uint64_t rec_clear = 0;
-  uint64_t rec_set = 0;
-  const char *rootfs = get_private_data (container)->rootfs;
-  int ret;
+  uint64_t rec_سیٹ = 0;
+  ثابت حرف *rootfs = get_نجی_ڈیٹا (container)->rootfs;
+  صحیح ret;
 
-  if ((get_private_data (container)->rootfsfd < 0) || (rootfs == NULL))
-    return crun_make_error (err, 0, "invalid rootfs state while performing bind mount from external plugin or handler");
+  اگر ((get_نجی_ڈیٹا (container)->rootfsfd < 0) || (rootfs == تہی))
+    واپس crun_make_error (err, 0, "invalid rootfs state while performing bind mount from external plugin or handler");
 
-  if (mount_options == NULL)
-    flags = get_default_flags (container, mount_destination, &data);
-  else
+  اگر (mount_options == تہی)
+    flags = get_default_flags (container, mount_destination, &ڈیٹا);
+  ورنہ
     {
       size_t j;
 
-      for (j = 0; j < mount_options_len; j++)
-        flags |= get_mount_flags_or_option (mount_options[j], flags, &extra_flags, &data, &rec_clear, &rec_set);
+      برائے (j = 0; j < mount_options_len; j++)
+        flags |= get_mount_flags_or_option (mount_options[j], flags, &extra_flags, &ڈیٹا, &rec_clear, &rec_سیٹ);
     }
 
-  if (path_is_slash_dev (mount_destination))
-    get_private_data (container)->mount_dev_from_host = true;
+  اگر (راستہ_is_slash_dev (mount_destination))
+    get_نجی_ڈیٹا (container)->mount_dev_from_host = true;
 
-  if (mount_source && (flags & MS_BIND))
+  اگر (mount_ماخذ && (flags & MS_BIND))
     {
-      is_dir = crun_dir_p (mount_source, false, err);
-      if (UNLIKELY (is_dir < 0))
-        return is_dir;
+      is_dir = crun_dir_p (mount_ماخذ, false, err);
+      اگر (UNLIKELY (is_dir < 0))
+        واپس is_dir;
     }
 
   /* Make sure any other directory/file is created and take a O_PATH reference to it.  */
-  ret = crun_safe_create_and_open_ref_at (is_dir, get_private_data (container)->rootfsfd, rootfs, target, 0755, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = crun_محفوظ_create_and_open_ref_at (is_dir, get_نجی_ڈیٹا (container)->rootfsfd, rootfs, ہدف, 0755, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   targetfd = ret;
 
-  ret = do_mount (container, mount_source, targetfd, target, "bind", flags, data, LABEL_MOUNT, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = do_mount (container, mount_ماخذ, targetfd, ہدف, "bind", flags, ڈیٹا, LABEL_MOUNT, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return 0;
+  واپس 0;
 }
 
 /*
   Open a fd to the NOTIFY_SOCKET end on the host.  If CONTAINER is NULL, then CONTEXT
   is used to retrieve the path to the socket.
 */
-int
-get_notify_fd (libcrun_context_t *context, libcrun_container_t *container, int *notify_socket_out, libcrun_error_t *err)
+صحیح
+get_notify_fd (libcrun_context_t *context, libcrun_container_t *container, صحیح *notify_socket_برآمد, libcrun_error_t *err)
 {
-#ifdef HAVE_SYSTEMD
-  cleanup_close int notify_fd = -1;
-  cleanup_free char *host_notify_socket_path = NULL;
-  cleanup_free char *state_dir = NULL;
-  char *host_path = NULL;
-  int ret;
+#اگر_تعریف_شدہ HAVE_SYSTEMD
+  cleanup_close صحیح notify_fd = -1;
+  cleanup_free حرف *host_notify_socket_راستہ = تہی;
+  cleanup_free حرف *state_dir = تہی;
+  حرف *host_راستہ = تہی;
+  صحیح ret;
 
-  if (container && get_private_data (container)->host_notify_socket_path)
+  اگر (container && get_نجی_ڈیٹا (container)->host_notify_socket_راستہ)
     {
-      const char *parent_dir;
+      ثابت حرف *والد_dir;
 
-      parent_dir = get_private_data (container)->host_notify_socket_path;
+      والد_dir = get_نجی_ڈیٹا (container)->host_notify_socket_راستہ;
 
-      ret = append_paths (&host_notify_socket_path, err, parent_dir, "notify", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&host_notify_socket_راستہ, err, والد_dir, "notify", تہی);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      host_path = host_notify_socket_path;
+      host_راستہ = host_notify_socket_راستہ;
     }
 
-  *notify_socket_out = -1;
+  *notify_socket_برآمد = -1;
 
-  if (host_path == NULL)
+  اگر (host_راستہ == تہی)
     {
-      ret = libcrun_get_state_directory (&state_dir, context->state_root, context->id, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_get_state_directory (&state_dir, context->state_جڑ, context->id, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      ret = append_paths (&host_notify_socket_path, err, state_dir, "notify/notify", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&host_notify_socket_راستہ, err, state_dir, "notify/notify", تہی);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      host_path = host_notify_socket_path;
+      host_راستہ = host_notify_socket_راستہ;
     }
 
-  notify_fd = open_unix_domain_socket (host_path, 1, err);
-  if (UNLIKELY (notify_fd < 0))
-    return notify_fd;
+  notify_fd = open_unix_domain_socket (host_راستہ, 1, err);
+  اگر (UNLIKELY (notify_fd < 0))
+    واپس notify_fd;
 
-  if (UNLIKELY (chmod (host_path, 0777) < 0))
-    return crun_make_error (err, errno, "chmod `%s`", host_path);
+  اگر (UNLIKELY (chmod (host_راستہ, 0777) < 0))
+    واپس crun_make_error (err, errno, "chmod `%s`", host_راستہ);
 
 #  ifdef HAVE_FGETXATTR
-  if (container && container->container_def->linux && container->container_def->linux->mount_label)
+  اگر (container && container->container_def->linux && container->container_def->linux->mount_label)
     {
       /* Ignore the error. The worst that can happen is that the container fails to notify it is ready.  */
-      (void) setxattr (host_path, "security.selinux", container->container_def->linux->mount_label,
-                       strlen (container->container_def->linux->mount_label), 0);
+      (خالی) setxattr (host_راستہ, "security.selinux", container->container_def->linux->mount_label,
+                       لڑی_لمبائی (container->container_def->linux->mount_label), 0);
     }
 #  endif
 
-  *notify_socket_out = get_and_reset (&notify_fd);
-  return 1;
-#else
-  (void) context;
-  (void) container;
-  (void) err;
-  *notify_socket_out = -1;
-  return 0;
-#endif
+  *notify_socket_برآمد = get_and_reset (&notify_fd);
+  واپس 1;
+#ورنہ
+  (خالی) context;
+  (خالی) container;
+  (خالی) err;
+  *notify_socket_برآمد = -1;
+  واپس 0;
+#اگر_ختم
 }
 
-#ifdef HAVE_SYSTEMD
-static int
+#اگر_تعریف_شدہ HAVE_SYSTEMD
+ساکن صحیح
 do_notify_socket (libcrun_container_t *container, libcrun_error_t *err)
 {
-  int ret;
-  const char *notify_socket = container->context->notify_socket;
-  cleanup_free char *host_notify_socket_path = NULL;
-  cleanup_free char *container_notify_socket_path = NULL;
-  cleanup_free char *state_dir = NULL;
-  uid_t container_root_uid = -1;
-  gid_t container_root_gid = -1;
-  int notify_socket_tree_fd;
+  صحیح ret;
+  ثابت حرف *notify_socket = container->context->notify_socket;
+  cleanup_free حرف *host_notify_socket_راستہ = تہی;
+  cleanup_free حرف *container_notify_socket_راستہ = تہی;
+  cleanup_free حرف *state_dir = تہی;
+  uid_t container_جڑ_uid = -1;
+  gid_t container_جڑ_gid = -1;
+  صحیح notify_socket_درخت_fd;
 
-  if (notify_socket == NULL)
-    return 0;
+  اگر (notify_socket == تہی)
+    واپس 0;
 
   ret = libcrun_get_state_directory (&state_dir,
-                                     (container->context ? container->context->state_root : NULL),
-                                     (container->context ? container->context->id : NULL), err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+                                     (container->context ? container->context->state_جڑ : تہی),
+                                     (container->context ? container->context->id : تہی), err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = append_paths (&container_notify_socket_path, err, "/", notify_socket, "notify", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&container_notify_socket_راستہ, err, "/", notify_socket, "notify", تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = append_paths (&host_notify_socket_path, err, state_dir, "notify", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&host_notify_socket_راستہ, err, state_dir, "notify", تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = mkdir (host_notify_socket_path, 0700);
-  if (ret < 0)
-    return crun_make_error (err, errno, "mkdir `%s`", host_notify_socket_path);
+  ret = mkdir (host_notify_socket_راستہ, 0700);
+  اگر (ret < 0)
+    واپس crun_make_error (err, errno, "mkdir `%s`", host_notify_socket_راستہ);
 
-  if (get_private_data (container)->unshare_flags & CLONE_NEWUSER)
+  اگر (get_نجی_ڈیٹا (container)->unshare_flags & CLONE_NEWUSER)
     {
-      get_root_in_the_userns (container->container_def, 0, 0, &container_root_uid, &container_root_gid);
-      if (container_root_uid != ((uid_t) -1) && container_root_gid != ((gid_t) -1))
+      get_جڑ_اندر_the_userns (container->container_def, 0, 0, &container_جڑ_uid, &container_جڑ_gid);
+      اگر (container_جڑ_uid != ((uid_t) -1) && container_جڑ_gid != ((gid_t) -1))
         {
-          ret = chown (host_notify_socket_path, container_root_uid, container_root_gid);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "chown `%s` to `%d:%d`", host_notify_socket_path, container_root_uid, container_root_gid);
+          ret = chown (host_notify_socket_راستہ, container_جڑ_uid, container_جڑ_gid);
+          اگر (UNLIKELY (ret < 0))
+            واپس crun_make_error (err, errno, "chown `%s` to `%d:%d`", host_notify_socket_راستہ, container_جڑ_uid, container_جڑ_gid);
         }
     }
 
-  notify_socket_tree_fd = syscall_open_tree (AT_FDCWD, host_notify_socket_path, OPEN_TREE_CLONE | AT_RECURSIVE | OPEN_TREE_CLOEXEC);
-  if (notify_socket_tree_fd >= 0)
+  notify_socket_درخت_fd = syscall_open_درخت (AT_FDCWD, host_notify_socket_راستہ, OPEN_TREE_CLONE | AT_RECURSIVE | OPEN_TREE_CLOEXEC);
+  اگر (notify_socket_درخت_fd >= 0)
     /* open_tree worked */
-    get_private_data (container)->notify_socket_tree_fd = notify_socket_tree_fd;
-  else if (errno == EPERM)
+    get_نجی_ڈیٹا (container)->notify_socket_درخت_fd = notify_socket_درخت_fd;
+  ورنہ اگر (errno == EPERM)
     /* this can happen when trying to run a rootless container; this function is called
        in the original namespace where the caller is _not_ CAP_SYS_ADMIN - in that case,
        do nothing, because the bind mount of host_notify_socket_path directly should succeed
        since it will be readable by the container user. */
     ;
-  else if (errno == ENOSYS)
+  ورنہ اگر (errno == ENOSYS)
     /* if open_tree(2) is not available, do nothing; we will try mount(2) in do_finalize_notify_socket */
     ;
-  else
+  ورنہ
     /* some other error */
-    return crun_make_error (err, errno, "open_tree `%s`", host_notify_socket_path);
+    واپس crun_make_error (err, errno, "open_tree `%s`", host_notify_socket_راستہ);
 
-  get_private_data (container)->host_notify_socket_path = host_notify_socket_path;
-  get_private_data (container)->container_notify_socket_path = container_notify_socket_path;
-  host_notify_socket_path = container_notify_socket_path = NULL;
-  return 0;
+  get_نجی_ڈیٹا (container)->host_notify_socket_راستہ = host_notify_socket_راستہ;
+  get_نجی_ڈیٹا (container)->container_notify_socket_راستہ = container_notify_socket_راستہ;
+  host_notify_socket_راستہ = container_notify_socket_راستہ = تہی;
+  واپس 0;
 }
-#endif
+#اگر_ختم
 
 /* Bind mount the notify socket directory into the rootfs.  It must run
    before pivot_root, while the host path is still reachable for the
    mount(2) fallback, and the destination is resolved inside the rootfs so
    that a symlink in the container image cannot point it elsewhere.  */
-static int
-do_finalize_notify_socket (libcrun_container_t *container, const char *rootfs, libcrun_error_t *err)
+ساکن صحیح
+do_finalize_notify_socket (libcrun_container_t *container, ثابت حرف *rootfs, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_free char *host_notify_socket_path = NULL;
-  cleanup_free char *container_notify_socket_path = NULL;
-  cleanup_free char *container_notify_socket_path_dir_alloc = NULL;
-  const char *container_notify_socket_path_dir = NULL;
-  cleanup_close int notify_socket_tree_fd = -1;
-  cleanup_close int targetfd = -1;
-  int did_mount_with_move_mount = 0;
+  صحیح ret;
+  cleanup_free حرف *host_notify_socket_راستہ = تہی;
+  cleanup_free حرف *container_notify_socket_راستہ = تہی;
+  cleanup_free حرف *container_notify_socket_راستہ_dir_alloc = تہی;
+  ثابت حرف *container_notify_socket_راستہ_dir = تہی;
+  cleanup_close صحیح notify_socket_درخت_fd = -1;
+  cleanup_close صحیح targetfd = -1;
+  صحیح did_mount_with_move_mount = 0;
 
-  host_notify_socket_path = get_private_data (container)->host_notify_socket_path;
-  get_private_data (container)->host_notify_socket_path = NULL;
+  host_notify_socket_راستہ = get_نجی_ڈیٹا (container)->host_notify_socket_راستہ;
+  get_نجی_ڈیٹا (container)->host_notify_socket_راستہ = تہی;
 
-  container_notify_socket_path = get_private_data (container)->container_notify_socket_path;
-  get_private_data (container)->container_notify_socket_path = NULL;
+  container_notify_socket_راستہ = get_نجی_ڈیٹا (container)->container_notify_socket_راستہ;
+  get_نجی_ڈیٹا (container)->container_notify_socket_راستہ = تہی;
 
-  if (host_notify_socket_path == NULL || container_notify_socket_path == NULL)
-    return 0;
+  اگر (host_notify_socket_راستہ == تہی || container_notify_socket_راستہ == تہی)
+    واپس 0;
 
-  if (rootfs == NULL)
+  اگر (rootfs == تہی)
     rootfs = "/";
 
-  container_notify_socket_path_dir_alloc = xstrdup (container_notify_socket_path);
-  container_notify_socket_path_dir = consume_slashes (dirname (container_notify_socket_path_dir_alloc));
+  container_notify_socket_راستہ_dir_alloc = xstrdup (container_notify_socket_راستہ);
+  container_notify_socket_راستہ_dir = consume_slashes (dirname (container_notify_socket_راستہ_dir_alloc));
 
   /* libcrun_set_mounts does not open the rootfs when there are no mounts.  */
-  if (get_private_data (container)->rootfsfd < 0)
+  اگر (get_نجی_ڈیٹا (container)->rootfsfd < 0)
     {
-      ret = open (rootfs, O_PATH | O_CLOEXEC);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "open `%s`", rootfs);
+      ret = open (rootfs, O_راستہ | O_CLOEXEC);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "open `%s`", rootfs);
 
-      get_private_data (container)->rootfsfd = ret;
-      get_private_data (container)->rootfs = rootfs;
+      get_نجی_ڈیٹا (container)->rootfsfd = ret;
+      get_نجی_ڈیٹا (container)->rootfs = rootfs;
     }
 
-  ret = crun_safe_create_and_open_ref_at (true, get_private_data (container)->rootfsfd, rootfs,
-                                          container_notify_socket_path_dir, 0755, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = crun_محفوظ_create_and_open_ref_at (true, get_نجی_ڈیٹا (container)->rootfsfd, rootfs,
+                                          container_notify_socket_راستہ_dir, 0755, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   targetfd = ret;
 
-  notify_socket_tree_fd = get_private_data (container)->notify_socket_tree_fd;
+  notify_socket_درخت_fd = get_نجی_ڈیٹا (container)->notify_socket_درخت_fd;
   /* the FD will be unconditionally closed at the end of this function due to cleanup_close above */
-  get_private_data (container)->notify_socket_tree_fd = -1;
+  get_نجی_ڈیٹا (container)->notify_socket_درخت_fd = -1;
 
-  if (notify_socket_tree_fd >= 0)
+  اگر (notify_socket_درخت_fd >= 0)
     {
-      ret = fs_move_mount_to (notify_socket_tree_fd, targetfd, NULL);
-      if (ret >= 0)
+      ret = fs_move_mount_مقصد (notify_socket_درخت_fd, targetfd, تہی);
+      اگر (ret >= 0)
         {
           /* if move_mount(2) worked, make sure we don't try mount(2) */
           did_mount_with_move_mount = 1;
@@ -3680,413 +3680,413 @@ do_finalize_notify_socket (libcrun_container_t *container, const char *rootfs, l
              fallback below does.  TARGETFD is now underneath the new mount,
              so reopen the target.  */
           close_and_reset (&targetfd);
-          targetfd = open_mount_target (container, container_notify_socket_path_dir, err);
-          if (UNLIKELY (targetfd < 0))
-            return targetfd;
+          targetfd = open_mount_ہدف (container, container_notify_socket_راستہ_dir, err);
+          اگر (UNLIKELY (targetfd < 0))
+            واپس targetfd;
 
-          ret = do_mount (container, NULL, targetfd, container_notify_socket_path_dir, NULL,
-                          MS_REC | MS_PRIVATE, NULL, LABEL_NONE, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = do_mount (container, تہی, targetfd, container_notify_socket_راستہ_dir, تہی,
+                          MS_REC | MS_PRIVATE, تہی, LABEL_NONE, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
-      else if (errno == ENOSYS)
+      ورنہ اگر (errno == ENOSYS)
         /* do nothing; we will try mount(2) next */
         ;
-      else
-        return crun_make_error (err, errno, "move_mount `%d` to `%s`", notify_socket_tree_fd,
-                                container_notify_socket_path_dir);
+      ورنہ
+        واپس crun_make_error (err, errno, "move_mount `%d` to `%s`", notify_socket_درخت_fd,
+                                container_notify_socket_راستہ_dir);
     }
 
-  if (! did_mount_with_move_mount)
+  اگر (! did_mount_with_move_mount)
     {
-      ret = do_mount (container, host_notify_socket_path, targetfd, container_notify_socket_path_dir, NULL,
-                      MS_BIND | MS_REC | MS_PRIVATE, NULL, LABEL_MOUNT, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = do_mount (container, host_notify_socket_راستہ, targetfd, container_notify_socket_راستہ_dir, تہی,
+                      MS_BIND | MS_REC | MS_PRIVATE, تہی, LABEL_MOUNT, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  return 0;
+  واپس 0;
 }
 
-static int
-make_parent_mount_private (const char *rootfs, libcrun_error_t *err)
+ساکن صحیح
+make_والد_mount_نجی (ثابت حرف *rootfs, libcrun_error_t *err)
 {
-  cleanup_close int rootfsfd = -1;
-  struct stat prev_st;
-  proc_fd_path_t proc_path;
+  cleanup_close صحیح rootfsfd = -1;
+  ساخت stat پچھلا_st;
+  proc_fd_راستہ_t proc_راستہ;
 
   /* rootfs could be a relative path.  */
-  rootfsfd = open (rootfs, O_PATH | O_CLOEXEC);
-  if (UNLIKELY (rootfsfd < 0))
-    return crun_make_error (err, errno, "open `%s`", rootfs);
+  rootfsfd = open (rootfs, O_راستہ | O_CLOEXEC);
+  اگر (UNLIKELY (rootfsfd < 0))
+    واپس crun_make_error (err, errno, "open `%s`", rootfs);
 
-  if (UNLIKELY (fstat (rootfsfd, &prev_st) < 0))
-    return crun_make_error (err, errno, "fstat `%s`", rootfs);
+  اگر (UNLIKELY (fstat (rootfsfd, &پچھلا_st) < 0))
+    واپس crun_make_error (err, errno, "fstat `%s`", rootfs);
 
-  for (;;)
+  برائے (;;)
     {
-      struct stat cur_st;
-      libcrun_error_t tmp_err = NULL;
-      int ret;
-      cleanup_close int parentfd = -1;
+      ساخت stat cur_st;
+      libcrun_error_t tmp_err = تہی;
+      صحیح ret;
+      cleanup_close صحیح parentfd = -1;
 
       ret = do_mount_setattr (false, rootfs, rootfsfd, 0, MS_PRIVATE, &tmp_err);
-      if (ret == 0)
-        return 0;
+      اگر (ret == 0)
+        واپس 0;
       crun_error_release (&tmp_err);
 
-      get_proc_self_fd_path (proc_path, rootfsfd);
-      ret = mount (NULL, proc_path, NULL, MS_PRIVATE, NULL);
-      if (ret == 0)
-        return 0;
+      get_proc_self_fd_راستہ (proc_راستہ, rootfsfd);
+      ret = mount (تہی, proc_راستہ, تہی, MS_PRIVATE, تہی);
+      اگر (ret == 0)
+        واپس 0;
 
-      parentfd = openat (rootfsfd, "..", O_PATH | O_CLOEXEC);
-      if (parentfd < 0)
+      parentfd = openat (rootfsfd, "..", O_راستہ | O_CLOEXEC);
+      اگر (parentfd < 0)
         {
-          int saved_errno = errno;
+          صحیح saved_errno = errno;
           ret = faccessat (rootfsfd, "..", X_OK, AT_EACCESS);
-          if (ret != 0)
-            return crun_make_error (err, EACCES, "make `%s` private: a component is not accessible", rootfs);
-          return crun_make_error (err, saved_errno, "make `%s` private: cannot open component", rootfs);
+          اگر (ret != 0)
+            واپس crun_make_error (err, EACCES, "make `%s` private: a component is not accessible", rootfs);
+          واپس crun_make_error (err, saved_errno, "make `%s` private: cannot open component", rootfs);
         }
 
-      if (UNLIKELY (fstat (parentfd, &cur_st) < 0))
-        return crun_make_error (err, errno, "fstat parent of `%s`", rootfs);
+      اگر (UNLIKELY (fstat (parentfd, &cur_st) < 0))
+        واپس crun_make_error (err, errno, "fstat parent of `%s`", rootfs);
 
       /* Reached the root of the file system: ".." points to itself.  */
-      if (cur_st.st_dev == prev_st.st_dev && cur_st.st_ino == prev_st.st_ino)
-        break;
+      اگر (cur_st.st_dev == پچھلا_st.st_dev && cur_st.st_ino == پچھلا_st.st_ino)
+        توڑو;
 
-      prev_st = cur_st;
+      پچھلا_st = cur_st;
       close_and_reset (&rootfsfd);
       rootfsfd = get_and_reset (&parentfd);
     }
 
-  return crun_make_error (err, 0, "make `%s` private", rootfs);
+  واپس crun_make_error (err, 0, "make `%s` private", rootfs);
 }
 
-int
-libcrun_set_mounts (struct container_entrypoint_s *entrypoint_args, libcrun_container_t *container, const char *rootfs, set_mounts_cb_t cb, void *cb_data, libcrun_error_t *err)
+صحیح
+libcrun_سیٹ_mounts (ساخت container_entrypoint_s *entrypoint_دلائل, libcrun_container_t *container, ثابت حرف *rootfs, سیٹ_mounts_cb_t cb, خالی *cb_ڈیٹا, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  int is_user_ns = 0;
-  int ret = 0;
+  صحیح is_user_ns = 0;
+  صحیح ret = 0;
 
-  if (rootfs == NULL || def->mounts == NULL)
-    return 0;
+  اگر (rootfs == تہی || def->mounts == تہی)
+    واپس 0;
 
-  ret = open (rootfs, O_PATH | O_CLOEXEC);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "open `%s`", rootfs);
+  ret = open (rootfs, O_راستہ | O_CLOEXEC);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "open `%s`", rootfs);
 
-  get_private_data (container)->rootfsfd = ret;
-  get_private_data (container)->rootfs = rootfs;
+  get_نجی_ڈیٹا (container)->rootfsfd = ret;
+  get_نجی_ڈیٹا (container)->rootfs = rootfs;
 
   // configure handler mounts
-  ret = libcrun_container_notify_handler (entrypoint_args, HANDLER_CONFIGURE_MOUNTS, container, rootfs, err);
-  if (UNLIKELY (ret < 0))
-    return crun_error_wrap (err, "failed configuring mounts for handler at phase: HANDLER_CONFIGURE_MOUNTS");
+  ret = libcrun_container_notify_handler (entrypoint_دلائل, HANDLER_CONFIGURE_MOUNTS, container, rootfs, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_error_wrap (err, "failed configuring mounts for handler at phase: HANDLER_CONFIGURE_MOUNTS");
 
-  if (def->root->readonly)
+  اگر (def->جڑ->readonly)
     {
-      struct remount_s *r;
-      unsigned long remount_flags = MS_REMOUNT | MS_BIND | MS_RDONLY;
-      int fd;
+      ساخت remount_s *r;
+      غیرعلامتی طویل remount_flags = MS_REMOUNT | MS_BIND | MS_RDONLY;
+      صحیح fd;
 
-      fd = dup (get_private_data (container)->rootfsfd);
-      if (UNLIKELY (fd < 0))
-        return crun_make_error (err, errno, "dup fd for `%s`", rootfs);
+      fd = dup (get_نجی_ڈیٹا (container)->rootfsfd);
+      اگر (UNLIKELY (fd < 0))
+        واپس crun_make_error (err, errno, "dup fd for `%s`", rootfs);
 
-      r = make_remount (fd, rootfs, remount_flags, NULL, get_private_data (container)->remounts);
-      get_private_data (container)->remounts = r;
+      r = make_remount (fd, rootfs, remount_flags, تہی, get_نجی_ڈیٹا (container)->remounts);
+      get_نجی_ڈیٹا (container)->remounts = r;
     }
 
   /* Mounts are already done before pivot_root in setup_mount_namespace.  */
 
-  is_user_ns = (get_private_data (container)->unshare_flags & CLONE_NEWUSER);
-  if (! is_user_ns)
+  is_user_ns = (get_نجی_ڈیٹا (container)->unshare_flags & CLONE_NEWUSER);
+  اگر (! is_user_ns)
     {
-      is_user_ns = check_running_in_user_namespace (err);
-      if (UNLIKELY (is_user_ns < 0))
-        return is_user_ns;
+      is_user_ns = check_running_اندر_user_namespace (err);
+      اگر (UNLIKELY (is_user_ns < 0))
+        واپس is_user_ns;
     }
 
-  if (! get_private_data (container)->mount_dev_from_host)
+  اگر (! get_نجی_ڈیٹا (container)->mount_dev_from_host)
     {
       ret = create_missing_devs (container, is_user_ns ? true : false, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
   /* Notify the callback after all the mounts are ready but before making them read-only.  */
-  if (cb)
+  اگر (cb)
     {
-      ret = cb (cb_data, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = cb (cb_ڈیٹا, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  if (def->process && def->process->cwd)
+  اگر (def->process && def->process->cwd)
     {
-      libcrun_error_t tmp_err = NULL;
-      const char *rel_cwd = consume_slashes (def->process->cwd);
+      libcrun_error_t tmp_err = تہی;
+      ثابت حرف *rel_cwd = consume_slashes (def->process->cwd);
       /* Ignore errors here and let it fail later.  */
-      (void) crun_safe_ensure_directory_at (get_private_data (container)->rootfsfd, rootfs, rel_cwd, 0755, &tmp_err);
+      (خالی) crun_محفوظ_ensure_directory_at (get_نجی_ڈیٹا (container)->rootfsfd, rootfs, rel_cwd, 0755, &tmp_err);
       crun_error_release (&tmp_err);
     }
 
   ret = do_masked_and_readonly_paths (container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return 0;
+  واپس 0;
 }
 
-static int
-umount_or_hide (const char *target, libcrun_error_t *err)
+ساکن صحیح
+umount_or_hide (ثابت حرف *ہدف, libcrun_error_t *err)
 {
-  int ret;
+  صحیح ret;
 
-  ret = umount2 (target, MNT_DETACH);
-  if (UNLIKELY (ret < 0))
+  ret = umount2 (ہدف, MNT_DETACH);
+  اگر (UNLIKELY (ret < 0))
     {
-      int saved_errno = errno;
+      صحیح saved_errno = errno;
 
       /* If the umount2 failed with EINVAL then the mount could
          be locked.  Hide it by mounting a tmpfs on top of it.  */
-      if (errno == EINVAL)
+      اگر (errno == EINVAL)
         {
-          ret = mount (NULL, target, "tmpfs", 0, "size=0k");
-          if (LIKELY (ret == 0))
-            return 0;
+          ret = mount (تہی, ہدف, "tmpfs", 0, "size=0k");
+          اگر (LIKELY (ret == 0))
+            واپس 0;
         }
 
-      return crun_make_error (err, saved_errno, "umount `%s`", target);
+      واپس crun_make_error (err, saved_errno, "umount `%s`", ہدف);
     }
 
-  return ret;
+  واپس ret;
 }
 
-static int
-move_root (const char *rootfs, libcrun_error_t *err)
+ساکن صحیح
+move_جڑ (ثابت حرف *rootfs, libcrun_error_t *err)
 {
-  int ret;
+  صحیح ret;
 
   ret = chdir (rootfs);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "chdir to `%s`", rootfs);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "chdir to `%s`", rootfs);
 
   ret = umount_or_hide ("/sys", err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   ret = umount_or_hide ("/proc", err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   ret = mount (rootfs, "/", "", MS_MOVE, "");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "mount MS_MOVE to `/`");
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "mount MS_MOVE to `/`");
 
   ret = chroot (".");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "chroot to `%s`", rootfs);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "chroot to `%s`", rootfs);
 
   ret = chdir ("/");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "chdir to `%s`", rootfs);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "chdir to `%s`", rootfs);
 
-  return 0;
+  واپس 0;
 }
 
-int
-libcrun_finalize_mounts (struct container_entrypoint_s *entrypoint_args, libcrun_container_t *container, const char *rootfs,
-                         set_mounts_cb_t after_pivot_cb, void *cb_data, libcrun_error_t *err)
+صحیح
+libcrun_finalize_mounts (ساخت container_entrypoint_s *entrypoint_دلائل, libcrun_container_t *container, ثابت حرف *rootfs,
+                         سیٹ_mounts_cb_t after_محور_cb, خالی *cb_ڈیٹا, libcrun_error_t *err)
 {
-  int ret;
+  صحیح ret;
 
   // configure handler mounts for phase: HANDLER_CONFIGURE_AFTER_MOUNTS
-  ret = libcrun_container_notify_handler (entrypoint_args, HANDLER_CONFIGURE_AFTER_MOUNTS, container, rootfs, err);
-  if (UNLIKELY (ret < 0))
-    return crun_error_wrap (err, "failed configuring mounts for handler at phase: HANDLER_CONFIGURE_AFTER_MOUNTS");
+  ret = libcrun_container_notify_handler (entrypoint_دلائل, HANDLER_CONFIGURE_AFTER_MOUNTS, container, rootfs, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_error_wrap (err, "failed configuring mounts for handler at phase: HANDLER_CONFIGURE_AFTER_MOUNTS");
 
   ret = do_finalize_notify_socket (container, rootfs, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  close_and_reset (&(get_private_data (container)->rootfsfd));
+  close_and_reset (&(get_نجی_ڈیٹا (container)->rootfsfd));
 
   /* The host root must not stay reachable through /proc/self/fd once the
      container rootfs becomes the root: every path resolved by name from now
      on is controlled by the container image.  */
-  close_and_reset (&(get_private_data (container)->old_root_fd));
+  close_and_reset (&(get_نجی_ڈیٹا (container)->old_جڑ_fd));
 
-  if (get_private_data (container)->needs_pivot)
+  اگر (get_نجی_ڈیٹا (container)->needs_محور)
     {
-      get_private_data (container)->needs_pivot = false;
+      get_نجی_ڈیٹا (container)->needs_محور = false;
 
-      if (get_private_data (container)->no_pivot)
+      اگر (get_نجی_ڈیٹا (container)->no_محور)
         {
-          ret = move_root (rootfs, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = move_جڑ (rootfs, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
-      else
+      ورنہ
         {
-          ret = do_pivot (container, rootfs, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = do_محور (container, rootfs, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
 
-      ret = do_mount (container, NULL, -1, "/", NULL,
-                      get_private_data (container)->rootfs_propagation,
-                      NULL, LABEL_MOUNT, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = do_mount (container, تہی, -1, "/", تہی,
+                      get_نجی_ڈیٹا (container)->rootfs_اشاعت,
+                      تہی, LABEL_MOUNT, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
       ret = chdir ("/");
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "chdir to `/`");
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "chdir to `/`");
     }
 
-  if (after_pivot_cb)
+  اگر (after_محور_cb)
     {
-      ret = after_pivot_cb (cb_data, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = after_محور_cb (cb_ڈیٹا, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
   ret = finalize_mounts (container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return 0;
+  واپس 0;
 }
 
-static int
-maybe_open_tree_namespace (const char *rootfs, int *out_fd, libcrun_error_t *err)
+ساکن صحیح
+maybe_open_درخت_namespace (ثابت حرف *rootfs, صحیح *برآمد_fd, libcrun_error_t *err)
 {
-  cleanup_close int rootfs_fd = -1;
-  int tree_fd;
+  cleanup_close صحیح rootfs_fd = -1;
+  صحیح درخت_fd;
 
-  *out_fd = -1;
+  *برآمد_fd = -1;
 
-  rootfs_fd = open (rootfs, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (rootfs_fd < 0))
-    return crun_make_error (err, errno, "open `%s`", rootfs);
+  rootfs_fd = open (rootfs, O_DIRECTORY | O_راستہ | O_CLOEXEC);
+  اگر (UNLIKELY (rootfs_fd < 0))
+    واپس crun_make_error (err, errno, "open `%s`", rootfs);
 
-  tree_fd = syscall_open_tree (rootfs_fd, "",
-                               OPEN_TREE_NAMESPACE | OPEN_TREE_CLOEXEC
-                                   | AT_EMPTY_PATH | AT_RECURSIVE);
-  if (tree_fd < 0)
+  درخت_fd = syscall_open_درخت (rootfs_fd, "",
+                               OPEN_درخت_NAMESPACE | OPEN_TREE_CLOEXEC
+                                   | AT_خالی_خانے_راستہ | AT_RECURSIVE);
+  اگر (درخت_fd < 0)
     {
-      if (errno == EINVAL || errno == ENOSYS || errno == EPERM)
-        return 0;
-      return crun_make_error (err, errno, "open_tree `%s`", rootfs);
+      اگر (errno == EINVAL || errno == ENOSYS || errno == EPERM)
+        واپس 0;
+      واپس crun_make_error (err, errno, "open_tree `%s`", rootfs);
     }
 
-  *out_fd = tree_fd;
-  return 0;
+  *برآمد_fd = درخت_fd;
+  واپس 0;
 }
 
-static struct libcrun_fd_map *
+ساکن ساخت libcrun_fd_map *
 get_fd_map (libcrun_container_t *container)
 {
-  struct libcrun_fd_map *mount_fds = get_private_data (container)->mount_fds;
+  ساخت libcrun_fd_map *mount_fds = get_نجی_ڈیٹا (container)->mount_fds;
 
-  if (mount_fds == NULL)
+  اگر (mount_fds == تہی)
     {
       runtime_spec_schema_config_schema *def = container->container_def;
       mount_fds = make_libcrun_fd_map (def->mounts_len);
-      get_private_data (container)->mount_fds = mount_fds;
+      get_نجی_ڈیٹا (container)->mount_fds = mount_fds;
     }
-  return mount_fds;
+  واپس mount_fds;
 }
 
-static int
-open_mount_of_type (libcrun_container_t *container,
+ساکن صحیح
+open_mount_کا_type (libcrun_container_t *container,
                     runtime_spec_schema_defs_mount *mount,
                     libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  cleanup_free char *mnt_data = NULL;
-  unsigned long mnt_flags = 0, mnt_extra = 0;
-  uint64_t mnt_rec_clear = 0, mnt_rec_set = 0;
-  const char *label_type = NULL;
-  const char *label_val = NULL;
-  const char *fstype;
-  int mnt_fd;
+  cleanup_free حرف *mnt_ڈیٹا = تہی;
+  غیرعلامتی طویل mnt_flags = 0, mnt_extra = 0;
+  uint64_t mnt_rec_clear = 0, mnt_rec_سیٹ = 0;
+  ثابت حرف *label_type = تہی;
+  ثابت حرف *label_val = تہی;
+  ثابت حرف *fstype;
+  صحیح mnt_fd;
   size_t j;
 
-  if (mount->type == NULL)
-    return -1;
+  اگر (mount->type == تہی)
+    واپس -1;
 
   fstype = mount->type;
 
-  for (j = 0; j < mount->options_len; j++)
+  برائے (j = 0; j < mount->options_len; j++)
     mnt_flags |= get_mount_flags_or_option (mount->options[j],
-                                            mnt_flags, &mnt_extra, &mnt_data,
-                                            &mnt_rec_clear, &mnt_rec_set);
+                                            mnt_flags, &mnt_extra, &mnt_ڈیٹا,
+                                            &mnt_rec_clear, &mnt_rec_سیٹ);
 
-  if (def->linux && def->linux->mount_label)
+  اگر (def->linux && def->linux->mount_label)
     {
       bool is_sysfs_or_proc = strcmp (fstype, "sysfs") == 0
                               || strcmp (fstype, "proc") == 0;
-      int extra_flags = get_mount_label_how (fstype, is_sysfs_or_proc);
-      if (extra_flags == LABEL_MOUNT)
+      صحیح extra_flags = get_mount_label_how (fstype, is_sysfs_or_proc);
+      اگر (extra_flags == LABEL_MOUNT)
         {
           label_type = get_selinux_context_type (container, err);
-          if (label_type == NULL)
+          اگر (label_type == تہی)
             crun_error_release (err);
-          else
+          ورنہ
             label_val = def->linux->mount_label;
         }
     }
 
-  if (strcmp (fstype, "cgroup") == 0)
+  اگر (strcmp (fstype, "cgroup") == 0)
     {
-      int cgroup_mode = libcrun_get_cgroup_mode (err);
-      if (cgroup_mode == CGROUP_MODE_UNIFIED)
+      صحیح cgroup_منوال = libcrun_get_cgroup_منوال (err);
+      اگر (cgroup_منوال == CGROUP_منوال_UNIFIED)
         fstype = "cgroup2";
       crun_error_release (err);
     }
 
-  mnt_fd = fsopen_mount (fstype, mount->source, label_type, label_val, mnt_data);
-  if (mnt_fd < 0 && label_type)
-    mnt_fd = fsopen_mount (fstype, mount->source, NULL, NULL, mnt_data);
+  mnt_fd = fsopen_mount (fstype, mount->ماخذ, label_type, label_val, mnt_ڈیٹا);
+  اگر (mnt_fd < 0 && label_type)
+    mnt_fd = fsopen_mount (fstype, mount->ماخذ, تہی, تہی, mnt_ڈیٹا);
 
-  return mnt_fd;
+  واپس mnt_fd;
 }
 
-#ifndef LSMT_ROOT
+#اگر_غیر_تعریف_شدہ LSMT_ROOT
 #  define LSMT_ROOT 0xffffffffffffffffULL
-#endif
-#ifndef STATMOUNT_FS_TYPE
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ STATMOUNT_FS_TYPE
 #  define STATMOUNT_FS_TYPE 0x00000020U
-#endif
-#ifndef STATMOUNT_MNT_ROOT
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ STATMOUNT_MNT_ROOT
 #  define STATMOUNT_MNT_ROOT 0x00000040U
-#endif
-#ifndef STATMOUNT_MNT_POINT
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ STATMOUNT_MNT_POINT
 #  define STATMOUNT_MNT_POINT 0x00000080U
-#endif
+#اگر_ختم
 
 /* Declared here so that the build does not depend on the UAPI headers being
    recent enough; the layout is stable.  */
-struct mnt_id_req_s
+ساخت mnt_id_req_s
 {
-  uint32_t size;
+  uint32_t سائز;
   uint32_t spare;
   uint64_t mnt_id;
   uint64_t param;
   uint64_t mnt_ns_id;
 };
 
-struct statmount_s
+ساخت statmount_s
 {
-  uint32_t size;
+  uint32_t سائز;
   uint32_t mnt_opts;
-  uint64_t mask;
+  uint64_t نقاب;
   uint32_t sb_dev_major;
   uint32_t sb_dev_minor;
   uint64_t sb_magic;
@@ -4105,37 +4105,37 @@ struct statmount_s
   uint32_t mnt_point;
   uint64_t mnt_ns_id;
   uint64_t __spare2[49];
-  char str[];
+  حرف str[];
 };
 
-static int
-syscall_listmount (struct mnt_id_req_s *req, uint64_t *ids, size_t nr, unsigned int flags)
+ساکن صحیح
+syscall_listmount (ساخت mnt_id_req_s *req, uint64_t *ids, size_t nr, غیرعلامتی صحیح flags)
 {
-#ifdef __NR_listmount
-  return (int) syscall (__NR_listmount, req, ids, nr, flags);
-#else
-  (void) req;
-  (void) ids;
-  (void) nr;
-  (void) flags;
+#اگر_تعریف_شدہ __NR_listmount
+  واپس (صحیح) syscall (__NR_listmount, req, ids, nr, flags);
+#ورنہ
+  (خالی) req;
+  (خالی) ids;
+  (خالی) nr;
+  (خالی) flags;
   errno = ENOSYS;
-  return -1;
-#endif
+  واپس -1;
+#اگر_ختم
 }
 
-static int
-syscall_statmount (struct mnt_id_req_s *req, struct statmount_s *buf, size_t size, unsigned int flags)
+ساکن صحیح
+syscall_statmount (ساخت mnt_id_req_s *req, ساخت statmount_s *buf, size_t سائز, غیرعلامتی صحیح flags)
 {
-#ifdef __NR_statmount
-  return (int) syscall (__NR_statmount, req, buf, size, flags);
-#else
-  (void) req;
-  (void) buf;
-  (void) size;
-  (void) flags;
+#اگر_تعریف_شدہ __NR_statmount
+  واپس (صحیح) syscall (__NR_statmount, req, buf, سائز, flags);
+#ورنہ
+  (خالی) req;
+  (خالی) buf;
+  (خالی) سائز;
+  (خالی) flags;
   errno = ENOSYS;
-  return -1;
-#endif
+  واپس -1;
+#اگر_ختم
 }
 
 /* move_mount(2) refuses to attach a tree that contains a bind mount of a mount
@@ -4151,156 +4151,156 @@ syscall_statmount (struct mnt_id_req_s *req, struct statmount_s *buf, size_t siz
    /proc/self/mountinfo, which escapes characters such as spaces in the paths
    being compared; they predate OPEN_TREE_NAMESPACE, so they are available
    wherever this code path can be taken at all.  */
-static bool
-mounts_hit_pinned_mount_namespace (runtime_spec_schema_config_schema *def)
+ساکن bool
+mounts_کامیابی_pinned_mount_namespace (runtime_spec_schema_config_schema *def)
 {
-  cleanup_free uint64_t *ids = NULL;
-  size_t i, n_ids = 0, capacity = 128;
+  cleanup_free uint64_t *ids = تہی;
+  size_t i, n_ids = 0, استعداد = 128;
   bool has_absolute_bind = false;
-  uint64_t last = 0;
+  uint64_t آخری = 0;
 
-  for (i = 0; i < def->mounts_len; i++)
+  برائے (i = 0; i < def->mounts_len; i++)
     {
       bool recursive = false, nofollow = false;
 
-      if (is_bind_mount (def->mounts[i], &recursive, &nofollow)
-          && def->mounts[i]->source != NULL && def->mounts[i]->source[0] == '/')
+      اگر (is_bind_mount (def->mounts[i], &recursive, &nofollow)
+          && def->mounts[i]->ماخذ != تہی && def->mounts[i]->ماخذ[0] == '/')
         {
           has_absolute_bind = true;
-          break;
+          توڑو;
         }
     }
-  if (! has_absolute_bind)
-    return false;
+  اگر (! has_absolute_bind)
+    واپس false;
 
-  ids = xmalloc (capacity * sizeof (uint64_t));
-  for (;;)
+  ids = xmalloc (استعداد * حجم (uint64_t));
+  برائے (;;)
     {
-      struct mnt_id_req_s req = {
-        .size = sizeof (req),
+      ساخت mnt_id_req_s req = {
+        .سائز = حجم (req),
         .mnt_id = LSMT_ROOT,
-        .param = last,
+        .param = آخری,
       };
-      int ret;
+      صحیح ret;
 
-      if (n_ids == capacity)
+      اگر (n_ids == استعداد)
         {
-          capacity *= 2;
-          ids = xrealloc (ids, capacity * sizeof (uint64_t));
+          استعداد *= 2;
+          ids = xrealloc (ids, استعداد * حجم (uint64_t));
         }
 
-      ret = syscall_listmount (&req, ids + n_ids, capacity - n_ids, 0);
-      if (ret < 0)
+      ret = syscall_listmount (&req, ids + n_ids, استعداد - n_ids, 0);
+      اگر (ret < 0)
         /* Without the mount table there is no way to tell; the kernel would
            reject the move_mount() anyway, so stay on the traditional path.  */
-        return true;
-      if (ret == 0)
-        break;
+        واپس true;
+      اگر (ret == 0)
+        توڑو;
 
       n_ids += (size_t) ret;
-      last = ids[n_ids - 1];
+      آخری = ids[n_ids - 1];
     }
 
-  for (i = 0; i < n_ids; i++)
+  برائے (i = 0; i < n_ids; i++)
     {
-      char buffer[4096] __attribute__ ((aligned (8)));
-      struct statmount_s *sm = (struct statmount_s *) buffer;
-      struct mnt_id_req_s req = {
-        .size = sizeof (req),
+      حرف بفر[4096] __attribute__ ((aligned (8)));
+      ساخت statmount_s *sm = (ساخت statmount_s *) بفر;
+      ساخت mnt_id_req_s req = {
+        .سائز = حجم (req),
         .mnt_id = ids[i],
         .param = STATMOUNT_FS_TYPE | STATMOUNT_MNT_ROOT | STATMOUNT_MNT_POINT,
       };
-      const char *root, *point;
+      ثابت حرف *جڑ, *نقطہ;
       size_t j;
 
-      if (syscall_statmount (&req, sm, sizeof (buffer), 0) < 0)
-        continue;
-      if ((sm->mask & (STATMOUNT_MNT_ROOT | STATMOUNT_MNT_POINT)) != (STATMOUNT_MNT_ROOT | STATMOUNT_MNT_POINT))
-        continue;
+      اگر (syscall_statmount (&req, sm, حجم (بفر), 0) < 0)
+        جاری;
+      اگر ((sm->نقاب & (STATMOUNT_MNT_ROOT | STATMOUNT_MNT_POINT)) != (STATMOUNT_MNT_ROOT | STATMOUNT_MNT_POINT))
+        جاری;
 
       /* The root of a pinned mount namespace reads as "mnt:[...]"; the other
          namespace types cannot create a loop.  */
-      root = sm->str + sm->mnt_root;
-      if (! has_prefix (root, "mnt:["))
-        continue;
+      جڑ = sm->str + sm->mnt_root;
+      اگر (! has_سابقہ (جڑ, "mnt:["))
+        جاری;
 
-      point = sm->str + sm->mnt_point;
+      نقطہ = sm->str + sm->mnt_point;
 
-      for (j = 0; j < def->mounts_len; j++)
+      برائے (j = 0; j < def->mounts_len; j++)
         {
           bool recursive = false, nofollow = false;
-          const char *source = def->mounts[j]->source;
-          size_t source_len;
+          ثابت حرف *ماخذ = def->mounts[j]->ماخذ;
+          size_t ماخذ_len;
 
-          if (! is_bind_mount (def->mounts[j], &recursive, &nofollow))
-            continue;
-          if (source == NULL || source[0] != '/')
-            continue;
+          اگر (! is_bind_mount (def->mounts[j], &recursive, &nofollow))
+            جاری;
+          اگر (ماخذ == تہی || ماخذ[0] != '/')
+            جاری;
 
-          source_len = strlen (source);
-          while (source_len > 1 && source[source_len - 1] == '/')
-            source_len--;
+          ماخذ_len = لڑی_لمبائی (ماخذ);
+          جب (ماخذ_len > 1 && ماخذ[ماخذ_len - 1] == '/')
+            ماخذ_len--;
 
-          if (strncmp (point, source, source_len) != 0)
-            continue;
+          اگر (لڑی_موازنہ (نقطہ, ماخذ, ماخذ_len) != 0)
+            جاری;
 
           /* The source itself is a pinned mount namespace.  */
-          if (point[source_len] == '\0')
-            return true;
+          اگر (نقطہ[ماخذ_len] == '\0')
+            واپس true;
 
           /* A recursive bind clones the subtree below the source as well, so
              a pin anywhere under it is picked up.  A plain bind clones the
              single mount, and cannot pick one up.  */
-          if (recursive && (source_len == 1 || point[source_len] == '/'))
-            return true;
+          اگر (recursive && (ماخذ_len == 1 || نقطہ[ماخذ_len] == '/'))
+            واپس true;
         }
     }
 
-  return false;
+  واپس false;
 }
 
-static bool
-can_use_open_tree_namespace (libcrun_container_t *container)
+ساکن bool
+can_use_open_درخت_namespace (libcrun_container_t *container)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  struct libcrun_fd_map *mount_fds;
+  ساخت libcrun_fd_map *mount_fds;
   bool has_hooks = def->hooks
                    && (def->hooks->prestart_len || def->hooks->create_runtime_len
                        || def->hooks->create_container_len);
-  bool has_userns = get_private_data (container)->unshare_flags & CLONE_NEWUSER;
+  bool has_userns = get_نجی_ڈیٹا (container)->unshare_flags & CLONE_NEWUSER;
   size_t i;
 
-  if (has_hooks || has_userns)
-    return false;
+  اگر (has_hooks || has_userns)
+    واپس false;
 
-  if (mounts_hit_pinned_mount_namespace (def))
-    return false;
+  اگر (mounts_کامیابی_pinned_mount_namespace (def))
+    واپس false;
 
-  if (container->context->no_open_tree_namespace)
-    return false;
+  اگر (container->context->no_open_درخت_namespace)
+    واپس false;
 
   {
-    libcrun_error_t tmp_err = NULL;
-    int in_userns = check_running_in_user_namespace (&tmp_err);
+    libcrun_error_t tmp_err = تہی;
+    صحیح اندر_userns = check_running_اندر_user_namespace (&tmp_err);
     crun_error_release (&tmp_err);
-    if (in_userns != 0)
-      return false;
+    اگر (اندر_userns != 0)
+      واپس false;
   }
 
   mount_fds = get_fd_map (container);
-  for (i = 0; i < def->mounts_len; i++)
+  برائے (i = 0; i < def->mounts_len; i++)
     {
-      if (mount_fds->fds[i] < 0)
+      اگر (mount_fds->fds[i] < 0)
         {
-          bool has_cached_target = get_private_data (container)->copy_symlink_targets
-                                   && i < get_private_data (container)->n_copy_symlink_targets
-                                   && get_private_data (container)->copy_symlink_targets[i];
-          if (! has_cached_target)
-            return false;
+          bool has_cached_ہدف = get_نجی_ڈیٹا (container)->copy_symlink_targets
+                                   && i < get_نجی_ڈیٹا (container)->n_copy_symlink_targets
+                                   && get_نجی_ڈیٹا (container)->copy_symlink_targets[i];
+          اگر (! has_cached_ہدف)
+            واپس false;
         }
     }
 
-  return true;
+  واپس true;
 }
 
 /* Only tmpfs mounts inherit the mode of the directory they are mounted
@@ -4308,151 +4308,151 @@ can_use_open_tree_namespace (libcrun_container_t *container)
    option.  This mirrors append_tmpfs_mode_if_missing() used by the fallback
    mount() path.  File systems such as proc, sysfs and mqueue have a root
    inode mode defined by the kernel that must not be overridden.  */
-static bool
-mount_inherits_mountpoint_mode (runtime_spec_schema_defs_mount *mount)
+ساکن bool
+mount_inherits_mountpoint_منوال (runtime_spec_schema_defs_mount *mount)
 {
   size_t i;
 
-  if (mount->type == NULL || strcmp (mount->type, "tmpfs") != 0)
-    return false;
+  اگر (mount->type == تہی || strcmp (mount->type, "tmpfs") != 0)
+    واپس false;
 
-  for (i = 0; i < mount->options_len; i++)
-    if (mount->options[i] != NULL && has_prefix (mount->options[i], "mode="))
-      return false;
+  برائے (i = 0; i < mount->options_len; i++)
+    اگر (mount->options[i] != تہی && has_سابقہ (mount->options[i], "mode="))
+      واپس false;
 
-  return true;
+  واپس true;
 }
 
-static int
-setup_mount_namespace (libcrun_container_t *container, bool no_pivot, char **rootfs, libcrun_error_t *err)
+ساکن صحیح
+تیاری_mount_namespace (libcrun_container_t *container, bool no_محور, حرف **rootfs, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  unsigned long rootfs_propagation = 0;
-  cleanup_close int rootfsfd = -1;
-  cleanup_close int tree_fd = -1;
-  libcrun_error_t tmp_err = NULL;
-  bool use_open_tree = false;
+  غیرعلامتی طویل rootfs_اشاعت = 0;
+  cleanup_close صحیح rootfsfd = -1;
+  cleanup_close صحیح درخت_fd = -1;
+  libcrun_error_t tmp_err = تہی;
+  bool use_open_درخت = false;
   size_t i;
-  int ret;
+  صحیح ret;
 
-  if (def->linux && def->linux->rootfs_propagation)
-    rootfs_propagation = get_mount_flags (def->linux->rootfs_propagation, 0, NULL, NULL, NULL, NULL);
+  اگر (def->linux && def->linux->rootfs_اشاعت)
+    rootfs_اشاعت = get_mount_flags (def->linux->rootfs_اشاعت, 0, تہی, تہی, تہی, تہی);
 
-  if ((rootfs_propagation & ALL_PROPAGATIONS_NO_REC) == 0)
-    rootfs_propagation = MS_REC | MS_PRIVATE;
+  اگر ((rootfs_اشاعت & ALL_PROPAGATIONS_NO_REC) == 0)
+    rootfs_اشاعت = MS_REC | MS_PRIVATE;
 
-  get_private_data (container)->rootfs_propagation = rootfs_propagation;
+  get_نجی_ڈیٹا (container)->rootfs_اشاعت = rootfs_اشاعت;
 
   ret = libcrun_container_enter_cgroup_ns (container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  free (get_private_data (container)->host_rootfs);
-  get_private_data (container)->host_rootfs = xstrdup (*rootfs);
+  آزاد (get_نجی_ڈیٹا (container)->host_rootfs);
+  get_نجی_ڈیٹا (container)->host_rootfs = xstrdup (*rootfs);
 
   /* Pre-create mounts and cache paths before pivot_root,
      while the host file system is still reachable.  */
-  for (i = 0; i < def->mounts_len; i++)
+  برائے (i = 0; i < def->mounts_len; i++)
     {
-      struct libcrun_fd_map *mount_fds = get_fd_map (container);
-      cleanup_close int mnt_fd = -1;
+      ساخت libcrun_fd_map *mount_fds = get_fd_map (container);
+      cleanup_close صحیح mnt_fd = -1;
       bool recursive_bind, nofollow;
-      unsigned long mnt_flags = 0;
+      غیرعلامتی طویل mnt_flags = 0;
 
-      if (mount_fds && mount_fds->fds[i] >= 0)
-        continue;
+      اگر (mount_fds && mount_fds->fds[i] >= 0)
+        جاری;
 
       /* Pre-read symlink targets for copy-symlink mounts while the host file system is still reachable.  */
-      if (def->mounts[i]->source != NULL
-          && def->mounts[i]->source[0] == '/')
+      اگر (def->mounts[i]->ماخذ != تہی
+          && def->mounts[i]->ماخذ[0] == '/')
         {
-          cleanup_free char *mnt_data = NULL;
-          unsigned long mnt_extra = 0;
-          uint64_t mnt_rec_clear = 0, mnt_rec_set = 0;
+          cleanup_free حرف *mnt_ڈیٹا = تہی;
+          غیرعلامتی طویل mnt_extra = 0;
+          uint64_t mnt_rec_clear = 0, mnt_rec_سیٹ = 0;
           size_t j;
 
-          for (j = 0; j < def->mounts[i]->options_len; j++)
+          برائے (j = 0; j < def->mounts[i]->options_len; j++)
             mnt_flags |= get_mount_flags_or_option (def->mounts[i]->options[j],
-                                                    mnt_flags, &mnt_extra, &mnt_data,
-                                                    &mnt_rec_clear, &mnt_rec_set);
+                                                    mnt_flags, &mnt_extra, &mnt_ڈیٹا,
+                                                    &mnt_rec_clear, &mnt_rec_سیٹ);
 
-          if (mnt_extra & OPTION_COPY_SYMLINK)
+          اگر (mnt_extra & OPTION_COPY_SYMLINK)
             {
-              cleanup_free char *target = NULL;
-              libcrun_error_t tmp_err = NULL;
+              cleanup_free حرف *ہدف = تہی;
+              libcrun_error_t tmp_err = تہی;
               ssize_t len;
 
-              len = safe_readlinkat (AT_FDCWD, def->mounts[i]->source, &target, 0, &tmp_err);
-              if (UNLIKELY (len < 0))
+              len = محفوظ_readlinkat (AT_FDCWD, def->mounts[i]->ماخذ, &ہدف, 0, &tmp_err);
+              اگر (UNLIKELY (len < 0))
                 crun_error_release (&tmp_err);
 
-              if (get_private_data (container)->copy_symlink_targets == NULL)
+              اگر (get_نجی_ڈیٹا (container)->copy_symlink_targets == تہی)
                 {
-                  get_private_data (container)->copy_symlink_targets
-                      = xmalloc0 (def->mounts_len * sizeof (char *));
-                  get_private_data (container)->n_copy_symlink_targets = def->mounts_len;
+                  get_نجی_ڈیٹا (container)->copy_symlink_targets
+                      = xmalloc0 (def->mounts_len * حجم (حرف *));
+                  get_نجی_ڈیٹا (container)->n_copy_symlink_targets = def->mounts_len;
                 }
-              get_private_data (container)->copy_symlink_targets[i] = target;
-              target = NULL;
+              get_نجی_ڈیٹا (container)->copy_symlink_targets[i] = ہدف;
+              ہدف = تہی;
             }
         }
 
-      if (is_bind_mount (def->mounts[i], &recursive_bind, &nofollow))
+      اگر (is_bind_mount (def->mounts[i], &recursive_bind, &nofollow))
         {
-          bool has_cached_target = get_private_data (container)->copy_symlink_targets
-                                   && i < get_private_data (container)->n_copy_symlink_targets
-                                   && get_private_data (container)->copy_symlink_targets[i];
+          bool has_cached_ہدف = get_نجی_ڈیٹا (container)->copy_symlink_targets
+                                   && i < get_نجی_ڈیٹا (container)->n_copy_symlink_targets
+                                   && get_نجی_ڈیٹا (container)->copy_symlink_targets[i];
 
-          if (mount_fds && def->mounts[i]->source != NULL && ! has_cached_target
-              && get_path_in_rootfs (*rootfs, def->mounts[i]->source) == NULL)
+          اگر (mount_fds && def->mounts[i]->ماخذ != تہی && ! has_cached_ہدف
+              && get_راستہ_اندر_rootfs (*rootfs, def->mounts[i]->ماخذ) == تہی)
             {
-              libcrun_error_t tmp_err = NULL;
-              unsigned long propagation = MS_PRIVATE;
+              libcrun_error_t tmp_err = تہی;
+              غیرعلامتی طویل اشاعت = MS_PRIVATE;
 
-              if (mnt_flags & (MS_SHARED | MS_SLAVE | MS_UNBINDABLE))
-                propagation = 0;
+              اگر (mnt_flags & (MS_SHARED | MS_SLAVE | MS_UNBINDABLE))
+                اشاعت = 0;
 
-              mount_fds->fds[i] = get_bind_mount (AT_FDCWD, def->mounts[i]->source,
+              mount_fds->fds[i] = get_bind_mount (AT_FDCWD, def->mounts[i]->ماخذ,
                                                   recursive_bind, false, nofollow,
-                                                  propagation, &tmp_err);
-              if (mount_fds->fds[i] < 0)
+                                                  اشاعت, &tmp_err);
+              اگر (mount_fds->fds[i] < 0)
                 crun_error_release (&tmp_err);
             }
-          continue;
+          جاری;
         }
 
-      mnt_fd = open_mount_of_type (container, def->mounts[i], err);
-      if (mnt_fd < 0)
+      mnt_fd = open_mount_کا_type (container, def->mounts[i], err);
+      اگر (mnt_fd < 0)
         {
           crun_error_release (err);
-          continue;
+          جاری;
         }
 
-      if (mount_inherits_mountpoint_mode (def->mounts[i]))
+      اگر (mount_inherits_mountpoint_منوال (def->mounts[i]))
         {
-          cleanup_close int destfd = -1;
-          struct stat st;
+          cleanup_close صحیح destfd = -1;
+          ساخت stat st;
 
-          if (rootfsfd < 0)
+          اگر (rootfsfd < 0)
             {
-              rootfsfd = open (*rootfs, O_PATH | O_CLOEXEC);
-              if (UNLIKELY (rootfsfd < 0))
-                return crun_make_error (err, errno, "open `%s`", *rootfs);
+              rootfsfd = open (*rootfs, O_راستہ | O_CLOEXEC);
+              اگر (UNLIKELY (rootfsfd < 0))
+                واپس crun_make_error (err, errno, "open `%s`", *rootfs);
             }
 
-          destfd = safe_openat (rootfsfd, *rootfs, def->mounts[i]->destination, O_PATH | O_CLOEXEC, 0, &tmp_err);
-          if (destfd < 0)
+          destfd = محفوظ_openat (rootfsfd, *rootfs, def->mounts[i]->destination, O_راستہ | O_CLOEXEC, 0, &tmp_err);
+          اگر (destfd < 0)
             crun_error_release (&tmp_err);
-          else if (fstat (destfd, &st) == 0)
+          ورنہ اگر (fstat (destfd, &st) == 0)
             {
-              proc_fd_path_t fd_path;
-              int procfd = get_procfd (get_private_data (container), err);
-              if (UNLIKELY (procfd < 0))
-                return procfd;
+              proc_fd_راستہ_t fd_راستہ;
+              صحیح procfd = get_procfd (get_نجی_ڈیٹا (container), err);
+              اگر (UNLIKELY (procfd < 0))
+                واپس procfd;
 
-              get_self_fd_path (fd_path, mnt_fd);
-              ret = fchmodat (procfd, fd_path, st.st_mode & 07777, 0);
-              (void) ret;
+              get_self_fd_راستہ (fd_راستہ, mnt_fd);
+              ret = fchmodat (procfd, fd_راستہ, st.st_mode & 07777, 0);
+              (خالی) ret;
             }
         }
 
@@ -4461,22 +4461,22 @@ setup_mount_namespace (libcrun_container_t *container, bool no_pivot, char **roo
     }
   close_and_reset (&rootfsfd);
 
-  ret = get_shared_empty_dir_cached (container, NULL, &tmp_err);
-  if (ret < 0)
+  ret = get_shared_خالی_خانے_dir_cached (container, تہی, &tmp_err);
+  اگر (ret < 0)
     {
       crun_error_release (&tmp_err);
-      get_private_data (container)->maskdir_bind_failed = true;
+      get_نجی_ڈیٹا (container)->maskdir_bind_failed = true;
     }
 
-  if (! get_private_data (container)->joined_mount_ns
-      && can_use_open_tree_namespace (container))
-    use_open_tree = true;
+  اگر (! get_نجی_ڈیٹا (container)->joined_mount_ns
+      && can_use_open_درخت_namespace (container))
+    use_open_درخت = true;
 
-  if (use_open_tree)
+  اگر (use_open_درخت)
     {
-      ret = maybe_open_tree_namespace (*rootfs, &tree_fd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = maybe_open_درخت_namespace (*rootfs, &درخت_fd, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
   /* Pre-open needed device fds and the notify socket while the host
@@ -4485,487 +4485,487 @@ setup_mount_namespace (libcrun_container_t *container, bool no_pivot, char **roo
      OPEN_TREE_NAMESPACE), this is retried after unshare(CLONE_NEWNS)
      below since open_tree needs CAP_SYS_ADMIN in the user namespace
      that owns the mount namespace.  */
-  if (tree_fd >= 0)
+  اگر (درخت_fd >= 0)
     preopen_needed_devs_and_notify (container);
 
-  if (tree_fd >= 0)
+  اگر (درخت_fd >= 0)
     {
-      ret = setns (tree_fd, CLONE_NEWNS);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "setns `CLONE_NEWNS`");
+      ret = setns (درخت_fd, CLONE_NEWNS);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "setns `CLONE_NEWNS`");
 
-      ret = mount (NULL, "/", NULL, MS_REMOUNT | MS_BIND, NULL);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "remount `/`");
+      ret = mount (تہی, "/", تہی, MS_REMOUNT | MS_BIND, تہی);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "remount `/`");
 
-      ret = do_mount (container, NULL, -1, "/", NULL, MS_REC | MS_PRIVATE, NULL, LABEL_MOUNT, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = do_mount (container, تہی, -1, "/", تہی, MS_REC | MS_PRIVATE, تہی, LABEL_MOUNT, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      ret = do_mount (container, NULL, -1, "/", NULL, rootfs_propagation, NULL, LABEL_MOUNT, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = do_mount (container, تہی, -1, "/", تہی, rootfs_اشاعت, تہی, LABEL_MOUNT, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      get_private_data (container)->needs_pivot = false;
-      get_private_data (container)->no_pivot = no_pivot;
+      get_نجی_ڈیٹا (container)->needs_محور = false;
+      get_نجی_ڈیٹا (container)->no_محور = no_محور;
       /* setns() made the container rootfs the process root, so an absolute
          source path no longer refers to the host.  */
-      get_private_data (container)->host_root_switched = true;
-      free (*rootfs);
+      get_نجی_ڈیٹا (container)->host_جڑ_switched = true;
+      آزاد (*rootfs);
       *rootfs = xstrdup ("/");
     }
-  else
+  ورنہ
     {
-      if (! get_private_data (container)->joined_mount_ns)
+      اگر (! get_نجی_ڈیٹا (container)->joined_mount_ns)
         {
           ret = unshare (CLONE_NEWNS);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "unshare `CLONE_NEWNS`");
+          اگر (UNLIKELY (ret < 0))
+            واپس crun_make_error (err, errno, "unshare `CLONE_NEWNS`");
         }
 
-      ret = do_mount (container, NULL, -1, "/", NULL, rootfs_propagation, NULL, LABEL_MOUNT, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = do_mount (container, تہی, -1, "/", تہی, rootfs_اشاعت, تہی, LABEL_MOUNT, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      ret = make_parent_mount_private (*rootfs, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = make_والد_mount_نجی (*rootfs, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      ret = do_mount (container, *rootfs, -1, *rootfs, NULL, MS_BIND | MS_REC | MS_PRIVATE, NULL, LABEL_MOUNT, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = do_mount (container, *rootfs, -1, *rootfs, تہی, MS_BIND | MS_REC | MS_PRIVATE, تہی, LABEL_MOUNT, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      get_private_data (container)->needs_pivot = true;
-      get_private_data (container)->no_pivot = no_pivot;
+      get_نجی_ڈیٹا (container)->needs_محور = true;
+      get_نجی_ڈیٹا (container)->no_محور = no_محور;
     }
 
   /* Mount everything before pivot_root while host paths are still reachable.
      Use the pre-created fd when available, fall back to mount().  */
-  ret = open (*rootfs, O_PATH | O_CLOEXEC);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "open `%s`", *rootfs);
-  get_private_data (container)->rootfsfd = ret;
-  get_private_data (container)->rootfs = *rootfs;
+  ret = open (*rootfs, O_راستہ | O_CLOEXEC);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "open `%s`", *rootfs);
+  get_نجی_ڈیٹا (container)->rootfsfd = ret;
+  get_نجی_ڈیٹا (container)->rootfs = *rootfs;
 
-  if (! container->context->force_no_cgroup)
+  اگر (! container->context->force_no_cgroup)
     {
-      int cgroup_mode = libcrun_get_cgroup_mode (err);
-      if (UNLIKELY (cgroup_mode < 0))
-        return cgroup_mode;
+      صحیح cgroup_منوال = libcrun_get_cgroup_منوال (err);
+      اگر (UNLIKELY (cgroup_منوال < 0))
+        واپس cgroup_منوال;
 
-      if (cgroup_mode == CGROUP_MODE_UNIFIED)
+      اگر (cgroup_منوال == CGROUP_منوال_UNIFIED)
         {
-          char *unified_cgroup_path = NULL;
-          int procfd = get_procfd (get_private_data (container), err);
-          if (UNLIKELY (procfd < 0))
-            return procfd;
+          حرف *unified_cgroup_راستہ = تہی;
+          صحیح procfd = get_procfd (get_نجی_ڈیٹا (container), err);
+          اگر (UNLIKELY (procfd < 0))
+            واپس procfd;
 
-          ret = libcrun_get_cgroup_process_at (procfd, &unified_cgroup_path, true, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = libcrun_get_cgroup_process_at (procfd, &unified_cgroup_راستہ, true, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
 
-          get_private_data (container)->unified_cgroup_path = unified_cgroup_path;
+          get_نجی_ڈیٹا (container)->unified_cgroup_راستہ = unified_cgroup_راستہ;
         }
     }
 
   ret = do_mounts (container, *rootfs, err);
-  if (UNLIKELY (ret < 0))
+  اگر (UNLIKELY (ret < 0))
     {
-      close_and_reset (&get_private_data (container)->rootfsfd);
-      get_private_data (container)->rootfs = NULL;
-      return ret;
+      close_and_reset (&get_نجی_ڈیٹا (container)->rootfsfd);
+      get_نجی_ڈیٹا (container)->rootfs = تہی;
+      واپس ret;
     }
 
-  close_and_reset (&get_private_data (container)->rootfsfd);
-  get_private_data (container)->rootfs = NULL;
+  close_and_reset (&get_نجی_ڈیٹا (container)->rootfsfd);
+  get_نجی_ڈیٹا (container)->rootfs = تہی;
 
-  if (tree_fd < 0)
+  اگر (درخت_fd < 0)
     preopen_needed_devs_and_notify (container);
 
   /* After pivot_root, /proc is not yet mounted.  */
-  ret = get_procfd (get_private_data (container), &tmp_err);
-  if (ret < 0)
+  ret = get_procfd (get_نجی_ڈیٹا (container), &tmp_err);
+  اگر (ret < 0)
     crun_error_release (&tmp_err);
 
-  check_running_in_user_namespace (&tmp_err);
+  check_running_اندر_user_namespace (&tmp_err);
   crun_error_release (&tmp_err);
 
-  return 0;
+  واپس 0;
 }
 
-int
-libcrun_do_pivot_root (libcrun_container_t *container, bool no_pivot, char **rootfs, libcrun_error_t *err)
+صحیح
+libcrun_do_محور_جڑ (libcrun_container_t *container, bool no_محور, حرف **rootfs, libcrun_error_t *err)
 {
-  int ret;
+  صحیح ret;
 
-  if (*rootfs == NULL)
-    return 0;
+  اگر (*rootfs == تہی)
+    واپس 0;
 
-  if (get_private_data (container)->unshare_flags & CLONE_NEWNS)
+  اگر (get_نجی_ڈیٹا (container)->unshare_flags & CLONE_NEWNS)
     {
-      ret = setup_mount_namespace (container, no_pivot, rootfs, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = تیاری_mount_namespace (container, no_محور, rootfs, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
       /* If setup_mount_namespace used OPEN_TREE_NAMESPACE, rootfs is
          already set to "/".  Otherwise pivot_root is deferred until
          after the mounts are created.  */
-      if (strcmp (*rootfs, "/") == 0)
+      اگر (strcmp (*rootfs, "/") == 0)
         {
           ret = chdir ("/");
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "chdir to `/`");
+          اگر (UNLIKELY (ret < 0))
+            واپس crun_make_error (err, errno, "chdir to `/`");
         }
     }
-  else
+  ورنہ
     {
       ret = chroot (*rootfs);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "chroot to `%s`", *rootfs);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "chroot to `%s`", *rootfs);
 
       ret = chdir ("/");
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "chdir to `/`");
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "chdir to `/`");
 
-      free (*rootfs);
+      آزاد (*rootfs);
       *rootfs = xstrdup ("/");
     }
 
-  return 0;
+  واپس 0;
 }
 
 /* If one of stdin, stdout, stderr are pointing to /dev/null on
  * the outside of the container, this moves it to /dev/null inside
  * of the container. This needs to run after pivot/chroot-ing. */
-int
+صحیح
 libcrun_reopen_dev_null (libcrun_error_t *err)
 {
-  struct stat statbuf;
-  cleanup_close int fd;
-  int ret;
-  int i;
+  ساخت stat statbuf;
+  cleanup_close صحیح fd;
+  صحیح ret;
+  صحیح i;
 
   /* Open /dev/null inside of the container. */
   fd = open ("/dev/null", O_RDWR | O_CLOEXEC | O_NOFOLLOW);
-  if (UNLIKELY (fd == -1))
-    return crun_make_error (err, errno, "open `/dev/null`");
+  اگر (UNLIKELY (fd == -1))
+    واپس crun_make_error (err, errno, "open `/dev/null`");
 
   ret = ensure_dev_null (fd, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  for (i = 0; i <= 2; i++)
+  برائے (i = 0; i <= 2; i++)
     {
-      if (UNLIKELY (fstat (i, &statbuf) == -1))
-        return crun_make_error (err, errno, "stat fd `%d`", i);
-      if (is_dev_null (&statbuf))
+      اگر (UNLIKELY (fstat (i, &statbuf) == -1))
+        واپس crun_make_error (err, errno, "stat fd `%d`", i);
+      اگر (is_dev_null (&statbuf))
         {
           /* This FD is pointing to /dev/null. Point it to /dev/null inside
            * of the container. */
-          if (UNLIKELY (dup2 (fd, i) == -1))
-            return crun_make_error (err, errno, "dup2 `%d`", i);
+          اگر (UNLIKELY (dup2 (fd, i) == -1))
+            واپس crun_make_error (err, errno, "dup2 `%d`", i);
         }
     }
-  return 0;
+  واپس 0;
 }
 
-static int
-uidgidmap_helper (char *helper, pid_t pid, const char *map_file, libcrun_error_t *err)
+ساکن صحیح
+uidgidmap_helper (حرف *helper, pid_t pid, ثابت حرف *map_file, libcrun_error_t *err)
 {
-#define MAX_ARGS 20
-  char pid_fmt[16];
-  char *args[MAX_ARGS + 1];
-  char *next;
-  cleanup_free char *map_file_copy = xstrdup (map_file);
+#تعریف_کرو MAX_دلائل 20
+  حرف pid_fmt[16];
+  حرف *دلائل[MAX_دلائل + 1];
+  حرف *اگلا;
+  cleanup_free حرف *map_file_copy = xstrdup (map_file);
   size_t nargs = 0;
-  int ret;
+  صحیح ret;
 
-  args[nargs++] = helper;
+  دلائل[nargs++] = helper;
 
-  ret = snprintf (pid_fmt, sizeof (pid_fmt), "%d", pid);
-  if (UNLIKELY (ret >= (int) sizeof (pid_fmt)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  ret = snprintf (pid_fmt, حجم (pid_fmt), "%d", pid);
+  اگر (UNLIKELY (ret >= (صحیح) حجم (pid_fmt)))
+    واپس crun_make_error (err, 0, "internal error: static buffer too small");
 
-  args[nargs++] = pid_fmt;
-  next = map_file_copy;
-  while (nargs < MAX_ARGS)
+  دلائل[nargs++] = pid_fmt;
+  اگلا = map_file_copy;
+  جب (nargs < MAX_دلائل)
     {
-      char *p = strsep (&next, " \n");
-      if (next == NULL)
-        break;
-      args[nargs++] = p;
+      حرف *p = strsep (&اگلا, " \n");
+      اگر (اگلا == تہی)
+        توڑو;
+      دلائل[nargs++] = p;
     }
-  args[nargs++] = NULL;
+  دلائل[nargs++] = تہی;
 
-  ret = run_process (args, err);
-  if (ret < 0)
-    return ret;
-  if (ret > 0)
-    return crun_make_error (err, 0, "`%s` exited with status %d", helper, ret);
-  return 0;
+  ret = تسلسل_process (دلائل, err);
+  اگر (ret < 0)
+    واپس ret;
+  اگر (ret > 0)
+    واپس crun_make_error (err, 0, "`%s` exited with status %d", helper, ret);
+  واپس 0;
 }
 
-static int
-newgidmap (pid_t pid, const char *map_file, libcrun_error_t *err)
+ساکن صحیح
+newgidmap (pid_t pid, ثابت حرف *map_file, libcrun_error_t *err)
 {
-  return uidgidmap_helper ("newgidmap", pid, map_file, err);
+  واپس uidgidmap_helper ("newgidmap", pid, map_file, err);
 }
 
-static int
-newuidmap (pid_t pid, const char *map_file, libcrun_error_t *err)
+ساکن صحیح
+newuidmap (pid_t pid, ثابت حرف *map_file, libcrun_error_t *err)
 {
-  return uidgidmap_helper ("newuidmap", pid, map_file, err);
+  واپس uidgidmap_helper ("newuidmap", pid, map_file, err);
 }
 
-static int
+ساکن صحیح
 deny_setgroups (libcrun_container_t *container, pid_t pid, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_close int fd = -1;
+  صحیح ret;
+  cleanup_close صحیح fd = -1;
 
   fd = libcrun_open_proc_pid_file (container, pid, "setgroups", O_WRONLY, err);
-  if (UNLIKELY (fd < 0))
-    return fd;
+  اگر (UNLIKELY (fd < 0))
+    واپس fd;
 
-  ret = TEMP_FAILURE_RETRY (write (fd, "deny", 4));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "write to `/proc/%d/setgroups`", pid);
+  ret = عارضی_FAILURE_RETRY (اكتب (fd, "deny", 4));
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "write to `/proc/%d/setgroups`", pid);
 
-  get_private_data (container)->deny_setgroups = true;
-  return 0;
+  get_نجی_ڈیٹا (container)->deny_setgroups = true;
+  واپس 0;
 }
 
-static int
+ساکن صحیح
 can_setgroups (libcrun_container_t *container, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_free char *content = NULL;
+  صحیح ret;
+  cleanup_free حرف *content = تہی;
 
-  if (get_private_data (container)->deny_setgroups)
-    return 0;
+  اگر (get_نجی_ڈیٹا (container)->deny_setgroups)
+    واپس 0;
 
-  if (container->container_def->annotations)
+  اگر (container->container_def->annotations)
     {
-      const char *annotation;
+      ثابت حرف *annotation;
 
       /* Skip setgroups if the annotation is set to anything different than "0".  */
-      annotation = find_annotation (container, "run.oci.keep_original_groups");
-      if (annotation)
-        return strcmp (annotation, "0") == 0 ? 1 : 0;
+      annotation = ڈھونڈو_annotation (container, "run.oci.keep_original_groups");
+      اگر (annotation)
+        واپس strcmp (annotation, "0") == 0 ? 1 : 0;
     }
 
   {
-    cleanup_close int fd = -1;
+    cleanup_close صحیح fd = -1;
     fd = libcrun_open_proc_file (container, "self/setgroups", O_RDONLY, err);
-    if (fd < 0)
+    اگر (fd < 0)
       ret = fd;
-    else
-      ret = read_all_fd (fd, "self/setgroups", &content, NULL, err);
+    ورنہ
+      ret = read_all_fd (fd, "self/setgroups", &content, تہی, err);
   }
-  if (ret < 0)
+  اگر (ret < 0)
     {
       /* If the file does not exist, then the kernel does not support /proc/self/setgroups and setgroups can always be used.  */
-      if (crun_error_get_errno (err) == ENOENT)
+      اگر (crun_error_get_errno (err) == ENOENT)
         {
           crun_error_release (err);
-          return 1;
+          واپس 1;
         }
-      return ret;
+      واپس ret;
     }
 
-  return strncmp (content, "deny", 4) == 0 ? 0 : 1;
+  واپس لڑی_موازنہ (content, "deny", 4) == 0 ? 0 : 1;
 }
 
-int
+صحیح
 libcrun_container_setgroups (libcrun_container_t *container,
                              runtime_spec_schema_config_schema_process *process,
                              libcrun_error_t *err)
 {
-  gid_t *additional_gids = NULL;
+  gid_t *additional_gids = تہی;
   size_t additional_gids_len = 0;
-  int can_do_setgroups;
-  int ret;
+  صحیح can_do_setgroups;
+  صحیح ret;
 
-  if (process != NULL && process->user != NULL)
+  اگر (process != تہی && process->user != تہی)
     {
       additional_gids = process->user->additional_gids;
       additional_gids_len = process->user->additional_gids_len;
     }
 
   can_do_setgroups = can_setgroups (container, err);
-  if (UNLIKELY (can_do_setgroups < 0))
-    return can_do_setgroups;
+  اگر (UNLIKELY (can_do_setgroups < 0))
+    واپس can_do_setgroups;
 
-  if (can_do_setgroups == 0)
+  اگر (can_do_setgroups == 0)
     {
-      const char *annotation;
+      ثابت حرف *annotation;
       size_t i;
 
-      annotation = find_annotation (container, "run.oci.keep_original_groups");
-      if (annotation && strcmp (annotation, "0") != 0)
-        return 0;
+      annotation = ڈھونڈو_annotation (container, "run.oci.keep_original_groups");
+      اگر (annotation && strcmp (annotation, "0") != 0)
+        واپس 0;
 
       /* The supplementary groups cannot be changed.  Fail if any of the
          requested additional gids would not be in effect, but tolerate
          the primary gid since it is already granted by setgid.  */
-      for (i = 0; i < additional_gids_len; i++)
-        if (additional_gids[i] != process->user->gid)
-          return crun_make_error (err, EPERM, "cannot set additional gid `%d`: setgroups is denied in the user namespace",
-                                  (int) additional_gids[i]);
-      return 0;
+      برائے (i = 0; i < additional_gids_len; i++)
+        اگر (additional_gids[i] != process->user->gid)
+          واپس crun_make_error (err, EPERM, "cannot set additional gid `%d`: setgroups is denied in the user namespace",
+                                  (صحیح) additional_gids[i]);
+      واپس 0;
     }
 
   ret = setgroups (additional_gids_len, additional_gids);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "setgroups");
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "setgroups");
 
-  return 0;
+  واپس 0;
 }
 
-int
+صحیح
 libcrun_container_enter_cgroup_ns (libcrun_container_t *container, libcrun_error_t *err)
 {
-  if (get_private_data (container)->unshare_cgroupns)
+  اگر (get_نجی_ڈیٹا (container)->unshare_cgroupns)
     {
-      int ret = unshare (CLONE_NEWCGROUP);
-      if (UNLIKELY (ret < 0))
+      صحیح ret = unshare (CLONE_NEWCGROUP);
+      اگر (UNLIKELY (ret < 0))
         {
-          if (errno != EINVAL)
-            return crun_make_error (err, errno, "unshare (CLONE_NEWCGROUP)");
+          اگر (errno != EINVAL)
+            واپس crun_make_error (err, errno, "unshare (CLONE_NEWCGROUP)");
         }
     }
-  return 0;
+  واپس 0;
 }
 
 // determine whether the uid/gid mappings only contain a single entry
 // that maps the host uid/gid on the process->user->uid/gid
-int
+صحیح
 is_single_mapping (runtime_spec_schema_defs_id_mapping **mappings, size_t len,
                    uint32_t host_id, uint32_t container_id)
 {
-  if (len != 1)
-    return 0;
+  اگر (len != 1)
+    واپس 0;
 
-  if (mappings[0]->size != 1)
-    return 0;
+  اگر (mappings[0]->سائز != 1)
+    واپس 0;
 
-  if (mappings[0]->container_id != container_id || mappings[0]->host_id != host_id)
-    return 0;
+  اگر (mappings[0]->container_id != container_id || mappings[0]->host_id != host_id)
+    واپس 0;
 
-  return 1;
+  واپس 1;
 }
 
-static int
-write_id_map (libcrun_container_t *container, pid_t pid, const char *map_name,
-              int (*idmap_helper) (pid_t, const char *, libcrun_error_t *), const char *helper_name,
-              bool warn_on_failure, const char *map, size_t map_len,
+ساکن صحیح
+write_id_map (libcrun_container_t *container, pid_t pid, ثابت حرف *map_name,
+              صحیح (*idmap_helper) (pid_t, ثابت حرف *, libcrun_error_t *), ثابت حرف *helper_name,
+              bool warn_on_failure, ثابت حرف *map, size_t map_len,
               runtime_spec_schema_defs_id_mapping **mappings, size_t mappings_len,
               uint32_t host_id, uint32_t container_id, bool skip_if_setgroups_denied,
               libcrun_error_t *err)
 {
-  int ret = 0;
+  صحیح ret = 0;
 
-  if (container->host_uid)
+  اگر (container->host_uid)
     ret = idmap_helper (pid, map, err);
-  if (container->host_uid == 0 || ret < 0)
+  اگر (container->host_uid == 0 || ret < 0)
     {
-      cleanup_close int fd = -1;
+      cleanup_close صحیح fd = -1;
 
-      if (ret < 0)
+      اگر (ret < 0)
         {
-          if (warn_on_failure)
+          اگر (warn_on_failure)
             libcrun_warning ("unable to invoke `%s`, will try creating a user namespace with single mapping as an alternative", helper_name);
           crun_error_release (err);
         }
 
       fd = libcrun_open_proc_pid_file (container, pid, map_name, O_WRONLY, err);
-      if (UNLIKELY (fd < 0))
-        return fd;
+      اگر (UNLIKELY (fd < 0))
+        واپس fd;
 
-      ret = safe_write (fd, map_name, map, map_len, err);
-      if (ret < 0 && (! mappings_len || is_single_mapping (mappings, mappings_len, host_id, container_id)))
+      ret = محفوظ_write (fd, map_name, map, map_len, err);
+      اگر (ret < 0 && (! mappings_len || is_single_mapping (mappings, mappings_len, host_id, container_id)))
         {
           size_t single_mapping_len;
-          cleanup_free char *single_mapping = NULL;
+          cleanup_free حرف *single_mapping = تہی;
           crun_error_release (err);
 
-          if (! skip_if_setgroups_denied || ! get_private_data (container)->deny_setgroups)
+          اگر (! skip_if_setgroups_denied || ! get_نجی_ڈیٹا (container)->deny_setgroups)
             {
               ret = deny_setgroups (container, pid, err);
-              if (UNLIKELY (ret < 0))
-                return ret;
+              اگر (UNLIKELY (ret < 0))
+                واپس ret;
             }
 
           ret = format_mount_mapping (&single_mapping, container_id, host_id, 1, &single_mapping_len, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
 
           close_and_reset (&fd);
 
           fd = libcrun_open_proc_pid_file (container, pid, map_name, O_WRONLY, err);
-          if (UNLIKELY (fd < 0))
-            return fd;
+          اگر (UNLIKELY (fd < 0))
+            واپس fd;
 
-          ret = safe_write (fd, map_name, single_mapping, single_mapping_len, err);
+          ret = محفوظ_write (fd, map_name, single_mapping, single_mapping_len, err);
         }
     }
-  return ret;
+  واپس ret;
 }
 
-int
-libcrun_set_usernamespace (libcrun_container_t *container, pid_t pid, libcrun_error_t *err)
+صحیح
+libcrun_سیٹ_usernamespace (libcrun_container_t *container, pid_t pid, libcrun_error_t *err)
 {
-  cleanup_free char *uid_map = NULL;
-  cleanup_free char *gid_map = NULL;
+  cleanup_free حرف *uid_map = تہی;
+  cleanup_free حرف *gid_map = تہی;
   size_t uid_map_len = 0, gid_map_len = 0;
-  int ret = 0;
+  صحیح ret = 0;
   runtime_spec_schema_config_schema *def = container->container_def;
 
-  if ((get_private_data (container)->unshare_flags & CLONE_NEWUSER) == 0)
-    return 0;
+  اگر ((get_نجی_ڈیٹا (container)->unshare_flags & CLONE_NEWUSER) == 0)
+    واپس 0;
 
-  if (! def || ! def->linux)
-    return 0;
+  اگر (! def || ! def->linux)
+    واپس 0;
 
-  if (def->linux->uid_mappings_len)
+  اگر (def->linux->uid_mappings_len)
     {
       ret = format_mount_mappings (&uid_map, def->linux->uid_mappings, def->linux->uid_mappings_len, &uid_map_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
-  else
+  ورنہ
     {
       ret = format_default_id_mapping (&uid_map, container->container_uid, container->host_uid, container->host_uid, 1, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
       uid_map_len = (size_t) ret;
-      if (uid_map == NULL)
+      اگر (uid_map == تہی)
         {
           ret = format_mount_mapping (&uid_map, 0, container->host_uid, container->host_uid + 1, &uid_map_len, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
     }
 
-  if (def->linux->gid_mappings_len)
+  اگر (def->linux->gid_mappings_len)
     {
       ret = format_mount_mappings (&gid_map, def->linux->gid_mappings, def->linux->gid_mappings_len, &gid_map_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
-  else
+  ورنہ
     {
       ret = format_default_id_mapping (&gid_map, container->container_gid, container->host_uid, container->host_gid, 0, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
       gid_map_len = (size_t) ret;
-      if (gid_map == NULL)
+      اگر (gid_map == تہی)
         {
           ret = format_mount_mapping (&gid_map, 0, container->host_gid, container->host_gid + 1, &gid_map_len, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
     }
 
@@ -4973,238 +4973,238 @@ libcrun_set_usernamespace (libcrun_container_t *container, pid_t pid, libcrun_er
                       ! def->linux->uid_mappings_len, gid_map, gid_map_len,
                       def->linux->gid_mappings, def->linux->gid_mappings_len,
                       container->host_gid, container->container_gid, /* skip_if_setgroups_denied */ false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   ret = write_id_map (container, pid, "uid_map", newuidmap, "newuidmap",
                       ! def->linux->uid_mappings_len, uid_map, uid_map_len,
                       def->linux->uid_mappings, def->linux->uid_mappings_len,
                       container->host_uid, container->container_uid, /* skip_if_setgroups_denied */ true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return 0;
+  واپس 0;
 }
 
-#define CAP_TO_MASK_0(x) (1L << ((x) & 31))
-#define CAP_TO_MASK_1(x) CAP_TO_MASK_0 (x - 32)
+#تعریف_کرو CAP_مقصد_نقاب_0(x) (1L << ((x) & 31))
+#تعریف_کرو CAP_مقصد_نقاب_1(x) CAP_مقصد_نقاب_0 (x - 32)
 
-struct all_caps_s
+ساخت all_caps_s
 {
-  unsigned long effective[2];
-  unsigned long permitted[2];
-  unsigned long inheritable[2];
-  unsigned long ambient[2];
-  unsigned long bounding[2];
+  غیرعلامتی طویل effective[2];
+  غیرعلامتی طویل permitted[2];
+  غیرعلامتی طویل inheritable[2];
+  غیرعلامتی طویل ambient[2];
+  غیرعلامتی طویل bounding[2];
 };
 
-static int
-has_cap_on (int cap, long unsigned *caps)
+ساکن صحیح
+has_cap_on (صحیح cap, طویل غیرعلامتی *caps)
 {
-  if (cap < 32)
-    return CAP_TO_MASK_0 (cap) & caps[0];
-  return (CAP_TO_MASK_1 (cap) & caps[1]);
+  اگر (cap < 32)
+    واپس CAP_مقصد_نقاب_0 (cap) & caps[0];
+  واپس (CAP_مقصد_نقاب_1 (cap) & caps[1]);
 }
 
-static unsigned long cap_last_cap;
+ساکن غیرعلامتی طویل cap_آخری_cap;
 
-int
+صحیح
 libcrun_init_caps (libcrun_container_t *container, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
-  int ret;
-  char buffer[32];
+  cleanup_close صحیح fd = -1;
+  صحیح ret;
+  حرف بفر[32];
   fd = libcrun_open_proc_file (container, "sys/kernel/cap_last_cap", O_RDONLY, err);
-  if (fd < 0)
-    return fd;
-  ret = TEMP_FAILURE_RETRY (read (fd, buffer, sizeof (buffer) - 1));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "read from `/proc/sys/kernel/cap_last_cap`");
-  buffer[ret] = '\0';
+  اگر (fd < 0)
+    واپس fd;
+  ret = عارضی_FAILURE_RETRY (اقرأ (fd, بفر, حجم (بفر) - 1));
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "read from `/proc/sys/kernel/cap_last_cap`");
+  بفر[ret] = '\0';
 
   errno = 0;
-  cap_last_cap = strtoul (buffer, NULL, 10);
-  if (errno != 0)
-    return crun_make_error (err, errno, "strtoul `%s` from `/proc/sys/kernel/cap_last_cap`", buffer);
-  return 0;
+  cap_آخری_cap = strtoul (بفر, تہی, 10);
+  اگر (errno != 0)
+    واپس crun_make_error (err, errno, "strtoul `%s` from `/proc/sys/kernel/cap_last_cap`", بفر);
+  واپس 0;
 }
 
-static int
-set_required_caps (struct all_caps_s *caps, uid_t uid, gid_t gid, int no_new_privs, bool no_exec, libcrun_error_t *err)
+ساکن صحیح
+سیٹ_required_caps (ساخت all_caps_s *caps, uid_t uid, gid_t gid, صحیح no_new_privs, bool no_exec, libcrun_error_t *err)
 {
-#ifdef HAVE_CAP
-  unsigned long cap;
-  int ret;
-  struct __user_cap_header_struct hdr = { _LINUX_CAPABILITY_VERSION_3, 0 };
-  struct __user_cap_data_struct data[2] = { { 0 } };
+#اگر_تعریف_شدہ HAVE_CAP
+  غیرعلامتی طویل cap;
+  صحیح ret;
+  ساخت __user_cap_header_struct hdr = { LINUX_CAPABILITY_نسخہ_3, 0 };
+  ساخت __user_cap_data_struct ڈیٹا[2] = { { 0 } };
 
-  if (cap_last_cap == 0)
-    return crun_make_error (err, 0, "internal error: max number of capabilities not initialized");
+  اگر (cap_آخری_cap == 0)
+    واپس crun_make_error (err, 0, "internal error: max number of capabilities not initialized");
 
-  for (cap = 0; cap <= cap_last_cap; cap++)
-    if (! has_cap_on (cap, caps->bounding))
+  برائے (cap = 0; cap <= cap_آخری_cap; cap++)
+    اگر (! has_cap_on (cap, caps->bounding))
       {
         ret = prctl (PR_CAPBSET_DROP, cap, 0, 0, 0);
-        if (UNLIKELY (ret < 0 && ! (errno == EINVAL)))
-          return crun_make_error (err, errno, "prctl drop bounding");
+        اگر (UNLIKELY (ret < 0 && ! (errno == EINVAL)))
+          واپس crun_make_error (err, errno, "prctl drop bounding");
       }
 
-  data[0].effective = caps->effective[0];
-  data[1].effective = caps->effective[1];
-  data[0].inheritable = caps->inheritable[0];
-  data[1].inheritable = caps->inheritable[1];
-  data[0].permitted = caps->permitted[0];
-  data[1].permitted = caps->permitted[1];
+  ڈیٹا[0].effective = caps->effective[0];
+  ڈیٹا[1].effective = caps->effective[1];
+  ڈیٹا[0].inheritable = caps->inheritable[0];
+  ڈیٹا[1].inheritable = caps->inheritable[1];
+  ڈیٹا[0].permitted = caps->permitted[0];
+  ڈیٹا[1].permitted = caps->permitted[1];
 
-  ret = prctl (PR_SET_KEEPCAPS, 1, 0, 0, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "prctl set KEEPCAPS");
+  ret = prctl (PR_سیٹ_KEEPCAPS, 1, 0, 0, 0);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "prctl set KEEPCAPS");
 
   /* -1 means "leave unchanged" for setresgid and setresuid.  */
-  if (UNLIKELY (uid == (uid_t) -1 || gid == (gid_t) -1))
-    return crun_make_error (err, EINVAL, "invalid user `%u:%u`", uid, gid);
+  اگر (UNLIKELY (uid == (uid_t) -1 || gid == (gid_t) -1))
+    واپس crun_make_error (err, EINVAL, "invalid user `%u:%u`", uid, gid);
 
   ret = setresgid (gid, gid, gid);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "setresgid to `%d`", gid);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "setresgid to `%d`", gid);
 
   ret = setresuid (uid, uid, uid);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "setresuid to `%d`", uid);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "setresuid to `%d`", uid);
 
-  ret = capset (&hdr, data);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "capset");
+  ret = capset (&hdr, ڈیٹا);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "capset");
 
 #  ifdef PR_CAP_AMBIENT
   ret = prctl (PR_CAP_AMBIENT, PR_CAP_AMBIENT_CLEAR_ALL, 0, 0, 0);
-  if (UNLIKELY (ret < 0 && ! (errno == EINVAL || errno == EPERM)))
-    return crun_make_error (err, errno, "prctl reset ambient");
+  اگر (UNLIKELY (ret < 0 && ! (errno == EINVAL || errno == EPERM)))
+    واپس crun_make_error (err, errno, "prctl reset ambient");
 
-  for (cap = 0; cap <= cap_last_cap; cap++)
-    if (has_cap_on (cap, caps->ambient))
+  برائے (cap = 0; cap <= cap_آخری_cap; cap++)
+    اگر (has_cap_on (cap, caps->ambient))
       {
         ret = prctl (PR_CAP_AMBIENT, PR_CAP_AMBIENT_RAISE, cap, 0, 0);
-        if (UNLIKELY (ret < 0 && ! (errno == EINVAL || errno == EPERM)))
-          return crun_make_error (err, errno, "prctl ambient raise");
+        اگر (UNLIKELY (ret < 0 && ! (errno == EINVAL || errno == EPERM)))
+          واپس crun_make_error (err, errno, "prctl ambient raise");
       }
 #  endif
 
   /* If the workload runs in the current process, there is no execve(2) that resets KEEPCAPS and,
      for a non-root user, leaves only the ambient set in the permitted and effective sets.  */
-  if (no_exec)
+  اگر (no_exec)
     {
-      ret = prctl (PR_SET_KEEPCAPS, 0, 0, 0, 0);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "prctl reset KEEPCAPS");
+      ret = prctl (PR_سیٹ_KEEPCAPS, 0, 0, 0, 0);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "prctl reset KEEPCAPS");
 
-      if (uid != 0)
+      اگر (uid != 0)
         {
-          data[0].permitted = data[1].permitted = 0;
+          ڈیٹا[0].permitted = ڈیٹا[1].permitted = 0;
 #  ifdef PR_CAP_AMBIENT
-          for (cap = 0; cap <= cap_last_cap; cap++)
-            if (prctl (PR_CAP_AMBIENT, PR_CAP_AMBIENT_IS_SET, cap, 0, 0) > 0)
-              data[cap / 32].permitted |= CAP_TO_MASK_0 (cap);
+          برائے (cap = 0; cap <= cap_آخری_cap; cap++)
+            اگر (prctl (PR_CAP_AMBIENT, PR_CAP_AMBIENT_IS_سیٹ, cap, 0, 0) > 0)
+              ڈیٹا[cap / 32].permitted |= CAP_مقصد_نقاب_0 (cap);
 #  endif
-          data[0].effective = data[0].permitted;
-          data[1].effective = data[1].permitted;
+          ڈیٹا[0].effective = ڈیٹا[0].permitted;
+          ڈیٹا[1].effective = ڈیٹا[1].permitted;
 
-          ret = capset (&hdr, data);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "capset");
+          ret = capset (&hdr, ڈیٹا);
+          اگر (UNLIKELY (ret < 0))
+            واپس crun_make_error (err, errno, "capset");
         }
     }
-#endif
+#اگر_ختم
 
-  if (no_new_privs)
-    if (UNLIKELY (prctl (PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) < 0))
-      return crun_make_error (err, errno, "prctl set no new privs");
+  اگر (no_new_privs)
+    اگر (UNLIKELY (prctl (PR_سیٹ_NO_NEW_PRIVS, 1, 0, 0, 0) < 0))
+      واپس crun_make_error (err, errno, "prctl set no new privs");
 
-  return 0;
+  واپس 0;
 }
 
-static int
-read_caps (unsigned long caps[2], char **values, size_t len, libcrun_error_t *err)
+ساکن صحیح
+read_caps (غیرعلامتی طویل caps[2], حرف **اقدار, size_t len, libcrun_error_t *err)
 {
-#ifdef HAVE_CAP
+#اگر_تعریف_شدہ HAVE_CAP
   size_t i;
-  for (i = 0; i < len; i++)
+  برائے (i = 0; i < len; i++)
     {
-      cap_value_t cap;
-      if (cap_from_name (values[i], &cap) < 0)
-        return crun_make_error (err, 0, "unknown capability `%s`", values[i]);
+      cap_قدر_t cap;
+      اگر (cap_from_name (اقدار[i], &cap) < 0)
+        واپس crun_make_error (err, 0, "unknown capability `%s`", اقدار[i]);
 
-      if (cap < 32)
-        caps[0] |= CAP_TO_MASK_0 (cap);
-      else
-        caps[1] |= CAP_TO_MASK_1 (cap);
+      اگر (cap < 32)
+        caps[0] |= CAP_مقصد_نقاب_0 (cap);
+      ورنہ
+        caps[1] |= CAP_مقصد_نقاب_1 (cap);
     }
-#else
+#ورنہ
   caps[0] = 0;
   caps[1] = 0;
-#endif
-  return 0;
+#اگر_ختم
+  واپس 0;
 }
 
-int
-libcrun_set_selinux_label (libcrun_container_t *container, runtime_spec_schema_config_schema_process *proc, bool now, libcrun_error_t *err)
+صحیح
+libcrun_سیٹ_selinux_label (libcrun_container_t *container, runtime_spec_schema_config_schema_process *proc, bool now, libcrun_error_t *err)
 {
-  if (proc->selinux_label)
-    return set_selinux_label (container, proc->selinux_label, now, err);
+  اگر (proc->selinux_label)
+    واپس سیٹ_selinux_label (container, proc->selinux_label, now, err);
 
-  return 0;
+  واپس 0;
 }
 
-int
-libcrun_set_apparmor_profile (libcrun_container_t *container, runtime_spec_schema_config_schema_process *proc, bool now, libcrun_error_t *err)
+صحیح
+libcrun_سیٹ_apparmor_profile (libcrun_container_t *container, runtime_spec_schema_config_schema_process *proc, bool now, libcrun_error_t *err)
 {
-  if (proc->apparmor_profile)
-    return set_apparmor_profile (container, proc->apparmor_profile, proc->no_new_privileges, now, err);
-  return 0;
+  اگر (proc->apparmor_profile)
+    واپس سیٹ_apparmor_profile (container, proc->apparmor_profile, proc->no_new_privileges, now, err);
+  واپس 0;
 }
 
-int
-libcrun_set_caps (runtime_spec_schema_config_schema_process_capabilities *capabilities, uid_t uid, gid_t gid,
-                  int no_new_privileges, bool no_exec, libcrun_error_t *err)
+صحیح
+libcrun_سیٹ_caps (runtime_spec_schema_config_schema_process_capabilities *capabilities, uid_t uid, gid_t gid,
+                  صحیح no_new_privileges, bool no_exec, libcrun_error_t *err)
 {
-  struct all_caps_s caps = {};
-  int ret;
+  ساخت all_caps_s caps = {};
+  صحیح ret;
 
-  if (capabilities)
+  اگر (capabilities)
     {
       ret = read_caps (caps.effective, capabilities->effective, capabilities->effective_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
       ret = read_caps (caps.inheritable, capabilities->inheritable, capabilities->inheritable_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
       ret = read_caps (caps.ambient, capabilities->ambient, capabilities->ambient_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
       ret = read_caps (caps.bounding, capabilities->bounding, capabilities->bounding_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
       ret = read_caps (caps.permitted, capabilities->permitted, capabilities->permitted_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
-  return set_required_caps (&caps, uid, gid, no_new_privileges, no_exec, err);
+  واپس سیٹ_required_caps (&caps, uid, gid, no_new_privileges, no_exec, err);
 }
 
-struct rlimit_s
+ساخت rlimit_s
 {
-  const char *name;
-  int value;
+  ثابت حرف *name;
+  صحیح قدر;
 };
 
-struct rlimit_s rlimits[] = { { "RLIMIT_AS", RLIMIT_AS },
+ساخت rlimit_s rlimits[] = { { "RLIMIT_AS", RLIMIT_AS },
                               { "RLIMIT_CORE", RLIMIT_CORE },
                               { "RLIMIT_CPU", RLIMIT_CPU },
-                              { "RLIMIT_DATA", RLIMIT_DATA },
+                              { "RLIMIT_DATA", RLIMIT_ڈیٹا },
                               { "RLIMIT_FSIZE", RLIMIT_FSIZE },
                               { "RLIMIT_LOCKS", RLIMIT_LOCKS },
                               { "RLIMIT_MEMLOCK", RLIMIT_MEMLOCK },
@@ -5216,109 +5216,109 @@ struct rlimit_s rlimits[] = { { "RLIMIT_AS", RLIMIT_AS },
                               { "RLIMIT_RTPRIO", RLIMIT_RTPRIO },
                               { "RLIMIT_RTTIME", RLIMIT_RTTIME },
                               { "RLIMIT_SIGPENDING", RLIMIT_SIGPENDING },
-                              { "RLIMIT_STACK", RLIMIT_STACK },
-                              { NULL, 0 } };
+                              { "RLIMIT_STACK", RLIMIT_ڈھیر },
+                              { تہی, 0 } };
 
-static int
-get_rlimit_resource (const char *name)
+ساکن صحیح
+get_rlimit_resource (ثابت حرف *name)
 {
-  struct rlimit_s *it;
-  for (it = rlimits; it->name; it++)
-    if (strcmp (it->name, name) == 0)
-      return it->value;
-  return -1;
+  ساخت rlimit_s *it;
+  برائے (it = rlimits; it->name; it++)
+    اگر (strcmp (it->name, name) == 0)
+      واپس it->قدر;
+  واپس -1;
 }
 
-int
-libcrun_set_rlimits (runtime_spec_schema_config_schema_process_rlimits_element **new_rlimits, size_t len,
+صحیح
+libcrun_سیٹ_rlimits (runtime_spec_schema_config_schema_process_rlimits_element **new_rlimits, size_t len,
                      libcrun_error_t *err)
 {
   size_t i, j;
   /* Check for duplicate rlimit types.  */
-  for (i = 0; i < len; i++)
+  برائے (i = 0; i < len; i++)
     {
-      for (j = i + 1; j < len; j++)
+      برائے (j = i + 1; j < len; j++)
         {
-          if (strcmp (new_rlimits[i]->type, new_rlimits[j]->type) == 0)
-            return crun_make_error (err, 0, "duplicate rlimit `%s`", new_rlimits[i]->type);
+          اگر (strcmp (new_rlimits[i]->type, new_rlimits[j]->type) == 0)
+            واپس crun_make_error (err, 0, "duplicate rlimit `%s`", new_rlimits[i]->type);
         }
     }
 
-  for (i = 0; i < len; i++)
+  برائے (i = 0; i < len; i++)
     {
-      struct rlimit limit;
-      char *type = new_rlimits[i]->type;
-      int resource = get_rlimit_resource (type);
-      if (UNLIKELY (resource < 0))
-        return crun_make_error (err, 0, "invalid rlimit `%s`", type);
-      limit.rlim_cur = new_rlimits[i]->soft;
-      limit.rlim_max = new_rlimits[i]->hard;
+      ساخت rlimit حد_بندی;
+      حرف *type = new_rlimits[i]->type;
+      صحیح resource = get_rlimit_resource (type);
+      اگر (UNLIKELY (resource < 0))
+        واپس crun_make_error (err, 0, "invalid rlimit `%s`", type);
+      حد_بندی.rlim_cur = new_rlimits[i]->soft;
+      حد_بندی.rlim_max = new_rlimits[i]->hard;
       libcrun_debug ("Set rlimit: soft = `%llu`, hard = `%llu`",
-                     (unsigned long long) limit.rlim_cur,
-                     (unsigned long long) limit.rlim_max);
-      if (UNLIKELY (setrlimit (resource, &limit) < 0))
-        return crun_make_error (err, errno, "setrlimit `%s`", type);
+                     (غیرعلامتی طویل طویل) حد_بندی.rlim_cur,
+                     (غیرعلامتی طویل طویل) حد_بندی.rlim_max);
+      اگر (UNLIKELY (setrlimit (resource, &حد_بندی) < 0))
+        واپس crun_make_error (err, errno, "setrlimit `%s`", type);
     }
-  return 0;
+  واپس 0;
 }
 
-int
-libcrun_set_hostname (libcrun_container_t *container, libcrun_error_t *err)
+صحیح
+libcrun_سیٹ_hostname (libcrun_container_t *container, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  int has_uts = get_private_data (container)->unshare_flags & CLONE_NEWUTS;
-  int ret;
-  if (def->hostname == NULL || def->hostname[0] == '\0')
-    return 0;
-  if (! has_uts)
-    return crun_make_error (err, 0, "hostname requires the UTS namespace");
-  ret = sethostname (def->hostname, strlen (def->hostname));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "sethostname");
-  return 0;
+  صحیح has_uts = get_نجی_ڈیٹا (container)->unshare_flags & CLONE_NEWUTS;
+  صحیح ret;
+  اگر (def->hostname == تہی || def->hostname[0] == '\0')
+    واپس 0;
+  اگر (! has_uts)
+    واپس crun_make_error (err, 0, "hostname requires the UTS namespace");
+  ret = sethostname (def->hostname, لڑی_لمبائی (def->hostname));
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "sethostname");
+  واپس 0;
 }
 
-int
-libcrun_set_domainname (libcrun_container_t *container, libcrun_error_t *err)
+صحیح
+libcrun_سیٹ_domainname (libcrun_container_t *container, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  int has_uts = get_private_data (container)->unshare_flags & CLONE_NEWUTS;
-  int ret;
-  if (is_empty_string (def->domainname))
-    return 0;
-  if (! has_uts)
-    return crun_make_error (err, 0, "domainname requires the UTS namespace");
-  ret = setdomainname (def->domainname, strlen (def->domainname));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "setdomainname");
-  return 0;
+  صحیح has_uts = get_نجی_ڈیٹا (container)->unshare_flags & CLONE_NEWUTS;
+  صحیح ret;
+  اگر (is_خالی_خانے_string (def->domainname))
+    واپس 0;
+  اگر (! has_uts)
+    واپس crun_make_error (err, 0, "domainname requires the UTS namespace");
+  ret = setdomainname (def->domainname, لڑی_لمبائی (def->domainname));
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "setdomainname");
+  واپس 0;
 }
 
-int
-libcrun_set_oom (libcrun_container_t *container, libcrun_error_t *err)
+صحیح
+libcrun_سیٹ_oom (libcrun_container_t *container, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  cleanup_close int fd = -1;
-  int ret;
-  char oom_buffer[16];
-  if (def->process == NULL || ! def->process->oom_score_adj_present)
-    return 0;
+  cleanup_close صحیح fd = -1;
+  صحیح ret;
+  حرف oom_بفر[16];
+  اگر (def->process == تہی || ! def->process->oom_score_adj_present)
+    واپس 0;
   libcrun_debug ("Write OOM score adj: `%d`", def->process->oom_score_adj);
 
-  ret = snprintf (oom_buffer, sizeof (oom_buffer), "%i", def->process->oom_score_adj);
-  if (UNLIKELY (ret >= (int) sizeof (oom_buffer)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  ret = snprintf (oom_بفر, حجم (oom_بفر), "%i", def->process->oom_score_adj);
+  اگر (UNLIKELY (ret >= (صحیح) حجم (oom_بفر)))
+    واپس crun_make_error (err, 0, "internal error: static buffer too small");
 
   fd = libcrun_open_proc_file (container, "self/oom_score_adj", O_RDWR, err);
-  if (fd < 0)
-    return fd;
-  ret = TEMP_FAILURE_RETRY (write (fd, oom_buffer, strlen (oom_buffer)));
-  if (ret < 0)
-    return crun_make_error (err, errno, "write to `/proc/self/oom_score_adj`");
-  return 0;
+  اگر (fd < 0)
+    واپس fd;
+  ret = عارضی_FAILURE_RETRY (اكتب (fd, oom_بفر, لڑی_لمبائی (oom_بفر)));
+  اگر (ret < 0)
+    واپس crun_make_error (err, errno, "write to `/proc/self/oom_score_adj`");
+  واپس 0;
 }
 
-const char *sysctlRequiringIPC[] = {
+ثابت حرف *sysctlRequiringIPC[] = {
   "kernel/msgmax",
   "kernel/msgmnb",
   "kernel/msgmni",
@@ -5327,498 +5327,498 @@ const char *sysctlRequiringIPC[] = {
   "kernel/shmmax",
   "kernel/shmmni",
   "kernel/shm_rmid_forced",
-  NULL
+  تہی
 };
 
-static int
-validate_sysctl (const char *original_key, const char *original_value, const char *name, unsigned long namespaces_created, runtime_spec_schema_config_schema *def, libcrun_error_t *err)
+ساکن صحیح
+validate_sysctl (ثابت حرف *original_کلید, ثابت حرف *original_قدر, ثابت حرف *name, غیرعلامتی طویل namespaces_created, runtime_spec_schema_config_schema *def, libcrun_error_t *err)
 {
-  const char *namespace = "";
+  ثابت حرف *namespace = "";
 
   /* The name is used as a relative path with openat(), so a leading '/' would
      make it escape /proc/sys altogether, and a ".." component could reach a
      sysctl other than the one being validated here.  */
-  if (name[0] == '/' || path_has_dot_dot_component (name))
-    return crun_make_error (err, 0, "the sysctl `%s` contains an invalid path", original_key);
+  اگر (name[0] == '/' || راستہ_has_dot_dot_component (name))
+    واپس crun_make_error (err, 0, "the sysctl `%s` contains an invalid path", original_کلید);
 
-  if (has_prefix (name, "fs/mqueue/"))
+  اگر (has_سابقہ (name, "fs/mqueue/"))
     {
-      if (namespaces_created & CLONE_NEWIPC)
-        return 0;
+      اگر (namespaces_created & CLONE_NEWIPC)
+        واپس 0;
 
       namespace = "IPC";
-      goto fail;
+      جاؤ fail;
     }
 
-  if (has_prefix (name, "kernel/"))
+  اگر (has_سابقہ (name, "kernel/"))
     {
       size_t i;
 
-      for (i = 0; sysctlRequiringIPC[i]; i++)
-        if (strcmp (sysctlRequiringIPC[i], name) == 0)
+      برائے (i = 0; sysctlRequiringIPC[i]; i++)
+        اگر (strcmp (sysctlRequiringIPC[i], name) == 0)
           {
-            if (namespaces_created & CLONE_NEWIPC)
-              return 0;
+            اگر (namespaces_created & CLONE_NEWIPC)
+              واپس 0;
 
             namespace = "IPC";
-            goto fail;
+            جاؤ fail;
           }
 
-      if (strcmp (name, "kernel/domainname") == 0)
+      اگر (strcmp (name, "kernel/domainname") == 0)
         {
           // Value of sysctl `kernel/domainname` is going to
           // conflict with already set field `domainname` in
           // OCI spec, in such scenario crun will fail to prevent
           // unexpected behaviour for end user.
-          if (! is_empty_string (def->domainname) && (strcmp (original_value, def->domainname) != 0))
-            return crun_make_error (err, 0, "the sysctl `%s` conflicts with OCI field `domainname`", original_key);
+          اگر (! is_خالی_خانے_string (def->domainname) && (strcmp (original_قدر, def->domainname) != 0))
+            واپس crun_make_error (err, 0, "the sysctl `%s` conflicts with OCI field `domainname`", original_کلید);
 
-          if (namespaces_created & CLONE_NEWUTS)
-            return 0;
+          اگر (namespaces_created & CLONE_NEWUTS)
+            واپس 0;
 
           namespace = "UTS";
-          goto fail;
+          جاؤ fail;
         }
 
-      if (strcmp (name, "kernel/hostname") == 0)
-        return crun_make_error (err, 0, "the sysctl `%s` conflicts with OCI field `hostname`", original_key);
+      اگر (strcmp (name, "kernel/hostname") == 0)
+        واپس crun_make_error (err, 0, "the sysctl `%s` conflicts with OCI field `hostname`", original_کلید);
     }
-  if (has_prefix (name, "net/"))
+  اگر (has_سابقہ (name, "net/"))
     {
-      if (namespaces_created & CLONE_NEWNET)
-        return 0;
+      اگر (namespaces_created & CLONE_NEWNET)
+        واپس 0;
 
       namespace = "network";
-      goto fail;
+      جاؤ fail;
     }
 
-  return crun_make_error (err, 0, "the sysctl `%s` is not namespaced", original_key);
+  واپس crun_make_error (err, 0, "the sysctl `%s` is not namespaced", original_کلید);
 
 fail:
-  return crun_make_error (err, 0, "the sysctl `%s` requires a new %s namespace", original_key, namespace);
+  واپس crun_make_error (err, 0, "the sysctl `%s` requires a new %s namespace", original_کلید, namespace);
 }
 
 /* Best-effort attempt to give a better explanation why setting a sysctl could have failed. */
-static char *
-sysctl_error_reason (const char *name, int namespaces_created, int errno_)
+ساکن حرف *
+sysctl_error_reason (ثابت حرف *name, صحیح namespaces_created, صحیح errno_)
 {
 
-  if (strcmp (name, "net.ipv4.ping_group_range") == 0 && (errno_ == EINVAL) && (namespaces_created & CLONE_NEWUSER))
-    return xstrdup ("are all the IDs mapped in the user namespace?");
+  اگر (strcmp (name, "net.ipv4.ping_group_range") == 0 && (errno_ == EINVAL) && (namespaces_created & CLONE_NEWUSER))
+    واپس xstrdup ("are all the IDs mapped in the user namespace?");
 
-  return NULL;
+  واپس تہی;
 }
 
-int
-libcrun_set_sysctl (libcrun_container_t *container, libcrun_error_t *err)
+صحیح
+libcrun_سیٹ_sysctl (libcrun_container_t *container, libcrun_error_t *err)
 {
   size_t i;
-  cleanup_close int dirfd = -1;
-  unsigned long namespaces_created = 0;
+  cleanup_close صحیح dirfd = -1;
+  غیرعلامتی طویل namespaces_created = 0;
   runtime_spec_schema_config_schema *def = container->container_def;
 
-  if (def->linux == NULL || def->linux->sysctl == NULL || def->linux->sysctl->len == 0)
-    return 0;
+  اگر (def->linux == تہی || def->linux->sysctl == تہی || def->linux->sysctl->len == 0)
+    واپس 0;
 
-  for (i = 0; i < def->linux->namespaces_len; i++)
+  برائے (i = 0; i < def->linux->namespaces_len; i++)
     {
-      int value;
+      صحیح قدر;
 
-      value = libcrun_find_namespace (def->linux->namespaces[i]->type);
-      if (UNLIKELY (value < 0))
-        return crun_make_error (err, 0, "invalid namespace type: `%s`", def->linux->namespaces[i]->type);
+      قدر = libcrun_ڈھونڈو_namespace (def->linux->namespaces[i]->type);
+      اگر (UNLIKELY (قدر < 0))
+        واپس crun_make_error (err, 0, "invalid namespace type: `%s`", def->linux->namespaces[i]->type);
 
-      namespaces_created |= value;
+      namespaces_created |= قدر;
     }
 
-  get_private_data (container);
-  dirfd = libcrun_open_proc_file (container, "sys", O_DIRECTORY | O_PATH, err);
-  if (UNLIKELY (dirfd < 0))
-    return dirfd;
+  get_نجی_ڈیٹا (container);
+  dirfd = libcrun_open_proc_file (container, "sys", O_DIRECTORY | O_راستہ, err);
+  اگر (UNLIKELY (dirfd < 0))
+    واپس dirfd;
 
-  for (i = 0; i < def->linux->sysctl->len; i++)
+  برائے (i = 0; i < def->linux->sysctl->len; i++)
     {
-      cleanup_free char *name = NULL;
-      cleanup_close int fd = -1;
-      int ret;
+      cleanup_free حرف *name = تہی;
+      cleanup_close صحیح fd = -1;
+      صحیح ret;
 
       /* A sysctl whose value is null in the document is parsed into a NULL,
          and there is nothing to write to the file.  */
-      if (def->linux->sysctl->keys[i] == NULL || def->linux->sysctl->values[i] == NULL)
-        return crun_make_error (err, EINVAL, "sysctl value is not specified");
+      اگر (def->linux->sysctl->کلیدیں[i] == تہی || def->linux->sysctl->اقدار[i] == تہی)
+        واپس crun_make_error (err, EINVAL, "sysctl value is not specified");
 
-      name = libcrun_sysctl_key_to_proc_path (def->linux->sysctl->keys[i]);
+      name = libcrun_sysctl_کلید_مقصد_proc_راستہ (def->linux->sysctl->کلیدیں[i]);
 
-      ret = validate_sysctl (def->linux->sysctl->keys[i], def->linux->sysctl->values[i], name, namespaces_created, def, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = validate_sysctl (def->linux->sysctl->کلیدیں[i], def->linux->sysctl->اقدار[i], name, namespaces_created, def, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
       fd = openat (dirfd, name, O_WRONLY | O_CLOEXEC);
-      if (UNLIKELY (fd < 0))
-        return crun_make_error (err, errno, "open `/proc/sys/%s`", name);
+      اگر (UNLIKELY (fd < 0))
+        واپس crun_make_error (err, errno, "open `/proc/sys/%s`", name);
 
-      ret = TEMP_FAILURE_RETRY (write (fd, def->linux->sysctl->values[i], strlen (def->linux->sysctl->values[i])));
-      if (UNLIKELY (ret < 0))
+      ret = عارضی_FAILURE_RETRY (اكتب (fd, def->linux->sysctl->اقدار[i], لڑی_لمبائی (def->linux->sysctl->اقدار[i])));
+      اگر (UNLIKELY (ret < 0))
         {
-          int saved_errno = errno;
-          cleanup_free char *reason = NULL;
+          صحیح saved_errno = errno;
+          cleanup_free حرف *reason = تہی;
 
-          reason = sysctl_error_reason (def->linux->sysctl->keys[i], namespaces_created, saved_errno);
-          return crun_make_error (err, saved_errno, "write to `/proc/sys/%s`%s%s%s", name, reason ? " (" : "", reason ?: "", reason ? ")" : "");
+          reason = sysctl_error_reason (def->linux->sysctl->کلیدیں[i], namespaces_created, saved_errno);
+          واپس crun_make_error (err, saved_errno, "write to `/proc/sys/%s`%s%s%s", name, reason ? " (" : "", reason ?: "", reason ? ")" : "");
         }
     }
-  return 0;
+  واپس 0;
 }
 
-static int
-open_terminal (char **pty, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err)
+ساکن صحیح
+open_terminal (حرف **pty, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
+  cleanup_close صحیح fd = -1;
   uid_t uid = 0;
-  int ret;
+  صحیح ret;
 
-  if (process && process->user)
+  اگر (process && process->user)
     uid = process->user->uid;
 
   fd = libcrun_new_terminal (pty, err);
-  if (UNLIKELY (fd < 0))
-    return fd;
+  اگر (UNLIKELY (fd < 0))
+    واپس fd;
 
-  ret = libcrun_set_stdio (fd, *pty, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_سیٹ_stdio (fd, *pty, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (uid)
+  اگر (uid)
     {
       /* The slave is now stdin, use the descriptor instead of resolving the path again.  */
       ret = fchown (0, uid, -1);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "chown `%s`", *pty);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "chown `%s`", *pty);
     }
 
   ret = get_and_reset (&fd);
-  return ret;
+  واپس ret;
 }
 
-char *
+حرف *
 libcrun_get_external_descriptors (libcrun_container_t *container)
 {
-  return get_private_data (container)->external_descriptors;
+  واپس get_نجی_ڈیٹا (container)->external_descriptors;
 }
 
-int
+صحیح
 libcrun_save_external_descriptors (libcrun_container_t *container, libcrun_error_t *err)
 {
-  const char *buf = NULL;
-  json_gen_ctx *gen = NULL;
+  ثابت حرف *buf = تہی;
+  json_gen_ctx *gen = تہی;
   size_t buf_len;
-  int ret;
-  int i;
+  صحیح ret;
+  صحیح i;
 
-  if (! json_gen_init (&gen, NULL))
-    return crun_make_error (err, errno, "json_gen_init");
+  اگر (! json_gen_init (&gen, تہی))
+    واپس crun_make_error (err, errno, "json_gen_init");
 
   ret = json_gen_array_open (gen);
-  if (UNLIKELY (ret != json_gen_status_ok))
-    goto json_error;
+  اگر (UNLIKELY (ret != json_gen_حالت_ok))
+    جاؤ json_error;
 
   /* Remember original stdin, stdout, stderr for container restore.  */
-  for (i = 0; i < 3; i++)
+  برائے (i = 0; i < 3; i++)
     {
-      proc_fd_path_t fd_path;
-      char link_path[PATH_MAX];
+      proc_fd_راستہ_t fd_راستہ;
+      حرف link_راستہ[PATH_MAX];
 
-      get_proc_self_fd_path (fd_path, i);
+      get_proc_self_fd_راستہ (fd_راستہ, i);
 
-      ret = readlink (fd_path, link_path, PATH_MAX - 1);
-      if (UNLIKELY (ret < 0))
+      ret = readlink (fd_راستہ, link_راستہ, PATH_MAX - 1);
+      اگر (UNLIKELY (ret < 0))
         {
           /* The fd could not exist.  */
-          if (errno == ENOENT)
+          اگر (errno == ENOENT)
             {
-              strcpy (link_path, "/dev/null");
+              strcpy (link_راستہ, "/dev/null");
               ret = 9; /* strlen ("/dev/null").  */
             }
-          else
+          ورنہ
             {
               json_gen_free (gen);
-              return crun_make_error (err, errno, "readlink `%s`", fd_path);
+              واپس crun_make_error (err, errno, "readlink `%s`", fd_راستہ);
             }
         }
-      link_path[ret] = 0;
+      link_راستہ[ret] = 0;
 
-      ret = json_gen_string (gen, link_path, ret);
-      if (UNLIKELY (ret != json_gen_status_ok))
-        goto json_error;
+      ret = json_gen_string (gen, link_راستہ, ret);
+      اگر (UNLIKELY (ret != json_gen_حالت_ok))
+        جاؤ json_error;
     }
 
   ret = json_gen_array_close (gen);
-  if (UNLIKELY (ret != json_gen_status_ok))
-    goto json_error;
+  اگر (UNLIKELY (ret != json_gen_حالت_ok))
+    جاؤ json_error;
 
   ret = json_gen_get_buf (gen, &buf, &buf_len);
-  if (UNLIKELY (ret != json_gen_status_ok))
-    goto json_error;
+  اگر (UNLIKELY (ret != json_gen_حالت_ok))
+    جاؤ json_error;
 
-  if (buf)
+  اگر (buf)
     {
-      char *b = xmalloc (buf_len + 1);
-      memcpy (b, buf, buf_len);
+      حرف *b = xmalloc (buf_len + 1);
+      حافظہ_نقل (b, buf, buf_len);
       b[buf_len] = '\0';
-      get_private_data (container)->external_descriptors = b;
+      get_نجی_ڈیٹا (container)->external_descriptors = b;
     }
 
   json_gen_free (gen);
 
-  return 0;
+  واپس 0;
 
 json_error:
-  if (gen)
+  اگر (gen)
     json_gen_free (gen);
-  return json_gen_error_to_crun_error (ret, err);
+  واپس json_gen_error_مقصد_crun_error (ret, err);
 }
 
-int
-libcrun_set_terminal (libcrun_container_t *container, libcrun_error_t *err)
+صحیح
+libcrun_سیٹ_terminal (libcrun_container_t *container, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  cleanup_free char *pty = NULL;
-  cleanup_close int fd = -1;
-  int ret;
+  cleanup_free حرف *pty = تہی;
+  cleanup_close صحیح fd = -1;
+  صحیح ret;
 
-  if (def->process == NULL || ! def->process->terminal)
-    return 0;
+  اگر (def->process == تہی || ! def->process->terminal)
+    واپس 0;
 
   fd = open_terminal (&pty, def->process, err);
-  if (UNLIKELY (fd < 0))
-    return fd;
+  اگر (UNLIKELY (fd < 0))
+    واپس fd;
 
-  if (def->process->console_size)
+  اگر (def->process->console_سائز)
     {
-      ret = libcrun_terminal_setup_size (0, def->process->console_size->height, def->process->console_size->width, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_terminal_تیاری_سائز (0, def->process->console_سائز->اونچائی, def->process->console_سائز->چوڑائی, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  if (get_private_data (container)->mount_dev_from_host)
+  اگر (get_نجی_ڈیٹا (container)->mount_dev_from_host)
     {
-      ret = do_mount (container, pty, -1, "/dev/console", NULL, MS_BIND, NULL, LABEL_MOUNT, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = do_mount (container, pty, -1, "/dev/console", تہی, MS_BIND, تہی, LABEL_MOUNT, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
-  else
+  ورنہ
     {
       ret = unlink ("/dev/console");
-      if (UNLIKELY (ret < 0 && errno != ENOENT))
+      اگر (UNLIKELY (ret < 0 && errno != ENOENT))
         {
-          if (errno == EROFS)
+          اگر (errno == EROFS)
             {
               /* If the file system is read-only, fall back to a bind mount.  */
-              ret = do_mount (container, pty, -1, "/dev/console", NULL, MS_BIND, NULL, LABEL_MOUNT, err);
-              if (UNLIKELY (ret < 0))
-                return ret;
+              ret = do_mount (container, pty, -1, "/dev/console", تہی, MS_BIND, تہی, LABEL_MOUNT, err);
+              اگر (UNLIKELY (ret < 0))
+                واپس ret;
 
-              return get_and_reset (&fd);
+              واپس get_and_reset (&fd);
             }
-          return crun_make_error (err, errno, "unlink `/dev/console`");
+          واپس crun_make_error (err, errno, "unlink `/dev/console`");
         }
 
       ret = symlink (pty, "/dev/console");
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "symlink `/dev/console` -> `%s`", pty);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "symlink `/dev/console` -> `%s`", pty);
     }
 
-  return get_and_reset (&fd);
+  واپس get_and_reset (&fd);
 }
 
-static bool
-read_error_from_sync_socket (int sync_socket_fd, int *error, char **str)
+ساکن bool
+read_error_from_sync_socket (صحیح sync_socket_fd, صحیح *error, حرف **str)
 {
-  cleanup_free char *b = NULL;
-  size_t size;
-  int code = 0;
-  int ret;
+  cleanup_free حرف *b = تہی;
+  size_t سائز;
+  صحیح رمز = 0;
+  صحیح ret;
 
-  if (*error == 0)
+  اگر (*error == 0)
     {
-      ret = TEMP_FAILURE_RETRY (read (sync_socket_fd, &code, sizeof (code)));
-      if (UNLIKELY (ret != (int) sizeof (code)))
-        return false;
-      *error = code;
+      ret = عارضی_FAILURE_RETRY (اقرأ (sync_socket_fd, &رمز, حجم (رمز)));
+      اگر (UNLIKELY (ret != (صحیح) حجم (رمز)))
+        واپس false;
+      *error = رمز;
     }
 
-  ret = TEMP_FAILURE_RETRY (read (sync_socket_fd, &size, sizeof (size)));
-  if (UNLIKELY (ret != (int) sizeof (size)))
-    return false;
+  ret = عارضی_FAILURE_RETRY (اقرأ (sync_socket_fd, &سائز, حجم (سائز)));
+  اگر (UNLIKELY (ret != (صحیح) حجم (سائز)))
+    واپس false;
 
-  if (size == 0)
-    return false;
+  اگر (سائز == 0)
+    واپس false;
 
-  if (size > 1024)
-    size = 1024;
+  اگر (سائز > 1024)
+    سائز = 1024;
 
-  b = xmalloc (size + 1);
-  ret = TEMP_FAILURE_RETRY (read (sync_socket_fd, b, size));
-  if (UNLIKELY (ret < 0))
-    return false;
+  b = xmalloc (سائز + 1);
+  ret = عارضی_FAILURE_RETRY (اقرأ (sync_socket_fd, b, سائز));
+  اگر (UNLIKELY (ret < 0))
+    واپس false;
 
   b[ret] = '\0';
 
   *str = b;
-  b = NULL;
-  return true;
+  b = تہی;
+  واپس true;
 }
 
-static bool
-send_error_to_sync_socket (int sync_socket_fd, bool has_fd, libcrun_error_t *err)
+ساکن bool
+send_error_مقصد_sync_socket (صحیح sync_socket_fd, bool has_fd, libcrun_error_t *err)
 {
-  size_t size;
-  int ret;
-  int code;
-  char *msg;
+  size_t سائز;
+  صحیح ret;
+  صحیح رمز;
+  حرف *پیغام;
 
-  if (err == NULL || *err == NULL)
-    return false;
+  اگر (err == تہی || *err == تہی)
+    واپس false;
 
-  code = crun_error_get_errno (err);
+  رمز = crun_error_get_errno (err);
 
-  if (has_fd)
+  اگر (has_fd)
     {
       /* dummy terminal fd.  */
-      ret = TEMP_FAILURE_RETRY (write (sync_socket_fd, "1", 1));
-      if (UNLIKELY (ret < 0))
-        return false;
+      ret = عارضی_FAILURE_RETRY (اكتب (sync_socket_fd, "1", 1));
+      اگر (UNLIKELY (ret < 0))
+        واپس false;
     }
 
-  ret = TEMP_FAILURE_RETRY (write (sync_socket_fd, &code, sizeof (code)));
-  if (UNLIKELY (ret < 0))
-    return false;
+  ret = عارضی_FAILURE_RETRY (اكتب (sync_socket_fd, &رمز, حجم (رمز)));
+  اگر (UNLIKELY (ret < 0))
+    واپس false;
 
-  msg = (*err)->msg;
-  size = strlen (msg) + 1;
-  ret = TEMP_FAILURE_RETRY (write (sync_socket_fd, &size, sizeof (size)));
-  if (UNLIKELY (ret < 0))
-    return false;
+  پیغام = (*err)->پیغام;
+  سائز = لڑی_لمبائی (پیغام) + 1;
+  ret = عارضی_FAILURE_RETRY (اكتب (sync_socket_fd, &سائز, حجم (سائز)));
+  اگر (UNLIKELY (ret < 0))
+    واپس false;
 
-  ret = TEMP_FAILURE_RETRY (write (sync_socket_fd, msg, size));
-  if (UNLIKELY (ret < 0))
-    return false;
+  ret = عارضی_FAILURE_RETRY (اكتب (sync_socket_fd, پیغام, سائز));
+  اگر (UNLIKELY (ret < 0))
+    واپس false;
 
-  return true;
+  واپس true;
 }
 
-static inline int
-send_success_to_sync_socket (int sync_socket, libcrun_error_t *err)
+ساکن اندرونی صحیح
+send_success_مقصد_sync_socket (صحیح sync_socket, libcrun_error_t *err)
 {
-  const int success = 0;
-  int ret;
+  ثابت صحیح success = 0;
+  صحیح ret;
 
-  ret = TEMP_FAILURE_RETRY (write (sync_socket, &success, sizeof (success)));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "write to sync socket");
+  ret = عارضی_FAILURE_RETRY (اكتب (sync_socket, &success, حجم (success)));
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "write to sync socket");
 
-  return 0;
+  واپس 0;
 }
 
-static __attribute__ ((noreturn)) void
-send_error_to_sync_socket_and_die (int sync_socket_fd, bool has_terminal, libcrun_error_t *err)
+ساکن __attribute__ ((noreturn)) خالی
+send_error_مقصد_sync_socket_and_die (صحیح sync_socket_fd, bool has_terminal, libcrun_error_t *err)
 {
-  char *msg;
+  حرف *پیغام;
 
-  if (err == NULL || *err == NULL)
-    _safe_exit (EXIT_FAILURE);
+  اگر (err == تہی || *err == تہی)
+    محفوظ_exit (EXIT_FAILURE);
 
-  if (! send_error_to_sync_socket (sync_socket_fd, has_terminal, err))
+  اگر (! send_error_مقصد_sync_socket (sync_socket_fd, has_terminal, err))
     {
       errno = crun_error_get_errno (err);
-      msg = (*err)->msg;
-      libcrun_fail_with_error (errno, "%s", msg);
+      پیغام = (*err)->پیغام;
+      libcrun_fail_with_error (errno, "%s", پیغام);
     }
-  _safe_exit (EXIT_FAILURE);
+  محفوظ_exit (EXIT_FAILURE);
 }
 
-static int
-expect_success_from_sync_socket (int sync_fd, libcrun_error_t *err)
+ساکن صحیح
+expect_success_from_sync_socket (صحیح sync_fd, libcrun_error_t *err)
 {
-  cleanup_free char *err_str = NULL;
-  int res = 1;
-  int ret;
+  cleanup_free حرف *err_str = تہی;
+  صحیح res = 1;
+  صحیح ret;
 
-  ret = TEMP_FAILURE_RETRY (read (sync_fd, &res, sizeof (res)));
-  if (UNLIKELY (ret != sizeof (res)))
-    return crun_make_error (err, ret < 0 ? errno : 0, "read status from sync socket");
+  ret = عارضی_FAILURE_RETRY (اقرأ (sync_fd, &res, حجم (res)));
+  اگر (UNLIKELY (ret != حجم (res)))
+    واپس crun_make_error (err, ret < 0 ? errno : 0, "read status from sync socket");
 
-  if (res == 0)
-    return 0;
+  اگر (res == 0)
+    واپس 0;
 
-  if (read_error_from_sync_socket (sync_fd, &res, &err_str))
+  اگر (read_error_from_sync_socket (sync_fd, &res, &err_str))
     {
-      if (! is_empty_string (err_str))
-        return crun_make_error (err, res, "%s", err_str);
+      اگر (! is_خالی_خانے_string (err_str))
+        واپس crun_make_error (err, res, "%s", err_str);
     }
 
-  return crun_make_error (err, res, "read from sync socket");
+  واپس crun_make_error (err, res, "read from sync socket");
 }
 
-static int
-join_namespaces (runtime_spec_schema_config_schema *def, int *namespaces_to_join, int n_namespaces_to_join,
-                 int *namespaces_to_join_index, bool ignore_join_errors, libcrun_error_t *err)
+ساکن صحیح
+join_namespaces (runtime_spec_schema_config_schema *def, صحیح *namespaces_مقصد_join, صحیح n_namespaces_مقصد_join,
+                 صحیح *namespaces_مقصد_join_اشاریہ, bool ignore_join_errors, libcrun_error_t *err)
 {
-  int ret;
-  int i;
+  صحیح ret;
+  صحیح i;
 
-  for (i = 0; i < n_namespaces_to_join; i++)
+  برائے (i = 0; i < n_namespaces_مقصد_join; i++)
     {
-      cleanup_free char *cwd = NULL;
-      int orig_index = namespaces_to_join_index[i];
-      int value;
+      cleanup_free حرف *cwd = تہی;
+      صحیح orig_اشاریہ = namespaces_مقصد_join_اشاریہ[i];
+      صحیح قدر;
 
-      if (namespaces_to_join[i] < 0)
-        continue;
+      اگر (namespaces_مقصد_join[i] < 0)
+        جاری;
 
       /* Skip the user namespace.  */
-      value = libcrun_find_namespace (def->linux->namespaces[orig_index]->type);
-      if (value == CLONE_NEWUSER)
-        continue;
+      قدر = libcrun_ڈھونڈو_namespace (def->linux->namespaces[orig_اشاریہ]->type);
+      اگر (قدر == CLONE_NEWUSER)
+        جاری;
 
-      if (value == CLONE_NEWNS)
+      اگر (قدر == CLONE_NEWNS)
         {
-          cwd = getcwd (NULL, 0);
-          if (UNLIKELY (cwd == NULL))
-            return crun_make_error (err, errno, "getcwd");
+          cwd = getcwd (تہی, 0);
+          اگر (UNLIKELY (cwd == تہی))
+            واپس crun_make_error (err, errno, "getcwd");
         }
 
-      libcrun_debug ("Joining `%s` namespace: `%s`", def->linux->namespaces[orig_index]->type, def->linux->namespaces[orig_index]->path);
-      ret = setns (namespaces_to_join[i], value);
-      if (UNLIKELY (ret < 0))
+      libcrun_debug ("Joining `%s` namespace: `%s`", def->linux->namespaces[orig_اشاریہ]->type, def->linux->namespaces[orig_اشاریہ]->راستہ);
+      ret = setns (namespaces_مقصد_join[i], قدر);
+      اگر (UNLIKELY (ret < 0))
         {
-          if (ignore_join_errors)
-            continue;
-          return crun_make_error (err, errno, "setns `%s`", def->linux->namespaces[orig_index]->path);
+          اگر (ignore_join_errors)
+            جاری;
+          واپس crun_make_error (err, errno, "setns `%s`", def->linux->namespaces[orig_اشاریہ]->راستہ);
         }
 
-      close_and_reset (&namespaces_to_join[i]);
+      close_and_reset (&namespaces_مقصد_join[i]);
 
-      if (value == CLONE_NEWNS)
+      اگر (قدر == CLONE_NEWNS)
         {
           ret = chdir (cwd);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "chdir `%s`", cwd);
+          اگر (UNLIKELY (ret < 0))
+            واپس crun_make_error (err, errno, "chdir `%s`", cwd);
         }
     }
-  return 0;
+  واپس 0;
 }
 
-#define MAX_NAMESPACES 10
+#تعریف_کرو MAX_NAMESPACES 10
 
-struct init_status_s
+ساخت init_حالت_s
 {
   /* fd to the namespace to join.  */
-  int fd[MAX_NAMESPACES + 1];
+  صحیح fd[MAX_NAMESPACES + 1];
   /* Index into def->linux->namespaces.  */
-  int index[MAX_NAMESPACES];
+  صحیح اشاریہ[MAX_NAMESPACES];
   /* CLONE_* value.  */
-  int value[MAX_NAMESPACES];
+  صحیح قدر[MAX_NAMESPACES];
   /* How many namespaces to join.  */
   size_t fd_len;
 
@@ -5837,154 +5837,154 @@ struct init_status_s
   bool can_delay_pidns_fork;
 
   /* fd index for userns.  */
-  int userns_index;
+  صحیح userns_اشاریہ;
   /* def->linux->namespaces userns.  */
-  int userns_index_origin;
+  صحیح userns_اشاریہ_origin;
 
   /* All namespaces created/joined by the container.  */
-  int all_namespaces;
+  صحیح all_namespaces;
 
   /* What namespaces are still missing to be created.  */
-  int namespaces_to_unshare;
+  صحیح namespaces_مقصد_unshare;
 
   /* Index in fd[] for the pidns that must be joined before any
      other namespace.  */
-  int idx_pidns_to_join_immediately;
+  صحیح idx_pidns_مقصد_join_immediately;
 
   /* Index in fd[] for the timens that must be joined before any
      other namespace.  */
-  int idx_timens_to_join_immediately;
+  صحیح idx_timens_مقصد_join_immediately;
 };
 
-void
-cleanup_free_init_statusp (struct init_status_s *ns)
+خالی
+cleanup_free_init_statusp (ساخت init_حالت_s *ns)
 {
   size_t i;
 
-  if (ns == NULL)
-    return;
+  اگر (ns == تہی)
+    واپس;
 
-  for (i = 0; i < ns->fd_len; i++)
-    TEMP_FAILURE_RETRY (close (ns->fd[i]));
+  برائے (i = 0; i < ns->fd_len; i++)
+    عارضی_FAILURE_RETRY (close (ns->fd[i]));
 }
 
-static int
-configure_init_status (struct init_status_s *ns, libcrun_container_t *container, libcrun_error_t *err)
+ساکن صحیح
+configure_init_حالت (ساخت init_حالت_s *ns, libcrun_container_t *container, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
   size_t i;
 
-  for (i = 0; i < MAX_NAMESPACES + 1; i++)
+  برائے (i = 0; i < MAX_NAMESPACES + 1; i++)
     ns->fd[i] = -1;
 
   ns->fd_len = 0;
   ns->all_namespaces = 0;
-  ns->namespaces_to_unshare = 0;
+  ns->namespaces_مقصد_unshare = 0;
   ns->join_pidns = false;
   ns->join_ipcns = false;
   ns->must_fork = false;
   ns->can_delay_pidns_fork = false;
   ns->delayed_userns_create = false;
-  ns->userns_index = -1;
-  ns->userns_index_origin = -1;
-  ns->idx_pidns_to_join_immediately = -1;
-  ns->idx_timens_to_join_immediately = -1;
+  ns->userns_اشاریہ = -1;
+  ns->userns_اشاریہ_origin = -1;
+  ns->idx_pidns_مقصد_join_immediately = -1;
+  ns->idx_timens_مقصد_join_immediately = -1;
 
-  for (i = 0; i < def->linux->namespaces_len; i++)
+  برائے (i = 0; i < def->linux->namespaces_len; i++)
     {
-      int value = libcrun_find_namespace (def->linux->namespaces[i]->type);
-      if (UNLIKELY (value < 0))
-        return crun_make_error (err, 0, "invalid namespace type: `%s`", def->linux->namespaces[i]->type);
+      صحیح قدر = libcrun_ڈھونڈو_namespace (def->linux->namespaces[i]->type);
+      اگر (UNLIKELY (قدر < 0))
+        واپس crun_make_error (err, 0, "invalid namespace type: `%s`", def->linux->namespaces[i]->type);
 
-      if (ns->all_namespaces & value)
-        return crun_make_error (err, 0, "duplicate namespace type: `%s`", def->linux->namespaces[i]->type);
+      اگر (ns->all_namespaces & قدر)
+        واپس crun_make_error (err, 0, "duplicate namespace type: `%s`", def->linux->namespaces[i]->type);
 
-      ns->all_namespaces |= value;
+      ns->all_namespaces |= قدر;
 
-      if (def->linux->namespaces[i]->path == NULL)
+      اگر (def->linux->namespaces[i]->راستہ == تہی)
         {
           libcrun_debug ("Unsharing namespace: `%s`", def->linux->namespaces[i]->type);
-          ns->namespaces_to_unshare |= value;
+          ns->namespaces_مقصد_unshare |= قدر;
         }
-      else
+      ورنہ
         {
-          int fd;
+          صحیح fd;
 
-          libcrun_debug ("Joining `%s` namespace: `%s`", def->linux->namespaces[i]->type, def->linux->namespaces[i]->path);
+          libcrun_debug ("Joining `%s` namespace: `%s`", def->linux->namespaces[i]->type, def->linux->namespaces[i]->راستہ);
 
-          if (ns->fd_len >= MAX_NAMESPACES)
-            return crun_make_error (err, 0, "too many namespaces to join");
+          اگر (ns->fd_len >= MAX_NAMESPACES)
+            واپس crun_make_error (err, 0, "too many namespaces to join");
 
-          fd = open (def->linux->namespaces[i]->path, O_RDONLY | O_CLOEXEC);
-          if (UNLIKELY (fd < 0))
-            return crun_make_error (err, errno, "open `%s`", def->linux->namespaces[i]->path);
+          fd = open (def->linux->namespaces[i]->راستہ, O_RDONLY | O_CLOEXEC);
+          اگر (UNLIKELY (fd < 0))
+            واپس crun_make_error (err, errno, "open `%s`", def->linux->namespaces[i]->راستہ);
 
-          if (value == CLONE_NEWUSER)
+          اگر (قدر == CLONE_NEWUSER)
             {
-              ns->userns_index = ns->fd_len;
-              ns->userns_index_origin = i;
+              ns->userns_اشاریہ = ns->fd_len;
+              ns->userns_اشاریہ_origin = i;
             }
 
           ns->fd[ns->fd_len] = fd;
-          ns->index[ns->fd_len] = i;
-          ns->value[ns->fd_len] = value;
+          ns->اشاریہ[ns->fd_len] = i;
+          ns->قدر[ns->fd_len] = قدر;
           ns->fd_len++;
           ns->fd[ns->fd_len] = -1;
         }
     }
 
-  if (container->host_uid && (ns->all_namespaces & CLONE_NEWUSER) == 0)
+  اگر (container->host_uid && (ns->all_namespaces & CLONE_NEWUSER) == 0)
     {
       libcrun_warning ("non root user need to have an 'user' namespace");
       ns->all_namespaces |= CLONE_NEWUSER;
-      ns->namespaces_to_unshare |= CLONE_NEWUSER;
+      ns->namespaces_مقصد_unshare |= CLONE_NEWUSER;
     }
 
-  return 0;
+  واپس 0;
 }
 
 /* Detect if root is available in the container.  */
-static bool
-root_mapped_in_container_p (runtime_spec_schema_defs_id_mapping **mappings, size_t len)
+ساکن bool
+جڑ_mapped_اندر_container_p (runtime_spec_schema_defs_id_mapping **mappings, size_t len)
 {
   size_t i;
 
-  for (i = 0; i < len; i++)
-    if (mappings[i]->container_id == 0)
-      return true;
+  برائے (i = 0; i < len; i++)
+    اگر (mappings[i]->container_id == 0)
+      واپس true;
 
-  return false;
+  واپس false;
 }
 
-static struct libcrun_fd_map *
+ساکن ساخت libcrun_fd_map *
 get_devices_fd_map (libcrun_container_t *container)
 {
-  struct libcrun_fd_map *dev_fds = get_private_data (container)->dev_fds;
+  ساخت libcrun_fd_map *dev_fds = get_نجی_ڈیٹا (container)->dev_fds;
 
-  if (dev_fds == NULL)
+  اگر (dev_fds == تہی)
     {
       runtime_spec_schema_config_schema *def = container->container_def;
       size_t len = def->linux ? def->linux->devices_len : 0;
 
       dev_fds = make_libcrun_fd_map (len);
-      get_private_data (container)->dev_fds = dev_fds;
+      get_نجی_ڈیٹا (container)->dev_fds = dev_fds;
     }
-  return dev_fds;
+  واپس dev_fds;
 }
 
-#define NUM_NEEDED_DEVS (sizeof (needed_devs) / sizeof (needed_devs[0]) - 1)
+#تعریف_کرو عدد_NEEDED_DEVS (حجم (needed_devs) / حجم (needed_devs[0]) - 1)
 
-static struct libcrun_fd_map *
+ساکن ساخت libcrun_fd_map *
 get_needed_devs_fd_map (libcrun_container_t *container)
 {
-  struct libcrun_fd_map *fds = get_private_data (container)->needed_devs_fds;
+  ساخت libcrun_fd_map *fds = get_نجی_ڈیٹا (container)->needed_devs_fds;
 
-  if (fds == NULL)
+  اگر (fds == تہی)
     {
-      fds = make_libcrun_fd_map (NUM_NEEDED_DEVS);
-      get_private_data (container)->needed_devs_fds = fds;
+      fds = make_libcrun_fd_map (عدد_NEEDED_DEVS);
+      get_نجی_ڈیٹا (container)->needed_devs_fds = fds;
     }
-  return fds;
+  واپس fds;
 }
 
 bool
@@ -5993,534 +5993,534 @@ is_bind_mount (runtime_spec_schema_defs_mount *mnt, bool *recursive, bool *src_n
   bool ret = false;
   size_t i;
 
-  if (recursive)
+  اگر (recursive)
     *recursive = false;
 
-  if (src_nofollow != NULL)
+  اگر (src_nofollow != تہی)
     *src_nofollow = false;
 
-  for (i = 0; i < mnt->options_len; i++)
+  برائے (i = 0; i < mnt->options_len; i++)
     {
-      if (mnt->options[i] == NULL)
-        continue;
+      اگر (mnt->options[i] == تہی)
+        جاری;
 
-      if (strcmp (mnt->options[i], "bind") == 0)
+      اگر (strcmp (mnt->options[i], "bind") == 0)
         {
           ret = true;
 
           /* if src_nofollow is not specified, or already found, shortcut.  */
-          if (src_nofollow == NULL || *src_nofollow)
-            break;
+          اگر (src_nofollow == تہی || *src_nofollow)
+            توڑو;
         }
-      if (strcmp (mnt->options[i], "rbind") == 0)
+      اگر (strcmp (mnt->options[i], "rbind") == 0)
         {
-          if (recursive)
+          اگر (recursive)
             *recursive = true;
 
           ret = true;
 
           /* if src_nofollow is not specified, or already found, shortcut.  */
-          if (src_nofollow == NULL || *src_nofollow)
-            break;
+          اگر (src_nofollow == تہی || *src_nofollow)
+            توڑو;
         }
-      if (src_nofollow && strcmp (mnt->options[i], "src-nofollow") == 0)
+      اگر (src_nofollow && strcmp (mnt->options[i], "src-nofollow") == 0)
         *src_nofollow = true;
     }
-  return ret;
+  واپس ret;
 }
 
-static char *
+ساکن حرف *
 get_idmapped_option (runtime_spec_schema_defs_mount *mnt, bool *recursive)
 {
   size_t i;
 
-  for (i = 0; i < mnt->options_len; i++)
+  برائے (i = 0; i < mnt->options_len; i++)
     {
-      if (mnt->options[i] == NULL)
-        continue;
+      اگر (mnt->options[i] == تہی)
+        جاری;
 
-      if (has_prefix (mnt->options[i], "idmap"))
+      اگر (has_سابقہ (mnt->options[i], "idmap"))
         {
           *recursive = false;
-          return mnt->options[i];
+          واپس mnt->options[i];
         }
-      if (has_prefix (mnt->options[i], "ridmap"))
+      اگر (has_سابقہ (mnt->options[i], "ridmap"))
         {
           *recursive = true;
-          return mnt->options[i];
+          واپس mnt->options[i];
         }
     }
-  return NULL;
+  واپس تہی;
 }
 
-static int
-open_mount_type (const char *type, int *out_fd, libcrun_error_t *err)
+ساکن صحیح
+open_mount_type (ثابت حرف *type, صحیح *برآمد_fd, libcrun_error_t *err)
 {
-  cleanup_close int fsopen_fd = -1;
-  cleanup_close int newfs_fd = -1;
-  int ret;
+  cleanup_close صحیح fsopen_fd = -1;
+  cleanup_close صحیح newfs_fd = -1;
+  صحیح ret;
 
   fsopen_fd = syscall_fsopen (type, FSOPEN_CLOEXEC);
-  if (UNLIKELY (fsopen_fd < 0))
-    return crun_make_error (err, errno, "fsopen `%s`", type);
+  اگر (UNLIKELY (fsopen_fd < 0))
+    واپس crun_make_error (err, errno, "fsopen `%s`", type);
 
-  ret = syscall_fsconfig (fsopen_fd, FSCONFIG_CMD_CREATE, NULL, NULL, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fsconfig create `%s`", type);
+  ret = syscall_fsconfig (fsopen_fd, FSCONFIG_CMD_CREATE, تہی, تہی, 0);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "fsconfig create `%s`", type);
 
   newfs_fd = syscall_fsmount (fsopen_fd, FSMOUNT_CLOEXEC, 0);
-  if (UNLIKELY (newfs_fd < 0))
-    return crun_make_error (err, errno, "fsmount `%s`", type);
+  اگر (UNLIKELY (newfs_fd < 0))
+    واپس crun_make_error (err, errno, "fsmount `%s`", type);
 
-  *out_fd = get_and_reset (&newfs_fd);
-  return 0;
+  *برآمد_fd = get_and_reset (&newfs_fd);
+  واپس 0;
 }
 
-static int
-maybe_get_idmapped_mount (libcrun_container_t *container, runtime_spec_schema_config_schema *def, runtime_spec_schema_defs_mount *mnt, pid_t pid, int *out_fd, bool *has_mappings_out, libcrun_error_t *err)
+ساکن صحیح
+maybe_get_idmapped_mount (libcrun_container_t *container, runtime_spec_schema_config_schema *def, runtime_spec_schema_defs_mount *mnt, pid_t pid, صحیح *برآمد_fd, bool *has_mappings_برآمد, libcrun_error_t *err)
 {
-  cleanup_close int newfs_fd = -1;
+  cleanup_close صحیح newfs_fd = -1;
   cleanup_pid pid_t created_pid = -1;
-  struct mount_attr_s attr = {
+  ساخت mount_attr_s attr = {
     0,
   };
   bool recursive_bind_mount = false;
-  cleanup_close int fd = -1;
-  const char *idmap_option;
+  cleanup_close صحیح fd = -1;
+  ثابت حرف *idmap_option;
   bool recursive = false;
-  const char *options = NULL;
+  ثابت حرف *options = تہی;
   bool has_mappings;
-  int ret;
-  char *extra_msg = "";
+  صحیح ret;
+  حرف *extra_پیغام = "";
   bool nofollow = false;
 
-  *out_fd = -1;
+  *برآمد_fd = -1;
 
   idmap_option = get_idmapped_option (mnt, &recursive);
 
-  has_mappings = mnt->uid_mappings_len > 0 || mnt->gid_mappings_len > 0 || (idmap_option != NULL);
-  if (has_mappings_out)
-    *has_mappings_out = has_mappings;
-  if (! has_mappings)
-    return 0;
+  has_mappings = mnt->uid_mappings_len > 0 || mnt->gid_mappings_len > 0 || (idmap_option != تہی);
+  اگر (has_mappings_برآمد)
+    *has_mappings_برآمد = has_mappings;
+  اگر (! has_mappings)
+    واپس 0;
 
-  if ((mnt->uid_mappings == NULL) != (mnt->gid_mappings == NULL))
-    return crun_make_error (err, 0, "invalid mappings specified for the mount on `%s`", mnt->destination);
+  اگر ((mnt->uid_mappings == تہی) != (mnt->gid_mappings == تہی))
+    واپس crun_make_error (err, 0, "invalid mappings specified for the mount on `%s`", mnt->destination);
 
   /* If there are options specified, create a new user namespace with the configured mappings.  */
-  if (idmap_option)
+  اگر (idmap_option)
     {
       options = strchr (idmap_option, '=');
-      if (options)
+      اگر (options)
         {
           /* Skip the '=' itself.  */
           options++;
-          if (options[0] == '\0')
-            options = NULL;
+          اگر (options[0] == '\0')
+            options = تہی;
         }
     }
 
   ret = maybe_create_userns_for_idmapped_mount (container, def, mnt, options, &created_pid, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
-  if (created_pid > 0)
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
+  اگر (created_pid > 0)
     pid = created_pid;
 
   fd = libcrun_open_proc_pid_file (container, pid, "ns/user", O_RDONLY, err);
-  if (UNLIKELY (fd < 0))
-    return fd;
+  اگر (UNLIKELY (fd < 0))
+    واپس fd;
 
-  if (is_bind_mount (mnt, &recursive_bind_mount, &nofollow))
+  اگر (is_bind_mount (mnt, &recursive_bind_mount, &nofollow))
     {
-      newfs_fd = syscall_open_tree (AT_FDCWD, mnt->source, (recursive_bind_mount ? AT_RECURSIVE : 0) | AT_NO_AUTOMOUNT | (nofollow ? AT_SYMLINK_NOFOLLOW : 0) | OPEN_TREE_CLOEXEC | OPEN_TREE_CLONE);
-      if (UNLIKELY (newfs_fd < 0))
-        return crun_make_error (err, errno, "open `%s`", mnt->source);
+      newfs_fd = syscall_open_درخت (AT_FDCWD, mnt->ماخذ, (recursive_bind_mount ? AT_RECURSIVE : 0) | AT_NO_AUTOMOUNT | (nofollow ? AT_SYMLINK_NOFOLLOW : 0) | OPEN_TREE_CLOEXEC | OPEN_TREE_CLONE);
+      اگر (UNLIKELY (newfs_fd < 0))
+        واپس crun_make_error (err, errno, "open `%s`", mnt->ماخذ);
     }
-  else
+  ورنہ
     {
       ret = open_mount_type (mnt->type, &newfs_fd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
   attr.attr_set = MOUNT_ATTR_IDMAP;
   attr.userns_fd = fd;
 
-  ret = syscall_mount_setattr (newfs_fd, "", AT_EMPTY_PATH | (recursive ? AT_RECURSIVE : 0), &attr);
-  if (UNLIKELY (ret < 0))
+  ret = syscall_mount_setattr (newfs_fd, "", AT_خالی_خانے_راستہ | (recursive ? AT_RECURSIVE : 0), &attr);
+  اگر (UNLIKELY (ret < 0))
     {
-      if (errno == EINVAL)
+      اگر (errno == EINVAL)
         {
-          extra_msg = " (maybe the file system used doesn't support idmap mounts on this kernel?)";
+          extra_پیغام = " (maybe the file system used doesn't support idmap mounts on this kernel?)";
         }
-      return crun_make_error (err, errno, "mount_setattr `%s`%s", mnt->destination, extra_msg);
+      واپس crun_make_error (err, errno, "mount_setattr `%s`%s", mnt->destination, extra_پیغام);
     }
 
-  *out_fd = get_and_reset (&newfs_fd);
-  return 0;
+  *برآمد_fd = get_and_reset (&newfs_fd);
+  واپس 0;
 }
 
-static uid_t
-get_id_in_user_namespace (uid_t id, bool is_uid, runtime_spec_schema_config_schema *def)
+ساکن uid_t
+get_id_اندر_user_namespace (uid_t id, bool is_uid, runtime_spec_schema_config_schema *def)
 {
   runtime_spec_schema_defs_id_mapping **mappings;
   size_t len;
   size_t i;
 
-  if (! def || ! def->linux)
-    goto exit;
+  اگر (! def || ! def->linux)
+    جاؤ باہر_نکلو;
 
   mappings = is_uid ? def->linux->uid_mappings : def->linux->gid_mappings;
   len = is_uid ? def->linux->uid_mappings_len : def->linux->gid_mappings_len;
 
-  if (! mappings)
-    goto exit;
+  اگر (! mappings)
+    جاؤ باہر_نکلو;
 
-  for (i = 0; i < len; i++)
+  برائے (i = 0; i < len; i++)
     {
-      if (mappings[i]->container_id <= id
-          && id < mappings[i]->container_id + mappings[i]->size)
-        return id - mappings[i]->container_id + mappings[i]->host_id;
+      اگر (mappings[i]->container_id <= id
+          && id < mappings[i]->container_id + mappings[i]->سائز)
+        واپس id - mappings[i]->container_id + mappings[i]->host_id;
     }
-exit:
-  return is_uid ? get_overflow_uid () : get_overflow_gid ();
+باہر_نکلو:
+  واپس is_uid ? get_حد_سے_تجاوز_uid () : get_حد_سے_تجاوز_gid ();
 }
 
-static int
-precreate_device (libcrun_container_t *container, int devs_dirfd, size_t i, libcrun_error_t *err)
+ساکن صحیح
+precreate_device (libcrun_container_t *container, صحیح devs_dirfd, size_t i, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
   runtime_spec_schema_defs_linux_device *device;
   uid_t uid;
   gid_t gid;
-  char name[64];
+  حرف name[64];
   mode_t type;
   dev_t dev;
-  int ret;
+  صحیح ret;
 
-  ret = snprintf (name, sizeof (name), "%zu", i);
-  if (UNLIKELY (ret >= (int) sizeof (name)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  ret = snprintf (name, حجم (name), "%zu", i);
+  اگر (UNLIKELY (ret >= (صحیح) حجم (name)))
+    واپس crun_make_error (err, 0, "internal error: static buffer too small");
 
   device = def->linux->devices[i];
 
   type = (device->type[0] == 'b') ? S_IFBLK : ((device->type[0] == 'p') ? S_IFIFO : S_IFCHR);
   dev = makedev (device->major, device->minor);
 
-  ret = mknodat (devs_dirfd, name, device->file_mode | type, dev);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "mknod `%s`", device->path);
+  ret = mknodat (devs_dirfd, name, device->file_منوال | type, dev);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "mknod `%s`", device->راستہ);
 
-  uid = get_id_in_user_namespace (device->uid, true, def);
-  gid = get_id_in_user_namespace (device->gid, false, def);
+  uid = get_id_اندر_user_namespace (device->uid, true, def);
+  gid = get_id_اندر_user_namespace (device->gid, false, def);
 
   ret = fchownat (devs_dirfd, name, uid, gid, 0); /* lgtm [cpp/toctou-race-condition] */
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "chown `%s`", device->path);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "chown `%s`", device->راستہ);
 
-  return get_bind_mount (devs_dirfd, name, false, false, false, MS_PRIVATE, err);
+  واپس get_bind_mount (devs_dirfd, name, false, false, false, MS_PRIVATE, err);
 }
 
-static int
-send_mounts (int sync_socket_host, struct libcrun_fd_map *fds, size_t how_many, size_t total, libcrun_error_t *err)
+ساکن صحیح
+send_mounts (صحیح sync_socket_host, ساخت libcrun_fd_map *fds, size_t how_many, size_t کل, libcrun_error_t *err)
 {
   size_t i;
-  int ret;
+  صحیح ret;
 
-  ret = TEMP_FAILURE_RETRY (write (sync_socket_host, &how_many, sizeof (how_many)));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "write to sync socket");
+  ret = عارضی_FAILURE_RETRY (اكتب (sync_socket_host, &how_many, حجم (how_many)));
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "write to sync socket");
 
-  for (i = 0; i < total; i++)
+  برائے (i = 0; i < کل; i++)
     {
-      if (fds->fds[i] >= 0)
+      اگر (fds->fds[i] >= 0)
         {
-          ret = send_fd_to_socket_with_payload (sync_socket_host, fds->fds[i], (char *) &i, sizeof (i), err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = send_fd_مقصد_socket_with_payload (sync_socket_host, fds->fds[i], (حرف *) &i, حجم (i), err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
     }
-  return 0;
+  واپس 0;
 }
 
-static int
-prepare_and_send_mount_mounts (libcrun_container_t *container, pid_t pid, int sync_socket_host, libcrun_error_t *err)
+ساکن صحیح
+prepare_and_send_mount_mounts (libcrun_container_t *container, pid_t pid, صحیح sync_socket_host, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  cleanup_close_map struct libcrun_fd_map *mount_fds = NULL;
-  bool has_userns = (get_private_data (container)->unshare_flags & CLONE_NEWUSER) ? true : false;
-  cleanup_free char *rootfs = NULL;
+  cleanup_close_map ساخت libcrun_fd_map *mount_fds = تہی;
+  bool has_userns = (get_نجی_ڈیٹا (container)->unshare_flags & CLONE_NEWUSER) ? true : false;
+  cleanup_free حرف *rootfs = تہی;
   size_t how_many = 0;
   size_t i;
-  int ret;
+  صحیح ret;
 
-  if (def->mounts_len == 0)
-    return 0;
+  اگر (def->mounts_len == 0)
+    واپس 0;
 
   mount_fds = make_libcrun_fd_map (def->mounts_len);
 
-  if (def->root && def->root->path)
-    rootfs = realpath (def->root->path, NULL);
+  اگر (def->جڑ && def->جڑ->راستہ)
+    rootfs = realpath (def->جڑ->راستہ, تہی);
 
-  if (! has_userns)
+  اگر (! has_userns)
     {
-      int is_in_userns = check_running_in_user_namespace (err);
-      if (UNLIKELY (is_in_userns < 0))
-        return is_in_userns;
+      صحیح is_اندر_userns = check_running_اندر_user_namespace (err);
+      اگر (UNLIKELY (is_اندر_userns < 0))
+        واپس is_اندر_userns;
 
-      has_userns = is_in_userns > 0;
+      has_userns = is_اندر_userns > 0;
     }
 
-  for (i = 0; i < def->mounts_len; i++)
+  برائے (i = 0; i < def->mounts_len; i++)
     {
       bool recursive = false;
       bool nofollow = false;
       bool has_mappings = false;
-      int mount_fd = -1;
+      صحیح mount_fd = -1;
 
       ret = maybe_get_idmapped_mount (container, def, def->mounts[i], pid, &mount_fd, &has_mappings, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
       /* If the mount has no mappings and there is not a different user namespace, create the mount later as part of the container setup.
          Skip copy-symlink mounts: open_tree follows the symlink, losing the
          link itself; let process_single_mount handle them.  */
-      if (mount_fd < 0 && (has_mappings || has_userns) && is_bind_mount (def->mounts[i], &recursive, &nofollow)
+      اگر (mount_fd < 0 && (has_mappings || has_userns) && is_bind_mount (def->mounts[i], &recursive, &nofollow)
           && ! mount_option_exists (def->mounts[i], "copy-symlink")
-          && get_path_in_rootfs (rootfs, def->mounts[i]->source) == NULL)
+          && get_راستہ_اندر_rootfs (rootfs, def->mounts[i]->ماخذ) == تہی)
         {
-          unsigned long propagation = 0;
+          غیرعلامتی طویل اشاعت = 0;
 
-          if (def->linux && def->linux->rootfs_propagation)
-            propagation = get_mount_flags (def->linux->rootfs_propagation, 0, NULL, NULL, NULL, NULL) & ALL_PROPAGATIONS_NO_REC;
-          if (propagation == 0)
-            propagation = MS_PRIVATE;
+          اگر (def->linux && def->linux->rootfs_اشاعت)
+            اشاعت = get_mount_flags (def->linux->rootfs_اشاعت, 0, تہی, تہی, تہی, تہی) & ALL_PROPAGATIONS_NO_REC;
+          اگر (اشاعت == 0)
+            اشاعت = MS_PRIVATE;
 
-          mount_fd = get_bind_mount (-1, def->mounts[i]->source, recursive, false, nofollow, propagation, err);
-          if (UNLIKELY (mount_fd < 0))
+          mount_fd = get_bind_mount (-1, def->mounts[i]->ماخذ, recursive, false, nofollow, اشاعت, err);
+          اگر (UNLIKELY (mount_fd < 0))
             crun_error_release (err);
         }
 
-      if (mount_fd >= 0)
+      اگر (mount_fd >= 0)
         how_many++;
 
       mount_fds->fds[i] = mount_fd;
     }
 
-  return send_mounts (sync_socket_host, mount_fds, how_many, def->mounts_len, err);
+  واپس send_mounts (sync_socket_host, mount_fds, how_many, def->mounts_len, err);
 }
 
-static int
-prepare_and_send_dev_mounts (libcrun_container_t *container, int sync_socket_host, libcrun_error_t *err)
+ساکن صحیح
+prepare_and_send_dev_mounts (libcrun_container_t *container, صحیح sync_socket_host, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  cleanup_close_map struct libcrun_fd_map *dev_fds = NULL;
-  bool has_userns = (get_private_data (container)->unshare_flags & CLONE_NEWUSER) ? true : false;
-  cleanup_close int current_mountns = -1;
-  cleanup_free char *state_dir = NULL;
-  cleanup_free char *devs_path = NULL;
-  cleanup_close int devs_mountfd = -1;
-  cleanup_close int targetfd = -1;
-  const char *context_type = NULL;
-  const char *label = NULL;
+  cleanup_close_map ساخت libcrun_fd_map *dev_fds = تہی;
+  bool has_userns = (get_نجی_ڈیٹا (container)->unshare_flags & CLONE_NEWUSER) ? true : false;
+  cleanup_close صحیح current_mountns = -1;
+  cleanup_free حرف *state_dir = تہی;
+  cleanup_free حرف *devs_راستہ = تہی;
+  cleanup_close صحیح devs_mountfd = -1;
+  cleanup_close صحیح targetfd = -1;
+  ثابت حرف *context_type = تہی;
+  ثابت حرف *label = تہی;
   size_t how_many = 0;
   size_t i;
-  int ret;
+  صحیح ret;
   // To track whether the namespace has been changed.
-  bool ns_changed = false;
+  bool ns_بدلا = false;
 
-  if (def->linux == NULL || def->linux->devices_len == 0)
-    return 0;
+  اگر (def->linux == تہی || def->linux->devices_len == 0)
+    واپس 0;
 
   dev_fds = make_libcrun_fd_map (def->linux->devices_len);
 
-  if (! has_userns || is_empty_string (container->context->id) || geteuid () > 0)
-    return send_mounts (sync_socket_host, dev_fds, how_many, def->linux->devices_len, err);
+  اگر (! has_userns || is_خالی_خانے_string (container->context->id) || geteuid () > 0)
+    واپس send_mounts (sync_socket_host, dev_fds, how_many, def->linux->devices_len, err);
 
   ret = libcrun_get_state_directory (&state_dir,
-                                     (container->context ? container->context->state_root : NULL),
-                                     (container->context ? container->context->id : NULL), err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+                                     (container->context ? container->context->state_جڑ : تہی),
+                                     (container->context ? container->context->id : تہی), err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = append_paths (&devs_path, err, state_dir, "devs", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&devs_راستہ, err, state_dir, "devs", تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = mkdir (devs_path, 0700);
-  if (UNLIKELY (ret < 0 && errno != EEXIST))
-    return crun_make_error (err, errno, "mkdir `%s`", devs_path);
+  ret = mkdir (devs_راستہ, 0700);
+  اگر (UNLIKELY (ret < 0 && errno != EEXIST))
+    واپس crun_make_error (err, errno, "mkdir `%s`", devs_راستہ);
 
   current_mountns = libcrun_open_proc_file (container, "self/ns/mnt", O_RDONLY, err);
-  if (UNLIKELY (current_mountns < 0))
-    return current_mountns;
+  اگر (UNLIKELY (current_mountns < 0))
+    واپس current_mountns;
 
   ret = unshare (CLONE_NEWNS);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "unshare `CLONE_NEWNS`");
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "unshare `CLONE_NEWNS`");
 
   // This indicates that the mount namespace has been altered.
-  ns_changed = true;
+  ns_بدلا = true;
 
-  ret = mount (NULL, "/", NULL, MS_REC | MS_PRIVATE, NULL);
-  if (UNLIKELY (ret < 0))
+  ret = mount (تہی, "/", تہی, MS_REC | MS_PRIVATE, تہی);
+  اگر (UNLIKELY (ret < 0))
     {
       ret = crun_make_error (err, errno, "mount `MS_REC | MS_PRIVATE`");
-      goto restore_mountns;
+      جاؤ restore_mountns;
     }
 
-  if (container->container_def->linux && container->container_def->linux->mount_label)
+  اگر (container->container_def->linux && container->container_def->linux->mount_label)
     {
       label = container->container_def->linux->mount_label;
       context_type = get_selinux_context_type (container, err);
-      if (UNLIKELY (context_type == NULL))
+      اگر (UNLIKELY (context_type == تہی))
         {
           ret = -1;
-          goto restore_mountns;
+          جاؤ restore_mountns;
         }
     }
 
-  devs_mountfd = fsopen_mount ("tmpfs", NULL, context_type, label, NULL);
-  if (UNLIKELY (devs_mountfd < 0))
+  devs_mountfd = fsopen_mount ("tmpfs", تہی, context_type, label, تہی);
+  اگر (UNLIKELY (devs_mountfd < 0))
     {
       ret = send_mounts (sync_socket_host, dev_fds, 0, def->linux->devices_len, err);
-      goto restore_mountns;
+      جاؤ restore_mountns;
     }
 
-  targetfd = open (devs_path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (targetfd < 0)
+  targetfd = open (devs_راستہ, O_DIRECTORY | O_راستہ | O_CLOEXEC);
+  اگر (targetfd < 0)
     {
-      ret = crun_make_error (err, errno, "open `%s`", devs_path);
-      goto restore_mountns;
+      ret = crun_make_error (err, errno, "open `%s`", devs_راستہ);
+      جاؤ restore_mountns;
     }
 
-  ret = fs_move_mount_to (devs_mountfd, targetfd, NULL);
-  if (UNLIKELY (ret < 0))
+  ret = fs_move_mount_مقصد (devs_mountfd, targetfd, تہی);
+  اگر (UNLIKELY (ret < 0))
     {
-      ret = crun_make_error (err, errno, "fs_move_mount_to `%s`", devs_path);
-      goto restore_mountns;
+      ret = crun_make_error (err, errno, "fs_move_mount_to `%s`", devs_راستہ);
+      جاؤ restore_mountns;
     }
 
   close_and_reset (&targetfd);
 
-  targetfd = openat (devs_mountfd, ".", O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (targetfd < 0)
+  targetfd = openat (devs_mountfd, ".", O_DIRECTORY | O_راستہ | O_CLOEXEC);
+  اگر (targetfd < 0)
     {
-      ret = crun_make_error (err, errno, "open `%s`", devs_path);
-      goto restore_mountns;
+      ret = crun_make_error (err, errno, "open `%s`", devs_راستہ);
+      جاؤ restore_mountns;
     }
 
-  for (i = 0; i < def->linux->devices_len; i++)
+  برائے (i = 0; i < def->linux->devices_len; i++)
     {
       ret = precreate_device (container, targetfd, i, err);
-      if (UNLIKELY (ret < 0))
+      اگر (UNLIKELY (ret < 0))
         {
           crun_error_release (err);
-          continue;
+          جاری;
         }
 
       dev_fds->fds[i] = ret;
 
-      if (dev_fds->fds[i] >= 0)
+      اگر (dev_fds->fds[i] >= 0)
         how_many++;
     }
 
   ret = send_mounts (sync_socket_host, dev_fds, how_many, def->linux->devices_len, err);
 restore_mountns:
-  if (ns_changed && current_mountns >= 0)
+  اگر (ns_بدلا && current_mountns >= 0)
     {
-      int setns_ret;
+      صحیح setns_ret;
       setns_ret = setns (current_mountns, CLONE_NEWNS);
-      if (UNLIKELY (setns_ret < 0 && ret >= 0))
+      اگر (UNLIKELY (setns_ret < 0 && ret >= 0))
         {
-          return crun_make_error (err, errno, "setns `CLONE_NEWNS`");
+          واپس crun_make_error (err, errno, "setns `CLONE_NEWNS`");
         }
     }
 
-  return ret;
+  واپس ret;
 }
 
-static int
-prepare_and_send_needed_dev_mounts (libcrun_container_t *container, int sync_socket_host, libcrun_error_t *err)
+ساکن صحیح
+prepare_and_send_needed_dev_mounts (libcrun_container_t *container, صحیح sync_socket_host, libcrun_error_t *err)
 {
-  cleanup_close_map struct libcrun_fd_map *fds = NULL;
-  bool has_userns = (get_private_data (container)->unshare_flags & CLONE_NEWUSER) ? true : false;
+  cleanup_close_map ساخت libcrun_fd_map *fds = تہی;
+  bool has_userns = (get_نجی_ڈیٹا (container)->unshare_flags & CLONE_NEWUSER) ? true : false;
   size_t how_many = 0;
   size_t i;
 
-  fds = make_libcrun_fd_map (NUM_NEEDED_DEVS);
+  fds = make_libcrun_fd_map (عدد_NEEDED_DEVS);
 
-  if (! has_userns || geteuid () > 0)
-    return send_mounts (sync_socket_host, fds, 0, NUM_NEEDED_DEVS, err);
+  اگر (! has_userns || geteuid () > 0)
+    واپس send_mounts (sync_socket_host, fds, 0, عدد_NEEDED_DEVS, err);
 
-  for (i = 0; i < NUM_NEEDED_DEVS && needed_devs[i].path; i++)
+  برائے (i = 0; i < عدد_NEEDED_DEVS && needed_devs[i].راستہ; i++)
     {
-      int fd = syscall_open_tree (AT_FDCWD, needed_devs[i].path,
+      صحیح fd = syscall_open_درخت (AT_FDCWD, needed_devs[i].راستہ,
                                   OPEN_TREE_CLONE | OPEN_TREE_CLOEXEC);
-      if (fd >= 0)
+      اگر (fd >= 0)
         {
           fds->fds[i] = fd;
           how_many++;
         }
     }
 
-  return send_mounts (sync_socket_host, fds, how_many, NUM_NEEDED_DEVS, err);
+  واپس send_mounts (sync_socket_host, fds, how_many, عدد_NEEDED_DEVS, err);
 }
 
-static int
-prepare_and_send_mounts (libcrun_container_t *container, pid_t pid, int sync_socket_host, libcrun_error_t *err)
+ساکن صحیح
+prepare_and_send_mounts (libcrun_container_t *container, pid_t pid, صحیح sync_socket_host, libcrun_error_t *err)
 {
-  int ret;
+  صحیح ret;
 
   ret = expect_success_from_sync_socket (sync_socket_host, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   ret = prepare_and_send_mount_mounts (container, pid, sync_socket_host, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   ret = prepare_and_send_dev_mounts (container, sync_socket_host, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   ret = prepare_and_send_needed_dev_mounts (container, sync_socket_host, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return 0;
+  واپس 0;
 }
 
-static int
-receive_mounts (struct libcrun_fd_map *fds, int sync_socket_container, libcrun_error_t *err)
+ساکن صحیح
+receive_mounts (ساخت libcrun_fd_map *fds, صحیح sync_socket_container, libcrun_error_t *err)
 {
   size_t i, how_many = 0;
-  int ret;
+  صحیح ret;
 
-  if (fds->nfds == 0)
-    return 0;
+  اگر (fds->nfds == 0)
+    واپس 0;
 
-  ret = TEMP_FAILURE_RETRY (read (sync_socket_container, &how_many, sizeof (how_many)));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "read from sync socket");
+  ret = عارضی_FAILURE_RETRY (اقرأ (sync_socket_container, &how_many, حجم (how_many)));
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "read from sync socket");
 
-  for (i = 0; i < how_many; i++)
+  برائے (i = 0; i < how_many; i++)
     {
-      size_t index;
+      size_t اشاریہ;
 
-      ret = receive_fd_from_socket_with_payload (sync_socket_container, (char *) &index, sizeof (index), err);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      if (index >= fds->nfds)
-        return crun_make_error (err, 0, "invalid mount data received");
+      ret = receive_fd_from_socket_with_payload (sync_socket_container, (حرف *) &اشاریہ, حجم (اشاریہ), err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
+      اگر (اشاریہ >= fds->nfds)
+        واپس crun_make_error (err, 0, "invalid mount data received");
 
-      if (fds->fds[index] >= 0)
-        TEMP_FAILURE_RETRY (close (fds->fds[index]));
+      اگر (fds->fds[اشاریہ] >= 0)
+        عارضی_FAILURE_RETRY (close (fds->fds[اشاریہ]));
 
-      fds->fds[index] = ret;
+      fds->fds[اشاریہ] = ret;
     }
 
-  return 0;
+  واپس 0;
 }
 
 /* Make the init process non-dumpable, so that its /proc files cannot be
@@ -6533,50 +6533,50 @@ receive_mounts (struct libcrun_fd_map *fds, int sync_socket_container, libcrun_e
    CAP_SYS_PTRACE in the user namespace crun runs in.  The capability check
    is done before creating the container user namespace, where the process
    has all capabilities.  */
-static int
-set_init_non_dumpable (libcrun_container_t *container, libcrun_error_t *err)
+ساکن صحیح
+سیٹ_init_non_dumpable (libcrun_container_t *container, libcrun_error_t *err)
 {
-  int ret;
+  صحیح ret;
 
-  if (! container->host_has_cap_sys_ptrace)
-    return 0;
+  اگر (! container->host_has_cap_sys_ptrace)
+    واپس 0;
 
-  ret = prctl (PR_SET_DUMPABLE, 0, 0, 0, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "prctl (PR_SET_DUMPABLE)");
+  ret = prctl (PR_سیٹ_DUMPABLE, 0, 0, 0, 0);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "prctl (PR_SET_DUMPABLE)");
 
-  return 0;
+  واپس 0;
 }
 
-static int
-set_id_init (libcrun_container_t *container, libcrun_error_t *err)
+ساکن صحیح
+سیٹ_id_init (libcrun_container_t *container, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
   uid_t uid = 0;
   gid_t gid = 0;
-  int ret;
+  صحیح ret;
 
-  if (def->process && def->process->user && def->linux)
+  اگر (def->process && def->process->user && def->linux)
     {
       /*
         If it is running in a user namespace and root is not mapped
         use the UID/GID specified for running the container.
       */
-      bool root_mapped = false;
+      bool جڑ_mapped = false;
 
-      if (def->linux->uid_mappings_len != 0)
+      اگر (def->linux->uid_mappings_len != 0)
         {
-          root_mapped = root_mapped_in_container_p (def->linux->uid_mappings, def->linux->uid_mappings_len);
-          if (! root_mapped)
+          جڑ_mapped = جڑ_mapped_اندر_container_p (def->linux->uid_mappings, def->linux->uid_mappings_len);
+          اگر (! جڑ_mapped)
             uid = def->process->user->uid;
 
           libcrun_debug ("Using mapped UID in container: `%d`", uid);
         }
 
-      if (def->linux->gid_mappings_len != 0)
+      اگر (def->linux->gid_mappings_len != 0)
         {
-          root_mapped = root_mapped_in_container_p (def->linux->gid_mappings, def->linux->gid_mappings_len);
-          if (! root_mapped)
+          جڑ_mapped = جڑ_mapped_اندر_container_p (def->linux->gid_mappings, def->linux->gid_mappings_len);
+          اگر (! جڑ_mapped)
             gid = def->process->user->gid;
 
           libcrun_debug ("Using mapped GID in container: `%d`", gid);
@@ -6584,24 +6584,24 @@ set_id_init (libcrun_container_t *container, libcrun_error_t *err)
     }
 
   /* -1 means "leave unchanged" for setresuid and setresgid.  */
-  if (UNLIKELY (uid == (uid_t) -1 || gid == (gid_t) -1))
-    return crun_make_error (err, EINVAL, "invalid user `%u:%u`", uid, gid);
+  اگر (UNLIKELY (uid == (uid_t) -1 || gid == (gid_t) -1))
+    واپس crun_make_error (err, EINVAL, "invalid user `%u:%u`", uid, gid);
 
   ret = setresuid (uid, uid, uid);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "setresuid to `%d`", uid);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "setresuid to `%d`", uid);
 
   ret = setresgid (gid, gid, gid);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "setresgid to `%d`", gid);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "setresgid to `%d`", gid);
 
-  return 0;
+  واپس 0;
 }
 
-static bool
+ساکن bool
 is_proc_mount (runtime_spec_schema_defs_mount *mnt)
 {
-  return mnt->type && strcmp (mnt->type, "proc") == 0 && ! is_bind_mount (mnt, NULL, NULL);
+  واپس mnt->type && strcmp (mnt->type, "proc") == 0 && ! is_bind_mount (mnt, تہی, تہی);
 }
 
 /* Any process in a PID namespace can read the mount table of the others
@@ -6615,210 +6615,210 @@ is_proc_mount (runtime_spec_schema_defs_mount *mnt)
 
    Return 1 if all the proc mounts were opened and the fork can be delayed,
    0 if the process must be created now.  */
-static int
-open_proc_mounts_in_pidns (libcrun_container_t *container, libcrun_error_t *err)
+ساکن صحیح
+open_proc_mounts_اندر_pidns (libcrun_container_t *container, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  struct libcrun_fd_map *mount_fds = get_fd_map (container);
-  cleanup_close int socket_parent = -1;
-  cleanup_close int socket_child = -1;
-  cleanup_close int root_fd = -1;
-  cleanup_close int cwd_fd = -1;
+  ساخت libcrun_fd_map *mount_fds = get_fd_map (container);
+  cleanup_close صحیح socket_والد = -1;
+  cleanup_close صحیح socket_بچہ = -1;
+  cleanup_close صحیح جڑ_fd = -1;
+  cleanup_close صحیح cwd_fd = -1;
   size_t i, missing = 0;
-  int saved_errno;
-  int sockets[2];
+  صحیح saved_errno;
+  صحیح sockets[2];
   pid_t pid;
-  int ret;
+  صحیح ret;
 
-  if (def->root == NULL || def->root->path == NULL)
-    return 0;
+  اگر (def->جڑ == تہی || def->جڑ->راستہ == تہی)
+    واپس 0;
 
-  for (i = 0; i < def->mounts_len; i++)
-    if (is_proc_mount (def->mounts[i]))
+  برائے (i = 0; i < def->mounts_len; i++)
+    اگر (is_proc_mount (def->mounts[i]))
       missing++;
-  if (missing == 0)
-    return 1;
+  اگر (missing == 0)
+    واپس 1;
 
-  root_fd = open ("/", O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (root_fd < 0))
-    return crun_make_error (err, errno, "open `/`");
+  جڑ_fd = open ("/", O_DIRECTORY | O_راستہ | O_CLOEXEC);
+  اگر (UNLIKELY (جڑ_fd < 0))
+    واپس crun_make_error (err, errno, "open `/`");
 
-  cwd_fd = open (".", O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (cwd_fd < 0))
-    return crun_make_error (err, errno, "open `.`");
+  cwd_fd = open (".", O_DIRECTORY | O_راستہ | O_CLOEXEC);
+  اگر (UNLIKELY (cwd_fd < 0))
+    واپس crun_make_error (err, errno, "open `.`");
 
   ret = socketpair (AF_UNIX, SOCK_SEQPACKET | SOCK_CLOEXEC, 0, sockets);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "socketpair");
-  socket_parent = sockets[0];
-  socket_child = sockets[1];
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "socketpair");
+  socket_والد = sockets[0];
+  socket_بچہ = sockets[1];
 
-  ret = chroot (def->root->path);
-  if (UNLIKELY (ret < 0))
-    return 0;
+  ret = chroot (def->جڑ->راستہ);
+  اگر (UNLIKELY (ret < 0))
+    واپس 0;
 
   pid = fork ();
   saved_errno = errno;
-  if (pid == 0)
+  اگر (pid == 0)
     {
       /* If an existing user namespace was joined, the process has no
          privileges on the current mount namespace.  */
-      if (get_private_data (container)->unshare_flags & CLONE_NEWUSER)
-        (void) unshare (CLONE_NEWNS);
+      اگر (get_نجی_ڈیٹا (container)->unshare_flags & CLONE_NEWUSER)
+        (خالی) unshare (CLONE_NEWNS);
 
-      for (i = 0; i < def->mounts_len; i++)
+      برائے (i = 0; i < def->mounts_len; i++)
         {
-          cleanup_close int fd = -1;
+          cleanup_close صحیح fd = -1;
 
-          if (! is_proc_mount (def->mounts[i]))
-            continue;
+          اگر (! is_proc_mount (def->mounts[i]))
+            جاری;
 
-          fd = open_mount_of_type (container, def->mounts[i], err);
-          if (fd < 0)
-            _safe_exit (EXIT_FAILURE);
+          fd = open_mount_کا_type (container, def->mounts[i], err);
+          اگر (fd < 0)
+            محفوظ_exit (EXIT_FAILURE);
 
-          ret = send_fd_to_socket_with_payload (socket_child, fd, (char *) &i, sizeof (i), err);
-          if (UNLIKELY (ret < 0))
-            _safe_exit (EXIT_FAILURE);
+          ret = send_fd_مقصد_socket_with_payload (socket_بچہ, fd, (حرف *) &i, حجم (i), err);
+          اگر (UNLIKELY (ret < 0))
+            محفوظ_exit (EXIT_FAILURE);
         }
-      _safe_exit (EXIT_SUCCESS);
+      محفوظ_exit (EXIT_SUCCESS);
     }
 
-  if (UNLIKELY (fchdir (root_fd) < 0 || chroot (".") < 0 || fchdir (cwd_fd) < 0))
-    return crun_make_error (err, errno, "restore the root directory");
+  اگر (UNLIKELY (fchdir (جڑ_fd) < 0 || chroot (".") < 0 || fchdir (cwd_fd) < 0))
+    واپس crun_make_error (err, errno, "restore the root directory");
 
-  if (UNLIKELY (pid < 0))
-    return crun_make_error (err, saved_errno, "fork");
+  اگر (UNLIKELY (pid < 0))
+    واپس crun_make_error (err, saved_errno, "fork");
 
-  close_and_reset (&socket_child);
+  close_and_reset (&socket_بچہ);
 
   /* If for any reason the mounts cannot be opened, fall back to creating
      the process now.  */
-  while (missing > 0)
+  جب (missing > 0)
     {
-      libcrun_error_t tmp_err = NULL;
+      libcrun_error_t tmp_err = تہی;
 
-      ret = receive_fd_from_socket_with_payload (socket_parent, (char *) &i, sizeof (i), &tmp_err);
-      if (ret < 0)
+      ret = receive_fd_from_socket_with_payload (socket_والد, (حرف *) &i, حجم (i), &tmp_err);
+      اگر (ret < 0)
         {
           crun_error_release (&tmp_err);
-          break;
+          توڑو;
         }
-      if (i >= mount_fds->nfds)
+      اگر (i >= mount_fds->nfds)
         {
-          TEMP_FAILURE_RETRY (close (ret));
-          break;
+          عارضی_FAILURE_RETRY (close (ret));
+          توڑو;
         }
 
-      if (mount_fds->fds[i] >= 0)
-        TEMP_FAILURE_RETRY (close (mount_fds->fds[i]));
+      اگر (mount_fds->fds[i] >= 0)
+        عارضی_FAILURE_RETRY (close (mount_fds->fds[i]));
       mount_fds->fds[i] = ret;
       missing--;
     }
 
-  waitpid_ignore_stopped (pid, NULL, 0);
+  waitpid_ignore_stopped (pid, تہی, 0);
 
-  return missing == 0 ? 1 : 0;
+  واپس missing == 0 ? 1 : 0;
 }
 
-static int
-init_container (libcrun_container_t *container, int sync_socket_container, struct init_status_s *init_status,
+ساکن صحیح
+init_container (libcrun_container_t *container, صحیح sync_socket_container, ساخت init_حالت_s *init_حالت,
                 libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  struct libcrun_fd_map *mount_fds = get_fd_map (container);
-  cleanup_close int timens_offsets_fd = -1;
+  ساخت libcrun_fd_map *mount_fds = get_fd_map (container);
+  cleanup_close صحیح timens_offsets_fd = -1;
   bool delayed_pidns_fork = false;
   pid_t pid_container = 0;
   size_t i;
-  int ret;
+  صحیح ret;
 
   /* Do it before joining any namespace, otherwise the process would be
      visible in a joined PID namespace while it is still dumpable.  */
-  ret = set_init_non_dumpable (container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = سیٹ_init_non_dumpable (container, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (init_status->idx_pidns_to_join_immediately >= 0 || init_status->idx_timens_to_join_immediately >= 0)
+  اگر (init_حالت->idx_pidns_مقصد_join_immediately >= 0 || init_حالت->idx_timens_مقصد_join_immediately >= 0)
     {
       pid_t new_pid;
 
-      if (init_status->idx_pidns_to_join_immediately >= 0)
+      اگر (init_حالت->idx_pidns_مقصد_join_immediately >= 0)
         {
-          ret = setns (init_status->fd[init_status->idx_pidns_to_join_immediately], CLONE_NEWPID);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "setns to target PID namespace");
+          ret = setns (init_حالت->fd[init_حالت->idx_pidns_مقصد_join_immediately], CLONE_NEWPID);
+          اگر (UNLIKELY (ret < 0))
+            واپس crun_make_error (err, errno, "setns to target PID namespace");
 
-          close_and_reset (&init_status->fd[init_status->idx_pidns_to_join_immediately]);
+          close_and_reset (&init_حالت->fd[init_حالت->idx_pidns_مقصد_join_immediately]);
         }
 
-      if (init_status->idx_timens_to_join_immediately >= 0)
+      اگر (init_حالت->idx_timens_مقصد_join_immediately >= 0)
         {
-          ret = setns (init_status->fd[init_status->idx_timens_to_join_immediately], CLONE_NEWTIME);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "setns to target timens");
+          ret = setns (init_حالت->fd[init_حالت->idx_timens_مقصد_join_immediately], CLONE_NEWTIME);
+          اگر (UNLIKELY (ret < 0))
+            واپس crun_make_error (err, errno, "setns to target timens");
 
-          close_and_reset (&init_status->fd[init_status->idx_timens_to_join_immediately]);
+          close_and_reset (&init_حالت->fd[init_حالت->idx_timens_مقصد_join_immediately]);
         }
 
-      if (init_status->can_delay_pidns_fork)
+      اگر (init_حالت->can_delay_pidns_fork)
         {
-          ret = open_proc_mounts_in_pidns (container, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = open_proc_mounts_اندر_pidns (container, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
 
           delayed_pidns_fork = ret > 0;
         }
 
-      if (delayed_pidns_fork)
+      اگر (delayed_pidns_fork)
         {
           /* A zero PID tells the parent that the process is created later.  */
           new_pid = 0;
 
-          ret = send_success_to_sync_socket (sync_socket_container, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = send_success_مقصد_sync_socket (sync_socket_container, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
 
-          ret = TEMP_FAILURE_RETRY (write (sync_socket_container, &new_pid, sizeof (new_pid)));
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "write to sync socket");
+          ret = عارضی_FAILURE_RETRY (اكتب (sync_socket_container, &new_pid, حجم (new_pid)));
+          اگر (UNLIKELY (ret < 0))
+            واپس crun_make_error (err, errno, "write to sync socket");
         }
-      else
+      ورنہ
         {
           new_pid = fork ();
-          if (UNLIKELY (new_pid < 0))
-            return crun_make_error (err, errno, "fork");
+          اگر (UNLIKELY (new_pid < 0))
+            واپس crun_make_error (err, errno, "fork");
         }
 
-      if (new_pid)
+      اگر (new_pid)
         {
           /* Report the new PID to the parent and exit immediately.  */
-          ret = send_success_to_sync_socket (sync_socket_container, err);
-          if (UNLIKELY (ret < 0))
+          ret = send_success_مقصد_sync_socket (sync_socket_container, err);
+          اگر (UNLIKELY (ret < 0))
             kill (new_pid, SIGKILL);
 
-          ret = TEMP_FAILURE_RETRY (write (sync_socket_container, &new_pid, sizeof (new_pid)));
-          if (UNLIKELY (ret < 0))
+          ret = عارضی_FAILURE_RETRY (اكتب (sync_socket_container, &new_pid, حجم (new_pid)));
+          اگر (UNLIKELY (ret < 0))
             kill (new_pid, SIGKILL);
 
-          _safe_exit (0);
+          محفوظ_exit (0);
         }
 
       /* Wait for the parent to receive the new PID.  */
       ret = expect_success_from_sync_socket (sync_socket_container, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  ret = libcrun_set_oom (container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_سیٹ_oom (container, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (init_status->fd_len > 0)
+  اگر (init_حالت->fd_len > 0)
     {
-      ret = join_namespaces (def, init_status->fd, init_status->fd_len, init_status->index, true, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = join_namespaces (def, init_حالت->fd, init_حالت->fd_len, init_حالت->اشاریہ, true, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
   /* If the container needs to join an existing PID namespace, take a reference to it
@@ -6828,29 +6828,29 @@ init_container (libcrun_container_t *container, int sync_socket_container, struc
      This cannot be done in the parent process (by `prepare_and_send_mounts`), since it is
      necessary to first join the target namespaces and then create the mount.
   */
-  if ((init_status->all_namespaces & CLONE_NEWUSER) && (init_status->join_pidns || init_status->join_ipcns))
+  اگر ((init_حالت->all_namespaces & CLONE_NEWUSER) && (init_حالت->join_pidns || init_حالت->join_ipcns))
     {
-      for (i = 0; i < def->mounts_len; i++)
+      برائے (i = 0; i < def->mounts_len; i++)
         {
-          int fd = -1;
+          صحیح fd = -1;
 
           /* The mount type is optional in the OCI configuration, e.g. bind mounts
              are usually specified without it.  */
-          if (def->mounts[i]->type == NULL)
-            continue;
+          اگر (def->mounts[i]->type == تہی)
+            جاری;
 
           /* If for any reason the mount cannot be opened, ignore errors and continue.
              An error will be generated later if it is not possible to join the namespace.
           */
-          if (init_status->join_pidns && ! delayed_pidns_fork && strcmp (def->mounts[i]->type, "proc") == 0)
-            fd = fsopen_mount (def->mounts[i]->type, def->mounts[i]->source, NULL, NULL, NULL);
-          if (init_status->join_ipcns && strcmp (def->mounts[i]->type, "mqueue") == 0)
-            fd = fsopen_mount (def->mounts[i]->type, def->mounts[i]->source, NULL, NULL, NULL);
+          اگر (init_حالت->join_pidns && ! delayed_pidns_fork && strcmp (def->mounts[i]->type, "proc") == 0)
+            fd = fsopen_mount (def->mounts[i]->type, def->mounts[i]->ماخذ, تہی, تہی, تہی);
+          اگر (init_حالت->join_ipcns && strcmp (def->mounts[i]->type, "mqueue") == 0)
+            fd = fsopen_mount (def->mounts[i]->type, def->mounts[i]->ماخذ, تہی, تہی, تہی);
 
-          if (fd >= 0)
+          اگر (fd >= 0)
             {
-              if (mount_fds->fds[i] >= 0)
-                TEMP_FAILURE_RETRY (close (mount_fds->fds[i]));
+              اگر (mount_fds->fds[i] >= 0)
+                عارضی_FAILURE_RETRY (close (mount_fds->fds[i]));
               mount_fds->fds[i] = fd;
             }
         }
@@ -6862,629 +6862,629 @@ init_container (libcrun_container_t *container, int sync_socket_container, struc
      root.  The offsets are written to the time namespace the process creates
      for its children at the time of the write, and the permission to do so
      is checked against the credentials of the opener.  */
-  if (def->linux->time_offsets)
+  اگر (def->linux->وقت_offsets)
     {
       timens_offsets_fd = libcrun_open_proc_file (container, "self/timens_offsets", O_WRONLY, err);
-      if (UNLIKELY (timens_offsets_fd < 0))
-        return timens_offsets_fd;
+      اگر (UNLIKELY (timens_offsets_fd < 0))
+        واپس timens_offsets_fd;
     }
 
-  if (init_status->all_namespaces & CLONE_NEWUSER)
+  اگر (init_حالت->all_namespaces & CLONE_NEWUSER)
     {
-      if (init_status->delayed_userns_create)
+      اگر (init_حالت->delayed_userns_create)
         {
           libcrun_debug ("Unsharing user namespace");
           ret = unshare (CLONE_NEWUSER);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "unshare user namespace");
+          اگر (UNLIKELY (ret < 0))
+            واپس crun_make_error (err, errno, "unshare user namespace");
 
-          init_status->namespaces_to_unshare &= ~CLONE_NEWUSER;
+          init_حالت->namespaces_مقصد_unshare &= ~CLONE_NEWUSER;
 
-          ret = send_success_to_sync_socket (sync_socket_container, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = send_success_مقصد_sync_socket (sync_socket_container, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
 
-      if (init_status->userns_index < 0)
+      اگر (init_حالت->userns_اشاریہ < 0)
         {
           ret = expect_success_from_sync_socket (sync_socket_container, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
-      else
+      ورنہ
         {
           /* If we need to join another user namespace, do it immediately before creating any other namespace. */
           libcrun_debug ("Joining existing user namespace");
-          ret = setns (init_status->fd[init_status->userns_index], CLONE_NEWUSER);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "setns to target user namespace `%s`",
-                                    def->linux->namespaces[init_status->userns_index_origin]->path);
+          ret = setns (init_حالت->fd[init_حالت->userns_اشاریہ], CLONE_NEWUSER);
+          اگر (UNLIKELY (ret < 0))
+            واپس crun_make_error (err, errno, "setns to target user namespace `%s`",
+                                    def->linux->namespaces[init_حالت->userns_اشاریہ_origin]->راستہ);
         }
 
-      ret = set_id_init (container, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = سیٹ_id_init (container, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
       /* Changing the credentials resets the dumpable flag to the value of
          fs.suid_dumpable, so set it again.  */
-      ret = set_init_non_dumpable (container, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = سیٹ_init_non_dumpable (container, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  ret = join_namespaces (def, init_status->fd, init_status->fd_len, init_status->index, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = join_namespaces (def, init_حالت->fd, init_حالت->fd_len, init_حالت->اشاریہ, false, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (init_status->namespaces_to_unshare & ~(CLONE_NEWCGROUP | CLONE_NEWNS))
+  اگر (init_حالت->namespaces_مقصد_unshare & ~(CLONE_NEWCGROUP | CLONE_NEWNS))
     {
       /* New namespaces to create for the container.  */
-      ret = unshare (init_status->namespaces_to_unshare & ~(CLONE_NEWCGROUP | CLONE_NEWNS));
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "unshare");
+      ret = unshare (init_حالت->namespaces_مقصد_unshare & ~(CLONE_NEWCGROUP | CLONE_NEWNS));
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "unshare");
     }
 
-  if (def->linux->time_offsets)
+  اگر (def->linux->وقت_offsets)
     {
-      char fmt_buffer[128];
-      int fd = timens_offsets_fd;
+      حرف fmt_بفر[128];
+      صحیح fd = timens_offsets_fd;
 
-      if (def->linux->time_offsets->boottime)
+      اگر (def->linux->وقت_offsets->boottime)
         {
-          ret = snprintf (fmt_buffer, sizeof (fmt_buffer), "boottime %" PRIi64 " %" PRIu32, def->linux->time_offsets->boottime->secs, def->linux->time_offsets->boottime->nanosecs);
-          if (UNLIKELY (ret >= (int) sizeof (fmt_buffer)))
-            return crun_make_error (err, 0, "internal error: static buffer too small");
+          ret = snprintf (fmt_بفر, حجم (fmt_بفر), "boottime %" PRIi64 " %" PRIu32, def->linux->وقت_offsets->boottime->secs, def->linux->وقت_offsets->boottime->nanosecs);
+          اگر (UNLIKELY (ret >= (صحیح) حجم (fmt_بفر)))
+            واپس crun_make_error (err, 0, "internal error: static buffer too small");
 
-          libcrun_debug ("Using boot time offset: secs = `%lld`, nanosecs = `%d`", (long long int) def->linux->time_offsets->boottime->secs, def->linux->time_offsets->boottime->nanosecs);
-          ret = write (fd, fmt_buffer, strlen (fmt_buffer));
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "write `/proc/self/timens_offsets`");
+          libcrun_debug ("Using boot time offset: secs = `%lld`, nanosecs = `%d`", (طویل طویل صحیح) def->linux->وقت_offsets->boottime->secs, def->linux->وقت_offsets->boottime->nanosecs);
+          ret = اكتب (fd, fmt_بفر, لڑی_لمبائی (fmt_بفر));
+          اگر (UNLIKELY (ret < 0))
+            واپس crun_make_error (err, errno, "write `/proc/self/timens_offsets`");
         }
-      if (def->linux->time_offsets->monotonic)
+      اگر (def->linux->وقت_offsets->monotonic)
         {
-          libcrun_debug ("Using monotonic time offset: secs = `%lld`, nanosecs = `%d`", (long long int) def->linux->time_offsets->monotonic->secs, def->linux->time_offsets->monotonic->nanosecs);
+          libcrun_debug ("Using monotonic time offset: secs = `%lld`, nanosecs = `%d`", (طویل طویل صحیح) def->linux->وقت_offsets->monotonic->secs, def->linux->وقت_offsets->monotonic->nanosecs);
 
-          ret = snprintf (fmt_buffer, sizeof (fmt_buffer), "monotonic %" PRIi64 " %" PRIu32, def->linux->time_offsets->monotonic->secs, def->linux->time_offsets->monotonic->nanosecs);
-          if (UNLIKELY (ret >= (int) sizeof (fmt_buffer)))
-            return crun_make_error (err, 0, "internal error: static buffer too small");
+          ret = snprintf (fmt_بفر, حجم (fmt_بفر), "monotonic %" PRIi64 " %" PRIu32, def->linux->وقت_offsets->monotonic->secs, def->linux->وقت_offsets->monotonic->nanosecs);
+          اگر (UNLIKELY (ret >= (صحیح) حجم (fmt_بفر)))
+            واپس crun_make_error (err, 0, "internal error: static buffer too small");
 
-          ret = write (fd, fmt_buffer, strlen (fmt_buffer));
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "write `/proc/self/timens_offsets`");
+          ret = اكتب (fd, fmt_بفر, لڑی_لمبائی (fmt_بفر));
+          اگر (UNLIKELY (ret < 0))
+            واپس crun_make_error (err, errno, "write `/proc/self/timens_offsets`");
         }
     }
 
-  if (init_status->must_fork)
+  اگر (init_حالت->must_fork)
     {
-      if (init_status->can_delay_pidns_fork)
+      اگر (init_حالت->can_delay_pidns_fork)
         {
-          ret = open_proc_mounts_in_pidns (container, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = open_proc_mounts_اندر_pidns (container, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
 
           delayed_pidns_fork = ret > 0;
         }
 
-      if (! delayed_pidns_fork)
+      اگر (! delayed_pidns_fork)
         {
           /* A PID and a time namespace are joined when the new process is created.  */
           pid_container = fork ();
-          if (UNLIKELY (pid_container < 0))
-            return crun_make_error (err, errno, "cannot fork");
+          اگر (UNLIKELY (pid_container < 0))
+            واپس crun_make_error (err, errno, "cannot fork");
         }
 
       /* Report back the new PID.  A zero PID tells the parent that the process is created later.  */
-      if (pid_container || delayed_pidns_fork)
+      اگر (pid_container || delayed_pidns_fork)
         {
           libcrun_debug ("Running container PID after fork: `%d`", pid_container);
-          ret = send_success_to_sync_socket (sync_socket_container, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = send_success_مقصد_sync_socket (sync_socket_container, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
 
-          ret = TEMP_FAILURE_RETRY (write (sync_socket_container, &pid_container, sizeof (pid_container)));
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "write to sync socket");
+          ret = عارضی_FAILURE_RETRY (اكتب (sync_socket_container, &pid_container, حجم (pid_container)));
+          اگر (UNLIKELY (ret < 0))
+            واپس crun_make_error (err, errno, "write to sync socket");
 
-          if (pid_container)
-            _safe_exit (EXIT_SUCCESS);
+          اگر (pid_container)
+            محفوظ_exit (EXIT_SUCCESS);
         }
 
       ret = expect_success_from_sync_socket (sync_socket_container, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  get_private_data (container)->delayed_pidns_fork = delayed_pidns_fork;
+  get_نجی_ڈیٹا (container)->delayed_pidns_fork = delayed_pidns_fork;
 
-  ret = send_success_to_sync_socket (sync_socket_container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = send_success_مقصد_sync_socket (sync_socket_container, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   /* Receive the mounts sent by `prepare_and_send_mounts`.  */
   ret = receive_mounts (get_fd_map (container), sync_socket_container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   ret = receive_mounts (get_devices_fd_map (container), sync_socket_container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   ret = receive_mounts (get_needed_devs_fd_map (container), sync_socket_container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   ret = libcrun_container_setgroups (container, container->container_def->process, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return 0;
+  واپس 0;
 }
 
 bool
 libcrun_container_delayed_pidns_fork (libcrun_container_t *container)
 {
-  return get_private_data (container)->delayed_pidns_fork;
+  واپس get_نجی_ڈیٹا (container)->delayed_pidns_fork;
 }
 
-int
+صحیح
 libcrun_handle_pidfd_receiver (pid_t pid, libcrun_container_t *container, libcrun_error_t *err)
 {
-  cleanup_close int client_fd = -1;
-  cleanup_close int pidfd = -1;
-  const char *v;
+  cleanup_close صحیح client_fd = -1;
+  cleanup_close صحیح pidfd = -1;
+  ثابت حرف *v;
 
-  v = find_annotation (container, "run.oci.pidfd_receiver");
-  if (v == NULL)
-    return 0;
+  v = ڈھونڈو_annotation (container, "run.oci.pidfd_receiver");
+  اگر (v == تہی)
+    واپس 0;
 
   pidfd = syscall_pidfd_open (pid, 0);
-  if (UNLIKELY (pidfd < 0))
-    return crun_make_error (err, errno, "pidfd_open");
+  اگر (UNLIKELY (pidfd < 0))
+    واپس crun_make_error (err, errno, "pidfd_open");
 
   client_fd = open_unix_domain_client_socket (v, 0, err);
-  if (UNLIKELY (client_fd < 0))
-    return client_fd;
+  اگر (UNLIKELY (client_fd < 0))
+    واپس client_fd;
 
-  return send_fd_to_socket (client_fd, pidfd, err);
+  واپس send_fd_مقصد_socket (client_fd, pidfd, err);
 }
 
-static bool
+ساکن bool
 has_exec_cpu_affinity (runtime_spec_schema_config_schema_process *process)
 {
-  if (process == NULL || process->exec_cpu_affinity == NULL)
-    return false;
-  return (! is_empty_string (process->exec_cpu_affinity->initial))
-         || (! is_empty_string (process->exec_cpu_affinity->final));
+  اگر (process == تہی || process->exec_cpu_affinity == تہی)
+    واپس false;
+  واپس (! is_خالی_خانے_string (process->exec_cpu_affinity->initial))
+         || (! is_خالی_خانے_string (process->exec_cpu_affinity->final));
 }
 
 pid_t
-libcrun_run_linux_container (libcrun_container_t *container, container_entrypoint_t entrypoint, void *args,
-                             int *sync_socket_out, struct libcrun_dirfd_s *cgroup_dirfd, libcrun_error_t *err)
+libcrun_تسلسل_linux_container (libcrun_container_t *container, container_entrypoint_t entrypoint, خالی *دلائل,
+                             صحیح *sync_socket_برآمد, ساخت libcrun_dirfd_s *cgroup_dirfd, libcrun_error_t *err)
 {
-  __attribute__ ((cleanup (cleanup_free_init_statusp))) struct init_status_s init_status;
+  __attribute__ ((cleanup (cleanup_free_init_statusp))) ساخت init_حالت_s init_حالت;
   runtime_spec_schema_config_schema *def = container->container_def;
-  cleanup_close int sync_socket_container = -1;
-  char *notify_socket_env = NULL;
-  cleanup_close int sync_socket_host = -1;
-  __attribute__ ((unused)) cleanup_close int restore_pidns = -1;
-  int first_clone_args = 0;
-  int sync_socket[2];
+  cleanup_close صحیح sync_socket_container = -1;
+  حرف *notify_socket_env = تہی;
+  cleanup_close صحیح sync_socket_host = -1;
+  __attribute__ ((غیر_مستعمل)) cleanup_close صحیح restore_pidns = -1;
+  صحیح پہلا_clone_دلائل = 0;
+  صحیح sync_socket[2];
   pid_t pid;
   bool new_userns;
   size_t i;
-  int ret;
+  صحیح ret;
 
   libcrun_debug ("Running linux container");
-  ret = configure_init_status (&init_status, container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = configure_init_حالت (&init_حالت, container, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  get_private_data (container)->unshare_flags = init_status.all_namespaces;
-  get_private_data (container)->joined_mount_ns
-      = (init_status.all_namespaces & CLONE_NEWNS)
-        && ! (init_status.namespaces_to_unshare & CLONE_NEWNS);
+  get_نجی_ڈیٹا (container)->unshare_flags = init_حالت.all_namespaces;
+  get_نجی_ڈیٹا (container)->joined_mount_ns
+      = (init_حالت.all_namespaces & CLONE_NEWNS)
+        && ! (init_حالت.namespaces_مقصد_unshare & CLONE_NEWNS);
   /* cgroup will be unshared later.  Once the process is in the correct cgroup.  */
-  init_status.all_namespaces &= ~CLONE_NEWCGROUP;
-  get_private_data (container)->unshare_cgroupns = init_status.namespaces_to_unshare & CLONE_NEWCGROUP;
+  init_حالت.all_namespaces &= ~CLONE_NEWCGROUP;
+  get_نجی_ڈیٹا (container)->unshare_cgroupns = init_حالت.namespaces_مقصد_unshare & CLONE_NEWCGROUP;
 
   ret = socketpair (AF_UNIX, SOCK_SEQPACKET | SOCK_CLOEXEC, 0, sync_socket);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "socketpair");
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "socketpair");
 
   sync_socket_host = sync_socket[0];
   sync_socket_container = sync_socket[1];
 
-#ifdef HAVE_SYSTEMD
-  if (def->root)
+#اگر_تعریف_شدہ HAVE_SYSTEMD
+  اگر (def->جڑ)
     {
       ret = do_notify_socket (container, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
-#endif
+#اگر_ختم
 
   get_uid_gid_from_def (container->container_def, &container->container_uid, &container->container_gid);
 
   /* This must be done before we enter a user namespace.  */
-  if (def->process)
+  اگر (def->process)
     {
-      ret = libcrun_set_rlimits (def->process->rlimits, def->process->rlimits_len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_سیٹ_rlimits (def->process->rlimits, def->process->rlimits_len, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  ret = libcrun_set_oom (container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_سیٹ_oom (container, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = libcrun_container_notify_handler (args, HANDLER_CONFIGURE_BEFORE_USERNS, container,
-                                          container->container_def->root ? container->container_def->root->path : NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_container_notify_handler (دلائل, HANDLER_CONFIGURE_BEFORE_USERNS, container,
+                                          container->container_def->جڑ ? container->container_def->جڑ->راستہ : تہی, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   /* If a new user namespace must be created, but there are other namespaces to join, then delay
      the userns creation after the namespaces are joined.  */
-  init_status.delayed_userns_create
-      = (init_status.all_namespaces & CLONE_NEWUSER) && init_status.userns_index < 0 && init_status.fd_len > 0;
+  init_حالت.delayed_userns_create
+      = (init_حالت.all_namespaces & CLONE_NEWUSER) && init_حالت.userns_اشاریہ < 0 && init_حالت.fd_len > 0;
 
   /* Check if special handling is required to join the namespaces.  The PID and time
      namespaces are to be joined before creating a new user namespace (as the process
      loses the privileges to do so after that), but after joining an existing one (as
      the process might not have the privileges to do so before that).  */
-  new_userns = (init_status.all_namespaces & CLONE_NEWUSER) && init_status.userns_index < 0;
-  for (i = 0; i < init_status.fd_len; i++)
+  new_userns = (init_حالت.all_namespaces & CLONE_NEWUSER) && init_حالت.userns_اشاریہ < 0;
+  برائے (i = 0; i < init_حالت.fd_len; i++)
     {
-      switch (init_status.value[i])
+      انتخاب (init_حالت.قدر[i])
         {
-        case CLONE_NEWIPC:
-          if (init_status.all_namespaces & CLONE_NEWUSER)
-            init_status.join_ipcns = true;
-          break;
+        حالت CLONE_NEWIPC:
+          اگر (init_حالت.all_namespaces & CLONE_NEWUSER)
+            init_حالت.join_ipcns = true;
+          توڑو;
 
-        case CLONE_NEWPID:
+        حالت CLONE_NEWPID:
           /* The prestart, createRuntime and createContainer hooks need the PID of the
              process in the PID namespace before the pivot_root.  */
-          init_status.can_delay_pidns_fork = ! (def->hooks
+          init_حالت.can_delay_pidns_fork = ! (def->hooks
                                                 && (def->hooks->prestart_len || def->hooks->create_runtime_len
                                                     || def->hooks->create_container_len));
-          if (! new_userns)
-            init_status.must_fork = true;
-          else
+          اگر (! new_userns)
+            init_حالت.must_fork = true;
+          ورنہ
             {
-              init_status.join_pidns = true;
-              init_status.idx_pidns_to_join_immediately = i;
-              init_status.namespaces_to_unshare &= ~CLONE_NEWPID;
+              init_حالت.join_pidns = true;
+              init_حالت.idx_pidns_مقصد_join_immediately = i;
+              init_حالت.namespaces_مقصد_unshare &= ~CLONE_NEWPID;
             }
-          break;
+          توڑو;
 
-        case CLONE_NEWTIME:
-          if (! new_userns)
-            init_status.must_fork = true;
-          else
+        حالت CLONE_NEWTIME:
+          اگر (! new_userns)
+            init_حالت.must_fork = true;
+          ورنہ
             {
-              init_status.idx_timens_to_join_immediately = i;
-              init_status.namespaces_to_unshare &= ~CLONE_NEWTIME;
+              init_حالت.idx_timens_مقصد_join_immediately = i;
+              init_حالت.namespaces_مقصد_unshare &= ~CLONE_NEWTIME;
             }
-          break;
+          توڑو;
         }
     }
 
   /* Before attempting any setns() or unshare(), a clone() is required to not touch the caller context
      that can be used later on for running hooks.  */
 
-  if ((init_status.namespaces_to_unshare & CLONE_NEWUSER) && init_status.fd_len == 0)
+  اگر ((init_حالت.namespaces_مقصد_unshare & CLONE_NEWUSER) && init_حالت.fd_len == 0)
     {
       /* If a user namespace must be created and there are no other namespaces to join, create the userns alone.  */
-      first_clone_args = CLONE_NEWUSER;
+      پہلا_clone_دلائل = CLONE_NEWUSER;
     }
-  else if ((init_status.all_namespaces & CLONE_NEWUSER) == 0)
+  ورنہ اگر ((init_حالت.all_namespaces & CLONE_NEWUSER) == 0)
     {
       /* If it doesn't create a user namespace or need to join one, create the new requested namespaces now. */
-      first_clone_args = init_status.namespaces_to_unshare & ~(CLONE_NEWTIME | CLONE_NEWCGROUP | CLONE_NEWNS);
+      پہلا_clone_دلائل = init_حالت.namespaces_مقصد_unshare & ~(CLONE_NEWTIME | CLONE_NEWCGROUP | CLONE_NEWNS);
     }
 
-  init_status.namespaces_to_unshare &= ~first_clone_args;
+  init_حالت.namespaces_مقصد_unshare &= ~پہلا_clone_دلائل;
 
   /* Check if there are still namespaces that require a fork().  */
-  if (init_status.namespaces_to_unshare & (CLONE_NEWPID | CLONE_NEWTIME))
+  اگر (init_حالت.namespaces_مقصد_unshare & (CLONE_NEWPID | CLONE_NEWTIME))
     {
       /* If we need to make another fork(), make sure the NEWPID is always
          created as part of that.  */
-      first_clone_args &= ~CLONE_NEWPID;
-      init_status.namespaces_to_unshare |= CLONE_NEWPID;
-      init_status.must_fork = true;
-      init_status.can_delay_pidns_fork = false;
+      پہلا_clone_دلائل &= ~CLONE_NEWPID;
+      init_حالت.namespaces_مقصد_unshare |= CLONE_NEWPID;
+      init_حالت.must_fork = true;
+      init_حالت.can_delay_pidns_fork = false;
     }
 
   pid = -1;
-  if (cgroup_dirfd && *cgroup_dirfd->dirfd >= 0)
+  اگر (cgroup_dirfd && *cgroup_dirfd->dirfd >= 0)
     {
-      struct _clone3_args clone3_args;
-      memset (&clone3_args, 0, sizeof (clone3_args));
-      clone3_args.exit_signal = SIGCHLD;
-      clone3_args.flags = first_clone_args;
+      ساخت clone3_دلائل clone3_دلائل_2;
+      memset (&clone3_دلائل_2, 0, حجم (clone3_دلائل_2));
+      clone3_دلائل_2.exit_signal = SIGCHLD;
+      clone3_دلائل_2.flags = پہلا_clone_دلائل;
 
-      clone3_args.flags |= CLONE_INTO_CGROUP;
-      clone3_args.cgroup = *cgroup_dirfd->dirfd;
+      clone3_دلائل_2.flags |= CLONE_INTO_CGROUP;
+      clone3_دلائل_2.cgroup = *cgroup_dirfd->dirfd;
 
-      pid = syscall_clone3 (&clone3_args);
-      if (pid >= 0)
+      pid = syscall_clone3 (&clone3_دلائل_2);
+      اگر (pid >= 0)
         cgroup_dirfd->joined = true;
 
       close_and_reset (cgroup_dirfd->dirfd);
     }
   /* fallback to clone() for any error.  */
-  if (pid < 0)
+  اگر (pid < 0)
     {
-      pid = syscall_clone (first_clone_args | SIGCHLD, NULL);
-      if (UNLIKELY (pid < 0))
-        return crun_make_error (err, errno, "clone");
+      pid = syscall_clone (پہلا_clone_دلائل | SIGCHLD, تہی);
+      اگر (UNLIKELY (pid < 0))
+        واپس crun_make_error (err, errno, "clone");
     }
 
-  if (pid)
+  اگر (pid)
     {
-      __attribute__ ((unused)) cleanup_pid pid_t pid_to_clean = pid;
+      __attribute__ ((غیر_مستعمل)) cleanup_pid pid_t pid_مقصد_clean = pid;
 
       /* this is safe to do because the std stream files were not changed since the clone().  */
       ret = libcrun_save_external_descriptors (container, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
       ret = close_and_reset (&sync_socket_container);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "close");
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "close");
 
       /* any systemd notify socket open_tree FD is pointless to keep around in the parent */
-      close_and_reset (&(get_private_data (container)->notify_socket_tree_fd));
+      close_and_reset (&(get_نجی_ڈیٹا (container)->notify_socket_درخت_fd));
 
-      if (init_status.idx_pidns_to_join_immediately >= 0 || init_status.idx_timens_to_join_immediately >= 0)
+      اگر (init_حالت.idx_pidns_مقصد_join_immediately >= 0 || init_حالت.idx_timens_مقصد_join_immediately >= 0)
         {
           pid_t new_pid = 0;
 
           ret = expect_success_from_sync_socket (sync_socket_host, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
 
-          ret = TEMP_FAILURE_RETRY (read (sync_socket_host, &new_pid, sizeof (new_pid)));
-          if (UNLIKELY (ret != sizeof (new_pid)))
-            return crun_make_error (err, ret < 0 ? errno : 0, "read pid from sync socket");
+          ret = عارضی_FAILURE_RETRY (اقرأ (sync_socket_host, &new_pid, حجم (new_pid)));
+          اگر (UNLIKELY (ret != حجم (new_pid)))
+            واپس crun_make_error (err, ret < 0 ? errno : 0, "read pid from sync socket");
 
-          if (new_pid == 0)
-            get_private_data (container)->delayed_pidns_fork = true;
-          else
+          اگر (new_pid == 0)
+            get_نجی_ڈیٹا (container)->delayed_pidns_fork = true;
+          ورنہ
             {
               /* Cleanup the first process.  */
-              ret = waitpid_ignore_stopped (pid, NULL, 0);
+              ret = waitpid_ignore_stopped (pid, تہی, 0);
 
-              pid_to_clean = pid = new_pid;
+              pid_مقصد_clean = pid = new_pid;
             }
 
-          ret = send_success_to_sync_socket (sync_socket_host, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = send_success_مقصد_sync_socket (sync_socket_host, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
 
-      if (init_status.delayed_userns_create)
+      اگر (init_حالت.delayed_userns_create)
         {
           ret = expect_success_from_sync_socket (sync_socket_host, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
 
-      if ((init_status.all_namespaces & CLONE_NEWUSER) && init_status.userns_index < 0)
+      اگر ((init_حالت.all_namespaces & CLONE_NEWUSER) && init_حالت.userns_اشاریہ < 0)
         {
-          ret = libcrun_set_usernamespace (container, pid, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = libcrun_سیٹ_usernamespace (container, pid, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
 
-          ret = send_success_to_sync_socket (sync_socket_host, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = send_success_مقصد_sync_socket (sync_socket_host, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
 
-      if (init_status.must_fork)
+      اگر (init_حالت.must_fork)
         {
           pid_t grandchild = 0;
 
           ret = expect_success_from_sync_socket (sync_socket_host, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
 
-          ret = TEMP_FAILURE_RETRY (read (sync_socket_host, &grandchild, sizeof (grandchild)));
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "read pid from sync socket");
+          ret = عارضی_FAILURE_RETRY (اقرأ (sync_socket_host, &grandchild, حجم (grandchild)));
+          اگر (UNLIKELY (ret < 0))
+            واپس crun_make_error (err, errno, "read pid from sync socket");
 
-          ret = send_success_to_sync_socket (sync_socket_host, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = send_success_مقصد_sync_socket (sync_socket_host, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
 
-          if (grandchild == 0)
-            get_private_data (container)->delayed_pidns_fork = true;
-          else
+          اگر (grandchild == 0)
+            get_نجی_ڈیٹا (container)->delayed_pidns_fork = true;
+          ورنہ
             {
               /* Cleanup the first process.  */
-              waitpid_ignore_stopped (pid, NULL, 0);
+              waitpid_ignore_stopped (pid, تہی, 0);
 
-              pid_to_clean = pid = grandchild;
+              pid_مقصد_clean = pid = grandchild;
             }
         }
 
       /* They are received by `receive_mounts`.  */
       ret = prepare_and_send_mounts (container, pid, sync_socket_host, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
       ret = expect_success_from_sync_socket (sync_socket_host, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      *sync_socket_out = get_and_reset (&sync_socket_host);
+      *sync_socket_برآمد = get_and_reset (&sync_socket_host);
 
       /* If the fork is delayed, it is done once the container process exists.  */
-      if (! get_private_data (container)->delayed_pidns_fork)
+      اگر (! get_نجی_ڈیٹا (container)->delayed_pidns_fork)
         {
           ret = libcrun_handle_pidfd_receiver (pid, container, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
 
-      pid_to_clean = 0;
-      return pid;
+      pid_مقصد_clean = 0;
+      واپس pid;
     }
 
   /* Inside the container process.  */
 
   ret = close_and_reset (&sync_socket_host);
-  if (UNLIKELY (ret < 0))
+  اگر (UNLIKELY (ret < 0))
     libcrun_fail_with_error (errno, "%s", "close sync socket");
 
   /* Initialize the new process and make sure to join/create all the required namespaces.  */
-  ret = init_container (container, sync_socket_container, &init_status, err);
-  if (UNLIKELY (ret < 0))
-    send_error_to_sync_socket_and_die (sync_socket_container, false, err);
-  else
+  ret = init_container (container, sync_socket_container, &init_حالت, err);
+  اگر (UNLIKELY (ret < 0))
+    send_error_مقصد_sync_socket_and_die (sync_socket_container, false, err);
+  ورنہ
     {
-      ret = send_success_to_sync_socket (sync_socket_container, err);
-      if (UNLIKELY (ret < 0))
-        libcrun_fail_with_error (crun_error_get_errno (err), "%s", (*err)->msg);
+      ret = send_success_مقصد_sync_socket (sync_socket_container, err);
+      اگر (UNLIKELY (ret < 0))
+        libcrun_fail_with_error (crun_error_get_errno (err), "%s", (*err)->پیغام);
     }
 
   /* Jump into the specified entrypoint.  */
-  if (container->context->notify_socket)
+  اگر (container->context->notify_socket)
     xasprintf (&notify_socket_env, "NOTIFY_SOCKET=%s/notify", container->context->notify_socket);
 
-  ret = entrypoint (args, notify_socket_env, sync_socket_container, err);
+  ret = entrypoint (دلائل, notify_socket_env, sync_socket_container, err);
 
   /* For most of the cases ENTRYPOINT returns only on an error, fallback here */
   /* Except for custom handlers which could perform a task and return with success */
   /* since custom handlers could or could not be {long-running, blocking} */
-  if (*err)
-    libcrun_fail_with_error ((*err)->status, "%s", (*err)->msg);
+  اگر (*err)
+    libcrun_fail_with_error ((*err)->حالت_2, "%s", (*err)->پیغام);
 
   /* If we got here likely we returned from a custom handler eg. wasm, libkrun */
   /* Allow cleanup attributes to perform cleanup and exit with success if return code was 0 */
-  if (ret == 0)
-    _safe_exit (EXIT_SUCCESS);
+  اگر (ret == 0)
+    محفوظ_exit (EXIT_SUCCESS);
 
-  _safe_exit (EXIT_FAILURE);
+  محفوظ_exit (EXIT_FAILURE);
 }
 
-static int
-join_process_parent_helper (libcrun_context_t *context,
+ساکن صحیح
+join_process_والد_helper (libcrun_context_t *context,
                             libcrun_container_t *container,
                             runtime_spec_schema_config_schema_process *process,
-                            pid_t child_pid, int sync_socket_fd,
-                            libcrun_container_status_t *status,
-                            bool need_move_to_cgroup, const char *sub_cgroup,
-                            int *terminal_fd, libcrun_error_t *err)
+                            pid_t بچہ_pid, صحیح sync_socket_fd,
+                            libcrun_container_حالت_t *حالت_2,
+                            bool need_move_مقصد_cgroup, ثابت حرف *sub_cgroup,
+                            صحیح *terminal_fd, libcrun_error_t *err)
 {
-  int ret;
-  char res;
+  صحیح ret;
+  حرف res;
   pid_t pid;
-  cleanup_close int sync_fd = sync_socket_fd;
+  cleanup_close صحیح sync_fd = sync_socket_fd;
 
-  if (terminal_fd)
+  اگر (terminal_fd)
     *terminal_fd = -1;
 
   /* Read the status and the PID from the child process.  */
-  ret = TEMP_FAILURE_RETRY (read (sync_fd, &res, 1));
-  if (UNLIKELY (ret != 1))
-    return crun_make_error (err, ret < 0 ? errno : 0, "read from sync socket");
+  ret = عارضی_FAILURE_RETRY (اقرأ (sync_fd, &res, 1));
+  اگر (UNLIKELY (ret != 1))
+    واپس crun_make_error (err, ret < 0 ? errno : 0, "read from sync socket");
 
-  if (res != '0')
-    return crun_make_error (err, 0, "fail startup");
+  اگر (res != '0')
+    واپس crun_make_error (err, 0, "fail startup");
 
-  ret = TEMP_FAILURE_RETRY (read (sync_fd, &pid, sizeof (pid)));
-  if (UNLIKELY (ret != sizeof (pid)))
-    return crun_make_error (err, ret < 0 ? errno : 0, "read from sync socket");
+  ret = عارضی_FAILURE_RETRY (اقرأ (sync_fd, &pid, حجم (pid)));
+  اگر (UNLIKELY (ret != حجم (pid)))
+    واپس crun_make_error (err, ret < 0 ? errno : 0, "read from sync socket");
 
   /* Wait for the child pid so we ensure the grandchild gets properly reparented.  */
-  ret = waitpid_ignore_stopped (child_pid, NULL, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "waitpid for exec child pid");
+  ret = waitpid_ignore_stopped (بچہ_pid, تہی, 0);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "waitpid for exec child pid");
 
-  if (process && process->exec_cpu_affinity)
+  اگر (process && process->exec_cpu_affinity)
     {
-      ret = libcrun_set_cpu_affinity_from_string (pid, process->exec_cpu_affinity->initial, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_سیٹ_cpu_affinity_from_string (pid, process->exec_cpu_affinity->initial, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  if (! has_exec_cpu_affinity (process))
+  اگر (! has_exec_cpu_affinity (process))
     {
-      ret = libcrun_reset_cpu_affinity_mask (pid, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_reset_cpu_affinity_نقاب (pid, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  if (need_move_to_cgroup)
+  اگر (need_move_مقصد_cgroup)
     {
-      cleanup_cgroup_status struct libcrun_cgroup_status *cgroup_status = libcrun_cgroup_make_status (status);
-      cleanup_free char *final_cgroup = NULL;
+      cleanup_cgroup_حالت ساخت libcrun_cgroup_حالت *cgroup_حالت = libcrun_cgroup_make_حالت (حالت_2);
+      cleanup_free حرف *final_cgroup = تہی;
 
-      if (sub_cgroup)
+      اگر (sub_cgroup)
         {
-          ret = append_paths (&final_cgroup, err, status->cgroup_path, sub_cgroup, NULL);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = append_paths (&final_cgroup, err, حالت_2->cgroup_راستہ, sub_cgroup, تہی);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
 
-      ret = libcrun_cgroup_join_process (cgroup_status, final_cgroup ?: status->cgroup_path, pid, status->pid, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_cgroup_join_process (cgroup_حالت, final_cgroup ?: حالت_2->cgroup_راستہ, pid, حالت_2->pid, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
   /* Set the scheduler for the process itself (it might have been set for its
      parent, but it is not inherited with SCHED_FLAG_RESET_ON_FORK, and
      SCHED_DEADLINE cannot be set there as it prevents forking).  */
-  ret = libcrun_set_scheduler (pid, process, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_سیٹ_scheduler (pid, process, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (process && process->exec_cpu_affinity)
+  اگر (process && process->exec_cpu_affinity)
     {
-      ret = libcrun_set_cpu_affinity_from_string (pid, process->exec_cpu_affinity->final, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_سیٹ_cpu_affinity_from_string (pid, process->exec_cpu_affinity->final, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
   ret = libcrun_apply_intelrdt (context->id, container, pid, LIBCRUN_INTELRDT_MOVE, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = libcrun_set_io_priority (pid, process, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_سیٹ_io_ترجیح (pid, process, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   /* The write unblocks the grandchild process so it can run once we setup
      the cgroups.  */
-  ret = TEMP_FAILURE_RETRY (write (sync_fd, &ret, sizeof (ret)));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "write to sync socket");
+  ret = عارضی_FAILURE_RETRY (اكتب (sync_fd, &ret, حجم (ret)));
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "write to sync socket");
 
-  if (terminal_fd)
+  اگر (terminal_fd)
     {
       ret = receive_fd_from_socket (sync_fd, err);
-      if (UNLIKELY (ret < 0))
+      اگر (UNLIKELY (ret < 0))
         {
-          int err_code = 0;
-          cleanup_free char *err_str = NULL;
+          صحیح err_رمز = 0;
+          cleanup_free حرف *err_str = تہی;
 
-          if (read_error_from_sync_socket (sync_fd, &err_code, &err_str))
+          اگر (read_error_from_sync_socket (sync_fd, &err_رمز, &err_str))
             {
-              if (! is_empty_string (err_str))
+              اگر (! is_خالی_خانے_string (err_str))
                 {
                   crun_error_release (err);
-                  return crun_make_error (err, err_code, "%s", err_str);
+                  واپس crun_make_error (err, err_رمز, "%s", err_str);
                 }
             }
 
-          return crun_error_wrap (err, "receive terminal fd");
+          واپس crun_error_wrap (err, "receive terminal fd");
         }
       *terminal_fd = ret;
     }
 
-  return pid;
+  واپس pid;
 }
 
 /*
@@ -7495,269 +7495,269 @@ join_process_parent_helper (libcrun_context_t *context,
   0   - the namespaces were not joined.
   > 0 - the namespaces were joined.
 */
-static int
-try_setns_with_pidfd (pid_t pid_to_join, libcrun_container_t *container, libcrun_container_status_t *status, libcrun_error_t *err)
+ساکن صحیح
+try_setns_with_pidfd (pid_t pid_مقصد_join, libcrun_container_t *container, libcrun_container_حالت_t *حالت_2, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  cleanup_close int pidfd_pid_to_join = -1;
-  int all_flags = 0;
+  cleanup_close صحیح pidfd_pid_مقصد_join = -1;
+  صحیح all_flags = 0;
   size_t i;
-  int ret;
+  صحیح ret;
 
   /* If there is any explicit namespace path to join, skip the setns_with_pidfd
      shortcut and join each namespace individually.  */
-  if (def->linux && def->linux->namespaces)
+  اگر (def->linux && def->linux->namespaces)
     {
-      for (i = 0; i < def->linux->namespaces_len; i++)
-        if (! is_empty_string (def->linux->namespaces[i]->path))
-          return 0;
+      برائے (i = 0; i < def->linux->namespaces_len; i++)
+        اگر (! is_خالی_خانے_string (def->linux->namespaces[i]->راستہ))
+          واپس 0;
     }
 
-  pidfd_pid_to_join = syscall_pidfd_open (pid_to_join, 0);
-  if (UNLIKELY (pidfd_pid_to_join < 0))
-    return 0;
+  pidfd_pid_مقصد_join = syscall_pidfd_open (pid_مقصد_join, 0);
+  اگر (UNLIKELY (pidfd_pid_مقصد_join < 0))
+    واپس 0;
 
   /* Validate that the pidfd really refers to the original container process.  */
-  ret = libcrun_check_pid_valid (status, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
-  if (ret == 0)
-    return crun_make_error (err, ESRCH, "container process not found, the pid was reused");
+  ret = libcrun_check_pid_valid (حالت_2, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
+  اگر (ret == 0)
+    واپس crun_make_error (err, ESRCH, "container process not found, the pid was reused");
 
-  for (i = 0; namespaces[i].ns_file; i++)
-    all_flags |= namespaces[i].value;
+  برائے (i = 0; namespaces[i].ns_file; i++)
+    all_flags |= namespaces[i].قدر;
 
-  ret = setns (pidfd_pid_to_join, all_flags);
-  if (UNLIKELY (ret < 0))
-    return 0;
+  ret = setns (pidfd_pid_مقصد_join, all_flags);
+  اگر (UNLIKELY (ret < 0))
+    واپس 0;
 
-  return 1;
+  واپس 1;
 }
 
-static int
-join_process_namespaces (libcrun_container_t *container, pid_t pid_to_join, libcrun_container_status_t *status, libcrun_error_t *err)
+ساکن صحیح
+join_process_namespaces (libcrun_container_t *container, pid_t pid_مقصد_join, libcrun_container_حالت_t *حالت_2, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  int fds_joined[MAX_NAMESPACES] = {
+  صحیح fds_joined[MAX_NAMESPACES] = {
     0,
   };
-  int fds[MAX_NAMESPACES] = {
+  صحیح fds[MAX_NAMESPACES] = {
     -1,
   };
   size_t i;
-  int ret;
+  صحیح ret;
 
   /* Try to join all namespaces in one shot with setns and pidfd.  */
-  ret = try_setns_with_pidfd (pid_to_join, container, status, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = try_setns_with_pidfd (pid_مقصد_join, container, حالت_2, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
   /* Nothing left to do if the namespaces were joined.  */
-  if (LIKELY (ret > 0))
-    return 0;
+  اگر (LIKELY (ret > 0))
+    واپس 0;
 
   /* If setns fails with the target pidfd, fall-back to join each namespace individually.  */
 
-  if (def->linux->namespaces_len >= MAX_NAMESPACES)
-    return crun_make_error (err, 0, "invalid configuration");
+  اگر (def->linux->namespaces_len >= MAX_NAMESPACES)
+    واپس crun_make_error (err, 0, "invalid configuration");
 
-  for (i = 0; namespaces[i].ns_file; i++)
+  برائے (i = 0; namespaces[i].ns_file; i++)
     {
-      cleanup_free char *ns_path = NULL;
+      cleanup_free حرف *ns_راستہ = تہی;
 
-      xasprintf (&ns_path, "%d/ns/%s", pid_to_join, namespaces[i].ns_file);
-      fds[i] = libcrun_open_proc_file (container, ns_path, O_RDONLY, err);
-      if (UNLIKELY (fds[i] < 0))
+      xasprintf (&ns_راستہ, "%d/ns/%s", pid_مقصد_join, namespaces[i].ns_file);
+      fds[i] = libcrun_open_proc_file (container, ns_راستہ, O_RDONLY, err);
+      اگر (UNLIKELY (fds[i] < 0))
         {
           /* If the namespace doesn't exist, just ignore it.  */
-          if (crun_error_get_errno (err) == ENOENT)
+          اگر (crun_error_get_errno (err) == ENOENT)
             {
               crun_error_release (err);
-              continue;
+              جاری;
             }
 
           ret = fds[i];
-          goto exit;
+          جاؤ باہر_نکلو;
         }
     }
 
   /* The namespace files were opened by PID.  Validate that the PID still refers
      to the original container process before joining any of them.  */
-  ret = libcrun_check_pid_valid (status, err);
-  if (UNLIKELY (ret < 0))
-    goto exit;
-  if (ret == 0)
+  ret = libcrun_check_pid_valid (حالت_2, err);
+  اگر (UNLIKELY (ret < 0))
+    جاؤ باہر_نکلو;
+  اگر (ret == 0)
     {
       ret = crun_make_error (err, ESRCH, "container process not found, the pid was reused");
-      goto exit;
+      جاؤ باہر_نکلو;
     }
 
-  for (i = 0; namespaces[i].ns_file; i++)
+  برائے (i = 0; namespaces[i].ns_file; i++)
     {
-      if (namespaces[i].value == CLONE_NEWUSER)
-        continue;
+      اگر (namespaces[i].قدر == CLONE_NEWUSER)
+        جاری;
 
       ret = setns (fds[i], 0);
-      if (ret == 0)
+      اگر (ret == 0)
         fds_joined[i] = 1;
     }
-  for (i = 0; namespaces[i].ns_file; i++)
+  برائے (i = 0; namespaces[i].ns_file; i++)
     {
-      if (fds_joined[i])
-        continue;
+      اگر (fds_joined[i])
+        جاری;
       ret = setns (fds[i], 0);
-      if (ret == 0)
+      اگر (ret == 0)
         fds_joined[i] = 1;
     }
-  for (i = 0; namespaces[i].ns_file; i++)
+  برائے (i = 0; namespaces[i].ns_file; i++)
     {
-      if (fds_joined[i])
-        continue;
+      اگر (fds_joined[i])
+        جاری;
       ret = setns (fds[i], 0);
-      if (UNLIKELY (ret < 0 && errno != EINVAL))
+      اگر (UNLIKELY (ret < 0 && errno != EINVAL))
         {
           size_t j;
-          bool found = false;
+          bool ملا = false;
 
-          for (j = 0; j < def->linux->namespaces_len; j++)
+          برائے (j = 0; j < def->linux->namespaces_len; j++)
             {
-              if (strcmp (namespaces[i].name, def->linux->namespaces[j]->type) == 0)
+              اگر (strcmp (namespaces[i].name, def->linux->namespaces[j]->type) == 0)
                 {
-                  found = true;
-                  break;
+                  ملا = true;
+                  توڑو;
                 }
             }
-          if (! found)
+          اگر (! ملا)
             {
               /* It was not requested to create this ns, so just ignore it.  */
               fds_joined[i] = 1;
-              continue;
+              جاری;
             }
 
           ret = crun_make_error (err, errno, "setns `%s`", namespaces[i].ns_file);
-          goto exit;
+          جاؤ باہر_نکلو;
         }
       fds_joined[i] = 1;
     }
 
   ret = 0;
 
-exit:
-  for (i = 0; namespaces[i].ns_file; i++)
+باہر_نکلو:
+  برائے (i = 0; namespaces[i].ns_file; i++)
     close_and_reset (&fds[i]);
 
-  return ret;
+  واپس ret;
 }
 
-int
+صحیح
 libcrun_join_process (libcrun_context_t *context,
                       libcrun_container_t *container,
-                      pid_t pid_to_join,
-                      libcrun_container_status_t *status,
-                      const char *sub_cgroup,
-                      int detach,
+                      pid_t pid_مقصد_join,
+                      libcrun_container_حالت_t *حالت_2,
+                      ثابت حرف *sub_cgroup,
+                      صحیح detach,
                       runtime_spec_schema_config_schema_process *process,
-                      int *terminal_fd,
+                      صحیح *terminal_fd,
                       libcrun_error_t *err)
 {
   pid_t pid;
-  int ret;
-  int sync_socket_fd[2];
-  cleanup_close int cgroup_dirfd = -1;
-  cleanup_close int sync_fd = -1;
-  struct _clone3_args clone3_args;
-  bool need_move_to_cgroup;
+  صحیح ret;
+  صحیح sync_socket_fd[2];
+  cleanup_close صحیح cgroup_dirfd = -1;
+  cleanup_close صحیح sync_fd = -1;
+  ساخت clone3_دلائل clone3_دلائل_2;
+  bool need_move_مقصد_cgroup;
 
-  if (! detach)
+  اگر (! detach)
     {
-      ret = prctl (PR_SET_CHILD_SUBREAPER, 1, 0, 0, 0);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "set child subreaper");
+      ret = prctl (PR_سیٹ_بچہ_SUBREAPER, 1, 0, 0, 0);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "set child subreaper");
     }
 
-  if (path_has_dot_dot_component (sub_cgroup))
-    return crun_make_error (err, 0, "invalid cgroup path `%s`: `..` components are not allowed", sub_cgroup);
+  اگر (راستہ_has_dot_dot_component (sub_cgroup))
+    واپس crun_make_error (err, 0, "invalid cgroup path `%s`: `..` components are not allowed", sub_cgroup);
 
   /* The caller checked only the container cgroup, but a sub-cgroup is managed
      by the container and the process would never run if it is frozen.  */
-  if (sub_cgroup && ! is_empty_string (status->cgroup_path))
+  اگر (sub_cgroup && ! is_خالی_خانے_string (حالت_2->cgroup_راستہ))
     {
-      cleanup_free char *final_cgroup = NULL;
+      cleanup_free حرف *final_cgroup = تہی;
 
-      ret = append_paths (&final_cgroup, err, status->cgroup_path, sub_cgroup, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&final_cgroup, err, حالت_2->cgroup_راستہ, sub_cgroup, تہی);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
       ret = libcrun_cgroup_ensure_not_frozen (final_cgroup, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
   ret = socketpair (AF_UNIX, SOCK_SEQPACKET | SOCK_CLOEXEC, 0, sync_socket_fd);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "error creating socketpair");
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "error creating socketpair");
 
   {
-    cleanup_cgroup_status struct libcrun_cgroup_status *cgroup_status = NULL;
+    cleanup_cgroup_حالت ساخت libcrun_cgroup_حالت *cgroup_حالت = تہی;
 
-    cgroup_status = libcrun_cgroup_make_status (status);
+    cgroup_حالت = libcrun_cgroup_make_حالت (حالت_2);
 
     /* The cgroup can be joined directly only when there are no additional
        controllers not handled by cgroup v2.  */
-    if (get_force_cgroup_v1_annotation (container) == NULL)
+    اگر (get_force_cgroup_v1_annotation (container) == تہی)
       {
-        cgroup_dirfd = libcrun_get_cgroup_dirfd (cgroup_status, sub_cgroup, err);
-        if (UNLIKELY (cgroup_dirfd < 0))
+        cgroup_dirfd = libcrun_get_cgroup_dirfd (cgroup_حالت, sub_cgroup, err);
+        اگر (UNLIKELY (cgroup_dirfd < 0))
           crun_error_release (err);
       }
   }
 
-  memset (&clone3_args, 0, sizeof (clone3_args));
-  clone3_args.exit_signal = SIGCHLD;
+  memset (&clone3_دلائل_2, 0, حجم (clone3_دلائل_2));
+  clone3_دلائل_2.exit_signal = SIGCHLD;
 
   /* Do not join the cgroup immediately if an initial CPU affinity mask is specified, so that
      the process can set the cpu affinity before joining the target cgroup.  */
-  if (cgroup_dirfd < 0 || (process->exec_cpu_affinity && process->exec_cpu_affinity->initial))
-    need_move_to_cgroup = true;
-  else
+  اگر (cgroup_dirfd < 0 || (process->exec_cpu_affinity && process->exec_cpu_affinity->initial))
+    need_move_مقصد_cgroup = true;
+  ورنہ
     {
-      need_move_to_cgroup = false;
-      clone3_args.flags |= CLONE_INTO_CGROUP;
-      clone3_args.cgroup = cgroup_dirfd;
+      need_move_مقصد_cgroup = false;
+      clone3_دلائل_2.flags |= CLONE_INTO_CGROUP;
+      clone3_دلائل_2.cgroup = cgroup_dirfd;
     }
 
-  pid = syscall_clone3 (&clone3_args);
+  pid = syscall_clone3 (&clone3_دلائل_2);
 
-  if (pid > 0 && ! (process->scheduler && process->scheduler->policy && strcmp (process->scheduler->policy, "SCHED_DEADLINE") == 0))
+  اگر (pid > 0 && ! (process->scheduler && process->scheduler->policy && strcmp (process->scheduler->policy, "SCHED_DEADLINE") == 0))
     {
       /* We need to set the scheduler as soon as possible after joining the cgroup,
          because if it is a RT scheduler, other processes in the container could already
          take the entire cpu time and stall the new process.  This is not done for
          SCHED_DEADLINE, which does not allow the process to fork.  */
-      ret = libcrun_set_scheduler (pid, process, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_سیٹ_scheduler (pid, process, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
   /* On errors, fall back to fork().  */
-  if (pid < 0)
+  اگر (pid < 0)
     {
-      need_move_to_cgroup = true;
+      need_move_مقصد_cgroup = true;
 
       pid = fork ();
-      if (UNLIKELY (pid < 0))
+      اگر (UNLIKELY (pid < 0))
         {
           ret = crun_make_error (err, errno, "fork");
-          goto exit;
+          جاؤ باہر_نکلو;
         }
     }
 
-  if (pid)
+  اگر (pid)
     {
       close_and_reset (&sync_socket_fd[1]);
       sync_fd = sync_socket_fd[0];
-      return join_process_parent_helper (context, container,
+      واپس join_process_والد_helper (context, container,
                                          process, pid, sync_fd,
-                                         status, need_move_to_cgroup,
+                                         حالت_2, need_move_مقصد_cgroup,
                                          sub_cgroup, terminal_fd, err);
     }
 
@@ -7767,464 +7767,464 @@ libcrun_join_process (libcrun_context_t *context,
   /* Not needed anymore, do not keep a reference to the host file system.  */
   close_and_reset (&cgroup_dirfd);
 
-  ret = join_process_namespaces (container, pid_to_join, status, err);
-  if (UNLIKELY (ret < 0))
+  ret = join_process_namespaces (container, pid_مقصد_join, حالت_2, err);
+  اگر (UNLIKELY (ret < 0))
     {
-      TEMP_FAILURE_RETRY (write (sync_fd, "1", 1));
-      libcrun_fail_with_error ((*err)->status, "%s", (*err)->msg);
+      عارضی_FAILURE_RETRY (اكتب (sync_fd, "1", 1));
+      libcrun_fail_with_error ((*err)->حالت_2, "%s", (*err)->پیغام);
     }
 
   /* We need to fork once again to join the PID namespace.  */
   pid = fork ();
-  if (UNLIKELY (pid < 0))
+  اگر (UNLIKELY (pid < 0))
     {
-      int saved_errno = errno;
-      TEMP_FAILURE_RETRY (write (sync_fd, "1", 1));
+      صحیح saved_errno = errno;
+      عارضی_FAILURE_RETRY (اكتب (sync_fd, "1", 1));
       libcrun_fail_with_error (saved_errno, "fork");
     }
 
-  if (pid)
+  اگر (pid)
     {
       /* Just return the PID to the parent helper and exit.  */
-      ret = TEMP_FAILURE_RETRY (write (sync_fd, "0", 1));
-      if (UNLIKELY (ret < 0))
+      ret = عارضی_FAILURE_RETRY (اكتب (sync_fd, "0", 1));
+      اگر (UNLIKELY (ret < 0))
         {
           kill (pid, SIGKILL);
-          _safe_exit (EXIT_FAILURE);
+          محفوظ_exit (EXIT_FAILURE);
         }
 
-      ret = TEMP_FAILURE_RETRY (write (sync_fd, &pid, sizeof (pid)));
-      if (UNLIKELY (ret < 0))
+      ret = عارضی_FAILURE_RETRY (اكتب (sync_fd, &pid, حجم (pid)));
+      اگر (UNLIKELY (ret < 0))
         {
           kill (pid, SIGKILL);
-          _safe_exit (EXIT_FAILURE);
+          محفوظ_exit (EXIT_FAILURE);
         }
 
-      _safe_exit (EXIT_SUCCESS);
+      محفوظ_exit (EXIT_SUCCESS);
     }
-  else
+  ورنہ
     {
       /* Inside the grandchild process.  The real process
          used for the container.  */
-      cleanup_free char *pty = NULL;
-      int r = -1;
+      cleanup_free حرف *pty = تہی;
+      صحیح r = -1;
 
       /* Wait for the parent to complete the setup (cgroup, scheduler, ...).
          An EOF means the parent failed, so do not go any further.  */
-      ret = TEMP_FAILURE_RETRY (read (sync_fd, &r, sizeof (r)));
-      if (UNLIKELY (ret != sizeof (r) || r < 0))
-        _safe_exit (EXIT_FAILURE);
+      ret = عارضی_FAILURE_RETRY (اقرأ (sync_fd, &r, حجم (r)));
+      اگر (UNLIKELY (ret != حجم (r) || r < 0))
+        محفوظ_exit (EXIT_FAILURE);
 
       ret = setsid ();
-      if (ret < 0)
+      اگر (ret < 0)
         {
           crun_make_error (err, errno, "setsid");
-          send_error_to_sync_socket_and_die (sync_fd, true, err);
+          send_error_مقصد_sync_socket_and_die (sync_fd, true, err);
         }
 
-      if (terminal_fd)
+      اگر (terminal_fd)
         {
-          cleanup_close int ptmx_fd = -1;
+          cleanup_close صحیح ptmx_fd = -1;
 
-          ret = set_id_init (container, err);
-          if (UNLIKELY (ret < 0))
-            send_error_to_sync_socket_and_die (sync_fd, true, err);
+          ret = سیٹ_id_init (container, err);
+          اگر (UNLIKELY (ret < 0))
+            send_error_مقصد_sync_socket_and_die (sync_fd, true, err);
 
           ptmx_fd = open_terminal (&pty, process, err);
-          if (UNLIKELY (ptmx_fd < 0))
-            send_error_to_sync_socket_and_die (sync_fd, true, err);
+          اگر (UNLIKELY (ptmx_fd < 0))
+            send_error_مقصد_sync_socket_and_die (sync_fd, true, err);
 
-          ret = send_fd_to_socket (sync_fd, ptmx_fd, err);
-          if (UNLIKELY (ret < 0))
-            send_error_to_sync_socket_and_die (sync_fd, true, err);
+          ret = send_fd_مقصد_socket (sync_fd, ptmx_fd, err);
+          اگر (UNLIKELY (ret < 0))
+            send_error_مقصد_sync_socket_and_die (sync_fd, true, err);
         }
     }
 
-  return 0;
+  واپس 0;
 
-exit:
-  if (sync_socket_fd[0] >= 0)
-    TEMP_FAILURE_RETRY (close (sync_socket_fd[0]));
-  if (sync_socket_fd[1] >= 0)
-    TEMP_FAILURE_RETRY (close (sync_socket_fd[1]));
-  return ret;
+باہر_نکلو:
+  اگر (sync_socket_fd[0] >= 0)
+    عارضی_FAILURE_RETRY (close (sync_socket_fd[0]));
+  اگر (sync_socket_fd[1] >= 0)
+    عارضی_FAILURE_RETRY (close (sync_socket_fd[1]));
+  واپس ret;
 }
 
-int
-libcrun_linux_container_update (libcrun_container_status_t *status, const char *state_root, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
+صحیح
+libcrun_linux_container_update (libcrun_container_حالت_t *حالت_2, ثابت حرف *state_جڑ, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
 {
-  cleanup_cgroup_status struct libcrun_cgroup_status *cgroup_status = NULL;
+  cleanup_cgroup_حالت ساخت libcrun_cgroup_حالت *cgroup_حالت = تہی;
 
-  cgroup_status = libcrun_cgroup_make_status (status);
+  cgroup_حالت = libcrun_cgroup_make_حالت (حالت_2);
 
-  return libcrun_update_cgroup_resources (cgroup_status, state_root, resources, err);
+  واپس libcrun_update_cgroup_resources (cgroup_حالت, state_جڑ, resources, err);
 }
 
-static int
-libcrun_container_pause_unpause_linux (libcrun_container_status_t *status, const bool pause, libcrun_error_t *err)
+ساکن صحیح
+libcrun_container_pause_unpause_linux (libcrun_container_حالت_t *حالت_2, ثابت bool pause, libcrun_error_t *err)
 {
-  cleanup_cgroup_status struct libcrun_cgroup_status *cgroup_status = NULL;
+  cleanup_cgroup_حالت ساخت libcrun_cgroup_حالت *cgroup_حالت = تہی;
 
-  cgroup_status = libcrun_cgroup_make_status (status);
+  cgroup_حالت = libcrun_cgroup_make_حالت (حالت_2);
 
-  return libcrun_cgroup_pause_unpause (cgroup_status, pause, err);
+  واپس libcrun_cgroup_pause_unpause (cgroup_حالت, pause, err);
 }
 
-int
-libcrun_container_pause_linux (libcrun_container_status_t *status, libcrun_error_t *err)
+صحیح
+libcrun_container_pause_linux (libcrun_container_حالت_t *حالت_2, libcrun_error_t *err)
 {
-  return libcrun_container_pause_unpause_linux (status, true, err);
+  واپس libcrun_container_pause_unpause_linux (حالت_2, true, err);
 }
 
-int
-libcrun_container_unpause_linux (libcrun_container_status_t *status, libcrun_error_t *err)
+صحیح
+libcrun_container_unpause_linux (libcrun_container_حالت_t *حالت_2, libcrun_error_t *err)
 {
-  return libcrun_container_pause_unpause_linux (status, false, err);
+  واپس libcrun_container_pause_unpause_linux (حالت_2, false, err);
 }
 
-int
-libcrun_set_personality (runtime_spec_schema_defs_linux_personality *p, libcrun_error_t *err)
+صحیح
+libcrun_سیٹ_personality (runtime_spec_schema_defs_linux_personality *p, libcrun_error_t *err)
 {
-  unsigned long persona = 0;
-  int ret;
+  غیرعلامتی طویل persona = 0;
+  صحیح ret;
 
-  if (strcmp (p->domain, "LINUX") == 0)
-    persona = PER_LINUX;
-  else if (strcmp (p->domain, "LINUX32") == 0)
-    persona = PER_LINUX32;
-  else
-    return crun_make_error (err, 0, "unknown persona specified `%s`", p->domain);
+  اگر (strcmp (p->domain, "LINUX") == 0)
+    persona = فی_LINUX;
+  ورنہ اگر (strcmp (p->domain, "LINUX32") == 0)
+    persona = فی_LINUX32;
+  ورنہ
+    واپس crun_make_error (err, 0, "unknown persona specified `%s`", p->domain);
 
   ret = personality (persona);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, 0, "personality to `%s`", p->domain);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, 0, "personality to `%s`", p->domain);
 
-  return 0;
+  واپس 0;
 }
 
-int
-libcrun_configure_network (libcrun_container_t *container, libcrun_error_t *err)
+صحیح
+libcrun_configure_جال (libcrun_container_t *container, libcrun_error_t *err)
 {
-  int ret;
+  صحیح ret;
   size_t i;
-  bool configure_network = false;
+  bool configure_جال = false;
   runtime_spec_schema_config_schema *def = container->container_def;
-  cleanup_close int sockfd = -1;
+  cleanup_close صحیح sockfd = -1;
 
-  for (i = 0; i < def->linux->namespaces_len; i++)
+  برائے (i = 0; i < def->linux->namespaces_len; i++)
     {
-      int value = libcrun_find_namespace (def->linux->namespaces[i]->type);
-      if (UNLIKELY (value < 0))
-        return crun_make_error (err, 0, "invalid namespace type: `%s`", def->linux->namespaces[i]->type);
+      صحیح قدر = libcrun_ڈھونڈو_namespace (def->linux->namespaces[i]->type);
+      اگر (UNLIKELY (قدر < 0))
+        واپس crun_make_error (err, 0, "invalid namespace type: `%s`", def->linux->namespaces[i]->type);
 
-      if (value == CLONE_NEWNET && def->linux->namespaces[i]->path == NULL)
+      اگر (قدر == CLONE_NEWNET && def->linux->namespaces[i]->راستہ == تہی)
         {
-          configure_network = true;
-          break;
+          configure_جال = true;
+          توڑو;
         }
     }
 
-  if (! configure_network)
-    return 0;
+  اگر (! configure_جال)
+    واپس 0;
 
   sockfd = socket (AF_INET, SOCK_DGRAM, 0);
-  if (LIKELY (sockfd >= 0))
+  اگر (LIKELY (sockfd >= 0))
     {
-      struct ifreq ifr_lo = { .ifr_name = "lo", .ifr_flags = IFF_UP | IFF_RUNNING };
+      ساخت ifreq ifr_lo = { .ifr_name = "lo", .ifr_flags = IFF_اوپر | IFF_RUNNING };
 
       ret = ioctl (sockfd, SIOCSIFFLAGS, &ifr_lo);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "ioctl SIOCSIFFLAGS");
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "ioctl SIOCSIFFLAGS");
     }
-  else
+  ورنہ
     {
-      struct nlmsghdr *hdr_recv;
-      char buf[sizeof (struct nlmsghdr) + sizeof (struct nlmsgerr)];
-      struct sockaddr_nl addr = {
+      ساخت nlmsghdr *hdr_recv;
+      حرف buf[حجم (ساخت nlmsghdr) + حجم (ساخت nlmsgerr)];
+      ساخت sockaddr_nl addr = {
         .nl_family = AF_NETLINK,
         .nl_pid = getpid (),
       };
-      struct sockaddr_nl addr_to = {
+      ساخت sockaddr_nl addr_مقصد = {
         .nl_family = AF_NETLINK,
         .nl_pid = 0,
       };
-      struct nlmsghdr hdr = {
-        .nlmsg_len = sizeof (struct nlmsghdr) + sizeof (struct ifinfomsg),
+      ساخت nlmsghdr hdr = {
+        .nlmsg_len = حجم (ساخت nlmsghdr) + حجم (ساخت ifinfomsg),
         .nlmsg_type = RTM_NEWLINK,
         .nlmsg_flags = NLM_F_REQUEST | NLM_F_ACK,
         .nlmsg_seq = 1,
         .nlmsg_pid = 0,
       };
-      struct ifinfomsg msg = {
+      ساخت ifinfomsg پیغام = {
         .ifi_family = AF_UNSPEC,
         .ifi_type = 0,
-        .ifi_index = 1,
-        .ifi_flags = IFF_UP,
-        .ifi_change = IFF_UP,
+        .ifi_اشاریہ = 1,
+        .ifi_flags = IFF_اوپر,
+        .ifi_change = IFF_اوپر,
       };
 
-      *((struct nlmsghdr *) buf) = hdr;
-      *((struct ifinfomsg *) (buf + sizeof (struct nlmsghdr))) = msg;
+      *((ساخت nlmsghdr *) buf) = hdr;
+      *((ساخت ifinfomsg *) (buf + حجم (ساخت nlmsghdr))) = پیغام;
 
       sockfd = socket (PF_NETLINK, SOCK_RAW | SOCK_CLOEXEC, NETLINK_ROUTE);
-      if (UNLIKELY (sockfd < 0))
-        return crun_make_error (err, errno, "socket PF_NETLINK");
+      اگر (UNLIKELY (sockfd < 0))
+        واپس crun_make_error (err, errno, "socket PF_NETLINK");
 
-      ret = bind (sockfd, (struct sockaddr *) &addr, sizeof (addr));
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "bind PF_NETLINK");
+      ret = bind (sockfd, (ساخت sockaddr *) &addr, حجم (addr));
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "bind PF_NETLINK");
 
-      ret = sendto (sockfd, buf, sizeof (buf), 0, (struct sockaddr *) &addr_to, sizeof (addr_to));
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "sendto PF_NETLINK");
+      ret = sendto (sockfd, buf, حجم (buf), 0, (ساخت sockaddr *) &addr_مقصد, حجم (addr_مقصد));
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "sendto PF_NETLINK");
 
-      ret = recvfrom (sockfd, buf, sizeof (buf), 0, NULL, NULL);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "recvfrom PF_NETLINK");
+      ret = recvfrom (sockfd, buf, حجم (buf), 0, تہی, تہی);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "recvfrom PF_NETLINK");
 
-      hdr_recv = (struct nlmsghdr *) buf;
+      hdr_recv = (ساخت nlmsghdr *) buf;
 
-      if (hdr_recv->nlmsg_type == NLMSG_ERROR)
+      اگر (hdr_recv->nlmsg_type == NLMSG_ERROR)
         {
-          struct nlmsgerr *err_data = (struct nlmsgerr *) NLMSG_DATA (hdr_recv);
+          ساخت nlmsgerr *err_ڈیٹا = (ساخت nlmsgerr *) NLMSG_ڈیٹا (hdr_recv);
           /* err_data->error set to 0 means success acknowledgement due to NLM_F_ACK  */
-          if (err_data->error < 0)
-            return crun_make_error (err, -err_data->error, "netlink error while configuring network");
+          اگر (err_ڈیٹا->error < 0)
+            واپس crun_make_error (err, -err_ڈیٹا->error, "netlink error while configuring network");
         }
     }
 
-  return 0;
+  واپس 0;
 }
 
 /* Protection for attacks like CVE-2019-5736.  */
-int ensure_cloned_binary ();
-__attribute__ ((constructor)) static void
-libcrun_rexec (void)
+صحیح ensure_cloned_ثنائی ();
+__attribute__ ((constructor)) ساکن خالی
+libcrun_rexec (خالی)
 {
-  if (ensure_cloned_binary () < 0)
+  اگر (ensure_cloned_ثنائی () < 0)
     {
       fprintf (stderr, "Failed to re-execute libcrun via memory file descriptor\n");
-      _safe_exit (EXIT_FAILURE);
+      محفوظ_exit (EXIT_FAILURE);
     }
 }
 
-int
-libcrun_container_checkpoint_linux (libcrun_container_status_t *status, libcrun_container_t *container,
+صحیح
+libcrun_container_checkpoint_linux (libcrun_container_حالت_t *حالت_2, libcrun_container_t *container,
                                     libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
 {
-  return libcrun_container_checkpoint_linux_criu (status, container, cr_options, err);
+  واپس libcrun_container_checkpoint_linux_criu (حالت_2, container, cr_options, err);
 }
 
-int
-libcrun_container_restore_linux (libcrun_container_status_t *status, libcrun_container_t *container,
+صحیح
+libcrun_container_restore_linux (libcrun_container_حالت_t *حالت_2, libcrun_container_t *container,
                                  libcrun_checkpoint_restore_t *cr_options, libcrun_error_t *err)
 {
-  int ret;
-  ret = libcrun_container_restore_linux_criu (status, container, cr_options, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  صحیح ret;
+  ret = libcrun_container_restore_linux_criu (حالت_2, container, cr_options, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return 0;
+  واپس 0;
 }
 
 /* Fallback to use kill(2) on systems where pidfd is not available.  */
-static int
-libcrun_kill_linux_no_pidfd (libcrun_container_status_t *status, bool check_pid, int signal, libcrun_error_t *err)
+ساکن صحیح
+libcrun_kill_linux_no_pidfd (libcrun_container_حالت_t *حالت_2, bool check_pid, صحیح اشارہ, libcrun_error_t *err)
 {
-  int ret;
+  صحیح ret;
 
   /* There is still a possibility that the pid is killed between the check
      and the time we send the signal, but attempt to reduce the window of time when
      it is possible.  */
-  if (check_pid)
+  اگر (check_pid)
     {
-      ret = libcrun_check_pid_valid (status, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_check_pid_valid (حالت_2, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
       /* The pid is not valid anymore, return an error.  */
-      if (ret == 0)
+      اگر (ret == 0)
         {
           errno = ESRCH;
-          return crun_make_error (err, errno, "kill container");
+          واپس crun_make_error (err, errno, "kill container");
         }
     }
 
-  ret = kill (status->pid, signal);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "kill container");
-  return 0;
+  ret = kill (حالت_2->pid, اشارہ);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "kill container");
+  واپس 0;
 }
 
-int
-libcrun_kill_linux (libcrun_container_status_t *status, int signal, libcrun_error_t *err)
+صحیح
+libcrun_kill_linux (libcrun_container_حالت_t *حالت_2, صحیح اشارہ, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_close int pidfd = -1;
+  صحیح ret;
+  cleanup_close صحیح pidfd = -1;
 
-  pidfd = syscall_pidfd_open (status->pid, 0);
-  if (UNLIKELY (pidfd < 0))
+  pidfd = syscall_pidfd_open (حالت_2->pid, 0);
+  اگر (UNLIKELY (pidfd < 0))
     {
       /* If pidfd_open is not supported, fallback to kill.  */
-      if (errno == ENOSYS)
-        return libcrun_kill_linux_no_pidfd (status, true, signal, err);
+      اگر (errno == ENOSYS)
+        واپس libcrun_kill_linux_no_pidfd (حالت_2, true, اشارہ, err);
       /* Kernels < 6.16 return EINVAL, newer ones ENOENT, when the pid
          is not a thread-group leader (i.e. it was reused).  */
-      if (errno == ESRCH || errno == ENOENT || errno == EINVAL)
-        return crun_make_error (err, ESRCH, "process not running");
-      return crun_make_error (err, errno, "open pidfd");
+      اگر (errno == ESRCH || errno == ENOENT || errno == EINVAL)
+        واپس crun_make_error (err, ESRCH, "process not running");
+      واپس crun_make_error (err, errno, "open pidfd");
     }
 
-  ret = libcrun_check_pid_valid (status, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_check_pid_valid (حالت_2, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   /* The pid is not valid anymore, return an error.  */
-  if (ret == 0)
+  اگر (ret == 0)
     {
       errno = ESRCH;
-      return crun_make_error (err, errno, "kill container");
+      واپس crun_make_error (err, errno, "kill container");
     }
 
-  ret = syscall_pidfd_send_signal (pidfd, signal, NULL, 0);
-  if (UNLIKELY (ret < 0))
+  ret = syscall_pidfd_send_signal (pidfd, اشارہ, تہی, 0);
+  اگر (UNLIKELY (ret < 0))
     {
       /* If pidfd_send_signal is not supported, fallback to kill.  */
-      if (errno == ENOSYS)
-        return libcrun_kill_linux_no_pidfd (status, false, signal, err);
-      return crun_make_error (err, errno, "send signal to pidfd");
+      اگر (errno == ENOSYS)
+        واپس libcrun_kill_linux_no_pidfd (حالت_2, false, اشارہ, err);
+      واپس crun_make_error (err, errno, "send signal to pidfd");
     }
 
-  return 0;
+  واپس 0;
 }
 
-static const char *
-libcrun_get_intelrdt_name (const char *ctr_name, runtime_spec_schema_config_schema *def, bool *explicit)
+ساکن ثابت حرف *
+libcrun_get_intelrdt_name (ثابت حرف *ctr_name, runtime_spec_schema_config_schema *def, bool *explicit)
 {
-  if (def == NULL || def->linux == NULL || def->linux->intel_rdt == NULL || def->linux->intel_rdt->clos_id == NULL)
+  اگر (def == تہی || def->linux == تہی || def->linux->intel_rdt == تہی || def->linux->intel_rdt->clos_id == تہی)
     {
-      if (explicit)
+      اگر (explicit)
         *explicit = false;
-      return ctr_name;
+      واپس ctr_name;
     }
 
-  if (explicit)
+  اگر (explicit)
     *explicit = true;
-  return def->linux->intel_rdt->clos_id;
+  واپس def->linux->intel_rdt->clos_id;
 }
 
-int
-libcrun_apply_intelrdt (const char *ctr_name, libcrun_container_t *container, pid_t pid, int actions, libcrun_error_t *err)
+صحیح
+libcrun_apply_intelrdt (ثابت حرف *ctr_name, libcrun_container_t *container, pid_t pid, صحیح actions, libcrun_error_t *err)
 {
-  runtime_spec_schema_config_schema *def = NULL;
+  runtime_spec_schema_config_schema *def = تہی;
   bool has_monitoring = false;
   bool explicit = false;
   bool created = false;
-  const char *name;
-  int ret;
+  ثابت حرف *name;
+  صحیح ret;
 
-  if (container)
+  اگر (container)
     def = container->container_def;
 
-  if (def == NULL || def->linux == NULL || def->linux->intel_rdt == NULL)
-    return 0;
+  اگر (def == تہی || def->linux == تہی || def->linux->intel_rdt == تہی)
+    واپس 0;
 
   name = libcrun_get_intelrdt_name (ctr_name, def, &explicit);
 
-  if (actions & LIBCRUN_INTELRDT_CREATE)
+  اگر (actions & LIBCRUN_INTELRDT_CREATE)
     {
       ret = resctl_create (name, explicit, &created, def->linux->intel_rdt->l3cache_schema, def->linux->intel_rdt->mem_bw_schema, def->linux->intel_rdt->schemata, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      if (def->linux->intel_rdt->enable_monitoring)
+      اگر (def->linux->intel_rdt->enable_monitoring)
         {
-          ret = resctl_create_monitoring_group (name, ctr_name, err);
-          if (UNLIKELY (ret < 0))
-            goto fail;
+          ret = resctl_create_monitoring_گروہ (name, ctr_name, err);
+          اگر (UNLIKELY (ret < 0))
+            جاؤ fail;
 
           has_monitoring = true;
         }
     }
 
-  if (actions & LIBCRUN_INTELRDT_UPDATE)
+  اگر (actions & LIBCRUN_INTELRDT_UPDATE)
     {
       ret = resctl_update (name, def->linux->intel_rdt->l3cache_schema, def->linux->intel_rdt->mem_bw_schema, def->linux->intel_rdt->schemata, err);
-      if (UNLIKELY (ret < 0))
-        goto fail;
+      اگر (UNLIKELY (ret < 0))
+        جاؤ fail;
     }
 
-  if (actions & LIBCRUN_INTELRDT_MOVE)
+  اگر (actions & LIBCRUN_INTELRDT_MOVE)
     {
-      const char *monitoring_name = def->linux->intel_rdt->enable_monitoring ? ctr_name : NULL;
-      ret = resctl_move_task_to (name, monitoring_name, pid, err);
-      if (UNLIKELY (ret < 0))
-        goto fail;
+      ثابت حرف *monitoring_name = def->linux->intel_rdt->enable_monitoring ? ctr_name : تہی;
+      ret = resctl_move_task_مقصد (name, monitoring_name, pid, err);
+      اگر (UNLIKELY (ret < 0))
+        جاؤ fail;
     }
 
-  return 0;
+  واپس 0;
 
 fail:
-  if (has_monitoring)
+  اگر (has_monitoring)
     {
-      libcrun_error_t tmp_err = NULL;
-      int tmp_ret;
+      libcrun_error_t tmp_err = تہی;
+      صحیح tmp_ret;
 
-      tmp_ret = resctl_destroy_monitoring_group (name, ctr_name, &tmp_err);
-      if (tmp_ret < 0)
+      tmp_ret = resctl_destroy_monitoring_گروہ (name, ctr_name, &tmp_err);
+      اگر (tmp_ret < 0)
         crun_error_release (&tmp_err);
     }
 
   /* Cleanup only if the resctl was created as part of this call.  */
-  if (created)
+  اگر (created)
     {
-      libcrun_error_t tmp_err = NULL;
-      int tmp_ret;
+      libcrun_error_t tmp_err = تہی;
+      صحیح tmp_ret;
 
       tmp_ret = resctl_destroy (name, &tmp_err);
-      if (tmp_ret < 0)
+      اگر (tmp_ret < 0)
         crun_error_release (&tmp_err);
     }
-  return ret;
+  واپس ret;
 }
 
-int
-libcrun_destroy_intelrdt (const char *container_id, runtime_spec_schema_config_schema *def, libcrun_error_t *err)
+صحیح
+libcrun_destroy_intelrdt (ثابت حرف *container_id, runtime_spec_schema_config_schema *def, libcrun_error_t *err)
 {
   bool explicit = false;
-  const char *clos_id = libcrun_get_intelrdt_name (container_id, def, &explicit);
+  ثابت حرف *clos_id = libcrun_get_intelrdt_name (container_id, def, &explicit);
 
-  if (def && def->linux && def->linux->intel_rdt && def->linux->intel_rdt->enable_monitoring)
+  اگر (def && def->linux && def->linux->intel_rdt && def->linux->intel_rdt->enable_monitoring)
     {
-      int ret;
+      صحیح ret;
 
-      ret = resctl_destroy_monitoring_group (clos_id, container_id, err);
-      if (ret < 0)
-        return ret;
+      ret = resctl_destroy_monitoring_گروہ (clos_id, container_id, err);
+      اگر (ret < 0)
+        واپس ret;
     }
 
   /* Do not destroy the clos_id if the name was set explicitly.  */
-  if (explicit)
-    return 0;
+  اگر (explicit)
+    واپس 0;
 
-  return resctl_destroy (clos_id, err);
+  واپس resctl_destroy (clos_id, err);
 }
 
-int
-libcrun_update_intel_rdt (const char *ctr_name, libcrun_container_t *container, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err)
+صحیح
+libcrun_update_intel_rdt (ثابت حرف *ctr_name, libcrun_container_t *container, ثابت حرف *l3_cache_schema, ثابت حرف *mem_bw_schema, حرف *ثابت *schemata, libcrun_error_t *err)
 {
-  runtime_spec_schema_config_schema *def = NULL;
-  const char *name;
+  runtime_spec_schema_config_schema *def = تہی;
+  ثابت حرف *name;
 
-  if (container)
+  اگر (container)
     def = container->container_def;
 
-  if (def == NULL || def->linux == NULL || def->linux->intel_rdt == NULL)
-    return 0;
+  اگر (def == تہی || def->linux == تہی || def->linux->intel_rdt == تہی)
+    واپس 0;
 
-  name = libcrun_get_intelrdt_name (ctr_name, def, NULL);
+  name = libcrun_get_intelrdt_name (ctr_name, def, تہی);
 
-  return resctl_update (name, l3_cache_schema, mem_bw_schema, schemata, err);
+  واپس resctl_update (name, l3_cache_schema, mem_bw_schema, schemata, err);
 }
 
 /* Change the current directory and make sure the current working
@@ -8233,25 +8233,25 @@ libcrun_update_intel_rdt (const char *ctr_name, libcrun_container_t *container, 
    CVE-2024-21626.
    The current working directory cannot be longer than PATH_MAX.
 */
-int
-libcrun_safe_chdir (const char *path, libcrun_error_t *err)
+صحیح
+libcrun_محفوظ_chdir (ثابت حرف *راستہ, libcrun_error_t *err)
 {
-  cleanup_free char *buffer = NULL;
-  int ret;
+  cleanup_free حرف *بفر = تہی;
+  صحیح ret;
 
-  ret = chdir (path);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "chdir to `%s`", path);
+  ret = chdir (راستہ);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "chdir to `%s`", راستہ);
 
-  buffer = xmalloc (PATH_MAX);
-  ret = syscall_getcwd (buffer, PATH_MAX);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, -ret, "getcwd");
+  بفر = xmalloc (PATH_MAX);
+  ret = syscall_getcwd (بفر, PATH_MAX);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, -ret, "getcwd");
 
   /* Enforce that the returned path is an absolute path.  */
-  if (ret == 0 || buffer[0] != '/')
+  اگر (ret == 0 || بفر[0] != '/')
     {
-      if (chdir ("/") < 0)
+      اگر (chdir ("/") < 0)
         {
           /* Braces around empty body, to fix warning for [-Wunused-result] and error for [-Werror=empty-body]. */
         }
@@ -8262,121 +8262,121 @@ libcrun_safe_chdir (const char *path, libcrun_error_t *err)
         when it is not reachable from the current mount namespace.
         Use it to give a better error message.
       */
-#define UNREACHABLE "(unreachable)"
-#define UNREACHABLE_LEN ((int) sizeof (UNREACHABLE) - 1)
+#تعریف_کرو UNREACHABLE "(unreachable)"
+#تعریف_کرو UNREACHABLE_LEN ((صحیح) حجم (UNREACHABLE) - 1)
 
-      if ((ret >= UNREACHABLE_LEN) && (memcmp (buffer, UNREACHABLE, UNREACHABLE_LEN) == 0))
-        return crun_make_error (err, errno, "the working directory is not accessible from the current namespace");
+      اگر ((ret >= UNREACHABLE_LEN) && (memcmp (بفر, UNREACHABLE, UNREACHABLE_LEN) == 0))
+        واپس crun_make_error (err, errno, "the working directory is not accessible from the current namespace");
 
-      return crun_make_error (err, errno, "the current working directory is not an absolute path");
+      واپس crun_make_error (err, errno, "the current working directory is not an absolute path");
     }
-  return 0;
+  واپس 0;
 }
 
 /* Run the callback in the mount namespace referred to by MNTNS_FD.  It is
    done in a separate function so that no variable of the caller is live
    across the vfork.  */
-static int
-run_callback_in_namespace (int mntns_fd, int (*callback) (void *, libcrun_error_t *), void *arg, libcrun_error_t *err)
+ساکن صحیح
+تسلسل_callback_اندر_namespace (صحیح mntns_fd, صحیح (*callback) (خالی *, libcrun_error_t *), خالی *arg, libcrun_error_t *err)
 {
-  int wait_status = 0;
+  صحیح wait_حالت = 0;
   pid_t pid;
-  int ret;
+  صحیح ret;
 
   /* must be vfork to propagate the error from the child proc.  */
   pid = vfork ();
-  if (UNLIKELY (pid < 0))
-    return crun_make_error (err, errno, "vfork");
+  اگر (UNLIKELY (pid < 0))
+    واپس crun_make_error (err, errno, "vfork");
 
-  if (pid == 0)
+  اگر (pid == 0)
     {
       ret = setns (mntns_fd, CLONE_NEWNS);
-      if (UNLIKELY (ret < 0))
+      اگر (UNLIKELY (ret < 0))
         {
           /* Create an error for the parent proc.  */
           crun_make_error (err, 0, "setns to target pid");
-          _safe_exit (ret);
+          محفوظ_exit (ret);
         }
       ret = chdir ("/");
-      if (UNLIKELY (ret < 0))
+      اگر (UNLIKELY (ret < 0))
         {
           /* Create an error for the parent proc.  */
           crun_make_error (err, errno, "chdir to `/`");
-          _safe_exit (ret);
+          محفوظ_exit (ret);
         }
 
       ret = callback (arg, err);
       /* On failure (ret < 0) the created error will be
          used by the parent proc */
-      _safe_exit (ret);
+      محفوظ_exit (ret);
     }
 
-  ret = waitpid_ignore_stopped (pid, &wait_status, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "waitpid for exec child pid");
+  ret = waitpid_ignore_stopped (pid, &wait_حالت, 0);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "waitpid for exec child pid");
 
   /* The vfork() child shares the parent's memory space, so the error
      object populated by the child is available to the parent.
      Do not call crun_make_error() here. */
-  return get_process_exit_status (wait_status);
+  واپس get_process_exit_حالت (wait_حالت);
 }
 
 /* Check that USERNS_FD refers to the user namespace configured for the container.  */
-static int
-check_container_userns (libcrun_container_t *container, int userns_fd, libcrun_error_t *err)
+ساکن صحیح
+check_container_userns (libcrun_container_t *container, صحیح userns_fd, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
   bool new_userns = container->host_uid != 0;
-  cleanup_close int expected_fd = -1;
-  cleanup_close int parent_fd = -1;
-  struct stat st, expected_st;
-  const char *path = NULL;
+  cleanup_close صحیح expected_fd = -1;
+  cleanup_close صحیح والد_fd = -1;
+  ساخت stat st, expected_st;
+  ثابت حرف *راستہ = تہی;
   size_t i;
-  int ret;
+  صحیح ret;
 
-  if (def->linux)
-    for (i = 0; i < def->linux->namespaces_len; i++)
-      if (libcrun_find_namespace (def->linux->namespaces[i]->type) == CLONE_NEWUSER)
+  اگر (def->linux)
+    برائے (i = 0; i < def->linux->namespaces_len; i++)
+      اگر (libcrun_ڈھونڈو_namespace (def->linux->namespaces[i]->type) == CLONE_NEWUSER)
         {
-          path = def->linux->namespaces[i]->path;
-          new_userns = path == NULL;
-          break;
+          راستہ = def->linux->namespaces[i]->راستہ;
+          new_userns = راستہ == تہی;
+          توڑو;
         }
 
-  if (path == NULL)
+  اگر (راستہ == تہی)
     {
       expected_fd = libcrun_open_proc_file (container, "self/ns/user", O_RDONLY, err);
-      if (UNLIKELY (expected_fd < 0))
-        return expected_fd;
+      اگر (UNLIKELY (expected_fd < 0))
+        واپس expected_fd;
     }
-  else
+  ورنہ
     {
-      expected_fd = open (path, O_RDONLY | O_CLOEXEC);
-      if (UNLIKELY (expected_fd < 0))
-        return crun_make_error (err, errno, "open `%s`", path);
+      expected_fd = open (راستہ, O_RDONLY | O_CLOEXEC);
+      اگر (UNLIKELY (expected_fd < 0))
+        واپس crun_make_error (err, errno, "open `%s`", راستہ);
     }
 
   /* A user namespace created for the container is a child of the current one.  */
-  if (new_userns)
+  اگر (new_userns)
     {
-      parent_fd = ioctl (userns_fd, NS_GET_PARENT);
-      if (UNLIKELY (parent_fd < 0))
-        return crun_make_error (err, errno, "get the parent of the user namespace");
-      userns_fd = parent_fd;
+      والد_fd = ioctl (userns_fd, NS_GET_والد);
+      اگر (UNLIKELY (والد_fd < 0))
+        واپس crun_make_error (err, errno, "get the parent of the user namespace");
+      userns_fd = والد_fd;
     }
 
   ret = fstat (userns_fd, &st);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fstat user namespace");
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "fstat user namespace");
 
   ret = fstat (expected_fd, &expected_st);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fstat user namespace");
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "fstat user namespace");
 
-  if (st.st_dev != expected_st.st_dev || st.st_ino != expected_st.st_ino)
-    return crun_make_error (err, 0, "the container process is not using the user namespace of the container");
+  اگر (st.st_dev != expected_st.st_dev || st.st_ino != expected_st.st_ino)
+    واپس crun_make_error (err, 0, "the container process is not using the user namespace of the container");
 
-  return 0;
+  واپس 0;
 }
 
 /* Open the mount namespace of the container in MNTNS_FD and the user namespace
@@ -8387,55 +8387,55 @@ check_container_userns (libcrun_container_t *container, int userns_fd, libcrun_e
    could drop its ro, nosuid, nodev and noexec flags.  Make sure the mount
    namespace is owned by the user namespace of the container, so that the
    caller can join the same namespaces that were checked.  */
-static int
-open_container_mntns (libcrun_container_t *container, libcrun_container_status_t *status, int *mntns_fd, int *owner_fd, libcrun_error_t *err)
+ساکن صحیح
+open_container_mntns (libcrun_container_t *container, libcrun_container_حالت_t *حالت_2, صحیح *mntns_fd, صحیح *owner_fd, libcrun_error_t *err)
 {
-  cleanup_close int mntns = -1;
-  cleanup_close int owner = -1;
-  int ret;
+  cleanup_close صحیح mntns = -1;
+  cleanup_close صحیح owner = -1;
+  صحیح ret;
 
-  mntns = libcrun_open_proc_pid_file (container, status->pid, "ns/mnt", O_RDONLY, err);
-  if (UNLIKELY (mntns < 0))
-    return mntns;
+  mntns = libcrun_open_proc_pid_file (container, حالت_2->pid, "ns/mnt", O_RDONLY, err);
+  اگر (UNLIKELY (mntns < 0))
+    واپس mntns;
 
   /* Check if the container is still running after opening the namespace.  */
-  ret = libcrun_is_container_running (status, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_is_container_running (حالت_2, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (ret == 0)
-    return crun_make_error (err, 0, "container not running");
+  اگر (ret == 0)
+    واپس crun_make_error (err, 0, "container not running");
 
   owner = ioctl (mntns, NS_GET_USERNS);
-  if (UNLIKELY (owner < 0))
-    return crun_make_error (err, errno, "get the owner of the mount namespace");
+  اگر (UNLIKELY (owner < 0))
+    واپس crun_make_error (err, errno, "get the owner of the mount namespace");
 
   ret = check_container_userns (container, owner, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   *mntns_fd = mntns;
   mntns = -1;
   *owner_fd = owner;
   owner = -1;
-  return 0;
+  واپس 0;
 }
 
-static int
-run_in_container_namespace (libcrun_container_t *container, libcrun_container_status_t *status, int (*callback) (void *, libcrun_error_t *), void *arg, libcrun_error_t *err)
+ساکن صحیح
+تسلسل_اندر_container_namespace (libcrun_container_t *container, libcrun_container_حالت_t *حالت_2, صحیح (*callback) (خالی *, libcrun_error_t *), خالی *arg, libcrun_error_t *err)
 {
-  cleanup_close int mntns_fd = -1;
-  cleanup_close int owner_fd = -1;
-  int ret;
+  cleanup_close صحیح mntns_fd = -1;
+  cleanup_close صحیح owner_fd = -1;
+  صحیح ret;
 
-  ret = open_container_mntns (container, status, &mntns_fd, &owner_fd, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = open_container_mntns (container, حالت_2, &mntns_fd, &owner_fd, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return run_callback_in_namespace (mntns_fd, callback, arg, err);
+  واپس تسلسل_callback_اندر_namespace (mntns_fd, callback, arg, err);
 }
 
-struct umount_in_a_container_args
+ساخت umount_اندر_a_container_دلائل
 {
   runtime_spec_schema_defs_mount **mounts;
   size_t len;
@@ -8446,95 +8446,95 @@ struct umount_in_a_container_args
    followed, otherwise the container could choose what mount is detached.
    umount2 accepts only a path, so unmount the last component from its parent
    directory and then go back to the previous working directory.  */
-static int
-umount_nofollow (const char *destination, libcrun_error_t *err)
+ساکن صحیح
+umount_nofollow (ثابت حرف *destination, libcrun_error_t *err)
 {
-  cleanup_close int parentfd = -1;
-  cleanup_close int cwdfd = -1;
-  char buffer[PATH_MAX];
-  const char *parent, *name;
-  char *last_slash;
+  cleanup_close صحیح parentfd = -1;
+  cleanup_close صحیح cwdfd = -1;
+  حرف بفر[PATH_MAX];
+  ثابت حرف *والد_2, *name;
+  حرف *آخری_slash;
   size_t len;
-  int saved_errno;
-  int ret;
+  صحیح saved_errno;
+  صحیح ret;
 
-  if (is_empty_string (destination))
-    return crun_make_error (err, 0, "empty destination for mount");
+  اگر (is_خالی_خانے_string (destination))
+    واپس crun_make_error (err, 0, "empty destination for mount");
 
-  len = strlen (destination);
-  if (UNLIKELY (len >= sizeof (buffer)))
-    return crun_make_error (err, ENAMETOOLONG, "umount `%s`", destination);
-  memcpy (buffer, destination, len + 1);
+  len = لڑی_لمبائی (destination);
+  اگر (UNLIKELY (len >= حجم (بفر)))
+    واپس crun_make_error (err, ENAMETOOLONG, "umount `%s`", destination);
+  حافظہ_نقل (بفر, destination, len + 1);
 
-  while (len > 1 && buffer[len - 1] == '/')
-    buffer[--len] = '\0';
+  جب (len > 1 && بفر[len - 1] == '/')
+    بفر[--len] = '\0';
 
-  last_slash = strrchr (buffer, '/');
-  if (last_slash == NULL)
+  آخری_slash = strrchr (بفر, '/');
+  اگر (آخری_slash == تہی)
     {
-      parent = ".";
-      name = buffer;
+      والد_2 = ".";
+      name = بفر;
     }
-  else if (last_slash == buffer)
+  ورنہ اگر (آخری_slash == بفر)
     {
-      parent = "/";
-      name = buffer[1] ? buffer + 1 : ".";
+      والد_2 = "/";
+      name = بفر[1] ? بفر + 1 : ".";
     }
-  else
+  ورنہ
     {
-      *last_slash = '\0';
-      parent = buffer;
-      name = last_slash + 1;
+      *آخری_slash = '\0';
+      والد_2 = بفر;
+      name = آخری_slash + 1;
     }
 
-  parentfd = syscall_openat2 (AT_FDCWD, parent, O_PATH | O_DIRECTORY | O_CLOEXEC, 0,
+  parentfd = syscall_openat2 (AT_FDCWD, والد_2, O_راستہ | O_DIRECTORY | O_CLOEXEC, 0,
                               RESOLVE_NO_SYMLINKS | RESOLVE_NO_MAGICLINKS);
-  if (UNLIKELY (parentfd < 0))
-    return crun_make_error (err, errno, "open parent directory of `%s`", destination);
+  اگر (UNLIKELY (parentfd < 0))
+    واپس crun_make_error (err, errno, "open parent directory of `%s`", destination);
 
-  cwdfd = open (".", O_PATH | O_DIRECTORY | O_CLOEXEC);
-  if (UNLIKELY (cwdfd < 0))
-    return crun_make_error (err, errno, "open current directory");
+  cwdfd = open (".", O_راستہ | O_DIRECTORY | O_CLOEXEC);
+  اگر (UNLIKELY (cwdfd < 0))
+    واپس crun_make_error (err, errno, "open current directory");
 
   ret = fchdir (parentfd);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fchdir to parent directory of `%s`", destination);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "fchdir to parent directory of `%s`", destination);
 
   ret = umount2 (name, MNT_DETACH | UMOUNT_NOFOLLOW);
   saved_errno = errno;
 
-  if (UNLIKELY (fchdir (cwdfd) < 0))
-    return crun_make_error (err, errno, "fchdir to the previous working directory");
+  اگر (UNLIKELY (fchdir (cwdfd) < 0))
+    واپس crun_make_error (err, errno, "fchdir to the previous working directory");
 
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, saved_errno, "umount `%s`", destination);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, saved_errno, "umount `%s`", destination);
 
-  return 0;
+  واپس 0;
 }
 
-static int
-do_umount_in_a_container (void *arg, libcrun_error_t *err)
+ساکن صحیح
+do_umount_اندر_a_container (خالی *arg, libcrun_error_t *err)
 {
-  struct umount_in_a_container_args *args = arg;
+  ساخت umount_اندر_a_container_دلائل *دلائل = arg;
   size_t i;
-  int ret;
+  صحیح ret;
 
-  for (i = 0; i < args->len; i++)
+  برائے (i = 0; i < دلائل->len; i++)
     {
-      ret = umount_nofollow (args->mounts[i]->destination, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = umount_nofollow (دلائل->mounts[i]->destination, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  return 0;
+  واپس 0;
 }
 
-struct mount_in_a_container_args
+ساخت mount_اندر_a_container_دلائل
 {
   runtime_spec_schema_defs_mount **mounts;
-  struct libcrun_fd_map *fds;
-  int pidfd;
-  int owner_fd;
+  ساخت libcrun_fd_map *fds;
+  صحیح pidfd;
+  صحیح owner_fd;
   size_t len;
 };
 
@@ -8542,32 +8542,32 @@ struct mount_in_a_container_args
    exist.  The file system tree is under the control of the container, so no
    symlink is followed, as it happens for `mounts remove`, otherwise a mount
    could be added that cannot be removed.  */
-static int
-open_destination_nofollow (const char *destination, bool dir, libcrun_error_t *err)
+ساکن صحیح
+open_destination_nofollow (ثابت حرف *destination, bool dir, libcrun_error_t *err)
 {
-  const uint64_t resolve = RESOLVE_NO_SYMLINKS | RESOLVE_NO_MAGICLINKS;
-  int fd;
-  int ret;
+  ثابت uint64_t resolve = RESOLVE_NO_SYMLINKS | RESOLVE_NO_MAGICLINKS;
+  صحیح fd;
+  صحیح ret;
 
-  fd = syscall_openat2 (AT_FDCWD, destination, O_PATH | O_CLOEXEC, 0, resolve);
-  if (LIKELY (fd >= 0))
-    return fd;
+  fd = syscall_openat2 (AT_FDCWD, destination, O_راستہ | O_CLOEXEC, 0, resolve);
+  اگر (LIKELY (fd >= 0))
+    واپس fd;
 
-  if (errno != ENOENT)
-    return crun_make_error (err, errno, "open `%s`", destination);
+  اگر (errno != ENOENT)
+    واپس crun_make_error (err, errno, "open `%s`", destination);
 
-  if (dir)
-    ret = crun_safe_ensure_directory_at (AT_FDCWD, "/", destination, 0755, err);
-  else
-    ret = crun_safe_ensure_file_at (AT_FDCWD, "/", destination, 0755, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (dir)
+    ret = crun_محفوظ_ensure_directory_at (AT_FDCWD, "/", destination, 0755, err);
+  ورنہ
+    ret = crun_محفوظ_ensure_file_at (AT_FDCWD, "/", destination, 0755, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  fd = syscall_openat2 (AT_FDCWD, destination, O_PATH | O_CLOEXEC, 0, resolve);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "open `%s`", destination);
+  fd = syscall_openat2 (AT_FDCWD, destination, O_راستہ | O_CLOEXEC, 0, resolve);
+  اگر (UNLIKELY (fd < 0))
+    واپس crun_make_error (err, errno, "open `%s`", destination);
 
-  return fd;
+  واپس fd;
 }
 
 /* Create the missing destinations of the mounts as the root user of the
@@ -8575,173 +8575,173 @@ open_destination_nofollow (const char *destination, bool dir, libcrun_error_t *e
    namespace, where the root user of the host has no mapping, so that an
    inode it creates there would have no owner and mkdir fails with
    EOVERFLOW.  */
-static int
-create_destinations_in_a_container (void *arg, libcrun_error_t *err)
+ساکن صحیح
+create_destinations_اندر_a_container (خالی *arg, libcrun_error_t *err)
 {
-  struct mount_in_a_container_args *args = arg;
+  ساخت mount_اندر_a_container_دلائل *دلائل = arg;
   size_t i;
-  int ret;
+  صحیح ret;
 
-  ret = setns (args->owner_fd, CLONE_NEWUSER);
-  if (ret == 0)
+  ret = setns (دلائل->owner_fd, CLONE_NEWUSER);
+  اگر (ret == 0)
     {
       ret = setresgid (0, 0, 0);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "setresgid to `0`");
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "setresgid to `0`");
 
       ret = setresuid (0, 0, 0);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "setresuid to `0`");
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "setresuid to `0`");
     }
-  else if (errno != EINVAL)
+  ورنہ اگر (errno != EINVAL)
     {
       /* EINVAL means that the container runs in the current user namespace.  */
-      return crun_make_error (err, errno, "setns to the user namespace of the container");
+      واپس crun_make_error (err, errno, "setns to the user namespace of the container");
     }
 
-  for (i = 0; i < args->len; i++)
+  برائے (i = 0; i < دلائل->len; i++)
     {
-      cleanup_close int dest_fd = -1;
-      struct stat st;
+      cleanup_close صحیح dest_fd = -1;
+      ساخت stat st;
 
-      ret = fstat (args->fds->fds[i], &st);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "fstat");
+      ret = fstat (دلائل->fds->fds[i], &st);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "fstat");
 
-      dest_fd = open_destination_nofollow (args->mounts[i]->destination, (st.st_mode & S_IFMT) == S_IFDIR, err);
-      if (UNLIKELY (dest_fd < 0))
-        return dest_fd;
+      dest_fd = open_destination_nofollow (دلائل->mounts[i]->destination, (st.st_mode & S_IFMT) == S_IFDIR, err);
+      اگر (UNLIKELY (dest_fd < 0))
+        واپس dest_fd;
     }
 
-  return 0;
+  واپس 0;
 }
 
-static int
-do_mount_in_a_container (void *arg, libcrun_error_t *err)
+ساکن صحیح
+do_mount_اندر_a_container (خالی *arg, libcrun_error_t *err)
 {
-  struct mount_in_a_container_args *args = arg;
+  ساخت mount_اندر_a_container_دلائل *دلائل = arg;
   size_t i;
-  int ret;
+  صحیح ret;
 
-  for (i = 0; i < args->len; i++)
+  برائے (i = 0; i < دلائل->len; i++)
     {
-      cleanup_close int dest_fd = -1;
-      struct stat st;
+      cleanup_close صحیح dest_fd = -1;
+      ساخت stat st;
 
-      ret = fstat (args->fds->fds[i], &st);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "fstat");
+      ret = fstat (دلائل->fds->fds[i], &st);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "fstat");
 
-      dest_fd = open_destination_nofollow (args->mounts[i]->destination, (st.st_mode & S_IFMT) == S_IFDIR, err);
-      if (UNLIKELY (dest_fd < 0))
-        return dest_fd;
+      dest_fd = open_destination_nofollow (دلائل->mounts[i]->destination, (st.st_mode & S_IFMT) == S_IFDIR, err);
+      اگر (UNLIKELY (dest_fd < 0))
+        واپس dest_fd;
 
-      ret = fs_move_mount_to (args->fds->fds[i], dest_fd, NULL);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "move mount to `%s`", args->mounts[i]->destination);
+      ret = fs_move_mount_مقصد (دلائل->fds->fds[i], dest_fd, تہی);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "move mount to `%s`", دلائل->mounts[i]->destination);
     }
 
-  return 0;
+  واپس 0;
 }
 
 /* Join the namespaces of the container referred to by PIDFD, create the file
    system for each of MOUNTS that has no fd in FDS yet and send them, in order,
    to SYNC_FD.  It must be called from a child process.  */
-static int
-send_mounts_from_container_namespaces (libcrun_container_t *container, int pidfd, runtime_spec_schema_defs_mount **mounts,
-                                       struct libcrun_fd_map *fds, size_t len, int flags, int owner_fd, int sync_fd, libcrun_error_t *err)
+ساکن صحیح
+send_mounts_from_container_namespaces (libcrun_container_t *container, صحیح pidfd, runtime_spec_schema_defs_mount **mounts,
+                                       ساخت libcrun_fd_map *fds, size_t len, صحیح flags, صحیح owner_fd, صحیح sync_fd, libcrun_error_t *err)
 {
   pid_t pid;
   size_t i;
-  int ret;
+  صحیح ret;
 
   /* The process is visible from the container once it joins its PID namespace.  */
-  ret = prctl (PR_SET_DUMPABLE, 0, 0, 0, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "prctl (PR_SET_DUMPABLE)");
+  ret = prctl (PR_سیٹ_DUMPABLE, 0, 0, 0, 0);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "prctl (PR_SET_DUMPABLE)");
 
   /* Join the namespaces while still being privileged, then the user
      namespace that was checked and not the one the container process is in
      right now.  */
   ret = flags ? setns (pidfd, flags) : 0;
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "setns to target pid");
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "setns to target pid");
 
   ret = setns (owner_fd, CLONE_NEWUSER);
-  if (ret == 0)
+  اگر (ret == 0)
     {
       /* CAP_SYS_ADMIN is needed in the user namespace owning the mount
          namespace.  Do not join the mount namespace of the container, any
          path used for the mount refers to the host, as it does for the
          mounts in the container configuration.  */
       ret = unshare (CLONE_NEWNS);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "unshare `CLONE_NEWNS`");
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "unshare `CLONE_NEWNS`");
     }
-  else if (errno != EINVAL)
+  ورنہ اگر (errno != EINVAL)
     {
       /* EINVAL means that the container runs in the current user namespace.  */
-      return crun_make_error (err, errno, "setns to the user namespace of the container");
+      واپس crun_make_error (err, errno, "setns to the user namespace of the container");
     }
 
   /* We need to fork once again to join the PID namespace.  */
   pid = fork ();
-  if (UNLIKELY (pid < 0))
-    return crun_make_error (err, errno, "fork");
+  اگر (UNLIKELY (pid < 0))
+    واپس crun_make_error (err, errno, "fork");
 
-  if (pid)
+  اگر (pid)
     {
-      int wait_status = 0;
+      صحیح wait_حالت = 0;
 
       /* The container can signal the process, do not hang if it is stopped.  */
-      ret = TEMP_FAILURE_RETRY (waitpid (pid, &wait_status, WUNTRACED));
-      if (ret > 0 && WIFSTOPPED (wait_status))
+      ret = عارضی_FAILURE_RETRY (waitpid (pid, &wait_حالت, WUNTRACED));
+      اگر (ret > 0 && WIFSTOPPED (wait_حالت))
         {
           kill (pid, SIGKILL);
-          TEMP_FAILURE_RETRY (waitpid (pid, NULL, 0));
-          return crun_make_error (err, 0, "the process creating the mounts was stopped");
+          عارضی_FAILURE_RETRY (waitpid (pid, تہی, 0));
+          واپس crun_make_error (err, 0, "the process creating the mounts was stopped");
         }
-      _safe_exit (EXIT_SUCCESS);
+      محفوظ_exit (EXIT_SUCCESS);
     }
 
-  ret = set_id_init (container, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = سیٹ_id_init (container, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = prctl (PR_SET_DUMPABLE, 0, 0, 0, 0);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "prctl (PR_SET_DUMPABLE)");
+  ret = prctl (PR_سیٹ_DUMPABLE, 0, 0, 0, 0);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "prctl (PR_SET_DUMPABLE)");
 
-  for (i = 0; i < len; i++)
+  برائے (i = 0; i < len; i++)
     {
-      cleanup_close int fd = -1;
+      cleanup_close صحیح fd = -1;
 
-      if (fds->fds[i] >= 0)
-        continue;
+      اگر (fds->fds[i] >= 0)
+        جاری;
 
-      fd = open_mount_of_type (container, mounts[i], err);
-      if (UNLIKELY (fd < 0))
-        return crun_make_error (err, errno, "open mount of type `%s` for `%s`", mounts[i]->type, mounts[i]->destination);
+      fd = open_mount_کا_type (container, mounts[i], err);
+      اگر (UNLIKELY (fd < 0))
+        واپس crun_make_error (err, errno, "open mount of type `%s` for `%s`", mounts[i]->type, mounts[i]->destination);
 
-      ret = send_fd_to_socket (sync_fd, fd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = send_fd_مقصد_socket (sync_fd, fd, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  return 0;
+  واپس 0;
 }
 
 /* Get in FLAGS the namespaces a file system can be bound to (together with
    the user namespace) that the container does not share with the current
    process.  setns requires CAP_SYS_ADMIN in the user namespace owning the
    target also for a namespace that is already the current one.  */
-static int
-get_namespaces_to_join (libcrun_container_t *container, pid_t pid, int *flags, libcrun_error_t *err)
+ساکن صحیح
+get_namespaces_مقصد_join (libcrun_container_t *container, pid_t pid, صحیح *flags, libcrun_error_t *err)
 {
-  static const struct
+  ساکن ثابت ساخت
   {
-    const char *name;
-    int flag;
+    ثابت حرف *name;
+    صحیح flag;
   } namespaces[] = {
     { "ns/pid", CLONE_NEWPID },
     { "ns/net", CLONE_NEWNET },
@@ -8752,134 +8752,134 @@ get_namespaces_to_join (libcrun_container_t *container, pid_t pid, int *flags, l
 
   *flags = 0;
 
-  for (i = 0; i < sizeof (namespaces) / sizeof (namespaces[0]); i++)
+  برائے (i = 0; i < حجم (namespaces) / حجم (namespaces[0]); i++)
     {
-      cleanup_close int self_fd = -1;
-      cleanup_close int target_fd = -1;
-      struct stat self_st, target_st;
-      cleanup_free char *self_path = NULL;
-      int ret;
+      cleanup_close صحیح self_fd = -1;
+      cleanup_close صحیح ہدف_fd = -1;
+      ساخت stat self_st, ہدف_st;
+      cleanup_free حرف *self_راستہ = تہی;
+      صحیح ret;
 
-      xasprintf (&self_path, "self/%s", namespaces[i].name);
+      xasprintf (&self_راستہ, "self/%s", namespaces[i].name);
 
-      self_fd = libcrun_open_proc_file (container, self_path, O_RDONLY, err);
-      if (UNLIKELY (self_fd < 0))
-        return self_fd;
+      self_fd = libcrun_open_proc_file (container, self_راستہ, O_RDONLY, err);
+      اگر (UNLIKELY (self_fd < 0))
+        واپس self_fd;
 
-      target_fd = libcrun_open_proc_pid_file (container, pid, namespaces[i].name, O_RDONLY, err);
-      if (UNLIKELY (target_fd < 0))
-        return target_fd;
+      ہدف_fd = libcrun_open_proc_pid_file (container, pid, namespaces[i].name, O_RDONLY, err);
+      اگر (UNLIKELY (ہدف_fd < 0))
+        واپس ہدف_fd;
 
       ret = fstat (self_fd, &self_st);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "fstat `%s`", namespaces[i].name);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "fstat `%s`", namespaces[i].name);
 
-      ret = fstat (target_fd, &target_st);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "fstat `%s`", namespaces[i].name);
+      ret = fstat (ہدف_fd, &ہدف_st);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "fstat `%s`", namespaces[i].name);
 
-      if (self_st.st_dev != target_st.st_dev || self_st.st_ino != target_st.st_ino)
+      اگر (self_st.st_dev != ہدف_st.st_dev || self_st.st_ino != ہدف_st.st_ino)
         *flags |= namespaces[i].flag;
     }
 
-  return 0;
+  واپس 0;
 }
 
 /* A file system is bound to the namespaces of the process creating it (e.g.
    procfs to its PID namespace), so create the ones still missing in FDS from
    a process that joined the namespaces of the container, as it happens for
    the mounts in the container configuration.  */
-static int
-open_mounts_in_container_namespaces (libcrun_container_t *container, libcrun_container_status_t *status, int owner_fd,
-                                     runtime_spec_schema_defs_mount **mounts, struct libcrun_fd_map *fds, size_t len,
+ساکن صحیح
+open_mounts_اندر_container_namespaces (libcrun_container_t *container, libcrun_container_حالت_t *حالت_2, صحیح owner_fd,
+                                     runtime_spec_schema_defs_mount **mounts, ساخت libcrun_fd_map *fds, size_t len,
                                      libcrun_error_t *err)
 {
-  cleanup_close int sync_fd = -1;
-  cleanup_close int pidfd = -1;
-  int sync_socket_fd[2];
+  cleanup_close صحیح sync_fd = -1;
+  cleanup_close صحیح pidfd = -1;
+  صحیح sync_socket_fd[2];
   bool needed = false;
-  int flags;
+  صحیح flags;
   pid_t pid;
   size_t i;
-  int ret;
+  صحیح ret;
 
-  for (i = 0; i < len; i++)
+  برائے (i = 0; i < len; i++)
     {
-      if (fds->fds[i] >= 0)
-        continue;
+      اگر (fds->fds[i] >= 0)
+        جاری;
 
-      if (mounts[i]->type == NULL)
-        return crun_make_error (err, 0, "invalid mount type for `%s`", mounts[i]->destination);
+      اگر (mounts[i]->type == تہی)
+        واپس crun_make_error (err, 0, "invalid mount type for `%s`", mounts[i]->destination);
 
       needed = true;
     }
 
-  if (! needed)
-    return 0;
+  اگر (! needed)
+    واپس 0;
 
-  pidfd = syscall_pidfd_open (status->pid, 0);
-  if (UNLIKELY (pidfd < 0))
-    return crun_make_error (err, errno, "pidfd_open");
+  pidfd = syscall_pidfd_open (حالت_2->pid, 0);
+  اگر (UNLIKELY (pidfd < 0))
+    واپس crun_make_error (err, errno, "pidfd_open");
 
   /* Check if the container is still running after opening the pidfd.  */
-  ret = libcrun_is_container_running (status, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_is_container_running (حالت_2, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (ret == 0)
-    return crun_make_error (err, 0, "container not running");
+  اگر (ret == 0)
+    واپس crun_make_error (err, 0, "container not running");
 
-  ret = get_namespaces_to_join (container, status->pid, &flags, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_namespaces_مقصد_join (container, حالت_2->pid, &flags, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   ret = socketpair (AF_UNIX, SOCK_SEQPACKET | SOCK_CLOEXEC, 0, sync_socket_fd);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "error creating socketpair");
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "error creating socketpair");
 
   sync_fd = sync_socket_fd[0];
 
   pid = fork ();
-  if (UNLIKELY (pid < 0))
+  اگر (UNLIKELY (pid < 0))
     {
       ret = crun_make_error (err, errno, "fork");
-      TEMP_FAILURE_RETRY (close (sync_socket_fd[1]));
-      return ret;
+      عارضی_FAILURE_RETRY (close (sync_socket_fd[1]));
+      واپس ret;
     }
 
-  if (pid == 0)
+  اگر (pid == 0)
     {
       close_and_reset (&sync_fd);
 
       ret = send_mounts_from_container_namespaces (container, pidfd, mounts, fds, len, flags, owner_fd, sync_socket_fd[1], err);
-      if (UNLIKELY (ret < 0))
-        send_error_to_sync_socket_and_die (sync_socket_fd[1], true, err);
+      اگر (UNLIKELY (ret < 0))
+        send_error_مقصد_sync_socket_and_die (sync_socket_fd[1], true, err);
 
-      _safe_exit (EXIT_SUCCESS);
+      محفوظ_exit (EXIT_SUCCESS);
     }
 
-  TEMP_FAILURE_RETRY (close (sync_socket_fd[1]));
+  عارضی_FAILURE_RETRY (close (sync_socket_fd[1]));
 
   ret = 0;
-  for (i = 0; i < len; i++)
+  برائے (i = 0; i < len; i++)
     {
-      if (fds->fds[i] >= 0)
-        continue;
+      اگر (fds->fds[i] >= 0)
+        جاری;
 
       ret = receive_fd_from_socket (sync_fd, err);
-      if (UNLIKELY (ret < 0))
+      اگر (UNLIKELY (ret < 0))
         {
-          cleanup_free char *err_str = NULL;
-          int err_code = 0;
+          cleanup_free حرف *err_str = تہی;
+          صحیح err_رمز = 0;
 
-          if (read_error_from_sync_socket (sync_fd, &err_code, &err_str) && ! is_empty_string (err_str))
+          اگر (read_error_from_sync_socket (sync_fd, &err_رمز, &err_str) && ! is_خالی_خانے_string (err_str))
             {
               crun_error_release (err);
-              ret = crun_make_error (err, err_code, "%s", err_str);
+              ret = crun_make_error (err, err_رمز, "%s", err_str);
             }
-          else
+          ورنہ
             ret = crun_error_wrap (err, "receive mount fd");
-          break;
+          توڑو;
         }
 
       fds->fds[i] = ret;
@@ -8887,250 +8887,250 @@ open_mounts_in_container_namespaces (libcrun_container_t *container, libcrun_con
     }
 
   /* The child process reaps the process that joined the PID namespace of the container.  */
-  TEMP_FAILURE_RETRY (waitpid (pid, NULL, 0));
+  عارضی_FAILURE_RETRY (waitpid (pid, تہی, 0));
 
-  return ret;
+  واپس ret;
 }
 
-static unsigned long
-get_runtime_mount_flags (libcrun_container_t *container, runtime_spec_schema_defs_mount *mount, uint64_t *rec_clear, uint64_t *rec_set)
+ساکن غیرعلامتی طویل
+get_runtime_mount_flags (libcrun_container_t *container, runtime_spec_schema_defs_mount *mount, uint64_t *rec_clear, uint64_t *rec_سیٹ)
 {
-  cleanup_free char *data = NULL;
-  unsigned long extra_flags = 0;
-  unsigned long flags = 0;
+  cleanup_free حرف *ڈیٹا = تہی;
+  غیرعلامتی طویل extra_flags = 0;
+  غیرعلامتی طویل flags = 0;
   size_t j;
 
-  if (mount->options == NULL)
-    return get_default_flags (container, mount->destination, &data);
+  اگر (mount->options == تہی)
+    واپس get_default_flags (container, mount->destination, &ڈیٹا);
 
-  for (j = 0; j < mount->options_len; j++)
-    flags |= get_mount_flags_or_option (mount->options[j], flags, &extra_flags, &data, rec_clear, rec_set);
+  برائے (j = 0; j < mount->options_len; j++)
+    flags |= get_mount_flags_or_option (mount->options[j], flags, &extra_flags, &ڈیٹا, rec_clear, rec_سیٹ);
 
-  return flags;
+  واپس flags;
 }
 
-int
-libcrun_make_runtime_mounts (libcrun_container_t *container, libcrun_container_status_t *status, runtime_spec_schema_defs_mount **mounts, size_t len, libcrun_error_t *err)
+صحیح
+libcrun_make_runtime_mounts (libcrun_container_t *container, libcrun_container_حالت_t *حالت_2, runtime_spec_schema_defs_mount **mounts, size_t len, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  struct mount_in_a_container_args args;
-  cleanup_close_map struct libcrun_fd_map *fds = NULL;
-  cleanup_close int pidfd = -1;
-  cleanup_close int mntns_fd = -1;
-  cleanup_close int owner_fd = -1;
-  pid_t pid = status->pid;
+  ساخت mount_اندر_a_container_دلائل دلائل;
+  cleanup_close_map ساخت libcrun_fd_map *fds = تہی;
+  cleanup_close صحیح pidfd = -1;
+  cleanup_close صحیح mntns_fd = -1;
+  cleanup_close صحیح owner_fd = -1;
+  pid_t pid = حالت_2->pid;
   size_t i;
-  int ret;
+  صحیح ret;
 
-  ret = open_container_mntns (container, status, &mntns_fd, &owner_fd, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = open_container_mntns (container, حالت_2, &mntns_fd, &owner_fd, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   fds = make_libcrun_fd_map (len);
 
-  for (i = 0; i < len; i++)
+  برائے (i = 0; i < len; i++)
     {
       bool recursive = false;
       bool nofollow = false;
 
       /* Do not check whether the pid is valid or not.  run_in_container_namespace will validate it.  */
-      ret = maybe_get_idmapped_mount (container, def, mounts[i], pid, &(fds->fds[i]), NULL, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = maybe_get_idmapped_mount (container, def, mounts[i], pid, &(fds->fds[i]), تہی, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      if (fds->fds[i] < 0 && is_bind_mount (mounts[i], &recursive, &nofollow))
+      اگر (fds->fds[i] < 0 && is_bind_mount (mounts[i], &recursive, &nofollow))
         {
-          uint64_t rec_clear = 0, rec_set = 0;
-          unsigned long propagation;
+          uint64_t rec_clear = 0, rec_سیٹ = 0;
+          غیرعلامتی طویل اشاعت;
 
-          propagation = get_runtime_mount_flags (container, mounts[i], &rec_clear, &rec_set) & ALL_PROPAGATIONS_NO_REC;
-          if (propagation == 0)
-            propagation = MS_PRIVATE;
+          اشاعت = get_runtime_mount_flags (container, mounts[i], &rec_clear, &rec_سیٹ) & ALL_PROPAGATIONS_NO_REC;
+          اگر (اشاعت == 0)
+            اشاعت = MS_PRIVATE;
 
-          fds->fds[i] = get_bind_mount (-1, mounts[i]->source, recursive, false, nofollow, propagation, err);
-          if (UNLIKELY (fds->fds[i] < 0))
-            return fds->fds[i];
+          fds->fds[i] = get_bind_mount (-1, mounts[i]->ماخذ, recursive, false, nofollow, اشاعت, err);
+          اگر (UNLIKELY (fds->fds[i] < 0))
+            واپس fds->fds[i];
         }
     }
 
   /* All the remaining mounts are new file systems.  */
-  ret = open_mounts_in_container_namespaces (container, status, owner_fd, mounts, fds, len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = open_mounts_اندر_container_namespaces (container, حالت_2, owner_fd, mounts, fds, len, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  for (i = 0; i < len; i++)
+  برائے (i = 0; i < len; i++)
     {
       uint64_t rec_clear = 0;
-      uint64_t rec_set = 0;
-      unsigned long flags;
+      uint64_t rec_سیٹ = 0;
+      غیرعلامتی طویل flags;
 
-      flags = get_runtime_mount_flags (container, mounts[i], &rec_clear, &rec_set);
+      flags = get_runtime_mount_flags (container, mounts[i], &rec_clear, &rec_سیٹ);
 
       ret = do_mount_setattr (false, mounts[i]->destination, fds->fds[i], 0, flags, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      ret = do_mount_setattr (true, mounts[i]->destination, fds->fds[i], rec_clear, rec_set, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = do_mount_setattr (true, mounts[i]->destination, fds->fds[i], rec_clear, rec_سیٹ, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  args.mounts = mounts;
-  args.fds = fds;
-  args.pidfd = pidfd;
-  args.owner_fd = owner_fd;
-  args.len = len;
+  دلائل.mounts = mounts;
+  دلائل.fds = fds;
+  دلائل.pidfd = pidfd;
+  دلائل.owner_fd = owner_fd;
+  دلائل.len = len;
 
-  ret = run_callback_in_namespace (mntns_fd, create_destinations_in_a_container, &args, err);
-  if (UNLIKELY (ret > 0))
-    return *err ? -1 : crun_make_error (err, 0, "the process in the container mount namespace exited with status %d", ret);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = تسلسل_callback_اندر_namespace (mntns_fd, create_destinations_اندر_a_container, &دلائل, err);
+  اگر (UNLIKELY (ret > 0))
+    واپس *err ? -1 : crun_make_error (err, 0, "the process in the container mount namespace exited with status %d", ret);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return run_callback_in_namespace (mntns_fd, do_mount_in_a_container, &args, err);
+  واپس تسلسل_callback_اندر_namespace (mntns_fd, do_mount_اندر_a_container, &دلائل, err);
 }
 
-int
-libcrun_destroy_runtime_mounts (libcrun_container_t *container, libcrun_container_status_t *status, runtime_spec_schema_defs_mount **mounts, size_t len, libcrun_error_t *err)
+صحیح
+libcrun_destroy_runtime_mounts (libcrun_container_t *container, libcrun_container_حالت_t *حالت_2, runtime_spec_schema_defs_mount **mounts, size_t len, libcrun_error_t *err)
 {
-  struct umount_in_a_container_args args;
+  ساخت umount_اندر_a_container_دلائل دلائل;
 
-  args.mounts = mounts;
-  args.len = len;
+  دلائل.mounts = mounts;
+  دلائل.len = len;
 
-  return run_in_container_namespace (container, status, do_umount_in_a_container, &args, err);
+  واپس تسلسل_اندر_container_namespace (container, حالت_2, do_umount_اندر_a_container, &دلائل, err);
 }
 
-struct restrict_mounts_in_a_container_args
+ساخت restrict_mounts_اندر_a_container_دلائل
 {
-  struct libcrun_mount_flags_s *mounts;
+  ساخت libcrun_mount_flags_s *mounts;
   size_t len;
-  int rootfd;
+  صحیح rootfd;
 };
 
-static int
-do_restrict_mounts_in_a_container (void *arg, libcrun_error_t *err)
+ساکن صحیح
+do_restrict_mounts_اندر_a_container (خالی *arg, libcrun_error_t *err)
 {
-  struct restrict_mounts_in_a_container_args *args = arg;
+  ساخت restrict_mounts_اندر_a_container_دلائل *دلائل = arg;
   size_t i;
-  int ret;
+  صحیح ret;
 
   /* The root of the container is not necessarily the root of the mount
      namespace.  */
-  ret = fchdir (args->rootfd);
-  if (LIKELY (ret == 0))
+  ret = fchdir (دلائل->rootfd);
+  اگر (LIKELY (ret == 0))
     ret = chroot (".");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "chroot to the container root");
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "chroot to the container root");
 
-  for (i = 0; i < args->len; i++)
+  برائے (i = 0; i < دلائل->len; i++)
     {
-      unsigned long flags = args->mounts[i].flags & (MS_RDONLY | MS_NOSUID | MS_NODEV | MS_NOEXEC);
-      const char *target = consume_slashes (args->mounts[i].target);
-      cleanup_close int fd = -1;
-      struct statfs sfs;
-      unsigned long current_flags;
+      غیرعلامتی طویل flags = دلائل->mounts[i].flags & (MS_RDONLY | MS_NOSUID | MS_NODEV | MS_NOEXEC);
+      ثابت حرف *ہدف = consume_slashes (دلائل->mounts[i].ہدف);
+      cleanup_close صحیح fd = -1;
+      ساخت statfs sfs;
+      غیرعلامتی طویل current_flags;
 
-      if (flags == 0)
-        continue;
+      اگر (flags == 0)
+        جاری;
 
-      fd = safe_openat (AT_FDCWD, "/", target, O_PATH | O_CLOEXEC, 0, err);
-      if (UNLIKELY (fd < 0))
+      fd = محفوظ_openat (AT_FDCWD, "/", ہدف, O_راستہ | O_CLOEXEC, 0, err);
+      اگر (UNLIKELY (fd < 0))
         {
-          if (crun_error_get_errno (err) == ENOENT)
+          اگر (crun_error_get_errno (err) == ENOENT)
             {
               crun_error_release (err);
-              continue;
+              جاری;
             }
-          return fd;
+          واپس fd;
         }
 
       ret = fstatfs (fd, &sfs);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "statfs `/%s`", target);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "statfs `/%s`", ہدف);
 
       current_flags = mount_flags_from_statfs (sfs.f_flags);
-      if ((current_flags & flags) == flags)
-        continue;
+      اگر ((current_flags & flags) == flags)
+        جاری;
 
-      ret = do_mount_setattr (false, target, fd, 0, flags, err);
-      if (LIKELY (ret == 0))
-        continue;
+      ret = do_mount_setattr (false, ہدف, fd, 0, flags, err);
+      اگر (LIKELY (ret == 0))
+        جاری;
 
-      if (crun_error_get_errno (err) != ENOSYS && crun_error_get_errno (err) != EINVAL)
-        return ret;
+      اگر (crun_error_get_errno (err) != ENOSYS && crun_error_get_errno (err) != EINVAL)
+        واپس ret;
       crun_error_release (err);
 
       /* Without mount_setattr(2), remount through the path: the container is
          not running yet, and the root was changed to its rootfs.  The remount
          clears the per-mount flags that are not specified, so pass the
          current ones as well.  */
-      ret = mount (NULL, target, NULL, MS_REMOUNT | MS_BIND | flags | current_flags, NULL);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "remount `/%s`", target);
+      ret = mount (تہی, ہدف, تہی, MS_REMOUNT | MS_BIND | flags | current_flags, تہی);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "remount `/%s`", ہدف);
     }
 
-  return 0;
+  واپس 0;
 }
 
 /* Make sure that each of MOUNTS, in the mount namespace of PID, has at least
    the read-only, nosuid, nodev and noexec flags that are requested for it.  */
-int
-libcrun_restrict_mounts_in_container (pid_t pid, struct libcrun_mount_flags_s *mounts, size_t len, libcrun_error_t *err)
+صحیح
+libcrun_restrict_mounts_اندر_container (pid_t pid, ساخت libcrun_mount_flags_s *mounts, size_t len, libcrun_error_t *err)
 {
-  struct restrict_mounts_in_a_container_args args;
-  cleanup_close int mntns_fd = -1;
-  cleanup_close int rootfd = -1;
-  char path[64];
-  int ret;
+  ساخت restrict_mounts_اندر_a_container_دلائل دلائل;
+  cleanup_close صحیح mntns_fd = -1;
+  cleanup_close صحیح rootfd = -1;
+  حرف راستہ[64];
+  صحیح ret;
 
-  snprintf (path, sizeof (path), "/proc/%d/ns/mnt", pid);
-  mntns_fd = open (path, O_RDONLY | O_CLOEXEC);
-  if (UNLIKELY (mntns_fd < 0))
-    return crun_make_error (err, errno, "open `%s`", path);
+  snprintf (راستہ, حجم (راستہ), "/proc/%d/ns/mnt", pid);
+  mntns_fd = open (راستہ, O_RDONLY | O_CLOEXEC);
+  اگر (UNLIKELY (mntns_fd < 0))
+    واپس crun_make_error (err, errno, "open `%s`", راستہ);
 
-  snprintf (path, sizeof (path), "/proc/%d/root", pid);
-  rootfd = open (path, O_PATH | O_DIRECTORY | O_CLOEXEC);
-  if (UNLIKELY (rootfd < 0))
-    return crun_make_error (err, errno, "open `%s`", path);
+  snprintf (راستہ, حجم (راستہ), "/proc/%d/root", pid);
+  rootfd = open (راستہ, O_راستہ | O_DIRECTORY | O_CLOEXEC);
+  اگر (UNLIKELY (rootfd < 0))
+    واپس crun_make_error (err, errno, "open `%s`", راستہ);
 
-  args.mounts = mounts;
-  args.len = len;
-  args.rootfd = rootfd;
+  دلائل.mounts = mounts;
+  دلائل.len = len;
+  دلائل.rootfd = rootfd;
 
-  ret = run_callback_in_namespace (mntns_fd, do_restrict_mounts_in_a_container, &args, err);
-  if (UNLIKELY (ret > 0))
-    return *err ? -1 : crun_make_error (err, 0, "the process in the container mount namespace exited with status %d", ret);
+  ret = تسلسل_callback_اندر_namespace (mntns_fd, do_restrict_mounts_اندر_a_container, &دلائل, err);
+  اگر (UNLIKELY (ret > 0))
+    واپس *err ? -1 : crun_make_error (err, 0, "the process in the container mount namespace exited with status %d", ret);
 
-  return ret;
+  واپس ret;
 }
 
-int
-libcrun_move_network_devices (libcrun_container_t *container, pid_t pid, libcrun_error_t *err)
+صحیح
+libcrun_move_جال_devices (libcrun_container_t *container, pid_t pid, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  cleanup_close int netns_fd = -1;
+  cleanup_close صحیح netns_fd = -1;
   size_t i;
-  int ret;
+  صحیح ret;
 
-  if (def == NULL || def->linux == NULL || def->linux->net_devices == NULL)
-    return 0;
+  اگر (def == تہی || def->linux == تہی || def->linux->net_devices == تہی)
+    واپس 0;
 
-  cleanup_free char *ns_path = NULL;
+  cleanup_free حرف *ns_راستہ = تہی;
 
-  xasprintf (&ns_path, "%d/ns/net", pid);
-  netns_fd = libcrun_open_proc_file (container, ns_path, O_RDONLY, err);
-  if (UNLIKELY (netns_fd < 0))
-    return netns_fd;
+  xasprintf (&ns_راستہ, "%d/ns/net", pid);
+  netns_fd = libcrun_open_proc_file (container, ns_راستہ, O_RDONLY, err);
+  اگر (UNLIKELY (netns_fd < 0))
+    واپس netns_fd;
 
-  for (i = 0; i < def->linux->net_devices->len; i++)
+  برائے (i = 0; i < def->linux->net_devices->len; i++)
     {
-      const char *new_name = def->linux->net_devices->values[i]->name ?: def->linux->net_devices->keys[i];
+      ثابت حرف *new_name = def->linux->net_devices->اقدار[i]->name ?: def->linux->net_devices->کلیدیں[i];
 
-      ret = move_network_device (def->linux->net_devices->keys[i], new_name, netns_fd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = move_جال_device (def->linux->net_devices->کلیدیں[i], new_name, netns_fd, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  return 0;
+  واپس 0;
 }

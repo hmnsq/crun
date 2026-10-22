@@ -15,24 +15,24 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef TERMINAL_H
-#define TERMINAL_H
-#include <config.h>
+#اگر_غیر_تعریف_شدہ TERMINAL_H
+#تعریف_کرو TERMINAL_H
+#شامل <config.h>
 
-#include "container.h"
-#include <termios.h>
+#شامل "container.h"
+#شامل <termios.h>
 
-void cleanup_terminalp (void *p);
-#define cleanup_terminal __attribute__ ((cleanup (cleanup_terminalp)))
+خالی cleanup_terminalp (خالی *p);
+#تعریف_کرو cleanup_terminal __attribute__ ((cleanup (cleanup_terminalp)))
 
-int libcrun_new_terminal (char **pty, libcrun_error_t *err);
+صحیح libcrun_new_terminal (حرف **pty, libcrun_error_t *err);
 
-int libcrun_set_stdio (int ptmx_fd, char *pty, libcrun_error_t *err);
+صحیح libcrun_سیٹ_stdio (صحیح ptmx_fd, حرف *pty, libcrun_error_t *err);
 
-int libcrun_set_raw (int fd, void **current_status, libcrun_error_t *err);
+صحیح libcrun_سیٹ_raw (صحیح fd, خالی **current_حالت, libcrun_error_t *err);
 
-int libcrun_clear_onlcr (int fd, libcrun_error_t *err);
+صحیح libcrun_clear_onlcr (صحیح fd, libcrun_error_t *err);
 
-int libcrun_terminal_setup_size (int fd, unsigned short rows, unsigned short cols, libcrun_error_t *err);
+صحیح libcrun_terminal_تیاری_سائز (صحیح fd, غیرعلامتی مختصر صفیں, غیرعلامتی مختصر ستون_تعداد, libcrun_error_t *err);
 
-#endif
+#اگر_ختم

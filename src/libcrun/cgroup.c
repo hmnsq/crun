@@ -16,133 +16,133 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#تعریف_کرو GNU_ماخذ
 
-#include <config.h>
-#include "cgroup.h"
-#include "cgroup-cgroupfs.h"
-#include "cgroup-internal.h"
-#include "cgroup-systemd.h"
-#include "cgroup-utils.h"
-#include "cgroup-setup.h"
-#include "cgroup-resources.h"
-#include "ebpf.h"
-#include "utils.h"
-#include "status.h"
-#include <string.h>
-#include <sched.h>
-#include <sys/types.h>
-#include <signal.h>
-#include <sys/vfs.h>
-#include <inttypes.h>
-#include <time.h>
+#شامل <config.h>
+#شامل "cgroup.h"
+#شامل "cgroup-cgroupfs.h"
+#شامل "cgroup-internal.h"
+#شامل "cgroup-systemd.h"
+#شامل "cgroup-utils.h"
+#شامل "cgroup-setup.h"
+#شامل "cgroup-resources.h"
+#شامل "ebpf.h"
+#شامل "utils.h"
+#شامل "status.h"
+#شامل <string.h>
+#شامل <sched.h>
+#شامل <sys/types.h>
+#شامل <signal.h>
+#شامل <sys/vfs.h>
+#شامل <inttypes.h>
+#شامل <time.h>
 
-#include <linux/magic.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <libgen.h>
+#شامل <linux/magic.h>
+#شامل <sys/stat.h>
+#شامل <sys/types.h>
+#شامل <fcntl.h>
+#شامل <libgen.h>
 
-static int
-libcrun_cgroup_enter_disabled (struct libcrun_cgroup_args *args arg_unused, struct libcrun_cgroup_status *out, libcrun_error_t *err arg_unused)
+ساکن صحیح
+libcrun_cgroup_enter_disabled (ساخت libcrun_cgroup_دلائل *دلائل arg_غیر_مستعمل, ساخت libcrun_cgroup_حالت *برآمد, libcrun_error_t *err arg_غیر_مستعمل)
 {
-  out->path = NULL;
-  return 0;
+  برآمد->راستہ = تہی;
+  واپس 0;
 }
 
-static int
-libcrun_destroy_cgroup_disabled (struct libcrun_cgroup_status *cgroup_status arg_unused,
-                                 libcrun_error_t *err arg_unused)
+ساکن صحیح
+libcrun_destroy_cgroup_disabled (ساخت libcrun_cgroup_حالت *cgroup_حالت arg_غیر_مستعمل,
+                                 libcrun_error_t *err arg_غیر_مستعمل)
 {
-  return 0;
+  واپس 0;
 }
 
-struct libcrun_cgroup_manager cgroup_manager_disabled = {
-  .precreate_cgroup = NULL,
+ساخت libcrun_cgroup_manager cgroup_manager_disabled = {
+  .precreate_cgroup = تہی,
   .create_cgroup = libcrun_cgroup_enter_disabled,
   .destroy_cgroup = libcrun_destroy_cgroup_disabled,
 };
 
-static int
-get_cgroup_manager (int manager, struct libcrun_cgroup_manager **out, libcrun_error_t *err)
+ساکن صحیح
+get_cgroup_manager (صحیح manager, ساخت libcrun_cgroup_manager **برآمد, libcrun_error_t *err)
 {
-  switch (manager)
+  انتخاب (manager)
     {
-    case CGROUP_MANAGER_DISABLED:
-      *out = &cgroup_manager_disabled;
-      return 0;
+    حالت CGROUP_MANAGER_DISABLED:
+      *برآمد = &cgroup_manager_disabled;
+      واپس 0;
 
-    case CGROUP_MANAGER_SYSTEMD:
-      *out = &cgroup_manager_systemd;
-      return 0;
+    حالت CGROUP_MANAGER_SYSTEMD:
+      *برآمد = &cgroup_manager_systemd;
+      واپس 0;
 
-    case CGROUP_MANAGER_CGROUPFS:
-      *out = &cgroup_manager_cgroupfs;
-      return 0;
+    حالت CGROUP_MANAGER_CGROUPFS:
+      *برآمد = &cgroup_manager_cgroupfs;
+      واپس 0;
     }
 
-  *out = NULL;
-  return crun_make_error (err, EINVAL, "unknown cgroup manager specified `%d`", manager);
+  *برآمد = تہی;
+  واپس crun_make_error (err, EINVAL, "unknown cgroup manager specified `%d`", manager);
 }
 
-static const char *
-find_delegate_cgroup (string_map *annotations)
+ساکن ثابت حرف *
+ڈھونڈو_delegate_cgroup (string_map *annotations)
 {
-  const char *annotation;
+  ثابت حرف *annotation;
 
-  annotation = find_string_map_value (annotations, "run.oci.delegate-cgroup");
-  if (annotation)
+  annotation = ڈھونڈو_string_map_قدر (annotations, "run.oci.delegate-cgroup");
+  اگر (annotation)
     {
-      if (annotation[0] == '\0')
-        return NULL;
-      return annotation;
+      اگر (annotation[0] == '\0')
+        واپس تہی;
+      واپس annotation;
     }
 
-  return NULL;
+  واپس تہی;
 }
 
-int
-libcrun_cgroup_pause_unpause (struct libcrun_cgroup_status *status, const bool pause, libcrun_error_t *err)
+صحیح
+libcrun_cgroup_pause_unpause (ساخت libcrun_cgroup_حالت *حالت_2, ثابت bool pause, libcrun_error_t *err)
 {
-  return libcrun_cgroup_pause_unpause_path (status->path, pause, err);
+  واپس libcrun_cgroup_pause_unpause_راستہ (حالت_2->راستہ, pause, err);
 }
 
-int
-libcrun_cgroup_is_container_paused (struct libcrun_cgroup_status *status, bool *paused, libcrun_error_t *err)
+صحیح
+libcrun_cgroup_is_container_paused (ساخت libcrun_cgroup_حالت *حالت_2, bool *paused, libcrun_error_t *err)
 {
-  const char *cgroup_path = status->path;
-  cleanup_free char *content = NULL;
-  cleanup_free char *path = NULL;
-  const char *state;
-  int cgroup_mode;
-  int ret;
+  ثابت حرف *cgroup_راستہ = حالت_2->راستہ;
+  cleanup_free حرف *content = تہی;
+  cleanup_free حرف *راستہ = تہی;
+  ثابت حرف *state;
+  صحیح cgroup_منوال;
+  صحیح ret;
 
-  if (cgroup_path == NULL)
-    return 0;
+  اگر (cgroup_راستہ == تہی)
+    واپس 0;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_منوال = libcrun_get_cgroup_منوال (err);
+  اگر (UNLIKELY (cgroup_منوال < 0))
+    واپس cgroup_منوال;
 
-  if (cgroup_mode == CGROUP_MODE_UNIFIED)
+  اگر (cgroup_منوال == CGROUP_منوال_UNIFIED)
     {
       state = "1";
 
-      ret = append_paths (&path, err, CGROUP_ROOT, cgroup_path, "cgroup.freeze", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&راستہ, err, CGROUP_جڑ, cgroup_راستہ, "cgroup.freeze", تہی);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
-  else
+  ورنہ
     {
       state = "FROZEN";
 
-      ret = append_paths (&path, err, CGROUP_ROOT "/freezer", cgroup_path, "freezer.state", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&راستہ, err, CGROUP_جڑ "/freezer", cgroup_راستہ, "freezer.state", تہی);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  ret = read_all_file (path, &content, NULL, err);
-  if (UNLIKELY (ret < 0))
+  ret = read_all_file (راستہ, &content, تہی, err);
+  اگر (UNLIKELY (ret < 0))
     {
       errno = crun_error_get_errno (err);
       /* If the file is missing and we were checking for freezer.state
@@ -150,202 +150,202 @@ libcrun_cgroup_is_container_paused (struct libcrun_cgroup_status *status, bool *
          simply disabled. In such case the container cannot be paused.
          On cgroup v2 freezer is always there.
       */
-      if (errno != ENOENT || cgroup_mode == CGROUP_MODE_UNIFIED)
-        return ret;
+      اگر (errno != ENOENT || cgroup_منوال == CGROUP_منوال_UNIFIED)
+        واپس ret;
 
       /* Even with freezer disabled, its directory is still there. But
          when it's disabled it has type tmpfs, while on systems with
          freezer enabled, its type is cgroupfs. Use that to determine
          whether freezer is enabled or not.
       */
-      struct statfs freezer_stat;
-      if (statfs (CGROUP_ROOT "/freezer", &freezer_stat))
+      ساخت statfs freezer_stat;
+      اگر (statfs (CGROUP_جڑ "/freezer", &freezer_stat))
         {
           crun_error_release (err);
-          return crun_make_error (err, errno, "error when using statfs on `%s`", CGROUP_ROOT "/freezer");
+          واپس crun_make_error (err, errno, "error when using statfs on `%s`", CGROUP_جڑ "/freezer");
         }
 
       /* If the freezer is mounted as cgroupfs type, then missing
          freezer.state file is an error and should be handled like before.
       */
-      if (freezer_stat.f_type == CGROUP_SUPER_MAGIC)
-        return ret;
+      اگر (freezer_stat.f_type == CGROUP_SUPER_MAGIC)
+        واپس ret;
 
       /* When freezer dir is not mounted as cgroupfs, then it's
          disabled, therefore container cannot be in paused state.
       */
       crun_error_release (err);
       *paused = false;
-      return 0;
+      واپس 0;
     }
 
-  *paused = strstr (content, state) != NULL;
-  return 0;
+  *paused = لڑی_تلاش (content, state) != تہی;
+  واپس 0;
 }
 
-int
-libcrun_cgroup_join_process (struct libcrun_cgroup_status *status, const char *path, pid_t pid, pid_t init_pid,
+صحیح
+libcrun_cgroup_join_process (ساخت libcrun_cgroup_حالت *حالت_2, ثابت حرف *راستہ, pid_t pid, pid_t init_pid,
                              libcrun_error_t *err)
 {
-  struct libcrun_cgroup_manager *cgroup_manager;
-  libcrun_error_t tmp_err = NULL;
-  int errno_;
-  int ret;
+  ساخت libcrun_cgroup_manager *cgroup_manager;
+  libcrun_error_t tmp_err = تہی;
+  صحیح errno_;
+  صحیح ret;
 
-  ret = libcrun_move_process_to_cgroup (pid, init_pid, path, false, err);
-  if (LIKELY (ret >= 0))
-    return ret;
+  ret = libcrun_move_process_مقصد_cgroup (pid, init_pid, راستہ, false, err);
+  اگر (LIKELY (ret >= 0))
+    واپس ret;
 
   /* Moving a process requires write access to cgroup.procs of the common
      ancestor of the source and the destination cgroups, which the caller
      may lack.  See if the cgroup manager can do it instead.  */
   errno_ = crun_error_get_errno (err);
-  if (errno_ != EACCES && errno_ != EPERM)
-    return ret;
+  اگر (errno_ != EACCES && errno_ != EPERM)
+    واپس ret;
 
-  if (get_cgroup_manager (status->manager, &cgroup_manager, &tmp_err) < 0)
+  اگر (get_cgroup_manager (حالت_2->manager, &cgroup_manager, &tmp_err) < 0)
     {
       crun_error_release (&tmp_err);
-      return ret;
+      واپس ret;
     }
-  if (cgroup_manager->attach_process == NULL)
-    return ret;
+  اگر (cgroup_manager->attach_process == تہی)
+    واپس ret;
 
-  if (UNLIKELY (cgroup_manager->attach_process (status, path, pid, &tmp_err) < 0))
+  اگر (UNLIKELY (cgroup_manager->attach_process (حالت_2, راستہ, pid, &tmp_err) < 0))
     {
       /* Report the original error, as it is more relevant.  */
-      libcrun_debug ("Cannot attach pid %d to cgroup `%s`: %s", pid, path, tmp_err->msg);
+      libcrun_debug ("Cannot attach pid %d to cgroup `%s`: %s", pid, راستہ, tmp_err->پیغام);
       crun_error_release (&tmp_err);
-      return ret;
+      واپس ret;
     }
 
   crun_error_release (err);
-  return 0;
+  واپس 0;
 }
 
-int
-libcrun_cgroup_read_pids (struct libcrun_cgroup_status *status, bool recurse, pid_t **pids, libcrun_error_t *err)
+صحیح
+libcrun_cgroup_read_pids (ساخت libcrun_cgroup_حالت *حالت_2, bool recurse, pid_t **pids, libcrun_error_t *err)
 {
-  return libcrun_cgroup_read_pids_from_path (status->path, recurse, pids, err);
+  واپس libcrun_cgroup_read_pids_from_راستہ (حالت_2->راستہ, recurse, pids, err);
 }
 
-int
-libcrun_cgroup_killall (struct libcrun_cgroup_status *cgroup_status, int signal, libcrun_error_t *err)
+صحیح
+libcrun_cgroup_killall (ساخت libcrun_cgroup_حالت *cgroup_حالت, صحیح اشارہ, libcrun_error_t *err)
 {
-  return cgroup_killall_path (cgroup_status->path, signal, err);
+  واپس cgroup_killall_راستہ (cgroup_حالت->راستہ, اشارہ, err);
 }
 
-int
-libcrun_cgroup_destroy (struct libcrun_cgroup_status *cgroup_status, libcrun_error_t *err)
+صحیح
+libcrun_cgroup_destroy (ساخت libcrun_cgroup_حالت *cgroup_حالت, libcrun_error_t *err)
 {
-  struct libcrun_cgroup_manager *cgroup_manager = NULL;
-  int ret;
+  ساخت libcrun_cgroup_manager *cgroup_manager = تہی;
+  صحیح ret;
 
-  ret = get_cgroup_manager (cgroup_status->manager, &cgroup_manager, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_cgroup_manager (cgroup_حالت->manager, &cgroup_manager, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return cgroup_manager->destroy_cgroup (cgroup_status, err);
+  واپس cgroup_manager->destroy_cgroup (cgroup_حالت, err);
 }
 
 /* On cgroup v2, the CPU quota and period are set together, via cpu.max.
    If an update sets only one of them, take the other one from the current
    cpu.max, so it is kept (rather than reset to the default).  */
-static int
-complete_cpu_max (const char *path, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
+ساکن صحیح
+complete_cpu_max (ثابت حرف *راستہ, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
 {
   runtime_spec_schema_config_linux_resources_cpu *cpu;
-  cleanup_free char *cpu_max_path = NULL;
-  cleanup_free char *content = NULL;
+  cleanup_free حرف *cpu_max_راستہ = تہی;
+  cleanup_free حرف *content = تہی;
   bool has_period;
   uint64_t period;
   int64_t quota;
-  int cgroup_mode;
-  int ret;
+  صحیح cgroup_منوال;
+  صحیح ret;
 
-  if (resources == NULL || resources->cpu == NULL)
-    return 0;
+  اگر (resources == تہی || resources->cpu == تہی)
+    واپس 0;
 
   cpu = resources->cpu;
-  if (cpu->quota_present == cpu->period_present)
-    return 0;
+  اگر (cpu->quota_present == cpu->period_present)
+    واپس 0;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
-  if (cgroup_mode != CGROUP_MODE_UNIFIED)
-    return 0;
+  cgroup_منوال = libcrun_get_cgroup_منوال (err);
+  اگر (UNLIKELY (cgroup_منوال < 0))
+    واپس cgroup_منوال;
+  اگر (cgroup_منوال != CGROUP_منوال_UNIFIED)
+    واپس 0;
 
-  ret = append_paths (&cpu_max_path, err, CGROUP_ROOT, path, "cpu.max", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cpu_max_راستہ, err, CGROUP_جڑ, راستہ, "cpu.max", تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = read_all_file (cpu_max_path, &content, NULL, err);
-  if (UNLIKELY (ret < 0))
+  ret = read_all_file (cpu_max_راستہ, &content, تہی, err);
+  اگر (UNLIKELY (ret < 0))
     {
       /* The cpu controller might not be enabled; nothing to keep then.  */
       crun_error_release (err);
-      return 0;
+      واپس 0;
     }
 
   ret = parse_cpu_max (content, &quota, &period, &has_period, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (! cpu->quota_present)
+  اگر (! cpu->quota_present)
     {
       cpu->quota = quota;
       cpu->quota_present = 1;
     }
-  else if (has_period)
+  ورنہ اگر (has_period)
     {
       cpu->period = period;
       cpu->period_present = 1;
     }
 
-  return 0;
+  واپس 0;
 }
 
-int
-libcrun_update_cgroup_resources (struct libcrun_cgroup_status *cgroup_status,
-                                 const char *state_root,
+صحیح
+libcrun_update_cgroup_resources (ساخت libcrun_cgroup_حالت *cgroup_حالت,
+                                 ثابت حرف *state_جڑ,
                                  runtime_spec_schema_config_linux_resources *resources,
                                  libcrun_error_t *err)
 {
-  struct libcrun_cgroup_manager *cgroup_manager = NULL;
-  int ret;
+  ساخت libcrun_cgroup_manager *cgroup_manager = تہی;
+  صحیح ret;
 
-  ret = get_cgroup_manager (cgroup_status->manager, &cgroup_manager, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_cgroup_manager (cgroup_حالت->manager, &cgroup_manager, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = check_memory_before_update (cgroup_status->path, resources, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = check_حافظہ_before_update (cgroup_حالت->راستہ, resources, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = complete_cpu_max (cgroup_status->path, resources, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = complete_cpu_max (cgroup_حالت->راستہ, resources, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (cgroup_manager->update_resources)
+  اگر (cgroup_manager->update_resources)
     {
-      ret = cgroup_manager->update_resources (cgroup_status, state_root, resources, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = cgroup_manager->update_resources (cgroup_حالت, state_جڑ, resources, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
-  return update_cgroup_resources (cgroup_status->path, state_root, resources, ! cgroup_status->bpf_dev_set, err);
+  واپس update_cgroup_resources (cgroup_حالت->راستہ, state_جڑ, resources, ! cgroup_حالت->bpf_dev_سیٹ, err);
 }
 
-static int
-can_ignore_cgroup_enter_errors (struct libcrun_cgroup_args *args, int cgroup_mode,
+ساکن صحیح
+can_ignore_cgroup_enter_errors (ساخت libcrun_cgroup_دلائل *دلائل, صحیح cgroup_منوال,
                                 libcrun_error_t *err)
 {
-  int manager = args->manager;
-  int rootless;
+  صحیح manager = دلائل->manager;
+  صحیح rootless;
 
   rootless = is_rootless (err);
-  if (UNLIKELY (rootless < 0))
-    return rootless;
+  اگر (UNLIKELY (rootless < 0))
+    واپس rootless;
 
   /* Ignore errors if all these conditions are met:
      - it is running as rootless.
@@ -353,357 +353,357 @@ can_ignore_cgroup_enter_errors (struct libcrun_cgroup_args *args, int cgroup_mod
      - it is not both cgroupv2 and manager=systemd.
   */
 
-  if (! rootless)
-    return 0;
+  اگر (! rootless)
+    واپس 0;
 
-  if (! is_empty_string (args->cgroup_path))
-    return 0;
+  اگر (! is_خالی_خانے_string (دلائل->cgroup_راستہ))
+    واپس 0;
 
-  if (cgroup_mode == CGROUP_MODE_UNIFIED && manager == CGROUP_MANAGER_SYSTEMD)
-    return 0;
+  اگر (cgroup_منوال == CGROUP_منوال_UNIFIED && manager == CGROUP_MANAGER_SYSTEMD)
+    واپس 0;
 
-  return 1;
+  واپس 1;
 }
 
-int
-libcrun_cgroup_preenter (struct libcrun_cgroup_args *args, int *dirfd, libcrun_error_t *err)
+صحیح
+libcrun_cgroup_preenter (ساخت libcrun_cgroup_دلائل *دلائل, صحیح *dirfd, libcrun_error_t *err)
 {
-  struct libcrun_cgroup_manager *cgroup_manager;
-  int cgroup_mode;
-  int ret;
+  ساخت libcrun_cgroup_manager *cgroup_manager;
+  صحیح cgroup_منوال;
+  صحیح ret;
 
   *dirfd = -1;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_منوال = libcrun_get_cgroup_منوال (err);
+  اگر (UNLIKELY (cgroup_منوال < 0))
+    واپس cgroup_منوال;
 
-  if (cgroup_mode != CGROUP_MODE_UNIFIED)
-    return 0;
+  اگر (cgroup_منوال != CGROUP_منوال_UNIFIED)
+    واپس 0;
 
-  ret = get_cgroup_manager (args->manager, &cgroup_manager, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_cgroup_manager (دلائل->manager, &cgroup_manager, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (cgroup_manager->precreate_cgroup == NULL)
-    return 0;
+  اگر (cgroup_manager->precreate_cgroup == تہی)
+    واپس 0;
 
-  return cgroup_manager->precreate_cgroup (args, dirfd, err);
+  واپس cgroup_manager->precreate_cgroup (دلائل, dirfd, err);
 }
 
 /* Remove the cgroup created by libcrun_cgroup_preenter if libcrun_cgroup_enter
    did not take it over: until then the caller has no status to destroy it with.
    Being created by us and without any process joining it, it is empty and a
    plain rmdir is enough.  */
-void
-libcrun_cgroup_preenter_cleanup (struct libcrun_cgroup_args *args)
+خالی
+libcrun_cgroup_preenter_cleanup (ساخت libcrun_cgroup_دلائل *دلائل)
 {
-  if (args->precreated_path == NULL)
-    return;
+  اگر (دلائل->precreated_راستہ == تہی)
+    واپس;
 
-  (void) rmdir (args->precreated_path);
-  free (args->precreated_path);
-  args->precreated_path = NULL;
+  (خالی) rmdir (دلائل->precreated_راستہ);
+  آزاد (دلائل->precreated_راستہ);
+  دلائل->precreated_راستہ = تہی;
 }
 
-int
-libcrun_cgroup_enter (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status **out, libcrun_error_t *err)
+صحیح
+libcrun_cgroup_enter (ساخت libcrun_cgroup_دلائل *دلائل, ساخت libcrun_cgroup_حالت **برآمد, libcrun_error_t *err)
 {
   /* status will be filled by the cgroup manager.  */
-  cleanup_cgroup_status struct libcrun_cgroup_status *status = xmalloc0 (sizeof *status);
-  struct libcrun_cgroup_manager *cgroup_manager;
-  uid_t root_uid = args->root_uid;
-  uid_t root_gid = args->root_gid;
-  int cgroup_mode;
-  int ret;
+  cleanup_cgroup_حالت ساخت libcrun_cgroup_حالت *حالت_2 = xmalloc0 (حجم *حالت_2);
+  ساخت libcrun_cgroup_manager *cgroup_manager;
+  uid_t جڑ_uid = دلائل->جڑ_uid;
+  uid_t جڑ_gid = دلائل->جڑ_gid;
+  صحیح cgroup_منوال;
+  صحیح ret;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_منوال = libcrun_get_cgroup_منوال (err);
+  اگر (UNLIKELY (cgroup_منوال < 0))
+    واپس cgroup_منوال;
 
-  if (cgroup_mode == CGROUP_MODE_HYBRID)
+  اگر (cgroup_منوال == CGROUP_منوال_HYBRID)
     {
       /* We don't really support hybrid mode, so check that cgroups2 is not using any controller.  */
 
       size_t len;
-      cleanup_free char *buffer = NULL;
+      cleanup_free حرف *بفر = تہی;
 
-      ret = read_all_file (CGROUP_ROOT "/unified/cgroup.controllers", &buffer, &len, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      if (len > 0)
-        return crun_make_error (err, 0, "cgroups in hybrid mode not supported, drop all controllers from cgroupv2");
+      ret = read_all_file (CGROUP_جڑ "/unified/cgroup.controllers", &بفر, &len, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
+      اگر (len > 0)
+        واپس crun_make_error (err, 0, "cgroups in hybrid mode not supported, drop all controllers from cgroupv2");
     }
 
-  ret = get_cgroup_manager (args->manager, &cgroup_manager, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = get_cgroup_manager (دلائل->manager, &cgroup_manager, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  status->manager = args->manager;
+  حالت_2->manager = دلائل->manager;
 
-  ret = cgroup_manager->create_cgroup (args, status, err);
-  if (UNLIKELY (ret < 0))
+  ret = cgroup_manager->create_cgroup (دلائل, حالت_2, err);
+  اگر (UNLIKELY (ret < 0))
     {
-      libcrun_error_t tmp_err = NULL;
-      int ignore_cgroup_errors;
+      libcrun_error_t tmp_err = تہی;
+      صحیح ignore_cgroup_errors;
 
-      ignore_cgroup_errors = can_ignore_cgroup_enter_errors (args, cgroup_mode, &tmp_err);
-      if (UNLIKELY (ignore_cgroup_errors < 0))
+      ignore_cgroup_errors = can_ignore_cgroup_enter_errors (دلائل, cgroup_منوال, &tmp_err);
+      اگر (UNLIKELY (ignore_cgroup_errors < 0))
         {
           crun_error_release (err);
           *err = tmp_err;
-          return ignore_cgroup_errors;
+          واپس ignore_cgroup_errors;
         }
 
-      if (ignore_cgroup_errors)
+      اگر (ignore_cgroup_errors)
         {
           /* Ignore cgroups errors and set there is no cgroup path to use.  */
-          free (status->path);
-          free (status->scope);
-          status->path = NULL;
-          status->scope = NULL;
-          status->manager = CGROUP_MANAGER_DISABLED;
+          آزاد (حالت_2->راستہ);
+          آزاد (حالت_2->scope);
+          حالت_2->راستہ = تہی;
+          حالت_2->scope = تہی;
+          حالت_2->manager = CGROUP_MANAGER_DISABLED;
           crun_error_release (err);
 
-          goto success;
+          جاؤ success;
         }
 
-      return ret;
+      واپس ret;
     }
 
   /* From now on the cgroup is destroyed through its status.  */
-  free (args->precreated_path);
-  args->precreated_path = NULL;
+  آزاد (دلائل->precreated_راستہ);
+  دلائل->precreated_راستہ = تہی;
 
-  if (status->path)
+  اگر (حالت_2->راستہ)
     {
       bool need_chown;
 
-      need_chown = root_uid != (uid_t) -1 || root_gid != (gid_t) -1;
-      if (cgroup_mode == CGROUP_MODE_UNIFIED && need_chown)
+      need_chown = جڑ_uid != (uid_t) -1 || جڑ_gid != (gid_t) -1;
+      اگر (cgroup_منوال == CGROUP_منوال_UNIFIED && need_chown)
         {
-          ret = chown_cgroups (status->path, root_uid, root_gid, err);
-          if (UNLIKELY (ret < 0))
-            goto fail_destroy;
+          ret = chown_cgroups (حالت_2->راستہ, جڑ_uid, جڑ_gid, err);
+          اگر (UNLIKELY (ret < 0))
+            جاؤ fail_destroy;
         }
 
-      if (args->resources)
+      اگر (دلائل->resources)
         {
-          ret = update_cgroup_resources (status->path, args->state_root, args->resources, ! status->bpf_dev_set, err);
-          if (UNLIKELY (ret < 0))
-            goto fail_destroy;
+          ret = update_cgroup_resources (حالت_2->راستہ, دلائل->state_جڑ, دلائل->resources, ! حالت_2->bpf_dev_سیٹ, err);
+          اگر (UNLIKELY (ret < 0))
+            جاؤ fail_destroy;
         }
     }
 success:
-  *out = status;
-  status = NULL;
-  return 0;
+  *برآمد = حالت_2;
+  حالت_2 = تہی;
+  واپس 0;
 
 fail_destroy:
   /* The cgroup is created, but the caller does not get its status, so it
      cannot destroy it.  Do it here, so it is not left behind.  */
   {
-    libcrun_error_t tmp_err = NULL;
+    libcrun_error_t tmp_err = تہی;
 
-    if (UNLIKELY (cgroup_manager->destroy_cgroup (status, &tmp_err) < 0))
+    اگر (UNLIKELY (cgroup_manager->destroy_cgroup (حالت_2, &tmp_err) < 0))
       crun_error_release (&tmp_err);
   }
-  return ret;
+  واپس ret;
 }
 
-int
-libcrun_cgroup_enter_finalize (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status *cgroup_status arg_unused, libcrun_error_t *err)
+صحیح
+libcrun_cgroup_enter_finalize (ساخت libcrun_cgroup_دلائل *دلائل, ساخت libcrun_cgroup_حالت *cgroup_حالت arg_غیر_مستعمل, libcrun_error_t *err)
 {
-  cleanup_free char *target_cgroup = NULL;
-  cleanup_free char *content = NULL;
-  const char *delegate_cgroup;
-  cleanup_free char *dir = NULL;
-  char *current_cgroup, *to;
-  int cgroup_mode;
-  int ret;
+  cleanup_free حرف *ہدف_cgroup = تہی;
+  cleanup_free حرف *content = تہی;
+  ثابت حرف *delegate_cgroup;
+  cleanup_free حرف *dir = تہی;
+  حرف *current_cgroup, *مقصد;
+  صحیح cgroup_منوال;
+  صحیح ret;
 
-  delegate_cgroup = find_delegate_cgroup (args->annotations);
-  if (delegate_cgroup == NULL)
-    return 0;
+  delegate_cgroup = ڈھونڈو_delegate_cgroup (دلائل->annotations);
+  اگر (delegate_cgroup == تہی)
+    واپس 0;
 
-  if (path_has_dot_dot_component (delegate_cgroup))
-    return crun_make_error (err, 0, "invalid `..` component in delegate-cgroup `%s`", delegate_cgroup);
+  اگر (راستہ_has_dot_dot_component (delegate_cgroup))
+    واپس crun_make_error (err, 0, "invalid `..` component in delegate-cgroup `%s`", delegate_cgroup);
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_منوال = libcrun_get_cgroup_منوال (err);
+  اگر (UNLIKELY (cgroup_منوال < 0))
+    واپس cgroup_منوال;
 
-  if (cgroup_mode != CGROUP_MODE_UNIFIED)
-    return crun_make_error (err, 0, "delegate-cgroup not supported on cgroup v1");
+  اگر (cgroup_منوال != CGROUP_منوال_UNIFIED)
+    واپس crun_make_error (err, 0, "delegate-cgroup not supported on cgroup v1");
 
-  cleanup_free char *proc_path = NULL;
-  cleanup_close int fd = -1;
+  cleanup_free حرف *proc_راستہ = تہی;
+  cleanup_close صحیح fd = -1;
 
-  xasprintf (&proc_path, "%d/cgroup", args->pid);
-  fd = libcrun_open_proc_file (args->container, proc_path, O_RDONLY, err);
-  if (UNLIKELY (fd < 0))
-    return fd;
+  xasprintf (&proc_راستہ, "%d/cgroup", دلائل->pid);
+  fd = libcrun_open_proc_file (دلائل->container, proc_راستہ, O_RDONLY, err);
+  اگر (UNLIKELY (fd < 0))
+    واپس fd;
 
-  ret = read_all_fd (fd, "cgroup path", &content, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_fd (fd, "cgroup path", &content, تہی, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  current_cgroup = strstr (content, "0::");
-  if (UNLIKELY (current_cgroup == NULL))
-    return crun_make_error (err, 0, "cannot find cgroup2 for the current process");
+  current_cgroup = لڑی_تلاش (content, "0::");
+  اگر (UNLIKELY (current_cgroup == تہی))
+    واپس crun_make_error (err, 0, "cannot find cgroup2 for the current process");
   current_cgroup += 3;
-  to = strchr (current_cgroup, '\n');
-  if (UNLIKELY (to == NULL))
-    return crun_make_error (err, 0, "cannot parse `%s`", PROC_SELF_CGROUP);
-  *to = '\0';
+  مقصد = strchr (current_cgroup, '\n');
+  اگر (UNLIKELY (مقصد == تہی))
+    واپس crun_make_error (err, 0, "cannot parse `%s`", PROC_SELF_CGROUP);
+  *مقصد = '\0';
 
-  ret = append_paths (&target_cgroup, err, current_cgroup, delegate_cgroup, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&ہدف_cgroup, err, current_cgroup, delegate_cgroup, تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = append_paths (&dir, err, CGROUP_ROOT, target_cgroup, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&dir, err, CGROUP_جڑ, ہدف_cgroup, تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
   ret = crun_ensure_directory (dir, 0755, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = move_process_to_cgroup (args->pid, NULL, target_cgroup, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = move_process_مقصد_cgroup (دلائل->pid, تہی, ہدف_cgroup, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = enable_controllers (target_cgroup, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = enable_controllers (ہدف_cgroup, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = chown_cgroups (target_cgroup, args->root_uid, args->root_gid, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = chown_cgroups (ہدف_cgroup, دلائل->جڑ_uid, دلائل->جڑ_gid, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return 0;
+  واپس 0;
 }
 
-int
-libcrun_cgroup_has_oom (struct libcrun_cgroup_status *status, libcrun_error_t *err)
+صحیح
+libcrun_cgroup_has_oom (ساخت libcrun_cgroup_حالت *حالت_2, libcrun_error_t *err)
 {
-  cleanup_free char *content = NULL;
-  const char *path = status->path;
-  const char *prefix = NULL;
-  size_t content_size = 0;
-  int cgroup_mode;
-  char *it;
+  cleanup_free حرف *content = تہی;
+  ثابت حرف *راستہ = حالت_2->راستہ;
+  ثابت حرف *سابقہ = تہی;
+  size_t content_سائز = 0;
+  صحیح cgroup_منوال;
+  حرف *it;
 
-  if (UNLIKELY (path == NULL || path[0] == '\0'))
-    return 0;
+  اگر (UNLIKELY (راستہ == تہی || راستہ[0] == '\0'))
+    واپس 0;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_منوال = libcrun_get_cgroup_منوال (err);
+  اگر (UNLIKELY (cgroup_منوال < 0))
+    واپس cgroup_منوال;
 
-  switch (cgroup_mode)
+  انتخاب (cgroup_منوال)
     {
-    case CGROUP_MODE_UNIFIED:
+    حالت CGROUP_منوال_UNIFIED:
       {
-        cleanup_free char *events_path = NULL;
-        int ret;
+        cleanup_free حرف *events_راستہ = تہی;
+        صحیح ret;
 
-        ret = append_paths (&events_path, err, CGROUP_ROOT, path, "memory.events", NULL);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ret = append_paths (&events_راستہ, err, CGROUP_جڑ, راستہ, "memory.events", تہی);
+        اگر (UNLIKELY (ret < 0))
+          واپس ret;
 
         /* read_all_file always NUL terminates the output.  */
-        ret = read_all_file (events_path, &content, &content_size, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ret = read_all_file (events_راستہ, &content, &content_سائز, err);
+        اگر (UNLIKELY (ret < 0))
+          واپس ret;
 
-        prefix = "oom ";
-        break;
+        سابقہ = "oom ";
+        توڑو;
       }
-    case CGROUP_MODE_LEGACY:
-    case CGROUP_MODE_HYBRID:
+    حالت CGROUP_منوال_LEGACY:
+    حالت CGROUP_منوال_HYBRID:
       {
-        cleanup_free char *oom_control_path = NULL;
-        int ret;
+        cleanup_free حرف *oom_control_راستہ = تہی;
+        صحیح ret;
 
-        ret = append_paths (&oom_control_path, err, CGROUP_ROOT, "memory", path, "memory.oom_control", NULL);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ret = append_paths (&oom_control_راستہ, err, CGROUP_جڑ, "memory", راستہ, "memory.oom_control", تہی);
+        اگر (UNLIKELY (ret < 0))
+          واپس ret;
 
         /* read_all_file always NUL terminates the output.  */
-        ret = read_all_file (oom_control_path, &content, &content_size, err);
-        if (UNLIKELY (ret < 0))
-          return ret;
+        ret = read_all_file (oom_control_راستہ, &content, &content_سائز, err);
+        اگر (UNLIKELY (ret < 0))
+          واپس ret;
 
-        prefix = "oom_kill ";
-        break;
+        سابقہ = "oom_kill ";
+        توڑو;
       }
 
-    default:
-      return crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_mode);
+    طےشدہ:
+      واپس crun_make_error (err, 0, "invalid cgroup mode `%d`", cgroup_منوال);
     }
 
   it = content;
-  while (it && *it)
+  جب (it && *it)
     {
-      if (has_prefix (it, prefix))
+      اگر (has_سابقہ (it, سابقہ))
         {
-          it += strlen (prefix);
-          while (*it == ' ')
+          it += لڑی_لمبائی (سابقہ);
+          جب (*it == ' ')
             it++;
 
-          return *it != '0';
+          واپس *it != '0';
         }
-      else
+      ورنہ
         {
           it = strchr (it, '\n');
-          if (it == NULL)
-            return 0;
+          اگر (it == تہی)
+            واپس 0;
           it++;
         }
     }
 
-  return 0;
+  واپس 0;
 }
 
-int
-libcrun_cgroup_get_status (struct libcrun_cgroup_status *cgroup_status,
-                           libcrun_container_status_t *status,
-                           libcrun_error_t *err arg_unused)
+صحیح
+libcrun_cgroup_get_حالت (ساخت libcrun_cgroup_حالت *cgroup_حالت,
+                           libcrun_container_حالت_t *حالت_2,
+                           libcrun_error_t *err arg_غیر_مستعمل)
 {
-  status->cgroup_path = cgroup_status->path;
-  status->scope = cgroup_status->scope;
-  return 0;
+  حالت_2->cgroup_راستہ = cgroup_حالت->راستہ;
+  حالت_2->scope = cgroup_حالت->scope;
+  واپس 0;
 }
 
-void
-libcrun_cgroup_status_free (struct libcrun_cgroup_status *cgroup_status)
+خالی
+libcrun_cgroup_حالت_free (ساخت libcrun_cgroup_حالت *cgroup_حالت)
 {
-  if (cgroup_status == NULL)
-    return;
+  اگر (cgroup_حالت == تہی)
+    واپس;
 
-  free (cgroup_status->path);
-  free (cgroup_status->scope);
-  free (cgroup_status);
+  آزاد (cgroup_حالت->راستہ);
+  آزاد (cgroup_حالت->scope);
+  آزاد (cgroup_حالت);
 }
 
-struct libcrun_cgroup_status *
-libcrun_cgroup_make_status (libcrun_container_status_t *status)
+ساخت libcrun_cgroup_حالت *
+libcrun_cgroup_make_حالت (libcrun_container_حالت_t *حالت_2)
 {
-  struct libcrun_cgroup_status *ret;
+  ساخت libcrun_cgroup_حالت *ret;
 
-  ret = xmalloc0 (sizeof *ret);
+  ret = xmalloc0 (حجم *ret);
 
-  if (! is_empty_string (status->cgroup_path))
-    ret->path = xstrdup (status->cgroup_path);
+  اگر (! is_خالی_خانے_string (حالت_2->cgroup_راستہ))
+    ret->راستہ = xstrdup (حالت_2->cgroup_راستہ);
 
-  if (! is_empty_string (status->scope))
-    ret->scope = xstrdup (status->scope);
+  اگر (! is_خالی_خانے_string (حالت_2->scope))
+    ret->scope = xstrdup (حالت_2->scope);
 
-  if (is_empty_string (status->cgroup_path) && is_empty_string (status->scope))
+  اگر (is_خالی_خانے_string (حالت_2->cgroup_راستہ) && is_خالی_خانے_string (حالت_2->scope))
     ret->manager = CGROUP_MANAGER_DISABLED;
-  else
-    ret->manager = status->systemd_cgroup ? CGROUP_MANAGER_SYSTEMD : CGROUP_MANAGER_CGROUPFS;
+  ورنہ
+    ret->manager = حالت_2->systemd_cgroup ? CGROUP_MANAGER_SYSTEMD : CGROUP_MANAGER_CGROUPFS;
 
-  return ret;
+  واپس ret;
 }

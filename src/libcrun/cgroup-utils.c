@@ -16,341 +16,341 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#تعریف_کرو GNU_ماخذ
 
-#include <config.h>
-#include "cgroup.h"
-#include "cgroup-internal.h"
-#include "cgroup-systemd.h"
-#include "cgroup-utils.h"
-#include "cgroup-setup.h"
-#include "ebpf.h"
-#include "utils.h"
-#include "status.h"
-#include <string.h>
-#include <sys/types.h>
-#include <signal.h>
-#include <sys/vfs.h>
-#include <inttypes.h>
-#include <time.h>
-#include <poll.h>
-#include <sys/inotify.h>
+#شامل <config.h>
+#شامل "cgroup.h"
+#شامل "cgroup-internal.h"
+#شامل "cgroup-systemd.h"
+#شامل "cgroup-utils.h"
+#شامل "cgroup-setup.h"
+#شامل "ebpf.h"
+#شامل "utils.h"
+#شامل "status.h"
+#شامل <string.h>
+#شامل <sys/types.h>
+#شامل <signal.h>
+#شامل <sys/vfs.h>
+#شامل <inttypes.h>
+#شامل <time.h>
+#شامل <poll.h>
+#شامل <sys/inotify.h>
 
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <libgen.h>
+#شامل <sys/stat.h>
+#شامل <sys/types.h>
+#شامل <fcntl.h>
+#شامل <libgen.h>
 
-struct symlink_s
+ساخت symlink_s
 {
-  const char *name;
-  const char *target;
+  ثابت حرف *name;
+  ثابت حرف *ہدف;
 };
 
-static struct symlink_s cgroup_symlinks[] = { { "cpu", "cpu,cpuacct" },
+ساکن ساخت symlink_s cgroup_symlinks[] = { { "cpu", "cpu,cpuacct" },
                                               { "cpuacct", "cpu,cpuacct" },
                                               { "net_cls", "net_cls,net_prio" },
                                               { "net_prio", "net_cls,net_prio" },
-                                              { NULL, NULL } };
+                                              { تہی, تہی } };
 
-int
-libcrun_cgroups_create_symlinks (int dirfd, libcrun_error_t *err)
+صحیح
+libcrun_cgroups_create_symlinks (صحیح dirfd, libcrun_error_t *err)
 {
-  int i;
+  صحیح i;
 
-  for (i = 0; cgroup_symlinks[i].name; i++)
+  برائے (i = 0; cgroup_symlinks[i].name; i++)
     {
-      int ret;
+      صحیح ret;
 
-      ret = symlinkat (cgroup_symlinks[i].target, dirfd, cgroup_symlinks[i].name);
-      if (UNLIKELY (ret < 0))
+      ret = symlinkat (cgroup_symlinks[i].ہدف, dirfd, cgroup_symlinks[i].name);
+      اگر (UNLIKELY (ret < 0))
         {
-          if (errno == ENOENT || errno == EEXIST)
-            continue;
-          return crun_make_error (err, errno, "symlinkat `%s`", cgroup_symlinks[i].name);
+          اگر (errno == ENOENT || errno == EEXIST)
+            جاری;
+          واپس crun_make_error (err, errno, "symlinkat `%s`", cgroup_symlinks[i].name);
         }
     }
-  return 0;
+  واپس 0;
 }
 
-int
-maybe_make_cgroup_threaded (const char *path, libcrun_error_t *err)
+صحیح
+maybe_make_cgroup_threaded (ثابت حرف *راستہ, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path_type = NULL;
-  const char *const threaded = "threaded";
-  cleanup_free char *content = NULL;
-  cleanup_free char *buffer = NULL;
-  const char *parent;
-  size_t size;
-  char *it;
-  int ret;
+  cleanup_free حرف *cgroup_راستہ_type = تہی;
+  ثابت حرف *ثابت threaded = "threaded";
+  cleanup_free حرف *content = تہی;
+  cleanup_free حرف *بفر = تہی;
+  ثابت حرف *والد_2;
+  size_t سائز;
+  حرف *it;
+  صحیح ret;
 
-  if (path == NULL)
-    return 0;
+  اگر (راستہ == تہی)
+    واپس 0;
 
-  path = consume_slashes (path);
+  راستہ = consume_slashes (راستہ);
 
-  if (path[0] == '\0')
-    return 0;
+  اگر (راستہ[0] == '\0')
+    واپس 0;
 
-  ret = append_paths (&cgroup_path_type, err, CGROUP_ROOT, path, "cgroup.type", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_راستہ_type, err, CGROUP_جڑ, راستہ, "cgroup.type", تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = read_all_file (cgroup_path_type, &content, &size, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file (cgroup_راستہ_type, &content, &سائز, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (size > 0)
+  اگر (سائز > 0)
     {
-      it = content + size - 1;
-      while (*it == '\n' && it > content)
+      it = content + سائز - 1;
+      جب (*it == '\n' && it > content)
         *it-- = '\0';
     }
 
-  if (strcmp (content, "domain") == 0 || strcmp (content, "domain threaded") == 0)
-    return 0;
+  اگر (strcmp (content, "domain") == 0 || strcmp (content, "domain threaded") == 0)
+    واپس 0;
 
-  buffer = xstrdup (path);
-  parent = consume_slashes (dirname (buffer));
-  if (parent[0] && strcmp (parent, "."))
+  بفر = xstrdup (راستہ);
+  والد_2 = consume_slashes (dirname (بفر));
+  اگر (والد_2[0] && strcmp (والد_2, "."))
     {
-      ret = maybe_make_cgroup_threaded (parent, err);
-      if (ret < 0)
-        return ret;
+      ret = maybe_make_cgroup_threaded (والد_2, err);
+      اگر (ret < 0)
+        واپس ret;
     }
-  return write_cgroup_file (AT_FDCWD, cgroup_path_type, threaded, strlen (threaded), err);
+  واپس write_cgroup_file (AT_FDCWD, cgroup_راستہ_type, threaded, لڑی_لمبائی (threaded), err);
 }
 
-int
-move_process_to_cgroup (pid_t pid, const char *subsystem, const char *path, libcrun_error_t *err)
+صحیح
+move_process_مقصد_cgroup (pid_t pid, ثابت حرف *subsystem, ثابت حرف *راستہ, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path_procs = NULL;
-  char pid_str[16];
-  int ret;
+  cleanup_free حرف *cgroup_راستہ_procs = تہی;
+  حرف pid_str[16];
+  صحیح ret;
 
-  ret = append_paths (&cgroup_path_procs, err, CGROUP_ROOT,
-                      subsystem ? subsystem : "", path ? path : "",
-                      "cgroup.procs", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_راستہ_procs, err, CGROUP_جڑ,
+                      subsystem ? subsystem : "", راستہ ? راستہ : "",
+                      "cgroup.procs", تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = snprintf (pid_str, sizeof (pid_str), "%d", pid);
-  if (UNLIKELY (ret >= (int) sizeof (pid_str)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  ret = snprintf (pid_str, حجم (pid_str), "%d", pid);
+  اگر (UNLIKELY (ret >= (صحیح) حجم (pid_str)))
+    واپس crun_make_error (err, 0, "internal error: static buffer too small");
 
-  ret = write_cgroup_file (AT_FDCWD, cgroup_path_procs, pid_str, strlen (pid_str), err);
-  if (UNLIKELY (ret < 0))
+  ret = write_cgroup_file (AT_FDCWD, cgroup_راستہ_procs, pid_str, لڑی_لمبائی (pid_str), err);
+  اگر (UNLIKELY (ret < 0))
     {
-      if (crun_error_get_errno (err) == EOPNOTSUPP)
+      اگر (crun_error_get_errno (err) == EOPNOTSUPP)
         {
-          libcrun_error_t tmp_err = NULL;
-          int mode;
+          libcrun_error_t tmp_err = تہی;
+          صحیح منوال;
 
-          mode = libcrun_get_cgroup_mode (&tmp_err);
-          if (UNLIKELY (mode < 0 || mode != CGROUP_MODE_UNIFIED))
+          منوال = libcrun_get_cgroup_منوال (&tmp_err);
+          اگر (UNLIKELY (منوال < 0 || منوال != CGROUP_منوال_UNIFIED))
             {
               crun_error_release (&tmp_err);
-              return ret;
+              واپس ret;
             }
 
           crun_error_release (err);
 
-          ret = maybe_make_cgroup_threaded (path, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = maybe_make_cgroup_threaded (راستہ, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
 
-          return write_cgroup_file (AT_FDCWD, cgroup_path_procs, pid_str, strlen (pid_str), err);
+          واپس write_cgroup_file (AT_FDCWD, cgroup_راستہ_procs, pid_str, لڑی_لمبائی (pid_str), err);
         }
 
-      return ret;
+      واپس ret;
     }
-  return ret;
+  واپس ret;
 }
 
-#ifndef CGROUP2_SUPER_MAGIC
+#اگر_غیر_تعریف_شدہ CGROUP2_SUPER_MAGIC
 #  define CGROUP2_SUPER_MAGIC 0x63677270
-#endif
+#اگر_ختم
 
-#ifndef TMPFS_MAGIC
+#اگر_غیر_تعریف_شدہ TMPFS_MAGIC
 #  define TMPFS_MAGIC 0x01021994
-#endif
+#اگر_ختم
 
-static int
-detect_cgroup_mode (libcrun_error_t *err)
+ساکن صحیح
+detect_cgroup_منوال (libcrun_error_t *err)
 {
-  struct statfs stat;
-  int ret;
+  ساخت statfs stat;
+  صحیح ret;
 
-  ret = statfs (CGROUP_ROOT, &stat);
-  if (ret < 0)
-    return crun_make_error (err, errno, "statfs `" CGROUP_ROOT "`");
-  if (stat.f_type == CGROUP2_SUPER_MAGIC)
-    return CGROUP_MODE_UNIFIED;
-  if (stat.f_type != TMPFS_MAGIC)
-    return crun_make_error (err, 0, "invalid file system type on `" CGROUP_ROOT "`");
-  ret = statfs (CGROUP_ROOT "/unified", &stat);
-  if (ret < 0 && errno != ENOENT)
-    return crun_make_error (err, errno, "statfs `" CGROUP_ROOT "/unified`");
-  if (ret < 0)
-    return CGROUP_MODE_LEGACY;
-  return stat.f_type == CGROUP2_SUPER_MAGIC ? CGROUP_MODE_HYBRID : CGROUP_MODE_LEGACY;
+  ret = statfs (CGROUP_جڑ, &stat);
+  اگر (ret < 0)
+    واپس crun_make_error (err, errno, "statfs `" CGROUP_جڑ "`");
+  اگر (stat.f_type == CGROUP2_SUPER_MAGIC)
+    واپس CGROUP_منوال_UNIFIED;
+  اگر (stat.f_type != TMPFS_MAGIC)
+    واپس crun_make_error (err, 0, "invalid file system type on `" CGROUP_جڑ "`");
+  ret = statfs (CGROUP_جڑ "/unified", &stat);
+  اگر (ret < 0 && errno != ENOENT)
+    واپس crun_make_error (err, errno, "statfs `" CGROUP_جڑ "/unified`");
+  اگر (ret < 0)
+    واپس CGROUP_منوال_LEGACY;
+  واپس stat.f_type == CGROUP2_SUPER_MAGIC ? CGROUP_منوال_HYBRID : CGROUP_منوال_LEGACY;
 }
 
-int
-libcrun_get_cgroup_mode (libcrun_error_t *err)
+صحیح
+libcrun_get_cgroup_منوال (libcrun_error_t *err)
 {
-  int tmp;
-  static int cgroup_mode = 0;
+  صحیح tmp;
+  ساکن صحیح cgroup_منوال = 0;
 
-  if (cgroup_mode)
-    return cgroup_mode;
+  اگر (cgroup_منوال)
+    واپس cgroup_منوال;
 
-  tmp = detect_cgroup_mode (err);
-  if (UNLIKELY (tmp < 0))
-    return tmp;
+  tmp = detect_cgroup_منوال (err);
+  اگر (UNLIKELY (tmp < 0))
+    واپس tmp;
 
-  cgroup_mode = tmp;
+  cgroup_منوال = tmp;
 
-  return cgroup_mode;
+  واپس cgroup_منوال;
 }
 
-static int
-get_cgroup_process_from_content (char *content, int cgroup_mode, char **path, bool absolute, libcrun_error_t *err)
+ساکن صحیح
+get_cgroup_process_from_content (حرف *content, صحیح cgroup_منوال, حرف **راستہ, bool absolute, libcrun_error_t *err)
 {
-  char *cg_path = NULL;
-  char *controller;
-  char *saveptr;
-  bool has_data;
+  حرف *cg_راستہ = تہی;
+  حرف *controller;
+  حرف *saveptr;
+  bool has_ڈیٹا;
 
-  for (has_data = read_proc_cgroup (content, &saveptr, NULL, &controller, &cg_path);
-       has_data;
-       has_data = read_proc_cgroup (NULL, &saveptr, NULL, &controller, &cg_path))
+  برائے (has_ڈیٹا = read_proc_cgroup (content, &saveptr, تہی, &controller, &cg_راستہ);
+       has_ڈیٹا;
+       has_ڈیٹا = read_proc_cgroup (تہی, &saveptr, تہی, &controller, &cg_راستہ))
     {
-      if (cgroup_mode == CGROUP_MODE_UNIFIED)
+      اگر (cgroup_منوال == CGROUP_منوال_UNIFIED)
         {
-          if (strcmp (controller, "") == 0 && strlen (cg_path) > 0)
-            goto found;
+          اگر (strcmp (controller, "") == 0 && لڑی_لمبائی (cg_راستہ) > 0)
+            جاؤ ملا;
         }
-      else
+      ورنہ
         {
-          if (strcmp (controller, "memory"))
-            goto found;
+          اگر (strcmp (controller, "memory"))
+            جاؤ ملا;
         }
     }
 
-  return crun_make_error (err, 0, "cannot find cgroup for the process");
+  واپس crun_make_error (err, 0, "cannot find cgroup for the process");
 
-found:
-  if (absolute)
-    return append_paths (path, err, CGROUP_ROOT, cg_path, NULL);
+ملا:
+  اگر (absolute)
+    واپس append_paths (راستہ, err, CGROUP_جڑ, cg_راستہ, تہی);
 
-  *path = xstrdup (cg_path);
-  return 0;
+  *راستہ = xstrdup (cg_راستہ);
+  واپس 0;
 }
 
-int
-libcrun_get_cgroup_process_at (int dirfd, char **path, bool absolute, libcrun_error_t *err)
+صحیح
+libcrun_get_cgroup_process_at (صحیح dirfd, حرف **راستہ, bool absolute, libcrun_error_t *err)
 {
-  cleanup_free char *content = NULL;
-  size_t content_size;
-  int cgroup_mode;
-  int ret;
+  cleanup_free حرف *content = تہی;
+  size_t content_سائز;
+  صحیح cgroup_منوال;
+  صحیح ret;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_منوال = libcrun_get_cgroup_منوال (err);
+  اگر (UNLIKELY (cgroup_منوال < 0))
+    واپس cgroup_منوال;
 
-  ret = read_all_file_at (dirfd, SELF_CGROUP, &content, &content_size, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file_at (dirfd, SELF_CGROUP, &content, &content_سائز, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return get_cgroup_process_from_content (content, cgroup_mode, path, absolute, err);
+  واپس get_cgroup_process_from_content (content, cgroup_منوال, راستہ, absolute, err);
 }
 
-int
-libcrun_get_cgroup_process (pid_t pid, char **path, bool absolute, libcrun_error_t *err)
+صحیح
+libcrun_get_cgroup_process (pid_t pid, حرف **راستہ, bool absolute, libcrun_error_t *err)
 {
-  cleanup_free char *content = NULL;
-  char proc_cgroup_file[64];
-  size_t content_size;
-  int cgroup_mode;
-  int ret;
+  cleanup_free حرف *content = تہی;
+  حرف proc_cgroup_file[64];
+  size_t content_سائز;
+  صحیح cgroup_منوال;
+  صحیح ret;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_منوال = libcrun_get_cgroup_منوال (err);
+  اگر (UNLIKELY (cgroup_منوال < 0))
+    واپس cgroup_منوال;
 
-  if (pid == 0)
+  اگر (pid == 0)
     strcpy (proc_cgroup_file, PROC_SELF_CGROUP);
-  else
+  ورنہ
     {
-      int len = snprintf (proc_cgroup_file, sizeof (proc_cgroup_file), "/proc/%d/cgroup", pid);
-      if (UNLIKELY (len >= (int) sizeof (proc_cgroup_file)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      صحیح len = snprintf (proc_cgroup_file, حجم (proc_cgroup_file), "/proc/%d/cgroup", pid);
+      اگر (UNLIKELY (len >= (صحیح) حجم (proc_cgroup_file)))
+        واپس crun_make_error (err, 0, "internal error: static buffer too small");
     }
 
-  ret = read_all_file (proc_cgroup_file, &content, &content_size, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file (proc_cgroup_file, &content, &content_سائز, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return get_cgroup_process_from_content (content, cgroup_mode, path, absolute, err);
+  واپس get_cgroup_process_from_content (content, cgroup_منوال, راستہ, absolute, err);
 }
 
-static int
-read_pids_file (int dfd, const char *file, pid_t **pids, size_t *n_pids, size_t *allocated, libcrun_error_t *err)
+ساکن صحیح
+read_pids_file (صحیح dfd, ثابت حرف *file, pid_t **pids, size_t *n_pids, size_t *allocated, libcrun_error_t *err)
 {
-  cleanup_close int tasksfd = -1;
-  cleanup_free char *buffer = NULL;
-  char *saveptr = NULL;
+  cleanup_close صحیح tasksfd = -1;
+  cleanup_free حرف *بفر = تہی;
+  حرف *saveptr = تہی;
   size_t n_new_pids;
   size_t len;
-  char *it;
-  int ret;
+  حرف *it;
+  صحیح ret;
 
   tasksfd = openat (dfd, file, O_RDONLY | O_CLOEXEC);
-  if (tasksfd < 0)
+  اگر (tasksfd < 0)
     {
       /* The cgroup was removed concurrently (e.g. while killing the
          container), there are no processes left to account for.  */
-      if (errno == ENOENT || errno == ENODEV)
-        return 0;
-      return crun_make_error (err, errno, "open `%s`", file);
+      اگر (errno == ENOENT || errno == ENODEV)
+        واپس 0;
+      واپس crun_make_error (err, errno, "open `%s`", file);
     }
 
-  ret = read_all_fd (tasksfd, file, &buffer, &len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_fd (tasksfd, file, &بفر, &len, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (len > 0)
+  اگر (len > 0)
     {
-      for (n_new_pids = 0, it = buffer; it; it = strchr (it + 1, '\n'))
+      برائے (n_new_pids = 0, it = بفر; it; it = strchr (it + 1, '\n'))
         n_new_pids++;
 
-      if (*allocated < *n_pids + n_new_pids + 1)
+      اگر (*allocated < *n_pids + n_new_pids + 1)
         {
           *allocated = *n_pids + n_new_pids + 1;
-          *pids = xrealloc (*pids, sizeof (pid_t) * *allocated);
+          *pids = xrealloc (*pids, حجم (pid_t) * *allocated);
         }
 
-      for (it = strtok_r (buffer, "\n", &saveptr); it; it = strtok_r (NULL, "\n", &saveptr))
+      برائے (it = strtok_r (بفر, "\n", &saveptr); it; it = strtok_r (تہی, "\n", &saveptr))
         {
-          pid_t pid = strtoul (it, NULL, 10);
+          pid_t pid = strtoul (it, تہی, 10);
 
-          if (pid > 0)
+          اگر (pid > 0)
             (*pids)[(*n_pids)++] = pid;
         }
       (*pids)[*n_pids] = 0;
     }
 
-  return 0;
+  واپس 0;
 }
 
 /* A sub-cgroup still to be visited by a walk of the cgroup tree.  */
-struct cgroup_walk_dir_s
+ساخت cgroup_walk_dir_s
 {
-  char *name;
-  size_t depth;
+  حرف *name;
+  size_t گہرائی;
   bool entered;
 };
 
@@ -359,1203 +359,1203 @@ struct cgroup_walk_dir_s
    out of file descriptors on a deep chain of sub-cgroups.  Only the current
    directory is kept open, the sub-cgroups still to visit are queued by name
    and the walk goes back to a parent through "..".  */
-struct cgroup_walk_s
+ساخت cgroup_walk_s
 {
-  int dfd;
-  size_t depth;
-  struct cgroup_walk_dir_s *dirs;
+  صحیح dfd;
+  size_t گہرائی;
+  ساخت cgroup_walk_dir_s *dirs;
   size_t n_dirs;
   size_t allocated;
 };
 
-static void
-cgroup_walk_pop (struct cgroup_walk_s *walk)
+ساکن خالی
+cgroup_walk_نکالو (ساخت cgroup_walk_s *walk)
 {
-  free (walk->dirs[--walk->n_dirs].name);
+  آزاد (walk->dirs[--walk->n_dirs].name);
 }
 
-static void
-cleanup_cgroup_walkp (struct cgroup_walk_s *walk)
+ساکن خالی
+cleanup_cgroup_walkp (ساخت cgroup_walk_s *walk)
 {
-  int saved_errno = errno;
+  صحیح saved_errno = errno;
 
-  while (walk->n_dirs > 0)
-    cgroup_walk_pop (walk);
-  free (walk->dirs);
+  جب (walk->n_dirs > 0)
+    cgroup_walk_نکالو (walk);
+  آزاد (walk->dirs);
   close_and_reset (&walk->dfd);
   errno = saved_errno;
 }
 
-#define cleanup_cgroup_walk __attribute__ ((cleanup (cleanup_cgroup_walkp)))
+#تعریف_کرو cleanup_cgroup_walk __attribute__ ((cleanup (cleanup_cgroup_walkp)))
 
 /* Make DFD the current directory of the walk and queue its sub-directories.
    DFD must be the root of the walk or a child of the current directory, and
    it is owned by the walk afterwards.  On error -1 is returned with errno set.  */
-static int
-cgroup_walk_enter (struct cgroup_walk_s *walk, int dfd)
+ساکن صحیح
+cgroup_walk_enter (ساخت cgroup_walk_s *walk, صحیح dfd)
 {
-  cleanup_close int dfd_clone = -1;
-  cleanup_dir DIR *dir = NULL;
-  struct dirent *de;
+  cleanup_close صحیح dfd_clone = -1;
+  cleanup_dir DIR *dir = تہی;
+  ساخت dirent *de;
 
   close_and_reset (&walk->dfd);
   walk->dfd = dfd;
-  walk->depth++;
+  walk->گہرائی++;
 
   dfd_clone = openat (dfd, ".", O_RDONLY | O_DIRECTORY | O_CLOEXEC);
-  if (UNLIKELY (dfd_clone < 0))
-    return -1;
+  اگر (UNLIKELY (dfd_clone < 0))
+    واپس -1;
 
   dir = fdopendir (dfd_clone);
-  if (UNLIKELY (dir == NULL))
-    return -1;
+  اگر (UNLIKELY (dir == تہی))
+    واپس -1;
   /* fdopendir takes ownership of dfd_clone.  */
   dfd_clone = -1;
 
-  for (de = readdir (dir); de; de = readdir (dir))
+  برائے (de = readdir (dir); de; de = readdir (dir))
     {
-      struct cgroup_walk_dir_s *d;
+      ساخت cgroup_walk_dir_s *d;
 
-      if (strcmp (de->d_name, ".") == 0 || strcmp (de->d_name, "..") == 0)
-        continue;
+      اگر (strcmp (de->d_name, ".") == 0 || strcmp (de->d_name, "..") == 0)
+        جاری;
 
-      if (de->d_type != DT_DIR)
-        continue;
+      اگر (de->d_type != DT_DIR)
+        جاری;
 
-      if (walk->n_dirs == walk->allocated)
+      اگر (walk->n_dirs == walk->allocated)
         {
           walk->allocated = walk->allocated * 2 + 32;
-          walk->dirs = xrealloc (walk->dirs, sizeof (*walk->dirs) * walk->allocated);
+          walk->dirs = xrealloc (walk->dirs, حجم (*walk->dirs) * walk->allocated);
         }
 
       d = &walk->dirs[walk->n_dirs++];
       d->name = xstrdup (de->d_name);
-      d->depth = walk->depth + 1;
+      d->گہرائی = walk->گہرائی + 1;
       d->entered = false;
     }
 
-  return 0;
+  واپس 0;
 }
 
 /* Store in *D the next queued sub-directory, or NULL once there are no more,
    and make its parent the current directory of the walk.  On error -1 is
    returned with errno set.  */
-static int
-cgroup_walk_next (struct cgroup_walk_s *walk, struct cgroup_walk_dir_s **d)
+ساکن صحیح
+cgroup_walk_اگلا (ساخت cgroup_walk_s *walk, ساخت cgroup_walk_dir_s **d)
 {
-  *d = walk->n_dirs > 0 ? &walk->dirs[walk->n_dirs - 1] : NULL;
+  *d = walk->n_dirs > 0 ? &walk->dirs[walk->n_dirs - 1] : تہی;
 
-  while (*d && walk->depth >= (*d)->depth)
+  جب (*d && walk->گہرائی >= (*d)->گہرائی)
     {
-      int parent;
+      صحیح والد_2;
 
-      parent = openat (walk->dfd, "..", O_DIRECTORY | O_PATH | O_CLOEXEC);
-      if (UNLIKELY (parent < 0))
-        return -1;
+      والد_2 = openat (walk->dfd, "..", O_DIRECTORY | O_راستہ | O_CLOEXEC);
+      اگر (UNLIKELY (والد_2 < 0))
+        واپس -1;
 
       close_and_reset (&walk->dfd);
-      walk->dfd = parent;
-      walk->depth--;
+      walk->dfd = والد_2;
+      walk->گہرائی--;
     }
 
-  return 0;
+  واپس 0;
 }
 
-static int
-read_pids_cgroup_file (int dfd, const char *file, bool recurse, pid_t **pids, size_t *n_pids, size_t *allocated, libcrun_error_t *err)
+ساکن صحیح
+read_pids_cgroup_file (صحیح dfd, ثابت حرف *file, bool recurse, pid_t **pids, size_t *n_pids, size_t *allocated, libcrun_error_t *err)
 {
-  cleanup_cgroup_walk struct cgroup_walk_s walk = { .dfd = -1 };
-  int dfd_clone;
-  int ret;
+  cleanup_cgroup_walk ساخت cgroup_walk_s walk = { .dfd = -1 };
+  صحیح dfd_clone;
+  صحیح ret;
 
   ret = read_pids_file (dfd, file, pids, n_pids, allocated, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  if (! recurse)
-    return 0;
+  اگر (! recurse)
+    واپس 0;
 
-  dfd_clone = openat (dfd, ".", O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (dfd_clone < 0))
-    return crun_make_error (err, errno, "open cgroup sub-directory");
+  dfd_clone = openat (dfd, ".", O_DIRECTORY | O_راستہ | O_CLOEXEC);
+  اگر (UNLIKELY (dfd_clone < 0))
+    واپس crun_make_error (err, errno, "open cgroup sub-directory");
 
   ret = cgroup_walk_enter (&walk, dfd_clone);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "open cgroup sub-directory");
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "open cgroup sub-directory");
 
-  for (;;)
+  برائے (;;)
     {
-      struct cgroup_walk_dir_s *d;
-      cleanup_close int nfd = -1;
+      ساخت cgroup_walk_dir_s *d;
+      cleanup_close صحیح nfd = -1;
 
-      ret = cgroup_walk_next (&walk, &d);
-      if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "open parent cgroup directory");
-      if (d == NULL)
-        break;
+      ret = cgroup_walk_اگلا (&walk, &d);
+      اگر (UNLIKELY (ret < 0))
+        واپس crun_make_error (err, errno, "open parent cgroup directory");
+      اگر (d == تہی)
+        توڑو;
 
-      nfd = openat (walk.dfd, d->name, O_DIRECTORY | O_PATH | O_CLOEXEC);
-      if (UNLIKELY (nfd < 0))
+      nfd = openat (walk.dfd, d->name, O_DIRECTORY | O_راستہ | O_CLOEXEC);
+      اگر (UNLIKELY (nfd < 0))
         {
-          int saved_errno = errno;
+          صحیح saved_errno = errno;
 
-          if (saved_errno == ENOENT)
+          اگر (saved_errno == ENOENT)
             {
-              cgroup_walk_pop (&walk);
-              continue;
+              cgroup_walk_نکالو (&walk);
+              جاری;
             }
-          return crun_make_error (err, saved_errno, "open cgroup directory `%s`", d->name);
+          واپس crun_make_error (err, saved_errno, "open cgroup directory `%s`", d->name);
         }
 
-      cgroup_walk_pop (&walk);
+      cgroup_walk_نکالو (&walk);
 
       ret = read_pids_file (nfd, file, pids, n_pids, allocated, err);
-      if (UNLIKELY (ret < 0))
+      اگر (UNLIKELY (ret < 0))
         {
-          int e = crun_error_get_errno (err);
+          صحیح e = crun_error_get_errno (err);
 
           /* Reading `cgroup.procs` of a threaded cgroup fails with
              EOPNOTSUPP.  Its processes are already listed by its
              threaded domain root, which was read before.  A cgroup
              removed meanwhile has nothing left to list.  */
-          if (e != EOPNOTSUPP && e != ENOENT && e != ENODEV)
-            return ret;
+          اگر (e != EOPNOTSUPP && e != ENOENT && e != ENODEV)
+            واپس ret;
           crun_error_release (err);
-          continue;
+          جاری;
         }
 
       ret = cgroup_walk_enter (&walk, nfd);
       nfd = -1;
-      if (UNLIKELY (ret < 0) && errno != ENOENT && errno != ENODEV)
-        return crun_make_error (err, errno, "open cgroup sub-directory");
+      اگر (UNLIKELY (ret < 0) && errno != ENOENT && errno != ENODEV)
+        واپس crun_make_error (err, errno, "open cgroup sub-directory");
     }
 
-  return 0;
+  واپس 0;
 }
 
-static int
-read_pids_cgroup (int dfd, bool recurse, pid_t **pids, size_t *n_pids, size_t *allocated, libcrun_error_t *err)
+ساکن صحیح
+read_pids_cgroup (صحیح dfd, bool recurse, pid_t **pids, size_t *n_pids, size_t *allocated, libcrun_error_t *err)
 {
-  int ret;
+  صحیح ret;
 
   ret = read_pids_cgroup_file (dfd, "cgroup.procs", recurse, pids, n_pids, allocated, err);
-  if (ret < 0 && crun_error_get_errno (err) == EOPNOTSUPP)
+  اگر (ret < 0 && crun_error_get_errno (err) == EOPNOTSUPP)
     {
       /* A threaded cgroup has no `cgroup.procs`, list its threads instead.  */
       crun_error_release (err);
       ret = read_pids_cgroup_file (dfd, "cgroup.threads", recurse, pids, n_pids, allocated, err);
     }
-  return ret;
+  واپس ret;
 }
 
-static int
-rmdir_all_fd (int dfd)
+ساکن صحیح
+rmdir_all_fd (صحیح dfd)
 {
-  cleanup_cgroup_walk struct cgroup_walk_s walk = { .dfd = -1 };
-  int ret;
+  cleanup_cgroup_walk ساخت cgroup_walk_s walk = { .dfd = -1 };
+  صحیح ret;
 
   ret = cgroup_walk_enter (&walk, dfd);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  for (;;)
+  برائے (;;)
     {
-      struct cgroup_walk_dir_s *d;
-      int child_dfd;
+      ساخت cgroup_walk_dir_s *d;
+      صحیح بچہ_dfd;
 
-      ret = cgroup_walk_next (&walk, &d);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      if (d == NULL)
-        break;
+      ret = cgroup_walk_اگلا (&walk, &d);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
+      اگر (d == تہی)
+        توڑو;
 
       ret = unlinkat (walk.dfd, d->name, AT_REMOVEDIR);
-      if (ret == 0 || errno != EBUSY || d->entered)
+      اگر (ret == 0 || errno != EBUSY || d->entered)
         {
-          cgroup_walk_pop (&walk);
-          continue;
+          cgroup_walk_نکالو (&walk);
+          جاری;
         }
 
-      child_dfd = openat (walk.dfd, d->name, O_DIRECTORY | O_CLOEXEC);
-      if (UNLIKELY (child_dfd < 0))
+      بچہ_dfd = openat (walk.dfd, d->name, O_DIRECTORY | O_CLOEXEC);
+      اگر (UNLIKELY (بچہ_dfd < 0))
         {
-          if (errno == ENOENT)
+          اگر (errno == ENOENT)
             {
-              cgroup_walk_pop (&walk);
-              continue;
+              cgroup_walk_نکالو (&walk);
+              جاری;
             }
-          return child_dfd;
+          واپس بچہ_dfd;
         }
 
       /* Keep the directory queued, so that removing it is retried once its
          children are gone.  */
       d->entered = true;
 
-      ret = cgroup_walk_enter (&walk, child_dfd);
-      if (UNLIKELY (ret < 0) && errno != ENOENT && errno != ENODEV)
-        return ret;
+      ret = cgroup_walk_enter (&walk, بچہ_dfd);
+      اگر (UNLIKELY (ret < 0) && errno != ENOENT && errno != ENODEV)
+        واپس ret;
     }
 
-  return 0;
+  واپس 0;
 }
 
-static int
-rmdir_all (const char *path)
+ساکن صحیح
+rmdir_all (ثابت حرف *راستہ)
 {
-  int ret;
-  int dfd = open (path, O_DIRECTORY | O_CLOEXEC);
-  if (UNLIKELY (dfd < 0))
-    return dfd;
+  صحیح ret;
+  صحیح dfd = open (راستہ, O_DIRECTORY | O_CLOEXEC);
+  اگر (UNLIKELY (dfd < 0))
+    واپس dfd;
 
   ret = rmdir_all_fd (dfd);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return rmdir (path);
+  واپس rmdir (راستہ);
 }
 
-static int
-read_pids_from_path (const char *path, bool recurse, bool threads, pid_t **pids, libcrun_error_t *err)
+ساکن صحیح
+read_pids_from_راستہ (ثابت حرف *راستہ, bool recurse, bool دھاگے, pid_t **pids, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
-  cleanup_close int dirfd = -1;
+  cleanup_free حرف *cgroup_راستہ = تہی;
+  cleanup_close صحیح dirfd = -1;
   size_t n_pids, allocated;
-  int mode;
-  int ret;
+  صحیح منوال;
+  صحیح ret;
 
-  if (path == NULL || *path == '\0')
-    return 0;
+  اگر (راستہ == تہی || *راستہ == '\0')
+    واپس 0;
 
-  mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (mode < 0))
-    return mode;
+  منوال = libcrun_get_cgroup_منوال (err);
+  اگر (UNLIKELY (منوال < 0))
+    واپس منوال;
 
-  switch (mode)
+  انتخاب (منوال)
     {
-    case CGROUP_MODE_UNIFIED:
-      ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      break;
+    حالت CGROUP_منوال_UNIFIED:
+      ret = append_paths (&cgroup_راستہ, err, CGROUP_جڑ, راستہ, تہی);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
+      توڑو;
 
-    case CGROUP_MODE_HYBRID:
-    case CGROUP_MODE_LEGACY:
-      ret = append_paths (&cgroup_path, err, CGROUP_ROOT "/memory", path, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      break;
+    حالت CGROUP_منوال_HYBRID:
+    حالت CGROUP_منوال_LEGACY:
+      ret = append_paths (&cgroup_راستہ, err, CGROUP_جڑ "/memory", راستہ, تہی);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
+      توڑو;
 
-    default:
-      return crun_make_error (err, 0, "invalid cgroup mode `%d`", mode);
+    طےشدہ:
+      واپس crun_make_error (err, 0, "invalid cgroup mode `%d`", منوال);
     }
 
-  dirfd = open (cgroup_path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (dirfd < 0)
-    return crun_make_error (err, errno, "open `%s`", cgroup_path);
+  dirfd = open (cgroup_راستہ, O_DIRECTORY | O_راستہ | O_CLOEXEC);
+  اگر (dirfd < 0)
+    واپس crun_make_error (err, errno, "open `%s`", cgroup_راستہ);
 
   n_pids = 0;
   allocated = 0;
 
   /* On cgroup v1 `cgroup.procs` lists the thread group of every task in the
      cgroup, so there is no need to read `tasks` there.  */
-  if (threads && mode == CGROUP_MODE_UNIFIED)
-    return read_pids_cgroup_file (dirfd, "cgroup.threads", recurse, pids, &n_pids, &allocated, err);
+  اگر (دھاگے && منوال == CGROUP_منوال_UNIFIED)
+    واپس read_pids_cgroup_file (dirfd, "cgroup.threads", recurse, pids, &n_pids, &allocated, err);
 
-  return read_pids_cgroup (dirfd, recurse, pids, &n_pids, &allocated, err);
+  واپس read_pids_cgroup (dirfd, recurse, pids, &n_pids, &allocated, err);
 }
 
-int
-libcrun_cgroup_read_pids_from_path (const char *path, bool recurse, pid_t **pids, libcrun_error_t *err)
+صحیح
+libcrun_cgroup_read_pids_from_راستہ (ثابت حرف *راستہ, bool recurse, pid_t **pids, libcrun_error_t *err)
 {
-  return read_pids_from_path (path, recurse, false, pids, err);
+  واپس read_pids_from_راستہ (راستہ, recurse, false, pids, err);
 }
 
 /* same semantic as strtok_r.  */
 bool
-read_proc_cgroup (char *content, char **saveptr, char **id, char **controller_list, char **path)
+read_proc_cgroup (حرف *content, حرف **saveptr, حرف **id, حرف **controller_list, حرف **راستہ)
 {
-  char *it;
+  حرف *it;
 
   it = strtok_r (content, "\n", saveptr);
-  if (it == NULL)
-    return false;
+  اگر (it == تہی)
+    واپس false;
 
-  if (id)
+  اگر (id)
     *id = it;
 
   it = strchr (it, ':');
-  if (it == NULL)
-    return false;
+  اگر (it == تہی)
+    واپس false;
   *it++ = '\0';
 
-  if (controller_list)
+  اگر (controller_list)
     *controller_list = it;
 
   it = strchr (it, ':');
-  if (it == NULL)
-    return false;
+  اگر (it == تہی)
+    واپس false;
   *it++ = '\0';
 
-  if (path)
-    *path = it;
+  اگر (راستہ)
+    *راستہ = it;
 
-  return true;
+  واپس true;
 }
 
-int
-destroy_cgroup_path (const char *path, int mode, libcrun_error_t *err)
+صحیح
+destroy_cgroup_راستہ (ثابت حرف *راستہ, صحیح منوال, libcrun_error_t *err)
 {
   bool repeat = true;
-  int retry_count = 0;
-  const int max_attempts = 500;
-  int ret;
+  صحیح retry_گنتی = 0;
+  ثابت صحیح max_attempts = 500;
+  صحیح ret;
 
   /* Without a path there is nothing to destroy.  Bail out early, since
      append_paths() stops at the first NULL argument and would otherwise
      be left pointing at the cgroup root.  */
-  if (is_empty_string (path))
-    return 0;
+  اگر (is_خالی_خانے_string (راستہ))
+    واپس 0;
 
-  do
+  کرو
     {
       repeat = false;
 
-      if (mode == CGROUP_MODE_UNIFIED)
+      اگر (منوال == CGROUP_منوال_UNIFIED)
         {
-          cleanup_free char *cgroup_path = NULL;
+          cleanup_free حرف *cgroup_راستہ = تہی;
 
-          ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
-          if (UNLIKELY (ret < 0))
-            return ret;
-          ret = rmdir (cgroup_path);
-          if (ret < 0 && errno == EBUSY)
+          ret = append_paths (&cgroup_راستہ, err, CGROUP_جڑ, راستہ, تہی);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
+          ret = rmdir (cgroup_راستہ);
+          اگر (ret < 0 && errno == EBUSY)
             {
-              ret = rmdir_all (cgroup_path);
-              if (ret < 0)
+              ret = rmdir_all (cgroup_راستہ);
+              اگر (ret < 0)
                 {
-                  if (retry_count >= max_attempts)
-                    return crun_make_error (err, errno, "cannot delete path `%s`", cgroup_path);
+                  اگر (retry_گنتی >= max_attempts)
+                    واپس crun_make_error (err, errno, "cannot delete path `%s`", cgroup_راستہ);
 
-                  retry_count++;
+                  retry_گنتی++;
                   repeat = true;
                 }
             }
         }
-      else
+      ورنہ
         {
-          cleanup_free char *content = NULL;
-          size_t content_size;
-          char *controller;
-          char *saveptr;
-          bool has_data;
+          cleanup_free حرف *content = تہی;
+          size_t content_سائز;
+          حرف *controller;
+          حرف *saveptr;
+          bool has_ڈیٹا;
 
-          ret = read_all_file (PROC_SELF_CGROUP, &content, &content_size, err);
-          if (UNLIKELY (ret < 0))
+          ret = read_all_file (PROC_SELF_CGROUP, &content, &content_سائز, err);
+          اگر (UNLIKELY (ret < 0))
             {
-              if (crun_error_get_errno (err) == ENOENT)
+              اگر (crun_error_get_errno (err) == ENOENT)
                 {
                   crun_error_release (err);
-                  return 0;
+                  واپس 0;
                 }
-              return ret;
+              واپس ret;
             }
 
-          for (has_data = read_proc_cgroup (content, &saveptr, NULL, &controller, NULL);
-               has_data;
-               has_data = read_proc_cgroup (NULL, &saveptr, NULL, &controller, NULL))
+          برائے (has_ڈیٹا = read_proc_cgroup (content, &saveptr, تہی, &controller, تہی);
+               has_ڈیٹا;
+               has_ڈیٹا = read_proc_cgroup (تہی, &saveptr, تہی, &controller, تہی))
             {
-              cleanup_free char *cgroup_path = NULL;
-              char *subsystem;
-              if (has_prefix (controller, "name="))
+              cleanup_free حرف *cgroup_راستہ = تہی;
+              حرف *subsystem;
+              اگر (has_سابقہ (controller, "name="))
                 controller += 5;
 
               subsystem = controller[0] == '\0' ? "unified" : controller;
-              if (mode == CGROUP_MODE_LEGACY && strcmp (subsystem, "unified") == 0)
-                continue;
+              اگر (منوال == CGROUP_منوال_LEGACY && strcmp (subsystem, "unified") == 0)
+                جاری;
 
-              ret = append_paths (&cgroup_path, err, CGROUP_ROOT, subsystem, path, NULL);
-              if (UNLIKELY (ret < 0))
-                return ret;
+              ret = append_paths (&cgroup_راستہ, err, CGROUP_جڑ, subsystem, راستہ, تہی);
+              اگر (UNLIKELY (ret < 0))
+                واپس ret;
 
-              ret = rmdir (cgroup_path);
-              if (ret < 0 && errno == EBUSY)
+              ret = rmdir (cgroup_راستہ);
+              اگر (ret < 0 && errno == EBUSY)
                 {
-                  ret = rmdir_all (cgroup_path);
-                  if (ret < 0)
+                  ret = rmdir_all (cgroup_راستہ);
+                  اگر (ret < 0)
                     {
-                      if (retry_count >= max_attempts)
-                        return crun_make_error (err, errno, "cannot destroy subsystem `%s` at path `%s`", subsystem, cgroup_path);
-                      retry_count++;
+                      اگر (retry_گنتی >= max_attempts)
+                        واپس crun_make_error (err, errno, "cannot destroy subsystem `%s` at path `%s`", subsystem, cgroup_راستہ);
+                      retry_گنتی++;
                       repeat = true;
                     }
                 }
             }
         }
 
-      if (repeat)
+      اگر (repeat)
         {
-          struct timespec req = {
+          ساخت timespec req = {
             .tv_sec = 0,
             .tv_nsec = 10000000,
           };
 
-          nanosleep (&req, NULL);
+          nanosleep (&req, تہی);
 
-          ret = cgroup_killall_path (path, SIGKILL, err);
-          if (UNLIKELY (ret < 0))
+          ret = cgroup_killall_راستہ (راستہ, SIGKILL, err);
+          اگر (UNLIKELY (ret < 0))
             crun_error_release (err);
         }
-  } while (repeat);
+  } جب (repeat);
 
-  return 0;
+  واپس 0;
 }
 
-int
-chown_cgroups (const char *path, uid_t uid, gid_t gid, libcrun_error_t *err)
+صحیح
+chown_cgroups (ثابت حرف *راستہ, uid_t uid, gid_t gid, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
-  cleanup_free char *delegate = NULL;
-  cleanup_close int dfd = -1;
-  size_t delegate_size;
-  char *saveptr = NULL;
-  char *name;
-  int ret;
+  cleanup_free حرف *cgroup_راستہ = تہی;
+  cleanup_free حرف *delegate = تہی;
+  cleanup_close صحیح dfd = -1;
+  size_t delegate_سائز;
+  حرف *saveptr = تہی;
+  حرف *name;
+  صحیح ret;
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_راستہ, err, CGROUP_جڑ, راستہ, تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  dfd = open (cgroup_path, O_CLOEXEC | O_PATH);
-  if (UNLIKELY (dfd < 0))
-    return crun_make_error (err, errno, "open `%s`", cgroup_path);
+  dfd = open (cgroup_راستہ, O_CLOEXEC | O_راستہ);
+  اگر (UNLIKELY (dfd < 0))
+    واپس crun_make_error (err, errno, "open `%s`", cgroup_راستہ);
 
-  ret = read_all_file ("/sys/kernel/cgroup/delegate", &delegate, &delegate_size, err);
-  if (UNLIKELY (ret < 0))
+  ret = read_all_file ("/sys/kernel/cgroup/delegate", &delegate, &delegate_سائز, err);
+  اگر (UNLIKELY (ret < 0))
     {
-      if (crun_error_get_errno (err) == ENOENT)
+      اگر (crun_error_get_errno (err) == ENOENT)
         {
           crun_error_release (err);
-          return 0;
+          واپس 0;
         }
-      return ret;
+      واپس ret;
     }
 
-  ret = fchownat (dfd, "", uid, gid, AT_EMPTY_PATH | AT_SYMLINK_NOFOLLOW);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "cannot chown `%s`", cgroup_path);
+  ret = fchownat (dfd, "", uid, gid, AT_خالی_خانے_راستہ | AT_SYMLINK_NOFOLLOW);
+  اگر (UNLIKELY (ret < 0))
+    واپس crun_make_error (err, errno, "cannot chown `%s`", cgroup_راستہ);
 
-  for (name = strtok_r (delegate, "\n", &saveptr); name; name = strtok_r (NULL, "\n", &saveptr))
+  برائے (name = strtok_r (delegate, "\n", &saveptr); name; name = strtok_r (تہی, "\n", &saveptr))
     {
       ret = fchownat (dfd, name, uid, gid, AT_SYMLINK_NOFOLLOW);
-      if (UNLIKELY (ret < 0))
+      اگر (UNLIKELY (ret < 0))
         {
-          if (errno == ENOENT)
-            continue;
+          اگر (errno == ENOENT)
+            جاری;
 
-          return crun_make_error (err, errno, "cannot chown `%s/%s`", cgroup_path, name);
+          واپس crun_make_error (err, errno, "cannot chown `%s/%s`", cgroup_راستہ, name);
         }
     }
 
-  return 0;
+  واپس 0;
 }
 
-static int
-libcrun_cgroup_pause_unpause_with_mode (const char *cgroup_path, int cgroup_mode, const bool pause,
+ساکن صحیح
+libcrun_cgroup_pause_unpause_with_منوال (ثابت حرف *cgroup_راستہ, صحیح cgroup_منوال, ثابت bool pause,
                                         libcrun_error_t *err)
 {
-  cleanup_free char *path = NULL;
-  const char *state = "";
-  int ret;
+  cleanup_free حرف *راستہ = تہی;
+  ثابت حرف *state = "";
+  صحیح ret;
 
-  if (cgroup_path == NULL || cgroup_path[0] == '\0')
-    return crun_make_error (err, 0, "cannot %s the container without a cgroup", pause ? "pause" : "resume");
+  اگر (cgroup_راستہ == تہی || cgroup_راستہ[0] == '\0')
+    واپس crun_make_error (err, 0, "cannot %s the container without a cgroup", pause ? "pause" : "resume");
 
-  if (cgroup_mode == CGROUP_MODE_UNIFIED)
+  اگر (cgroup_منوال == CGROUP_منوال_UNIFIED)
     {
       state = pause ? "1" : "0";
-      ret = append_paths (&path, err, CGROUP_ROOT, cgroup_path, "cgroup.freeze", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&راستہ, err, CGROUP_جڑ, cgroup_راستہ, "cgroup.freeze", تہی);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
-  else
+  ورنہ
     {
       state = pause ? "FROZEN" : "THAWED";
-      ret = append_paths (&path, err, CGROUP_ROOT "/freezer", cgroup_path, "freezer.state", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&راستہ, err, CGROUP_جڑ "/freezer", cgroup_راستہ, "freezer.state", تہی);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  ret = write_cgroup_file (AT_FDCWD, path, state, strlen (state), err);
-  if (ret >= 0)
-    return 0;
-  return ret;
+  ret = write_cgroup_file (AT_FDCWD, راستہ, state, لڑی_لمبائی (state), err);
+  اگر (ret >= 0)
+    واپس 0;
+  واپس ret;
 }
 
-int
-libcrun_cgroup_pause_unpause_path (const char *cgroup_path, const bool pause, libcrun_error_t *err)
+صحیح
+libcrun_cgroup_pause_unpause_راستہ (ثابت حرف *cgroup_راستہ, ثابت bool pause, libcrun_error_t *err)
 {
-  int cgroup_mode;
+  صحیح cgroup_منوال;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_منوال = libcrun_get_cgroup_منوال (err);
+  اگر (UNLIKELY (cgroup_منوال < 0))
+    واپس cgroup_منوال;
 
-  return libcrun_cgroup_pause_unpause_with_mode (cgroup_path, cgroup_mode, pause, err);
+  واپس libcrun_cgroup_pause_unpause_with_منوال (cgroup_راستہ, cgroup_منوال, pause, err);
 }
 
 /* Fail if the cgroup at CGROUP_PATH exists and is frozen: a process in a
    frozen cgroup cannot make any progress, so the container creation would
    hang forever.  */
-int
-libcrun_cgroup_ensure_not_frozen (const char *cgroup_path, libcrun_error_t *err)
+صحیح
+libcrun_cgroup_ensure_not_frozen (ثابت حرف *cgroup_راستہ, libcrun_error_t *err)
 {
-  cleanup_free char *content = NULL;
-  cleanup_free char *path = NULL;
-  const char *frozen;
-  int cgroup_mode;
-  int ret;
+  cleanup_free حرف *content = تہی;
+  cleanup_free حرف *راستہ = تہی;
+  ثابت حرف *frozen;
+  صحیح cgroup_منوال;
+  صحیح ret;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_منوال = libcrun_get_cgroup_منوال (err);
+  اگر (UNLIKELY (cgroup_منوال < 0))
+    واپس cgroup_منوال;
 
-  if (cgroup_mode == CGROUP_MODE_UNIFIED)
+  اگر (cgroup_منوال == CGROUP_منوال_UNIFIED)
     {
       frozen = "1";
-      ret = append_paths (&path, err, CGROUP_ROOT, cgroup_path, "cgroup.freeze", NULL);
+      ret = append_paths (&راستہ, err, CGROUP_جڑ, cgroup_راستہ, "cgroup.freeze", تہی);
     }
-  else
+  ورنہ
     {
       frozen = "FROZEN";
-      ret = append_paths (&path, err, CGROUP_ROOT "/freezer", cgroup_path, "freezer.state", NULL);
+      ret = append_paths (&راستہ, err, CGROUP_جڑ "/freezer", cgroup_راستہ, "freezer.state", تہی);
     }
-  if (UNLIKELY (ret < 0))
-    return ret;
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = read_all_file (path, &content, NULL, err);
-  if (UNLIKELY (ret < 0))
+  ret = read_all_file (راستہ, &content, تہی, err);
+  اگر (UNLIKELY (ret < 0))
     {
       /* Either the cgroup does not exist yet, or there is no freezer.  */
-      if (crun_error_get_errno (err) == ENOENT)
+      اگر (crun_error_get_errno (err) == ENOENT)
         {
           crun_error_release (err);
-          return 0;
+          واپس 0;
         }
-      return ret;
+      واپس ret;
     }
 
-  if (strstr (content, frozen))
-    return crun_make_error (err, 0, "container's cgroup unexpectedly frozen");
+  اگر (لڑی_تلاش (content, frozen))
+    واپس crun_make_error (err, 0, "container's cgroup unexpectedly frozen");
 
-  return 0;
+  واپس 0;
 }
 
-#define CGROUP_KILL_WAIT_SEC 1
+#تعریف_کرو CGROUP_KILL_WAIT_SEC 1
 
 /* Watch cgroup.events of PATH, so that a later wait_cgroup_unpopulated does
    not miss a change.  Return -1 if the watch cannot be set up.  */
-static int
-watch_cgroup_events (const char *path)
+ساکن صحیح
+watch_cgroup_events (ثابت حرف *راستہ)
 {
-  cleanup_free char *events_file = NULL;
-  cleanup_close int fd = -1;
-  libcrun_error_t tmp_err = NULL;
-  int ret;
+  cleanup_free حرف *events_file = تہی;
+  cleanup_close صحیح fd = -1;
+  libcrun_error_t tmp_err = تہی;
+  صحیح ret;
 
-  ret = append_paths (&events_file, &tmp_err, CGROUP_ROOT, path, "cgroup.events", NULL);
-  if (UNLIKELY (ret < 0))
+  ret = append_paths (&events_file, &tmp_err, CGROUP_جڑ, راستہ, "cgroup.events", تہی);
+  اگر (UNLIKELY (ret < 0))
     {
       crun_error_release (&tmp_err);
-      return -1;
+      واپس -1;
     }
 
-  fd = inotify_init1 (IN_CLOEXEC | IN_NONBLOCK);
-  if (UNLIKELY (fd < 0))
-    return -1;
+  fd = inotify_init1 (اندر_CLOEXEC | اندر_NONBLOCK);
+  اگر (UNLIKELY (fd < 0))
+    واپس -1;
 
-  ret = inotify_add_watch (fd, events_file, IN_MODIFY);
-  if (UNLIKELY (ret < 0))
-    return -1;
+  ret = inotify_جوڑو_watch (fd, events_file, اندر_MODIFY);
+  اگر (UNLIKELY (ret < 0))
+    واپس -1;
 
   ret = fd;
   fd = -1;
-  return ret;
+  واپس ret;
 }
 
 /* Wait up to a short timeout for the cgroup to have no processes left.
    Return 1 if the cgroup is not populated anymore, 0 otherwise.  */
-static int
-wait_cgroup_unpopulated (const char *path, int inotify_fd)
+ساکن صحیح
+wait_cgroup_unpopulated (ثابت حرف *راستہ, صحیح inotify_fd)
 {
-  cleanup_free char *events_file = NULL;
-  libcrun_error_t tmp_err = NULL;
-  struct timespec timeout = {
+  cleanup_free حرف *events_file = تہی;
+  libcrun_error_t tmp_err = تہی;
+  ساخت timespec timeout = {
     .tv_sec = CGROUP_KILL_WAIT_SEC,
     .tv_nsec = 0,
   };
-  int ret;
+  صحیح ret;
 
-  ret = append_paths (&events_file, &tmp_err, CGROUP_ROOT, path, "cgroup.events", NULL);
-  if (UNLIKELY (ret < 0))
+  ret = append_paths (&events_file, &tmp_err, CGROUP_جڑ, راستہ, "cgroup.events", تہی);
+  اگر (UNLIKELY (ret < 0))
     {
       crun_error_release (&tmp_err);
-      return 0;
+      واپس 0;
     }
 
-  for (;;)
+  برائے (;;)
     {
-      cleanup_free char *content = NULL;
-      char buf[4096];
-      struct pollfd pfd = { .fd = inotify_fd, .events = POLLIN };
+      cleanup_free حرف *content = تہی;
+      حرف buf[4096];
+      ساخت pollfd pfd = { .fd = inotify_fd, .events = POLLIN };
 
-      ret = read_all_file (events_file, &content, NULL, &tmp_err);
-      if (UNLIKELY (ret < 0))
+      ret = read_all_file (events_file, &content, تہی, &tmp_err);
+      اگر (UNLIKELY (ret < 0))
         {
           crun_error_release (&tmp_err);
-          return 0;
+          واپس 0;
         }
 
-      if (strstr (content, "populated 0"))
-        return 1;
+      اگر (لڑی_تلاش (content, "populated 0"))
+        واپس 1;
 
-      ret = TEMP_FAILURE_RETRY (ppoll (&pfd, 1, &timeout, NULL));
-      if (ret <= 0)
-        return 0;
+      ret = عارضی_FAILURE_RETRY (ppoll (&pfd, 1, &timeout, تہی));
+      اگر (ret <= 0)
+        واپس 0;
 
-      while (read (inotify_fd, buf, sizeof (buf)) > 0)
+      جب (اقرأ (inotify_fd, buf, حجم (buf)) > 0)
         ;
     }
 }
 
-int
-cgroup_killall_path (const char *path, int signal, libcrun_error_t *err)
+صحیح
+cgroup_killall_راستہ (ثابت حرف *راستہ, صحیح اشارہ, libcrun_error_t *err)
 {
   bool frozen = false;
-  cleanup_close int inotify_fd = -1;
-  int ret;
+  cleanup_close صحیح inotify_fd = -1;
+  صحیح ret;
   size_t i;
-  cleanup_free pid_t *pids = NULL;
+  cleanup_free pid_t *pids = تہی;
 
-  if (path == NULL || *path == '\0')
-    return 0;
+  اگر (راستہ == تہی || *راستہ == '\0')
+    واپس 0;
 
   /* If the signal is SIGKILL, try to kill each process using the `cgroup.kill` file.
      The kernel signals the thread group leaders, and that has no effect on a
      process whose leader already exited while other threads are still running.
      If the cgroup is not empty shortly after the write, go on and signal
      whatever is still listed in the cgroup.  */
-  if (signal == SIGKILL)
+  اگر (اشارہ == SIGKILL)
     {
-      cleanup_free char *kill_file = NULL;
+      cleanup_free حرف *kill_file = تہی;
 
-      ret = append_paths (&kill_file, err, CGROUP_ROOT, path, "cgroup.kill", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&kill_file, err, CGROUP_جڑ, راستہ, "cgroup.kill", تہی);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      inotify_fd = watch_cgroup_events (path);
+      inotify_fd = watch_cgroup_events (راستہ);
 
       ret = write_cgroup_file (AT_FDCWD, kill_file, "1", 1, err);
-      if (ret >= 0 && inotify_fd >= 0 && wait_cgroup_unpopulated (path, inotify_fd))
-        return 0;
+      اگر (ret >= 0 && inotify_fd >= 0 && wait_cgroup_unpopulated (راستہ, inotify_fd))
+        واپس 0;
 
-      if (UNLIKELY (ret < 0))
+      اگر (UNLIKELY (ret < 0))
         crun_error_release (err);
     }
 
   /* Freeze the cgroup so that the processes cannot fork while they are being
      killed.  Once frozen, make sure the cgroup is always thawed again on any
      exit path, otherwise the container would be left frozen and unresponsive.  */
-  ret = libcrun_cgroup_pause_unpause_path (path, true, err);
-  if (UNLIKELY (ret < 0))
+  ret = libcrun_cgroup_pause_unpause_راستہ (راستہ, true, err);
+  اگر (UNLIKELY (ret < 0))
     crun_error_release (err);
-  else
+  ورنہ
     frozen = true;
 
   /* On cgroup v2 a process is listed in `cgroup.procs` of the cgroup of its
      leader, and a process whose leader exited is not listed anywhere once it
      is moved to another cgroup.  For SIGKILL enumerate the threads instead,
      kill() accepts any thread ID and always targets the whole process.  */
-  ret = read_pids_from_path (path, true, signal == SIGKILL, &pids, err);
-  if (UNLIKELY (ret < 0))
+  ret = read_pids_from_راستہ (راستہ, true, اشارہ == SIGKILL, &pids, err);
+  اگر (UNLIKELY (ret < 0))
     {
-      if (crun_error_get_errno (err) != ENOENT)
-        goto thaw;
+      اگر (crun_error_get_errno (err) != ENOENT)
+        جاؤ thaw;
 
       /* If the file doesn't exist then the container was already killed.  */
       crun_error_release (err);
     }
 
-  for (i = 0; pids && pids[i]; i++)
+  برائے (i = 0; pids && pids[i]; i++)
     {
-      ret = kill (pids[i], signal);
-      if (UNLIKELY (ret < 0 && errno != ESRCH))
+      ret = kill (pids[i], اشارہ);
+      اگر (UNLIKELY (ret < 0 && errno != ESRCH))
         {
           ret = crun_make_error (err, errno, "kill process `%d`", pids[i]);
-          goto thaw;
+          جاؤ thaw;
         }
     }
 
   ret = 0;
 
 thaw:
-  if (frozen)
+  اگر (frozen)
     {
-      libcrun_error_t thaw_err = NULL;
+      libcrun_error_t thaw_err = تہی;
 
       /* Thawing is best-effort: do not clobber a pending error with a
          thaw failure, but never leave the cgroup frozen.  */
-      if (libcrun_cgroup_pause_unpause_path (path, false, &thaw_err) < 0)
+      اگر (libcrun_cgroup_pause_unpause_راستہ (راستہ, false, &thaw_err) < 0)
         crun_error_release (&thaw_err);
     }
 
-  return ret;
+  واپس ret;
 }
 
-static int
-read_available_controllers (const char *path, libcrun_error_t *err)
+ساکن صحیح
+read_دستیاب_controllers (ثابت حرف *راستہ, libcrun_error_t *err)
 {
-  cleanup_free char *controllers = NULL;
-  cleanup_free char *buf = NULL;
-  char *saveptr = NULL;
-  const char *token;
-  int available = 0;
+  cleanup_free حرف *controllers = تہی;
+  cleanup_free حرف *buf = تہی;
+  حرف *saveptr = تہی;
+  ثابت حرف *token;
+  صحیح دستیاب = 0;
   ssize_t ret;
 
-  ret = append_paths (&controllers, err, CGROUP_ROOT, path, "cgroup.controllers", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&controllers, err, CGROUP_جڑ, راستہ, "cgroup.controllers", تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = read_all_file (controllers, &buf, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file (controllers, &buf, تہی, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  for (token = strtok_r (buf, " \n", &saveptr); token; token = strtok_r (NULL, " \n", &saveptr))
+  برائے (token = strtok_r (buf, " \n", &saveptr); token; token = strtok_r (تہی, " \n", &saveptr))
     {
-      if (strcmp (token, "memory") == 0)
-        available |= CGROUP_MEMORY;
-      else if (strcmp (token, "cpu") == 0)
-        available |= CGROUP_CPU;
-      else if (strcmp (token, "cpuset") == 0)
-        available |= CGROUP_CPUSET;
-      else if (strcmp (token, "hugetlb") == 0)
-        available |= CGROUP_HUGETLB;
-      else if (strcmp (token, "pids") == 0)
-        available |= CGROUP_PIDS;
-      else if (strcmp (token, "io") == 0)
-        available |= CGROUP_IO;
-      else if (strcmp (token, "misc") == 0)
-        available |= CGROUP_MISC;
+      اگر (strcmp (token, "memory") == 0)
+        دستیاب |= CGROUP_حافظہ;
+      ورنہ اگر (strcmp (token, "cpu") == 0)
+        دستیاب |= CGROUP_CPU;
+      ورنہ اگر (strcmp (token, "cpuset") == 0)
+        دستیاب |= CGROUP_CPUSET;
+      ورنہ اگر (strcmp (token, "hugetlb") == 0)
+        دستیاب |= CGROUP_HUGETLB;
+      ورنہ اگر (strcmp (token, "pids") == 0)
+        دستیاب |= CGROUP_PIDS;
+      ورنہ اگر (strcmp (token, "io") == 0)
+        دستیاب |= CGROUP_IO;
+      ورنہ اگر (strcmp (token, "misc") == 0)
+        دستیاب |= CGROUP_MISC;
     }
-  return available;
+  واپس دستیاب;
 }
 
-static int
-write_controller_file (const char *path, int controllers_to_enable, libcrun_error_t *err)
+ساکن صحیح
+write_controller_file (ثابت حرف *راستہ, صحیح controllers_مقصد_enable, libcrun_error_t *err)
 {
-  cleanup_free char *subtree_control = NULL;
-  cleanup_free char *controllers = NULL;
+  cleanup_free حرف *subtree_control = تہی;
+  cleanup_free حرف *controllers = تہی;
   size_t controllers_len = 0;
-  int ret;
+  صحیح ret;
 
   controllers_len = xasprintf (
-      &controllers, "%s %s %s %s %s %s %s", (controllers_to_enable & CGROUP_CPU) ? "+cpu" : "",
-      (controllers_to_enable & CGROUP_IO) ? "+io" : "", (controllers_to_enable & CGROUP_MEMORY) ? "+memory" : "",
-      (controllers_to_enable & CGROUP_PIDS) ? "+pids" : "", (controllers_to_enable & CGROUP_CPUSET) ? "+cpuset" : "",
-      (controllers_to_enable & CGROUP_HUGETLB) ? "+hugetlb" : "",
-      (controllers_to_enable & CGROUP_MISC) ? "+misc" : "");
+      &controllers, "%s %s %s %s %s %s %s", (controllers_مقصد_enable & CGROUP_CPU) ? "+cpu" : "",
+      (controllers_مقصد_enable & CGROUP_IO) ? "+io" : "", (controllers_مقصد_enable & CGROUP_حافظہ) ? "+memory" : "",
+      (controllers_مقصد_enable & CGROUP_PIDS) ? "+pids" : "", (controllers_مقصد_enable & CGROUP_CPUSET) ? "+cpuset" : "",
+      (controllers_مقصد_enable & CGROUP_HUGETLB) ? "+hugetlb" : "",
+      (controllers_مقصد_enable & CGROUP_MISC) ? "+misc" : "");
 
-  ret = append_paths (&subtree_control, err, CGROUP_ROOT, path, "cgroup.subtree_control", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&subtree_control, err, CGROUP_جڑ, راستہ, "cgroup.subtree_control", تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
   ret = write_cgroup_file (AT_FDCWD, subtree_control, controllers, controllers_len, err);
-  if (UNLIKELY (ret < 0))
+  اگر (UNLIKELY (ret < 0))
     {
-      cleanup_free char *controllers_copy = xmalloc (controllers_len + 1);
-      int attempts_left;
-      char *saveptr = NULL;
-      const char *token;
-      int e;
+      cleanup_free حرف *controllers_copy = xmalloc (controllers_len + 1);
+      صحیح attempts_بایاں;
+      حرف *saveptr = تہی;
+      ثابت حرف *token;
+      صحیح e;
 
       e = crun_error_get_errno (err);
-      if (e != EPERM && e != EACCES && e != EBUSY && e != ENOENT && e != EOPNOTSUPP)
-        return crun_error_wrap (err, "enable controllers `%s`", controllers);
+      اگر (e != EPERM && e != EACCES && e != EBUSY && e != ENOENT && e != EOPNOTSUPP)
+        واپس crun_error_wrap (err, "enable controllers `%s`", controllers);
 
       /* ENOENT can mean both that the file doesn't exist or the controller is not present.  */
-      if (e == ENOENT)
+      اگر (e == ENOENT)
         {
-          libcrun_error_t tmp_err = NULL;
-          int exists;
+          libcrun_error_t tmp_err = تہی;
+          صحیح exists;
 
-          exists = crun_path_exists (subtree_control, &tmp_err);
-          if (UNLIKELY (exists < 0))
+          exists = crun_راستہ_exists (subtree_control, &tmp_err);
+          اگر (UNLIKELY (exists < 0))
             {
               crun_error_release (&tmp_err);
-              return ret;
+              واپس ret;
             }
           /* If the file doesn't exist, then return the original ENOENT.  */
-          if (exists == 0)
-            return ret;
+          اگر (exists == 0)
+            واپس ret;
         }
 
       crun_error_release (err);
 
-      if (e == EOPNOTSUPP)
+      اگر (e == EOPNOTSUPP)
         {
-          ret = maybe_make_cgroup_threaded (path, err);
-          if (UNLIKELY (ret < 0))
-            return crun_error_wrap (err, "make cgroup threaded");
+          ret = maybe_make_cgroup_threaded (راستہ, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس crun_error_wrap (err, "make cgroup threaded");
         }
 
       /* It seems the kernel can return EBUSY when a process was moved to a sub-cgroup
          and the controllers are enabled in its parent cgroup.  Retry a few times when
          it happens.  */
-      for (attempts_left = 1000; attempts_left >= 0; attempts_left--)
+      برائے (attempts_بایاں = 1000; attempts_بایاں >= 0; attempts_بایاں--)
         {
-          int controllers_written;
+          صحیح controllers_written;
           bool repeat = false;
 
-          memcpy (controllers_copy, controllers, controllers_len);
+          حافظہ_نقل (controllers_copy, controllers, controllers_len);
           controllers_copy[controllers_len] = '\0';
           controllers_written = 0;
 
           /* Fallback to write each one individually.  */
-          for (token = strtok_r (controllers_copy, " ", &saveptr); token; token = strtok_r (NULL, " ", &saveptr))
+          برائے (token = strtok_r (controllers_copy, " ", &saveptr); token; token = strtok_r (تہی, " ", &saveptr))
             {
-              ret = write_cgroup_file (AT_FDCWD, subtree_control, token, strlen (token), err);
-              if (ret < 0)
+              ret = write_cgroup_file (AT_FDCWD, subtree_control, token, لڑی_لمبائی (token), err);
+              اگر (ret < 0)
                 {
                   e = crun_error_get_errno (err);
                   crun_error_release (err);
 
-                  if (e == EBUSY)
+                  اگر (e == EBUSY)
                     repeat = true;
 
-                  continue;
+                  جاری;
                 }
 
               controllers_written++;
             }
 
-          if (! repeat)
-            break;
+          اگر (! repeat)
+            توڑو;
 
           /* If there was any controller written, just try once more without any delay.  */
-          if (controllers_written > 0 && attempts_left > 2)
+          اگر (controllers_written > 0 && attempts_بایاں > 2)
             {
-              attempts_left = 1;
-              continue;
+              attempts_بایاں = 1;
+              جاری;
             }
 
-          if (attempts_left > 0)
+          اگر (attempts_بایاں > 0)
             {
-              struct timespec delay = {
+              ساخت timespec delay = {
                 .tv_sec = 0,
                 .tv_nsec = 1000000,
               };
-              nanosleep (&delay, NULL);
+              nanosleep (&delay, تہی);
             }
         }
 
       /* Refresh what controllers are available.  */
-      return read_available_controllers (path, err);
+      واپس read_دستیاب_controllers (راستہ, err);
     }
 
   /* All controllers were enabled successfully.  */
-  return controllers_to_enable;
+  واپس controllers_مقصد_enable;
 }
 
-int
-enable_controllers (const char *path, libcrun_error_t *err)
+صحیح
+enable_controllers (ثابت حرف *راستہ, libcrun_error_t *err)
 {
-  cleanup_free char *tmp_path = NULL;
-  char *it;
-  int ret, controllers_to_enable;
+  cleanup_free حرف *tmp_راستہ = تہی;
+  حرف *it;
+  صحیح ret, controllers_مقصد_enable;
 
-  xasprintf (&tmp_path, "%s/", path);
+  xasprintf (&tmp_راستہ, "%s/", راستہ);
 
-  ret = read_available_controllers ("", err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_دستیاب_controllers ("", err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  controllers_to_enable = ret;
+  controllers_مقصد_enable = ret;
 
   /* Enable all possible controllers in the root cgroup.  */
-  ret = write_controller_file ("", controllers_to_enable, err);
-  if (UNLIKELY (ret < 0))
+  ret = write_controller_file ("", controllers_مقصد_enable, err);
+  اگر (UNLIKELY (ret < 0))
     {
       /* Enabling +cpu when there are realtime processes fail with EINVAL.  */
-      if ((controllers_to_enable & CGROUP_CPU) && (crun_error_get_errno (err) == EINVAL))
+      اگر ((controllers_مقصد_enable & CGROUP_CPU) && (crun_error_get_errno (err) == EINVAL))
         {
           crun_error_release (err);
-          controllers_to_enable &= ~CGROUP_CPU;
-          ret = write_controller_file ("", controllers_to_enable, err);
+          controllers_مقصد_enable &= ~CGROUP_CPU;
+          ret = write_controller_file ("", controllers_مقصد_enable, err);
         }
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  for (it = strchr (tmp_path + 1, '/'); it;)
+  برائے (it = strchr (tmp_راستہ + 1, '/'); it;)
     {
-      cleanup_free char *cgroup_path = NULL;
-      char *next_slash = strchr (it + 1, '/');
+      cleanup_free حرف *cgroup_راستہ = تہی;
+      حرف *اگلا_slash = strchr (it + 1, '/');
 
       *it = '\0';
 
-      ret = append_paths (&cgroup_path, err, CGROUP_ROOT, tmp_path, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&cgroup_راستہ, err, CGROUP_جڑ, tmp_راستہ, تہی);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      ret = mkdir (cgroup_path, 0755);
-      if (UNLIKELY (ret < 0 && errno != EEXIST))
-        return crun_make_error (err, errno, "create `%s`", cgroup_path);
+      ret = mkdir (cgroup_راستہ, 0755);
+      اگر (UNLIKELY (ret < 0 && errno != EEXIST))
+        واپس crun_make_error (err, errno, "create `%s`", cgroup_راستہ);
 
-      if (next_slash)
+      اگر (اگلا_slash)
         {
-          ret = write_controller_file (tmp_path, controllers_to_enable, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = write_controller_file (tmp_راستہ, controllers_مقصد_enable, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
         }
 
       *it = '/';
-      it = next_slash;
+      it = اگلا_slash;
     }
-  return 0;
+  واپس 0;
 }
 
-int
-libcrun_move_process_to_cgroup (pid_t pid, pid_t init_pid, const char *path, bool create_if_missing, libcrun_error_t *err)
+صحیح
+libcrun_move_process_مقصد_cgroup (pid_t pid, pid_t init_pid, ثابت حرف *راستہ, bool create_if_missing, libcrun_error_t *err)
 {
-  int cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  صحیح cgroup_منوال = libcrun_get_cgroup_منوال (err);
+  اگر (UNLIKELY (cgroup_منوال < 0))
+    واپس cgroup_منوال;
 
-  if (path == NULL || *path == '\0')
-    return 0;
+  اگر (راستہ == تہی || *راستہ == '\0')
+    واپس 0;
 
-  return enter_cgroup (cgroup_mode, pid, init_pid, path, create_if_missing, err);
+  واپس enter_cgroup (cgroup_منوال, pid, init_pid, راستہ, create_if_missing, err);
 }
 
 /* Move the current process to the cgroups listed in CONTENT, as read from
    /proc/self/cgroup earlier.  Used to undo libcrun_move_process_to_cgroup.  */
-int
-libcrun_move_self_to_cgroups (const char *content, libcrun_error_t *err)
+صحیح
+libcrun_move_self_مقصد_cgroups (ثابت حرف *content, libcrun_error_t *err)
 {
-  cleanup_free char *buf = xstrdup (content);
-  char *saveptr = NULL;
-  char *controller;
-  char *path;
-  int cgroup_mode;
-  bool has_data;
-  int ret;
+  cleanup_free حرف *buf = xstrdup (content);
+  حرف *saveptr = تہی;
+  حرف *controller;
+  حرف *راستہ;
+  صحیح cgroup_منوال;
+  bool has_ڈیٹا;
+  صحیح ret;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_منوال = libcrun_get_cgroup_منوال (err);
+  اگر (UNLIKELY (cgroup_منوال < 0))
+    واپس cgroup_منوال;
 
-  for (has_data = read_proc_cgroup (buf, &saveptr, NULL, &controller, &path);
-       has_data;
-       has_data = read_proc_cgroup (NULL, &saveptr, NULL, &controller, &path))
+  برائے (has_ڈیٹا = read_proc_cgroup (buf, &saveptr, تہی, &controller, &راستہ);
+       has_ڈیٹا;
+       has_ڈیٹا = read_proc_cgroup (تہی, &saveptr, تہی, &controller, &راستہ))
     {
-      const char *subsystem = NULL;
+      ثابت حرف *subsystem = تہی;
 
-      if (cgroup_mode == CGROUP_MODE_UNIFIED)
+      اگر (cgroup_منوال == CGROUP_منوال_UNIFIED)
         {
           /* Ignore named v1 hierarchies, if any.  */
-          if (controller[0] != '\0')
-            continue;
+          اگر (controller[0] != '\0')
+            جاری;
         }
-      else
+      ورنہ
         {
-          cleanup_free char *subsystem_path = NULL;
+          cleanup_free حرف *subsystem_راستہ = تہی;
 
           /* Use the same names as enter_cgroup_v1 does.  */
-          if (has_prefix (controller, "name="))
+          اگر (has_سابقہ (controller, "name="))
             controller += 5;
           subsystem = controller[0] == '\0' ? "unified" : controller;
-          if (strcmp (subsystem, "net_prio,net_cls") == 0)
+          اگر (strcmp (subsystem, "net_prio,net_cls") == 0)
             subsystem = "net_cls,net_prio";
-          if (strcmp (subsystem, "cpuacct,cpu") == 0)
+          اگر (strcmp (subsystem, "cpuacct,cpu") == 0)
             subsystem = "cpu,cpuacct";
 
-          ret = append_paths (&subsystem_path, err, CGROUP_ROOT, subsystem, NULL);
-          if (UNLIKELY (ret < 0))
-            return ret;
-          ret = crun_path_exists (subsystem_path, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
-          if (ret == 0)
-            continue;
+          ret = append_paths (&subsystem_راستہ, err, CGROUP_جڑ, subsystem, تہی);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
+          ret = crun_راستہ_exists (subsystem_راستہ, err);
+          اگر (UNLIKELY (ret < 0))
+            واپس ret;
+          اگر (ret == 0)
+            جاری;
         }
 
-      ret = move_process_to_cgroup (0, subsystem, path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = move_process_مقصد_cgroup (0, subsystem, راستہ, err);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
     }
 
-  return 0;
+  واپس 0;
 }
 
-int
-libcrun_get_cgroup_dirfd (struct libcrun_cgroup_status *status, const char *sub_cgroup, libcrun_error_t *err)
+صحیح
+libcrun_get_cgroup_dirfd (ساخت libcrun_cgroup_حالت *حالت_2, ثابت حرف *sub_cgroup, libcrun_error_t *err)
 {
-  cleanup_free char *path_to_cgroup = NULL;
-  int cgroup_mode;
-  int cgroupdirfd;
-  int ret;
+  cleanup_free حرف *راستہ_مقصد_cgroup = تہی;
+  صحیح cgroup_منوال;
+  صحیح cgroupdirfd;
+  صحیح ret;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (cgroup_mode < 0)
-    return cgroup_mode;
+  cgroup_منوال = libcrun_get_cgroup_منوال (err);
+  اگر (cgroup_منوال < 0)
+    واپس cgroup_منوال;
 
-  if (cgroup_mode != CGROUP_MODE_UNIFIED)
-    return crun_make_error (err, 0, "cgroup dirfd supported only on cgroup v2");
+  اگر (cgroup_منوال != CGROUP_منوال_UNIFIED)
+    واپس crun_make_error (err, 0, "cgroup dirfd supported only on cgroup v2");
 
-  if (status == NULL)
-    return crun_make_error (err, 0, "internal error");
+  اگر (حالت_2 == تہی)
+    واپس crun_make_error (err, 0, "internal error");
 
-  if (is_empty_string (status->path))
-    return crun_make_error (err, 0, "no cgroup path specified");
+  اگر (is_خالی_خانے_string (حالت_2->راستہ))
+    واپس crun_make_error (err, 0, "no cgroup path specified");
 
-  ret = append_paths (&path_to_cgroup, err, CGROUP_ROOT, status->path, sub_cgroup, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&راستہ_مقصد_cgroup, err, CGROUP_جڑ, حالت_2->راستہ, sub_cgroup, تہی);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  cgroupdirfd = open (path_to_cgroup, O_CLOEXEC | O_NOFOLLOW | O_DIRECTORY | O_PATH);
-  if (UNLIKELY (cgroupdirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", path_to_cgroup);
+  cgroupdirfd = open (راستہ_مقصد_cgroup, O_CLOEXEC | O_NOFOLLOW | O_DIRECTORY | O_راستہ);
+  اگر (UNLIKELY (cgroupdirfd < 0))
+    واپس crun_make_error (err, errno, "open `%s`", راستہ_مقصد_cgroup);
 
-  return cgroupdirfd;
+  واپس cgroupdirfd;
 }
 
-int
-libcrun_migrate_all_pids_to_cgroup (pid_t init_pid, char *from, char *to, libcrun_error_t *err)
+صحیح
+libcrun_migrate_all_pids_مقصد_cgroup (pid_t init_pid, حرف *from, حرف *مقصد, libcrun_error_t *err)
 {
-  cleanup_free pid_t *pids = NULL;
-  cleanup_close int child_dfd = -1;
-  int cgroup_mode;
+  cleanup_free pid_t *pids = تہی;
+  cleanup_close صحیح بچہ_dfd = -1;
+  صحیح cgroup_منوال;
   size_t from_len;
   size_t i;
-  int ret;
+  صحیح ret;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (cgroup_mode < 0)
-    return cgroup_mode;
+  cgroup_منوال = libcrun_get_cgroup_منوال (err);
+  اگر (cgroup_منوال < 0)
+    واپس cgroup_منوال;
 
   /* Freeze the source cgroup for a consistent view of its processes while they
      are migrated, but make sure it is always thawed again on error, otherwise
      it would be left frozen.  */
-  ret = libcrun_cgroup_pause_unpause_path (from, true, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_cgroup_pause_unpause_راستہ (from, true, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  ret = libcrun_cgroup_read_pids_from_path (from, true, &pids, err);
-  if (UNLIKELY (ret < 0))
-    goto thaw;
+  ret = libcrun_cgroup_read_pids_from_راستہ (from, true, &pids, err);
+  اگر (UNLIKELY (ret < 0))
+    جاؤ thaw;
 
-  from_len = strlen (from);
+  from_len = لڑی_لمبائی (from);
 
-  for (i = 0; pids && pids[i]; i++)
+  برائے (i = 0; pids && pids[i]; i++)
     {
-      cleanup_free char *pid_path = NULL;
-      cleanup_free char *dest_cgroup = NULL;
+      cleanup_free حرف *pid_راستہ = تہی;
+      cleanup_free حرف *dest_cgroup = تہی;
 
-      ret = libcrun_get_cgroup_process (pids[i], &pid_path, false, err);
-      if (UNLIKELY (ret < 0))
-        goto thaw;
+      ret = libcrun_get_cgroup_process (pids[i], &pid_راستہ, false, err);
+      اگر (UNLIKELY (ret < 0))
+        جاؤ thaw;
 
       /* Make sure the pid is in the cgroup we are migrating from.  */
-      if (! has_prefix (pid_path, from))
+      اگر (! has_سابقہ (pid_راستہ, from))
         {
           ret = crun_make_error (err, 0, "error migrating pid %d.  It is not in the cgroup `%s`", pids[i], from);
-          goto thaw;
+          جاؤ thaw;
         }
 
       /* Build the destination cgroup path, keeping the same hierarchy.  */
-      xasprintf (&dest_cgroup, "%s%s", to, pid_path + from_len);
+      xasprintf (&dest_cgroup, "%s%s", مقصد, pid_راستہ + from_len);
 
-      ret = enter_cgroup (cgroup_mode, pids[i], init_pid, dest_cgroup, false, err);
-      if (UNLIKELY (ret < 0))
-        goto thaw;
+      ret = enter_cgroup (cgroup_منوال, pids[i], init_pid, dest_cgroup, false, err);
+      اگر (UNLIKELY (ret < 0))
+        جاؤ thaw;
     }
 
   ret = 0;
 
 thaw:
-  if (UNLIKELY (ret < 0))
+  اگر (UNLIKELY (ret < 0))
     {
-      libcrun_error_t thaw_err = NULL;
+      libcrun_error_t thaw_err = تہی;
 
       /* Best-effort thaw: keep the original error but never leave the cgroup frozen.  */
-      if (libcrun_cgroup_pause_unpause_path (from, false, &thaw_err) < 0)
+      اگر (libcrun_cgroup_pause_unpause_راستہ (from, false, &thaw_err) < 0)
         crun_error_release (&thaw_err);
-      return ret;
+      واپس ret;
     }
 
-  ret = libcrun_cgroup_pause_unpause_path (from, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_cgroup_pause_unpause_راستہ (from, false, err);
+  اگر (UNLIKELY (ret < 0))
+    واپس ret;
 
-  return destroy_cgroup_path (from, cgroup_mode, err);
+  واپس destroy_cgroup_راستہ (from, cgroup_منوال, err);
 }
 
-int
-get_cgroup_dirfd_path (int dirfd, char **path, libcrun_error_t *err)
+صحیح
+get_cgroup_dirfd_راستہ (صحیح dirfd, حرف **راستہ, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
-  proc_fd_path_t fd_path;
+  cleanup_free حرف *cgroup_راستہ = تہی;
+  proc_fd_راستہ_t fd_راستہ;
   ssize_t len;
 
-  get_proc_self_fd_path (fd_path, dirfd);
+  get_proc_self_fd_راستہ (fd_راستہ, dirfd);
 
-  len = safe_readlinkat (AT_FDCWD, fd_path, &cgroup_path, 0, err);
-  if (UNLIKELY (len < 0))
-    return len;
+  len = محفوظ_readlinkat (AT_FDCWD, fd_راستہ, &cgroup_راستہ, 0, err);
+  اگر (UNLIKELY (len < 0))
+    واپس len;
 
-  if (has_prefix (cgroup_path, CGROUP_ROOT))
+  اگر (has_سابقہ (cgroup_راستہ, CGROUP_جڑ))
     {
-      *path = xstrdup (cgroup_path + strlen (CGROUP_ROOT));
-      return 0;
+      *راستہ = xstrdup (cgroup_راستہ + لڑی_لمبائی (CGROUP_جڑ));
+      واپس 0;
     }
-  return crun_make_error (err, 0, "invalid cgroup path `%s`", cgroup_path);
+  واپس crun_make_error (err, 0, "invalid cgroup path `%s`", cgroup_راستہ);
 }
 
 /* Parse a cpu.max value: "QUOTA [PERIOD]", where QUOTA is either a
    number or "max" (returned as -1).  */
-int
-parse_cpu_max (const char *value, int64_t *quota, uint64_t *period, bool *has_period, libcrun_error_t *err)
+صحیح
+parse_cpu_max (ثابت حرف *قدر, int64_t *quota, uint64_t *period, bool *has_period, libcrun_error_t *err)
 {
-  const char *it = value;
-  char *endptr = NULL;
+  ثابت حرف *it = قدر;
+  حرف *endptr = تہی;
 
-  while (*it == ' ')
+  جب (*it == ' ')
     it++;
 
   errno = 0;
-  if (has_prefix (it, "max"))
+  اگر (has_سابقہ (it, "max"))
     {
       *quota = -1;
-      endptr = (char *) it + 3;
+      endptr = (حرف *) it + 3;
     }
-  else
+  ورنہ
     {
       *quota = strtoll (it, &endptr, 10);
-      if (UNLIKELY (errno != 0 || endptr == it || *quota <= 0))
-        return crun_make_error (err, 0, "invalid value for `cpu.max`: `%s`", value);
+      اگر (UNLIKELY (errno != 0 || endptr == it || *quota <= 0))
+        واپس crun_make_error (err, 0, "invalid value for `cpu.max`: `%s`", قدر);
     }
 
   it = endptr;
-  while (*it == ' ')
+  جب (*it == ' ')
     it++;
 
   *has_period = false;
-  if (*it && *it != '\n')
+  اگر (*it && *it != '\n')
     {
       errno = 0;
       *period = strtoull (it, &endptr, 10);
-      if (UNLIKELY (errno != 0 || endptr == it || (*endptr && *endptr != '\n')))
-        return crun_make_error (err, 0, "invalid value for `cpu.max`: `%s`", value);
+      اگر (UNLIKELY (errno != 0 || endptr == it || (*endptr && *endptr != '\n')))
+        واپس crun_make_error (err, 0, "invalid value for `cpu.max`: `%s`", قدر);
       *has_period = true;
     }
 
-  return 0;
+  واپس 0;
 }

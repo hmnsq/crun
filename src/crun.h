@@ -15,33 +15,33 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CRUN_CLI_H
-#define CRUN_CLI_H
+#اگر_غیر_تعریف_شدہ CRUN_CLI_H
+#تعریف_کرو CRUN_CLI_H
 
-#include <stdbool.h>
-#include <libcrun/libcrun.h>
-#include "crun_utils.h"
+#شامل <stdbool.h>
+#شامل <libcrun/libcrun.h>
+#شامل "crun_utils.h"
 
-struct crun_global_arguments
+ساخت crun_global_arguments
 {
-  char *root;
-  char *log;
-  char *log_format;
-  const char *handler;
+  حرف *جڑ;
+  حرف *لوگارتھم;
+  حرف *log_format;
+  ثابت حرف *handler;
 
-  int argc;
-  int verbosity;
-  char **argv;
+  صحیح argc;
+  صحیح verbosity;
+  حرف **argv;
 
   bool command;
   bool option_systemd_cgroup;
   bool option_force_no_cgroup;
 };
 
-char *argp_mandatory_argument (char *arg, struct argp_state *state);
-int parse_id_or_fail (const char *str, char **endptr, const char *kind);
-int init_libcrun_context (libcrun_context_t *con, const char *id, struct crun_global_arguments *glob,
+حرف *argp_mandatory_دلیل (حرف *arg, ساخت argp_state *state);
+صحیح parse_id_or_fail (ثابت حرف *str, حرف **endptr, ثابت حرف *قسم);
+صحیح init_libcrun_context (libcrun_context_t *con, ثابت حرف *id, ساخت crun_global_arguments *glob,
                           libcrun_error_t *err);
-libcrun_context_t *new_libcrun_context (struct crun_global_arguments *glob);
-void crun_assert_n_args (int n, int min, int max);
-#endif
+libcrun_context_t *new_libcrun_context (ساخت crun_global_arguments *glob);
+خالی crun_assert_n_دلائل (صحیح n, صحیح min, صحیح max);
+#اگر_ختم

@@ -15,352 +15,352 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define _GNU_SOURCE
+#تعریف_کرو GNU_ماخذ
 
-#include <config.h>
-#include "custom-handler.h"
-#include "container.h"
-#include "utils.h"
-#include "linux.h"
-#include <unistd.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <sched.h>
+#شامل <config.h>
+#شامل "custom-handler.h"
+#شامل "container.h"
+#شامل "utils.h"
+#شامل "linux.h"
+#شامل <unistd.h>
+#شامل <sys/stat.h>
+#شامل <errno.h>
+#شامل <sys/types.h>
+#شامل <fcntl.h>
+#شامل <sched.h>
 
-#ifdef HAVE_DLOPEN
+#اگر_تعریف_شدہ HAVE_DLOPEN
 #  include <dlfcn.h>
-#endif
+#اگر_ختم
 
-#if HAVE_DLOPEN && HAVE_LIBKRUN
-extern struct custom_handler_s handler_libkrun;
-#endif
-#if HAVE_DLOPEN && HAVE_WASMTIME
-extern struct custom_handler_s handler_wasmtime;
-#endif
-#if HAVE_DLOPEN && HAVE_WASMEDGE
-extern struct custom_handler_s handler_wasmedge;
-#endif
-#if HAVE_DLOPEN && HAVE_WASMER
-extern struct custom_handler_s handler_wasmer;
-#endif
-#if HAVE_DLOPEN && HAVE_WAMR
-extern struct custom_handler_s handler_wamr;
-#endif
-#if HAVE_DLOPEN && HAVE_MONO
-extern struct custom_handler_s handler_mono;
-#endif
-#if HAVE_DLOPEN && HAVE_SPIN
-extern struct custom_handler_s handler_spin;
-#endif
+#اگر HAVE_DLOPEN && HAVE_LIBKRUN
+خارجی ساخت custom_handler_s handler_libkrun;
+#اگر_ختم
+#اگر HAVE_DLOPEN && HAVE_WASMTIME
+خارجی ساخت custom_handler_s handler_wasmtime;
+#اگر_ختم
+#اگر HAVE_DLOPEN && HAVE_WASMEDGE
+خارجی ساخت custom_handler_s handler_wasmedge;
+#اگر_ختم
+#اگر HAVE_DLOPEN && HAVE_WASMER
+خارجی ساخت custom_handler_s handler_wasmer;
+#اگر_ختم
+#اگر HAVE_DLOPEN && HAVE_WAMR
+خارجی ساخت custom_handler_s handler_wamr;
+#اگر_ختم
+#اگر HAVE_DLOPEN && HAVE_MONO
+خارجی ساخت custom_handler_s handler_mono;
+#اگر_ختم
+#اگر HAVE_DLOPEN && HAVE_SPIN
+خارجی ساخت custom_handler_s handler_spin;
+#اگر_ختم
 
-static struct custom_handler_s *static_handlers[] = {
-#if HAVE_DLOPEN && HAVE_LIBKRUN
+ساکن ساخت custom_handler_s *static_handlers[] = {
+#اگر HAVE_DLOPEN && HAVE_LIBKRUN
   &handler_libkrun,
-#endif
-#if HAVE_DLOPEN && HAVE_WASMEDGE
+#اگر_ختم
+#اگر HAVE_DLOPEN && HAVE_WASMEDGE
   &handler_wasmedge,
-#endif
-#if HAVE_DLOPEN && HAVE_WASMER
+#اگر_ختم
+#اگر HAVE_DLOPEN && HAVE_WASMER
   &handler_wasmer,
-#endif
-#if HAVE_DLOPEN && HAVE_WASMTIME
+#اگر_ختم
+#اگر HAVE_DLOPEN && HAVE_WASMTIME
   &handler_wasmtime,
-#endif
-#if HAVE_DLOPEN && HAVE_WAMR
+#اگر_ختم
+#اگر HAVE_DLOPEN && HAVE_WAMR
   &handler_wamr,
-#endif
-#if HAVE_DLOPEN && HAVE_MONO
+#اگر_ختم
+#اگر HAVE_DLOPEN && HAVE_MONO
   &handler_mono,
-#endif
-#if HAVE_DLOPEN && HAVE_SPIN
+#اگر_ختم
+#اگر HAVE_DLOPEN && HAVE_SPIN
   &handler_spin,
-#endif
-  NULL,
+#اگر_ختم
+  تہی,
 };
 
-struct custom_handler_manager_s
+ساخت custom_handler_manager_s
 {
-  struct custom_handler_s **handlers;
-  void **handles;
+  ساخت custom_handler_s **handlers;
+  خالی **handles;
   size_t handlers_len;
 };
 
-struct custom_handler_manager_s *
-libcrun_handler_manager_create (libcrun_error_t *err arg_unused)
+ساخت custom_handler_manager_s *
+libcrun_handler_manager_create (libcrun_error_t *err arg_غیر_مستعمل)
 {
-  struct custom_handler_s **handlers = NULL;
-  void **handles = NULL;
-  struct custom_handler_manager_s *m;
+  ساخت custom_handler_s **handlers = تہی;
+  خالی **handles = تہی;
+  ساخت custom_handler_manager_s *m;
   size_t i, handlers_len;
 
   /* Count the static handlers.  */
-  for (handlers_len = 0; static_handlers[handlers_len]; handlers_len++)
+  برائے (handlers_len = 0; static_handlers[handlers_len]; handlers_len++)
     ;
 
-  if (handlers_len)
+  اگر (handlers_len)
     {
-      handlers = xmalloc (sizeof (struct custom_handler_s *) * handlers_len);
-      handles = xmalloc0 (sizeof (void *) * handlers_len);
+      handlers = xmalloc (حجم (ساخت custom_handler_s *) * handlers_len);
+      handles = xmalloc0 (حجم (خالی *) * handlers_len);
     }
 
-  for (i = 0; i < handlers_len; i++)
+  برائے (i = 0; i < handlers_len; i++)
     handlers[i] = static_handlers[i];
 
-  m = xmalloc0 (sizeof (struct custom_handler_manager_s));
+  m = xmalloc0 (حجم (ساخت custom_handler_manager_s));
   m->handlers = handlers;
   m->handles = handles;
   m->handlers_len = handlers_len;
 
-  return m;
+  واپس m;
 }
 
-void
-handler_manager_free (struct custom_handler_manager_s *manager)
+خالی
+handler_manager_free (ساخت custom_handler_manager_s *manager)
 {
   size_t i;
 
-  if (manager == NULL)
-    return;
+  اگر (manager == تہی)
+    واپس;
 
-  for (i = 0; i < manager->handlers_len; i++)
+  برائے (i = 0; i < manager->handlers_len; i++)
     {
-#ifdef HAVE_DLOPEN
-      if (manager->handles[i])
+#اگر_تعریف_شدہ HAVE_DLOPEN
+      اگر (manager->handles[i])
         dlclose (manager->handles[i]);
-#endif
+#اگر_ختم
     }
-  free (manager->handlers);
-  free (manager->handles);
-  free (manager);
+  آزاد (manager->handlers);
+  آزاد (manager->handles);
+  آزاد (manager);
 }
 
-#ifdef HAVE_DLOPEN
-static int
-handler_manager_add_so (struct custom_handler_manager_s *manager, void *handle, libcrun_error_t *err)
+#اگر_تعریف_شدہ HAVE_DLOPEN
+ساکن صحیح
+handler_manager_جوڑو_so (ساخت custom_handler_manager_s *manager, خالی *handle, libcrun_error_t *err)
 {
-  struct custom_handler_s *h = NULL;
-  run_oci_get_handler_cb cb;
+  ساخت custom_handler_s *h = تہی;
+  تسلسل_oci_get_handler_cb cb;
 
-  cb = (run_oci_get_handler_cb) dlsym (handle, "run_oci_handler_get_handler");
-  if (UNLIKELY (cb == NULL))
-    return crun_make_error (err, 0, "cannot find symbol `run_oci_handler_get_handler`");
+  cb = (تسلسل_oci_get_handler_cb) dlsym (handle, "run_oci_handler_get_handler");
+  اگر (UNLIKELY (cb == تہی))
+    واپس crun_make_error (err, 0, "cannot find symbol `run_oci_handler_get_handler`");
 
   h = cb ();
-  if (UNLIKELY (h == NULL))
-    return crun_make_error (err, 0, "the callback `run_oci_handler_get_handler` didn't return a handler");
+  اگر (UNLIKELY (h == تہی))
+    واپس crun_make_error (err, 0, "the callback `run_oci_handler_get_handler` didn't return a handler");
 
-  manager->handlers = xrealloc (manager->handlers, sizeof (struct custom_handler_s *) * (manager->handlers_len + 1));
-  manager->handles = xrealloc (manager->handles, sizeof (void *) * (manager->handlers_len + 1));
+  manager->handlers = xrealloc (manager->handlers, حجم (ساخت custom_handler_s *) * (manager->handlers_len + 1));
+  manager->handles = xrealloc (manager->handles, حجم (خالی *) * (manager->handlers_len + 1));
 
   manager->handlers[manager->handlers_len] = h;
   manager->handles[manager->handlers_len] = handle;
   manager->handlers_len++;
-  return 0;
+  واپس 0;
 }
-#endif
+#اگر_ختم
 
-int
-libcrun_handler_manager_load_directory (struct custom_handler_manager_s *manager, const char *path, libcrun_error_t *err)
+صحیح
+libcrun_handler_manager_بھرو_directory (ساخت custom_handler_manager_s *manager, ثابت حرف *راستہ, libcrun_error_t *err)
 {
-#ifdef HAVE_DLOPEN
-  cleanup_dir DIR *dir = NULL;
-  struct dirent *next;
+#اگر_تعریف_شدہ HAVE_DLOPEN
+  cleanup_dir DIR *dir = تہی;
+  ساخت dirent *اگلا;
 
-  dir = opendir (path);
-  if (UNLIKELY (dir == NULL))
-    return crun_make_error (err, errno, "cannot opendir `%s`", path);
+  dir = opendir (راستہ);
+  اگر (UNLIKELY (dir == تہی))
+    واپس crun_make_error (err, errno, "cannot opendir `%s`", راستہ);
 
-  for (next = readdir (dir); next; next = readdir (dir))
+  برائے (اگلا = readdir (dir); اگلا; اگلا = readdir (dir))
     {
-      cleanup_free char *fpath = NULL;
-      const char *name;
-      void *handle;
-      int ret;
+      cleanup_free حرف *fpath = تہی;
+      ثابت حرف *name;
+      خالی *handle;
+      صحیح ret;
 
-      name = next->d_name;
-      if (name[0] == '.')
-        continue;
+      name = اگلا->d_name;
+      اگر (name[0] == '.')
+        جاری;
 
-      ret = append_paths (&fpath, err, path, name, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&fpath, err, راستہ, name, تہی);
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
       handle = dlopen (fpath, RTLD_NOW);
-      if (UNLIKELY (handle == NULL))
-        return crun_make_error (err, 0, "cannot load `%s`: `%s`", fpath, dlerror ());
+      اگر (UNLIKELY (handle == تہی))
+        واپس crun_make_error (err, 0, "cannot load `%s`: `%s`", fpath, dlerror ());
 
-      ret = handler_manager_add_so (manager, handle, err);
-      if (UNLIKELY (ret < 0))
+      ret = handler_manager_جوڑو_so (manager, handle, err);
+      اگر (UNLIKELY (ret < 0))
         {
           dlclose (handle);
-          return ret;
+          واپس ret;
         }
     }
-  return 0;
-#else
-  (void) manager;
-  (void) path;
-  return crun_make_error (err, ENOTSUP, "dlopen not available");
-#endif
+  واپس 0;
+#ورنہ
+  (خالی) manager;
+  (خالی) راستہ;
+  واپس crun_make_error (err, ENOTSUP, "dlopen not available");
+#اگر_ختم
 }
 
-struct custom_handler_s *
-handler_by_name (struct custom_handler_manager_s *manager, const char *name)
+ساخت custom_handler_s *
+handler_by_name (ساخت custom_handler_manager_s *manager, ثابت حرف *name)
 {
   size_t i;
 
-  for (i = 0; i < manager->handlers_len; i++)
+  برائے (i = 0; i < manager->handlers_len; i++)
     {
-      if (strcmp (manager->handlers[i]->name, name) == 0)
-        return manager->handlers[i];
-      if (manager->handlers[i]->alias && strcmp (manager->handlers[i]->alias, name) == 0)
-        return manager->handlers[i];
+      اگر (strcmp (manager->handlers[i]->name, name) == 0)
+        واپس manager->handlers[i];
+      اگر (manager->handlers[i]->alias && strcmp (manager->handlers[i]->alias, name) == 0)
+        واپس manager->handlers[i];
     }
-  return NULL;
+  واپس تہی;
 }
 
-void
-libcrun_handler_manager_print_feature_tags (struct custom_handler_manager_s *manager, FILE *out)
+خالی
+libcrun_handler_manager_print_feature_لیبل_فہرست (ساخت custom_handler_manager_s *manager, FILE *برآمد)
 {
   size_t i;
 
-  for (i = 0; i < manager->handlers_len; i++)
-    if (manager->handlers[i]->feature_string)
-      fprintf (out, "+%s ", manager->handlers[i]->feature_string);
+  برائے (i = 0; i < manager->handlers_len; i++)
+    اگر (manager->handlers[i]->feature_string)
+      fprintf (برآمد, "+%s ", manager->handlers[i]->feature_string);
 }
 
-char **
-libcrun_context_get_handler_feature_tags (libcrun_context_t *ctx, libcrun_error_t *err arg_unused)
+حرف **
+libcrun_context_get_handler_feature_لیبل_فہرست (libcrun_context_t *ctx, libcrun_error_t *err arg_غیر_مستعمل)
 {
-  struct custom_handler_manager_s *manager;
-  char **out;
+  ساخت custom_handler_manager_s *manager;
+  حرف **برآمد;
   size_t i, n = 0;
 
-  if (ctx == NULL || ctx->handler_manager == NULL)
-    return NULL;
+  اگر (ctx == تہی || ctx->handler_manager == تہی)
+    واپس تہی;
 
   manager = ctx->handler_manager;
 
-  for (i = 0; i < manager->handlers_len; i++)
-    if (manager->handlers[i]->feature_string)
+  برائے (i = 0; i < manager->handlers_len; i++)
+    اگر (manager->handlers[i]->feature_string)
       n++;
 
-  if (n == 0)
-    return NULL;
+  اگر (n == 0)
+    واپس تہی;
 
-  out = xmalloc0 ((n + 1) * sizeof (char *));
+  برآمد = xmalloc0 ((n + 1) * حجم (حرف *));
   n = 0;
-  for (i = 0; i < manager->handlers_len; i++)
-    if (manager->handlers[i]->feature_string)
-      out[n++] = xstrdup (manager->handlers[i]->feature_string);
+  برائے (i = 0; i < manager->handlers_len; i++)
+    اگر (manager->handlers[i]->feature_string)
+      برآمد[n++] = xstrdup (manager->handlers[i]->feature_string);
 
-  return out;
+  واپس برآمد;
 }
 
-static inline struct custom_handler_instance_s *
-make_custom_handler_instance_s (struct custom_handler_s *vtable)
+ساکن اندرونی ساخت custom_handler_instance_s *
+make_custom_handler_instance_s (ساخت custom_handler_s *vtable)
 {
-  struct custom_handler_instance_s *ret = xmalloc0 (sizeof (struct custom_handler_instance_s));
+  ساخت custom_handler_instance_s *ret = xmalloc0 (حجم (ساخت custom_handler_instance_s));
 
   ret->vtable = vtable;
-  ret->cookie = NULL;
+  ret->cookie = تہی;
 
-  return ret;
+  واپس ret;
 }
 
-static int
-find_handler_for_container (struct custom_handler_manager_s *manager,
+ساکن صحیح
+ڈھونڈو_handler_for_container (ساخت custom_handler_manager_s *manager,
                             libcrun_container_t *container,
-                            struct custom_handler_instance_s **out,
+                            ساخت custom_handler_instance_s **برآمد,
                             libcrun_error_t *err)
 {
   size_t i;
 
-  memset (out, 0, sizeof (*out));
+  memset (برآمد, 0, حجم (*برآمد));
 
-  for (i = 0; i < manager->handlers_len; i++)
+  برائے (i = 0; i < manager->handlers_len; i++)
     {
-      int ret;
+      صحیح ret;
 
-      if (manager->handlers[i]->can_handle_container == NULL)
-        continue;
+      اگر (manager->handlers[i]->can_handle_container == تہی)
+        جاری;
 
       ret = manager->handlers[i]->can_handle_container (container, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      اگر (UNLIKELY (ret < 0))
+        واپس ret;
 
-      if (ret)
+      اگر (ret)
         {
-          *out = make_custom_handler_instance_s (manager->handlers[i]);
-          if ((*out)->vtable->load)
-            return (*out)->vtable->load (&((*out)->cookie), err);
+          *برآمد = make_custom_handler_instance_s (manager->handlers[i]);
+          اگر ((*برآمد)->vtable->بھرو)
+            واپس (*برآمد)->vtable->بھرو (&((*برآمد)->cookie), err);
 
-          return 0;
+          واپس 0;
         }
     }
 
-  return 0;
+  واپس 0;
 }
 
-int
-libcrun_configure_handler (struct custom_handler_manager_s *manager,
+صحیح
+libcrun_configure_handler (ساخت custom_handler_manager_s *manager,
                            libcrun_context_t *context,
                            libcrun_container_t *container,
-                           struct custom_handler_instance_s **out,
+                           ساخت custom_handler_instance_s **برآمد,
                            libcrun_error_t *err)
 {
-  const char *explicit_handler;
-  const char *annotation;
-  int ret;
+  ثابت حرف *explicit_handler;
+  ثابت حرف *annotation;
+  صحیح ret;
 
-  *out = NULL;
+  *برآمد = تہی;
 
   // Kubernetes sandbox containers must be executed as regular process
   // Example sandbox container can contain pause process
   // See: https://github.com/containers/crun/issues/798
   // before invoking handler check if this is not a kubernetes sandbox
-  annotation = find_annotation (container, "io.kubernetes.cri.container-type");
-  if (annotation && (strcmp (annotation, "sandbox") == 0))
-    return 0;
+  annotation = ڈھونڈو_annotation (container, "io.kubernetes.cri.container-type");
+  اگر (annotation && (strcmp (annotation, "sandbox") == 0))
+    واپس 0;
 
-  annotation = find_annotation (container, "run.oci.handler");
+  annotation = ڈھونڈو_annotation (container, "run.oci.handler");
 
   /* Fail with EACCESS if global handler is already configured and there was an attempt to override it via spec.  */
-  if (context->handler != NULL && annotation != NULL)
-    return crun_make_error (err, EACCES, "invalid attempt to override already configured global handler: `%s`", context->handler);
+  اگر (context->handler != تہی && annotation != تہی)
+    واپس crun_make_error (err, EACCES, "invalid attempt to override already configured global handler: `%s`", context->handler);
 
   explicit_handler = context->handler ? context->handler : annotation;
 
   /* If an explicit handler was requested, use it.  */
-  if (explicit_handler)
+  اگر (explicit_handler)
     {
-      struct custom_handler_s *h;
+      ساخت custom_handler_s *h;
 
-      if (manager == NULL)
-        return crun_make_error (err, 0, "handler requested but no manager configured: `%s`", explicit_handler);
+      اگر (manager == تہی)
+        واپس crun_make_error (err, 0, "handler requested but no manager configured: `%s`", explicit_handler);
 
       h = handler_by_name (manager, explicit_handler);
-      if (h)
+      اگر (h)
         {
-          *out = make_custom_handler_instance_s (h);
-          if ((*out)->vtable->load)
-            ret = (*out)->vtable->load (&((*out)->cookie), err);
-          else
+          *برآمد = make_custom_handler_instance_s (h);
+          اگر ((*برآمد)->vtable->بھرو)
+            ret = (*برآمد)->vtable->بھرو (&((*برآمد)->cookie), err);
+          ورنہ
             ret = 0;
-          goto out;
+          جاؤ برآمد;
         }
     }
 
-  if (manager == NULL)
-    return 0;
+  اگر (manager == تہی)
+    واپس 0;
 
-  ret = find_handler_for_container (manager, container, out, err);
+  ret = ڈھونڈو_handler_for_container (manager, container, برآمد, err);
 
-out:
-  if (ret == 0 && *out != NULL && container->context != NULL && ! (*out)->vtable->supports_open_tree_namespace)
-    container->context->no_open_tree_namespace = true;
+برآمد:
+  اگر (ret == 0 && *برآمد != تہی && container->context != تہی && ! (*برآمد)->vtable->supports_open_درخت_namespace)
+    container->context->no_open_درخت_namespace = true;
 
-  return ret;
+  واپس ret;
 }
