@@ -18,8 +18,8 @@
 #ifndef UPDATE_H
 #define UPDATE_H
 
-#include "crun.h"
+#अन्तर्भाव "crun.h"
 
-int crun_command_update (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err);
+पूर्णांक crun_command_update (संरचना crun_global_arguments *global_args, पूर्णांक argc, अक्षर **argv, libcrun_error_t *err);
 
 #endif

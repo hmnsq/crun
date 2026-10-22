@@ -23,90 +23,90 @@
    non-public headers).  The binary is a pure consumer of the public
    <libcrun.h> API; everything here is either libc or a trivial inline.  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
+#अन्तर्भाव <stdlib.h>
+#अन्तर्भाव <stdio.h>
+#अन्तर्भाव <string.h>
+#अन्तर्भाव <unistd.h>
 
 #ifdef __GNUC__
 #  define LIKELY(x) __builtin_expect ((x), 1)
 #  define UNLIKELY(x) __builtin_expect ((x), 0)
 #  define arg_unused __attribute__ ((unused))
-#else
+#अन्यथा
 #  define LIKELY(x) (x)
 #  define UNLIKELY(x) (x)
 #  define arg_unused
 #endif
 
 #define OOM()                            \
-  do                                     \
+  करा                                     \
     {                                    \
-      fprintf (stderr, "out of memory"); \
-      _exit (EXIT_FAILURE);              \
-  } while (0)
+      ख_लिखो (मानक_त्रुटि, "out of memory"); \
+      _exit (निकास_त्रुटि);              \
+  } पर्यंत (0)
 
 #define crun_make_error libcrun_make_error
 
-__attribute__ ((malloc)) static inline void *
-xmalloc (size_t size)
+__attribute__ ((दो_स्मृति)) स्थिर ओळीत शून्य *
+xmalloc (माप_प्रकार size)
 {
-  void *res = malloc (size);
-  if (UNLIKELY (res == NULL))
+  शून्य *res = दो_स्मृति (size);
+  जर (UNLIKELY (res == रिक्त))
     OOM ();
-  return res;
+  परत res;
 }
 
-__attribute__ ((malloc)) static inline void *
-xmalloc0 (size_t size)
+__attribute__ ((दो_स्मृति)) स्थिर ओळीत शून्य *
+xmalloc0 (माप_प्रकार size)
 {
-  void *res = calloc (1, size);
-  if (UNLIKELY (res == NULL))
+  शून्य *res = सुस्मृति (1, size);
+  जर (UNLIKELY (res == रिक्त))
     OOM ();
-  return res;
+  परत res;
 }
 
-__attribute__ ((malloc)) static inline void *
-xrealloc (void *ptr, size_t size)
+__attribute__ ((दो_स्मृति)) स्थिर ओळीत शून्य *
+xrealloc (शून्य *ptr, माप_प्रकार size)
 {
-  void *res = realloc (ptr, size);
-  if (UNLIKELY (res == NULL))
+  शून्य *res = पुनः_स्मृति (ptr, size);
+  जर (UNLIKELY (res == रिक्त))
     OOM ();
-  return res;
+  परत res;
 }
 
-static inline char *
-xstrdup (const char *str)
+स्थिर ओळीत अक्षर *
+xstrdup (स्थिरांक अक्षर *str)
 {
-  char *ret;
-  if (str == NULL)
-    return NULL;
+  अक्षर *ret;
+  जर (str == रिक्त)
+    परत रिक्त;
   ret = strdup (str);
-  if (UNLIKELY (ret == NULL))
+  जर (UNLIKELY (ret == रिक्त))
     OOM ();
-  return ret;
+  परत ret;
 }
 
-static inline void
-cleanup_freep (void *p)
+स्थिर ओळीत शून्य
+cleanup_freep (शून्य *p)
 {
-  void **pp = (void **) p;
-  free (*pp);
+  शून्य **pp = (शून्य **) p;
+  मुक्त (*pp);
 }
 
-static inline void
-cleanup_filep (FILE **f)
+स्थिर ओळीत शून्य
+cleanup_filep (खाता **f)
 {
-  FILE *file = *f;
-  if (file)
-    (void) fclose (file);
+  खाता *file = *f;
+  जर (file)
+    (शून्य) ख_बंद (file);
 }
 
-static inline void
-cleanup_closep (void *p)
+स्थिर ओळीत शून्य
+cleanup_closep (शून्य *p)
 {
-  int *pp = (int *) p;
-  if (*pp >= 0)
-    close (*pp);
+  पूर्णांक *pp = (पूर्णांक *) p;
+  जर (*pp >= 0)
+    बंद (*pp);
 }
 
 #define cleanup_free __attribute__ ((cleanup (cleanup_freep)))
@@ -115,19 +115,19 @@ cleanup_closep (void *p)
 
 /* Relies on <libcrun.h> (included before this header via crun.h) for the
    opaque libcrun_context_t and libcrun_context_free.  */
-static inline void
+स्थिर ओळीत शून्य
 cleanup_libcrun_contextp (libcrun_context_t **p)
 {
-  if (*p)
+  जर (*p)
     libcrun_context_free (*p);
 }
 
 #define cleanup_context __attribute__ ((cleanup (cleanup_libcrun_contextp)))
 
-static inline void
+स्थिर ओळीत शून्य
 cleanup_libcrun_containerp (libcrun_container_t **p)
 {
-  if (*p)
+  जर (*p)
     libcrun_container_free (*p);
 }
 

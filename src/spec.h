@@ -18,8 +18,8 @@
 #ifndef SPEC_H
 #define SPEC_H
 
-#include "crun.h"
+#अन्तर्भाव "crun.h"
 
-int crun_command_spec (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+पूर्णांक crun_command_spec (संरचना crun_global_arguments *global_args, पूर्णांक argc, अक्षर **argv, libcrun_error_t *error);
 
 #endif

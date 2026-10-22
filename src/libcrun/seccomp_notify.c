@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <config.h>
-#include <errno.h>
+#अन्तर्भाव <config.h>
+#अन्तर्भाव <errno.h>
 
-#if HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
+#जर HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
 #  include <seccomp.h>
 #  include <sys/ioctl.h>
 #  include <linux/seccomp.h>
@@ -29,186 +29,186 @@
 #  include <dlfcn.h>
 #endif
 
-#include "utils.h"
-#include "seccomp_notify.h"
+#अन्तर्भाव "utils.h"
+#अन्तर्भाव "seccomp_notify.h"
 
 #ifndef SECCOMP_USER_NOTIF_FLAG_CONTINUE
 #  define SECCOMP_USER_NOTIF_FLAG_CONTINUE (1UL << 0)
 #endif
 
-struct plugin
+संरचना plugin
 {
-  void *handle;
-  void *opaque;
-#if HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
+  शून्य *handle;
+  शून्य *opaque;
+#जर HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
   run_oci_seccomp_notify_handle_request_cb handle_request_cb;
 #endif
 };
 
-struct seccomp_notify_context_s
+संरचना seccomp_notify_context_s
 {
-  struct plugin *plugins;
-  size_t n_plugins;
+  संरचना plugin *plugins;
+  माप_प्रकार n_plugins;
 
-#if HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES
-  struct seccomp_notif_resp *sresp;
-  struct seccomp_notif *sreq;
-  struct seccomp_notif_sizes sizes;
+#जर HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES
+  संरचना seccomp_notif_resp *sresp;
+  संरचना seccomp_notif *sreq;
+  संरचना seccomp_notif_sizes sizes;
 #endif
 };
 
-void
-cleanup_seccomp_notify_pluginsp (void *p)
+शून्य
+cleanup_seccomp_notify_pluginsp (शून्य *p)
 {
-  struct seccomp_notify_context_s **pp = p;
-  if (*pp)
+  संरचना seccomp_notify_context_s **pp = p;
+  जर (*pp)
     {
-      libcrun_error_t tmp_err = NULL;
+      libcrun_error_t tmp_err = रिक्त;
       libcrun_free_seccomp_notify_plugins (*pp, &tmp_err);
       crun_error_release (&tmp_err);
-      *pp = NULL;
+      *pp = रिक्त;
     }
 }
 
-#if HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
-static int
-seccomp_syscall (unsigned int op, unsigned int flags, void *args)
+#जर HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
+स्थिर पूर्णांक
+seccomp_syscall (अचिन्हित पूर्णांक op, अचिन्हित पूर्णांक flags, शून्य *args)
 {
-  errno = 0;
-  return syscall (__NR_seccomp, op, flags, args);
+  त्रुटि_सं = 0;
+  परत syscall (__NR_seccomp, op, flags, args);
 }
 #endif
 
-LIBCRUN_PUBLIC int
-libcrun_load_seccomp_notify_plugins (struct seccomp_notify_context_s **out, const char *plugins,
-                                     struct libcrun_load_seccomp_notify_conf_s *conf, libcrun_error_t *err)
+LIBCRUN_PUBLIC पूर्णांक
+libcrun_load_seccomp_notify_plugins (संरचना seccomp_notify_context_s **out, स्थिरांक अक्षर *plugins,
+                                     संरचना libcrun_load_seccomp_notify_conf_s *conf, libcrun_error_t *err)
 {
-#if HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
-  cleanup_seccomp_notify_context struct seccomp_notify_context_s *ctx = xmalloc0 (sizeof *ctx);
-  cleanup_free char *b = NULL;
-  char *it, *saveptr;
-  size_t s;
+#जर HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
+  cleanup_seccomp_notify_context संरचना seccomp_notify_context_s *ctx = xmalloc0 (आकार *ctx);
+  cleanup_free अक्षर *b = रिक्त;
+  अक्षर *it, *saveptr;
+  माप_प्रकार s;
 
-  if (seccomp_syscall (SECCOMP_GET_NOTIF_SIZES, 0, &ctx->sizes) < 0)
-    return crun_make_error (err, errno, "seccomp GET_NOTIF_SIZES");
+  जर (seccomp_syscall (SECCOMP_GET_NOTIF_SIZES, 0, &ctx->sizes) < 0)
+    परत crun_make_error (err, त्रुटि_सं, "seccomp GET_NOTIF_SIZES");
 
   ctx->sreq = xmalloc (ctx->sizes.seccomp_notif);
   ctx->sresp = xmalloc (ctx->sizes.seccomp_notif_resp);
 
-  if (is_empty_string (plugins))
-    return 0;
+  जर (is_empty_string (plugins))
+    परत 0;
 
   b = xstrdup (plugins);
 
   ctx->n_plugins = 1;
-  for (it = b; *it; it++)
-    if (*it == ':')
+  साठी (it = b; *it; it++)
+    जर (*it == ':')
       ctx->n_plugins++;
 
-  ctx->plugins = xmalloc0 (sizeof (struct plugin) * (ctx->n_plugins + 1));
-  for (s = 0, it = strtok_r (b, ":", &saveptr); it; s++, it = strtok_r (NULL, ":", &saveptr))
+  ctx->plugins = xmalloc0 (आकार (संरचना plugin) * (ctx->n_plugins + 1));
+  साठी (s = 0, it = strtok_r (b, ":", &saveptr); it; s++, it = strtok_r (रिक्त, ":", &saveptr))
     {
       run_oci_seccomp_notify_plugin_version_cb version_cb;
       run_oci_seccomp_notify_start_cb start_cb;
-      void *opq = NULL;
+      शून्य *opq = रिक्त;
 
       /* do not accept relative paths.  It is fine to accept only filenames as dlopen() semantics apply.  */
-      if (strchr (it, '/') && it[0] != '/')
-        return crun_make_error (err, 0, "invalid relative plugin path: `%s`", it);
+      जर (म_अक्षर (it, '/') && it[0] != '/')
+        परत crun_make_error (err, 0, "invalid relative plugin path: `%s`", it);
 
       ctx->plugins[s].handle = dlopen (it, RTLD_NOW);
-      if (ctx->plugins[s].handle == NULL)
-        return crun_make_error (err, 0, "cannot load `%s`: %s", it, dlerror ());
+      जर (ctx->plugins[s].handle == रिक्त)
+        परत crun_make_error (err, 0, "cannot load `%s`: %s", it, dlerror ());
 
       version_cb
           = (run_oci_seccomp_notify_plugin_version_cb) dlsym (ctx->plugins[s].handle, "run_oci_seccomp_notify_version");
-      if (version_cb != NULL)
+      जर (version_cb != रिक्त)
         {
-          int version;
+          पूर्णांक version;
 
           version = version_cb ();
-          if (version != 1)
-            return crun_make_error (err, ENOTSUP, "invalid version supported by the plugin `%s`", it);
+          जर (version != 1)
+            परत crun_make_error (err, ENOTSUP, "invalid version supported by the plugin `%s`", it);
         }
 
       ctx->plugins[s].handle_request_cb = (run_oci_seccomp_notify_handle_request_cb) dlsym (
           ctx->plugins[s].handle, "run_oci_seccomp_notify_handle_request");
-      if (ctx->plugins[s].handle_request_cb == NULL)
-        return crun_make_error (err, ENOTSUP, "plugin `%s` doesn't export `run_oci_seccomp_notify_handle_request`", it);
+      जर (ctx->plugins[s].handle_request_cb == रिक्त)
+        परत crun_make_error (err, ENOTSUP, "plugin `%s` doesn't export `run_oci_seccomp_notify_handle_request`", it);
 
       start_cb = (run_oci_seccomp_notify_start_cb) dlsym (ctx->plugins[s].handle, "run_oci_seccomp_notify_start");
-      if (start_cb)
+      जर (start_cb)
         {
-          int ret;
+          पूर्णांक ret;
 
-          ret = start_cb (&opq, conf, sizeof (*conf));
-          if (UNLIKELY (ret != 0))
-            return crun_make_error (err, 0, "error loading `%s`", it);
+          ret = start_cb (&opq, conf, आकार (*conf));
+          जर (UNLIKELY (ret != 0))
+            परत crun_make_error (err, 0, "error loading `%s`", it);
         }
       ctx->plugins[s].opaque = opq;
     }
 
   /* Change ownership.  */
   *out = ctx;
-  ctx = NULL;
-  return 0;
-#else
-  (void) out;
-  (void) plugins;
-  (void) conf;
-  (void) err;
-  return crun_make_error (err, ENOTSUP, "seccomp notify support not available");
+  ctx = रिक्त;
+  परत 0;
+#अन्यथा
+  (शून्य) out;
+  (शून्य) plugins;
+  (शून्य) conf;
+  (शून्य) err;
+  परत crun_make_error (err, ENOTSUP, "seccomp notify support not available");
 #endif
 }
 
-LIBCRUN_PUBLIC int
-libcrun_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, int seccomp_fd, libcrun_error_t *err)
+LIBCRUN_PUBLIC पूर्णांक
+libcrun_seccomp_notify_plugins (संरचना seccomp_notify_context_s *ctx, पूर्णांक seccomp_fd, libcrun_error_t *err)
 {
-#if HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
-  size_t i;
-  int ret;
+#जर HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
+  माप_प्रकार i;
+  पूर्णांक ret;
 
-  memset (ctx->sreq, 0, ctx->sizes.seccomp_notif);
-  memset (ctx->sresp, 0, ctx->sizes.seccomp_notif_resp);
+  स_रखो (ctx->sreq, 0, ctx->sizes.seccomp_notif);
+  स_रखो (ctx->sresp, 0, ctx->sizes.seccomp_notif_resp);
 
   ret = ioctl (seccomp_fd, SECCOMP_IOCTL_NOTIF_RECV, ctx->sreq);
-  if (UNLIKELY (ret < 0))
+  जर (UNLIKELY (ret < 0))
     {
-      if (errno == ENOENT)
-        return 0;
-      return crun_make_error (err, errno, "ioctl");
+      जर (त्रुटि_सं == ENOENT)
+        परत 0;
+      परत crun_make_error (err, त्रुटि_सं, "ioctl");
     }
 
-  for (i = 0; i < ctx->n_plugins; i++)
+  साठी (i = 0; i < ctx->n_plugins; i++)
     {
-      if (ctx->plugins[i].handle_request_cb)
+      जर (ctx->plugins[i].handle_request_cb)
         {
-          int handled = 0;
-          int ret;
+          पूर्णांक handled = 0;
+          पूर्णांक ret;
 
           ret = ctx->plugins[i].handle_request_cb (ctx->plugins[i].opaque, &ctx->sizes, ctx->sreq, ctx->sresp,
                                                    seccomp_fd, &handled);
-          if (UNLIKELY (ret != 0))
-            return crun_make_error (err, 0, "error handling seccomp notify request");
+          जर (UNLIKELY (ret != 0))
+            परत crun_make_error (err, 0, "error handling seccomp notify request");
 
-          switch (handled)
+          निवड (handled)
             {
-            case RUN_OCI_SECCOMP_NOTIFY_HANDLE_NOT_HANDLED:
-              break;
+            स्थिती RUN_OCI_SECCOMP_NOTIFY_HANDLE_NOT_HANDLED:
+              थांबा;
 
-            case RUN_OCI_SECCOMP_NOTIFY_HANDLE_SEND_RESPONSE:
-              goto send_resp;
+            स्थिती RUN_OCI_SECCOMP_NOTIFY_HANDLE_SEND_RESPONSE:
+              जा send_resp;
 
               /* The plugin will take care of it.  */
-            case RUN_OCI_SECCOMP_NOTIFY_HANDLE_DELAYED_RESPONSE:
-              return 0;
+            स्थिती RUN_OCI_SECCOMP_NOTIFY_HANDLE_DELAYED_RESPONSE:
+              परत 0;
 
-            case RUN_OCI_SECCOMP_NOTIFY_HANDLE_SEND_RESPONSE_AND_CONTINUE:
+            स्थिती RUN_OCI_SECCOMP_NOTIFY_HANDLE_SEND_RESPONSE_AND_CONTINUE:
               ctx->sresp->flags |= SECCOMP_USER_NOTIF_FLAG_CONTINUE;
-              goto send_resp;
+              जा send_resp;
 
-            default:
-              return crun_make_error (err, EINVAL, "unknown action specified by the plugin `%d`", handled);
+            पूर्वनिर्धारित:
+              परत crun_make_error (err, EINVAL, "unknown action specified by the plugin `%d`", handled);
             }
         }
     }
@@ -220,51 +220,51 @@ libcrun_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, int seccom
 send_resp:
   ctx->sresp->id = ctx->sreq->id;
   ret = ioctl (seccomp_fd, SECCOMP_IOCTL_NOTIF_SEND, ctx->sresp);
-  if (UNLIKELY (ret < 0))
+  जर (UNLIKELY (ret < 0))
     {
-      if (errno == ENOENT)
-        return 0;
-      return crun_make_error (err, errno, "ioctl");
+      जर (त्रुटि_सं == ENOENT)
+        परत 0;
+      परत crun_make_error (err, त्रुटि_सं, "ioctl");
     }
-  return 0;
-#else
-  (void) ctx;
-  (void) seccomp_fd;
-  (void) err;
-  return crun_make_error (err, ENOTSUP, "seccomp notify support not available");
+  परत 0;
+#अन्यथा
+  (शून्य) ctx;
+  (शून्य) seccomp_fd;
+  (शून्य) err;
+  परत crun_make_error (err, ENOTSUP, "seccomp notify support not available");
 #endif
 }
 
-LIBCRUN_PUBLIC int
-libcrun_free_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, libcrun_error_t *err)
+LIBCRUN_PUBLIC पूर्णांक
+libcrun_free_seccomp_notify_plugins (संरचना seccomp_notify_context_s *ctx, libcrun_error_t *err)
 {
-#if HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
-  size_t i;
+#जर HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
+  माप_प्रकार i;
 
-  if (ctx == NULL)
-    return crun_make_error (err, EINVAL, "invalid seccomp notify context");
+  जर (ctx == रिक्त)
+    परत crun_make_error (err, EINVAL, "invalid seccomp notify context");
 
-  free (ctx->sreq);
-  free (ctx->sresp);
+  मुक्त (ctx->sreq);
+  मुक्त (ctx->sresp);
 
-  for (i = 0; i < ctx->n_plugins; i++)
-    if (ctx->plugins && ctx->plugins[i].handle)
+  साठी (i = 0; i < ctx->n_plugins; i++)
+    जर (ctx->plugins && ctx->plugins[i].handle)
       {
         run_oci_seccomp_notify_stop_cb cb;
 
         cb = (run_oci_seccomp_notify_stop_cb) dlsym (ctx->plugins[i].handle, "run_oci_seccomp_notify_stop");
-        if (cb)
+        जर (cb)
           cb (ctx->plugins[i].opaque);
         dlclose (ctx->plugins[i].handle);
       }
 
-  free (ctx->plugins);
-  free (ctx);
+  मुक्त (ctx->plugins);
+  मुक्त (ctx);
 
-  return 0;
-#else
-  (void) ctx;
-  (void) err;
-  return crun_make_error (err, ENOTSUP, "seccomp notify support not available");
+  परत 0;
+#अन्यथा
+  (शून्य) ctx;
+  (शून्य) err;
+  परत crun_make_error (err, ENOTSUP, "seccomp notify support not available");
 #endif
 }

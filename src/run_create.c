@@ -16,58 +16,58 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#अन्तर्भाव <config.h>
+#अन्तर्भाव <stdio.h>
+#अन्तर्भाव <stdlib.h>
+#अन्तर्भाव <argp.h>
+#अन्तर्भाव <string.h>
+#अन्तर्भाव <unistd.h>
+#अन्तर्भाव <errno.h>
 
-#include "crun.h"
-#include "run_create.h"
+#अन्तर्भाव "crun.h"
+#अन्तर्भाव "run_create.h"
 
-int
-crun_run_create_internal (struct crun_global_arguments *global_args, int argc, char **argv,
+पूर्णांक
+crun_run_create_internal (संरचना crun_global_arguments *global_args, पूर्णांक argc, अक्षर **argv,
                           container_run_create_func_t container_run_create_func, get_options_func_t get_options_func,
-                          libcrun_context_t *crun_context, struct argp *run_argp, const char **config_file_ptr,
-                          const char **bundle_ptr, libcrun_error_t *err)
+                          libcrun_context_t *crun_context, संरचना argp *run_argp, स्थिरांक अक्षर **config_file_ptr,
+                          स्थिरांक अक्षर **bundle_ptr, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
-  cleanup_container libcrun_container_t *container = NULL;
-  cleanup_free char *bundle_cleanup = NULL;
-  cleanup_free char *config_file_cleanup = NULL;
-  cleanup_free char *pid_file_cleanup = NULL;
-  const char *pid_file;
+  पूर्णांक first_arg = 0, ret;
+  cleanup_container libcrun_container_t *container = रिक्त;
+  cleanup_free अक्षर *bundle_cleanup = रिक्त;
+  cleanup_free अक्षर *config_file_cleanup = रिक्त;
+  cleanup_free अक्षर *pid_file_cleanup = रिक्त;
+  स्थिरांक अक्षर *pid_file;
 
   argp_parse (run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, crun_context);
   /* Get options after parsing the arguments.  */
-  unsigned int options = get_options_func ();
-  const char *config_file = *config_file_ptr;
-  const char *bundle = *bundle_ptr;
+  अचिन्हित पूर्णांक options = get_options_func ();
+  स्थिरांक अक्षर *config_file = *config_file_ptr;
+  स्थिरांक अक्षर *bundle = *bundle_ptr;
 
   crun_assert_n_args (argc - first_arg, 1, 1);
 
   /* Make sure the config is an absolute path before changing the directory.  */
-  if ((strcmp ("config.json", config_file) != 0))
+  जर ((म_भेद ("config.json", config_file) != 0))
     {
-      if (config_file[0] != '/')
+      जर (config_file[0] != '/')
         {
-          config_file_cleanup = realpath (config_file, NULL);
-          if (config_file_cleanup == NULL)
-            libcrun_fail_with_error (errno, "realpath `%s` failed", config_file);
+          config_file_cleanup = realpath (config_file, रिक्त);
+          जर (config_file_cleanup == रिक्त)
+            libcrun_fail_with_error (त्रुटि_सं, "realpath `%s` failed", config_file);
           config_file = config_file_cleanup;
         }
     }
 
   /* Make sure the pid file is an absolute path before changing the directory.  */
   pid_file = libcrun_context_get_pid_file (crun_context);
-  if (pid_file && pid_file[0] != '/')
+  जर (pid_file && pid_file[0] != '/')
     {
-      cleanup_free char *cwd = getcwd (NULL, 0);
-      if (UNLIKELY (cwd == NULL))
-        libcrun_fail_with_error (errno, "getcwd failed");
-      size_t len = strlen (cwd) + strlen (pid_file) + 2;
+      cleanup_free अक्षर *cwd = getcwd (रिक्त, 0);
+      जर (UNLIKELY (cwd == रिक्त))
+        libcrun_fail_with_error (त्रुटि_सं, "getcwd failed");
+      माप_प्रकार len = म_माप (cwd) + म_माप (pid_file) + 2;
 
       pid_file_cleanup = xmalloc0 (len);
       snprintf (pid_file_cleanup, len, "%s/%s", cwd, pid_file);
@@ -75,29 +75,29 @@ crun_run_create_internal (struct crun_global_arguments *global_args, int argc, c
     }
 
   /* Make sure the bundle is an absolute path.  */
-  if (bundle == NULL)
+  जर (bundle == रिक्त)
     {
-      bundle = bundle_cleanup = getcwd (NULL, 0);
-      if (UNLIKELY (bundle == NULL))
-        libcrun_fail_with_error (errno, "getcwd failed");
+      bundle = bundle_cleanup = getcwd (रिक्त, 0);
+      जर (UNLIKELY (bundle == रिक्त))
+        libcrun_fail_with_error (त्रुटि_सं, "getcwd failed");
     }
-  else
+  अन्यथा
     {
-      if (bundle[0] != '/')
+      जर (bundle[0] != '/')
         {
-          bundle_cleanup = realpath (bundle, NULL);
-          if (bundle_cleanup == NULL)
-            libcrun_fail_with_error (errno, "realpath `%s` failed", bundle);
+          bundle_cleanup = realpath (bundle, रिक्त);
+          जर (bundle_cleanup == रिक्त)
+            libcrun_fail_with_error (त्रुटि_सं, "realpath `%s` failed", bundle);
           bundle = bundle_cleanup;
         }
 
-      if (chdir (bundle) < 0)
-        libcrun_fail_with_error (errno, "chdir `%s` failed", bundle);
+      जर (स_बदलो (bundle) < 0)
+        libcrun_fail_with_error (त्रुटि_सं, "chdir `%s` failed", bundle);
     }
 
-  if (getenv ("LISTEN_FDS"))
+  जर (दो_पर्या ("LISTEN_FDS"))
     {
-      int listen_fds = parse_id_or_fail (getenv ("LISTEN_FDS"), NULL, "LISTEN_FDS");
+      पूर्णांक listen_fds = parse_id_or_fail (दो_पर्या ("LISTEN_FDS"), रिक्त, "LISTEN_FDS");
       libcrun_context_set_listen_fds (crun_context, listen_fds);
       libcrun_context_set_preserve_fds (crun_context, libcrun_context_get_preserve_fds (crun_context) + listen_fds);
     }
@@ -105,20 +105,20 @@ crun_run_create_internal (struct crun_global_arguments *global_args, int argc, c
   /* The config file may be passed as /dev/fd/N, so read it before
      closing the file descriptors.  */
   container = libcrun_container_load_from_file (config_file, err);
-  if (container == NULL)
-    return -1;
+  जर (container == रिक्त)
+    परत -1;
 
   /* Close the file descriptors inherited from the caller, so they do
      not leak into the container.  */
   ret = libcrun_close_inherited_fds (crun_context, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  जर (UNLIKELY (ret < 0))
+    परत ret;
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  जर (UNLIKELY (ret < 0))
+    परत ret;
 
   libcrun_debug ("Using bundle: %s", bundle);
   libcrun_context_set_bundle (crun_context, bundle);
-  return container_run_create_func (crun_context, container, options, err);
+  परत container_run_create_func (crun_context, container, options, err);
 }

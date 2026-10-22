@@ -18,8 +18,8 @@
 #ifndef LIST_H
 #define LIST_H
 
-#include "crun.h"
+#अन्तर्भाव "crun.h"
 
-int crun_command_list (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+पूर्णांक crun_command_list (संरचना crun_global_arguments *global_args, पूर्णांक argc, अक्षर **argv, libcrun_error_t *error);
 
 #endif

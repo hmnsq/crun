@@ -2,7 +2,7 @@
 /* Command-line: gperf --lookup-function-name libcrun_mount_flag_in_word_set -m 100 -tCEG -S1 src/libcrun/mount_flags.perf  */
 /* Computed positions: -k'1-4' */
 
-#if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
+#जर !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
       && ('%' == 37) && ('&' == 38) && ('\'' == 39) && ('(' == 40) \
       && (')' == 41) && ('*' == 42) && ('+' == 43) && (',' == 44) \
       && ('-' == 45) && ('.' == 46) && ('/' == 47) && ('0' == 48) \
@@ -33,41 +33,41 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include <stddef.h>
-#include <stdlib.h>
+#अन्तर्भाव <config.h>
+#अन्तर्भाव <stddef.h>
+#अन्तर्भाव <stdlib.h>
 
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/mount.h>
+#अन्तर्भाव <fcntl.h>
+#अन्तर्भाव <unistd.h>
+#अन्तर्भाव <sys/mount.h>
 
-#include "utils.h"
-#include "mount_flags.h"
+#अन्तर्भाव "utils.h"
+#अन्तर्भाव "mount_flags.h"
 
 #line 34 "src/libcrun/mount_flags.perf"
-struct propagation_flags_s;
-enum
+संरचना propagation_flags_s;
+गणना
   {
     TOTAL_KEYWORDS = 63,
     MIN_WORD_LENGTH = 2,
     MAX_WORD_LENGTH = 14,
-    MIN_HASH_VALUE = 2,
-    MAX_HASH_VALUE = 96
+    MIN_HASH_मूल्य = 2,
+    MAX_HASH_मूल्य = 96
   };
 
 /* maximum key range = 95, duplicates = 0 */
 
 #ifdef __GNUC__
 __inline
-#else
+#अन्यथा
 #ifdef __cplusplus
-inline
+ओळीत
 #endif
 #endif
-static unsigned int
-hash (register const char *str, register size_t len)
+स्थिर अचिन्हित पूर्णांक
+hash (नोंदणी स्थिरांक अक्षर *str, नोंदणी माप_प्रकार len)
 {
-  static const unsigned char asso_values[] =
+  स्थिर स्थिरांक अचिन्हित अक्षर asso_मूल्ये[] =
     {
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
@@ -96,27 +96,27 @@ hash (register const char *str, register size_t len)
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
       97, 97, 97, 97, 97, 97
     };
-  register unsigned int hval = len;
+  नोंदणी अचिन्हित पूर्णांक hval = len;
 
-  switch (hval)
+  निवड (hval)
     {
-      default:
-        hval += asso_values[(unsigned char)str[3]];
+      पूर्वनिर्धारित:
+        hval += asso_मूल्ये[(अचिन्हित अक्षर)str[3]];
       /*FALLTHROUGH*/
-      case 3:
-        hval += asso_values[(unsigned char)str[2]];
+      स्थिती 3:
+        hval += asso_मूल्ये[(अचिन्हित अक्षर)str[2]];
       /*FALLTHROUGH*/
-      case 2:
-        hval += asso_values[(unsigned char)str[1]];
+      स्थिती 2:
+        hval += asso_मूल्ये[(अचिन्हित अक्षर)str[1]];
       /*FALLTHROUGH*/
-      case 1:
-        hval += asso_values[(unsigned char)str[0]];
-        break;
+      स्थिती 1:
+        hval += asso_मूल्ये[(अचिन्हित अक्षर)str[0]];
+        थांबा;
     }
-  return hval;
+  परत hval;
 }
 
-static const struct propagation_flags_s wordlist[] =
+स्थिर स्थिरांक संरचना propagation_flags_s wordlist[] =
   {
 #line 40 "src/libcrun/mount_flags.perf"
     {"rw", 1, MS_RDONLY, 0},
@@ -246,240 +246,240 @@ static const struct propagation_flags_s wordlist[] =
     {"copy-symlink", 0, 0, OPTION_COPY_SYMLINK}
   };
 
-const struct propagation_flags_s *
-libcrun_mount_flag_in_word_set (register const char *str, register size_t len)
+स्थिरांक संरचना propagation_flags_s *
+libcrun_mount_flag_in_word_set (नोंदणी स्थिरांक अक्षर *str, नोंदणी माप_प्रकार len)
 {
-  if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
+  जर (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
-      register unsigned int key = hash (str, len);
+      नोंदणी अचिन्हित पूर्णांक किल्ली = hash (str, len);
 
-      if (key <= MAX_HASH_VALUE && key >= MIN_HASH_VALUE)
+      जर (किल्ली <= MAX_HASH_मूल्य && किल्ली >= MIN_HASH_मूल्य)
         {
-          register const struct propagation_flags_s *resword;
+          नोंदणी स्थिरांक संरचना propagation_flags_s *resword;
 
-          switch (key - 2)
+          निवड (किल्ली - 2)
             {
-              case 0:
+              स्थिती 0:
                 resword = &wordlist[0];
-                goto compare;
-              case 1:
+                जा compare;
+              स्थिती 1:
                 resword = &wordlist[1];
-                goto compare;
-              case 4:
+                जा compare;
+              स्थिती 4:
                 resword = &wordlist[2];
-                goto compare;
-              case 5:
+                जा compare;
+              स्थिती 5:
                 resword = &wordlist[3];
-                goto compare;
-              case 9:
+                जा compare;
+              स्थिती 9:
                 resword = &wordlist[4];
-                goto compare;
-              case 10:
+                जा compare;
+              स्थिती 10:
                 resword = &wordlist[5];
-                goto compare;
-              case 11:
+                जा compare;
+              स्थिती 11:
                 resword = &wordlist[6];
-                goto compare;
-              case 13:
+                जा compare;
+              स्थिती 13:
                 resword = &wordlist[7];
-                goto compare;
-              case 15:
+                जा compare;
+              स्थिती 15:
                 resword = &wordlist[8];
-                goto compare;
-              case 16:
+                जा compare;
+              स्थिती 16:
                 resword = &wordlist[9];
-                goto compare;
-              case 17:
+                जा compare;
+              स्थिती 17:
                 resword = &wordlist[10];
-                goto compare;
-              case 18:
+                जा compare;
+              स्थिती 18:
                 resword = &wordlist[11];
-                goto compare;
-              case 19:
+                जा compare;
+              स्थिती 19:
                 resword = &wordlist[12];
-                goto compare;
-              case 20:
+                जा compare;
+              स्थिती 20:
                 resword = &wordlist[13];
-                goto compare;
-              case 21:
+                जा compare;
+              स्थिती 21:
                 resword = &wordlist[14];
-                goto compare;
-              case 22:
+                जा compare;
+              स्थिती 22:
                 resword = &wordlist[15];
-                goto compare;
-              case 23:
+                जा compare;
+              स्थिती 23:
                 resword = &wordlist[16];
-                goto compare;
-              case 24:
+                जा compare;
+              स्थिती 24:
                 resword = &wordlist[17];
-                goto compare;
-              case 25:
+                जा compare;
+              स्थिती 25:
                 resword = &wordlist[18];
-                goto compare;
-              case 26:
+                जा compare;
+              स्थिती 26:
                 resword = &wordlist[19];
-                goto compare;
-              case 28:
+                जा compare;
+              स्थिती 28:
                 resword = &wordlist[20];
-                goto compare;
-              case 29:
+                जा compare;
+              स्थिती 29:
                 resword = &wordlist[21];
-                goto compare;
-              case 30:
+                जा compare;
+              स्थिती 30:
                 resword = &wordlist[22];
-                goto compare;
-              case 31:
+                जा compare;
+              स्थिती 31:
                 resword = &wordlist[23];
-                goto compare;
-              case 32:
+                जा compare;
+              स्थिती 32:
                 resword = &wordlist[24];
-                goto compare;
-              case 33:
+                जा compare;
+              स्थिती 33:
                 resword = &wordlist[25];
-                goto compare;
-              case 34:
+                जा compare;
+              स्थिती 34:
                 resword = &wordlist[26];
-                goto compare;
-              case 35:
+                जा compare;
+              स्थिती 35:
                 resword = &wordlist[27];
-                goto compare;
-              case 36:
+                जा compare;
+              स्थिती 36:
                 resword = &wordlist[28];
-                goto compare;
-              case 37:
+                जा compare;
+              स्थिती 37:
                 resword = &wordlist[29];
-                goto compare;
-              case 38:
+                जा compare;
+              स्थिती 38:
                 resword = &wordlist[30];
-                goto compare;
-              case 39:
+                जा compare;
+              स्थिती 39:
                 resword = &wordlist[31];
-                goto compare;
-              case 40:
+                जा compare;
+              स्थिती 40:
                 resword = &wordlist[32];
-                goto compare;
-              case 41:
+                जा compare;
+              स्थिती 41:
                 resword = &wordlist[33];
-                goto compare;
-              case 42:
+                जा compare;
+              स्थिती 42:
                 resword = &wordlist[34];
-                goto compare;
-              case 43:
+                जा compare;
+              स्थिती 43:
                 resword = &wordlist[35];
-                goto compare;
-              case 44:
+                जा compare;
+              स्थिती 44:
                 resword = &wordlist[36];
-                goto compare;
-              case 45:
+                जा compare;
+              स्थिती 45:
                 resword = &wordlist[37];
-                goto compare;
-              case 46:
+                जा compare;
+              स्थिती 46:
                 resword = &wordlist[38];
-                goto compare;
-              case 47:
+                जा compare;
+              स्थिती 47:
                 resword = &wordlist[39];
-                goto compare;
-              case 48:
+                जा compare;
+              स्थिती 48:
                 resword = &wordlist[40];
-                goto compare;
-              case 49:
+                जा compare;
+              स्थिती 49:
                 resword = &wordlist[41];
-                goto compare;
-              case 50:
+                जा compare;
+              स्थिती 50:
                 resword = &wordlist[42];
-                goto compare;
-              case 51:
+                जा compare;
+              स्थिती 51:
                 resword = &wordlist[43];
-                goto compare;
-              case 52:
+                जा compare;
+              स्थिती 52:
                 resword = &wordlist[44];
-                goto compare;
-              case 53:
+                जा compare;
+              स्थिती 53:
                 resword = &wordlist[45];
-                goto compare;
-              case 54:
+                जा compare;
+              स्थिती 54:
                 resword = &wordlist[46];
-                goto compare;
-              case 55:
+                जा compare;
+              स्थिती 55:
                 resword = &wordlist[47];
-                goto compare;
-              case 56:
+                जा compare;
+              स्थिती 56:
                 resword = &wordlist[48];
-                goto compare;
-              case 57:
+                जा compare;
+              स्थिती 57:
                 resword = &wordlist[49];
-                goto compare;
-              case 58:
+                जा compare;
+              स्थिती 58:
                 resword = &wordlist[50];
-                goto compare;
-              case 59:
+                जा compare;
+              स्थिती 59:
                 resword = &wordlist[51];
-                goto compare;
-              case 60:
+                जा compare;
+              स्थिती 60:
                 resword = &wordlist[52];
-                goto compare;
-              case 61:
+                जा compare;
+              स्थिती 61:
                 resword = &wordlist[53];
-                goto compare;
-              case 62:
+                जा compare;
+              स्थिती 62:
                 resword = &wordlist[54];
-                goto compare;
-              case 63:
+                जा compare;
+              स्थिती 63:
                 resword = &wordlist[55];
-                goto compare;
-              case 65:
+                जा compare;
+              स्थिती 65:
                 resword = &wordlist[56];
-                goto compare;
-              case 67:
+                जा compare;
+              स्थिती 67:
                 resword = &wordlist[57];
-                goto compare;
-              case 68:
+                जा compare;
+              स्थिती 68:
                 resword = &wordlist[58];
-                goto compare;
-              case 75:
+                जा compare;
+              स्थिती 75:
                 resword = &wordlist[59];
-                goto compare;
-              case 84:
+                जा compare;
+              स्थिती 84:
                 resword = &wordlist[60];
-                goto compare;
-              case 85:
+                जा compare;
+              स्थिती 85:
                 resword = &wordlist[61];
-                goto compare;
-              case 94:
+                जा compare;
+              स्थिती 94:
                 resword = &wordlist[62];
-                goto compare;
+                जा compare;
             }
-          return 0;
+          परत 0;
         compare:
           {
-            register const char *s = resword->name;
+            नोंदणी स्थिरांक अक्षर *s = resword->name;
 
-            if (*str == *s && !strcmp (str + 1, s + 1))
-              return resword;
+            जर (*str == *s && !म_भेद (str + 1, s + 1))
+              परत resword;
           }
         }
     }
-  return 0;
+  परत 0;
 }
 #line 99 "src/libcrun/mount_flags.perf"
 
 
-const struct propagation_flags_s *
-libcrun_str2mount_flags (const char *name)
+स्थिरांक संरचना propagation_flags_s *
+libcrun_str2mount_flags (स्थिरांक अक्षर *name)
 {
-  return libcrun_mount_flag_in_word_set (name, strlen (name));
+  परत libcrun_mount_flag_in_word_set (name, म_माप (name));
 }
 
-const struct propagation_flags_s *
-get_mount_flags_from_wordlist (void)
+स्थिरांक संरचना propagation_flags_s *
+get_mount_flags_from_wordlist (शून्य)
 {
-  struct propagation_flags_s *flags;
-  size_t i;
-  size_t num_wordlist_flags = sizeof (wordlist) / sizeof (wordlist[0]);
+  संरचना propagation_flags_s *flags;
+  माप_प्रकार i;
+  माप_प्रकार अंक_wordlist_flags = आकार (wordlist) / आकार (wordlist[0]);
 
-  flags = xmalloc0 ((sizeof (struct propagation_flags_s) + 1) * num_wordlist_flags);
-  for (i = 0; i < num_wordlist_flags; i++)
+  flags = xmalloc0 ((आकार (संरचना propagation_flags_s) + 1) * अंक_wordlist_flags);
+  साठी (i = 0; i < अंक_wordlist_flags; i++)
     flags[i].name = wordlist[i].name;
 
-  return flags;
+  परत flags;
 }

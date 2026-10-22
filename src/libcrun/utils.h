@@ -18,28 +18,28 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <argp.h>
-#include "error.h"
-#include <dirent.h>
-#include <unistd.h>
-#include <signal.h>
-#include <fcntl.h>
-#include <ocispec/runtime_spec_schema_config_schema.h>
-#include <sys/wait.h>
-#include "container.h"
+#अन्तर्भाव <config.h>
+#अन्तर्भाव <stdio.h>
+#अन्तर्भाव <stdlib.h>
+#अन्तर्भाव <string.h>
+#अन्तर्भाव <errno.h>
+#अन्तर्भाव <argp.h>
+#अन्तर्भाव "error.h"
+#अन्तर्भाव <dirent.h>
+#अन्तर्भाव <unistd.h>
+#अन्तर्भाव <signal.h>
+#अन्तर्भाव <fcntl.h>
+#अन्तर्भाव <ocispec/runtime_spec_schema_config_schema.h>
+#अन्तर्भाव <sys/wait.h>
+#अन्तर्भाव "container.h"
 
 #ifndef TEMP_FAILURE_RETRY
 #  define TEMP_FAILURE_RETRY(expression)      \
     (__extension__ ({                         \
-      long int __result;                      \
-      do                                      \
-        __result = (long int) (expression);   \
-      while (__result < 0 && errno == EINTR); \
+      दीर्घ पूर्णांक __result;                      \
+      करा                                      \
+        __result = (दीर्घ पूर्णांक) (expression);   \
+      पर्यंत (__result < 0 && त्रुटि_सं == EINTR); \
       __result;                               \
     }))
 #endif
@@ -59,497 +59,497 @@
 
 #define WRITE_FILE_DEFAULT_FLAGS (O_CLOEXEC | O_CREAT | O_TRUNC | O_WRONLY)
 
-__attribute__ ((malloc)) static inline void *
-xmalloc (size_t size)
+__attribute__ ((दो_स्मृति)) स्थिर ओळीत शून्य *
+xmalloc (माप_प्रकार size)
 {
-  void *res = malloc (size);
-  if (UNLIKELY (res == NULL))
+  शून्य *res = दो_स्मृति (size);
+  जर (UNLIKELY (res == रिक्त))
     OOM ();
-  return res;
+  परत res;
 }
 
-__attribute__ ((malloc)) static inline void *
-xmalloc0 (size_t size)
+__attribute__ ((दो_स्मृति)) स्थिर ओळीत शून्य *
+xmalloc0 (माप_प्रकार size)
 {
-  void *res = calloc (1, size);
-  if (UNLIKELY (res == NULL))
+  शून्य *res = सुस्मृति (1, size);
+  जर (UNLIKELY (res == रिक्त))
     OOM ();
-  return res;
+  परत res;
 }
 
-__attribute__ ((malloc)) static inline void *
-xrealloc (void *ptr, size_t size)
+__attribute__ ((दो_स्मृति)) स्थिर ओळीत शून्य *
+xrealloc (शून्य *ptr, माप_प्रकार size)
 {
-  void *res = realloc (ptr, size);
-  if (UNLIKELY (res == NULL))
+  शून्य *res = पुनः_स्मृति (ptr, size);
+  जर (UNLIKELY (res == रिक्त))
     OOM ();
-  return res;
+  परत res;
 }
 
-static inline void
-cleanup_freep (void *p)
+स्थिर ओळीत शून्य
+cleanup_freep (शून्य *p)
 {
-  void **pp = (void **) p;
-  free (*pp);
+  शून्य **pp = (शून्य **) p;
+  मुक्त (*pp);
 }
 
-static inline void
-cleanup_filep (FILE **f)
+स्थिर ओळीत शून्य
+cleanup_filep (खाता **f)
 {
-  FILE *file = *f;
-  if (file)
-    (void) fclose (file);
+  खाता *file = *f;
+  जर (file)
+    (शून्य) ख_बंद (file);
 }
 
-static inline void
-cleanup_closep (void *p)
+स्थिर ओळीत शून्य
+cleanup_closep (शून्य *p)
 {
-  int *pp = (int *) p;
-  if (*pp >= 0)
-    TEMP_FAILURE_RETRY (close (*pp));
+  पूर्णांक *pp = (पूर्णांक *) p;
+  जर (*pp >= 0)
+    TEMP_FAILURE_RETRY (बंद (*pp));
 }
 
-static inline void
-cleanup_pidp (void *p)
+स्थिर ओळीत शून्य
+cleanup_pidp (शून्य *p)
 {
   pid_t *pp = (pid_t *) p;
-  if (*pp > 0)
+  जर (*pp > 0)
     {
-      TEMP_FAILURE_RETRY (kill (*pp, SIGKILL));
-      TEMP_FAILURE_RETRY (waitpid (*pp, NULL, 0));
+      TEMP_FAILURE_RETRY (समाप्त (*pp, SIGKILL));
+      TEMP_FAILURE_RETRY (waitpid (*pp, रिक्त, 0));
     }
 }
 
-struct libcrun_mmap_s
+संरचना libcrun_mmap_s
 {
-  void *addr;
-  size_t length;
+  शून्य *addr;
+  माप_प्रकार length;
 };
 
-int libcrun_mmap (struct libcrun_mmap_s **ret, void *addr, size_t length,
-                  int prot, int flags, int fd, off_t offset,
+पूर्णांक libcrun_mmap (संरचना libcrun_mmap_s **ret, शून्य *addr, माप_प्रकार length,
+                  पूर्णांक prot, पूर्णांक flags, पूर्णांक fd, off_t offset,
                   libcrun_error_t *err);
 
-int libcrun_munmap (struct libcrun_mmap_s *mmap, libcrun_error_t *err);
+पूर्णांक libcrun_munmap (संरचना libcrun_mmap_s *mmap, libcrun_error_t *err);
 
-static inline void
-cleanup_mmapp (void *p)
+स्थिर ओळीत शून्य
+cleanup_mmapp (शून्य *p)
 {
-  int ret;
-  libcrun_error_t tmp_err = NULL;
-  struct libcrun_mmap_s **mm;
+  पूर्णांक ret;
+  libcrun_error_t tmp_err = रिक्त;
+  संरचना libcrun_mmap_s **mm;
 
-  mm = (struct libcrun_mmap_s **) p;
-  if (*mm == NULL)
-    return;
+  mm = (संरचना libcrun_mmap_s **) p;
+  जर (*mm == रिक्त)
+    परत;
 
   ret = libcrun_munmap (*mm, &tmp_err);
-  if (UNLIKELY (ret < 0))
+  जर (UNLIKELY (ret < 0))
     crun_error_release (&tmp_err);
 }
 
-struct libcrun_fd_map
+संरचना libcrun_fd_map
 {
-  size_t nfds;
-  int fds[];
+  माप_प्रकार nfds;
+  पूर्णांक fds[];
 };
 
-static inline struct libcrun_fd_map *
-make_libcrun_fd_map (size_t len)
+स्थिर ओळीत संरचना libcrun_fd_map *
+make_libcrun_fd_map (माप_प्रकार len)
 {
-  struct libcrun_fd_map *ret;
-  size_t i;
+  संरचना libcrun_fd_map *ret;
+  माप_प्रकार i;
 
-  ret = (struct libcrun_fd_map *) xmalloc (sizeof (*ret) + sizeof (int) * len);
+  ret = (संरचना libcrun_fd_map *) xmalloc (आकार (*ret) + आकार (पूर्णांक) * len);
   ret->nfds = len;
-  for (i = 0; i < len; i++)
+  साठी (i = 0; i < len; i++)
     ret->fds[i] = -1;
 
-  return ret;
+  परत ret;
 }
 
-static inline void
-cleanup_close_mapp (struct libcrun_fd_map **p)
+स्थिर ओळीत शून्य
+cleanup_close_mapp (संरचना libcrun_fd_map **p)
 {
-  struct libcrun_fd_map *m = *p;
-  size_t i;
+  संरचना libcrun_fd_map *m = *p;
+  माप_प्रकार i;
 
-  if (m == NULL)
-    return;
+  जर (m == रिक्त)
+    परत;
 
-  for (i = 0; i < m->nfds; i++)
-    if (m->fds[i] >= 0)
-      TEMP_FAILURE_RETRY (close (m->fds[i]));
+  साठी (i = 0; i < m->nfds; i++)
+    जर (m->fds[i] >= 0)
+      TEMP_FAILURE_RETRY (बंद (m->fds[i]));
 
-  free (m);
+  मुक्त (m);
 }
 
-static inline void
-cleanup_close_vecp (int **p)
+स्थिर ओळीत शून्य
+cleanup_close_vecp (पूर्णांक **p)
 {
-  int *pp = *p;
-  int i;
+  पूर्णांक *pp = *p;
+  पूर्णांक i;
 
-  if (pp == NULL)
-    return;
+  जर (pp == रिक्त)
+    परत;
 
-  for (i = 0; pp[i] >= 0; i++)
-    TEMP_FAILURE_RETRY (close (pp[i]));
+  साठी (i = 0; pp[i] >= 0; i++)
+    TEMP_FAILURE_RETRY (बंद (pp[i]));
 }
 
-static inline void
-cleanup_dirp (DIR **p)
+स्थिर ओळीत शून्य
+cleanup_dirp (सूची **p)
 {
-  DIR *dir = *p;
-  if (dir)
-    closedir (dir);
+  सूची *dir = *p;
+  जर (dir)
+    बंद_सूची (dir);
 }
 
-static inline int
-close_and_reset (int *fd)
+स्थिर ओळीत पूर्णांक
+close_and_reset (पूर्णांक *fd)
 {
-  int ret = 0;
-  if (*fd >= 0)
+  पूर्णांक ret = 0;
+  जर (*fd >= 0)
     {
-      ret = TEMP_FAILURE_RETRY (close (*fd));
-      if (LIKELY (ret == 0))
+      ret = TEMP_FAILURE_RETRY (बंद (*fd));
+      जर (LIKELY (ret == 0))
         *fd = -1;
     }
-  return ret;
+  परत ret;
 }
 
-static inline char *
-xstrdup (const char *str)
+स्थिर ओळीत अक्षर *
+xstrdup (स्थिरांक अक्षर *str)
 {
-  char *ret;
-  if (str == NULL)
-    return NULL;
+  अक्षर *ret;
+  जर (str == रिक्त)
+    परत रिक्त;
 
   ret = strdup (str);
-  if (ret == NULL)
+  जर (ret == रिक्त)
     OOM ();
 
-  return ret;
+  परत ret;
 }
 
-void consume_trailing_slashes (char *path);
+शून्य consume_trailing_slashes (अक्षर *path);
 
 #define consume_slashes(t) \
   ({                       \
     typeof (t) _s = (t);   \
-    while (*_s == '/')     \
+    पर्यंत (*_s == '/')     \
       _s++;                \
     _s;                    \
   })
 
-static inline bool
-path_is_slash_dev (const char *path)
+स्थिर ओळीत bool
+path_is_slash_dev (स्थिरांक अक्षर *path)
 {
   path = consume_slashes (path);
 
-  if (strncmp (path, "dev", 3))
-    return false;
+  जर (म_भेदन (path, "dev", 3))
+    परत false;
 
   path += 3;
 
   /* Check there are only '/' left.  */
-  for (; *path; path++)
-    if (*path != '/')
-      return false;
+  साठी (; *path; path++)
+    जर (*path != '/')
+      परत false;
 
-  return true;
+  परत true;
 }
 
-int xasprintf (char **str, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
+पूर्णांक xasprintf (अक्षर **str, स्थिरांक अक्षर *fmt, ...) __attribute__ ((format (म_लिखो, 2, 3)));
 
-int crun_path_exists (const char *path, libcrun_error_t *err);
+पूर्णांक crun_path_exists (स्थिरांक अक्षर *path, libcrun_error_t *err);
 
-int write_file_at_with_flags (int dirfd, int flags, mode_t mode, const char *name, const void *data, size_t len, libcrun_error_t *err);
+पूर्णांक write_file_at_with_flags (पूर्णांक dirfd, पूर्णांक flags, mode_t mode, स्थिरांक अक्षर *name, स्थिरांक शून्य *data, माप_प्रकार len, libcrun_error_t *err);
 
-static inline int
-write_file (const char *name, const void *data, size_t len, libcrun_error_t *err)
+स्थिर ओळीत पूर्णांक
+write_file (स्थिरांक अक्षर *name, स्थिरांक शून्य *data, माप_प्रकार len, libcrun_error_t *err)
 {
-  return write_file_at_with_flags (AT_FDCWD, WRITE_FILE_DEFAULT_FLAGS, 0700, name, data, len, err);
+  परत write_file_at_with_flags (AT_FDCWD, WRITE_FILE_DEFAULT_FLAGS, 0700, name, data, len, err);
 }
 
-static inline int
-write_file_at (int dirfd, const char *name, const void *data, size_t len, libcrun_error_t *err)
+स्थिर ओळीत पूर्णांक
+write_file_at (पूर्णांक dirfd, स्थिरांक अक्षर *name, स्थिरांक शून्य *data, माप_प्रकार len, libcrun_error_t *err)
 {
-  return write_file_at_with_flags (dirfd, WRITE_FILE_DEFAULT_FLAGS, 0700, name, data, len, err);
+  परत write_file_at_with_flags (dirfd, WRITE_FILE_DEFAULT_FLAGS, 0700, name, data, len, err);
 }
 
-int crun_ensure_directory (const char *path, int mode, bool nofollow, libcrun_error_t *err);
+पूर्णांक crun_ensure_directory (स्थिरांक अक्षर *path, पूर्णांक mode, bool nofollow, libcrun_error_t *err);
 
-int crun_ensure_directory_at (int dirfd, const char *path, int mode, bool nofollow, libcrun_error_t *err);
+पूर्णांक crun_ensure_directory_at (पूर्णांक dirfd, स्थिरांक अक्षर *path, पूर्णांक mode, bool nofollow, libcrun_error_t *err);
 
-int crun_safe_create_and_open_ref_at (bool dir, int dirfd, const char *dirpath, const char *path, int mode, libcrun_error_t *err);
+पूर्णांक crun_safe_create_and_open_ref_at (bool dir, पूर्णांक dirfd, स्थिरांक अक्षर *dirpath, स्थिरांक अक्षर *path, पूर्णांक mode, libcrun_error_t *err);
 
-int crun_safe_ensure_directory_at (int dirfd, const char *dirpath, const char *path, int mode,
+पूर्णांक crun_safe_ensure_directory_at (पूर्णांक dirfd, स्थिरांक अक्षर *dirpath, स्थिरांक अक्षर *path, पूर्णांक mode,
                                    libcrun_error_t *err);
 
-int crun_safe_ensure_file_at (int dirfd, const char *dirpath, const char *path, int mode,
+पूर्णांक crun_safe_ensure_file_at (पूर्णांक dirfd, स्थिरांक अक्षर *dirpath, स्थिरांक अक्षर *path, पूर्णांक mode,
                               libcrun_error_t *err);
 
-int crun_dir_p (const char *path, bool nofollow, libcrun_error_t *err);
+पूर्णांक crun_dir_p (स्थिरांक अक्षर *path, bool nofollow, libcrun_error_t *err);
 
-int crun_dir_p_at (int dirfd, const char *path, bool nofollow, libcrun_error_t *err);
+पूर्णांक crun_dir_p_at (पूर्णांक dirfd, स्थिरांक अक्षर *path, bool nofollow, libcrun_error_t *err);
 
-int detach_process ();
+पूर्णांक detach_process ();
 
-int create_file_if_missing_at (int dirfd, const char *file, mode_t mode, libcrun_error_t *err);
+पूर्णांक create_file_if_missing_at (पूर्णांक dirfd, स्थिरांक अक्षर *file, mode_t mode, libcrun_error_t *err);
 
-int check_running_in_user_namespace (libcrun_error_t *err);
+पूर्णांक check_running_in_user_namespace (libcrun_error_t *err);
 
-int set_selinux_label (libcrun_container_t *container, const char *label, bool now, libcrun_error_t *err);
+पूर्णांक set_selinux_label (libcrun_container_t *container, स्थिरांक अक्षर *label, bool now, libcrun_error_t *err);
 
-int add_selinux_mount_label (char **ret, const char *data, const char *label, const char *context_type, libcrun_error_t *err);
+पूर्णांक add_selinux_mount_label (अक्षर **ret, स्थिरांक अक्षर *data, स्थिरांक अक्षर *label, स्थिरांक अक्षर *context_type, libcrun_error_t *err);
 
-int set_apparmor_profile (libcrun_container_t *container, const char *profile, bool no_new_privileges, bool now, libcrun_error_t *err);
+पूर्णांक set_apparmor_profile (libcrun_container_t *container, स्थिरांक अक्षर *profile, bool no_new_privileges, bool now, libcrun_error_t *err);
 
-int read_all_fd_with_size_hint (int fd, const char *description, char **out, size_t *len, size_t hint, libcrun_error_t *err);
+पूर्णांक read_all_fd_with_size_hint (पूर्णांक fd, स्थिरांक अक्षर *description, अक्षर **out, माप_प्रकार *len, माप_प्रकार hint, libcrun_error_t *err);
 
-int read_all_fd_with_max_size (int fd, const char *description, char **out, size_t *len, size_t max_size, libcrun_error_t *err);
+पूर्णांक read_all_fd_with_max_size (पूर्णांक fd, स्थिरांक अक्षर *description, अक्षर **out, माप_प्रकार *len, माप_प्रकार max_size, libcrun_error_t *err);
 
-static inline int
-read_all_fd (int fd, const char *description, char **out, size_t *len, libcrun_error_t *err)
+स्थिर ओळीत पूर्णांक
+read_all_fd (पूर्णांक fd, स्थिरांक अक्षर *description, अक्षर **out, माप_प्रकार *len, libcrun_error_t *err)
 {
-  return read_all_fd_with_size_hint (fd, description, out, len, 0, err);
+  परत read_all_fd_with_size_hint (fd, description, out, len, 0, err);
 }
 
-int get_realpath_to_file (int dirfd, const char *path_name, char **absolute_path, libcrun_error_t *err);
+पूर्णांक get_realpath_to_file (पूर्णांक dirfd, स्थिरांक अक्षर *path_name, अक्षर **absolute_path, libcrun_error_t *err);
 
-int read_all_file (const char *path, char **out, size_t *len, libcrun_error_t *err);
+पूर्णांक read_all_file (स्थिरांक अक्षर *path, अक्षर **out, माप_प्रकार *len, libcrun_error_t *err);
 
-int read_all_file_at (int dirfd, const char *path, char **out, size_t *len, libcrun_error_t *err);
+पूर्णांक read_all_file_at (पूर्णांक dirfd, स्थिरांक अक्षर *path, अक्षर **out, माप_प्रकार *len, libcrun_error_t *err);
 
-int open_unix_domain_client_socket (const char *path, int dgram, libcrun_error_t *err);
+पूर्णांक open_unix_domain_client_socket (स्थिरांक अक्षर *path, पूर्णांक dgram, libcrun_error_t *err);
 
-int open_unix_domain_socket (const char *path, int dgram, libcrun_error_t *err);
+पूर्णांक open_unix_domain_socket (स्थिरांक अक्षर *path, पूर्णांक dgram, libcrun_error_t *err);
 
-int send_fd_to_socket (int server, int fd, libcrun_error_t *err);
+पूर्णांक send_fd_to_socket (पूर्णांक server, पूर्णांक fd, libcrun_error_t *err);
 
-int send_fd_to_socket_with_payload (int server, int fd, const char *payload, size_t payload_len, libcrun_error_t *err);
+पूर्णांक send_fd_to_socket_with_payload (पूर्णांक server, पूर्णांक fd, स्थिरांक अक्षर *payload, माप_प्रकार payload_len, libcrun_error_t *err);
 
-int create_socket_pair (int *pair, libcrun_error_t *err);
+पूर्णांक create_socket_pair (पूर्णांक *pair, libcrun_error_t *err);
 
-int receive_fd_from_socket (int from, libcrun_error_t *err);
+पूर्णांक receive_fd_from_socket (पूर्णांक from, libcrun_error_t *err);
 
-int receive_fd_from_socket_with_payload (int from, char *payload, size_t payload_len, libcrun_error_t *err);
+पूर्णांक receive_fd_from_socket_with_payload (पूर्णांक from, अक्षर *payload, माप_प्रकार payload_len, libcrun_error_t *err);
 
-int create_signalfd (sigset_t *mask, libcrun_error_t *err);
+पूर्णांक create_signalfd (sigset_t *mask, libcrun_error_t *err);
 
-int epoll_helper (int *in_fds, int *in_levelfds, int *out_fds, int *out_levelfds, libcrun_error_t *err);
+पूर्णांक epoll_helper (पूर्णांक *in_fds, पूर्णांक *in_levelfds, पूर्णांक *out_fds, पूर्णांक *out_levelfds, libcrun_error_t *err);
 
-int copy_from_fd_to_fd (int src, int dst, int consume, libcrun_error_t *err);
+पूर्णांक copy_from_fd_to_fd (पूर्णांक src, पूर्णांक dst, पूर्णांक consume, libcrun_error_t *err);
 
-int run_process (char **args, libcrun_error_t *err);
+पूर्णांक run_process (अक्षर **args, libcrun_error_t *err);
 
-int format_default_id_mapping (char **out, uid_t container_id, uid_t host_uid, uid_t host_id, int is_uid, libcrun_error_t *err);
+पूर्णांक format_default_id_mapping (अक्षर **out, uid_t container_id, uid_t host_uid, uid_t host_id, पूर्णांक is_uid, libcrun_error_t *err);
 
-int run_process_with_stdin_timeout_envp (char *path, char **args, const char *cwd, int timeout, char **envp,
-                                         char *stdin, size_t stdin_len, int out_fd, int err_fd, bool can_ignore_chdir_errors, libcrun_error_t *err);
+पूर्णांक run_process_with_stdin_timeout_envp (अक्षर *path, अक्षर **args, स्थिरांक अक्षर *cwd, पूर्णांक timeout, अक्षर **envp,
+                                         अक्षर *मानक_निवेश, माप_प्रकार stdin_len, पूर्णांक out_fd, पूर्णांक err_fd, bool can_ignore_chdir_errors, libcrun_error_t *err);
 
-int mark_or_close_fds_ge_than (libcrun_container_t *container, int n, bool close_now, libcrun_error_t *err);
+पूर्णांक mark_or_close_fds_ge_than (libcrun_container_t *container, पूर्णांक n, bool close_now, libcrun_error_t *err);
 
-void get_current_timestamp (char *out, size_t len);
+शून्य get_current_timestamp (अक्षर *out, माप_प्रकार len);
 
-int set_blocking_fd (int fd, bool blocking, libcrun_error_t *err);
+पूर्णांक set_blocking_fd (पूर्णांक fd, bool blocking, libcrun_error_t *err);
 
 /* Exported for the language bindings (python/, lua/), which parse a
    process JSON blob before calling libcrun_container_exec.  */
-LIBCRUN_PUBLIC int parse_json_file (json_object **out, const char *jsondata, struct parser_context *ctx, libcrun_error_t *err);
+LIBCRUN_PUBLIC पूर्णांक parse_json_file (json_object **out, स्थिरांक अक्षर *jsondata, संरचना parser_context *ctx, libcrun_error_t *err);
 
 /* Check that the string STR has the prefix PREFIX.  */
-static inline int
-has_prefix (const char *str, const char *prefix)
+स्थिर ओळीत पूर्णांक
+has_prefix (स्थिरांक अक्षर *str, स्थिरांक अक्षर *prefix)
 {
-  size_t prefix_len;
+  माप_प्रकार prefix_len;
 
-  if (! str || ! prefix)
-    return 0;
+  जर (! str || ! prefix)
+    परत 0;
 
-  prefix_len = strlen (prefix);
-  return strlen (str) >= prefix_len && memcmp (str, prefix, prefix_len) == 0;
+  prefix_len = म_माप (prefix);
+  परत म_माप (str) >= prefix_len && स_भेद (str, prefix, prefix_len) == 0;
 }
 
 /* Check that the string STR has the prefix PREFIX/ (followed by a slash).  */
-static inline int
-has_dir_prefix (const char *str, const char *prefix)
+स्थिर ओळीत पूर्णांक
+has_dir_prefix (स्थिरांक अक्षर *str, स्थिरांक अक्षर *prefix)
 {
-  size_t prefix_len;
+  माप_प्रकार prefix_len;
 
-  if (! str || ! prefix)
-    return 0;
+  जर (! str || ! prefix)
+    परत 0;
 
-  prefix_len = strlen (prefix);
-  return strlen (str) > prefix_len && memcmp (str, prefix, prefix_len) == 0 && str[prefix_len] == '/';
+  prefix_len = म_माप (prefix);
+  परत म_माप (str) > prefix_len && स_भेद (str, prefix, prefix_len) == 0 && str[prefix_len] == '/';
 }
 
-int find_executable (char **exec_path, const char *executable_path, const char *cwd, libcrun_error_t *err);
+पूर्णांक find_executable (अक्षर **exec_path, स्थिरांक अक्षर *executable_path, स्थिरांक अक्षर *cwd, libcrun_error_t *err);
 
-int copy_recursive_fd_to_fd (int srcfd, int destfd, const char *srcname, const char *destname, libcrun_error_t *err);
+पूर्णांक copy_recursive_fd_to_fd (पूर्णांक srcfd, पूर्णांक destfd, स्थिरांक अक्षर *srcname, स्थिरांक अक्षर *destname, libcrun_error_t *err);
 
-int set_home_env (uid_t uid);
+पूर्णांक set_home_env (uid_t uid);
 
-int libcrun_initialize_selinux (libcrun_container_t *container, libcrun_error_t *err);
+पूर्णांक libcrun_initialize_selinux (libcrun_container_t *container, libcrun_error_t *err);
 
-int libcrun_initialize_apparmor (libcrun_error_t *err);
+पूर्णांक libcrun_initialize_apparmor (libcrun_error_t *err);
 
-const char *find_annotation (libcrun_container_t *container, const char *name);
+स्थिरांक अक्षर *find_annotation (libcrun_container_t *container, स्थिरांक अक्षर *name);
 
-int get_file_type_at (int dirfd, mode_t *mode, bool nofollow, const char *path);
+पूर्णांक get_file_type_at (पूर्णांक dirfd, mode_t *mode, bool nofollow, स्थिरांक अक्षर *path);
 
-int get_file_type (mode_t *mode, bool nofollow, const char *path);
+पूर्णांक get_file_type (mode_t *mode, bool nofollow, स्थिरांक अक्षर *path);
 
-int get_file_type_fd (int fd, mode_t *mode);
+पूर्णांक get_file_type_fd (पूर्णांक fd, mode_t *mode);
 
-char *get_user_name (uid_t uid);
+अक्षर *get_user_name (uid_t uid);
 
-int safe_openat (int dirfd, const char *rootfs, const char *path, int flags, int mode,
+पूर्णांक safe_openat (पूर्णांक dirfd, स्थिरांक अक्षर *rootfs, स्थिरांक अक्षर *path, पूर्णांक flags, पूर्णांक mode,
                  libcrun_error_t *err);
 
-int safe_write (int fd, const char *fname, const void *buf, size_t count, libcrun_error_t *err);
+पूर्णांक safe_write (पूर्णांक fd, स्थिरांक अक्षर *fname, स्थिरांक शून्य *buf, माप_प्रकार मोजणी, libcrun_error_t *err);
 
-int append_paths (char **out, libcrun_error_t *err, ...) __attribute__ ((sentinel));
+पूर्णांक append_paths (अक्षर **out, libcrun_error_t *err, ...) __attribute__ ((sentinel));
 
-int str2sig (const char *name);
+पूर्णांक str2sig (स्थिरांक अक्षर *name);
 
-int base64_decode (const char *iptr, size_t isize, char *optr, size_t osize, size_t *nbytes);
-int has_suffix (const char *source, const char *suffix);
-char *libcrun_sysctl_key_to_proc_path (const char *key);
-char *str_join_array (int offset, size_t size, char *const array[], const char *joint);
+पूर्णांक base64_decode (स्थिरांक अक्षर *iptr, माप_प्रकार isize, अक्षर *optr, माप_प्रकार osize, माप_प्रकार *nbytes);
+पूर्णांक has_suffix (स्थिरांक अक्षर *source, स्थिरांक अक्षर *suffix);
+अक्षर *libcrun_sysctl_किल्ली_to_proc_path (स्थिरांक अक्षर *किल्ली);
+अक्षर *str_join_array (पूर्णांक offset, माप_प्रकार size, अक्षर *स्थिरांक array[], स्थिरांक अक्षर *joint);
 
-ssize_t safe_readlinkat (int dfd, const char *name, char **buffer, ssize_t hint, libcrun_error_t *err);
+ssize_t safe_readlinkat (पूर्णांक dfd, स्थिरांक अक्षर *name, अक्षर **buffer, ssize_t hint, libcrun_error_t *err);
 
-char **read_dir_entries (const char *path, libcrun_error_t *err);
+अक्षर **read_dir_entries (स्थिरांक अक्षर *path, libcrun_error_t *err);
 
-static inline bool
-is_empty_string (const char *s)
+स्थिर ओळीत bool
+is_empty_string (स्थिरांक अक्षर *s)
 {
-  return s == NULL || s[0] == '\0';
+  परत s == रिक्त || s[0] == '\0';
 }
 
 /* Like strlen(), but a NULL string has length 0.  */
-static inline size_t
-safe_strlen (const char *s)
+स्थिर ओळीत माप_प्रकार
+safe_strlen (स्थिरांक अक्षर *s)
 {
-  return s == NULL ? 0 : strlen (s);
+  परत s == रिक्त ? 0 : म_माप (s);
 }
 
-static inline bool
-path_has_dot_dot_component (const char *path)
+स्थिर ओळीत bool
+path_has_dot_dot_component (स्थिरांक अक्षर *path)
 {
-  if (path == NULL)
-    return false;
-  cleanup_free char *npath = xstrdup (path);
-  char *cur, *it;
+  जर (path == रिक्त)
+    परत false;
+  cleanup_free अक्षर *npath = xstrdup (path);
+  अक्षर *cur, *it;
 
   cur = npath;
-  it = strchr (cur, '/');
-  while (cur)
+  it = म_अक्षर (cur, '/');
+  पर्यंत (cur)
     {
-      if (it)
+      जर (it)
         *it = '\0';
 
-      if (strcmp (cur, "..") == 0)
-        return true;
+      जर (म_भेद (cur, "..") == 0)
+        परत true;
 
-      if (it == NULL)
-        break;
+      जर (it == रिक्त)
+        थांबा;
 
       cur = consume_slashes (it + 1);
       *it = '/';
-      it = strchr (cur, '/');
+      it = म_अक्षर (cur, '/');
     }
-  return false;
+  परत false;
 }
 
-static inline int
-waitpid_ignore_stopped (pid_t pid, int *status, int options)
+स्थिर ओळीत पूर्णांक
+waitpid_ignore_stopped (pid_t pid, पूर्णांक *status, पूर्णांक options)
 {
-  int ret, s;
-  do
+  पूर्णांक ret, s;
+  करा
     {
       s = 0;
       ret = TEMP_FAILURE_RETRY (waitpid (pid, &s, options));
-      if (ret < 0)
-        return ret;
-  } while (WIFSTOPPED (s) || WIFCONTINUED (s));
+      जर (ret < 0)
+        परत ret;
+  } पर्यंत (WIFSTOPPED (s) || WIFCONTINUED (s));
 
-  if (status)
+  जर (status)
     *status = s;
 
-  return ret;
+  परत ret;
 }
 
-static inline int
-get_process_exit_status (int status)
+स्थिर ओळीत पूर्णांक
+get_process_exit_status (पूर्णांक status)
 {
-  if (WIFEXITED (status))
-    return WEXITSTATUS (status);
-  if (WIFSIGNALED (status))
-    return 128 + WTERMSIG (status);
+  जर (WIFEXITED (status))
+    परत WEXITSTATUS (status);
+  जर (WIFSIGNALED (status))
+    परत 128 + WTERMSIG (status);
 
-  return -1;
+  परत -1;
 }
 
-uid_t get_overflow_uid (void);
-gid_t get_overflow_gid (void);
+uid_t get_overflow_uid (शून्य);
+gid_t get_overflow_gid (शून्य);
 
 /* Adapted from systemd.  Include space for the NUL byte.  */
 #define DECIMAL_STR_MAX(type)                                        \
-  ((size_t) 2U + (sizeof (type) <= 1 ? 3U : sizeof (type) <= 2 ? 5U  \
-                                        : sizeof (type) <= 4   ? 10U \
-                                        : sizeof (type) <= 8   ? 20U \
-                                                               : sizeof (int[-2 * (sizeof (type) > 8)])))
+  ((माप_प्रकार) 2U + (आकार (type) <= 1 ? 3U : आकार (type) <= 2 ? 5U  \
+                                        : आकार (type) <= 4   ? 10U \
+                                        : आकार (type) <= 8   ? 20U \
+                                                               : आकार (पूर्णांक[-2 * (आकार (type) > 8)])))
 
-#define _STRLEN(s) (sizeof (s) - 1)
+#define _STRLEN(s) (आकार (s) - 1)
 
 /* _STRLEN("self") < DECIMAL_STR_MAX (pid_t), so we don't need to calculate the length of both.  */
 #define PROC_PID_FD_STRLEN (_STRLEN ("/proc/") + DECIMAL_STR_MAX (pid_t) \
-                            + _STRLEN ("/fd/") + DECIMAL_STR_MAX (int))
+                            + _STRLEN ("/fd/") + DECIMAL_STR_MAX (पूर्णांक))
 
 /* A buffer long enough to hold either /proc/self/fd/$FD or a /proc/$PID/fd/$FD path.  */
-typedef char proc_fd_path_t[PROC_PID_FD_STRLEN];
+प्रकारव्याख्या अक्षर proc_fd_path_t[PROC_PID_FD_STRLEN];
 
 #undef _STRLEN
 
-static inline void
-get_proc_fd_path (proc_fd_path_t path, pid_t pid, int fd)
+स्थिर ओळीत शून्य
+get_proc_fd_path (proc_fd_path_t path, pid_t pid, पूर्णांक fd)
 {
-  const size_t max_len = sizeof (proc_fd_path_t);
-  size_t n;
+  स्थिरांक माप_प्रकार max_len = आकार (proc_fd_path_t);
+  माप_प्रकार n;
 
-  if (pid)
+  जर (pid)
     n = snprintf (path, max_len, "/proc/%d/fd/%d", pid, fd);
-  else
+  अन्यथा
     n = snprintf (path, max_len, "/proc/self/fd/%d", fd);
 
-  if (UNLIKELY (n >= max_len))
-    abort ();
+  जर (UNLIKELY (n >= max_len))
+    पात ();
 }
 
-static inline void
-get_proc_self_fd_path (proc_fd_path_t path, int fd)
+स्थिर ओळीत शून्य
+get_proc_self_fd_path (proc_fd_path_t path, पूर्णांक fd)
 {
   get_proc_fd_path (path, 0, fd);
 }
 
-static inline void
-get_self_fd_path (proc_fd_path_t path, int fd)
+स्थिर ओळीत शून्य
+get_self_fd_path (proc_fd_path_t path, पूर्णांक fd)
 {
-  snprintf (path, sizeof (proc_fd_path_t), "self/fd/%d", fd);
+  snprintf (path, आकार (proc_fd_path_t), "self/fd/%d", fd);
 }
 
-static inline int
-validate_options (unsigned int specified_options, unsigned int supported_options, libcrun_error_t *err)
+स्थिर ओळीत पूर्णांक
+validate_options (अचिन्हित पूर्णांक specified_options, अचिन्हित पूर्णांक supported_options, libcrun_error_t *err)
 {
-  if (! ! (~supported_options & specified_options))
-    return crun_make_error (err, 0, "internal error: unknown options %d", specified_options);
-  return 0;
+  जर (! ! (~supported_options & specified_options))
+    परत crun_make_error (err, 0, "internal error: unknown options %d", specified_options);
+  परत 0;
 }
 
-extern int cpuset_string_to_bitmask (const char *str, char **out, size_t *out_size, libcrun_error_t *err);
+बाह्य पूर्णांक cpuset_string_to_bitmask (स्थिरांक अक्षर *str, अक्षर **out, माप_प्रकार *out_size, libcrun_error_t *err);
 
 /*
  * A channel_fd_pair takes care of copying data between two file descriptors.
@@ -559,11 +559,11 @@ extern int cpuset_string_to_bitmask (const char *str, char **out, size_t *out_si
  * ready to accept the data, the channel_fd_pair will buffer the data until it
  * can be written.
  */
-struct channel_fd_pair;
+संरचना channel_fd_pair;
 
-struct channel_fd_pair *channel_fd_pair_new (int in_fd, int out_fd, size_t size);
+संरचना channel_fd_pair *channel_fd_pair_new (पूर्णांक in_fd, पूर्णांक out_fd, माप_प्रकार size);
 
-void channel_fd_pair_free (struct channel_fd_pair *channel);
+शून्य channel_fd_pair_free (संरचना channel_fd_pair *channel);
 
 /* Process the data in the channel_fd_pair.  This function will read data from
  * the input file descriptor and write it to the output file descriptor.  If
@@ -571,21 +571,21 @@ void channel_fd_pair_free (struct channel_fd_pair *channel);
  * buffered.  If epollfd is provided, the in_fd and out_fd will be registered
  * and unregistered as necessary.
  */
-int channel_fd_pair_process (struct channel_fd_pair *channel, int epollfd, libcrun_error_t *err);
+पूर्णांक channel_fd_pair_process (संरचना channel_fd_pair *channel, पूर्णांक epollfd, libcrun_error_t *err);
 
-static inline void
-cleanup_channel_fd_pairp (void *p)
+स्थिर ओळीत शून्य
+cleanup_channel_fd_pairp (शून्य *p)
 {
-  struct channel_fd_pair **pp = (struct channel_fd_pair **) p;
-  if (*pp == NULL)
-    return;
+  संरचना channel_fd_pair **pp = (संरचना channel_fd_pair **) p;
+  जर (*pp == रिक्त)
+    परत;
 
   channel_fd_pair_free (*pp);
 }
 #define cleanup_channel_fd_pair __attribute__ ((cleanup (cleanup_channel_fd_pairp)))
 
-int libcrun_get_cached_proc_fd (libcrun_container_t *container, libcrun_error_t *err);
-int libcrun_open_proc_file (libcrun_container_t *container, const char *path, int flags, libcrun_error_t *err);
-int libcrun_open_proc_pid_file (libcrun_container_t *container, pid_t pid, const char *path, int flags, libcrun_error_t *err);
+पूर्णांक libcrun_get_cached_proc_fd (libcrun_container_t *container, libcrun_error_t *err);
+पूर्णांक libcrun_open_proc_file (libcrun_container_t *container, स्थिरांक अक्षर *path, पूर्णांक flags, libcrun_error_t *err);
+पूर्णांक libcrun_open_proc_pid_file (libcrun_container_t *container, pid_t pid, स्थिरांक अक्षर *path, पूर्णांक flags, libcrun_error_t *err);
 
 #endif
