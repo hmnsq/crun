@@ -41,7 +41,7 @@
 #elif defined __STDC_VERSION__ && __STDC_VERSION__ >= 201112L
 #  define LIBCRUN_PRINTF(a, b)
 #  define LIBCRUN_NORETURN _Noreturn
-#else
+#иначе
 #  define LIBCRUN_PRINTF(a, b)
 #  define LIBCRUN_NORETURN
 #endif
@@ -85,29 +85,29 @@ typedef enum
   LIBCRUN_CONTAINER_STATUS_PAUSED,
 } libcrun_container_state_t;
 
-typedef void (*libcrun_output_handler) (int errno_, const char *msg, int verbosity, void *arg);
+typedef void (*libcrun_output_handler) (цяло errno_, const char *msg, цяло verbosity, void *arg);
 
 /* Error handling.  */
-int libcrun_error_get_status (libcrun_error_t err);
+цяло libcrun_error_get_status (libcrun_error_t err);
 const char *libcrun_error_get_message (libcrun_error_t err);
-int libcrun_error_release (libcrun_error_t *err);
+цяло libcrun_error_release (libcrun_error_t *err);
 
 /* Create an error object; returns a negative value derived from status.  */
-int libcrun_make_error (libcrun_error_t *err, int status, const char *fmt, ...) LIBCRUN_PRINTF (3, 4);
+цяло libcrun_make_error (libcrun_error_t *err, цяло status, const char *fmt, ...) LIBCRUN_PRINTF (3, 4);
 
 /* Report *err through the configured log handler and release it.  */
 void libcrun_error_report_and_release (libcrun_error_t *err);
 
 /* Report the error and terminate the process.  */
-void libcrun_fail_with_error (int errno_, const char *fmt, ...) LIBCRUN_NORETURN LIBCRUN_PRINTF (2, 3);
+void libcrun_fail_with_error (цяло errno_, const char *fmt, ...) LIBCRUN_NORETURN LIBCRUN_PRINTF (2, 3);
 
 /* Logging.  */
-void libcrun_set_verbosity (int verbosity);
-int libcrun_get_verbosity (void);
-int libcrun_set_log_format (const char *format, libcrun_error_t *err);
+void libcrun_set_verbosity (цяло verbosity);
+цяло libcrun_get_verbosity (void);
+цяло libcrun_set_log_format (const char *format, libcrun_error_t *err);
 void libcrun_debug (const char *fmt, ...) LIBCRUN_PRINTF (1, 2);
 void libcrun_warning (const char *fmt, ...) LIBCRUN_PRINTF (1, 2);
-void libcrun_error (int errno_, const char *fmt, ...) LIBCRUN_PRINTF (2, 3);
+void libcrun_error (цяло errno_, const char *fmt, ...) LIBCRUN_PRINTF (2, 3);
 
 /* Context.  */
 libcrun_context_t *libcrun_context_new (const char *id, const char *state_root, libcrun_error_t *err);
@@ -122,21 +122,21 @@ void libcrun_context_set_pid_file (libcrun_context_t *ctx, const char *value);
 const char *libcrun_context_get_pid_file (libcrun_context_t *ctx);
 void libcrun_context_set_notify_socket (libcrun_context_t *ctx, const char *value);
 void libcrun_context_set_handler (libcrun_context_t *ctx, const char *value);
-void libcrun_context_set_preserve_fds (libcrun_context_t *ctx, int preserve_fds);
-int libcrun_context_get_preserve_fds (libcrun_context_t *ctx);
-void libcrun_context_set_listen_fds (libcrun_context_t *ctx, int listen_fds);
-void libcrun_context_set_args (libcrun_context_t *ctx, int argc, char **argv);
+void libcrun_context_set_preserve_fds (libcrun_context_t *ctx, цяло preserve_fds);
+цяло libcrun_context_get_preserve_fds (libcrun_context_t *ctx);
+void libcrun_context_set_listen_fds (libcrun_context_t *ctx, цяло listen_fds);
+void libcrun_context_set_args (libcrun_context_t *ctx, цяло argc, char **argv);
 void libcrun_context_set_systemd_cgroup (libcrun_context_t *ctx, bool value);
 void libcrun_context_set_detach (libcrun_context_t *ctx, bool value);
 void libcrun_context_set_no_new_keyring (libcrun_context_t *ctx, bool value);
 void libcrun_context_set_no_pivot (libcrun_context_t *ctx, bool value);
 void libcrun_context_set_force_no_cgroup (libcrun_context_t *ctx, bool value);
 void libcrun_context_set_output_handler (libcrun_context_t *ctx, libcrun_output_handler handler, void *arg);
-int libcrun_context_init_logging (libcrun_context_t *ctx, const char *log, libcrun_error_t *err);
+цяло libcrun_context_init_logging (libcrun_context_t *ctx, const char *log, libcrun_error_t *err);
 
 /* Close the file descriptors inherited from the caller, honoring the
    preserve-fds and listen-fds settings in CTX.  */
-int libcrun_close_inherited_fds (libcrun_context_t *ctx, libcrun_error_t *err);
+цяло libcrun_close_inherited_fds (libcrun_context_t *ctx, libcrun_error_t *err);
 
 /* Container object (loaded from JSON, introspected via accessors).  */
 libcrun_container_t *libcrun_container_load_from_file (const char *path, libcrun_error_t *err);
@@ -153,32 +153,32 @@ const char *libcrun_container_get_annotation (libcrun_container_t *container, co
    returns 0 and sets *key and *value (both owned by container) for an index
    below libcrun_container_get_annotations_len, -1 otherwise.  */
 size_t libcrun_container_get_annotations_len (libcrun_container_t *container);
-int libcrun_container_get_annotation_at (libcrun_container_t *container, size_t index, const char **key,
+цяло libcrun_container_get_annotation_at (libcrun_container_t *container, size_t index, const char **key,
                                          const char **value);
 
 uid_t libcrun_container_get_uid (libcrun_container_t *container);
 gid_t libcrun_container_get_gid (libcrun_container_t *container);
 
 /* Lifecycle.  */
-int libcrun_container_run (libcrun_context_t *ctx, libcrun_container_t *container, unsigned int options,
+цяло libcrun_container_run (libcrun_context_t *ctx, libcrun_container_t *container, unsigned цяло options,
                            libcrun_error_t *err);
-int libcrun_container_create (libcrun_context_t *ctx, libcrun_container_t *container, unsigned int options,
+цяло libcrun_container_create (libcrun_context_t *ctx, libcrun_container_t *container, unsigned цяло options,
                               libcrun_error_t *err);
-int libcrun_container_start (libcrun_context_t *ctx, const char *id, libcrun_error_t *err);
-int libcrun_container_delete (libcrun_context_t *ctx, const char *id, bool force, libcrun_error_t *err);
-int libcrun_container_kill (libcrun_context_t *ctx, const char *id, const char *signal, libcrun_error_t *err);
-int libcrun_container_killall (libcrun_context_t *ctx, const char *id, const char *signal, libcrun_error_t *err);
-int libcrun_container_pause (libcrun_context_t *ctx, const char *id, libcrun_error_t *err);
-int libcrun_container_unpause (libcrun_context_t *ctx, const char *id, libcrun_error_t *err);
-int libcrun_container_update (libcrun_context_t *ctx, const char *id, const char *content, size_t len,
+цяло libcrun_container_start (libcrun_context_t *ctx, const char *id, libcrun_error_t *err);
+цяло libcrun_container_delete (libcrun_context_t *ctx, const char *id, bool force, libcrun_error_t *err);
+цяло libcrun_container_kill (libcrun_context_t *ctx, const char *id, const char *signal, libcrun_error_t *err);
+цяло libcrun_container_killall (libcrun_context_t *ctx, const char *id, const char *signal, libcrun_error_t *err);
+цяло libcrun_container_pause (libcrun_context_t *ctx, const char *id, libcrun_error_t *err);
+цяло libcrun_container_unpause (libcrun_context_t *ctx, const char *id, libcrun_error_t *err);
+цяло libcrun_container_update (libcrun_context_t *ctx, const char *id, const char *content, size_t len,
                               libcrun_error_t *err);
 
 /* JSON in, JSON out; caller frees *out with free().  */
-int libcrun_container_spec_json (bool root, char **out, libcrun_error_t *err);
-int libcrun_container_state_json (libcrun_context_t *ctx, const char *id, char **out, libcrun_error_t *err);
+цяло libcrun_container_spec_json (bool root, char **out, libcrun_error_t *err);
+цяло libcrun_container_state_json (libcrun_context_t *ctx, const char *id, char **out, libcrun_error_t *err);
 
 /* Runtime features as an OCI features JSON document; caller frees *out with free().  */
-int libcrun_container_get_features_json (libcrun_context_t *ctx, char **out, libcrun_error_t *err);
+цяло libcrun_container_get_features_json (libcrun_context_t *ctx, char **out, libcrun_error_t *err);
 
 struct libcrun_exec_options_s
 {
@@ -188,20 +188,20 @@ struct libcrun_exec_options_s
   bool merge_env; /* merge the container environment with the one in process_json */
 };
 
-int libcrun_container_exec_json (libcrun_context_t *ctx, const char *id, const char *process_json,
+цяло libcrun_container_exec_json (libcrun_context_t *ctx, const char *id, const char *process_json,
                                  libcrun_error_t *err);
-int libcrun_container_exec_with_options_json (libcrun_context_t *ctx, const char *id,
+цяло libcrun_container_exec_with_options_json (libcrun_context_t *ctx, const char *id,
                                               const struct libcrun_exec_options_s *opts, libcrun_error_t *err);
 
 /* Status.  */
-int libcrun_container_status_load (libcrun_context_t *ctx, const char *id, libcrun_status_t **out,
+цяло libcrun_container_status_load (libcrun_context_t *ctx, const char *id, libcrun_status_t **out,
                                    libcrun_error_t *err);
 void libcrun_container_status_free (libcrun_status_t *st);
 
 /* Resolve the live state of the container described by st, by probing it
    (cgroup/fifo/pid).  The result is cached in st, so this costs at most one
    probe per status object.  state and running can be NULL.  */
-int libcrun_status_get_state (libcrun_status_t *st, libcrun_container_state_t *state, int *running,
+цяло libcrun_status_get_state (libcrun_status_t *st, libcrun_container_state_t *state, цяло *running,
                               libcrun_error_t *err);
 
 /* Return the OCI name of state ("creating"/"created"/"running"/"stopped"/"paused"),
@@ -220,27 +220,27 @@ const char *libcrun_status_get_external_descriptors (libcrun_status_t *st);
    probing the container (cgroup/fifo/pid) rather than reading the stored enum.  *out
    points to a static string (do not free).  If running is non-NULL it receives 1 when
    the container has a live process, 0 otherwise.  */
-int libcrun_container_get_state_string (libcrun_context_t *ctx, const char *id, const char **out, int *running,
+цяло libcrun_container_get_state_string (libcrun_context_t *ctx, const char *id, const char **out, цяло *running,
                                         libcrun_error_t *err);
 
 /* Resolve the on-disk state directory for a container (id may be NULL for the state
    root itself); caller frees *out with free().  */
-int libcrun_get_state_dir (char **out, const char *state_root, const char *id, libcrun_error_t *err);
+цяло libcrun_get_state_dir (char **out, const char *state_root, const char *id, libcrun_error_t *err);
 
 /* List containers under the state root.  Obtain a cursor with
    libcrun_container_list_iter and walk it with libcrun_container_iter_next, which
    stores a borrowed container id in *id and returns true until the list is exhausted.  */
-int libcrun_container_list (libcrun_context_t *ctx, libcrun_container_list_t **out, libcrun_error_t *err);
+цяло libcrun_container_list (libcrun_context_t *ctx, libcrun_container_list_t **out, libcrun_error_t *err);
 libcrun_container_iter_t *libcrun_container_list_iter (libcrun_container_list_t *l);
 bool libcrun_container_iter_next (libcrun_container_iter_t *it, const char **id);
 void libcrun_container_iter_free (libcrun_container_iter_t *it);
 void libcrun_container_list_free (libcrun_container_list_t *l);
 
 /* All containers with their details as a JSON array; caller frees *out with free().  */
-int libcrun_container_list_json (libcrun_context_t *ctx, char **out, libcrun_error_t *err);
+цяло libcrun_container_list_json (libcrun_context_t *ctx, char **out, libcrun_error_t *err);
 
 /* Update the resources of a running container from an OCI resources JSON file.  */
-int libcrun_container_update_from_file (libcrun_context_t *ctx, const char *id, const char *file,
+цяло libcrun_container_update_from_file (libcrun_context_t *ctx, const char *id, const char *file,
                                         libcrun_error_t *err);
 
 /* Update individual resource values.  */
@@ -252,7 +252,7 @@ struct libcrun_update_value_s
   const char *value;
 };
 
-int libcrun_container_update_from_values (libcrun_context_t *ctx, const char *id,
+цяло libcrun_container_update_from_values (libcrun_context_t *ctx, const char *id,
                                           struct libcrun_update_value_s *values, size_t len,
                                           libcrun_error_t *err);
 
@@ -264,17 +264,17 @@ struct libcrun_intel_rdt_update
   char *const *schemata;
 };
 
-int libcrun_container_update_intel_rdt (libcrun_context_t *ctx, const char *id,
+цяло libcrun_container_update_intel_rdt (libcrun_context_t *ctx, const char *id,
                                         struct libcrun_intel_rdt_update *update, libcrun_error_t *err);
 
 /* Add or remove mounts described by an OCI mounts JSON file.  */
-int libcrun_container_add_mounts_from_file (libcrun_context_t *ctx, const char *id, const char *file,
+цяло libcrun_container_add_mounts_from_file (libcrun_context_t *ctx, const char *id, const char *file,
                                             libcrun_error_t *err);
-int libcrun_container_remove_mounts_from_file (libcrun_context_t *ctx, const char *id, const char *file,
+цяло libcrun_container_remove_mounts_from_file (libcrun_context_t *ctx, const char *id, const char *file,
                                                libcrun_error_t *err);
 
 /* Enumerate the PIDs in a container; caller frees *pids with free().  */
-int libcrun_container_read_pids (libcrun_context_t *ctx, const char *id, bool recurse, pid_t **pids,
+цяло libcrun_container_read_pids (libcrun_context_t *ctx, const char *id, bool recurse, pid_t **pids,
                                  libcrun_error_t *err);
 
 /* Checkpoint and restore (CRIU).  */
@@ -315,13 +315,13 @@ struct libcrun_checkpoint_restore_options_s
   bool pre_dump;
   bool detach;
 
-  int manage_cgroups_mode; /* enum libcrun_cr_cgroups_mode */
-  int network_lock_method; /* enum libcrun_cr_network_lock_method */
+  цяло manage_cgroups_mode; /* enum libcrun_cr_cgroups_mode */
+  цяло network_lock_method; /* enum libcrun_cr_network_lock_method */
 };
 
-int libcrun_container_checkpoint (libcrun_context_t *ctx, const char *id,
+цяло libcrun_container_checkpoint (libcrun_context_t *ctx, const char *id,
                                   struct libcrun_checkpoint_restore_options_s *opts, libcrun_error_t *err);
-int libcrun_container_restore (libcrun_context_t *ctx, const char *id,
+цяло libcrun_container_restore (libcrun_context_t *ctx, const char *id,
                                struct libcrun_checkpoint_restore_options_s *opts, libcrun_error_t *err);
 
 /* Feature tags contributed by the loaded handlers, as a NULL-terminated array of

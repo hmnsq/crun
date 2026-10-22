@@ -20,8 +20,8 @@
 
 #include "crun.h"
 
-int crun_parse_manage_cgroups_mode (char *param);
-int crun_parse_network_lock_method (char *param);
-int crun_command_checkpoint (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+цяло crun_parse_manage_cgroups_mode (char *param);
+цяло crun_parse_network_lock_method (char *param);
+цяло crun_command_checkpoint (struct crun_global_arguments *global_args, цяло argc, char **argv, libcrun_error_t *error);
 
 #endif

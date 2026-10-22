@@ -42,7 +42,7 @@ static struct argp_option options[] = { {
 static char args_doc[] = "pause CONTAINER";
 
 static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+parse_opt (цяло key, char *arg arg_unused, struct argp_state *state arg_unused)
 {
   switch (key)
     {
@@ -50,18 +50,18 @@ parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
     default:
-      return ARGP_ERR_UNKNOWN;
+      върни ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  върни 0;
 }
 
 static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-int
-crun_command_pause (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+цяло
+crun_command_pause (struct crun_global_arguments *global_args, цяло argc, char **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
+  цяло first_arg = 0, ret;
   cleanup_context libcrun_context_t *crun_context = NULL;
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &pause_options);
@@ -70,8 +70,8 @@ crun_command_pause (struct crun_global_arguments *global_args, int argc, char **
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ако (UNLIKELY (ret < 0))
+    върни ret;
 
-  return libcrun_container_pause (crun_context, argv[first_arg], err);
+  върни libcrun_container_pause (crun_context, argv[first_arg], err);
 }

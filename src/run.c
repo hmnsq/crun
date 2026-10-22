@@ -62,7 +62,7 @@ static char args_doc[] = "run [OPTION]... CONTAINER";
 static const char *config_file = "config.json";
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (цяло key, char *arg, struct argp_state *state)
 {
   switch (key)
     {
@@ -109,27 +109,27 @@ parse_opt (int key, char *arg, struct argp_state *state)
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
     default:
-      return ARGP_ERR_UNKNOWN;
+      върни ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  върни 0;
 }
 
 static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-static unsigned int
+static unsigned цяло
 get_options ()
 {
-  return keep ? LIBCRUN_RUN_OPTIONS_KEEP : 0;
+  върни keep ? LIBCRUN_RUN_OPTIONS_KEEP : 0;
 }
 
-int
-crun_command_run (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+цяло
+crun_command_run (struct crun_global_arguments *global_args, цяло argc, char **argv, libcrun_error_t *err)
 {
-  int ret;
+  цяло ret;
 
   crun_context = new_libcrun_context (global_args);
   ret = crun_run_create_internal (global_args, argc, argv, libcrun_container_run, get_options, crun_context, &run_argp, &config_file, &bundle, err);
   libcrun_context_free (crun_context);
-  return ret;
+  върни ret;
 }
