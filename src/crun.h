@@ -29,8 +29,8 @@ struct crun_global_arguments
   char *log_format;
   const char *handler;
 
-  int argc;
-  int verbosity;
+  цео argc;
+  цео verbosity;
   char **argv;
 
   bool command;
@@ -39,9 +39,9 @@ struct crun_global_arguments
 };
 
 char *argp_mandatory_argument (char *arg, struct argp_state *state);
-int parse_id_or_fail (const char *str, char **endptr, const char *kind);
-int init_libcrun_context (libcrun_context_t *con, const char *id, struct crun_global_arguments *glob,
+цео parse_id_or_fail (const char *str, char **endptr, const char *kind);
+цео init_libcrun_context (libcrun_context_t *con, const char *id, struct crun_global_arguments *glob,
                           libcrun_error_t *err);
 libcrun_context_t *new_libcrun_context (struct crun_global_arguments *glob);
-void crun_assert_n_args (int n, int min, int max);
+void crun_assert_n_args (цео n, цео min, цео max);
 #endif

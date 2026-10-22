@@ -41,7 +41,7 @@ string_map *make_string_map_from_json (json_map_string_string *jmap);
 
 void free_string_map (string_map *map);
 
-int string_map_get_at (string_map *map, size_t index, const char **name, const char **value);
+цео string_map_get_at (string_map *map, size_t index, const char **name, const char **value);
 
 size_t string_map_size (string_map *map);
 

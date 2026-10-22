@@ -29,10 +29,10 @@
 #  include <linux/bpf.h>
 
 #  ifndef HAVE_BPF
-static int
-syscall_bpf (int cmd, union bpf_attr *attr, unsigned int size)
+static цео
+syscall_bpf (цео cmd, union bpf_attr *attr, unsigned цео size)
 {
-  return (int) syscall (__NR_bpf, cmd, attr, size);
+  врати (цео) syscall (__NR_bpf, cmd, attr, size);
 }
 #    define bpf syscall_bpf
 #  endif
@@ -42,7 +42,7 @@ syscall_bpf (int cmd, union bpf_attr *attr, unsigned int size)
 static inline uint64_t
 ptr_to_u64 (const void *ptr)
 {
-  return (uint64_t) (unsigned long) ptr;
+  врати (uint64_t) (unsigned long) ptr;
 }
 
 enum
@@ -54,7 +54,7 @@ struct bpf_program
 {
   size_t allocated;
   size_t used;
-  unsigned int private;
+  unsigned цео private;
   char program[];
 };
 
@@ -93,7 +93,7 @@ struct bpf_program
 static size_t
 bpf_program_instructions (struct bpf_program *program)
 {
-  return program->used / (sizeof (struct bpf_insn));
+  врати program->used / (sizeof (struct bpf_insn));
 }
 #endif
 
@@ -106,20 +106,20 @@ bpf_program_new (size_t size)
   p->private = 0;
   p->allocated = size;
 
-  return p;
+  врати p;
 }
 
 struct bpf_program *
 bpf_program_append (struct bpf_program *p, void *data, size_t size)
 {
-  if (p->allocated <= p->used + size)
+  ако (p->allocated <= p->used + size)
     {
       p->allocated += size * 2;
       p = xrealloc (p, p->allocated + sizeof (struct bpf_program));
     }
   memcpy (p->program + p->used, data, size);
   p->used += size;
-  return p;
+  врати p;
 }
 
 struct bpf_program *
@@ -144,34 +144,34 @@ bpf_program_init_dev (struct bpf_program *program, libcrun_error_t *err arg_unus
   };
   program = bpf_program_append (program, pre_insn, sizeof (pre_insn));
 #endif
-  return program;
+  врати program;
 }
 
 struct bpf_program *
-bpf_program_append_dev (struct bpf_program *program, const char *access, char type, int major, int minor, bool accept,
+bpf_program_append_dev (struct bpf_program *program, const char *access, char type, цео major, цео minor, bool accept,
                         libcrun_error_t *err arg_unused)
 {
 #ifdef HAVE_EBPF
-  int i;
-  int bpf_access = 0;
-  int bpf_type = type == 'b' ? BPF_DEVCG_DEV_BLOCK : BPF_DEVCG_DEV_CHAR;
+  цео i;
+  цео bpf_access = 0;
+  цео bpf_type = type == 'b' ? BPF_DEVCG_DEV_BLOCK : BPF_DEVCG_DEV_CHAR;
   bool has_type = type != 'a';
   bool has_major = major >= 0;
   bool has_minor = minor >= 0;
   bool has_access = false;
-  int number_instructions = 0;
+  цео number_instructions = 0;
   struct bpf_insn accept_block[] = {
     BPF_MOV64_IMM (BPF_REG_0, accept ? 1 : 0),
     BPF_EXIT_INSN (),
   };
 
-  if (access == NULL)
+  ако (access == NULL)
     access = "";
 
-  if (program->private & HAS_WILDCARD)
-    return program;
+  ако (program->private & HAS_WILDCARD)
+    врати program;
 
-  for (i = 0; access[i]; i++)
+  за (i = 0; access[i]; i++)
     {
       switch (access[i])
         {
@@ -210,13 +210,13 @@ bpf_program_append_dev (struct bpf_program *program, const char *access, char ty
   /* Number of instructions to skip the ACCEPT BLOCK.  */
   number_instructions = (has_type ? 1 : 0) + (has_access ? 3 : 0) + (has_major ? 1 : 0) + (has_minor ? 1 : 0) + 1;
 
-  if (has_type)
+  ако (has_type)
     {
       struct bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_2, bpf_type, number_instructions) };
       number_instructions--;
       program = bpf_program_append (program, i, sizeof (i));
     }
-  if (has_access)
+  ако (has_access)
     {
       struct bpf_insn i[] = {
         BPF_MOV32_REG (BPF_REG_1, BPF_REG_3),
@@ -227,20 +227,20 @@ bpf_program_append_dev (struct bpf_program *program, const char *access, char ty
       number_instructions -= 3;
       program = bpf_program_append (program, i, sizeof (i));
     }
-  if (has_major)
+  ако (has_major)
     {
       struct bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_4, major, number_instructions) };
       number_instructions--;
       program = bpf_program_append (program, i, sizeof (i));
     }
-  if (has_minor)
+  ако (has_minor)
     {
       struct bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_5, minor, number_instructions) };
       number_instructions--;
       program = bpf_program_append (program, i, sizeof (i));
     }
 
-  if (has_type == 0 && has_access == 0 && has_major == 0 && has_minor == 0)
+  ако (has_type == 0 && has_access == 0 && has_major == 0 && has_minor == 0)
     program->private |= HAS_WILDCARD;
 
   program = bpf_program_append (program, accept_block, sizeof (accept_block));
@@ -251,7 +251,7 @@ bpf_program_append_dev (struct bpf_program *program, const char *access, char ty
   (void) minor;
   (void) accept;
 
-  return program;
+  врати program;
 }
 
 struct bpf_program *
@@ -263,26 +263,26 @@ bpf_program_complete_dev (struct bpf_program *program, libcrun_error_t *err arg_
     BPF_EXIT_INSN (),
   };
 
-  if (program->private & HAS_WILDCARD)
-    return program;
+  ако (program->private & HAS_WILDCARD)
+    врати program;
 
   program = bpf_program_append (program, &i, sizeof (i));
 #endif
-  return program;
+  врати program;
 }
 
-static int
-read_all_progs (int dirfd, uint32_t **progs_out, size_t *n_progs_out, libcrun_error_t *err)
+static цео
+read_all_progs (цео dirfd, uint32_t **progs_out, size_t *n_progs_out, libcrun_error_t *err)
 {
 #ifdef HAVE_EBPF
   cleanup_free uint32_t *progs = NULL;
   union bpf_attr attr;
-  int ret;
+  цео ret;
   size_t cur_size;
 
   /* The kernel 5.7 has a hard limit of 64, let's be safe if the limit
      will be increased in future and attempt up to 4096.  */
-  for (cur_size = 64; cur_size <= 4096; cur_size *= 2)
+  за (cur_size = 64; cur_size <= 4096; cur_size *= 2)
     {
       progs = xrealloc (progs, sizeof (uint32_t) * cur_size);
 
@@ -294,48 +294,48 @@ read_all_progs (int dirfd, uint32_t **progs_out, size_t *n_progs_out, libcrun_er
 
       ret = bpf (BPF_PROG_QUERY, &attr, sizeof (attr));
     }
-  while (ret < 0 && errno == ENOSPC)
+  док (ret < 0 && errno == ENOSPC)
     ;
 
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "bpf query");
+  ако (UNLIKELY (ret < 0))
+    врати crun_make_error (err, errno, "bpf query");
 
   *progs_out = progs;
   progs = NULL;
   *n_progs_out = attr.query.prog_cnt;
-  return 0;
-#else
+  врати 0;
+#инако
   (void) dirfd;
 
   *progs_out = NULL;
   *n_progs_out = 0;
 
-  return crun_make_error (err, 0, "eBPF not supported");
+  врати crun_make_error (err, 0, "eBPF not supported");
 #endif
 }
 
-static int
-remove_all_progs (int dirfd, uint32_t *progs, size_t n_progs, libcrun_error_t *err)
+static цео
+remove_all_progs (цео dirfd, uint32_t *progs, size_t n_progs, libcrun_error_t *err)
 {
 #ifdef HAVE_EBPF
   union bpf_attr attr;
   size_t i;
 
-  for (i = 0; i < n_progs; i++)
+  за (i = 0; i < n_progs; i++)
     {
-      cleanup_close int fd = -1;
-      int ret;
+      cleanup_close цео fd = -1;
+      цео ret;
 
       memset (&attr, 0, sizeof (attr));
       attr.prog_id = progs[i];
       fd = bpf (BPF_PROG_GET_FD_BY_ID, &attr, sizeof (attr));
-      if (UNLIKELY (fd < 0))
+      ако (UNLIKELY (fd < 0))
         {
           /* Already removed.  Nothing to do.  */
-          if (errno == ENOENT)
+          ако (errno == ENOENT)
             continue;
 
-          return crun_make_error (err, errno, "cannot open existing eBPF program");
+          врати crun_make_error (err, errno, "cannot open existing eBPF program");
         }
 
       memset (&attr, 0, sizeof (attr));
@@ -344,26 +344,26 @@ remove_all_progs (int dirfd, uint32_t *progs, size_t n_progs, libcrun_error_t *e
       attr.attach_bpf_fd = fd;
 
       ret = bpf (BPF_PROG_DETACH, &attr, sizeof (attr));
-      if (UNLIKELY (ret < 0))
+      ако (UNLIKELY (ret < 0))
         {
           /* Already removed.  Nothing to do.  */
-          if (errno == ENOENT)
+          ако (errno == ENOENT)
             continue;
 
-          return crun_make_error (err, errno, "cannot detach eBPF program");
+          врати crun_make_error (err, errno, "cannot detach eBPF program");
         }
     }
-  return 0;
-#else
+  врати 0;
+#инако
   (void) dirfd;
   (void) progs;
   (void) n_progs;
-  return crun_make_error (err, 0, "eBPF not supported");
+  врати crun_make_error (err, 0, "eBPF not supported");
 #endif
 }
 
-static int
-ebpf_attach_program (int fd, int dirfd, libcrun_error_t *err)
+static цео
+ebpf_attach_program (цео fd, цео dirfd, libcrun_error_t *err)
 {
 #ifndef HAVE_EBPF
   (void) fd;
@@ -371,41 +371,41 @@ ebpf_attach_program (int fd, int dirfd, libcrun_error_t *err)
   (void) read_all_progs;
   (void) remove_all_progs;
 
-  return crun_make_error (err, 0, "eBPF not supported");
-#else
+  врати crun_make_error (err, 0, "eBPF not supported");
+#инако
 #  ifdef BPF_F_REPLACE
   bool skip_replace = false;
 #  endif
-  const int MAX_ATTEMPTS = 20;
-  int attempt;
+  const цео MAX_ATTEMPTS = 20;
+  цео attempt;
 
-  for (attempt = 0;; attempt++)
+  за (attempt = 0;; attempt++)
     {
       cleanup_free uint32_t *progs = NULL;
-      cleanup_close int replacefd = -1;
+      cleanup_close цео replacefd = -1;
       union bpf_attr attr;
       size_t n_progs = 0;
-      int ret;
+      цео ret;
 
       ret = read_all_progs (dirfd, &progs, &n_progs, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ако (UNLIKELY (ret < 0))
+        врати ret;
 
 #  ifdef BPF_F_REPLACE
       /* There is just one program installed, let's attempt an atomic replace if supported.  */
-      if (! skip_replace && n_progs == 1)
+      ако (! skip_replace && n_progs == 1)
         {
           memset (&attr, 0, sizeof (attr));
           attr.prog_id = progs[0];
           replacefd = bpf (BPF_PROG_GET_FD_BY_ID, &attr, sizeof (attr));
-          if (UNLIKELY (replacefd < 0))
+          ако (UNLIKELY (replacefd < 0))
             {
-              if (errno == ENOENT && attempt < MAX_ATTEMPTS)
+              ако (errno == ENOENT && attempt < MAX_ATTEMPTS)
                 {
                   /* Another update might have raced and updated, try again.  */
                   continue;
                 }
-              return crun_make_error (err, errno, "cannot open existing eBPF program");
+              врати crun_make_error (err, errno, "cannot open existing eBPF program");
             }
         }
 #  endif
@@ -416,7 +416,7 @@ ebpf_attach_program (int fd, int dirfd, libcrun_error_t *err)
       attr.attach_bpf_fd = fd;
       attr.attach_flags = BPF_F_ALLOW_MULTI;
 #  ifdef BPF_F_REPLACE
-      if (replacefd >= 0)
+      ако (replacefd >= 0)
         {
           attr.attach_flags = BPF_F_ALLOW_MULTI | BPF_F_REPLACE;
           attr.replace_bpf_fd = replacefd;
@@ -424,28 +424,28 @@ ebpf_attach_program (int fd, int dirfd, libcrun_error_t *err)
 #  endif
 
       ret = bpf (BPF_PROG_ATTACH, &attr, sizeof (attr));
-      if (UNLIKELY (ret < 0))
+      ако (UNLIKELY (ret < 0))
         {
-          if (errno == ENOENT && replacefd >= 0 && attempt < MAX_ATTEMPTS)
+          ако (errno == ENOENT && replacefd >= 0 && attempt < MAX_ATTEMPTS)
             {
               /* Another update might have already updated the cgroup, try again.  */
               continue;
             }
 #  ifdef BPF_F_REPLACE
-          if (errno == EINVAL && replacefd >= 0)
+          ако (errno == EINVAL && replacefd >= 0)
             {
               skip_replace = true;
               continue;
             }
 #  endif
-          return crun_make_error (err, errno, "bpf attach");
+          врати crun_make_error (err, errno, "bpf attach");
         }
 
       /* Now that the new program is installed, remove all the programs that were previously installed.  */
-      if (replacefd < 0 && n_progs)
-        return remove_all_progs (dirfd, progs, n_progs, err);
+      ако (replacefd < 0 && n_progs)
+        врати remove_all_progs (dirfd, progs, n_progs, err);
 
-      return 0;
+      врати 0;
     }
 #endif
 }
@@ -454,28 +454,28 @@ static void
 bump_memlock ()
 {
   struct rlimit limit;
-  int ret;
+  цео ret;
 
   limit.rlim_cur = RLIM_INFINITY;
   limit.rlim_max = RLIM_INFINITY;
 
   ret = setrlimit (RLIMIT_MEMLOCK, &limit);
-  if (ret == 0)
-    return;
+  ако (ret == 0)
+    врати;
 
   /* If the above failed, try to set the current limit
      to the max configured.  */
   ret = getrlimit (RLIMIT_MEMLOCK, &limit);
-  if (ret < 0)
-    return;
+  ако (ret < 0)
+    врати;
 
   limit.rlim_cur = limit.rlim_max;
   /* Best effort, ignore errors.  */
   (void) setrlimit (RLIMIT_MEMLOCK, &limit);
 }
 
-int
-libcrun_ebpf_load (struct bpf_program *program, int dirfd, const char *pin, libcrun_error_t *err)
+цео
+libcrun_ebpf_load (struct bpf_program *program, цео dirfd, const char *pin, libcrun_error_t *err)
 {
 #ifndef HAVE_EBPF
   (void) dirfd;
@@ -483,11 +483,11 @@ libcrun_ebpf_load (struct bpf_program *program, int dirfd, const char *pin, libc
   (void) pin;
   (void) ebpf_attach_program;
 
-  return crun_make_error (err, 0, "eBPF not supported");
-#else
-  cleanup_close int fd = -1;
+  врати crun_make_error (err, 0, "eBPF not supported");
+#инако
+  cleanup_close цео fd = -1;
   union bpf_attr attr;
-  int ret;
+  цео ret;
 
   memset (&attr, 0, sizeof (attr));
   attr.prog_type = BPF_PROG_TYPE_CGROUP_DEVICE;
@@ -497,14 +497,14 @@ libcrun_ebpf_load (struct bpf_program *program, int dirfd, const char *pin, libc
 
   /* First try without log.  */
   fd = bpf (BPF_PROG_LOAD, &attr, sizeof (attr));
-  if (fd < 0)
+  ако (fd < 0)
     {
       /* Prior to Linux 5.11, eBPF programs were accounted to the memlock
          prlimit.  Attempt to bump the limit, if possible.  */
       bump_memlock ();
       fd = bpf (BPF_PROG_LOAD, &attr, sizeof (attr));
     }
-  if (fd < 0)
+  ако (fd < 0)
     {
       const size_t max_log_size = 1 << 20;
       cleanup_free char *log = NULL;
@@ -518,27 +518,27 @@ libcrun_ebpf_load (struct bpf_program *program, int dirfd, const char *pin, libc
       attr.log_size = log_size;
 
       fd = bpf (BPF_PROG_LOAD, &attr, sizeof (attr));
-      if (fd < 0)
+      ако (fd < 0)
         {
-          if (errno == ENOSPC && log_size < max_log_size)
+          ако (errno == ENOSPC && log_size < max_log_size)
             {
               /* The provided buffer was not big enough.  */
               log_size *= 2;
               goto retry;
             }
-          return crun_make_error (err, errno, "bpf create `%s`", log);
+          врати crun_make_error (err, errno, "bpf create `%s`", log);
         }
     }
 
-  if (dirfd >= 0)
+  ако (dirfd >= 0)
     {
       ret = ebpf_attach_program (fd, dirfd, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ако (UNLIKELY (ret < 0))
+        врати ret;
     }
 
   /* Optionally pin the program to the specified path.  */
-  if (pin)
+  ако (pin)
     {
       unlink (pin);
 
@@ -546,37 +546,37 @@ libcrun_ebpf_load (struct bpf_program *program, int dirfd, const char *pin, libc
       attr.pathname = ptr_to_u64 (pin);
       attr.bpf_fd = fd;
       ret = bpf (BPF_OBJ_PIN, &attr, sizeof (attr));
-      if (ret < 0)
-        return crun_make_error (err, errno, "bpf pin to `%s`", pin);
+      ако (ret < 0)
+        врати crun_make_error (err, errno, "bpf pin to `%s`", pin);
     }
 
-  return 0;
+  врати 0;
 #endif
 }
 
-int
+цео
 libcrun_ebpf_read_program (struct bpf_program **program_ret, const char *path, libcrun_error_t *err)
 {
 #ifndef HAVE_EBPF
   (void) program_ret;
   (void) path;
 
-  return crun_make_error (err, 0, "eBPF not supported");
-#else
+  врати crun_make_error (err, 0, "eBPF not supported");
+#инако
   cleanup_free struct bpf_program *program = NULL;
   cleanup_free char *buffer = NULL;
-  cleanup_close int prog_fd = -1;
+  cleanup_close цео prog_fd = -1;
   size_t buffer_size = 0;
   struct bpf_prog_info info;
   union bpf_attr attr;
-  int ret;
+  цео ret;
 
   memset (&attr, 0, sizeof (attr));
   attr.pathname = ptr_to_u64 (path);
 
   prog_fd = bpf (BPF_OBJ_GET, &attr, sizeof (attr));
-  if (UNLIKELY (prog_fd < 0))
-    return crun_make_error (err, errno, "bpf get `%s`", path);
+  ако (UNLIKELY (prog_fd < 0))
+    врати crun_make_error (err, errno, "bpf get `%s`", path);
 
   memset (&info, 0, sizeof (info));
 
@@ -586,8 +586,8 @@ libcrun_ebpf_read_program (struct bpf_program **program_ret, const char *path, l
   attr.info.info_len = sizeof (info);
 
   ret = bpf (BPF_OBJ_GET_INFO_BY_FD, &attr, sizeof (attr));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "bpf get info `%s`", path);
+  ако (UNLIKELY (ret < 0))
+    врати crun_make_error (err, errno, "bpf get info `%s`", path);
 
   buffer_size = info.xlated_prog_len;
   buffer = xmalloc (buffer_size);
@@ -597,8 +597,8 @@ libcrun_ebpf_read_program (struct bpf_program **program_ret, const char *path, l
   info.xlated_prog_len = buffer_size;
 
   ret = bpf (BPF_OBJ_GET_INFO_BY_FD, &attr, sizeof (attr));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "bpf get info `%s`", path);
+  ако (UNLIKELY (ret < 0))
+    врати crun_make_error (err, errno, "bpf get info `%s`", path);
 
   program = bpf_program_new (buffer_size);
   program = bpf_program_append (program, buffer, buffer_size);
@@ -606,34 +606,34 @@ libcrun_ebpf_read_program (struct bpf_program **program_ret, const char *path, l
   *program_ret = program;
   program = NULL;
 
-  return 0;
+  врати 0;
 #endif
 }
 
-int
+цео
 libcrun_ebpf_query_cgroup_progs (const char *cgroup_path, uint32_t **progs_out, size_t *n_progs_out, libcrun_error_t *err)
 {
 #ifndef HAVE_EBPF
   (void) cgroup_path;
   *progs_out = NULL;
   *n_progs_out = 0;
-  return crun_make_error (err, 0, "eBPF not supported");
-#else
-  cleanup_close int cgroup_fd = -1;
+  врати crun_make_error (err, 0, "eBPF not supported");
+#инако
+  cleanup_close цео cgroup_fd = -1;
 
   cgroup_fd = open (cgroup_path, O_PATH | O_CLOEXEC);
-  if (UNLIKELY (cgroup_fd < 0))
-    return crun_make_error (err, errno, "open cgroup path `%s`", cgroup_path);
+  ако (UNLIKELY (cgroup_fd < 0))
+    врати crun_make_error (err, errno, "open cgroup path `%s`", cgroup_path);
 
-  return read_all_progs (cgroup_fd, progs_out, n_progs_out, err);
+  врати read_all_progs (cgroup_fd, progs_out, n_progs_out, err);
 #endif
 }
 
 bool
 libcrun_ebpf_cmp_programs (struct bpf_program *program1, struct bpf_program *program2)
 {
-  if (program1->used != program2->used)
-    return false;
+  ако (program1->used != program2->used)
+    врати false;
 
-  return memcmp (program1->program, program2->program, program1->used) == 0;
+  врати memcmp (program1->program, program2->program, program1->used) == 0;
 }

@@ -33,48 +33,48 @@
 #  include <dlfcn.h>
 #endif
 
-#if HAVE_DLOPEN && HAVE_LIBKRUN
+#ако HAVE_DLOPEN && HAVE_LIBKRUN
 extern struct custom_handler_s handler_libkrun;
 #endif
-#if HAVE_DLOPEN && HAVE_WASMTIME
+#ако HAVE_DLOPEN && HAVE_WASMTIME
 extern struct custom_handler_s handler_wasmtime;
 #endif
-#if HAVE_DLOPEN && HAVE_WASMEDGE
+#ако HAVE_DLOPEN && HAVE_WASMEDGE
 extern struct custom_handler_s handler_wasmedge;
 #endif
-#if HAVE_DLOPEN && HAVE_WASMER
+#ако HAVE_DLOPEN && HAVE_WASMER
 extern struct custom_handler_s handler_wasmer;
 #endif
-#if HAVE_DLOPEN && HAVE_WAMR
+#ако HAVE_DLOPEN && HAVE_WAMR
 extern struct custom_handler_s handler_wamr;
 #endif
-#if HAVE_DLOPEN && HAVE_MONO
+#ако HAVE_DLOPEN && HAVE_MONO
 extern struct custom_handler_s handler_mono;
 #endif
-#if HAVE_DLOPEN && HAVE_SPIN
+#ако HAVE_DLOPEN && HAVE_SPIN
 extern struct custom_handler_s handler_spin;
 #endif
 
 static struct custom_handler_s *static_handlers[] = {
-#if HAVE_DLOPEN && HAVE_LIBKRUN
+#ако HAVE_DLOPEN && HAVE_LIBKRUN
   &handler_libkrun,
 #endif
-#if HAVE_DLOPEN && HAVE_WASMEDGE
+#ако HAVE_DLOPEN && HAVE_WASMEDGE
   &handler_wasmedge,
 #endif
-#if HAVE_DLOPEN && HAVE_WASMER
+#ако HAVE_DLOPEN && HAVE_WASMER
   &handler_wasmer,
 #endif
-#if HAVE_DLOPEN && HAVE_WASMTIME
+#ако HAVE_DLOPEN && HAVE_WASMTIME
   &handler_wasmtime,
 #endif
-#if HAVE_DLOPEN && HAVE_WAMR
+#ако HAVE_DLOPEN && HAVE_WAMR
   &handler_wamr,
 #endif
-#if HAVE_DLOPEN && HAVE_MONO
+#ако HAVE_DLOPEN && HAVE_MONO
   &handler_mono,
 #endif
-#if HAVE_DLOPEN && HAVE_SPIN
+#ако HAVE_DLOPEN && HAVE_SPIN
   &handler_spin,
 #endif
   NULL,
@@ -96,16 +96,16 @@ libcrun_handler_manager_create (libcrun_error_t *err arg_unused)
   size_t i, handlers_len;
 
   /* Count the static handlers.  */
-  for (handlers_len = 0; static_handlers[handlers_len]; handlers_len++)
+  за (handlers_len = 0; static_handlers[handlers_len]; handlers_len++)
     ;
 
-  if (handlers_len)
+  ако (handlers_len)
     {
       handlers = xmalloc (sizeof (struct custom_handler_s *) * handlers_len);
       handles = xmalloc0 (sizeof (void *) * handlers_len);
     }
 
-  for (i = 0; i < handlers_len; i++)
+  за (i = 0; i < handlers_len; i++)
     handlers[i] = static_handlers[i];
 
   m = xmalloc0 (sizeof (struct custom_handler_manager_s));
@@ -113,7 +113,7 @@ libcrun_handler_manager_create (libcrun_error_t *err arg_unused)
   m->handles = handles;
   m->handlers_len = handlers_len;
 
-  return m;
+  врати m;
 }
 
 void
@@ -121,13 +121,13 @@ handler_manager_free (struct custom_handler_manager_s *manager)
 {
   size_t i;
 
-  if (manager == NULL)
-    return;
+  ако (manager == NULL)
+    врати;
 
-  for (i = 0; i < manager->handlers_len; i++)
+  за (i = 0; i < manager->handlers_len; i++)
     {
 #ifdef HAVE_DLOPEN
-      if (manager->handles[i])
+      ако (manager->handles[i])
         dlclose (manager->handles[i]);
 #endif
     }
@@ -137,19 +137,19 @@ handler_manager_free (struct custom_handler_manager_s *manager)
 }
 
 #ifdef HAVE_DLOPEN
-static int
+static цео
 handler_manager_add_so (struct custom_handler_manager_s *manager, void *handle, libcrun_error_t *err)
 {
   struct custom_handler_s *h = NULL;
   run_oci_get_handler_cb cb;
 
   cb = (run_oci_get_handler_cb) dlsym (handle, "run_oci_handler_get_handler");
-  if (UNLIKELY (cb == NULL))
-    return crun_make_error (err, 0, "cannot find symbol `run_oci_handler_get_handler`");
+  ако (UNLIKELY (cb == NULL))
+    врати crun_make_error (err, 0, "cannot find symbol `run_oci_handler_get_handler`");
 
   h = cb ();
-  if (UNLIKELY (h == NULL))
-    return crun_make_error (err, 0, "the callback `run_oci_handler_get_handler` didn't return a handler");
+  ако (UNLIKELY (h == NULL))
+    врати crun_make_error (err, 0, "the callback `run_oci_handler_get_handler` didn't return a handler");
 
   manager->handlers = xrealloc (manager->handlers, sizeof (struct custom_handler_s *) * (manager->handlers_len + 1));
   manager->handles = xrealloc (manager->handles, sizeof (void *) * (manager->handlers_len + 1));
@@ -157,11 +157,11 @@ handler_manager_add_so (struct custom_handler_manager_s *manager, void *handle, 
   manager->handlers[manager->handlers_len] = h;
   manager->handles[manager->handlers_len] = handle;
   manager->handlers_len++;
-  return 0;
+  врати 0;
 }
 #endif
 
-int
+цео
 libcrun_handler_manager_load_directory (struct custom_handler_manager_s *manager, const char *path, libcrun_error_t *err)
 {
 #ifdef HAVE_DLOPEN
@@ -169,40 +169,40 @@ libcrun_handler_manager_load_directory (struct custom_handler_manager_s *manager
   struct dirent *next;
 
   dir = opendir (path);
-  if (UNLIKELY (dir == NULL))
-    return crun_make_error (err, errno, "cannot opendir `%s`", path);
+  ако (UNLIKELY (dir == NULL))
+    врати crun_make_error (err, errno, "cannot opendir `%s`", path);
 
-  for (next = readdir (dir); next; next = readdir (dir))
+  за (next = readdir (dir); next; next = readdir (dir))
     {
       cleanup_free char *fpath = NULL;
       const char *name;
       void *handle;
-      int ret;
+      цео ret;
 
       name = next->d_name;
-      if (name[0] == '.')
+      ако (name[0] == '.')
         continue;
 
       ret = append_paths (&fpath, err, path, name, NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ако (UNLIKELY (ret < 0))
+        врати ret;
 
       handle = dlopen (fpath, RTLD_NOW);
-      if (UNLIKELY (handle == NULL))
-        return crun_make_error (err, 0, "cannot load `%s`: `%s`", fpath, dlerror ());
+      ако (UNLIKELY (handle == NULL))
+        врати crun_make_error (err, 0, "cannot load `%s`: `%s`", fpath, dlerror ());
 
       ret = handler_manager_add_so (manager, handle, err);
-      if (UNLIKELY (ret < 0))
+      ако (UNLIKELY (ret < 0))
         {
           dlclose (handle);
-          return ret;
+          врати ret;
         }
     }
-  return 0;
-#else
+  врати 0;
+#инако
   (void) manager;
   (void) path;
-  return crun_make_error (err, ENOTSUP, "dlopen not available");
+  врати crun_make_error (err, ENOTSUP, "dlopen not available");
 #endif
 }
 
@@ -211,14 +211,14 @@ handler_by_name (struct custom_handler_manager_s *manager, const char *name)
 {
   size_t i;
 
-  for (i = 0; i < manager->handlers_len; i++)
+  за (i = 0; i < manager->handlers_len; i++)
     {
-      if (strcmp (manager->handlers[i]->name, name) == 0)
-        return manager->handlers[i];
-      if (manager->handlers[i]->alias && strcmp (manager->handlers[i]->alias, name) == 0)
-        return manager->handlers[i];
+      ако (strcmp (manager->handlers[i]->name, name) == 0)
+        врати manager->handlers[i];
+      ако (manager->handlers[i]->alias && strcmp (manager->handlers[i]->alias, name) == 0)
+        врати manager->handlers[i];
     }
-  return NULL;
+  врати NULL;
 }
 
 void
@@ -226,8 +226,8 @@ libcrun_handler_manager_print_feature_tags (struct custom_handler_manager_s *man
 {
   size_t i;
 
-  for (i = 0; i < manager->handlers_len; i++)
-    if (manager->handlers[i]->feature_string)
+  за (i = 0; i < manager->handlers_len; i++)
+    ако (manager->handlers[i]->feature_string)
       fprintf (out, "+%s ", manager->handlers[i]->feature_string);
 }
 
@@ -238,25 +238,25 @@ libcrun_context_get_handler_feature_tags (libcrun_context_t *ctx, libcrun_error_
   char **out;
   size_t i, n = 0;
 
-  if (ctx == NULL || ctx->handler_manager == NULL)
-    return NULL;
+  ако (ctx == NULL || ctx->handler_manager == NULL)
+    врати NULL;
 
   manager = ctx->handler_manager;
 
-  for (i = 0; i < manager->handlers_len; i++)
-    if (manager->handlers[i]->feature_string)
+  за (i = 0; i < manager->handlers_len; i++)
+    ако (manager->handlers[i]->feature_string)
       n++;
 
-  if (n == 0)
-    return NULL;
+  ако (n == 0)
+    врати NULL;
 
   out = xmalloc0 ((n + 1) * sizeof (char *));
   n = 0;
-  for (i = 0; i < manager->handlers_len; i++)
-    if (manager->handlers[i]->feature_string)
+  за (i = 0; i < manager->handlers_len; i++)
+    ако (manager->handlers[i]->feature_string)
       out[n++] = xstrdup (manager->handlers[i]->feature_string);
 
-  return out;
+  врати out;
 }
 
 static inline struct custom_handler_instance_s *
@@ -267,10 +267,10 @@ make_custom_handler_instance_s (struct custom_handler_s *vtable)
   ret->vtable = vtable;
   ret->cookie = NULL;
 
-  return ret;
+  врати ret;
 }
 
-static int
+static цео
 find_handler_for_container (struct custom_handler_manager_s *manager,
                             libcrun_container_t *container,
                             struct custom_handler_instance_s **out,
@@ -280,31 +280,31 @@ find_handler_for_container (struct custom_handler_manager_s *manager,
 
   memset (out, 0, sizeof (*out));
 
-  for (i = 0; i < manager->handlers_len; i++)
+  за (i = 0; i < manager->handlers_len; i++)
     {
-      int ret;
+      цео ret;
 
-      if (manager->handlers[i]->can_handle_container == NULL)
+      ако (manager->handlers[i]->can_handle_container == NULL)
         continue;
 
       ret = manager->handlers[i]->can_handle_container (container, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ако (UNLIKELY (ret < 0))
+        врати ret;
 
-      if (ret)
+      ако (ret)
         {
           *out = make_custom_handler_instance_s (manager->handlers[i]);
-          if ((*out)->vtable->load)
-            return (*out)->vtable->load (&((*out)->cookie), err);
+          ако ((*out)->vtable->load)
+            врати (*out)->vtable->load (&((*out)->cookie), err);
 
-          return 0;
+          врати 0;
         }
     }
 
-  return 0;
+  врати 0;
 }
 
-int
+цео
 libcrun_configure_handler (struct custom_handler_manager_s *manager,
                            libcrun_context_t *context,
                            libcrun_container_t *container,
@@ -313,7 +313,7 @@ libcrun_configure_handler (struct custom_handler_manager_s *manager,
 {
   const char *explicit_handler;
   const char *annotation;
-  int ret;
+  цео ret;
 
   *out = NULL;
 
@@ -322,45 +322,45 @@ libcrun_configure_handler (struct custom_handler_manager_s *manager,
   // See: https://github.com/containers/crun/issues/798
   // before invoking handler check if this is not a kubernetes sandbox
   annotation = find_annotation (container, "io.kubernetes.cri.container-type");
-  if (annotation && (strcmp (annotation, "sandbox") == 0))
-    return 0;
+  ако (annotation && (strcmp (annotation, "sandbox") == 0))
+    врати 0;
 
   annotation = find_annotation (container, "run.oci.handler");
 
   /* Fail with EACCESS if global handler is already configured and there was an attempt to override it via spec.  */
-  if (context->handler != NULL && annotation != NULL)
-    return crun_make_error (err, EACCES, "invalid attempt to override already configured global handler: `%s`", context->handler);
+  ако (context->handler != NULL && annotation != NULL)
+    врати crun_make_error (err, EACCES, "invalid attempt to override already configured global handler: `%s`", context->handler);
 
   explicit_handler = context->handler ? context->handler : annotation;
 
   /* If an explicit handler was requested, use it.  */
-  if (explicit_handler)
+  ако (explicit_handler)
     {
       struct custom_handler_s *h;
 
-      if (manager == NULL)
-        return crun_make_error (err, 0, "handler requested but no manager configured: `%s`", explicit_handler);
+      ако (manager == NULL)
+        врати crun_make_error (err, 0, "handler requested but no manager configured: `%s`", explicit_handler);
 
       h = handler_by_name (manager, explicit_handler);
-      if (h)
+      ако (h)
         {
           *out = make_custom_handler_instance_s (h);
-          if ((*out)->vtable->load)
+          ако ((*out)->vtable->load)
             ret = (*out)->vtable->load (&((*out)->cookie), err);
-          else
+          инако
             ret = 0;
           goto out;
         }
     }
 
-  if (manager == NULL)
-    return 0;
+  ако (manager == NULL)
+    врати 0;
 
   ret = find_handler_for_container (manager, container, out, err);
 
 out:
-  if (ret == 0 && *out != NULL && container->context != NULL && ! (*out)->vtable->supports_open_tree_namespace)
+  ако (ret == 0 && *out != NULL && container->context != NULL && ! (*out)->vtable->supports_open_tree_namespace)
     container->context->no_open_tree_namespace = true;
 
-  return ret;
+  врати ret;
 }

@@ -39,75 +39,75 @@
 #include <fcntl.h>
 #include <libgen.h>
 
-static int
+static цео
 initialize_cpuset_subsystem_rec (char *path, size_t path_len, char *cpus, char *mems, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
 {
   cleanup_free char *allocated_cpus = NULL;
   cleanup_free char *allocated_mems = NULL;
-  cleanup_close int dirfd = -1;
-  cleanup_close int mems_fd = -1;
-  cleanup_close int cpus_fd = -1;
+  cleanup_close цео dirfd = -1;
+  cleanup_close цео mems_fd = -1;
+  cleanup_close цео cpus_fd = -1;
   bool has_cpus = false, has_mems = false;
-  int b_len;
+  цео b_len;
 
   dirfd = open (path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", path);
+  ако (UNLIKELY (dirfd < 0))
+    врати crun_make_error (err, errno, "open `%s`", path);
 
   /* If we don't yet have a cpu/mem value to base the child off of, we attempt to read it.
    * Either, it's the newly created cgroup (and thus is still empty), or it's a parent that's been
    * prepopulated. */
-  if (cpus[0] == '\0')
+  ако (cpus[0] == '\0')
     {
       cpus_fd = openat (dirfd, "cpuset.cpus", O_RDWR | O_CLOEXEC);
-      if (UNLIKELY (cpus_fd < 0 && errno == ENOENT))
+      ако (UNLIKELY (cpus_fd < 0 && errno == ENOENT))
         cpus_fd = openat (dirfd, "cpus", O_RDWR | O_CLOEXEC);
-      if (UNLIKELY (cpus_fd < 0))
-        return crun_make_error (err, errno, "open `%s/%s`", path, "cpuset.cpus");
+      ако (UNLIKELY (cpus_fd < 0))
+        врати crun_make_error (err, errno, "open `%s/%s`", path, "cpuset.cpus");
 
       b_len = TEMP_FAILURE_RETRY (read (cpus_fd, cpus, 256));
-      if (UNLIKELY (b_len < 0))
-        return crun_make_error (err, errno, "read from `cpuset.cpus`");
+      ако (UNLIKELY (b_len < 0))
+        врати crun_make_error (err, errno, "read from `cpuset.cpus`");
       cpus[b_len] = '\0';
-      if (cpus[0] == '\n')
+      ако (cpus[0] == '\n')
         cpus[0] = '\0';
-      if (cpus[0] != '\0')
+      ако (cpus[0] != '\0')
         has_cpus = true;
     }
 
-  if (mems[0] == '\0')
+  ако (mems[0] == '\0')
     {
       mems_fd = openat (dirfd, "cpuset.mems", O_RDWR | O_CLOEXEC);
-      if (UNLIKELY (mems_fd < 0 && errno == ENOENT))
+      ако (UNLIKELY (mems_fd < 0 && errno == ENOENT))
         mems_fd = openat (dirfd, "mems", O_RDWR | O_CLOEXEC);
-      if (UNLIKELY (mems_fd < 0))
-        return crun_make_error (err, errno, "open `%s/%s`", path, "cpuset.mems");
+      ако (UNLIKELY (mems_fd < 0))
+        врати crun_make_error (err, errno, "open `%s/%s`", path, "cpuset.mems");
 
       b_len = TEMP_FAILURE_RETRY (read (mems_fd, mems, 256));
-      if (UNLIKELY (b_len < 0))
-        return crun_make_error (err, errno, "read from `cpuset.mems`");
+      ако (UNLIKELY (b_len < 0))
+        врати crun_make_error (err, errno, "read from `cpuset.mems`");
       mems[b_len] = '\0';
-      if (mems[0] == '\n')
+      ако (mems[0] == '\n')
         mems[0] = '\0';
-      if (mems[0] != '\0')
+      ако (mems[0] != '\0')
         has_mems = true;
     }
 
   /* If we fail to find one, we should continue searching up until we find one */
-  if (cpus[0] == '\0' || mems[0] == '\0')
+  ако (cpus[0] == '\0' || mems[0] == '\0')
     {
       size_t parent_path_len;
-      int ret;
+      цео ret;
 
-      for (parent_path_len = path_len - 1; parent_path_len > 1 && path[parent_path_len] != '/'; parent_path_len--)
+      за (parent_path_len = path_len - 1; parent_path_len > 1 && path[parent_path_len] != '/'; parent_path_len--)
         ;
-      if (parent_path_len == 1)
-        return 0;
+      ако (parent_path_len == 1)
+        врати 0;
 
       path[parent_path_len] = '\0';
       ret = initialize_cpuset_subsystem_rec (path, parent_path_len, cpus, mems, resources, err);
       path[parent_path_len] = '/';
-      if (UNLIKELY (ret < 0))
+      ако (UNLIKELY (ret < 0))
         {
           /* Ignore errors here and try to write the configuration we want later on.  */
           crun_error_release (err);
@@ -117,34 +117,34 @@ initialize_cpuset_subsystem_rec (char *path, size_t path_len, char *cpus, char *
   /* If we know the resources, use them, instead of initializing with the full set, only to revert it later.
    * Only do so if we didn't read the cpus and mems we have from this cgroup.
    * Otherwise, we'll clobber existing values, which is problematic when there are multiple containers in a cgroup. */
-  if (resources && resources->cpu)
+  ако (resources && resources->cpu)
     {
-      if (resources->cpu->cpus && ! has_cpus)
+      ако (resources->cpu->cpus && ! has_cpus)
         cpus = allocated_cpus = xstrdup (resources->cpu->cpus);
-      if (resources->cpu->mems && ! has_mems)
+      ако (resources->cpu->mems && ! has_mems)
         mems = allocated_mems = xstrdup (resources->cpu->mems);
     }
 
   /* Finally, if we have a fd to populate, write the value chosen. If we have a value from the resources struct to base it off of,
    * use that, otherwise use the parent's. */
-  if (cpus_fd >= 0)
+  ако (cpus_fd >= 0)
     {
       b_len = TEMP_FAILURE_RETRY (write (cpus_fd, cpus, strlen (cpus)));
-      if (UNLIKELY (b_len < 0))
-        return crun_make_error (err, errno, "write `cpuset.cpus`");
+      ако (UNLIKELY (b_len < 0))
+        врати crun_make_error (err, errno, "write `cpuset.cpus`");
     }
 
-  if (mems_fd >= 0)
+  ако (mems_fd >= 0)
     {
       b_len = TEMP_FAILURE_RETRY (write (mems_fd, mems, strlen (mems)));
-      if (UNLIKELY (b_len < 0))
-        return crun_make_error (err, errno, "write `cpuset.mems`");
+      ако (UNLIKELY (b_len < 0))
+        врати crun_make_error (err, errno, "write `cpuset.mems`");
     }
 
-  return 0;
+  врати 0;
 }
 
-int
+цео
 initialize_cpuset_subsystem (const char *path, libcrun_error_t *err)
 {
   cleanup_free char *tmp_path = xstrdup (path);
@@ -152,10 +152,10 @@ initialize_cpuset_subsystem (const char *path, libcrun_error_t *err)
   char mems_buf[257];
 
   cpus_buf[0] = mems_buf[0] = '\0';
-  return initialize_cpuset_subsystem_rec (tmp_path, strlen (tmp_path), cpus_buf, mems_buf, NULL, err);
+  врати initialize_cpuset_subsystem_rec (tmp_path, strlen (tmp_path), cpus_buf, mems_buf, NULL, err);
 }
 
-int
+цео
 initialize_cpuset_subsystem_resources (const char *path, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
 {
   cleanup_free char *tmp_path = xstrdup (path);
@@ -163,168 +163,168 @@ initialize_cpuset_subsystem_resources (const char *path, runtime_spec_schema_con
   char mems_buf[257];
 
   cpus_buf[0] = mems_buf[0] = '\0';
-  return initialize_cpuset_subsystem_rec (tmp_path, strlen (tmp_path), cpus_buf, mems_buf, resources, err);
+  врати initialize_cpuset_subsystem_rec (tmp_path, strlen (tmp_path), cpus_buf, mems_buf, resources, err);
 }
 
-static int
+static цео
 initialize_memory_subsystem (const char *path, libcrun_error_t *err)
 {
   const char *const files[]
       = { "memory.limit_in_bytes", "memory.kmem.limit_in_bytes", "memory.memsw.limit_in_bytes", NULL };
-  cleanup_close int dirfd = -1;
-  int i;
+  cleanup_close цео dirfd = -1;
+  цео i;
 
   dirfd = open (path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", path);
+  ако (UNLIKELY (dirfd < 0))
+    врати crun_make_error (err, errno, "open `%s`", path);
 
-  for (i = 0; files[i]; i++)
+  за (i = 0; files[i]; i++)
     {
-      int ret;
+      цео ret;
 
       ret = write_cgroup_file (dirfd, files[i], "-1", 2, err);
-      if (UNLIKELY (ret < 0))
+      ако (UNLIKELY (ret < 0))
         {
           /* Ignore any error here.  */
           crun_error_release (err);
         }
     }
 
-  return 0;
+  врати 0;
 }
 
-int
+цео
 enter_cgroup_v1_subsystem (pid_t pid, const char *subsystem, const char *path, bool create_if_missing,
                            libcrun_error_t *err)
 {
   cleanup_free char *cgroup_path = NULL;
-  int ret;
+  цео ret;
 
   ret = append_paths (&cgroup_path, err, CGROUP_ROOT, subsystem, path ? path : "", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ако (UNLIKELY (ret < 0))
+    врати ret;
 
-  if (create_if_missing)
+  ако (create_if_missing)
     {
       ret = crun_ensure_directory (cgroup_path, 0755, false, err);
-      if (UNLIKELY (ret < 0))
+      ако (UNLIKELY (ret < 0))
         {
-          if (crun_error_get_errno (err) != EROFS)
-            return crun_error_wrap (err, "creating cgroup directory `%s`", cgroup_path);
+          ако (crun_error_get_errno (err) != EROFS)
+            врати crun_error_wrap (err, "creating cgroup directory `%s`", cgroup_path);
 
           crun_error_release (err);
-          return 0;
+          врати 0;
         }
 
-      if (strcmp (subsystem, "cpuset") == 0)
+      ако (strcmp (subsystem, "cpuset") == 0)
         {
           ret = initialize_cpuset_subsystem (cgroup_path, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ако (UNLIKELY (ret < 0))
+            врати ret;
         }
-      if (strcmp (subsystem, "memory") == 0)
+      ако (strcmp (subsystem, "memory") == 0)
         {
           ret = initialize_memory_subsystem (cgroup_path, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ако (UNLIKELY (ret < 0))
+            врати ret;
         }
     }
-  else
+  инако
     {
       ret = crun_path_exists (cgroup_path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      if (ret == 0)
-        return 0;
+      ако (UNLIKELY (ret < 0))
+        врати ret;
+      ако (ret == 0)
+        врати 0;
     }
 
-  return move_process_to_cgroup (pid, subsystem, path, err);
+  врати move_process_to_cgroup (pid, subsystem, path, err);
 }
 
-static int
+static цео
 get_file_owner (const char *path, uid_t *uid, gid_t *gid)
 {
   struct stat st;
-  int ret;
+  цео ret;
 
 #ifdef HAVE_STATX
   struct statx stx;
 
   ret = statx (AT_FDCWD, path, AT_STATX_DONT_SYNC, STATX_UID | STATX_GID, &stx);
-  if (UNLIKELY (ret < 0))
+  ако (UNLIKELY (ret < 0))
     {
-      if (errno == ENOSYS || errno == EINVAL)
+      ако (errno == ENOSYS || errno == EINVAL)
         goto fallback;
 
-      return ret;
+      врати ret;
     }
   *uid = stx.stx_uid;
   *gid = stx.stx_gid;
-  return ret;
+  врати ret;
 
 fallback:
 #endif
   ret = stat (path, &st);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ако (UNLIKELY (ret < 0))
+    врати ret;
 
   *uid = st.st_uid;
   *gid = st.st_gid;
-  return ret;
+  врати ret;
 }
 
-static int
+static цео
 copy_owner (const char *from, const char *to, libcrun_error_t *err)
 {
   uid_t uid = 0;
   gid_t gid = 0;
-  int ret;
+  цео ret;
 
   ret = get_file_owner (from, &uid, &gid);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "cannot get file owner for `%s`", from);
+  ако (UNLIKELY (ret < 0))
+    врати crun_make_error (err, errno, "cannot get file owner for `%s`", from);
 
-  if (uid == 0 && gid == 0)
-    return 0;
+  ако (uid == 0 && gid == 0)
+    врати 0;
 
-  return chown_cgroups (to, uid, gid, err);
+  врати chown_cgroups (to, uid, gid, err);
 }
 
-static int
+static цео
 read_unified_cgroup_pid (pid_t pid, char **path, libcrun_error_t *err)
 {
-  int ret;
+  цео ret;
   char cgroup_path[32];
   char *from, *to;
   cleanup_free char *content = NULL;
-  int len;
+  цео len;
 
   len = snprintf (cgroup_path, sizeof (cgroup_path), "/proc/%d/cgroup", pid);
-  if (UNLIKELY (len >= (int) sizeof (cgroup_path)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  ако (UNLIKELY (len >= (цео) sizeof (cgroup_path)))
+    врати crun_make_error (err, 0, "internal error: static buffer too small");
 
   cgroup_path[len] = '\0';
 
   ret = read_all_file (cgroup_path, &content, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ако (UNLIKELY (ret < 0))
+    врати ret;
 
   from = strstr (content, "0::");
-  if (UNLIKELY (from == NULL))
-    return crun_make_error (err, 0, "cannot find cgroup2 for the process `%d`", pid);
+  ако (UNLIKELY (from == NULL))
+    врати crun_make_error (err, 0, "cannot find cgroup2 for the process `%d`", pid);
 
   from += 3;
 
   to = strchr (from, '\n');
-  if (UNLIKELY (to == NULL))
-    return crun_make_error (err, 0, "cannot parse `%s`", cgroup_path);
+  ако (UNLIKELY (to == NULL))
+    врати crun_make_error (err, 0, "cannot parse `%s`", cgroup_path);
   *to = '\0';
 
   *path = xstrdup (from);
-  return 0;
+  врати 0;
 }
 
-static int
+static цео
 enter_cgroup_v1 (pid_t pid, const char *path, bool create_if_missing, libcrun_error_t *err)
 {
   cleanup_free char *content = NULL;
@@ -333,25 +333,25 @@ enter_cgroup_v1 (pid_t pid, const char *path, bool create_if_missing, libcrun_er
   char *controller;
   char *saveptr;
   bool has_data;
-  int rootless;
-  int ret;
+  цео rootless;
+  цео ret;
 
   rootless = is_rootless (err);
-  if (UNLIKELY (rootless < 0))
-    return rootless;
+  ако (UNLIKELY (rootless < 0))
+    врати rootless;
 
   ret = read_all_file (PROC_SELF_CGROUP, &content, &content_size, err);
-  if (UNLIKELY (ret < 0))
+  ако (UNLIKELY (ret < 0))
     {
-      if (crun_error_get_errno (err) == ENOENT)
+      ако (crun_error_get_errno (err) == ENOENT)
         {
           crun_error_release (err);
-          return 0;
+          врати 0;
         }
-      return ret;
+      врати ret;
     }
 
-  for (has_data = read_proc_cgroup (content, &saveptr, NULL, &controller, NULL);
+  за (has_data = read_proc_cgroup (content, &saveptr, NULL, &controller, NULL);
        has_data;
        has_data = read_proc_cgroup (NULL, &saveptr, NULL, &controller, NULL))
     {
@@ -359,94 +359,94 @@ enter_cgroup_v1 (pid_t pid, const char *path, bool create_if_missing, libcrun_er
       char *subsystem;
       size_t len;
 
-      if (has_prefix (controller, "name="))
+      ако (has_prefix (controller, "name="))
         controller += 5;
 
       subsystem = controller[0] == '\0' ? "unified" : controller;
 
-      if (strcmp (subsystem, "net_prio,net_cls") == 0)
+      ако (strcmp (subsystem, "net_prio,net_cls") == 0)
         subsystem = "net_cls,net_prio";
-      if (strcmp (subsystem, "cpuacct,cpu") == 0)
+      ако (strcmp (subsystem, "cpuacct,cpu") == 0)
         subsystem = "cpu,cpuacct";
 
       len = snprintf (subsystem_path, sizeof (subsystem_path), CGROUP_ROOT "/%s", subsystem);
-      if (UNLIKELY (len >= (int) sizeof (subsystem_path)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      ако (UNLIKELY (len >= (цео) sizeof (subsystem_path)))
+        врати crun_make_error (err, 0, "internal error: static buffer too small");
 
       ret = crun_path_exists (subsystem_path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      if (ret == 0)
+      ако (UNLIKELY (ret < 0))
+        врати ret;
+      ако (ret == 0)
         continue;
 
       entered_any = true;
       ret = enter_cgroup_v1_subsystem (pid, subsystem, path, create_if_missing, err);
-      if (UNLIKELY (ret < 0))
+      ако (UNLIKELY (ret < 0))
         {
-          int errcode = crun_error_get_errno (err);
-          if (rootless && (errcode == EACCES || errcode == EPERM))
+          цео errcode = crun_error_get_errno (err);
+          ако (rootless && (errcode == EACCES || errcode == EPERM))
             {
               crun_error_release (err);
               continue;
             }
-          return ret;
+          врати ret;
         }
     }
 
-  if (entered_any)
-    return 0;
+  ако (entered_any)
+    врати 0;
 
-  return crun_make_error (err, 0, "could not join cgroup");
+  врати crun_make_error (err, 0, "could not join cgroup");
 }
 
-static int
+static цео
 enter_cgroup_v2 (pid_t pid, pid_t init_pid, const char *path, bool create_if_missing, libcrun_error_t *err)
 {
   cleanup_free char *cgroup_path_procs = NULL;
   cleanup_free char *cgroup_path = NULL;
   char pid_str[16];
-  int repeat;
-  int len;
-  int ret;
+  цео repeat;
+  цео len;
+  цео ret;
 
   len = snprintf (pid_str, sizeof (pid_str), "%d", pid);
-  if (UNLIKELY (len >= (int) sizeof (pid_str)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  ако (UNLIKELY (len >= (цео) sizeof (pid_str)))
+    врати crun_make_error (err, 0, "internal error: static buffer too small");
 
   ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ако (UNLIKELY (ret < 0))
+    врати ret;
 
-  if (create_if_missing)
+  ако (create_if_missing)
     {
       ret = crun_ensure_directory (cgroup_path, 0755, false, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ако (UNLIKELY (ret < 0))
+        врати ret;
     }
 
   ret = append_paths (&cgroup_path_procs, err, cgroup_path, "cgroup.procs", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ако (UNLIKELY (ret < 0))
+    врати ret;
 
   ret = write_cgroup_file (AT_FDCWD, cgroup_path_procs, pid_str, strlen (pid_str), err);
-  if (LIKELY (ret >= 0))
-    return ret;
+  ако (LIKELY (ret >= 0))
+    врати ret;
 
-  if (UNLIKELY (crun_error_get_errno (err) == EOPNOTSUPP))
+  ако (UNLIKELY (crun_error_get_errno (err) == EOPNOTSUPP))
     {
       crun_error_release (err);
 
       ret = maybe_make_cgroup_threaded (path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ако (UNLIKELY (ret < 0))
+        врати ret;
 
       ret = write_cgroup_file (AT_FDCWD, cgroup_path_procs, pid_str, strlen (pid_str), err);
-      if (LIKELY (ret >= 0))
-        return ret;
+      ако (LIKELY (ret >= 0))
+        врати ret;
     }
 
-  if (create_if_missing || crun_error_get_errno (err) != EBUSY)
-    return ret;
+  ако (create_if_missing || crun_error_get_errno (err) != EBUSY)
+    врати ret;
 
   crun_error_release (err);
 
@@ -454,20 +454,20 @@ enter_cgroup_v2 (pid_t pid, pid_t init_pid, const char *path, bool create_if_mis
      cgroup.  Create a subdirectory and use that.
      It can still fail if the container creates a subdirectory under
      /sys/fs/cgroup/../crun-exec/  */
-  for (repeat = 0;; repeat++)
+  за (repeat = 0;; repeat++)
     {
       cleanup_free char *cgroup_crun_exec_path = NULL;
       cleanup_free char *cgroup_sub_path_procs = NULL;
 
       /* There is an init pid, try to join its cgroup.  */
-      if (init_pid > 0)
+      ако (init_pid > 0)
         {
           ret = read_unified_cgroup_pid (init_pid, &cgroup_crun_exec_path, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ако (UNLIKELY (ret < 0))
+            врати ret;
 
           /* Make sure the cgroup is below the initial cgroup specified for the container.  */
-          if (strncmp (path, cgroup_crun_exec_path, strlen (path)))
+          ако (strncmp (path, cgroup_crun_exec_path, strlen (path)))
             {
               free (cgroup_crun_exec_path);
               cgroup_crun_exec_path = NULL;
@@ -475,51 +475,51 @@ enter_cgroup_v2 (pid_t pid, pid_t init_pid, const char *path, bool create_if_mis
         }
 
       /* There is no init_pid to lookup, try a static path.  */
-      if (cgroup_crun_exec_path == NULL)
+      ако (cgroup_crun_exec_path == NULL)
         xasprintf (&cgroup_crun_exec_path, "%s/crun-exec", path);
 
       /* The sub-cgroup is managed by the container, make sure it is not
          frozen or the process would never run once moved there.  */
       ret = libcrun_cgroup_ensure_not_frozen (cgroup_crun_exec_path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ако (UNLIKELY (ret < 0))
+        врати ret;
 
       ret = append_paths (&cgroup_sub_path_procs, err, CGROUP_ROOT, cgroup_crun_exec_path, "cgroup.procs", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ако (UNLIKELY (ret < 0))
+        врати ret;
 
       ret = write_cgroup_file (AT_FDCWD, cgroup_sub_path_procs, pid_str, strlen (pid_str), err);
-      if (UNLIKELY (ret < 0))
+      ако (UNLIKELY (ret < 0))
         {
           /* The init process might have moved to a different cgroup, try again.  */
-          if (crun_error_get_errno (err) == EBUSY && init_pid && repeat < 20)
+          ако (crun_error_get_errno (err) == EBUSY && init_pid && repeat < 20)
             {
               crun_error_release (err);
               continue;
             }
-          return ret;
+          врати ret;
         }
-      return copy_owner (cgroup_path_procs, cgroup_crun_exec_path, err);
+      врати copy_owner (cgroup_path_procs, cgroup_crun_exec_path, err);
     }
-  return ret;
+  врати ret;
 }
 
-int
-enter_cgroup (int cgroup_mode, pid_t pid, pid_t init_pid, const char *path,
+цео
+enter_cgroup (цео cgroup_mode, pid_t pid, pid_t init_pid, const char *path,
               bool create_if_missing, libcrun_error_t *err)
 {
-  int ret;
-  if (cgroup_mode == CGROUP_MODE_UNIFIED)
+  цео ret;
+  ако (cgroup_mode == CGROUP_MODE_UNIFIED)
     {
       ret = enter_cgroup_v2 (pid, init_pid, path, create_if_missing, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ако (UNLIKELY (ret < 0))
+        врати ret;
     }
-  else
+  инако
     {
       ret = enter_cgroup_v1 (pid, path, create_if_missing, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ако (UNLIKELY (ret < 0))
+        врати ret;
     }
-  return 0;
+  врати 0;
 }
