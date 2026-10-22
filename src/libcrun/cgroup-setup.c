@@ -16,98 +16,98 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#وصف_ڪريو GNU_ذريعو
 
-#include <config.h>
-#include "cgroup.h"
-#include "cgroup-internal.h"
-#include "cgroup-systemd.h"
-#include "cgroup-utils.h"
-#include "ebpf.h"
-#include "utils.h"
-#include "status.h"
-#include <string.h>
-#include <sys/types.h>
-#include <signal.h>
-#include <sys/vfs.h>
-#include <inttypes.h>
-#include <time.h>
+#ضمن <config.h>
+#ضمن "cgroup.h"
+#ضمن "cgroup-internal.h"
+#ضمن "cgroup-systemd.h"
+#ضمن "cgroup-utils.h"
+#ضمن "ebpf.h"
+#ضمن "utils.h"
+#ضمن "status.h"
+#ضمن <string.h>
+#ضمن <sys/types.h>
+#ضمن <signal.h>
+#ضمن <sys/vfs.h>
+#ضمن <inttypes.h>
+#ضمن <time.h>
 
-#include <sched.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <libgen.h>
+#ضمن <sched.h>
+#ضمن <sys/stat.h>
+#ضمن <sys/types.h>
+#ضمن <fcntl.h>
+#ضمن <libgen.h>
 
-static int
-initialize_cpuset_subsystem_rec (char *path, size_t path_len, char *cpus, char *mems, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
+ساكن صحيح
+initialize_cpuset_subsystem_rec (حرف *رستو, size_t رستو_len, حرف *cpus, حرف *mems, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
 {
-  cleanup_free char *allocated_cpus = NULL;
-  cleanup_free char *allocated_mems = NULL;
-  cleanup_close int dirfd = -1;
-  cleanup_close int mems_fd = -1;
-  cleanup_close int cpus_fd = -1;
+  cleanup_free حرف *allocated_cpus = عدم;
+  cleanup_free حرف *allocated_mems = عدم;
+  cleanup_close صحيح dirfd = -1;
+  cleanup_close صحيح mems_fd = -1;
+  cleanup_close صحيح cpus_fd = -1;
   bool has_cpus = false, has_mems = false;
-  int b_len;
+  صحيح b_len;
 
-  dirfd = open (path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", path);
+  dirfd = open (رستو, O_DIRECTORY | O_رستو | O_CLOEXEC);
+  إذا (UNLIKELY (dirfd < 0))
+    أرجع crun_make_error (err, errno, "open `%s`", رستو);
 
   /* If we don't yet have a cpu/mem value to base the child off of, we attempt to read it.
    * Either, it's the newly created cgroup (and thus is still empty), or it's a parent that's been
    * prepopulated. */
-  if (cpus[0] == '\0')
+  إذا (cpus[0] == '\0')
     {
       cpus_fd = openat (dirfd, "cpuset.cpus", O_RDWR | O_CLOEXEC);
-      if (UNLIKELY (cpus_fd < 0 && errno == ENOENT))
+      إذا (UNLIKELY (cpus_fd < 0 && errno == ENOENT))
         cpus_fd = openat (dirfd, "cpus", O_RDWR | O_CLOEXEC);
-      if (UNLIKELY (cpus_fd < 0))
-        return crun_make_error (err, errno, "open `%s/%s`", path, "cpuset.cpus");
+      إذا (UNLIKELY (cpus_fd < 0))
+        أرجع crun_make_error (err, errno, "open `%s/%s`", رستو, "cpuset.cpus");
 
-      b_len = TEMP_FAILURE_RETRY (read (cpus_fd, cpus, 256));
-      if (UNLIKELY (b_len < 0))
-        return crun_make_error (err, errno, "read from `cpuset.cpus`");
+      b_len = عارضي_FAILURE_RETRY (اقرأ (cpus_fd, cpus, 256));
+      إذا (UNLIKELY (b_len < 0))
+        أرجع crun_make_error (err, errno, "read from `cpuset.cpus`");
       cpus[b_len] = '\0';
-      if (cpus[0] == '\n')
+      إذا (cpus[0] == '\n')
         cpus[0] = '\0';
-      if (cpus[0] != '\0')
+      إذا (cpus[0] != '\0')
         has_cpus = true;
     }
 
-  if (mems[0] == '\0')
+  إذا (mems[0] == '\0')
     {
       mems_fd = openat (dirfd, "cpuset.mems", O_RDWR | O_CLOEXEC);
-      if (UNLIKELY (mems_fd < 0 && errno == ENOENT))
+      إذا (UNLIKELY (mems_fd < 0 && errno == ENOENT))
         mems_fd = openat (dirfd, "mems", O_RDWR | O_CLOEXEC);
-      if (UNLIKELY (mems_fd < 0))
-        return crun_make_error (err, errno, "open `%s/%s`", path, "cpuset.mems");
+      إذا (UNLIKELY (mems_fd < 0))
+        أرجع crun_make_error (err, errno, "open `%s/%s`", رستو, "cpuset.mems");
 
-      b_len = TEMP_FAILURE_RETRY (read (mems_fd, mems, 256));
-      if (UNLIKELY (b_len < 0))
-        return crun_make_error (err, errno, "read from `cpuset.mems`");
+      b_len = عارضي_FAILURE_RETRY (اقرأ (mems_fd, mems, 256));
+      إذا (UNLIKELY (b_len < 0))
+        أرجع crun_make_error (err, errno, "read from `cpuset.mems`");
       mems[b_len] = '\0';
-      if (mems[0] == '\n')
+      إذا (mems[0] == '\n')
         mems[0] = '\0';
-      if (mems[0] != '\0')
+      إذا (mems[0] != '\0')
         has_mems = true;
     }
 
   /* If we fail to find one, we should continue searching up until we find one */
-  if (cpus[0] == '\0' || mems[0] == '\0')
+  إذا (cpus[0] == '\0' || mems[0] == '\0')
     {
-      size_t parent_path_len;
-      int ret;
+      size_t والد_رستو_len;
+      صحيح ret;
 
-      for (parent_path_len = path_len - 1; parent_path_len > 1 && path[parent_path_len] != '/'; parent_path_len--)
+      لكل (والد_رستو_len = رستو_len - 1; والد_رستو_len > 1 && رستو[والد_رستو_len] != '/'; والد_رستو_len--)
         ;
-      if (parent_path_len == 1)
-        return 0;
+      إذا (والد_رستو_len == 1)
+        أرجع 0;
 
-      path[parent_path_len] = '\0';
-      ret = initialize_cpuset_subsystem_rec (path, parent_path_len, cpus, mems, resources, err);
-      path[parent_path_len] = '/';
-      if (UNLIKELY (ret < 0))
+      رستو[والد_رستو_len] = '\0';
+      ret = initialize_cpuset_subsystem_rec (رستو, والد_رستو_len, cpus, mems, resources, err);
+      رستو[والد_رستو_len] = '/';
+      إذا (UNLIKELY (ret < 0))
         {
           /* Ignore errors here and try to write the configuration we want later on.  */
           crun_error_release (err);
@@ -117,336 +117,336 @@ initialize_cpuset_subsystem_rec (char *path, size_t path_len, char *cpus, char *
   /* If we know the resources, use them, instead of initializing with the full set, only to revert it later.
    * Only do so if we didn't read the cpus and mems we have from this cgroup.
    * Otherwise, we'll clobber existing values, which is problematic when there are multiple containers in a cgroup. */
-  if (resources && resources->cpu)
+  إذا (resources && resources->cpu)
     {
-      if (resources->cpu->cpus && ! has_cpus)
+      إذا (resources->cpu->cpus && ! has_cpus)
         cpus = allocated_cpus = xstrdup (resources->cpu->cpus);
-      if (resources->cpu->mems && ! has_mems)
+      إذا (resources->cpu->mems && ! has_mems)
         mems = allocated_mems = xstrdup (resources->cpu->mems);
     }
 
   /* Finally, if we have a fd to populate, write the value chosen. If we have a value from the resources struct to base it off of,
    * use that, otherwise use the parent's. */
-  if (cpus_fd >= 0)
+  إذا (cpus_fd >= 0)
     {
-      b_len = TEMP_FAILURE_RETRY (write (cpus_fd, cpus, strlen (cpus)));
-      if (UNLIKELY (b_len < 0))
-        return crun_make_error (err, errno, "write `cpuset.cpus`");
+      b_len = عارضي_FAILURE_RETRY (اكتب (cpus_fd, cpus, لڙي_ڊيگهه (cpus)));
+      إذا (UNLIKELY (b_len < 0))
+        أرجع crun_make_error (err, errno, "write `cpuset.cpus`");
     }
 
-  if (mems_fd >= 0)
+  إذا (mems_fd >= 0)
     {
-      b_len = TEMP_FAILURE_RETRY (write (mems_fd, mems, strlen (mems)));
-      if (UNLIKELY (b_len < 0))
-        return crun_make_error (err, errno, "write `cpuset.mems`");
+      b_len = عارضي_FAILURE_RETRY (اكتب (mems_fd, mems, لڙي_ڊيگهه (mems)));
+      إذا (UNLIKELY (b_len < 0))
+        أرجع crun_make_error (err, errno, "write `cpuset.mems`");
     }
 
-  return 0;
+  أرجع 0;
 }
 
-int
-initialize_cpuset_subsystem (const char *path, libcrun_error_t *err)
+صحيح
+initialize_cpuset_subsystem (ثابت حرف *رستو, libcrun_error_t *err)
 {
-  cleanup_free char *tmp_path = xstrdup (path);
-  char cpus_buf[257];
-  char mems_buf[257];
+  cleanup_free حرف *tmp_رستو = xstrdup (رستو);
+  حرف cpus_buf[257];
+  حرف mems_buf[257];
 
   cpus_buf[0] = mems_buf[0] = '\0';
-  return initialize_cpuset_subsystem_rec (tmp_path, strlen (tmp_path), cpus_buf, mems_buf, NULL, err);
+  أرجع initialize_cpuset_subsystem_rec (tmp_رستو, لڙي_ڊيگهه (tmp_رستو), cpus_buf, mems_buf, عدم, err);
 }
 
-int
-initialize_cpuset_subsystem_resources (const char *path, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
+صحيح
+initialize_cpuset_subsystem_resources (ثابت حرف *رستو, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
 {
-  cleanup_free char *tmp_path = xstrdup (path);
-  char cpus_buf[257];
-  char mems_buf[257];
+  cleanup_free حرف *tmp_رستو = xstrdup (رستو);
+  حرف cpus_buf[257];
+  حرف mems_buf[257];
 
   cpus_buf[0] = mems_buf[0] = '\0';
-  return initialize_cpuset_subsystem_rec (tmp_path, strlen (tmp_path), cpus_buf, mems_buf, resources, err);
+  أرجع initialize_cpuset_subsystem_rec (tmp_رستو, لڙي_ڊيگهه (tmp_رستو), cpus_buf, mems_buf, resources, err);
 }
 
-static int
-initialize_memory_subsystem (const char *path, libcrun_error_t *err)
+ساكن صحيح
+initialize_يادگيري_subsystem (ثابت حرف *رستو, libcrun_error_t *err)
 {
-  const char *const files[]
-      = { "memory.limit_in_bytes", "memory.kmem.limit_in_bytes", "memory.memsw.limit_in_bytes", NULL };
-  cleanup_close int dirfd = -1;
-  int i;
+  ثابت حرف *ثابت files[]
+      = { "memory.limit_in_bytes", "memory.kmem.limit_in_bytes", "memory.memsw.limit_in_bytes", عدم };
+  cleanup_close صحيح dirfd = -1;
+  صحيح i;
 
-  dirfd = open (path, O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", path);
+  dirfd = open (رستو, O_DIRECTORY | O_رستو | O_CLOEXEC);
+  إذا (UNLIKELY (dirfd < 0))
+    أرجع crun_make_error (err, errno, "open `%s`", رستو);
 
-  for (i = 0; files[i]; i++)
+  لكل (i = 0; files[i]; i++)
     {
-      int ret;
+      صحيح ret;
 
       ret = write_cgroup_file (dirfd, files[i], "-1", 2, err);
-      if (UNLIKELY (ret < 0))
+      إذا (UNLIKELY (ret < 0))
         {
           /* Ignore any error here.  */
           crun_error_release (err);
         }
     }
 
-  return 0;
+  أرجع 0;
 }
 
-int
-enter_cgroup_v1_subsystem (pid_t pid, const char *subsystem, const char *path, bool create_if_missing,
+صحيح
+enter_cgroup_v1_subsystem (pid_t pid, ثابت حرف *subsystem, ثابت حرف *رستو, bool create_if_missing,
                            libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path = NULL;
-  int ret;
+  cleanup_free حرف *cgroup_رستو = عدم;
+  صحيح ret;
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, subsystem, path ? path : "", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_رستو, err, CGROUP_پاڙ, subsystem, رستو ? رستو : "", عدم);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  if (create_if_missing)
+  إذا (create_if_missing)
     {
-      ret = crun_ensure_directory (cgroup_path, 0755, false, err);
-      if (UNLIKELY (ret < 0))
+      ret = crun_ensure_directory (cgroup_رستو, 0755, false, err);
+      إذا (UNLIKELY (ret < 0))
         {
-          if (crun_error_get_errno (err) != EROFS)
-            return crun_error_wrap (err, "creating cgroup directory `%s`", cgroup_path);
+          إذا (crun_error_get_errno (err) != EROFS)
+            أرجع crun_error_wrap (err, "creating cgroup directory `%s`", cgroup_رستو);
 
           crun_error_release (err);
-          return 0;
+          أرجع 0;
         }
 
-      if (strcmp (subsystem, "cpuset") == 0)
+      إذا (strcmp (subsystem, "cpuset") == 0)
         {
-          ret = initialize_cpuset_subsystem (cgroup_path, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = initialize_cpuset_subsystem (cgroup_رستو, err);
+          إذا (UNLIKELY (ret < 0))
+            أرجع ret;
         }
-      if (strcmp (subsystem, "memory") == 0)
+      إذا (strcmp (subsystem, "memory") == 0)
         {
-          ret = initialize_memory_subsystem (cgroup_path, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = initialize_يادگيري_subsystem (cgroup_رستو, err);
+          إذا (UNLIKELY (ret < 0))
+            أرجع ret;
         }
     }
-  else
+  وإلا
     {
-      ret = crun_path_exists (cgroup_path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      if (ret == 0)
-        return 0;
+      ret = crun_رستو_exists (cgroup_رستو, err);
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
+      إذا (ret == 0)
+        أرجع 0;
     }
 
-  return move_process_to_cgroup (pid, subsystem, path, err);
+  أرجع move_process_منزل_cgroup (pid, subsystem, رستو, err);
 }
 
-static int
-get_file_owner (const char *path, uid_t *uid, gid_t *gid)
+ساكن صحيح
+get_file_owner (ثابت حرف *رستو, uid_t *uid, gid_t *gid)
 {
-  struct stat st;
-  int ret;
+  بنية stat st;
+  صحيح ret;
 
-#ifdef HAVE_STATX
-  struct statx stx;
+#جيڪڏهن_وصف_ٿيل HAVE_STATX
+  بنية statx stx;
 
-  ret = statx (AT_FDCWD, path, AT_STATX_DONT_SYNC, STATX_UID | STATX_GID, &stx);
-  if (UNLIKELY (ret < 0))
+  ret = statx (AT_FDCWD, رستو, AT_STATX_DONT_SYNC, STATX_UID | STATX_GID, &stx);
+  إذا (UNLIKELY (ret < 0))
     {
-      if (errno == ENOSYS || errno == EINVAL)
-        goto fallback;
+      إذا (errno == ENOSYS || errno == EINVAL)
+        اذهب fallback;
 
-      return ret;
+      أرجع ret;
     }
   *uid = stx.stx_uid;
   *gid = stx.stx_gid;
-  return ret;
+  أرجع ret;
 
 fallback:
-#endif
-  ret = stat (path, &st);
-  if (UNLIKELY (ret < 0))
-    return ret;
+#جيڪڏهن_پورو
+  ret = stat (رستو, &st);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
   *uid = st.st_uid;
   *gid = st.st_gid;
-  return ret;
+  أرجع ret;
 }
 
-static int
-copy_owner (const char *from, const char *to, libcrun_error_t *err)
+ساكن صحيح
+copy_owner (ثابت حرف *from, ثابت حرف *منزل, libcrun_error_t *err)
 {
   uid_t uid = 0;
   gid_t gid = 0;
-  int ret;
+  صحيح ret;
 
   ret = get_file_owner (from, &uid, &gid);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "cannot get file owner for `%s`", from);
+  إذا (UNLIKELY (ret < 0))
+    أرجع crun_make_error (err, errno, "cannot get file owner for `%s`", from);
 
-  if (uid == 0 && gid == 0)
-    return 0;
+  إذا (uid == 0 && gid == 0)
+    أرجع 0;
 
-  return chown_cgroups (to, uid, gid, err);
+  أرجع chown_cgroups (منزل, uid, gid, err);
 }
 
-static int
-read_unified_cgroup_pid (pid_t pid, char **path, libcrun_error_t *err)
+ساكن صحيح
+read_unified_cgroup_pid (pid_t pid, حرف **رستو, libcrun_error_t *err)
 {
-  int ret;
-  char cgroup_path[32];
-  char *from, *to;
-  cleanup_free char *content = NULL;
-  int len;
+  صحيح ret;
+  حرف cgroup_رستو[32];
+  حرف *from, *منزل;
+  cleanup_free حرف *content = عدم;
+  صحيح len;
 
-  len = snprintf (cgroup_path, sizeof (cgroup_path), "/proc/%d/cgroup", pid);
-  if (UNLIKELY (len >= (int) sizeof (cgroup_path)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  len = snprintf (cgroup_رستو, حجم (cgroup_رستو), "/proc/%d/cgroup", pid);
+  إذا (UNLIKELY (len >= (صحيح) حجم (cgroup_رستو)))
+    أرجع crun_make_error (err, 0, "internal error: static buffer too small");
 
-  cgroup_path[len] = '\0';
+  cgroup_رستو[len] = '\0';
 
-  ret = read_all_file (cgroup_path, &content, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = read_all_file (cgroup_رستو, &content, عدم, err);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  from = strstr (content, "0::");
-  if (UNLIKELY (from == NULL))
-    return crun_make_error (err, 0, "cannot find cgroup2 for the process `%d`", pid);
+  from = لڙي_ڳولا (content, "0::");
+  إذا (UNLIKELY (from == عدم))
+    أرجع crun_make_error (err, 0, "cannot find cgroup2 for the process `%d`", pid);
 
   from += 3;
 
-  to = strchr (from, '\n');
-  if (UNLIKELY (to == NULL))
-    return crun_make_error (err, 0, "cannot parse `%s`", cgroup_path);
-  *to = '\0';
+  منزل = strchr (from, '\n');
+  إذا (UNLIKELY (منزل == عدم))
+    أرجع crun_make_error (err, 0, "cannot parse `%s`", cgroup_رستو);
+  *منزل = '\0';
 
-  *path = xstrdup (from);
-  return 0;
+  *رستو = xstrdup (from);
+  أرجع 0;
 }
 
-static int
-enter_cgroup_v1 (pid_t pid, const char *path, bool create_if_missing, libcrun_error_t *err)
+ساكن صحيح
+enter_cgroup_v1 (pid_t pid, ثابت حرف *رستو, bool create_if_missing, libcrun_error_t *err)
 {
-  cleanup_free char *content = NULL;
+  cleanup_free حرف *content = عدم;
   bool entered_any = false;
-  size_t content_size;
-  char *controller;
-  char *saveptr;
-  bool has_data;
-  int rootless;
-  int ret;
+  size_t content_سائيز;
+  حرف *controller;
+  حرف *saveptr;
+  bool has_معلومات;
+  صحيح rootless;
+  صحيح ret;
 
   rootless = is_rootless (err);
-  if (UNLIKELY (rootless < 0))
-    return rootless;
+  إذا (UNLIKELY (rootless < 0))
+    أرجع rootless;
 
-  ret = read_all_file (PROC_SELF_CGROUP, &content, &content_size, err);
-  if (UNLIKELY (ret < 0))
+  ret = read_all_file (PROC_SELF_CGROUP, &content, &content_سائيز, err);
+  إذا (UNLIKELY (ret < 0))
     {
-      if (crun_error_get_errno (err) == ENOENT)
+      إذا (crun_error_get_errno (err) == ENOENT)
         {
           crun_error_release (err);
-          return 0;
+          أرجع 0;
         }
-      return ret;
+      أرجع ret;
     }
 
-  for (has_data = read_proc_cgroup (content, &saveptr, NULL, &controller, NULL);
-       has_data;
-       has_data = read_proc_cgroup (NULL, &saveptr, NULL, &controller, NULL))
+  لكل (has_معلومات = read_proc_cgroup (content, &saveptr, عدم, &controller, عدم);
+       has_معلومات;
+       has_معلومات = read_proc_cgroup (عدم, &saveptr, عدم, &controller, عدم))
     {
-      char subsystem_path[64];
-      char *subsystem;
+      حرف subsystem_رستو[64];
+      حرف *subsystem;
       size_t len;
 
-      if (has_prefix (controller, "name="))
+      إذا (has_اڳياڙي (controller, "name="))
         controller += 5;
 
       subsystem = controller[0] == '\0' ? "unified" : controller;
 
-      if (strcmp (subsystem, "net_prio,net_cls") == 0)
+      إذا (strcmp (subsystem, "net_prio,net_cls") == 0)
         subsystem = "net_cls,net_prio";
-      if (strcmp (subsystem, "cpuacct,cpu") == 0)
+      إذا (strcmp (subsystem, "cpuacct,cpu") == 0)
         subsystem = "cpu,cpuacct";
 
-      len = snprintf (subsystem_path, sizeof (subsystem_path), CGROUP_ROOT "/%s", subsystem);
-      if (UNLIKELY (len >= (int) sizeof (subsystem_path)))
-        return crun_make_error (err, 0, "internal error: static buffer too small");
+      len = snprintf (subsystem_رستو, حجم (subsystem_رستو), CGROUP_پاڙ "/%s", subsystem);
+      إذا (UNLIKELY (len >= (صحيح) حجم (subsystem_رستو)))
+        أرجع crun_make_error (err, 0, "internal error: static buffer too small");
 
-      ret = crun_path_exists (subsystem_path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
-      if (ret == 0)
-        continue;
+      ret = crun_رستو_exists (subsystem_رستو, err);
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
+      إذا (ret == 0)
+        استمر;
 
       entered_any = true;
-      ret = enter_cgroup_v1_subsystem (pid, subsystem, path, create_if_missing, err);
-      if (UNLIKELY (ret < 0))
+      ret = enter_cgroup_v1_subsystem (pid, subsystem, رستو, create_if_missing, err);
+      إذا (UNLIKELY (ret < 0))
         {
-          int errcode = crun_error_get_errno (err);
-          if (rootless && (errcode == EACCES || errcode == EPERM))
+          صحيح errcode = crun_error_get_errno (err);
+          إذا (rootless && (errcode == EACCES || errcode == EPERM))
             {
               crun_error_release (err);
-              continue;
+              استمر;
             }
-          return ret;
+          أرجع ret;
         }
     }
 
-  if (entered_any)
-    return 0;
+  إذا (entered_any)
+    أرجع 0;
 
-  return crun_make_error (err, 0, "could not join cgroup");
+  أرجع crun_make_error (err, 0, "could not join cgroup");
 }
 
-static int
-enter_cgroup_v2 (pid_t pid, pid_t init_pid, const char *path, bool create_if_missing, libcrun_error_t *err)
+ساكن صحيح
+enter_cgroup_v2 (pid_t pid, pid_t init_pid, ثابت حرف *رستو, bool create_if_missing, libcrun_error_t *err)
 {
-  cleanup_free char *cgroup_path_procs = NULL;
-  cleanup_free char *cgroup_path = NULL;
-  char pid_str[16];
-  int repeat;
-  int len;
-  int ret;
+  cleanup_free حرف *cgroup_رستو_procs = عدم;
+  cleanup_free حرف *cgroup_رستو = عدم;
+  حرف pid_str[16];
+  صحيح repeat;
+  صحيح len;
+  صحيح ret;
 
-  len = snprintf (pid_str, sizeof (pid_str), "%d", pid);
-  if (UNLIKELY (len >= (int) sizeof (pid_str)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  len = snprintf (pid_str, حجم (pid_str), "%d", pid);
+  إذا (UNLIKELY (len >= (صحيح) حجم (pid_str)))
+    أرجع crun_make_error (err, 0, "internal error: static buffer too small");
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_رستو, err, CGROUP_پاڙ, رستو, عدم);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  if (create_if_missing)
+  إذا (create_if_missing)
     {
-      ret = crun_ensure_directory (cgroup_path, 0755, false, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = crun_ensure_directory (cgroup_رستو, 0755, false, err);
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
 
-  ret = append_paths (&cgroup_path_procs, err, cgroup_path, "cgroup.procs", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_رستو_procs, err, cgroup_رستو, "cgroup.procs", عدم);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  ret = write_cgroup_file (AT_FDCWD, cgroup_path_procs, pid_str, strlen (pid_str), err);
-  if (LIKELY (ret >= 0))
-    return ret;
+  ret = write_cgroup_file (AT_FDCWD, cgroup_رستو_procs, pid_str, لڙي_ڊيگهه (pid_str), err);
+  إذا (LIKELY (ret >= 0))
+    أرجع ret;
 
-  if (UNLIKELY (crun_error_get_errno (err) == EOPNOTSUPP))
+  إذا (UNLIKELY (crun_error_get_errno (err) == EOPNOTSUPP))
     {
       crun_error_release (err);
 
-      ret = maybe_make_cgroup_threaded (path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = maybe_make_cgroup_threaded (رستو, err);
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
 
-      ret = write_cgroup_file (AT_FDCWD, cgroup_path_procs, pid_str, strlen (pid_str), err);
-      if (LIKELY (ret >= 0))
-        return ret;
+      ret = write_cgroup_file (AT_FDCWD, cgroup_رستو_procs, pid_str, لڙي_ڊيگهه (pid_str), err);
+      إذا (LIKELY (ret >= 0))
+        أرجع ret;
     }
 
-  if (create_if_missing || crun_error_get_errno (err) != EBUSY)
-    return ret;
+  إذا (create_if_missing || crun_error_get_errno (err) != EBUSY)
+    أرجع ret;
 
   crun_error_release (err);
 
@@ -454,72 +454,72 @@ enter_cgroup_v2 (pid_t pid, pid_t init_pid, const char *path, bool create_if_mis
      cgroup.  Create a subdirectory and use that.
      It can still fail if the container creates a subdirectory under
      /sys/fs/cgroup/../crun-exec/  */
-  for (repeat = 0;; repeat++)
+  لكل (repeat = 0;; repeat++)
     {
-      cleanup_free char *cgroup_crun_exec_path = NULL;
-      cleanup_free char *cgroup_sub_path_procs = NULL;
+      cleanup_free حرف *cgroup_crun_exec_رستو = عدم;
+      cleanup_free حرف *cgroup_sub_رستو_procs = عدم;
 
       /* There is an init pid, try to join its cgroup.  */
-      if (init_pid > 0)
+      إذا (init_pid > 0)
         {
-          ret = read_unified_cgroup_pid (init_pid, &cgroup_crun_exec_path, err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          ret = read_unified_cgroup_pid (init_pid, &cgroup_crun_exec_رستو, err);
+          إذا (UNLIKELY (ret < 0))
+            أرجع ret;
 
           /* Make sure the cgroup is below the initial cgroup specified for the container.  */
-          if (strncmp (path, cgroup_crun_exec_path, strlen (path)))
+          إذا (لڙي_ڀيٽ (رستو, cgroup_crun_exec_رستو, لڙي_ڊيگهه (رستو)))
             {
-              free (cgroup_crun_exec_path);
-              cgroup_crun_exec_path = NULL;
+              حرر (cgroup_crun_exec_رستو);
+              cgroup_crun_exec_رستو = عدم;
             }
         }
 
       /* There is no init_pid to lookup, try a static path.  */
-      if (cgroup_crun_exec_path == NULL)
-        xasprintf (&cgroup_crun_exec_path, "%s/crun-exec", path);
+      إذا (cgroup_crun_exec_رستو == عدم)
+        xasprintf (&cgroup_crun_exec_رستو, "%s/crun-exec", رستو);
 
       /* The sub-cgroup is managed by the container, make sure it is not
          frozen or the process would never run once moved there.  */
-      ret = libcrun_cgroup_ensure_not_frozen (cgroup_crun_exec_path, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = libcrun_cgroup_ensure_not_frozen (cgroup_crun_exec_رستو, err);
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
 
-      ret = append_paths (&cgroup_sub_path_procs, err, CGROUP_ROOT, cgroup_crun_exec_path, "cgroup.procs", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = append_paths (&cgroup_sub_رستو_procs, err, CGROUP_پاڙ, cgroup_crun_exec_رستو, "cgroup.procs", عدم);
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
 
-      ret = write_cgroup_file (AT_FDCWD, cgroup_sub_path_procs, pid_str, strlen (pid_str), err);
-      if (UNLIKELY (ret < 0))
+      ret = write_cgroup_file (AT_FDCWD, cgroup_sub_رستو_procs, pid_str, لڙي_ڊيگهه (pid_str), err);
+      إذا (UNLIKELY (ret < 0))
         {
           /* The init process might have moved to a different cgroup, try again.  */
-          if (crun_error_get_errno (err) == EBUSY && init_pid && repeat < 20)
+          إذا (crun_error_get_errno (err) == EBUSY && init_pid && repeat < 20)
             {
               crun_error_release (err);
-              continue;
+              استمر;
             }
-          return ret;
+          أرجع ret;
         }
-      return copy_owner (cgroup_path_procs, cgroup_crun_exec_path, err);
+      أرجع copy_owner (cgroup_رستو_procs, cgroup_crun_exec_رستو, err);
     }
-  return ret;
+  أرجع ret;
 }
 
-int
-enter_cgroup (int cgroup_mode, pid_t pid, pid_t init_pid, const char *path,
+صحيح
+enter_cgroup (صحيح cgroup_گهڻائي, pid_t pid, pid_t init_pid, ثابت حرف *رستو,
               bool create_if_missing, libcrun_error_t *err)
 {
-  int ret;
-  if (cgroup_mode == CGROUP_MODE_UNIFIED)
+  صحيح ret;
+  إذا (cgroup_گهڻائي == CGROUP_گهڻائي_UNIFIED)
     {
-      ret = enter_cgroup_v2 (pid, init_pid, path, create_if_missing, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = enter_cgroup_v2 (pid, init_pid, رستو, create_if_missing, err);
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
-  else
+  وإلا
     {
-      ret = enter_cgroup_v1 (pid, path, create_if_missing, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      ret = enter_cgroup_v1 (pid, رستو, create_if_missing, err);
+      إذا (UNLIKELY (ret < 0))
+        أرجع ret;
     }
-  return 0;
+  أرجع 0;
 }

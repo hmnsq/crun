@@ -15,13 +15,13 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CGROUP_SETUP_H
-#define CGROUP_SETUP_H
+#جيڪڏهن_وصف_نه_ٿيل CGROUP_تياري_H
+#وصف_ڪريو CGROUP_تياري_H
 
-#include "container.h"
-#include "utils.h"
+#ضمن "container.h"
+#ضمن "utils.h"
 
-int enter_cgroup (int cgroup_mode, pid_t pid, pid_t init_pid, const char *path,
+صحيح enter_cgroup (صحيح cgroup_گهڻائي, pid_t pid, pid_t init_pid, ثابت حرف *رستو,
                   bool create_if_missing, libcrun_error_t *err);
 
-#endif
+#جيڪڏهن_پورو

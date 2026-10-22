@@ -15,38 +15,38 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef RING_BUFFER_H
-#define RING_BUFFER_H
+#جيڪڏهن_وصف_نه_ٿيل RING_بفر_H
+#وصف_ڪريو RING_بفر_H
 
-#include <config.h>
+#ضمن <config.h>
 
-#include "error.h"
-#include "utils.h"
+#ضمن "error.h"
+#ضمن "utils.h"
 
-struct ring_buffer;
+بنية ring_بفر;
 
-size_t ring_buffer_get_data_available (struct ring_buffer *rb);
+size_t ring_بفر_get_معلومات_موجود (بنية ring_بفر *rb);
 
-size_t ring_buffer_get_space_available (struct ring_buffer *rb);
+size_t ring_بفر_get_space_موجود (بنية ring_بفر *rb);
 
-size_t ring_buffer_get_size (struct ring_buffer *rb);
+size_t ring_بفر_get_سائيز (بنية ring_بفر *rb);
 
-int ring_buffer_read (struct ring_buffer *rb, int fd, bool *is_eagain, libcrun_error_t *err);
+صحيح ring_بفر_read (بنية ring_بفر *rb, صحيح fd, bool *is_eagain, libcrun_error_t *err);
 
-int ring_buffer_write (struct ring_buffer *rb, int fd, bool *is_eagain, libcrun_error_t *err);
+صحيح ring_بفر_write (بنية ring_بفر *rb, صحيح fd, bool *is_eagain, libcrun_error_t *err);
 
-struct ring_buffer *ring_buffer_make (size_t size);
+بنية ring_بفر *ring_بفر_make (size_t سائيز);
 
-void ring_buffer_free (struct ring_buffer *rb);
+فراغ ring_بفر_free (بنية ring_بفر *rb);
 
-#define cleanup_ring_buffer __attribute__ ((cleanup (cleanup_ring_bufferp)))
+#وصف_ڪريو cleanup_ring_بفر __attribute__ ((cleanup (cleanup_ring_bufferp)))
 
-static inline void
-cleanup_ring_bufferp (struct ring_buffer **p)
+ساكن مضمن فراغ
+cleanup_ring_bufferp (بنية ring_بفر **p)
 {
-  struct ring_buffer *rb = *p;
-  if (rb)
-    ring_buffer_free (rb);
+  بنية ring_بفر *rb = *p;
+  إذا (rb)
+    ring_بفر_free (rb);
 }
 
-#endif
+#جيڪڏهن_پورو

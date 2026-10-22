@@ -1,82 +1,82 @@
-#ifndef BLAKE3_H
-#define BLAKE3_H
+#جيڪڏهن_وصف_نه_ٿيل BLAKE3_H
+#وصف_ڪريو BLAKE3_H
 
-#include <stddef.h>
-#include <stdint.h>
+#ضمن <stddef.h>
+#ضمن <stdint.h>
 
-#if !defined(BLAKE3_API)
-# if defined(_WIN32) || defined(__CYGWIN__)
-#   if defined(BLAKE3_DLL)
-#     if defined(BLAKE3_DLL_EXPORTS)
+#إذا !defined(BLAKE3_API)
+# إذا defined(_WIN32) || defined(__CYGWIN__)
+#   إذا defined(BLAKE3_DLL)
+#     إذا defined(BLAKE3_DLL_EXPORTS)
 #       define BLAKE3_API __declspec(dllexport)
-#     else
+#     وإلا
 #       define BLAKE3_API __declspec(dllimport)
 #     endif
-#     define BLAKE3_PRIVATE
-#   else
+#     define BLAKE3_ذاتي
+#   وإلا
 #     define BLAKE3_API
-#     define BLAKE3_PRIVATE
+#     define BLAKE3_ذاتي
 #   endif
 # elif __GNUC__ >= 4
 #   define BLAKE3_API __attribute__((visibility("default")))
-#   define BLAKE3_PRIVATE __attribute__((visibility("hidden")))
-# else
+#   define BLAKE3_ذاتي __attribute__((visibility("hidden")))
+# وإلا
 #   define BLAKE3_API
-#   define BLAKE3_PRIVATE
+#   define BLAKE3_ذاتي
 # endif
-#endif
+#جيڪڏهن_پورو
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#جيڪڏهن_وصف_ٿيل __cplusplus
+خارجي "C" {
+#جيڪڏهن_پورو
 
-#define BLAKE3_VERSION_STRING "1.5.0"
-#define BLAKE3_KEY_LEN 32
-#define BLAKE3_OUT_LEN 32
-#define BLAKE3_BLOCK_LEN 64
-#define BLAKE3_CHUNK_LEN 1024
-#define BLAKE3_MAX_DEPTH 54
+#وصف_ڪريو BLAKE3_نسخو_STRING "1.5.0"
+#وصف_ڪريو BLAKE3_ڪنجي_LEN 32
+#وصف_ڪريو BLAKE3_ٻاهريون_LEN 32
+#وصف_ڪريو BLAKE3_بلاڪ_LEN 64
+#وصف_ڪريو BLAKE3_CHUNK_LEN 1024
+#وصف_ڪريو BLAKE3_MAX_اونهائي 54
 
 // This struct is a private implementation detail. It has to be here because
 // it's part of blake3_hasher below.
-typedef struct {
+تعريفنوع بنية {
   uint32_t cv[8];
   uint64_t chunk_counter;
-  uint8_t buf[BLAKE3_BLOCK_LEN];
+  uint8_t buf[BLAKE3_بلاڪ_LEN];
   uint8_t buf_len;
-  uint8_t blocks_compressed;
+  uint8_t بلاڪون_compressed;
   uint8_t flags;
 } blake3_chunk_state;
 
-typedef struct {
-  uint32_t key[8];
+تعريفنوع بنية {
+  uint32_t ڪنجي[8];
   blake3_chunk_state chunk;
-  uint8_t cv_stack_len;
+  uint8_t cv_ڍير_len;
   // The stack size is MAX_DEPTH + 1 because we do lazy merging. For example,
   // with 7 chunks, we have 3 entries in the stack. Adding an 8th chunk
   // requires a 4th entry, rather than merging everything down to 1, because we
   // don't know whether more input is coming. This is different from how the
   // reference implementation does things.
-  uint8_t cv_stack[(BLAKE3_MAX_DEPTH + 1) * BLAKE3_OUT_LEN];
+  uint8_t cv_ڍير[(BLAKE3_MAX_اونهائي + 1) * BLAKE3_ٻاهريون_LEN];
 } blake3_hasher;
 
-BLAKE3_API const char *blake3_version(void);
-BLAKE3_API void blake3_hasher_init(blake3_hasher *self);
-BLAKE3_API void blake3_hasher_init_keyed(blake3_hasher *self,
-                                         const uint8_t key[BLAKE3_KEY_LEN]);
-BLAKE3_API void blake3_hasher_init_derive_key(blake3_hasher *self, const char *context);
-BLAKE3_API void blake3_hasher_init_derive_key_raw(blake3_hasher *self, const void *context,
+BLAKE3_API ثابت حرف *blake3_نسخو(فراغ);
+BLAKE3_API فراغ blake3_hasher_init(blake3_hasher *self);
+BLAKE3_API فراغ blake3_hasher_init_keyed(blake3_hasher *self,
+                                         ثابت uint8_t ڪنجي[BLAKE3_ڪنجي_LEN]);
+BLAKE3_API فراغ blake3_hasher_init_derive_ڪنجي(blake3_hasher *self, ثابت حرف *context);
+BLAKE3_API فراغ blake3_hasher_init_derive_ڪنجي_raw(blake3_hasher *self, ثابت فراغ *context,
                                                   size_t context_len);
-BLAKE3_API void blake3_hasher_update(blake3_hasher *self, const void *input,
-                                     size_t input_len);
-BLAKE3_API void blake3_hasher_finalize(const blake3_hasher *self, uint8_t *out,
-                                       size_t out_len);
-BLAKE3_API void blake3_hasher_finalize_seek(const blake3_hasher *self, uint64_t seek,
-                                            uint8_t *out, size_t out_len);
-BLAKE3_API void blake3_hasher_reset(blake3_hasher *self);
+BLAKE3_API فراغ blake3_hasher_update(blake3_hasher *self, ثابت فراغ *داخلا,
+                                     size_t داخلا_len);
+BLAKE3_API فراغ blake3_hasher_finalize(ثابت blake3_hasher *self, uint8_t *ٻاهريون,
+                                       size_t ٻاهريون_len);
+BLAKE3_API فراغ blake3_hasher_finalize_seek(ثابت blake3_hasher *self, uint64_t seek,
+                                            uint8_t *ٻاهريون, size_t ٻاهريون_len);
+BLAKE3_API فراغ blake3_hasher_reset(blake3_hasher *self);
 
-#ifdef __cplusplus
+#جيڪڏهن_وصف_ٿيل __cplusplus
 }
-#endif
+#جيڪڏهن_پورو
 
-#endif /* BLAKE3_H */
+#جيڪڏهن_پورو /* BLAKE3_H */

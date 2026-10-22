@@ -16,20 +16,20 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef INTEL_RDT_H
-#define INTEL_RDT_H
+#جيڪڏهن_وصف_نه_ٿيل INTEL_RDT_H
+#وصف_ڪريو INTEL_RDT_H
 
-#include <config.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include "error.h"
+#ضمن <config.h>
+#ضمن <stdio.h>
+#ضمن <stdbool.h>
+#ضمن "error.h"
 
-int resctl_create (const char *name, bool explicit_clos_id, bool *created, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err);
-int resctl_move_task_to (const char *name, const char *monitoring_name, pid_t pid, libcrun_error_t *err);
-int resctl_update (const char *name, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata, libcrun_error_t *err);
-int resctl_destroy (const char *name, libcrun_error_t *err);
+صحيح resctl_create (ثابت حرف *name, bool explicit_clos_id, bool *created, ثابت حرف *l3_cache_schema, ثابت حرف *mem_bw_schema, حرف *ثابت *schemata, libcrun_error_t *err);
+صحيح resctl_move_task_منزل (ثابت حرف *name, ثابت حرف *monitoring_name, pid_t pid, libcrun_error_t *err);
+صحيح resctl_update (ثابت حرف *name, ثابت حرف *l3_cache_schema, ثابت حرف *mem_bw_schema, حرف *ثابت *schemata, libcrun_error_t *err);
+صحيح resctl_destroy (ثابت حرف *name, libcrun_error_t *err);
 
-int resctl_destroy_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err);
-int resctl_create_monitoring_group (const char *resctrl_group_name, const char *container_id, libcrun_error_t *err);
+صحيح resctl_destroy_monitoring_گروهه (ثابت حرف *resctrl_گروهه_name, ثابت حرف *container_id, libcrun_error_t *err);
+صحيح resctl_create_monitoring_گروهه (ثابت حرف *resctrl_گروهه_name, ثابت حرف *container_id, libcrun_error_t *err);
 
-#endif
+#جيڪڏهن_پورو

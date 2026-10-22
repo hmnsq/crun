@@ -16,49 +16,49 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#وصف_ڪريو GNU_ذريعو
 
-#include <config.h>
-#include "cgroup.h"
-#include "cgroup-internal.h"
-#include "cgroup-systemd.h"
-#include "cgroup-setup.h"
-#include "cgroup-utils.h"
-#include "cgroup-cgroupfs.h"
-#include <string.h>
-#include <sys/types.h>
-#include <signal.h>
-#include <sys/vfs.h>
-#include <inttypes.h>
-#include <time.h>
+#ضمن <config.h>
+#ضمن "cgroup.h"
+#ضمن "cgroup-internal.h"
+#ضمن "cgroup-systemd.h"
+#ضمن "cgroup-setup.h"
+#ضمن "cgroup-utils.h"
+#ضمن "cgroup-cgroupfs.h"
+#ضمن <string.h>
+#ضمن <sys/types.h>
+#ضمن <signal.h>
+#ضمن <sys/vfs.h>
+#ضمن <inttypes.h>
+#ضمن <time.h>
 
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <libgen.h>
+#ضمن <sys/stat.h>
+#ضمن <sys/types.h>
+#ضمن <fcntl.h>
+#ضمن <libgen.h>
 
-static char *
-make_cgroup_path (const char *path, const char *id)
+ساكن حرف *
+make_cgroup_رستو (ثابت حرف *رستو, ثابت حرف *id)
 {
-  char *ret;
+  حرف *ret;
 
-  if (path == NULL)
+  إذا (رستو == عدم)
     xasprintf (&ret, "/%s", id);
-  else if (path[0] == '/')
-    ret = xstrdup (path);
-  else
-    xasprintf (&ret, "/%s", path);
+  وإلا إذا (رستو[0] == '/')
+    ret = xstrdup (رستو);
+  وإلا
+    xasprintf (&ret, "/%s", رستو);
 
-  return ret;
+  أرجع ret;
 }
 
-static int
-libcrun_precreate_cgroup_cgroupfs (struct libcrun_cgroup_args *args, int *dirfd, libcrun_error_t *err)
+ساكن صحيح
+libcrun_precreate_cgroup_cgroupfs (بنية libcrun_cgroup_دليلون *دليلون, صحيح *dirfd, libcrun_error_t *err)
 {
-  cleanup_free char *sub_path = make_cgroup_path (args->cgroup_path, args->id);
-  cleanup_free char *cgroup_path = NULL;
-  cleanup_free char *parent_path = NULL;
-  int ret;
+  cleanup_free حرف *sub_رستو = make_cgroup_رستو (دليلون->cgroup_رستو, دليلون->id);
+  cleanup_free حرف *cgroup_رستو = عدم;
+  cleanup_free حرف *والد_رستو = عدم;
+  صحيح ret;
 
   /* No need to check the mode since this feature is supported only on cgroup v2, and
      libcrun_cgroup_preenter already performs this check.  */
@@ -67,132 +67,132 @@ libcrun_precreate_cgroup_cgroupfs (struct libcrun_cgroup_args *args, int *dirfd,
 
   /* The container process is created directly in the cgroup, so check it
      now: once it is there, it is too late.  */
-  ret = libcrun_cgroup_ensure_not_frozen (sub_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_cgroup_ensure_not_frozen (sub_رستو, err);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, sub_path, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = append_paths (&cgroup_رستو, err, CGROUP_پاڙ, sub_رستو, عدم);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  parent_path = xstrdup (cgroup_path);
-  ret = crun_ensure_directory (dirname (parent_path), 0755, true, err);
-  if (UNLIKELY (ret < 0))
+  والد_رستو = xstrdup (cgroup_رستو);
+  ret = crun_ensure_directory (dirname (والد_رستو), 0755, true, err);
+  إذا (UNLIKELY (ret < 0))
     {
       libcrun_error_release (err);
-      return 0;
+      أرجع 0;
     }
 
   /* Remember the cgroup created here, so it can be removed if the container
      creation fails before there is a status for it.  A pre-existing cgroup is
      left alone.  */
-  if (mkdir (cgroup_path, 0755) == 0)
-    args->precreated_path = xstrdup (cgroup_path);
-  else if (errno != EEXIST)
-    return 0;
+  إذا (mkdir (cgroup_رستو, 0755) == 0)
+    دليلون->precreated_رستو = xstrdup (cgroup_رستو);
+  وإلا إذا (errno != EEXIST)
+    أرجع 0;
 
-  ret = enable_controllers (sub_path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = enable_controllers (sub_رستو, err);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  *dirfd = open (cgroup_path, O_CLOEXEC | O_NOFOLLOW | O_DIRECTORY | O_PATH);
-  if (UNLIKELY (*dirfd < 0))
-    return crun_make_error (err, errno, "open `%s`", cgroup_path);
+  *dirfd = open (cgroup_رستو, O_CLOEXEC | O_NOFOLLOW | O_DIRECTORY | O_رستو);
+  إذا (UNLIKELY (*dirfd < 0))
+    أرجع crun_make_error (err, errno, "open `%s`", cgroup_رستو);
 
-  return 0;
+  أرجع 0;
 }
 
-static int
-make_new_sibling_cgroup (char **out, const char *id, libcrun_error_t *err)
+ساكن صحيح
+make_new_sibling_cgroup (حرف **ٻاهريون, ثابت حرف *id, libcrun_error_t *err)
 {
-  cleanup_free char *current_cgroup = NULL;
-  char *dir;
-  int ret;
+  cleanup_free حرف *current_cgroup = عدم;
+  حرف *dir;
+  صحيح ret;
 
   ret = libcrun_get_cgroup_process (0, &current_cgroup, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
   dir = dirname (current_cgroup);
 
-  append_paths (out, err, dir, id, NULL);
-  return 0;
+  append_paths (ٻاهريون, err, dir, id, عدم);
+  أرجع 0;
 }
 
-static int
-libcrun_cgroup_enter_cgroupfs (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status *out, libcrun_error_t *err)
+ساكن صحيح
+libcrun_cgroup_enter_cgroupfs (بنية libcrun_cgroup_دليلون *دليلون, بنية libcrun_cgroup_حالت *ٻاهريون, libcrun_error_t *err)
 {
-  pid_t pid = args->pid;
-  int cgroup_mode;
-  int ret;
+  pid_t pid = دليلون->pid;
+  صحيح cgroup_گهڻائي;
+  صحيح ret;
 
-  cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  cgroup_گهڻائي = libcrun_get_cgroup_گهڻائي (err);
+  إذا (UNLIKELY (cgroup_گهڻائي < 0))
+    أرجع cgroup_گهڻائي;
 
-  out->path = make_cgroup_path (args->cgroup_path, args->id);
+  ٻاهريون->رستو = make_cgroup_رستو (دليلون->cgroup_رستو, دليلون->id);
 
   /* If the cgroup was already joined via CLONE_INTO_CGROUP, the controllers
      were already enabled by precreate_cgroup.  */
-  if (args->joined)
-    return 0;
+  إذا (دليلون->joined)
+    أرجع 0;
 
-  if (cgroup_mode == CGROUP_MODE_UNIFIED)
+  إذا (cgroup_گهڻائي == CGROUP_گهڻائي_UNIFIED)
     {
-      ret = enable_controllers (out->path, err);
-      if (UNLIKELY (ret < 0))
+      ret = enable_controllers (ٻاهريون->رستو, err);
+      إذا (UNLIKELY (ret < 0))
         {
           /* If the generated path cannot be used attempt to create the new cgroup
              as a sibling of the current one.  */
-          if (args->cgroup_path == NULL)
+          إذا (دليلون->cgroup_رستو == عدم)
             {
-              libcrun_error_t tmp_err = NULL;
-              int tmp_ret;
+              libcrun_error_t tmp_err = عدم;
+              صحيح tmp_ret;
 
-              free (out->path);
-              out->path = NULL;
+              حرر (ٻاهريون->رستو);
+              ٻاهريون->رستو = عدم;
 
-              tmp_ret = make_new_sibling_cgroup (&out->path, args->id, &tmp_err);
-              if (UNLIKELY (tmp_ret < 0))
+              tmp_ret = make_new_sibling_cgroup (&ٻاهريون->رستو, دليلون->id, &tmp_err);
+              إذا (UNLIKELY (tmp_ret < 0))
                 {
                   crun_error_release (&tmp_err);
-                  return ret;
+                  أرجع ret;
                 }
 
               crun_error_release (err);
-              ret = enable_controllers (out->path, err);
+              ret = enable_controllers (ٻاهريون->رستو, err);
             }
-          if (UNLIKELY (ret < 0))
-            return ret;
+          إذا (UNLIKELY (ret < 0))
+            أرجع ret;
         }
     }
 
-  ret = libcrun_cgroup_ensure_not_frozen (out->path, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = libcrun_cgroup_ensure_not_frozen (ٻاهريون->رستو, err);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  return enter_cgroup (cgroup_mode, pid, 0, out->path, true, err);
+  أرجع enter_cgroup (cgroup_گهڻائي, pid, 0, ٻاهريون->رستو, true, err);
 }
 
-static int
-libcrun_destroy_cgroup_cgroupfs (struct libcrun_cgroup_status *cgroup_status,
+ساكن صحيح
+libcrun_destroy_cgroup_cgroupfs (بنية libcrun_cgroup_حالت *cgroup_حالت,
                                  libcrun_error_t *err)
 {
-  int mode;
-  int ret;
+  صحيح گهڻائي;
+  صحيح ret;
 
-  mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (mode < 0))
-    return mode;
+  گهڻائي = libcrun_get_cgroup_گهڻائي (err);
+  إذا (UNLIKELY (گهڻائي < 0))
+    أرجع گهڻائي;
 
-  ret = cgroup_killall_path (cgroup_status->path, SIGKILL, err);
-  if (UNLIKELY (ret < 0))
+  ret = cgroup_killall_رستو (cgroup_حالت->رستو, SIGKILL, err);
+  إذا (UNLIKELY (ret < 0))
     crun_error_release (err);
 
-  return destroy_cgroup_path (cgroup_status->path, mode, err);
+  أرجع destroy_cgroup_رستو (cgroup_حالت->رستو, گهڻائي, err);
 }
 
-struct libcrun_cgroup_manager cgroup_manager_cgroupfs = {
+بنية libcrun_cgroup_manager cgroup_manager_cgroupfs = {
   .precreate_cgroup = libcrun_precreate_cgroup_cgroupfs,
   .create_cgroup = libcrun_cgroup_enter_cgroupfs,
   .destroy_cgroup = libcrun_destroy_cgroup_cgroupfs,

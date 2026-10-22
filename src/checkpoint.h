@@ -15,13 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CHECKPOINT_H
-#define CHECKPOINT_H
+#جيڪڏهن_وصف_نه_ٿيل CHECKPOINT_H
+#وصف_ڪريو CHECKPOINT_H
 
-#include "crun.h"
+#ضمن "crun.h"
 
-int crun_parse_manage_cgroups_mode (char *param);
-int crun_parse_network_lock_method (char *param);
-int crun_command_checkpoint (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+صحيح crun_parse_manage_cgroups_گهڻائي (حرف *param);
+صحيح crun_parse_ڄار_تالو_طريقو (حرف *param);
+صحيح crun_command_checkpoint (بنية crun_global_arguments *global_دليلون, صحيح argc, حرف **argv, libcrun_error_t *error);
 
-#endif
+#جيڪڏهن_پورو

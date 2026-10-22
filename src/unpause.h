@@ -15,11 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef UNPAUSE_H
-#define UNPAUSE_H
+#جيڪڏهن_وصف_نه_ٿيل UNPAUSE_H
+#وصف_ڪريو UNPAUSE_H
 
-#include "crun.h"
+#ضمن "crun.h"
 
-int crun_command_unpause (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+صحيح crun_command_unpause (بنية crun_global_arguments *global_دليلون, صحيح argc, حرف **argv, libcrun_error_t *error);
 
-#endif
+#جيڪڏهن_پورو

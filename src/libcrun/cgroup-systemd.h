@@ -15,18 +15,18 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CGROUP_SYSTEMD_H
-#define CGROUP_SYSTEMD_H
+#جيڪڏهن_وصف_نه_ٿيل CGROUP_SYSTEMD_H
+#وصف_ڪريو CGROUP_SYSTEMD_H
 
-#include "container.h"
-#include <unistd.h>
+#ضمن "container.h"
+#ضمن <unistd.h>
 
-#ifdef HAVE_SYSTEMD
-extern int parse_sd_array (char *s, char **out, char **next, libcrun_error_t *err);
+#جيڪڏهن_وصف_ٿيل HAVE_SYSTEMD
+خارجي صحيح parse_sd_array (حرف *s, حرف **ٻاهريون, حرف **ايندڙ, libcrun_error_t *err);
 
-extern char *get_cgroup_scope_path (const char *cgroup_path, const char *scope);
-#endif
+خارجي حرف *get_cgroup_scope_رستو (ثابت حرف *cgroup_رستو, ثابت حرف *scope);
+#جيڪڏهن_پورو
 
-extern struct libcrun_cgroup_manager cgroup_manager_systemd;
+خارجي بنية libcrun_cgroup_manager cgroup_manager_systemd;
 
-#endif
+#جيڪڏهن_پورو

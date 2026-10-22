@@ -16,329 +16,329 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#ضمن <config.h>
+#ضمن <stdio.h>
+#ضمن <stdlib.h>
+#ضمن <argp.h>
+#ضمن <string.h>
+#ضمن <unistd.h>
+#ضمن <errno.h>
 
-#include "crun.h"
+#ضمن "crun.h"
 
-static char doc[] = "OCI runtime";
+ساكن حرف doc[] = "OCI runtime";
 
-static char *resources = NULL;
+ساكن حرف *resources = عدم;
 
-enum
+تعداد
 {
-  FIRST_VALUE = 1000,
+  پهريون_قدر = 1000,
 
-  BLKIO_WEIGHT = FIRST_VALUE,
+  BLKIO_وزن = پهريون_قدر,
 
   CPU_PERIOD,
   CPU_QUOTA,
   CPU_SHARE,
   CPU_RT_PERIOD,
   CPU_RT_RUNTIME,
-  CPU_BURST,
+  CPU_مدو,
   CPU_IDLE,
   CPUSET_CPUS,
   CPUSET_MEMS,
 
-  KERNEL_MEMORY,
-  KERNEL_MEMORY_TCP,
-  MEMORY,
-  MEMORY_RESERVATION,
-  MEMORY_SWAP,
+  KERNEL_يادگيري,
+  KERNEL_يادگيري_TCP,
+  يادگيري_2,
+  يادگيري_RESERVATION,
+  يادگيري_مٽا_سٽا,
 
-  PIDS_LIMIT,
+  PIDS_حد_بندي,
 
   /* not in the resources block.  */
   L3_CACHE_SCHEMA,
   MEM_BW_SCHEMA,
 
-  LAST_VALUE,
+  آخري_قدر,
 };
 
-struct description_s
+بنية description_s
 {
-  int id;
-  const char *section;
-  const char *name;
-  int numeric;
+  صحيح id;
+  ثابت حرف *section;
+  ثابت حرف *name;
+  صحيح numeric;
 };
 
-static struct description_s descriptors[] = { { BLKIO_WEIGHT, "blockIO", "weight", 1 },
+ساكن بنية description_s descriptors[] = { { BLKIO_وزن, "blockIO", "weight", 1 },
 
                                               { CPU_PERIOD, "cpu", "period", 1 },
                                               { CPU_QUOTA, "cpu", "quota", 1 },
                                               { CPU_SHARE, "cpu", "shares", 1 },
                                               { CPU_RT_PERIOD, "cpu", "realtimePeriod", 1 },
                                               { CPU_RT_RUNTIME, "cpu", "realtimeRuntime", 1 },
-                                              { CPU_BURST, "cpu", "burst", 1 },
+                                              { CPU_مدو, "cpu", "burst", 1 },
                                               { CPU_IDLE, "cpu", "idle", 1 },
                                               { CPUSET_CPUS, "cpu", "cpus", 0 },
                                               { CPUSET_MEMS, "cpu", "mems", 0 },
 
-                                              { KERNEL_MEMORY, "memory", "kernel", 1 },
-                                              { KERNEL_MEMORY_TCP, "memory", "kernelTCP", 1 },
-                                              { MEMORY, "memory", "limit", 1 },
-                                              { MEMORY_RESERVATION, "memory", "reservation", 1 },
-                                              { MEMORY_SWAP, "memory", "swap", 1 },
+                                              { KERNEL_يادگيري, "memory", "kernel", 1 },
+                                              { KERNEL_يادگيري_TCP, "memory", "kernelTCP", 1 },
+                                              { يادگيري_2, "memory", "limit", 1 },
+                                              { يادگيري_RESERVATION, "memory", "reservation", 1 },
+                                              { يادگيري_مٽا_سٽا, "memory", "swap", 1 },
 
-                                              { PIDS_LIMIT, "pids", "limit", 1 },
+                                              { PIDS_حد_بندي, "pids", "limit", 1 },
                                               { 0 } };
 
-static struct libcrun_update_value_s *values;
-size_t values_len = 0;
+ساكن بنية libcrun_update_قدر_s *قدرون;
+size_t قدرون_len = 0;
 
-static void
-set_value (int id, const char *value)
+ساكن فراغ
+سيٽ_قدر (صحيح id, ثابت حرف *قدر)
 {
-  values = xrealloc (values, (values_len + 1) * sizeof (struct libcrun_update_value_s));
-  values[values_len].section = descriptors[id - FIRST_VALUE].section;
-  values[values_len].name = descriptors[id - FIRST_VALUE].name;
-  values[values_len].numeric = descriptors[id - FIRST_VALUE].numeric;
-  values[values_len].value = value;
-  values_len++;
+  قدرون = xrealloc (قدرون, (قدرون_len + 1) * حجم (بنية libcrun_update_قدر_s));
+  قدرون[قدرون_len].section = descriptors[id - پهريون_قدر].section;
+  قدرون[قدرون_len].name = descriptors[id - پهريون_قدر].name;
+  قدرون[قدرون_len].numeric = descriptors[id - پهريون_قدر].numeric;
+  قدرون[قدرون_len].قدر = قدر;
+  قدرون_len++;
 }
 
 /* Parse a memory size, which may have a unit suffix (e.g. 512k or 1.5G),
    like runc does.  Return the size in bytes as a string.  */
-static char *
-parse_memory_size (const char *opt, const char *value)
+ساكن حرف *
+parse_يادگيري_سائيز (ثابت حرف *opt, ثابت حرف *قدر)
 {
-  const char *suffix;
-  char buf[32];
-  char *end;
-  double size, mul = 1;
+  ثابت حرف *suffix;
+  حرف buf[32];
+  حرف *پڇاڙي;
+  مزدوج سائيز, mul = 1;
 
-  if (strcmp (value, "-1") == 0)
-    return xstrdup (value);
+  إذا (strcmp (قدر, "-1") == 0)
+    أرجع xstrdup (قدر);
 
   errno = 0;
-  size = strtod (value, &end);
-  if ((value[0] != '.' && (value[0] < '0' || value[0] > '9')) || end == value || errno != 0 || size < 0)
-    goto invalid;
+  سائيز = strtod (قدر, &پڇاڙي);
+  إذا ((قدر[0] != '.' && (قدر[0] < '0' || قدر[0] > '9')) || پڇاڙي == قدر || errno != 0 || سائيز < 0)
+    اذهب invalid;
 
-  suffix = end;
-  if (*suffix == ' ')
+  suffix = پڇاڙي;
+  إذا (*suffix == ' ')
     suffix++;
-  if (*suffix)
+  إذا (*suffix)
     {
-      switch (*suffix | 0x20)
+      بدل (*suffix | 0x20)
         {
-        case 'b':
-          if (suffix[1] != '\0')
-            goto invalid;
-          break;
-        case 'k':
+        حالة 'b':
+          إذا (suffix[1] != '\0')
+            اذهب invalid;
+          اكسر;
+        حالة 'k':
           mul = 1ULL << 10;
-          break;
-        case 'm':
+          اكسر;
+        حالة 'm':
           mul = 1ULL << 20;
-          break;
-        case 'g':
+          اكسر;
+        حالة 'g':
           mul = 1ULL << 30;
-          break;
-        case 't':
+          اكسر;
+        حالة 't':
           mul = 1ULL << 40;
-          break;
-        case 'p':
+          اكسر;
+        حالة 'p':
           mul = 1ULL << 50;
-          break;
-        default:
-          goto invalid;
+          اكسر;
+        افتراضي:
+          اذهب invalid;
         }
-      if (mul > 1 && suffix[1] != '\0' && strcasecmp (suffix + 1, "b") != 0 && strcasecmp (suffix + 1, "ib") != 0)
-        goto invalid;
+      إذا (mul > 1 && suffix[1] != '\0' && strcasecmp (suffix + 1, "b") != 0 && strcasecmp (suffix + 1, "ib") != 0)
+        اذهب invalid;
     }
 
-  size *= mul;
-  if (size >= 9223372036854775808.0)
-    goto invalid;
+  سائيز *= mul;
+  إذا (سائيز >= 9223372036854775808.0)
+    اذهب invalid;
 
-  snprintf (buf, sizeof (buf), "%lld", (long long) size);
-  return xstrdup (buf);
+  snprintf (buf, حجم (buf), "%lld", (ڊگهو ڊگهو) سائيز);
+  أرجع xstrdup (buf);
 
 invalid:
-  libcrun_fail_with_error (0, "invalid value for --%s: `%s`", opt, value);
+  libcrun_fail_with_error (0, "invalid value for --%s: `%s`", opt, قدر);
 }
 
 /* Check that VALUE is an integer.  */
-static const char *
-check_integer (const char *opt, const char *value)
+ساكن ثابت حرف *
+check_integer (ثابت حرف *opt, ثابت حرف *قدر)
 {
-  char *end;
+  حرف *پڇاڙي;
 
   errno = 0;
-  (void) strtoll (value, &end, 10);
-  if (end == value || *end != '\0' || errno != 0)
-    libcrun_fail_with_error (0, "invalid value for --%s: `%s`", opt, value);
-  return value;
+  (فراغ) strtoll (قدر, &پڇاڙي, 10);
+  إذا (پڇاڙي == قدر || *پڇاڙي != '\0' || errno != 0)
+    libcrun_fail_with_error (0, "invalid value for --%s: `%s`", opt, قدر);
+  أرجع قدر;
 }
 
-static char *l3_cache_schema;
-static char *mem_bw_schema;
+ساكن حرف *l3_cache_schema;
+ساكن حرف *mem_bw_schema;
 
-static struct argp_option options[]
+ساكن بنية argp_option options[]
     = { { "resources", 'r', "FILE", 0, "path to the file containing the resources to update", 0 },
-        { "blkio-weight", BLKIO_WEIGHT, "VALUE", 0, "Specifies per cgroup weight", 0 },
+        { "blkio-weight", BLKIO_وزن, "VALUE", 0, "Specifies per cgroup weight", 0 },
         { "cpu-period", CPU_PERIOD, "VALUE", 0, "CPU CFS period to be used for hardcapping", 0 },
         { "cpu-quota", CPU_QUOTA, "VALUE", 0, "CPU CFS hardcap limit", 0 },
         { "cpu-share", CPU_SHARE, "VALUE", 0, "CPU shares", 0 },
         { "cpu-rt-period", CPU_RT_PERIOD, "VALUE", 0, "CPU realtime period to be used for hardcapping", 0 },
         { "cpu-rt-runtime", CPU_RT_RUNTIME, "VALUE", 0, "CPU realtime hardcap limit", 0 },
-        { "cpu-burst", CPU_BURST, "VALUE", 0, "CPU CFS burst limit", 0 },
+        { "cpu-burst", CPU_مدو, "VALUE", 0, "CPU CFS burst limit", 0 },
         { "cpu-idle", CPU_IDLE, "VALUE", 0, "set cgroup SCHED_IDLE or not, 0: default behavior, 1: SCHED_IDLE", 0 },
         { "cpuset-cpus", CPUSET_CPUS, "VALUE", 0, "CPU(s) to use", 0 },
         { "cpuset-mems", CPUSET_MEMS, "VALUE", 0, "Memory node(s) to use", 0 },
-        { "kernel-memory", KERNEL_MEMORY, "VALUE", 0, "Kernel memory limit", 0 },
-        { "kernel-memory-tcp", KERNEL_MEMORY_TCP, "VALUE", 0, "Kernel memory limit for tcp buffer", 0 },
-        { "memory", MEMORY, "VALUE", 0, "Memory limit", 0 },
-        { "memory-reservation", MEMORY_RESERVATION, "VALUE", 0, "Memory reservation or soft_limit", 0 },
-        { "memory-swap", MEMORY_SWAP, "VALUE", 0, "Total memory usage", 0 },
-        { "pids-limit", PIDS_LIMIT, "VALUE", 0, "Maximum number of pids allowed in the container", 0 },
+        { "kernel-memory", KERNEL_يادگيري, "VALUE", 0, "Kernel memory limit", 0 },
+        { "kernel-memory-tcp", KERNEL_يادگيري_TCP, "VALUE", 0, "Kernel memory limit for tcp buffer", 0 },
+        { "memory", يادگيري_2, "VALUE", 0, "Memory limit", 0 },
+        { "memory-reservation", يادگيري_RESERVATION, "VALUE", 0, "Memory reservation or soft_limit", 0 },
+        { "memory-swap", يادگيري_مٽا_سٽا, "VALUE", 0, "Total memory usage", 0 },
+        { "pids-limit", PIDS_حد_بندي, "VALUE", 0, "Maximum number of pids allowed in the container", 0 },
         { "l3-cache-schema", L3_CACHE_SCHEMA, "VALUE", 0, "The string of Intel RDT/CAT L3 cache schema", 0 },
         { "mem-bw-schema", MEM_BW_SCHEMA, "VALUE", 0, "The string of Intel RDT/MBA memory bandwidth schema", 0 },
         {
             0,
         } };
 
-static char args_doc[] = "update [OPTION]... CONTAINER";
+ساكن حرف دليلون_doc[] = "update [OPTION]... CONTAINER";
 
-static const char *
-option_name (int key)
+ساكن ثابت حرف *
+option_name (صحيح ڪنجي)
 {
   size_t i;
 
-  for (i = 0; options[i].name; i++)
-    if (options[i].key == key)
-      return options[i].name;
-  return "";
+  لكل (i = 0; options[i].name; i++)
+    إذا (options[i].ڪنجي == ڪنجي)
+      أرجع options[i].name;
+  أرجع "";
 }
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+ساكن error_t
+parse_opt (صحيح ڪنجي, حرف *arg, بنية argp_state *state)
 {
-  switch (key)
+  بدل (ڪنجي)
     {
-    case 'r':
-      resources = argp_mandatory_argument (arg, state);
-      break;
+    حالة 'r':
+      resources = argp_mandatory_دليل (arg, state);
+      اكسر;
 
-    case ARGP_KEY_NO_ARGS:
+    حالة ARGP_ڪنجي_NO_دليلون:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    case CPUSET_CPUS:
-    case CPUSET_MEMS:
-      set_value (key, argp_mandatory_argument (arg, state));
-      break;
+    حالة CPUSET_CPUS:
+    حالة CPUSET_MEMS:
+      سيٽ_قدر (ڪنجي, argp_mandatory_دليل (arg, state));
+      اكسر;
 
-    case BLKIO_WEIGHT:
-    case CPU_PERIOD:
-    case CPU_QUOTA:
-    case CPU_SHARE:
-    case CPU_RT_PERIOD:
-    case CPU_RT_RUNTIME:
-    case CPU_BURST:
-    case CPU_IDLE:
-    case PIDS_LIMIT:
-      set_value (key, check_integer (option_name (key), argp_mandatory_argument (arg, state)));
-      break;
+    حالة BLKIO_وزن:
+    حالة CPU_PERIOD:
+    حالة CPU_QUOTA:
+    حالة CPU_SHARE:
+    حالة CPU_RT_PERIOD:
+    حالة CPU_RT_RUNTIME:
+    حالة CPU_مدو:
+    حالة CPU_IDLE:
+    حالة PIDS_حد_بندي:
+      سيٽ_قدر (ڪنجي, check_integer (option_name (ڪنجي), argp_mandatory_دليل (arg, state)));
+      اكسر;
 
-    case KERNEL_MEMORY:
-    case KERNEL_MEMORY_TCP:
-    case MEMORY:
-    case MEMORY_RESERVATION:
-    case MEMORY_SWAP:
-      set_value (key, parse_memory_size (option_name (key), argp_mandatory_argument (arg, state)));
-      break;
+    حالة KERNEL_يادگيري:
+    حالة KERNEL_يادگيري_TCP:
+    حالة يادگيري_2:
+    حالة يادگيري_RESERVATION:
+    حالة يادگيري_مٽا_سٽا:
+      سيٽ_قدر (ڪنجي, parse_يادگيري_سائيز (option_name (ڪنجي), argp_mandatory_دليل (arg, state)));
+      اكسر;
 
-    case L3_CACHE_SCHEMA:
-      l3_cache_schema = argp_mandatory_argument (arg, state);
-      break;
+    حالة L3_CACHE_SCHEMA:
+      l3_cache_schema = argp_mandatory_دليل (arg, state);
+      اكسر;
 
-    case MEM_BW_SCHEMA:
-      mem_bw_schema = argp_mandatory_argument (arg, state);
-      break;
+    حالة MEM_BW_SCHEMA:
+      mem_bw_schema = argp_mandatory_دليل (arg, state);
+      اكسر;
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    افتراضي:
+      أرجع ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  أرجع 0;
 }
 
 /* If the memory limit is removed and no swap limit is given, remove the
    swap limit as well (which cannot be larger than the memory one), like
    runc does.  */
-static void
-set_swap_for_unlimited_memory (void)
+ساكن فراغ
+سيٽ_مٽا_سٽا_for_unlimited_يادگيري (فراغ)
 {
-  bool unlimited_memory = false;
+  bool unlimited_يادگيري = false;
   size_t i;
 
-  for (i = 0; i < values_len; i++)
+  لكل (i = 0; i < قدرون_len; i++)
     {
-      if (strcmp (values[i].section, "memory") != 0)
-        continue;
-      if (strcmp (values[i].name, "swap") == 0)
-        return;
-      if (strcmp (values[i].name, "limit") == 0)
-        unlimited_memory = strcmp (values[i].value, "-1") == 0;
+      إذا (strcmp (قدرون[i].section, "memory") != 0)
+        استمر;
+      إذا (strcmp (قدرون[i].name, "swap") == 0)
+        أرجع;
+      إذا (strcmp (قدرون[i].name, "limit") == 0)
+        unlimited_يادگيري = strcmp (قدرون[i].قدر, "-1") == 0;
     }
 
-  if (unlimited_memory)
-    set_value (MEMORY_SWAP, "-1");
+  إذا (unlimited_يادگيري)
+    سيٽ_قدر (يادگيري_مٽا_سٽا, "-1");
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+ساكن بنية argp لاڳيتو_argp = { options, parse_opt, دليلون_doc, doc, عدم, عدم, عدم };
 
-int
-crun_command_update (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+صحيح
+crun_command_update (بنية crun_global_arguments *global_دليلون, صحيح argc, حرف **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
-  cleanup_context libcrun_context_t *crun_context = NULL;
+  صحيح پهريون_arg = 0, ret;
+  cleanup_context libcrun_context_t *crun_context = عدم;
 
   /* Allow options after the container ID, like runc does.  */
-  argp_parse (&run_argp, argc, argv, 0, &first_arg, NULL);
-  crun_assert_n_args (argc - first_arg, 1, 1);
+  argp_parse (&لاڳيتو_argp, argc, argv, 0, &پهريون_arg, عدم);
+  crun_assert_n_دليلون (argc - پهريون_arg, 1, 1);
 
-  set_swap_for_unlimited_memory ();
+  سيٽ_مٽا_سٽا_for_unlimited_يادگيري ();
 
-  crun_context = new_libcrun_context (global_args);
+  crun_context = new_libcrun_context (global_دليلون);
 
-  ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ret = init_libcrun_context (crun_context, argv[پهريون_arg], global_دليلون, err);
+  إذا (UNLIKELY (ret < 0))
+    أرجع ret;
 
-  if (resources == NULL)
+  إذا (resources == عدم)
     {
-      ret = libcrun_container_update_from_values (crun_context, argv[first_arg], values, values_len, err);
-      free (values);
-      if (ret < 0)
-        return ret;
+      ret = libcrun_container_update_from_قدرون (crun_context, argv[پهريون_arg], قدرون, قدرون_len, err);
+      حرر (قدرون);
+      إذا (ret < 0)
+        أرجع ret;
     }
-  else
+  وإلا
     {
-      ret = libcrun_container_update_from_file (crun_context, argv[first_arg], resources, err);
-      if (ret < 0)
-        return ret;
+      ret = libcrun_container_update_from_file (crun_context, argv[پهريون_arg], resources, err);
+      إذا (ret < 0)
+        أرجع ret;
     }
 
-  if (l3_cache_schema || mem_bw_schema)
+  إذا (l3_cache_schema || mem_bw_schema)
     {
-      struct libcrun_intel_rdt_update update = {
+      بنية libcrun_intel_rdt_update update = {
         .l3_cache_schema = l3_cache_schema,
         .mem_bw_schema = mem_bw_schema,
       };
 
-      ret = libcrun_container_update_intel_rdt (crun_context, argv[first_arg], &update, err);
-      if (ret < 0)
-        return ret;
+      ret = libcrun_container_update_intel_rdt (crun_context, argv[پهريون_arg], &update, err);
+      إذا (ret < 0)
+        أرجع ret;
     }
 
-  return 0;
+  أرجع 0;
 }
