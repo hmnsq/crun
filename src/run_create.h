@@ -15,17 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef RUN_CREATE_H
-#define RUN_CREATE_H
+#که_نه_تعریف_شوی پرلپسې_CREATE_H
+#تعریف_کړه پرلپسې_CREATE_H
 
-#include "crun.h"
+#ضمن "crun.h"
 
-typedef int (*container_run_create_func_t) (libcrun_context_t *, libcrun_container_t *, unsigned int, libcrun_error_t *);
-typedef unsigned int (*get_options_func_t) ();
+تعريفنوع صحيح (*container_پرلپسې_create_func_t) (libcrun_context_t *, libcrun_container_t *, بینښه صحيح, libcrun_error_t *);
+تعريفنوع بینښه صحيح (*get_options_func_t) ();
 
-int crun_run_create_internal (struct crun_global_arguments *global_args, int argc, char **argv,
-                              container_run_create_func_t container_run_create_func, get_options_func_t get_options_func,
-                              libcrun_context_t *crun_context, struct argp *run_argp, const char **config_file,
-                              const char **bundle, libcrun_error_t *err);
+صحيح crun_پرلپسې_create_دننی (بنية crun_global_arguments *global_دلیلونه, صحيح argc, حرف **argv,
+                              container_پرلپسې_create_func_t container_پرلپسې_create_func, get_options_func_t get_options_func,
+                              libcrun_context_t *crun_context, بنية argp *پرلپسې_argp, ثابت حرف **config_file,
+                              ثابت حرف **bundle, libcrun_error_t *err);
 
-#endif
+#د_که_پای

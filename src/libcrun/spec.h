@@ -15,16 +15,16 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SPEC_H
-#define SPEC_H
+#که_نه_تعریف_شوی SPEC_H
+#تعریف_کړه SPEC_H
 
-#include <config.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include "error.h"
+#ضمن <config.h>
+#ضمن <stdbool.h>
+#ضمن <stdio.h>
+#ضمن "error.h"
 
-LIBCRUN_PUBLIC int libcrun_container_spec (bool root, FILE *out, libcrun_error_t *err);
+LIBCRUN_عامه صحيح libcrun_container_spec (bool ریښه, FILE *بهر, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_spec_json (bool root, char **out, libcrun_error_t *err);
+LIBCRUN_عامه صحيح libcrun_container_spec_json (bool ریښه, حرف **بهر, libcrun_error_t *err);
 
-#endif
+#د_که_پای

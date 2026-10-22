@@ -16,294 +16,294 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CRUN_SYSCALLS_H
-#define CRUN_SYSCALLS_H
+#که_نه_تعریف_شوی CRUN_SYSCALLS_H
+#تعریف_کړه CRUN_SYSCALLS_H
 
-#include <config.h>
-#include <sys/syscall.h>
-#include <unistd.h>
-#include <errno.h>
-#include <stdint.h>
+#ضمن <config.h>
+#ضمن <sys/syscall.h>
+#ضمن <unistd.h>
+#ضمن <errno.h>
+#ضمن <stdint.h>
 
-#ifdef HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H
+#که_تعریف_شوی HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H
 #  include <linux/mount.h>
-#endif
-#if defined HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H || defined HAVE_FSCONFIG_CMD_CREATE_SYS_MOUNT_H
+#د_که_پای
+#إذا defined HAVE_FSCONFIG_CMD_CREATE_LINUX_MOUNT_H || defined HAVE_FSCONFIG_CMD_CREATE_SYS_MOUNT_H
 #  define HAVE_NEW_MOUNT_API
-#endif
+#د_که_پای
 
 /* Constants for new mount API */
-#ifndef FSOPEN_CLOEXEC
+#که_نه_تعریف_شوی FSOPEN_CLOEXEC
 #  define FSOPEN_CLOEXEC 0x00000001
-#endif
+#د_که_پای
 
-#ifndef FSMOUNT_CLOEXEC
+#که_نه_تعریف_شوی FSMOUNT_CLOEXEC
 #  define FSMOUNT_CLOEXEC 0x00000001
-#endif
+#د_که_پای
 
-#ifndef FSCONFIG_CMD_CREATE
+#که_نه_تعریف_شوی FSCONFIG_CMD_CREATE
 #  define FSCONFIG_CMD_CREATE 6
-#endif
+#د_که_پای
 
-#ifndef FSCONFIG_SET_STRING
+#که_نه_تعریف_شوی FSCONFIG_SET_STRING
 #  define FSCONFIG_SET_STRING 1
-#endif
+#د_که_پای
 
 /* Additional mount API constants */
-#ifndef MOUNT_ATTR_RDONLY
+#که_نه_تعریف_شوی MOUNT_ATTR_RDONLY
 #  define MOUNT_ATTR_RDONLY 0x00000001 /* Mount read-only */
-#endif
+#د_که_پای
 
-#ifndef MOUNT_ATTR_NOSUID
+#که_نه_تعریف_شوی MOUNT_ATTR_NOSUID
 #  define MOUNT_ATTR_NOSUID 0x00000002
-#endif
+#د_که_پای
 
-#ifndef MOUNT_ATTR_NODEV
+#که_نه_تعریف_شوی MOUNT_ATTR_NODEV
 #  define MOUNT_ATTR_NODEV 0x00000004
-#endif
+#د_که_پای
 
-#ifndef MOUNT_ATTR_NOEXEC
+#که_نه_تعریف_شوی MOUNT_ATTR_NOEXEC
 #  define MOUNT_ATTR_NOEXEC 0x00000008
-#endif
+#د_که_پای
 
-#ifndef MOUNT_ATTR__ATIME
+#که_نه_تعریف_شوی MOUNT_ATTR__ATIME
 #  define MOUNT_ATTR__ATIME 0x00000070
-#endif
+#د_که_پای
 
-#ifndef MOUNT_ATTR_RELATIME
+#که_نه_تعریف_شوی MOUNT_ATTR_RELATIME
 #  define MOUNT_ATTR_RELATIME 0x00000000
-#endif
+#د_که_پای
 
-#ifndef MOUNT_ATTR_NOATIME
+#که_نه_تعریف_شوی MOUNT_ATTR_NOATIME
 #  define MOUNT_ATTR_NOATIME 0x00000010
-#endif
+#د_که_پای
 
-#ifndef MOUNT_ATTR_STRICTATIME
+#که_نه_تعریف_شوی MOUNT_ATTR_STRICTATIME
 #  define MOUNT_ATTR_STRICTATIME 0x00000020
-#endif
+#د_که_پای
 
-#ifndef MOUNT_ATTR_NODIRATIME
+#که_نه_تعریف_شوی MOUNT_ATTR_NODIRATIME
 #  define MOUNT_ATTR_NODIRATIME 0x00000080
-#endif
+#د_که_پای
 
-#ifndef MOUNT_ATTR_IDMAP
+#که_نه_تعریف_شوی MOUNT_ATTR_IDMAP
 #  define MOUNT_ATTR_IDMAP 0x00100000 /* Idmap mount to @userns_fd in struct mount_attr. */
-#endif
+#د_که_پای
 
-#ifndef MOUNT_ATTR_NOSYMFOLLOW
+#که_نه_تعریف_شوی MOUNT_ATTR_NOSYMFOLLOW
 #  define MOUNT_ATTR_NOSYMFOLLOW 0x00200000
-#endif
+#د_که_پای
 
-#ifndef MS_NOSYMFOLLOW
+#که_نه_تعریف_شوی MS_NOSYMFOLLOW
 #  define MS_NOSYMFOLLOW 256
-#endif
+#د_که_پای
 
 /* close_range flags */
-#ifndef CLOSE_RANGE_CLOEXEC
+#که_نه_تعریف_شوی CLOSE_RANGE_CLOEXEC
 #  define CLOSE_RANGE_CLOEXEC (1U << 2)
-#endif
+#د_که_پای
 
 /* openat2 resolve flags */
-#ifndef RESOLVE_NO_MAGICLINKS
+#که_نه_تعریف_شوی RESOLVE_NO_MAGICLINKS
 #  define RESOLVE_NO_MAGICLINKS 0x02
-#endif
-#ifndef RESOLVE_NO_SYMLINKS
+#د_که_پای
+#که_نه_تعریف_شوی RESOLVE_NO_SYMLINKS
 #  define RESOLVE_NO_SYMLINKS 0x04
-#endif
-#ifndef RESOLVE_IN_ROOT
-#  define RESOLVE_IN_ROOT 0x10
-#endif
+#د_که_پای
+#که_نه_تعریف_شوی RESOLVE_دننه_ریښه
+#  define RESOLVE_دننه_ریښه 0x10
+#د_که_پای
 
 /* Structures for syscalls */
-struct openat2_open_how
+بنية openat2_open_how
 {
   uint64_t flags;
-  uint64_t mode;
+  uint64_t ډېرپېښ;
   uint64_t resolve;
 };
 
-struct mount_attr_s
+بنية mount_attr_s
 {
   uint64_t attr_set;
   uint64_t attr_clr;
-  uint64_t propagation;
+  uint64_t انتشار;
   uint64_t userns_fd;
 };
 
-#ifndef __aligned_u64
+#که_نه_تعریف_شوی __aligned_u64
 #  define __aligned_u64 uint64_t __attribute__ ((aligned (8)))
-#endif
+#د_که_پای
 
-#ifndef CLONE_INTO_CGROUP
+#که_نه_تعریف_شوی CLONE_INTO_CGROUP
 #  define CLONE_INTO_CGROUP 0x200000000ULL
-#endif
+#د_که_پای
 
-struct _clone3_args
+بنية clone3_دلیلونه
 {
   __aligned_u64 flags;
   __aligned_u64 pidfd;
-  __aligned_u64 child_tid;
-  __aligned_u64 parent_tid;
+  __aligned_u64 ماشوم_tid;
+  __aligned_u64 پلار_tid;
   __aligned_u64 exit_signal;
-  __aligned_u64 stack;
-  __aligned_u64 stack_size;
+  __aligned_u64 ډېری;
+  __aligned_u64 ډېری_اندازه;
   __aligned_u64 tls;
-  __aligned_u64 set_tid;
-  __aligned_u64 set_tid_size;
+  __aligned_u64 سېټ_tid;
+  __aligned_u64 سېټ_tid_اندازه;
   __aligned_u64 cgroup;
 };
 
 /* Mount API syscall wrappers */
-static inline int
-syscall_fsopen (const char *fs_name, unsigned int flags)
+ساكن مضمن صحيح
+syscall_fsopen (ثابت حرف *fs_name, بینښه صحيح flags)
 {
-#if defined __NR_fsopen
-  return (int) syscall (__NR_fsopen, fs_name, flags);
-#else
-  (void) fs_name;
-  (void) flags;
+#إذا defined __NR_fsopen
+  أرجع (صحيح) syscall (__NR_fsopen, fs_name, flags);
+#وإلا
+  (فراغ) fs_name;
+  (فراغ) flags;
   errno = ENOSYS;
-  return -1;
-#endif
+  أرجع -1;
+#د_که_پای
 }
 
-static inline int
-syscall_fsmount (int fsfd, unsigned int flags, unsigned int attr_flags)
+ساكن مضمن صحيح
+syscall_fsmount (صحيح fsfd, بینښه صحيح flags, بینښه صحيح attr_flags)
 {
-#if defined __NR_fsmount
-  return (int) syscall (__NR_fsmount, fsfd, flags, attr_flags);
-#else
-  (void) fsfd;
-  (void) flags;
-  (void) attr_flags;
+#إذا defined __NR_fsmount
+  أرجع (صحيح) syscall (__NR_fsmount, fsfd, flags, attr_flags);
+#وإلا
+  (فراغ) fsfd;
+  (فراغ) flags;
+  (فراغ) attr_flags;
   errno = ENOSYS;
-  return -1;
-#endif
+  أرجع -1;
+#د_که_پای
 }
 
-static inline int
-syscall_fsconfig (int fsfd, unsigned int cmd, const char *key, const void *val, int aux)
+ساكن مضمن صحيح
+syscall_fsconfig (صحيح fsfd, بینښه صحيح cmd, ثابت حرف *کلی, ثابت فراغ *val, صحيح aux)
 {
-#if defined __NR_fsconfig
-  return (int) syscall (__NR_fsconfig, fsfd, cmd, key, val, aux);
-#else
-  (void) fsfd;
-  (void) cmd;
-  (void) key;
-  (void) val;
-  (void) aux;
+#إذا defined __NR_fsconfig
+  أرجع (صحيح) syscall (__NR_fsconfig, fsfd, cmd, کلی, val, aux);
+#وإلا
+  (فراغ) fsfd;
+  (فراغ) cmd;
+  (فراغ) کلی;
+  (فراغ) val;
+  (فراغ) aux;
   errno = ENOSYS;
-  return -1;
-#endif
+  أرجع -1;
+#د_که_پای
 }
 
 /* File descriptor management syscalls */
-static inline int
-syscall_close_range (unsigned int fd, unsigned int max_fd, unsigned int flags)
+ساكن مضمن صحيح
+syscall_close_range (بینښه صحيح fd, بینښه صحيح max_fd, بینښه صحيح flags)
 {
-#ifdef __NR_close_range
-  return (int) syscall (__NR_close_range, fd, max_fd, flags);
-#else
-  (void) fd;
-  (void) max_fd;
-  (void) flags;
+#که_تعریف_شوی __NR_close_range
+  أرجع (صحيح) syscall (__NR_close_range, fd, max_fd, flags);
+#وإلا
+  (فراغ) fd;
+  (فراغ) max_fd;
+  (فراغ) flags;
   errno = ENOSYS;
-  return -1;
-#endif
+  أرجع -1;
+#د_که_پای
 }
 
 /* Secure file operation syscalls */
-static inline int
-syscall_openat2 (int dirfd, const char *path, uint64_t flags, uint64_t mode, uint64_t resolve)
+ساكن مضمن صحيح
+syscall_openat2 (صحيح dirfd, ثابت حرف *لار, uint64_t flags, uint64_t ډېرپېښ, uint64_t resolve)
 {
-#ifdef __NR_openat2
-  struct openat2_open_how how = {
+#که_تعریف_شوی __NR_openat2
+  بنية openat2_open_how how = {
     .flags = flags,
-    .mode = mode,
+    .ډېرپېښ = ډېرپېښ,
     .resolve = resolve,
   };
-  return (int) syscall (__NR_openat2, dirfd, path, &how, sizeof (how), 0);
-#else
-  (void) dirfd;
-  (void) path;
-  (void) flags;
-  (void) mode;
-  (void) resolve;
+  أرجع (صحيح) syscall (__NR_openat2, dirfd, لار, &how, حجم (how), 0);
+#وإلا
+  (فراغ) dirfd;
+  (فراغ) لار;
+  (فراغ) flags;
+  (فراغ) ډېرپېښ;
+  (فراغ) resolve;
   errno = ENOSYS;
-  return -1;
-#endif
+  أرجع -1;
+#د_که_پای
 }
 
 /* Process management syscalls */
-static inline int
-syscall_clone3 (struct _clone3_args *args)
+ساكن مضمن صحيح
+syscall_clone3 (بنية clone3_دلیلونه *دلیلونه)
 {
-#ifdef __NR_clone3
-  return (int) syscall (__NR_clone3, args, sizeof (*args));
-#else
-  (void) args;
+#که_تعریف_شوی __NR_clone3
+  أرجع (صحيح) syscall (__NR_clone3, دلیلونه, حجم (*دلیلونه));
+#وإلا
+  (فراغ) دلیلونه;
   errno = ENOSYS;
-  return -1;
-#endif
+  أرجع -1;
+#د_که_پای
 }
 
-static inline int
-syscall_getcwd (char *path, size_t len)
+ساكن مضمن صحيح
+syscall_getcwd (حرف *لار, size_t len)
 {
-#ifdef __NR_getcwd
-  return (int) syscall (__NR_getcwd, path, len);
-#else
-  (void) path;
-  (void) len;
+#که_تعریف_شوی __NR_getcwd
+  أرجع (صحيح) syscall (__NR_getcwd, لار, len);
+#وإلا
+  (فراغ) لار;
+  (فراغ) len;
   errno = ENOSYS;
-  return -1;
-#endif
+  أرجع -1;
+#د_که_پای
 }
 
 /* Mount management syscalls */
-static inline int
-syscall_move_mount (int from_dfd, const char *from_pathname, int to_dfd, const char *to_pathname, unsigned int flags)
+ساكن مضمن صحيح
+syscall_move_mount (صحيح from_dfd, ثابت حرف *from_pathname, صحيح منزل_dfd, ثابت حرف *منزل_pathname, بینښه صحيح flags)
 {
-#if defined __NR_move_mount
-  return (int) syscall (__NR_move_mount, from_dfd, from_pathname, to_dfd, to_pathname, flags);
-#else
-  (void) from_dfd;
-  (void) from_pathname;
-  (void) to_dfd;
-  (void) to_pathname;
-  (void) flags;
+#إذا defined __NR_move_mount
+  أرجع (صحيح) syscall (__NR_move_mount, from_dfd, from_pathname, منزل_dfd, منزل_pathname, flags);
+#وإلا
+  (فراغ) from_dfd;
+  (فراغ) from_pathname;
+  (فراغ) منزل_dfd;
+  (فراغ) منزل_pathname;
+  (فراغ) flags;
   errno = ENOSYS;
-  return -1;
-#endif
+  أرجع -1;
+#د_که_پای
 }
 
-static inline int
-syscall_open_tree (int dfd, const char *pathname, unsigned int flags)
+ساكن مضمن صحيح
+syscall_open_ونه (صحيح dfd, ثابت حرف *pathname, بینښه صحيح flags)
 {
-#if defined __NR_open_tree
-  return (int) syscall (__NR_open_tree, dfd, pathname, flags);
-#else
-  (void) dfd;
-  (void) pathname;
-  (void) flags;
+#إذا defined __NR_open_tree
+  أرجع (صحيح) syscall (__NR_open_tree, dfd, pathname, flags);
+#وإلا
+  (فراغ) dfd;
+  (فراغ) pathname;
+  (فراغ) flags;
   errno = ENOSYS;
-  return -1;
-#endif
+  أرجع -1;
+#د_که_پای
 }
 
-static inline int
-syscall_mount_setattr (int dfd, const char *path, unsigned int flags, struct mount_attr_s *attr)
+ساكن مضمن صحيح
+syscall_mount_setattr (صحيح dfd, ثابت حرف *لار, بینښه صحيح flags, بنية mount_attr_s *attr)
 {
-#ifdef __NR_mount_setattr
-  return (int) syscall (__NR_mount_setattr, dfd, path, flags, attr, sizeof (*attr));
-#else
-  (void) dfd;
-  (void) path;
-  (void) flags;
-  (void) attr;
+#که_تعریف_شوی __NR_mount_setattr
+  أرجع (صحيح) syscall (__NR_mount_setattr, dfd, لار, flags, attr, حجم (*attr));
+#وإلا
+  (فراغ) dfd;
+  (فراغ) لار;
+  (فراغ) flags;
+  (فراغ) attr;
   errno = ENOSYS;
-  return -1;
-#endif
+  أرجع -1;
+#د_که_پای
 }
 
-#endif
+#د_که_پای

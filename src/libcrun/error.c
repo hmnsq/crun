@@ -16,562 +16,562 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
-#include <config.h>
-#include <stdarg.h>
-#include <unistd.h>
-#include <string.h>
-#include <time.h>
-#include <sys/time.h>
-#include <stdio.h>
-#include "utils.h"
+#تعریف_کړه GNU_سرچینه
+#ضمن <config.h>
+#ضمن <stdarg.h>
+#ضمن <unistd.h>
+#ضمن <string.h>
+#ضمن <time.h>
+#ضمن <sys/time.h>
+#ضمن <stdio.h>
+#ضمن "utils.h"
 
-#include <json-c/json.h>
-#include <ocispec/json_common.h>
+#ضمن <json-c/json.h>
+#ضمن <ocispec/json_common.h>
 
-#ifdef HAVE_SYSTEMD
+#که_تعریف_شوی HAVE_SYSTEMD
 #  include <systemd/sd-journal.h>
-#endif
+#د_که_پای
 
-enum
+تعداد
 {
-  LOG_FORMAT_TEXT = 0,
+  LOG_FORMAT_متن = 0,
   LOG_FORMAT_JSON,
 };
 
-static int log_format;
-static int output_verbosity = LIBCRUN_VERBOSITY_ERROR;
+ساكن صحيح log_format;
+ساكن صحيح output_verbosity = LIBCRUN_VERBOSITY_ERROR;
 
-int
-libcrun_make_error (libcrun_error_t *err, int status, const char *msg, ...)
+صحيح
+libcrun_make_error (libcrun_error_t *err, صحيح حالت, ثابت حرف *پیغام, ...)
 {
-  va_list args_list;
+  va_list دلیلونه_list;
   libcrun_error_t ptr;
 
-  va_start (args_list, msg);
-  *err = xmalloc (sizeof (struct libcrun_error_s));
+  va_پیل (دلیلونه_list, پیغام);
+  *err = xmalloc (حجم (بنية libcrun_error_s));
   ptr = *err;
-  ptr->status = status;
-  if (vasprintf (&(ptr->msg), msg, args_list) < 0)
+  ptr->حالت = حالت;
+  إذا (vasprintf (&(ptr->پیغام), پیغام, دلیلونه_list) < 0)
     OOM ();
-  va_end (args_list);
+  va_پای_ټکی (دلیلونه_list);
 
-  return -status - 1;
+  أرجع -حالت - 1;
 }
 
-int
-crun_error_wrap (libcrun_error_t *err, const char *fmt, ...)
+صحيح
+crun_error_wrap (libcrun_error_t *err, ثابت حرف *fmt, ...)
 {
-  cleanup_free char *msg = NULL;
-  cleanup_free char *tmp = NULL;
-  va_list args_list;
-  char *swap;
-  int ret;
+  cleanup_free حرف *پیغام = عدم;
+  cleanup_free حرف *tmp = عدم;
+  va_list دلیلونه_list;
+  حرف *بدلون;
+  صحيح ret;
 
-  if (err == NULL || *err == NULL)
+  إذا (err == عدم || *err == عدم)
     {
       // Internal error
-      return 0;
+      أرجع 0;
     }
 
-  ret = -(*err)->status - 1;
+  ret = -(*err)->حالت - 1;
 
-  va_start (args_list, fmt);
+  va_پیل (دلیلونه_list, fmt);
 
-  if (vasprintf (&msg, fmt, args_list) < 0)
+  إذا (vasprintf (&پیغام, fmt, دلیلونه_list) < 0)
     {
-      va_end (args_list);
-      msg = NULL;
-      return ret;
+      va_پای_ټکی (دلیلونه_list);
+      پیغام = عدم;
+      أرجع ret;
     }
-  va_end (args_list);
+  va_پای_ټکی (دلیلونه_list);
 
-  xasprintf (&tmp, "%s: %s", msg, (*err)->msg);
-  swap = tmp;
-  tmp = (*err)->msg;
-  (*err)->msg = swap;
+  xasprintf (&tmp, "%s: %s", پیغام, (*err)->پیغام);
+  بدلون = tmp;
+  tmp = (*err)->پیغام;
+  (*err)->پیغام = بدلون;
 
-  return ret;
+  أرجع ret;
 }
 
-int
+صحيح
 crun_error_release (libcrun_error_t *err)
 {
-  const int saved_errno = errno;
+  ثابت صحيح saved_errno = errno;
   libcrun_error_t ptr;
 
-  if (err == NULL)
-    return 0;
+  إذا (err == عدم)
+    أرجع 0;
 
   ptr = *err;
-  if (ptr == NULL)
-    return 0;
+  إذا (ptr == عدم)
+    أرجع 0;
 
-  free (ptr->msg);
-  free (ptr);
-  *err = NULL;
+  حرر (ptr->پیغام);
+  حرر (ptr);
+  *err = عدم;
 
   errno = saved_errno;
-  return 0;
+  أرجع 0;
 }
 
-int
+صحيح
 libcrun_error_release (libcrun_error_t *err)
 {
-  return crun_error_release (err);
+  أرجع crun_error_release (err);
 }
 
-int
-libcrun_error_get_status (libcrun_error_t err)
+صحيح
+libcrun_error_get_حالت (libcrun_error_t err)
 {
-  if (err == NULL)
-    return 0;
-  return err->status;
+  إذا (err == عدم)
+    أرجع 0;
+  أرجع err->حالت;
 }
 
-const char *
-libcrun_error_get_message (libcrun_error_t err)
+ثابت حرف *
+libcrun_error_get_پیغام (libcrun_error_t err)
 {
-  if (err == NULL)
-    return NULL;
-  return err->msg;
+  إذا (err == عدم)
+    أرجع عدم;
+  أرجع err->پیغام;
 }
 
-void
-crun_error_write_warning_and_release (FILE *out, libcrun_error_t **err)
+فراغ
+crun_error_write_warning_and_release (FILE *بهر, libcrun_error_t **err)
 {
-  const int saved_errno = errno;
+  ثابت صحيح saved_errno = errno;
   libcrun_error_t ref;
 
-  if (out == NULL)
-    out = stderr;
-  if (err == NULL || *err == NULL || **err == NULL)
+  إذا (بهر == عدم)
+    بهر = stderr;
+  إذا (err == عدم || *err == عدم || **err == عدم)
     {
       // Internal error
-      return;
+      أرجع;
     }
 
   ref = **err;
-  if (ref->status)
-    fprintf (out, "%s: %s\n", ref->msg, strerror (ref->status));
-  else
-    fprintf (out, "%s\n", ref->msg);
+  إذا (ref->حالت)
+    fprintf (بهر, "%s: %s\n", ref->پیغام, strerror (ref->حالت));
+  وإلا
+    fprintf (بهر, "%s\n", ref->پیغام);
 
-  free (ref->msg);
-  free (ref);
-  **err = NULL;
+  حرر (ref->پیغام);
+  حرر (ref);
+  **err = عدم;
 
   errno = saved_errno;
 }
 
-void
-libcrun_error_write_warning_and_release (FILE *out, libcrun_error_t **err)
+فراغ
+libcrun_error_write_warning_and_release (FILE *بهر, libcrun_error_t **err)
 {
-  return crun_error_write_warning_and_release (out, err);
+  أرجع crun_error_write_warning_and_release (بهر, err);
 }
 
-void
+فراغ
 libcrun_error_report_and_release (libcrun_error_t *err)
 {
   libcrun_error_t ref;
 
-  if (err == NULL || *err == NULL)
-    return;
+  إذا (err == عدم || *err == عدم)
+    أرجع;
 
   ref = *err;
-  libcrun_error (ref->status, "%s", ref->msg);
+  libcrun_error (ref->حالت, "%s", ref->پیغام);
   crun_error_release (err);
 }
 
-int
+صحيح
 crun_error_get_errno (libcrun_error_t *err)
 {
-  if (err == NULL || *err == NULL)
-    return 0;
-  return (*err)->status;
+  إذا (err == عدم || *err == عدم)
+    أرجع 0;
+  أرجع (*err)->حالت;
 }
 
-typedef char timestamp_t[64];
+تعريفنوع حرف timestamp_t[64];
 
-static void
-get_timestamp (timestamp_t *timestamp, const char *suffix)
+ساكن فراغ
+get_timestamp (timestamp_t *timestamp, ثابت حرف *suffix)
 {
-  const size_t buffer_size = sizeof (timestamp_t);
-  char *buffer = (char *) timestamp;
-  struct timeval tv;
+  ثابت size_t بفر_اندازه = حجم (timestamp_t);
+  حرف *بفر = (حرف *) timestamp;
+  بنية timeval tv;
   size_t written;
-  struct tm now;
+  بنية tm now;
 
-  gettimeofday (&tv, NULL);
+  gettimeofday (&tv, عدم);
   gmtime_r (&tv.tv_sec, &now);
-  written = strftime (buffer, buffer_size, "%Y-%m-%dT%H:%M:%S", &now);
-  snprintf (buffer + written, buffer_size - written, ".%06lldZ%.8s", (long long int) tv.tv_usec, suffix);
+  written = strftime (بفر, بفر_اندازه, "%Y-%m-%dT%H:%M:%S", &now);
+  snprintf (بفر + written, بفر_اندازه - written, ".%06lldZ%.8s", (اوږد اوږد صحيح) tv.tv_usec, suffix);
 }
 
 /* Neither openlog(3) nor the journald handler copy the identifier they are
    given, and the global output handler outlives the caller's strings (e.g.
    the context is freed while errors are still reported through it), so keep
    an owned copy alive for as long as the handler can use it.  */
-static char *log_id;
+ساكن حرف *log_id;
 
-static const char *
-set_log_id (const char *id, char **old_id)
+ساكن ثابت حرف *
+سېټ_log_id (ثابت حرف *id, حرف **old_id)
 {
   *old_id = log_id;
-  log_id = id ? xstrdup (id) : NULL;
-  return log_id;
+  log_id = id ? xstrdup (id) : عدم;
+  أرجع log_id;
 }
 
-static void *
-init_syslog (const char *id)
+ساكن فراغ *
+init_syslog (ثابت حرف *id)
 {
   openlog (id, 0, LOG_USER);
-  return NULL;
+  أرجع عدم;
 }
 
-enum
+تعداد
 {
   LOG_TYPE_FILE = 1,
   LOG_TYPE_SYSLOG = 2,
   LOG_TYPE_JOURNALD = 3
 };
 
-static int
-get_log_type (const char *log, const char **data)
+ساكن صحيح
+get_log_type (ثابت حرف *لوګاریتم, ثابت حرف **معلومات)
 {
-  const char *sep = strchr (log, ':');
-  if (sep == NULL)
+  ثابت حرف *sep = strchr (لوګاریتم, ':');
+  إذا (sep == عدم)
     {
-      *data = log;
-      return LOG_TYPE_FILE;
+      *معلومات = لوګاریتم;
+      أرجع LOG_TYPE_FILE;
     }
-  *data = sep + 1;
+  *معلومات = sep + 1;
 
-  if (has_prefix (log, "syslog:"))
-    return LOG_TYPE_SYSLOG;
-  if (has_prefix (log, "journald:"))
-    return LOG_TYPE_JOURNALD;
-  if (has_prefix (log, "file:"))
-    return LOG_TYPE_FILE;
+  إذا (has_مختاړی (لوګاریتم, "syslog:"))
+    أرجع LOG_TYPE_SYSLOG;
+  إذا (has_مختاړی (لوګاریتم, "journald:"))
+    أرجع LOG_TYPE_JOURNALD;
+  إذا (has_مختاړی (لوګاریتم, "file:"))
+    أرجع LOG_TYPE_FILE;
 
-  return -1;
+  أرجع -1;
 }
 
-int
-libcrun_init_logging (crun_output_handler *new_output_handler, void **new_output_handler_arg, const char *id,
-                      const char *log, libcrun_error_t *err)
+صحيح
+libcrun_init_logging (crun_output_handler *new_output_handler, فراغ **new_output_handler_arg, ثابت حرف *id,
+                      ثابت حرف *لوګاریتم, libcrun_error_t *err)
 {
   /* Released only after the new handler is installed.  */
-  cleanup_free char *old_log_id = NULL;
+  cleanup_free حرف *old_log_id = عدم;
 
-  if (log == NULL)
+  إذا (لوګاریتم == عدم)
     {
-      *new_output_handler = log_write_to_stderr;
-      *new_output_handler_arg = NULL;
+      *new_output_handler = log_write_منزل_stderr;
+      *new_output_handler_arg = عدم;
     }
-  else
+  وإلا
     {
-      const char *arg = NULL;
-      int log_type = get_log_type (log, &arg);
+      ثابت حرف *arg = عدم;
+      صحيح log_type = get_log_type (لوګاریتم, &arg);
 
-      if (log_type < 0)
-        return crun_make_error (err, errno, "unknown log type `%s`", log);
+      إذا (log_type < 0)
+        أرجع crun_make_error (err, errno, "unknown log type `%s`", لوګاریتم);
 
-      switch (log_type)
+      بدل (log_type)
         {
-        case LOG_TYPE_FILE:
-          *new_output_handler = log_write_to_stream;
+        حالة LOG_TYPE_FILE:
+          *new_output_handler = log_write_منزل_بهیر;
           *new_output_handler_arg = fopen (arg, "a+e");
-          if (*new_output_handler_arg == NULL)
-            return crun_make_error (err, errno, "open log file `%s`", log);
-          if (output_verbosity >= LIBCRUN_VERBOSITY_WARNING)
+          إذا (*new_output_handler_arg == عدم)
+            أرجع crun_make_error (err, errno, "open log file `%s`", لوګاریتم);
+          إذا (output_verbosity >= LIBCRUN_VERBOSITY_WARNING)
             setlinebuf (*new_output_handler_arg);
-          break;
+          اكسر;
 
-        case LOG_TYPE_SYSLOG:
-          *new_output_handler_arg = init_syslog (set_log_id (arg[0] ? arg : id, &old_log_id));
-          *new_output_handler = log_write_to_syslog;
-          break;
+        حالة LOG_TYPE_SYSLOG:
+          *new_output_handler_arg = init_syslog (سېټ_log_id (arg[0] ? arg : id, &old_log_id));
+          *new_output_handler = log_write_منزل_syslog;
+          اكسر;
 
-        case LOG_TYPE_JOURNALD:
-          *new_output_handler = log_write_to_journald;
-          *new_output_handler_arg = (void *) set_log_id (id, &old_log_id);
-          break;
+        حالة LOG_TYPE_JOURNALD:
+          *new_output_handler = log_write_منزل_journald;
+          *new_output_handler_arg = (فراغ *) سېټ_log_id (id, &old_log_id);
+          اكسر;
         }
     }
-  crun_set_output_handler (*new_output_handler, *new_output_handler_arg);
-  return 0;
+  crun_سېټ_output_handler (*new_output_handler, *new_output_handler_arg);
+  أرجع 0;
 }
 
-void
-log_write_to_stream (int errno_, const char *msg, int verbosity, void *arg)
+فراغ
+log_write_منزل_بهیر (صحيح errno_, ثابت حرف *پیغام, صحيح verbosity, فراغ *arg)
 {
   timestamp_t timestamp = {
     0,
   };
-  FILE *stream = arg;
-  int tty = isatty (fileno (stream));
-  const char *color_begin = "";
-  const char *color_end = "";
+  FILE *بهیر = arg;
+  صحيح tty = isatty (fileno (بهیر));
+  ثابت حرف *color_begin = "";
+  ثابت حرف *color_پای_ټکی = "";
 
-  if (tty)
+  إذا (tty)
     {
-      switch (verbosity)
+      بدل (verbosity)
         {
-        case LIBCRUN_VERBOSITY_DEBUG:
+        حالة LIBCRUN_VERBOSITY_DEBUG:
           color_begin = "\x1b[1;34m";
-          color_end = "\x1b[0m";
-          break;
-        case LIBCRUN_VERBOSITY_WARNING:
+          color_پای_ټکی = "\x1b[0m";
+          اكسر;
+        حالة LIBCRUN_VERBOSITY_WARNING:
           color_begin = "\x1b[1;33m";
-          color_end = "\x1b[0m";
-          break;
-        case LIBCRUN_VERBOSITY_ERROR:
+          color_پای_ټکی = "\x1b[0m";
+          اكسر;
+        حالة LIBCRUN_VERBOSITY_ERROR:
           color_begin = "\x1b[1;31m";
-          color_end = "\x1b[0m";
-          break;
+          color_پای_ټکی = "\x1b[0m";
+          اكسر;
         }
 
-      if (log_format == LOG_FORMAT_TEXT)
+      إذا (log_format == LOG_FORMAT_متن)
         get_timestamp (&timestamp, ": ");
     }
 
-  if (errno_)
-    fprintf (stream, "%s%s%s: %s%s\n", color_begin, timestamp, msg, strerror (errno_), color_end);
-  else
-    fprintf (stream, "%s%s%s%s\n", color_begin, timestamp, msg, color_end);
+  إذا (errno_)
+    fprintf (بهیر, "%s%s%s: %s%s\n", color_begin, timestamp, پیغام, strerror (errno_), color_پای_ټکی);
+  وإلا
+    fprintf (بهیر, "%s%s%s%s\n", color_begin, timestamp, پیغام, color_پای_ټکی);
 }
 
-void
-log_write_to_stderr (int errno_, const char *msg, int verbosity, void *arg arg_unused)
+فراغ
+log_write_منزل_stderr (صحيح errno_, ثابت حرف *پیغام, صحيح verbosity, فراغ *arg arg_ناکارول_شوی)
 {
-  log_write_to_stream (errno_, msg, verbosity, stderr);
+  log_write_منزل_بهیر (errno_, پیغام, verbosity, stderr);
 }
 
-void
-log_write_to_syslog (int errno_, const char *msg, int verbosity, void *arg arg_unused)
+فراغ
+log_write_منزل_syslog (صحيح errno_, ثابت حرف *پیغام, صحيح verbosity, فراغ *arg arg_ناکارول_شوی)
 {
-  int priority = LOG_ERR;
-  switch (verbosity)
+  صحيح لومړیتوب = LOG_ERR;
+  بدل (verbosity)
     {
-    case LIBCRUN_VERBOSITY_DEBUG:
-      priority = LOG_DEBUG;
-      break;
-    case LIBCRUN_VERBOSITY_WARNING:
-      priority = LOG_WARNING;
-      break;
-    case LIBCRUN_VERBOSITY_ERROR:
-      priority = LOG_ERR;
-      break;
+    حالة LIBCRUN_VERBOSITY_DEBUG:
+      لومړیتوب = LOG_DEBUG;
+      اكسر;
+    حالة LIBCRUN_VERBOSITY_WARNING:
+      لومړیتوب = LOG_WARNING;
+      اكسر;
+    حالة LIBCRUN_VERBOSITY_ERROR:
+      لومړیتوب = LOG_ERR;
+      اكسر;
     }
-  if (errno_ == 0)
-    syslog (priority, "%s", msg);
-  else
-    syslog (priority, "%s: %s", msg, strerror (errno_));
+  إذا (errno_ == 0)
+    syslog (لومړیتوب, "%s", پیغام);
+  وإلا
+    syslog (لومړیتوب, "%s: %s", پیغام, strerror (errno_));
 }
 
-void
-log_write_to_journald (int errno_, const char *msg, int verbosity, void *arg arg_unused)
+فراغ
+log_write_منزل_journald (صحيح errno_, ثابت حرف *پیغام, صحيح verbosity, فراغ *arg arg_ناکارول_شوی)
 {
-  (void) errno_;
-  (void) msg;
-  (void) verbosity;
-#ifdef HAVE_SYSTEMD
-  int priority = LOG_ERR;
-  switch (verbosity)
+  (فراغ) errno_;
+  (فراغ) پیغام;
+  (فراغ) verbosity;
+#که_تعریف_شوی HAVE_SYSTEMD
+  صحيح لومړیتوب = LOG_ERR;
+  بدل (verbosity)
     {
-    case LIBCRUN_VERBOSITY_DEBUG:
-      priority = LOG_DEBUG;
-      break;
-    case LIBCRUN_VERBOSITY_WARNING:
-      priority = LOG_WARNING;
-      break;
-    case LIBCRUN_VERBOSITY_ERROR:
-      priority = LOG_ERR;
-      break;
+    حالة LIBCRUN_VERBOSITY_DEBUG:
+      لومړیتوب = LOG_DEBUG;
+      اكسر;
+    حالة LIBCRUN_VERBOSITY_WARNING:
+      لومړیتوب = LOG_WARNING;
+      اكسر;
+    حالة LIBCRUN_VERBOSITY_ERROR:
+      لومړیتوب = LOG_ERR;
+      اكسر;
     }
-  if (errno_ == 0)
-    sd_journal_send ("PRIORITY=%d", priority, "MESSAGE=%s", msg, "ID=%s", arg, NULL);
-  else
-    sd_journal_send ("PRIORITY=%d", priority, "MESSAGE=%s: %s", msg, strerror (errno_), "ID=%s",
-                     arg, NULL);
-#endif
+  إذا (errno_ == 0)
+    sd_journal_send ("PRIORITY=%d", لومړیتوب, "MESSAGE=%s", پیغام, "ID=%s", arg, عدم);
+  وإلا
+    sd_journal_send ("PRIORITY=%d", لومړیتوب, "MESSAGE=%s: %s", پیغام, strerror (errno_), "ID=%s",
+                     arg, عدم);
+#د_که_پای
 }
 
-static crun_output_handler output_handler = log_write_to_stderr;
-static void *output_handler_arg = NULL;
+ساكن crun_output_handler output_handler = log_write_منزل_stderr;
+ساكن فراغ *output_handler_arg = عدم;
 
-void
-libcrun_set_verbosity (int verbosity)
+فراغ
+libcrun_سېټ_verbosity (صحيح verbosity)
 {
   output_verbosity = verbosity;
 }
 
-int
+صحيح
 libcrun_get_verbosity ()
 {
-  return output_verbosity;
+  أرجع output_verbosity;
 }
 
-void
-crun_set_output_handler (crun_output_handler handler, void *arg)
+فراغ
+crun_سېټ_output_handler (crun_output_handler handler, فراغ *arg)
 {
   output_handler = handler;
   output_handler_arg = arg;
 }
 
-static char *
-make_json_error (const char *msg, int errno_, int verbosity)
+ساكن حرف *
+make_json_error (ثابت حرف *پیغام, صحيح errno_, صحيح verbosity)
 {
-  const char *level;
-  switch (verbosity)
+  ثابت حرف *level;
+  بدل (verbosity)
     {
-    case LIBCRUN_VERBOSITY_DEBUG:
+    حالة LIBCRUN_VERBOSITY_DEBUG:
       level = "debug";
-      break;
-    case LIBCRUN_VERBOSITY_WARNING:
+      اكسر;
+    حالة LIBCRUN_VERBOSITY_WARNING:
       level = "warning";
-      break;
-    case LIBCRUN_VERBOSITY_ERROR:
+      اكسر;
+    حالة LIBCRUN_VERBOSITY_ERROR:
       level = "error";
-      break;
+      اكسر;
     }
-  const char *buf = NULL;
-  json_gen_ctx *gen = NULL;
-  char *ret = NULL;
+  ثابت حرف *buf = عدم;
+  json_gen_ctx *gen = عدم;
+  حرف *ret = عدم;
   size_t buf_len;
   timestamp_t timestamp = {
     0,
   };
 
-  if (! json_gen_init (&gen, NULL))
-    return NULL;
+  إذا (! json_gen_init (&gen, عدم))
+    أرجع عدم;
 
   get_timestamp (&timestamp, "");
 
   json_gen_map_open (gen);
 
-  json_gen_string (gen, "msg", strlen ("msg"));
-  if (errno_ == 0)
-    json_gen_string (gen, msg, strlen (msg));
-  else
+  json_gen_string (gen, "msg", مزي_اوږدوالی ("msg"));
+  إذا (errno_ == 0)
+    json_gen_string (gen, پیغام, مزي_اوږدوالی (پیغام));
+  وإلا
     {
-      cleanup_free char *tmp = NULL;
+      cleanup_free حرف *tmp = عدم;
 
-      xasprintf (&tmp, "%s: %s", msg, strerror (errno_));
-      json_gen_string (gen, tmp, strlen (tmp));
+      xasprintf (&tmp, "%s: %s", پیغام, strerror (errno_));
+      json_gen_string (gen, tmp, مزي_اوږدوالی (tmp));
     }
 
-  json_gen_string (gen, "level", strlen ("level"));
-  json_gen_string (gen, level, strlen (level));
+  json_gen_string (gen, "level", مزي_اوږدوالی ("level"));
+  json_gen_string (gen, level, مزي_اوږدوالی (level));
 
-  json_gen_string (gen, "time", strlen ("time"));
-  json_gen_string (gen, timestamp, strlen (timestamp));
+  json_gen_string (gen, "time", مزي_اوږدوالی ("time"));
+  json_gen_string (gen, timestamp, مزي_اوږدوالی (timestamp));
 
   json_gen_map_close (gen);
 
   json_gen_get_buf (gen, &buf, &buf_len);
-  if (buf)
+  إذا (buf)
     ret = strdup (buf);
 
   json_gen_free (gen);
 
-  return ret;
+  أرجع ret;
 }
 
-static void
-write_log (int errno_, int verbosity, const char *msg, va_list args_list)
+ساكن فراغ
+write_log (صحيح errno_, صحيح verbosity, ثابت حرف *پیغام, va_list دلیلونه_list)
 {
-  int ret;
-  cleanup_free char *output = NULL;
-  cleanup_free char *json = NULL;
+  صحيح ret;
+  cleanup_free حرف *output = عدم;
+  cleanup_free حرف *json = عدم;
 
-  if (verbosity > output_verbosity)
-    return;
+  إذا (verbosity > output_verbosity)
+    أرجع;
 
-  ret = vasprintf (&output, msg, args_list);
-  if (UNLIKELY (ret < 0))
+  ret = vasprintf (&output, پیغام, دلیلونه_list);
+  إذا (UNLIKELY (ret < 0))
     OOM ();
 
-  if (verbosity == LIBCRUN_VERBOSITY_ERROR && output_handler != log_write_to_stderr)
-    log_write_to_stderr (errno_, output, LIBCRUN_VERBOSITY_ERROR, NULL);
+  إذا (verbosity == LIBCRUN_VERBOSITY_ERROR && output_handler != log_write_منزل_stderr)
+    log_write_منزل_stderr (errno_, output, LIBCRUN_VERBOSITY_ERROR, عدم);
 
-  switch (log_format)
+  بدل (log_format)
     {
-    case LOG_FORMAT_TEXT:
+    حالة LOG_FORMAT_متن:
       output_handler (errno_, output, verbosity, output_handler_arg);
-      break;
+      اكسر;
 
-    case LOG_FORMAT_JSON:
+    حالة LOG_FORMAT_JSON:
       json = make_json_error (output, errno_, verbosity);
-      if (json)
+      إذا (json)
         output_handler (0, json, verbosity, output_handler_arg);
-      else
+      وإلا
         output_handler (errno_, output, verbosity, output_handler_arg);
-      break;
+      اكسر;
     }
 }
 
-void
-libcrun_debug (const char *msg, ...)
+فراغ
+libcrun_debug (ثابت حرف *پیغام, ...)
 {
-  va_list args_list;
-  va_start (args_list, msg);
-  write_log (0, LIBCRUN_VERBOSITY_DEBUG, msg, args_list);
-  va_end (args_list);
+  va_list دلیلونه_list;
+  va_پیل (دلیلونه_list, پیغام);
+  write_log (0, LIBCRUN_VERBOSITY_DEBUG, پیغام, دلیلونه_list);
+  va_پای_ټکی (دلیلونه_list);
 }
 
-void
-libcrun_warning (const char *msg, ...)
+فراغ
+libcrun_warning (ثابت حرف *پیغام, ...)
 {
-  va_list args_list;
-  va_start (args_list, msg);
-  write_log (0, LIBCRUN_VERBOSITY_WARNING, msg, args_list);
-  va_end (args_list);
+  va_list دلیلونه_list;
+  va_پیل (دلیلونه_list, پیغام);
+  write_log (0, LIBCRUN_VERBOSITY_WARNING, پیغام, دلیلونه_list);
+  va_پای_ټکی (دلیلونه_list);
 }
 
-void
-libcrun_error (int errno_, const char *msg, ...)
+فراغ
+libcrun_error (صحيح errno_, ثابت حرف *پیغام, ...)
 {
-  va_list args_list;
-  va_start (args_list, msg);
+  va_list دلیلونه_list;
+  va_پیل (دلیلونه_list, پیغام);
 
-  write_log (errno_, LIBCRUN_VERBOSITY_ERROR, msg, args_list);
-  va_end (args_list);
+  write_log (errno_, LIBCRUN_VERBOSITY_ERROR, پیغام, دلیلونه_list);
+  va_پای_ټکی (دلیلونه_list);
 }
 
-void __attribute__ ((noreturn))
-libcrun_fail_with_error (int errno_, const char *msg, ...)
+فراغ __attribute__ ((noreturn))
+libcrun_fail_with_error (صحيح errno_, ثابت حرف *پیغام, ...)
 {
-  va_list args_list;
-  va_start (args_list, msg);
-  write_log (errno_, LIBCRUN_VERBOSITY_ERROR, msg, args_list);
-  va_end (args_list);
-  exit (EXIT_FAILURE);
+  va_list دلیلونه_list;
+  va_پیل (دلیلونه_list, پیغام);
+  write_log (errno_, LIBCRUN_VERBOSITY_ERROR, پیغام, دلیلونه_list);
+  va_پای_ټکی (دلیلونه_list);
+  وتل (EXIT_FAILURE);
 }
 
-int
-libcrun_set_log_format (const char *format, libcrun_error_t *err)
+صحيح
+libcrun_سېټ_log_format (ثابت حرف *format, libcrun_error_t *err)
 {
-  if (strcmp (format, "text") == 0)
-    log_format = LOG_FORMAT_TEXT;
-  else if (strcmp (format, "json") == 0)
+  إذا (strcmp (format, "text") == 0)
+    log_format = LOG_FORMAT_متن;
+  وإلا إذا (strcmp (format, "json") == 0)
     log_format = LOG_FORMAT_JSON;
-  else
-    return crun_make_error (err, 0, "unknown log format type `%s`", format);
+  وإلا
+    أرجع crun_make_error (err, 0, "unknown log format type `%s`", format);
 
-  return 0;
+  أرجع 0;
 }
 
-int
-json_gen_error_to_crun_error (int status, libcrun_error_t *err)
+صحيح
+json_gen_error_منزل_crun_error (صحيح حالت, libcrun_error_t *err)
 {
-  switch (status)
+  بدل (حالت)
     {
-    case json_gen_status_ok:
-      return 0;
+    حالة json_gen_حالت_ok:
+      أرجع 0;
 
-    default:
-      return crun_make_error (err, 0, "generate JSON document: error %d", status);
+    افتراضي:
+      أرجع crun_make_error (err, 0, "generate JSON document: error %d", حالت);
     }
 }
