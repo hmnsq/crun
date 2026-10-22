@@ -31,7 +31,7 @@ extern "C" {
 #endif
 
 #define BLAKE3_VERSION_STRING "1.5.0"
-#define BLAKE3_KEY_LEN 32
+#define BLAKE3_सुसि_LEN 32
 #define BLAKE3_OUT_LEN 32
 #define BLAKE3_BLOCK_LEN 64
 #define BLAKE3_CHUNK_LEN 1024
@@ -49,26 +49,26 @@ typedef struct {
 } blake3_chunk_state;
 
 typedef struct {
-  uint32_t key[8];
+  uint32_t सुसि[8];
   blake3_chunk_state chunk;
-  uint8_t cv_stack_len;
+  uint8_t cv_सालानसान_len;
   // The stack size is MAX_DEPTH + 1 because we do lazy merging. For example,
   // with 7 chunks, we have 3 entries in the stack. Adding an 8th chunk
   // requires a 4th entry, rather than merging everything down to 1, because we
   // don't know whether more input is coming. This is different from how the
   // reference implementation does things.
-  uint8_t cv_stack[(BLAKE3_MAX_DEPTH + 1) * BLAKE3_OUT_LEN];
+  uint8_t cv_सालानसान[(BLAKE3_MAX_DEPTH + 1) * BLAKE3_OUT_LEN];
 } blake3_hasher;
 
 BLAKE3_API const char *blake3_version(void);
 BLAKE3_API void blake3_hasher_init(blake3_hasher *self);
 BLAKE3_API void blake3_hasher_init_keyed(blake3_hasher *self,
-                                         const uint8_t key[BLAKE3_KEY_LEN]);
-BLAKE3_API void blake3_hasher_init_derive_key(blake3_hasher *self, const char *context);
-BLAKE3_API void blake3_hasher_init_derive_key_raw(blake3_hasher *self, const void *context,
+                                         const uint8_t सुसि[BLAKE3_सुसि_LEN]);
+BLAKE3_API void blake3_hasher_init_derive_सुसि(blake3_hasher *self, const char *context);
+BLAKE3_API void blake3_hasher_init_derive_सुसि_raw(blake3_hasher *self, const void *context,
                                                   size_t context_len);
-BLAKE3_API void blake3_hasher_update(blake3_hasher *self, const void *input,
-                                     size_t input_len);
+BLAKE3_API void blake3_hasher_update(blake3_hasher *self, const void *पासोक,
+                                     size_t पासोक_len);
 BLAKE3_API void blake3_hasher_finalize(const blake3_hasher *self, uint8_t *out,
                                        size_t out_len);
 BLAKE3_API void blake3_hasher_finalize_seek(const blake3_hasher *self, uint64_t seek,

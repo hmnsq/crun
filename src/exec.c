@@ -83,7 +83,7 @@ static struct argp_option options[]
             0,
         } };
 
-static char args_doc[] = "exec CONTAINER cmd";
+static char मगा_कातविरान_doc[] = "exec CONTAINER cmd";
 
 static void
 append_to_string_array (char ***arr, size_t *size, const char *arg)
@@ -107,9 +107,9 @@ append_cap (const char *arg)
 }
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (int सुसि, char *arg, struct argp_state *state)
 {
-  switch (key)
+  switch (सुसि)
     {
     case OPTION_CONSOLE_SOCKET:
       exec_options.console_socket = arg;
@@ -167,7 +167,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
       exec_options.cwd = xstrdup (arg);
       break;
 
-    case ARGP_KEY_NO_ARGS:
+    case ARGP_सुसि_NO_मगा_कातविरान:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
     default:
@@ -177,7 +177,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
   return 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+static struct argp run_argp = { options, parse_opt, मगा_कातविरान_doc, doc, NULL, NULL, NULL };
 
 /* Minimal growable string buffer used to assemble the OCI Process JSON.  The
    binary is a pure consumer of the public API, so it builds the process as a
@@ -320,14 +320,14 @@ read_file_to_string (const char *path, libcrun_error_t *err)
 
 /* Build the OCI Process JSON from the CLI options.  */
 static char *
-build_process_json (struct crun_global_arguments *global_args arg_unused, char **args, size_t args_len)
+build_process_json (struct crun_global_arguments *global_मगा_कातविरान arg_unused, char **मगा_कातविरान, size_t मगा_कातविरान_len)
 {
   struct strbuf sb = { 0 };
 
   sb_putc (&sb, '{');
 
   sb_puts (&sb, "\"args\":");
-  sb_put_json_string_array (&sb, args, args_len);
+  sb_put_json_string_array (&sb, मगा_कातविरान, मगा_कातविरान_len);
 
   /* cwd is a required field in the OCI process schema; the exec path treats a
      missing value as "/".  */
@@ -406,7 +406,7 @@ build_process_json (struct crun_global_arguments *global_args arg_unused, char *
 }
 
 int
-crun_command_exec (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+crun_command_exec (struct crun_global_arguments *global_मगा_कातविरान, int argc, char **argv, libcrun_error_t *err)
 {
   int first_arg = 0, ret = 0;
   cleanup_context libcrun_context_t *crun_context = NULL;
@@ -417,9 +417,9 @@ crun_command_exec (struct crun_global_arguments *global_args, int argc, char **a
   exec_opts.struct_size = sizeof (exec_opts);
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &exec_options);
-  crun_assert_n_args (argc - first_arg, exec_options.process ? 1 : 2, -1);
+  crun_assert_n_मगा_कातविरान (argc - first_arg, exec_options.process ? 1 : 2, -1);
 
-  crun_context = new_libcrun_context (global_args);
+  crun_context = new_libcrun_context (global_मगा_कातविरान);
 
   libcrun_context_set_preserve_fds (crun_context, exec_options.preserve_fds);
 
@@ -441,17 +441,17 @@ crun_command_exec (struct crun_global_arguments *global_args, int argc, char **a
     }
   else
     {
-      cleanup_free char **args = NULL;
-      size_t args_len = argc - first_arg - 1;
+      cleanup_free char **मगा_कातविरान = NULL;
+      size_t मगा_कातविरान_len = argc - first_arg - 1;
       size_t i;
 
       /* argv[first_arg] is the container id, the command follows it.  */
-      args = xmalloc0 ((args_len + 1) * sizeof (*args));
-      for (i = 0; i < args_len; i++)
-        args[i] = argv[first_arg + i + 1];
-      args[i] = NULL;
+      मगा_कातविरान = xmalloc0 ((मगा_कातविरान_len + 1) * sizeof (*मगा_कातविरान));
+      for (i = 0; i < मगा_कातविरान_len; i++)
+        मगा_कातविरान[i] = argv[first_arg + i + 1];
+      मगा_कातविरान[i] = NULL;
 
-      process_json = build_process_json (global_args, args, args_len);
+      process_json = build_process_json (global_मगा_कातविरान, मगा_कातविरान, मगा_कातविरान_len);
       exec_opts.merge_env = true;
     }
 
@@ -461,7 +461,7 @@ crun_command_exec (struct crun_global_arguments *global_args, int argc, char **a
   if (UNLIKELY (ret < 0))
     return ret;
 
-  ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
+  ret = init_libcrun_context (crun_context, argv[first_arg], global_मगा_कातविरान, err);
   if (UNLIKELY (ret < 0))
     return ret;
 

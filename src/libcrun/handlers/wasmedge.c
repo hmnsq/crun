@@ -76,7 +76,7 @@ libwasmedge_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *co
   WasmEdge_VMContext *(*WasmEdge_VMCreate) (const WasmEdge_ConfigureContext *ConfCxt, WasmEdge_StoreContext *StoreCxt);
   void (*WasmEdge_VMDelete) (WasmEdge_VMContext *Cxt);
   WasmEdge_Result (*WasmEdge_VMRegisterModuleFromFile) (WasmEdge_VMContext *Cxt, WasmEdge_String ModuleName, const char *Path);
-  WasmEdge_Result (*WasmEdge_VMRunWasmFromFile) (WasmEdge_VMContext *Cxt, const char *Path, const WasmEdge_String FuncName, const WasmEdge_Value *Params, const uint32_t ParamLen, WasmEdge_Value *Returns, const uint32_t ReturnLen);
+  WasmEdge_Result (*WasmEdge_VMRunWasmFromFile) (WasmEdge_VMContext *Cxt, const char *Path, const WasmEdge_String FuncName, const Wasm_Edge_हालागा *Params, const uint32_t ParamLen, Wasm_Edge_हालागा *Returns, const uint32_t ReturnLen);
   void (*WasmEdge_PluginLoadFromPath) (const char *Path);
   void (*WasmEdge_PluginInitWASINN) (const char *const *NNPreloads, const uint32_t PreloadsLen);
   bool (*WasmEdge_ResultOK) (const WasmEdge_Result Res);
@@ -90,7 +90,7 @@ libwasmedge_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *co
 
   WasmEdge_ModuleInstanceContext *wasi_module;
   WasmEdge_ModuleInstanceContext *(*WasmEdge_VMGetImportModuleContext) (WasmEdge_VMContext *Cxt, const enum WasmEdge_HostRegistration Reg);
-  void (*WasmEdge_ModuleInstanceInitWASI) (WasmEdge_ModuleInstanceContext *Cxt, const char *const *Args, const uint32_t ArgLen, const char *const *Envs, const uint32_t EnvLen, const char *const *Dirs, const uint32_t DirLen, const char *const *Preopens, const uint32_t PreopenLen);
+  void (*WasmEdge_ModuleInstanceInitWASI) (WasmEdge_ModuleInstanceContext *Cxt, const char *const *मगा_कातविरान_2, const uint32_t ArgLen, const char *const *Envs, const uint32_t EnvLen, const char *const *Dirs, const uint32_t DirLen, const char *const *Preopens, const uint32_t PreopenLen);
   WasmEdge_ModuleInstanceInitWASI = dlsym (cookie, "WasmEdge_ModuleInstanceInitWASI");
 
   WasmEdge_ConfigureCreate = dlsym (cookie, "WasmEdge_ConfigureCreate");
@@ -234,7 +234,7 @@ struct custom_handler_s handler_wasmedge = {
   .name = "wasmedge",
   .alias = "wasm",
   .feature_string = "WASM:wasmedge",
-  .supports_open_tree_namespace = false,
+  .supports_open_पुनो_namespace = false,
   .load = libwasmedge_load,
   .unload = libwasmedge_unload,
   .run_func = libwasmedge_exec,

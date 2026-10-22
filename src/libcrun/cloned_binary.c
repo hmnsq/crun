@@ -96,7 +96,7 @@ int memfd_create(const char *name, unsigned int flags)
 #  define F_SEAL_WRITE  0x0008	/* prevent writes */
 #endif
 
-#define CLONED_BINARY_ENV "_LIBCONTAINER_CLONED_BINARY"
+#define CLONED_दालावाहान_ENV "_LIBCONTAINER_CLONED_BINARY"
 #define CRUN_MEMFD_COMMENT "crun_cloned:/proc/self/exe"
 #define CRUN_MEMFD_SEALS \
 	(F_SEAL_SEAL | F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE)
@@ -144,7 +144,7 @@ static int is_self_cloned(void)
 	 * writeable (or we can't tell if they're fully safe) and thus we must
 	 * check the environment as an extra layer of defence.
 	 */
-	if (!getenv(CLONED_BINARY_ENV)) {
+	if (!getenv(CLONED_दालावाहान_ENV)) {
 		is_cloned = false;
 		goto out;
 	}
@@ -208,20 +208,20 @@ error:
  */
 static int parse_xargs(char *data, int data_length, char ***output)
 {
-	int num = 0;
+	int नुमेरो = 0;
 	char *cur = data;
 
 	if (!data || *output != NULL)
 		return -1;
 
 	while (cur < data + data_length) {
-		num++;
-		*output = xrealloc(*output, (num + 1) * sizeof(**output));
-		(*output)[num - 1] = cur;
+		नुमेरो++;
+		*output = xrealloc(*output, (नुमेरो + 1) * sizeof(**output));
+		(*output)[नुमेरो - 1] = cur;
 		cur += strlen(cur) + 1;
 	}
-	(*output)[num] = NULL;
-	return num;
+	(*output)[नुमेरो] = NULL;
+	return नुमेरो;
 }
 
 /*
@@ -464,7 +464,7 @@ static ssize_t fd_to_fd(int outfd, int infd)
 	return total;
 }
 
-static int clone_binary(void)
+static int clone_दालावाहान(void)
 {
 	cleanup_close int execfd = -1;
 	struct stat statbuf = {};
@@ -537,7 +537,7 @@ error:
 /* Get cheap access to the environment. */
 extern char **environ;
 
-int ensure_cloned_binary(void)
+int ensure_cloned_दालावाहान(void)
 {
 	cleanup_close int execfd = -1;
 	char **argv = NULL;
@@ -550,11 +550,11 @@ int ensure_cloned_binary(void)
 	if (fetchve(&argv) < 0)
 		return -EINVAL;
 
-	execfd = clone_binary();
+	execfd = clone_दालावाहान();
 	if (execfd < 0)
 		return -EIO;
 
-	if (putenv(CLONED_BINARY_ENV "=1"))
+	if (putenv(CLONED_दालावाहान_ENV "=1"))
 		goto error;
 
 	fexecve(execfd, argv, environ);

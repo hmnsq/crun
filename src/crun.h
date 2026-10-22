@@ -24,7 +24,7 @@
 
 struct crun_global_arguments
 {
-  char *root;
+  char *उगात;
   char *log;
   char *log_format;
   const char *handler;
@@ -43,5 +43,5 @@ int parse_id_or_fail (const char *str, char **endptr, const char *kind);
 int init_libcrun_context (libcrun_context_t *con, const char *id, struct crun_global_arguments *glob,
                           libcrun_error_t *err);
 libcrun_context_t *new_libcrun_context (struct crun_global_arguments *glob);
-void crun_assert_n_args (int n, int min, int max);
+void crun_assert_n_मगा_कातविरान (int n, int min, int max);
 #endif

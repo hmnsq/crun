@@ -29,10 +29,10 @@ wasm_can_handle_container (libcrun_container_t *container, libcrun_error_t *err 
   const char *annotation;
   const char *entrypoint_executable;
 
-  if (container->container_def->process == NULL || container->container_def->process->args == NULL)
+  if (container->container_def->process == NULL || container->container_def->process->मगा_कातविरान == NULL)
     return 0;
 
-  entrypoint_executable = container->container_def->process->args[0];
+  entrypoint_executable = container->container_def->process->मगा_कातविरान[0];
 
   annotation = find_annotation (container, "run.oci.handler");
   if (annotation)

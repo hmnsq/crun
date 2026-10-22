@@ -51,8 +51,8 @@ enum
     TOTAL_KEYWORDS = 63,
     MIN_WORD_LENGTH = 2,
     MAX_WORD_LENGTH = 14,
-    MIN_HASH_VALUE = 2,
-    MAX_HASH_VALUE = 96
+    MIN_HASH_हालागा = 2,
+    MAX_HASH_हालागा = 96
   };
 
 /* maximum key range = 95, duplicates = 0 */
@@ -67,7 +67,7 @@ inline
 static unsigned int
 hash (register const char *str, register size_t len)
 {
-  static const unsigned char asso_values[] =
+  static const unsigned char asso_मगा_हालागा[] =
     {
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
@@ -101,16 +101,16 @@ hash (register const char *str, register size_t len)
   switch (hval)
     {
       default:
-        hval += asso_values[(unsigned char)str[3]];
+        hval += asso_मगा_हालागा[(unsigned char)str[3]];
       /*FALLTHROUGH*/
       case 3:
-        hval += asso_values[(unsigned char)str[2]];
+        hval += asso_मगा_हालागा[(unsigned char)str[2]];
       /*FALLTHROUGH*/
       case 2:
-        hval += asso_values[(unsigned char)str[1]];
+        hval += asso_मगा_हालागा[(unsigned char)str[1]];
       /*FALLTHROUGH*/
       case 1:
-        hval += asso_values[(unsigned char)str[0]];
+        hval += asso_मगा_हालागा[(unsigned char)str[0]];
         break;
     }
   return hval;
@@ -251,13 +251,13 @@ libcrun_mount_flag_in_word_set (register const char *str, register size_t len)
 {
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
-      register unsigned int key = hash (str, len);
+      register unsigned int सुसि = hash (str, len);
 
-      if (key <= MAX_HASH_VALUE && key >= MIN_HASH_VALUE)
+      if (सुसि <= MAX_HASH_हालागा && सुसि >= MIN_HASH_हालागा)
         {
           register const struct propagation_flags_s *resword;
 
-          switch (key - 2)
+          switch (सुसि - 2)
             {
               case 0:
                 resword = &wordlist[0];
@@ -475,10 +475,10 @@ get_mount_flags_from_wordlist (void)
 {
   struct propagation_flags_s *flags;
   size_t i;
-  size_t num_wordlist_flags = sizeof (wordlist) / sizeof (wordlist[0]);
+  size_t नुमेरो_wordlist_flags = sizeof (wordlist) / sizeof (wordlist[0]);
 
-  flags = xmalloc0 ((sizeof (struct propagation_flags_s) + 1) * num_wordlist_flags);
-  for (i = 0; i < num_wordlist_flags; i++)
+  flags = xmalloc0 ((sizeof (struct propagation_flags_s) + 1) * नुमेरो_wordlist_flags);
+  for (i = 0; i < नुमेरो_wordlist_flags; i++)
     flags[i].name = wordlist[i].name;
 
   return flags;

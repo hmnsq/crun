@@ -35,13 +35,13 @@
 struct string_map_s;
 typedef struct string_map_s string_map;
 
-const char *find_string_map_value (string_map *map, const char *name);
+const char *find_string_map_हालागा (string_map *map, const char *name);
 
 string_map *make_string_map_from_json (json_map_string_string *jmap);
 
 void free_string_map (string_map *map);
 
-int string_map_get_at (string_map *map, size_t index, const char **name, const char **value);
+int string_map_get_at (string_map *map, size_t index, const char **name, const char **हालागा);
 
 size_t string_map_size (string_map *map);
 

@@ -36,14 +36,14 @@ struct custom_handler_manager_s;
 
 struct libcrun_context_s
 {
-  const char *state_root;
+  const char *state_उगात;
   const char *id;
   const char *bundle;
   const char *console_socket;
   const char *pid_file;
   const char *notify_socket;
   const char *handler;
-  char *owned_state_root;
+  char *owned_state_उगात;
   char *owned_id;
   char *owned_bundle;
   char *owned_console_socket;
@@ -65,7 +65,7 @@ struct libcrun_context_s
   bool no_new_keyring;
   bool force_no_cgroup;
   bool no_pivot;
-  bool no_open_tree_namespace;
+  bool no_open_पुनो_namespace;
 
   char **argv;
   int argc;
@@ -277,34 +277,34 @@ LIBCRUN_PUBLIC void libcrun_container_free (libcrun_container_t *);
    The document is generated on demand and cached, so the first call mutates
    CONTAINER and must not race with other users of the same handle.  */
 LIBCRUN_PUBLIC const char *libcrun_container_get_config_json (libcrun_container_t *container, libcrun_error_t *err);
-LIBCRUN_PUBLIC const char *libcrun_container_get_annotation (libcrun_container_t *container, const char *key);
+LIBCRUN_PUBLIC const char *libcrun_container_get_annotation (libcrun_container_t *container, const char *सुसि);
 LIBCRUN_PUBLIC size_t libcrun_container_get_annotations_len (libcrun_container_t *container);
 LIBCRUN_PUBLIC int libcrun_container_get_annotation_at (libcrun_container_t *container, size_t index,
-                                                        const char **key, const char **value);
+                                                        const char **सुसि, const char **हालागा);
 LIBCRUN_PUBLIC uid_t libcrun_container_get_uid (libcrun_container_t *container);
 LIBCRUN_PUBLIC gid_t libcrun_container_get_gid (libcrun_container_t *container);
 
-LIBCRUN_PUBLIC libcrun_context_t *libcrun_context_new (const char *id, const char *state_root, libcrun_error_t *err);
+LIBCRUN_PUBLIC libcrun_context_t *libcrun_context_new (const char *id, const char *state_उगात, libcrun_error_t *err);
 LIBCRUN_PUBLIC void libcrun_context_free (libcrun_context_t *ctx);
 
-LIBCRUN_PUBLIC void libcrun_context_set_id (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC void libcrun_context_set_state_root (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC const char *libcrun_context_get_state_root (libcrun_context_t *ctx);
-LIBCRUN_PUBLIC void libcrun_context_set_bundle (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC void libcrun_context_set_console_socket (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC void libcrun_context_set_pid_file (libcrun_context_t *ctx, const char *value);
+LIBCRUN_PUBLIC void libcrun_context_set_id (libcrun_context_t *ctx, const char *हालागा);
+LIBCRUN_PUBLIC void libcrun_context_set_state_उगात (libcrun_context_t *ctx, const char *हालागा);
+LIBCRUN_PUBLIC const char *libcrun_context_get_state_उगात (libcrun_context_t *ctx);
+LIBCRUN_PUBLIC void libcrun_context_set_bundle (libcrun_context_t *ctx, const char *हालागा);
+LIBCRUN_PUBLIC void libcrun_context_set_console_socket (libcrun_context_t *ctx, const char *हालागा);
+LIBCRUN_PUBLIC void libcrun_context_set_pid_file (libcrun_context_t *ctx, const char *हालागा);
 LIBCRUN_PUBLIC const char *libcrun_context_get_pid_file (libcrun_context_t *ctx);
-LIBCRUN_PUBLIC void libcrun_context_set_notify_socket (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC void libcrun_context_set_handler (libcrun_context_t *ctx, const char *value);
+LIBCRUN_PUBLIC void libcrun_context_set_notify_socket (libcrun_context_t *ctx, const char *हालागा);
+LIBCRUN_PUBLIC void libcrun_context_set_handler (libcrun_context_t *ctx, const char *हालागा);
 LIBCRUN_PUBLIC void libcrun_context_set_preserve_fds (libcrun_context_t *ctx, int preserve_fds);
 LIBCRUN_PUBLIC int libcrun_context_get_preserve_fds (libcrun_context_t *ctx);
 LIBCRUN_PUBLIC void libcrun_context_set_listen_fds (libcrun_context_t *ctx, int listen_fds);
-LIBCRUN_PUBLIC void libcrun_context_set_args (libcrun_context_t *ctx, int argc, char **argv);
-LIBCRUN_PUBLIC void libcrun_context_set_systemd_cgroup (libcrun_context_t *ctx, bool value);
-LIBCRUN_PUBLIC void libcrun_context_set_detach (libcrun_context_t *ctx, bool value);
-LIBCRUN_PUBLIC void libcrun_context_set_no_new_keyring (libcrun_context_t *ctx, bool value);
-LIBCRUN_PUBLIC void libcrun_context_set_no_pivot (libcrun_context_t *ctx, bool value);
-LIBCRUN_PUBLIC void libcrun_context_set_force_no_cgroup (libcrun_context_t *ctx, bool value);
+LIBCRUN_PUBLIC void libcrun_context_set_मगा_कातविरान (libcrun_context_t *ctx, int argc, char **argv);
+LIBCRUN_PUBLIC void libcrun_context_set_systemd_cgroup (libcrun_context_t *ctx, bool हालागा);
+LIBCRUN_PUBLIC void libcrun_context_set_detach (libcrun_context_t *ctx, bool हालागा);
+LIBCRUN_PUBLIC void libcrun_context_set_no_new_keyring (libcrun_context_t *ctx, bool हालागा);
+LIBCRUN_PUBLIC void libcrun_context_set_no_pivot (libcrun_context_t *ctx, bool हालागा);
+LIBCRUN_PUBLIC void libcrun_context_set_force_no_cgroup (libcrun_context_t *ctx, bool हालागा);
 LIBCRUN_PUBLIC void libcrun_context_set_output_handler (libcrun_context_t *ctx, crun_output_handler handler, void *arg);
 
 LIBCRUN_PUBLIC int libcrun_context_init_logging (libcrun_context_t *ctx, const char *log, libcrun_error_t *err);
@@ -332,13 +332,13 @@ LIBCRUN_PUBLIC int libcrun_container_state (libcrun_context_t *context, const ch
 LIBCRUN_PUBLIC int libcrun_container_state_json (libcrun_context_t *context, const char *id, char **out,
                                                  libcrun_error_t *err);
 
-int libcrun_container_notify_handler (struct container_entrypoint_s *args,
+int libcrun_container_notify_handler (struct container_entrypoint_s *मगा_कातविरान,
                                       enum handler_configure_phase phase,
                                       libcrun_container_t *container, const char *rootfs,
                                       libcrun_error_t *err);
 
 LIBCRUN_PUBLIC int libcrun_get_container_state_string (const char *id, libcrun_container_status_t *status,
-                                                       const char *state_root, const char **container_status,
+                                                       const char *state_उगात, const char **container_status,
                                                        int *running, libcrun_error_t *err);
 
 struct libcrun_container_exec_options_s
@@ -387,16 +387,16 @@ LIBCRUN_PUBLIC int libcrun_container_update (libcrun_context_t *context, const c
 LIBCRUN_PUBLIC int libcrun_container_update_from_file (libcrun_context_t *context, const char *id, const char *file,
                                                        libcrun_error_t *err);
 
-struct libcrun_update_value_s
+struct libcrun_update_हालागा_s
 {
   const char *section;
   const char *name;
   bool numeric;
-  const char *value;
+  const char *हालागा;
 };
 
-LIBCRUN_PUBLIC int libcrun_container_update_from_values (libcrun_context_t *context, const char *id,
-                                                         struct libcrun_update_value_s *values, size_t len,
+LIBCRUN_PUBLIC int libcrun_container_update_from_मगा_हालागा (libcrun_context_t *context, const char *id,
+                                                         struct libcrun_update_हालागा_s *मगा_हालागा, size_t len,
                                                          libcrun_error_t *err);
 
 struct libcrun_intel_rdt_update
@@ -439,7 +439,7 @@ LIBCRUN_PUBLIC int libcrun_container_remove_mounts_from_file (libcrun_context_t 
                                                               libcrun_error_t *err);
 
 // Not part of the public API, just a method in container.c we need to access from linux.c
-void get_root_in_the_userns (runtime_spec_schema_config_schema *def, uid_t host_uid, gid_t host_gid,
+void get_उगात_in_the_userns (runtime_spec_schema_config_schema *def, uid_t host_uid, gid_t host_gid,
                              uid_t *uid, gid_t *gid);
 
 static inline void

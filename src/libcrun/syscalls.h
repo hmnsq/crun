@@ -110,8 +110,8 @@
 #ifndef RESOLVE_NO_SYMLINKS
 #  define RESOLVE_NO_SYMLINKS 0x04
 #endif
-#ifndef RESOLVE_IN_ROOT
-#  define RESOLVE_IN_ROOT 0x10
+#ifndef RESOLVE_IN_उगात
+#  define RESOLVE_IN_उगात 0x10
 #endif
 
 /* Structures for syscalls */
@@ -138,15 +138,15 @@ struct mount_attr_s
 #  define CLONE_INTO_CGROUP 0x200000000ULL
 #endif
 
-struct _clone3_args
+struct clone3_मगा_कातविरान
 {
   __aligned_u64 flags;
   __aligned_u64 pidfd;
   __aligned_u64 child_tid;
   __aligned_u64 parent_tid;
   __aligned_u64 exit_signal;
-  __aligned_u64 stack;
-  __aligned_u64 stack_size;
+  __aligned_u64 सालानसान;
+  __aligned_u64 सालानसान_size;
   __aligned_u64 tls;
   __aligned_u64 set_tid;
   __aligned_u64 set_tid_size;
@@ -182,14 +182,14 @@ syscall_fsmount (int fsfd, unsigned int flags, unsigned int attr_flags)
 }
 
 static inline int
-syscall_fsconfig (int fsfd, unsigned int cmd, const char *key, const void *val, int aux)
+syscall_fsconfig (int fsfd, unsigned int cmd, const char *सुसि, const void *val, int aux)
 {
 #if defined __NR_fsconfig
-  return (int) syscall (__NR_fsconfig, fsfd, cmd, key, val, aux);
+  return (int) syscall (__NR_fsconfig, fsfd, cmd, सुसि, val, aux);
 #else
   (void) fsfd;
   (void) cmd;
-  (void) key;
+  (void) सुसि;
   (void) val;
   (void) aux;
   errno = ENOSYS;
@@ -236,12 +236,12 @@ syscall_openat2 (int dirfd, const char *path, uint64_t flags, uint64_t mode, uin
 
 /* Process management syscalls */
 static inline int
-syscall_clone3 (struct _clone3_args *args)
+syscall_clone3 (struct clone3_मगा_कातविरान *मगा_कातविरान)
 {
 #ifdef __NR_clone3
-  return (int) syscall (__NR_clone3, args, sizeof (*args));
+  return (int) syscall (__NR_clone3, मगा_कातविरान, sizeof (*मगा_कातविरान));
 #else
-  (void) args;
+  (void) मगा_कातविरान;
   errno = ENOSYS;
   return -1;
 #endif
@@ -278,7 +278,7 @@ syscall_move_mount (int from_dfd, const char *from_pathname, int to_dfd, const c
 }
 
 static inline int
-syscall_open_tree (int dfd, const char *pathname, unsigned int flags)
+syscall_open_पुनो (int dfd, const char *pathname, unsigned int flags)
 {
 #if defined __NR_open_tree
   return (int) syscall (__NR_open_tree, dfd, pathname, flags);

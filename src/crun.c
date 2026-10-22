@@ -58,7 +58,7 @@ static struct crun_global_arguments arguments;
 
 struct commands_s
 {
-  int value;
+  int हालागा;
   const char *name;
   int (*handler) (struct crun_global_arguments *, int, char **, libcrun_error_t *);
 };
@@ -69,11 +69,11 @@ init_libcrun_context (libcrun_context_t *con, const char *id, struct crun_global
   int ret;
 
   libcrun_context_set_id (con, id);
-  libcrun_context_set_state_root (con, glob->root);
+  libcrun_context_set_state_उगात (con, glob->उगात);
   libcrun_context_set_systemd_cgroup (con, glob->option_systemd_cgroup);
   libcrun_context_set_force_no_cgroup (con, glob->option_force_no_cgroup);
   libcrun_context_set_notify_socket (con, getenv ("NOTIFY_SOCKET"));
-  libcrun_context_set_args (con, glob->argc, glob->argv);
+  libcrun_context_set_मगा_कातविरान (con, glob->argc, glob->argv);
 
   /* Check if global handler is configured and pass it down to crun context */
   libcrun_context_set_handler (con, glob->handler);
@@ -103,7 +103,7 @@ new_libcrun_context (struct crun_global_arguments *glob)
   libcrun_error_t err = NULL;
   libcrun_context_t *con;
 
-  con = libcrun_context_new (NULL, glob->root, &err);
+  con = libcrun_context_new (NULL, glob->उगात, &err);
   if (UNLIKELY (con == NULL))
     libcrun_fail_with_error (libcrun_error_get_status (err), "%s", libcrun_error_get_message (err));
 
@@ -177,13 +177,13 @@ static char doc[] = "\nCOMMANDS:\n"
                     "\tresume      - unpause the processes in the container\n"
                     "\tupdate      - update container resource constraints\n";
 
-static char args_doc[] = "COMMAND [OPTION...]";
+static char मगा_कातविरान_doc[] = "COMMAND [OPTION...]";
 
 static struct commands_s *
 get_command (const char *arg)
 {
   struct commands_s *it;
-  for (it = commands; it->value; it++)
+  for (it = commands; it->हालागा; it++)
     if (strcmp (it->name, arg) == 0)
       return it;
   return NULL;
@@ -199,7 +199,7 @@ enum
   OPTION_LOG,
   OPTION_LOG_FORMAT,
   OPTION_LOG_LEVEL,
-  OPTION_ROOT,
+  OPTION_उगात,
   OPTION_ROOTLESS
 };
 
@@ -211,7 +211,7 @@ static struct argp_option options[] = { { "debug", OPTION_DEBUG, 0, 0, "produce 
                                         { "log", OPTION_LOG, "FILE", 0, "log destination: '[file:]PATH', 'journald:ID' or 'syslog:ID' (defaults to stderr)", 0 },
                                         { "log-format", OPTION_LOG_FORMAT, "FORMAT", 0, "log format: 'text' (default) or 'json'", 0 },
                                         { "log-level", OPTION_LOG_LEVEL, "LEVEL", 0, "log level to use: 'error' (default), 'warning' or 'debug'", 0 },
-                                        { "root", OPTION_ROOT, "DIR", 0, NULL, 0 },
+                                        { "root", OPTION_उगात, "DIR", 0, NULL, 0 },
                                         { "rootless", OPTION_ROOTLESS, "VALUE", 0, NULL, 0 },
                                         { "version", OPTION_VERSION, 0, 0, NULL, 0 },
                                         // alias OPTION_VERSION_CAP with OPTION_VERSION
@@ -221,7 +221,7 @@ static struct argp_option options[] = { { "debug", OPTION_DEBUG, 0, 0, "produce 
                                         } };
 
 static void
-print_version (FILE *stream, struct argp_state *state arg_unused)
+इलिम्बाग_version (FILE *stream, struct argp_state *state arg_unused)
 {
   libcrun_error_t err = NULL;
   cleanup_free char *rundir = NULL;
@@ -232,7 +232,7 @@ print_version (FILE *stream, struct argp_state *state arg_unused)
   fprintf (stream, "%s version %s\n", PACKAGE_NAME, PACKAGE_VERSION);
   fprintf (stream, "commit: %s\n", GIT_VERSION);
 
-  ret = libcrun_get_state_dir (&rundir, arguments.root, NULL, &err);
+  ret = libcrun_get_state_dir (&rundir, arguments.उगात, NULL, &err);
   if (LIKELY (ret == 0))
     fprintf (stream, "rundir: %s\n", rundir);
   else
@@ -258,7 +258,7 @@ print_version (FILE *stream, struct argp_state *state arg_unused)
   fprintf (stream, "+CRIU ");
 #endif
 
-  ctx = libcrun_context_new (NULL, arguments.root, &err);
+  ctx = libcrun_context_new (NULL, arguments.उगात, &err);
   if (ctx)
     {
       tags = libcrun_context_get_handler_feature_tags (ctx, &err);
@@ -282,11 +282,11 @@ print_version (FILE *stream, struct argp_state *state arg_unused)
 }
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (int सुसि, char *arg, struct argp_state *state)
 {
   const char *tmp;
 
-  switch (key)
+  switch (सुसि)
     {
     case OPTION_DEBUG:
       arguments.verbosity = LIBCRUN_VERBOSITY_DEBUG;
@@ -348,20 +348,20 @@ parse_opt (int key, char *arg, struct argp_state *state)
         }
       break;
 
-    case OPTION_ROOT:
-      arguments.root = argp_mandatory_argument (arg, state);
+    case OPTION_उगात:
+      arguments.उगात = argp_mandatory_argument (arg, state);
       break;
 
     case OPTION_ROOTLESS:
       /* Ignored.  So that a runc command line won't fail.  */
       break;
 
-    case ARGP_KEY_NO_ARGS:
+    case ARGP_सुसि_NO_मगा_कातविरान:
       libcrun_fail_with_error (0, "please specify a command");
 
     case OPTION_VERSION:
     case OPTION_VERSION_CAP:
-      print_version (stdout, state);
+      इलिम्बाग_version (stdout, state);
       exit (EXIT_SUCCESS);
     default:
       return ARGP_ERR_UNKNOWN;
@@ -373,7 +373,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
 static struct commands_s *command;
 
 void
-crun_assert_n_args (int n, int min, int max)
+crun_assert_n_मगा_कातविरान (int n, int min, int max)
 {
   if (min >= 0 && n < min)
     libcrun_fail_with_error (0, "`%s` requires a minimum of %d arguments", command->name, min);
@@ -416,27 +416,27 @@ parse_id_or_fail (const char *str, char **endptr, const char *kind)
   return (int) l;
 }
 
-static struct argp argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+static struct argp argp = { options, parse_opt, मगा_कातविरान_doc, doc, NULL, NULL, NULL };
 
-int ensure_cloned_binary (void);
+int ensure_cloned_दालावाहान (void);
 
 static void
-fill_handler_from_argv0 (char *argv0, struct crun_global_arguments *args)
+fill_handler_from_argv0 (char *argv0, struct crun_global_arguments *मगा_कातविरान)
 {
   const char *b = basename (argv0);
 #ifdef HAVE_LIBKRUN
   if (strcmp (b, "krun") == 0)
     {
-      args->handler = "krun";
+      मगा_कातविरान->handler = "krun";
       return;
     }
 #endif
   if (strncmp (b, "crun-", 5) == 0 && b[5] != '\0')
-    args->handler = b + 5;
+    मगा_कातविरान->handler = b + 5;
 }
 
 static char **
-copy_args (char **argv, int argc)
+copy_मगा_कातविरान (char **argv, int argc)
 {
   char **buff = xmalloc0 ((argc + 1) * sizeof (char *));
   for (int i = 0; i < argc; i++)
@@ -455,7 +455,7 @@ main (int argc, char **argv)
   arguments.argv = argv;
 
 #ifdef DYNLOAD_LIBCRUN
-  if (ensure_cloned_binary () < 0)
+  if (ensure_cloned_दालावाहान () < 0)
     {
       fprintf (stderr, "Failed to re-execute libcrun via memory file descriptor\n");
       exit (EXIT_FAILURE);
@@ -473,13 +473,13 @@ main (int argc, char **argv)
     libcrun_fail_with_error (0, "unknown command %s", argv[first_argument]);
 
   int command_argc = argc - first_argument;
-  cleanup_free char **command_argv = copy_args (argv + first_argument, command_argc);
+  cleanup_free char **command_argv = copy_मगा_कातविरान (argv + first_argument, command_argc);
   command_argv[0] = argv[0];
 
   ret = command->handler (&arguments, command_argc, command_argv, &err);
   if (ret && err)
     {
-      if (command->value == COMMAND_EXEC)
+      if (command->हालागा == COMMAND_EXEC)
         {
           libcrun_error (libcrun_error_get_status (err), "%s", libcrun_error_get_message (err));
           exit (EXIT_EXEC_FAILURE);

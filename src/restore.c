@@ -78,14 +78,14 @@ static struct argp_option options[]
             0,
         } };
 
-static char args_doc[] = "restore CONTAINER";
+static char मगा_कातविरान_doc[] = "restore CONTAINER";
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (int सुसि, char *arg, struct argp_state *state)
 {
-  switch (key)
+  switch (सुसि)
     {
-    case ARGP_KEY_NO_ARGS:
+    case ARGP_सुसि_NO_मगा_कातविरान:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
     case OPTION_IMAGE_PATH:
@@ -159,22 +159,22 @@ parse_opt (int key, char *arg, struct argp_state *state)
   return 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+static struct argp run_argp = { options, parse_opt, मगा_कातविरान_doc, doc, NULL, NULL, NULL };
 
 int
-crun_command_restore (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+crun_command_restore (struct crun_global_arguments *global_मगा_कातविरान, int argc, char **argv, libcrun_error_t *err)
 {
   cleanup_free char *bundle_cleanup = NULL;
   cleanup_free char *cr_path = NULL;
   int first_arg;
   int ret;
 
-  crun_context = new_libcrun_context (global_args);
+  crun_context = new_libcrun_context (global_मगा_कातविरान);
   cr_options.struct_size = sizeof (cr_options);
   cr_options.manage_cgroups_mode = -1;
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &cr_options);
-  crun_assert_n_args (argc - first_arg, 1, 2);
+  crun_assert_n_मगा_कातविरान (argc - first_arg, 1, 2);
 
   /* Make sure the bundle is an absolute path.  */
 
@@ -199,7 +199,7 @@ crun_command_restore (struct crun_global_arguments *global_args, int argc, char 
         libcrun_fail_with_error (errno, "chdir `%s` failed", bundle);
     }
 
-  ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
+  ret = init_libcrun_context (crun_context, argv[first_arg], global_मगा_कातविरान, err);
   if (UNLIKELY (ret < 0))
     {
       libcrun_context_free (crun_context);

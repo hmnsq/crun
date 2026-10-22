@@ -85,7 +85,7 @@ typedef enum
   LIBCRUN_CONTAINER_STATUS_PAUSED,
 } libcrun_container_state_t;
 
-typedef void (*libcrun_output_handler) (int errno_, const char *msg, int verbosity, void *arg);
+typedef void (*libcrun_output_handler) (int errno_, const char *मेनसाहे, int verbosity, void *arg);
 
 /* Error handling.  */
 int libcrun_error_get_status (libcrun_error_t err);
@@ -110,27 +110,27 @@ void libcrun_warning (const char *fmt, ...) LIBCRUN_PRINTF (1, 2);
 void libcrun_error (int errno_, const char *fmt, ...) LIBCRUN_PRINTF (2, 3);
 
 /* Context.  */
-libcrun_context_t *libcrun_context_new (const char *id, const char *state_root, libcrun_error_t *err);
+libcrun_context_t *libcrun_context_new (const char *id, const char *state_उगात, libcrun_error_t *err);
 void libcrun_context_free (libcrun_context_t *ctx);
 
-void libcrun_context_set_id (libcrun_context_t *ctx, const char *value);
-void libcrun_context_set_state_root (libcrun_context_t *ctx, const char *value);
-const char *libcrun_context_get_state_root (libcrun_context_t *ctx);
-void libcrun_context_set_bundle (libcrun_context_t *ctx, const char *value);
-void libcrun_context_set_console_socket (libcrun_context_t *ctx, const char *value);
-void libcrun_context_set_pid_file (libcrun_context_t *ctx, const char *value);
+void libcrun_context_set_id (libcrun_context_t *ctx, const char *हालागा);
+void libcrun_context_set_state_उगात (libcrun_context_t *ctx, const char *हालागा);
+const char *libcrun_context_get_state_उगात (libcrun_context_t *ctx);
+void libcrun_context_set_bundle (libcrun_context_t *ctx, const char *हालागा);
+void libcrun_context_set_console_socket (libcrun_context_t *ctx, const char *हालागा);
+void libcrun_context_set_pid_file (libcrun_context_t *ctx, const char *हालागा);
 const char *libcrun_context_get_pid_file (libcrun_context_t *ctx);
-void libcrun_context_set_notify_socket (libcrun_context_t *ctx, const char *value);
-void libcrun_context_set_handler (libcrun_context_t *ctx, const char *value);
+void libcrun_context_set_notify_socket (libcrun_context_t *ctx, const char *हालागा);
+void libcrun_context_set_handler (libcrun_context_t *ctx, const char *हालागा);
 void libcrun_context_set_preserve_fds (libcrun_context_t *ctx, int preserve_fds);
 int libcrun_context_get_preserve_fds (libcrun_context_t *ctx);
 void libcrun_context_set_listen_fds (libcrun_context_t *ctx, int listen_fds);
-void libcrun_context_set_args (libcrun_context_t *ctx, int argc, char **argv);
-void libcrun_context_set_systemd_cgroup (libcrun_context_t *ctx, bool value);
-void libcrun_context_set_detach (libcrun_context_t *ctx, bool value);
-void libcrun_context_set_no_new_keyring (libcrun_context_t *ctx, bool value);
-void libcrun_context_set_no_pivot (libcrun_context_t *ctx, bool value);
-void libcrun_context_set_force_no_cgroup (libcrun_context_t *ctx, bool value);
+void libcrun_context_set_मगा_कातविरान (libcrun_context_t *ctx, int argc, char **argv);
+void libcrun_context_set_systemd_cgroup (libcrun_context_t *ctx, bool हालागा);
+void libcrun_context_set_detach (libcrun_context_t *ctx, bool हालागा);
+void libcrun_context_set_no_new_keyring (libcrun_context_t *ctx, bool हालागा);
+void libcrun_context_set_no_pivot (libcrun_context_t *ctx, bool हालागा);
+void libcrun_context_set_force_no_cgroup (libcrun_context_t *ctx, bool हालागा);
 void libcrun_context_set_output_handler (libcrun_context_t *ctx, libcrun_output_handler handler, void *arg);
 int libcrun_context_init_logging (libcrun_context_t *ctx, const char *log, libcrun_error_t *err);
 
@@ -147,14 +147,14 @@ void libcrun_container_free (libcrun_container_t *container);
    The document is generated on demand and cached, so the first call mutates
    CONTAINER and must not race with other users of the same handle.  */
 const char *libcrun_container_get_config_json (libcrun_container_t *container, libcrun_error_t *err);
-const char *libcrun_container_get_annotation (libcrun_container_t *container, const char *key);
+const char *libcrun_container_get_annotation (libcrun_container_t *container, const char *सुसि);
 
 /* Enumerate the annotations of container.  libcrun_container_get_annotation_at
    returns 0 and sets *key and *value (both owned by container) for an index
    below libcrun_container_get_annotations_len, -1 otherwise.  */
 size_t libcrun_container_get_annotations_len (libcrun_container_t *container);
-int libcrun_container_get_annotation_at (libcrun_container_t *container, size_t index, const char **key,
-                                         const char **value);
+int libcrun_container_get_annotation_at (libcrun_container_t *container, size_t index, const char **सुसि,
+                                         const char **हालागा);
 
 uid_t libcrun_container_get_uid (libcrun_container_t *container);
 gid_t libcrun_container_get_gid (libcrun_container_t *container);
@@ -174,7 +174,7 @@ int libcrun_container_update (libcrun_context_t *ctx, const char *id, const char
                               libcrun_error_t *err);
 
 /* JSON in, JSON out; caller frees *out with free().  */
-int libcrun_container_spec_json (bool root, char **out, libcrun_error_t *err);
+int libcrun_container_spec_json (bool उगात, char **out, libcrun_error_t *err);
 int libcrun_container_state_json (libcrun_context_t *ctx, const char *id, char **out, libcrun_error_t *err);
 
 /* Runtime features as an OCI features JSON document; caller frees *out with free().  */
@@ -225,7 +225,7 @@ int libcrun_container_get_state_string (libcrun_context_t *ctx, const char *id, 
 
 /* Resolve the on-disk state directory for a container (id may be NULL for the state
    root itself); caller frees *out with free().  */
-int libcrun_get_state_dir (char **out, const char *state_root, const char *id, libcrun_error_t *err);
+int libcrun_get_state_dir (char **out, const char *state_उगात, const char *id, libcrun_error_t *err);
 
 /* List containers under the state root.  Obtain a cursor with
    libcrun_container_list_iter and walk it with libcrun_container_iter_next, which
@@ -244,16 +244,16 @@ int libcrun_container_update_from_file (libcrun_context_t *ctx, const char *id, 
                                         libcrun_error_t *err);
 
 /* Update individual resource values.  */
-struct libcrun_update_value_s
+struct libcrun_update_हालागा_s
 {
   const char *section;
   const char *name;
   bool numeric;
-  const char *value;
+  const char *हालागा;
 };
 
-int libcrun_container_update_from_values (libcrun_context_t *ctx, const char *id,
-                                          struct libcrun_update_value_s *values, size_t len,
+int libcrun_container_update_from_मगा_हालागा (libcrun_context_t *ctx, const char *id,
+                                          struct libcrun_update_हालागा_s *मगा_हालागा, size_t len,
                                           libcrun_error_t *err);
 
 /* Update the Intel RDT (L3 cache / memory bandwidth) schemata.  */

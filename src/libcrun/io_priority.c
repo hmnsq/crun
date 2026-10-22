@@ -49,11 +49,11 @@ int
 libcrun_set_io_priority (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err)
 {
 #ifdef HAVE_LINUX_IOPRIO_H
-  int ret, i, class_value, value;
+  int ret, i, class_हालागा, हालागा;
   struct
   {
     const char *name;
-    int value;
+    int हालागा;
   } classes[] = {
     { "IOPRIO_CLASS_RT", IOPRIO_CLASS_RT },
     { "IOPRIO_CLASS_BE", IOPRIO_CLASS_BE },
@@ -64,19 +64,19 @@ libcrun_set_io_priority (pid_t pid, runtime_spec_schema_config_schema_process *p
   if (process == NULL || process->io_priority == NULL)
     return 0;
 
-  class_value = -1;
+  class_हालागा = -1;
   for (i = 0; classes[i].name; i++)
     if (strcmp (process->io_priority->_class, classes[i].name) == 0)
       {
-        class_value = i;
+        class_हालागा = i;
         break;
       }
-  if (UNLIKELY (class_value < 0))
+  if (UNLIKELY (class_हालागा < 0))
     return crun_make_error (err, 0, "invalid io priority `%s`", process->io_priority->_class);
 
-  value = IOPRIO_PRIO_VALUE (classes[class_value].value, process->io_priority->priority);
+  हालागा = IOPRIO_PRIO_हालागा (classes[class_हालागा].हालागा, process->io_priority->priority);
 
-  ret = syscall_ioprio_set (IOPRIO_WHO_PROCESS, pid, value);
+  ret = syscall_ioprio_set (IOPRIO_WHO_PROCESS, pid, हालागा);
   if (UNLIKELY (ret < 0))
     return crun_make_error (err, errno, "failed to set io priority");
 

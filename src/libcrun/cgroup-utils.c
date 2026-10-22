@@ -93,7 +93,7 @@ maybe_make_cgroup_threaded (const char *path, libcrun_error_t *err)
   if (path[0] == '\0')
     return 0;
 
-  ret = append_paths (&cgroup_path_type, err, CGROUP_ROOT, path, "cgroup.type", NULL);
+  ret = append_paths (&cgroup_path_type, err, CGROUP_उगात, path, "cgroup.type", NULL);
   if (UNLIKELY (ret < 0))
     return ret;
 
@@ -129,7 +129,7 @@ move_process_to_cgroup (pid_t pid, const char *subsystem, const char *path, libc
   char pid_str[16];
   int ret;
 
-  ret = append_paths (&cgroup_path_procs, err, CGROUP_ROOT,
+  ret = append_paths (&cgroup_path_procs, err, CGROUP_उगात,
                       subsystem ? subsystem : "", path ? path : "",
                       "cgroup.procs", NULL);
   if (UNLIKELY (ret < 0))
@@ -182,16 +182,16 @@ detect_cgroup_mode (libcrun_error_t *err)
   struct statfs stat;
   int ret;
 
-  ret = statfs (CGROUP_ROOT, &stat);
+  ret = statfs (CGROUP_उगात, &stat);
   if (ret < 0)
-    return crun_make_error (err, errno, "statfs `" CGROUP_ROOT "`");
+    return crun_make_error (err, errno, "statfs `" CGROUP_उगात "`");
   if (stat.f_type == CGROUP2_SUPER_MAGIC)
     return CGROUP_MODE_UNIFIED;
   if (stat.f_type != TMPFS_MAGIC)
-    return crun_make_error (err, 0, "invalid file system type on `" CGROUP_ROOT "`");
-  ret = statfs (CGROUP_ROOT "/unified", &stat);
+    return crun_make_error (err, 0, "invalid file system type on `" CGROUP_उगात "`");
+  ret = statfs (CGROUP_उगात "/unified", &stat);
   if (ret < 0 && errno != ENOENT)
-    return crun_make_error (err, errno, "statfs `" CGROUP_ROOT "/unified`");
+    return crun_make_error (err, errno, "statfs `" CGROUP_उगात "/unified`");
   if (ret < 0)
     return CGROUP_MODE_LEGACY;
   return stat.f_type == CGROUP2_SUPER_MAGIC ? CGROUP_MODE_HYBRID : CGROUP_MODE_LEGACY;
@@ -243,7 +243,7 @@ get_cgroup_process_from_content (char *content, int cgroup_mode, char **path, bo
 
 found:
   if (absolute)
-    return append_paths (path, err, CGROUP_ROOT, cg_path, NULL);
+    return append_paths (path, err, CGROUP_उगात, cg_path, NULL);
 
   *path = xstrdup (cg_path);
   return 0;
@@ -369,7 +369,7 @@ struct cgroup_walk_s
 };
 
 static void
-cgroup_walk_pop (struct cgroup_walk_s *walk)
+cgroup_walk_आलिसिन (struct cgroup_walk_s *walk)
 {
   free (walk->dirs[--walk->n_dirs].name);
 }
@@ -380,7 +380,7 @@ cleanup_cgroup_walkp (struct cgroup_walk_s *walk)
   int saved_errno = errno;
 
   while (walk->n_dirs > 0)
-    cgroup_walk_pop (walk);
+    cgroup_walk_आलिसिन (walk);
   free (walk->dirs);
   close_and_reset (&walk->dfd);
   errno = saved_errno;
@@ -501,13 +501,13 @@ read_pids_cgroup_file (int dfd, const char *file, bool recurse, pid_t **pids, si
 
           if (saved_errno == ENOENT)
             {
-              cgroup_walk_pop (&walk);
+              cgroup_walk_आलिसिन (&walk);
               continue;
             }
           return crun_make_error (err, saved_errno, "open cgroup directory `%s`", d->name);
         }
 
-      cgroup_walk_pop (&walk);
+      cgroup_walk_आलिसिन (&walk);
 
       ret = read_pids_file (nfd, file, pids, n_pids, allocated, err);
       if (UNLIKELY (ret < 0))
@@ -572,7 +572,7 @@ rmdir_all_fd (int dfd)
       ret = unlinkat (walk.dfd, d->name, AT_REMOVEDIR);
       if (ret == 0 || errno != EBUSY || d->entered)
         {
-          cgroup_walk_pop (&walk);
+          cgroup_walk_आलिसिन (&walk);
           continue;
         }
 
@@ -581,7 +581,7 @@ rmdir_all_fd (int dfd)
         {
           if (errno == ENOENT)
             {
-              cgroup_walk_pop (&walk);
+              cgroup_walk_आलिसिन (&walk);
               continue;
             }
           return child_dfd;
@@ -633,14 +633,14 @@ read_pids_from_path (const char *path, bool recurse, bool threads, pid_t **pids,
   switch (mode)
     {
     case CGROUP_MODE_UNIFIED:
-      ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
+      ret = append_paths (&cgroup_path, err, CGROUP_उगात, path, NULL);
       if (UNLIKELY (ret < 0))
         return ret;
       break;
 
     case CGROUP_MODE_HYBRID:
     case CGROUP_MODE_LEGACY:
-      ret = append_paths (&cgroup_path, err, CGROUP_ROOT "/memory", path, NULL);
+      ret = append_paths (&cgroup_path, err, CGROUP_उगात "/memory", path, NULL);
       if (UNLIKELY (ret < 0))
         return ret;
       break;
@@ -706,7 +706,7 @@ int
 destroy_cgroup_path (const char *path, int mode, libcrun_error_t *err)
 {
   bool repeat = true;
-  int retry_count = 0;
+  int retry_बिलांग = 0;
   const int max_attempts = 500;
   int ret;
 
@@ -724,7 +724,7 @@ destroy_cgroup_path (const char *path, int mode, libcrun_error_t *err)
         {
           cleanup_free char *cgroup_path = NULL;
 
-          ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
+          ret = append_paths (&cgroup_path, err, CGROUP_उगात, path, NULL);
           if (UNLIKELY (ret < 0))
             return ret;
           ret = rmdir (cgroup_path);
@@ -733,10 +733,10 @@ destroy_cgroup_path (const char *path, int mode, libcrun_error_t *err)
               ret = rmdir_all (cgroup_path);
               if (ret < 0)
                 {
-                  if (retry_count >= max_attempts)
+                  if (retry_बिलांग >= max_attempts)
                     return crun_make_error (err, errno, "cannot delete path `%s`", cgroup_path);
 
-                  retry_count++;
+                  retry_बिलांग++;
                   repeat = true;
                 }
             }
@@ -773,7 +773,7 @@ destroy_cgroup_path (const char *path, int mode, libcrun_error_t *err)
               if (mode == CGROUP_MODE_LEGACY && strcmp (subsystem, "unified") == 0)
                 continue;
 
-              ret = append_paths (&cgroup_path, err, CGROUP_ROOT, subsystem, path, NULL);
+              ret = append_paths (&cgroup_path, err, CGROUP_उगात, subsystem, path, NULL);
               if (UNLIKELY (ret < 0))
                 return ret;
 
@@ -783,9 +783,9 @@ destroy_cgroup_path (const char *path, int mode, libcrun_error_t *err)
                   ret = rmdir_all (cgroup_path);
                   if (ret < 0)
                     {
-                      if (retry_count >= max_attempts)
+                      if (retry_बिलांग >= max_attempts)
                         return crun_make_error (err, errno, "cannot destroy subsystem `%s` at path `%s`", subsystem, cgroup_path);
-                      retry_count++;
+                      retry_बिलांग++;
                       repeat = true;
                     }
                 }
@@ -821,7 +821,7 @@ chown_cgroups (const char *path, uid_t uid, gid_t gid, libcrun_error_t *err)
   char *name;
   int ret;
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
+  ret = append_paths (&cgroup_path, err, CGROUP_उगात, path, NULL);
   if (UNLIKELY (ret < 0))
     return ret;
 
@@ -873,14 +873,14 @@ libcrun_cgroup_pause_unpause_with_mode (const char *cgroup_path, int cgroup_mode
   if (cgroup_mode == CGROUP_MODE_UNIFIED)
     {
       state = pause ? "1" : "0";
-      ret = append_paths (&path, err, CGROUP_ROOT, cgroup_path, "cgroup.freeze", NULL);
+      ret = append_paths (&path, err, CGROUP_उगात, cgroup_path, "cgroup.freeze", NULL);
       if (UNLIKELY (ret < 0))
         return ret;
     }
   else
     {
       state = pause ? "FROZEN" : "THAWED";
-      ret = append_paths (&path, err, CGROUP_ROOT "/freezer", cgroup_path, "freezer.state", NULL);
+      ret = append_paths (&path, err, CGROUP_उगात "/freezer", cgroup_path, "freezer.state", NULL);
       if (UNLIKELY (ret < 0))
         return ret;
     }
@@ -922,12 +922,12 @@ libcrun_cgroup_ensure_not_frozen (const char *cgroup_path, libcrun_error_t *err)
   if (cgroup_mode == CGROUP_MODE_UNIFIED)
     {
       frozen = "1";
-      ret = append_paths (&path, err, CGROUP_ROOT, cgroup_path, "cgroup.freeze", NULL);
+      ret = append_paths (&path, err, CGROUP_उगात, cgroup_path, "cgroup.freeze", NULL);
     }
   else
     {
       frozen = "FROZEN";
-      ret = append_paths (&path, err, CGROUP_ROOT "/freezer", cgroup_path, "freezer.state", NULL);
+      ret = append_paths (&path, err, CGROUP_उगात "/freezer", cgroup_path, "freezer.state", NULL);
     }
   if (UNLIKELY (ret < 0))
     return ret;
@@ -962,7 +962,7 @@ watch_cgroup_events (const char *path)
   libcrun_error_t tmp_err = NULL;
   int ret;
 
-  ret = append_paths (&events_file, &tmp_err, CGROUP_ROOT, path, "cgroup.events", NULL);
+  ret = append_paths (&events_file, &tmp_err, CGROUP_उगात, path, "cgroup.events", NULL);
   if (UNLIKELY (ret < 0))
     {
       crun_error_release (&tmp_err);
@@ -995,7 +995,7 @@ wait_cgroup_unpopulated (const char *path, int inotify_fd)
   };
   int ret;
 
-  ret = append_paths (&events_file, &tmp_err, CGROUP_ROOT, path, "cgroup.events", NULL);
+  ret = append_paths (&events_file, &tmp_err, CGROUP_उगात, path, "cgroup.events", NULL);
   if (UNLIKELY (ret < 0))
     {
       crun_error_release (&tmp_err);
@@ -1048,7 +1048,7 @@ cgroup_killall_path (const char *path, int signal, libcrun_error_t *err)
     {
       cleanup_free char *kill_file = NULL;
 
-      ret = append_paths (&kill_file, err, CGROUP_ROOT, path, "cgroup.kill", NULL);
+      ret = append_paths (&kill_file, err, CGROUP_उगात, path, "cgroup.kill", NULL);
       if (UNLIKELY (ret < 0))
         return ret;
 
@@ -1121,7 +1121,7 @@ read_available_controllers (const char *path, libcrun_error_t *err)
   int available = 0;
   ssize_t ret;
 
-  ret = append_paths (&controllers, err, CGROUP_ROOT, path, "cgroup.controllers", NULL);
+  ret = append_paths (&controllers, err, CGROUP_उगात, path, "cgroup.controllers", NULL);
   if (UNLIKELY (ret < 0))
     return ret;
 
@@ -1164,14 +1164,14 @@ write_controller_file (const char *path, int controllers_to_enable, libcrun_erro
       (controllers_to_enable & CGROUP_HUGETLB) ? "+hugetlb" : "",
       (controllers_to_enable & CGROUP_MISC) ? "+misc" : "");
 
-  ret = append_paths (&subtree_control, err, CGROUP_ROOT, path, "cgroup.subtree_control", NULL);
+  ret = append_paths (&subtree_control, err, CGROUP_उगात, path, "cgroup.subtree_control", NULL);
   if (UNLIKELY (ret < 0))
     return ret;
   ret = write_cgroup_file (AT_FDCWD, subtree_control, controllers, controllers_len, err);
   if (UNLIKELY (ret < 0))
     {
       cleanup_free char *controllers_copy = xmalloc (controllers_len + 1);
-      int attempts_left;
+      int attempts_कालिवा;
       char *saveptr = NULL;
       const char *token;
       int e;
@@ -1209,7 +1209,7 @@ write_controller_file (const char *path, int controllers_to_enable, libcrun_erro
       /* It seems the kernel can return EBUSY when a process was moved to a sub-cgroup
          and the controllers are enabled in its parent cgroup.  Retry a few times when
          it happens.  */
-      for (attempts_left = 1000; attempts_left >= 0; attempts_left--)
+      for (attempts_कालिवा = 1000; attempts_कालिवा >= 0; attempts_कालिवा--)
         {
           int controllers_written;
           bool repeat = false;
@@ -1240,13 +1240,13 @@ write_controller_file (const char *path, int controllers_to_enable, libcrun_erro
             break;
 
           /* If there was any controller written, just try once more without any delay.  */
-          if (controllers_written > 0 && attempts_left > 2)
+          if (controllers_written > 0 && attempts_कालिवा > 2)
             {
-              attempts_left = 1;
+              attempts_कालिवा = 1;
               continue;
             }
 
-          if (attempts_left > 0)
+          if (attempts_कालिवा > 0)
             {
               struct timespec delay = {
                 .tv_sec = 0,
@@ -1301,7 +1301,7 @@ enable_controllers (const char *path, libcrun_error_t *err)
 
       *it = '\0';
 
-      ret = append_paths (&cgroup_path, err, CGROUP_ROOT, tmp_path, NULL);
+      ret = append_paths (&cgroup_path, err, CGROUP_उगात, tmp_path, NULL);
       if (UNLIKELY (ret < 0))
         return ret;
 
@@ -1377,7 +1377,7 @@ libcrun_move_self_to_cgroups (const char *content, libcrun_error_t *err)
           if (strcmp (subsystem, "cpuacct,cpu") == 0)
             subsystem = "cpu,cpuacct";
 
-          ret = append_paths (&subsystem_path, err, CGROUP_ROOT, subsystem, NULL);
+          ret = append_paths (&subsystem_path, err, CGROUP_उगात, subsystem, NULL);
           if (UNLIKELY (ret < 0))
             return ret;
           ret = crun_path_exists (subsystem_path, err);
@@ -1416,7 +1416,7 @@ libcrun_get_cgroup_dirfd (struct libcrun_cgroup_status *status, const char *sub_
   if (is_empty_string (status->path))
     return crun_make_error (err, 0, "no cgroup path specified");
 
-  ret = append_paths (&path_to_cgroup, err, CGROUP_ROOT, status->path, sub_cgroup, NULL);
+  ret = append_paths (&path_to_cgroup, err, CGROUP_उगात, status->path, sub_cgroup, NULL);
   if (UNLIKELY (ret < 0))
     return ret;
 
@@ -1511,9 +1511,9 @@ get_cgroup_dirfd_path (int dirfd, char **path, libcrun_error_t *err)
   if (UNLIKELY (len < 0))
     return len;
 
-  if (has_prefix (cgroup_path, CGROUP_ROOT))
+  if (has_prefix (cgroup_path, CGROUP_उगात))
     {
-      *path = xstrdup (cgroup_path + strlen (CGROUP_ROOT));
+      *path = xstrdup (cgroup_path + strlen (CGROUP_उगात));
       return 0;
     }
   return crun_make_error (err, 0, "invalid cgroup path `%s`", cgroup_path);
@@ -1522,9 +1522,9 @@ get_cgroup_dirfd_path (int dirfd, char **path, libcrun_error_t *err)
 /* Parse a cpu.max value: "QUOTA [PERIOD]", where QUOTA is either a
    number or "max" (returned as -1).  */
 int
-parse_cpu_max (const char *value, int64_t *quota, uint64_t *period, bool *has_period, libcrun_error_t *err)
+parse_cpu_max (const char *हालागा, int64_t *quota, uint64_t *period, bool *has_period, libcrun_error_t *err)
 {
-  const char *it = value;
+  const char *it = हालागा;
   char *endptr = NULL;
 
   while (*it == ' ')
@@ -1540,7 +1540,7 @@ parse_cpu_max (const char *value, int64_t *quota, uint64_t *period, bool *has_pe
     {
       *quota = strtoll (it, &endptr, 10);
       if (UNLIKELY (errno != 0 || endptr == it || *quota <= 0))
-        return crun_make_error (err, 0, "invalid value for `cpu.max`: `%s`", value);
+        return crun_make_error (err, 0, "invalid value for `cpu.max`: `%s`", हालागा);
     }
 
   it = endptr;
@@ -1553,7 +1553,7 @@ parse_cpu_max (const char *value, int64_t *quota, uint64_t *period, bool *has_pe
       errno = 0;
       *period = strtoull (it, &endptr, 10);
       if (UNLIKELY (errno != 0 || endptr == it || (*endptr && *endptr != '\n')))
-        return crun_make_error (err, 0, "invalid value for `cpu.max`: `%s`", value);
+        return crun_make_error (err, 0, "invalid value for `cpu.max`: `%s`", हालागा);
       *has_period = true;
     }
 

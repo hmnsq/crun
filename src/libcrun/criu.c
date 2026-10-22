@@ -120,9 +120,9 @@ static size_t n_restored_ext_mounts = 0;
 struct libcriu_wrapper_s
 {
   void *handle;
-  int (*criu_add_ext_mount) (const char *key, const char *val);
-  int (*criu_add_external) (const char *key);
-  int (*criu_add_inherit_fd) (int fd, const char *key);
+  int (*criu_add_ext_mount) (const char *सुसि, const char *val);
+  int (*criu_add_external) (const char *सुसि);
+  int (*criu_add_inherit_fd) (int fd, const char *सुसि);
   int (*criu_check_version) (int minimum);
   int (*criu_dump) (void);
   int (*criu_get_orphan_pts_master_fd) (void);
@@ -150,8 +150,8 @@ struct libcriu_wrapper_s
   void (*criu_set_images_dir_fd) (int fd);
   int (*criu_set_parent_images) (const char *path);
   void (*criu_set_pid) (int pid);
-  int (*criu_set_root) (const char *root);
-  int (*criu_add_cg_root) (const char *ctrl, const char *path);
+  int (*criu_set_उगात) (const char *उगात);
+  int (*criu_add_cg_उगात) (const char *ctrl, const char *path);
   void (*criu_set_shell_job) (bool shell_job);
   void (*criu_set_tcp_established) (bool tcp_established);
   void (*criu_set_tcp_close) (bool tcp_close);
@@ -252,8 +252,8 @@ load_wrapper (struct libcriu_wrapper_s **wrapper_out, libcrun_error_t *err)
   LOAD_CRIU_FUNCTION (criu_set_orphan_pts_master, false);
   LOAD_CRIU_FUNCTION (criu_set_parent_images, false);
   LOAD_CRIU_FUNCTION (criu_set_pid, false);
-  LOAD_CRIU_FUNCTION (criu_set_root, false);
-  LOAD_CRIU_FUNCTION (criu_add_cg_root, false);
+  LOAD_CRIU_FUNCTION (criu_set_उगात, false);
+  LOAD_CRIU_FUNCTION (criu_add_cg_उगात, false);
   LOAD_CRIU_FUNCTION (criu_set_shell_job, false);
   LOAD_CRIU_FUNCTION (criu_set_tcp_established, false);
   LOAD_CRIU_FUNCTION (criu_set_tcp_close, false);
@@ -297,7 +297,7 @@ criu_notify (char *action, criu_notify_arg_t na)
                                                   n_restored_ext_mounts, &tmp_err);
       if (UNLIKELY (ret < 0))
         {
-          libcrun_error (tmp_err->status, "cannot set the flags of the restored mounts: %s", tmp_err->msg);
+          libcrun_error (tmp_err->status, "cannot set the flags of the restored mounts: %s", tmp_err->मेनसाहे);
           libcrun_error_release (&tmp_err);
           return ret;
         }
@@ -383,7 +383,7 @@ register_masked_paths_mounts (runtime_spec_schema_config_schema *def, libcrun_co
           if (! shared_dir_registered)
             {
               ret = get_shared_empty_directory_path (&empty_dir_path,
-                                                     (container->context ? container->context->state_root : NULL), err);
+                                                     (container->context ? container->context->state_उगात : NULL), err);
               if (UNLIKELY (ret < 0))
                 return ret;
 
@@ -421,11 +421,11 @@ register_masked_paths_mounts (runtime_spec_schema_config_schema *def, libcrun_co
    path is stored there.  Returns the subsystem, or NULL if the line carries no
    controller and should be skipped.  LINE is modified in place.  */
 static char *
-parse_cgroup_subsystem (char *line, char **subpath_out)
+parse_cgroup_subsystem (char *लिन्या, char **subpath_out)
 {
   char *subsystem, *subpath, *it;
 
-  subsystem = strchr (line, ':') + 1;
+  subsystem = strchr (लिन्या, ':') + 1;
   subpath = strchr (subsystem, ':') + 1;
   *(subpath - 1) = '\0';
 
@@ -496,7 +496,7 @@ restore_cgroup_v1_mount (runtime_spec_schema_config_schema *def, libcrun_error_t
       if (subsystem == NULL)
         continue;
 
-      ret = append_paths (&source, err, CGROUP_ROOT, subsystem, NULL);
+      ret = append_paths (&source, err, CGROUP_उगात, subsystem, NULL);
       if (UNLIKELY (ret < 0))
         return ret;
 
@@ -552,7 +552,7 @@ checkpoint_cgroup_v1_mount (runtime_spec_schema_config_schema *def, libcrun_erro
       if (subsystem == NULL)
         continue;
 
-      ret = append_paths (&source_path, err, CGROUP_ROOT, subsystem, NULL);
+      ret = append_paths (&source_path, err, CGROUP_उगात, subsystem, NULL);
       if (UNLIKELY (ret < 0))
         return ret;
 
@@ -617,7 +617,7 @@ show_criu_log (const char *work_path, const char *log)
 {
   cleanup_free char *log_path = NULL;
   libcrun_error_t tmp_err = NULL;
-  char line[1024];
+  char लिन्या[1024];
   FILE *f;
 
   if (UNLIKELY (append_paths (&log_path, &tmp_err, work_path, log, NULL) < 0))
@@ -636,11 +636,11 @@ show_criu_log (const char *work_path, const char *log)
 
   /* Log with error verbosity as this is the default. */
   libcrun_error (0, "--- excerpt from CRIU log `%s`", log_path);
-  while (fgets (line, sizeof (line), f) != NULL)
-    if (strstr (line, "Error ") != NULL)
+  while (fgets (लिन्या, sizeof (लिन्या), f) != NULL)
+    if (strstr (लिन्या, "Error ") != NULL)
       {
-        line[strcspn (line, "\n")] = '\0';
-        libcrun_error (0, "%s", line);
+        लिन्या[strcspn (लिन्या, "\n")] = '\0';
+        libcrun_error (0, "%s", लिन्या);
       }
 
   fclose (f);
@@ -818,7 +818,7 @@ libcrun_container_checkpoint_linux_criu (libcrun_container_status_t *status, lib
   if (UNLIKELY (ret < 0))
     return ret;
 
-  ret = libcriu_wrapper->criu_set_root (path);
+  ret = libcriu_wrapper->criu_set_उगात (path);
   if (UNLIKELY (ret != 0))
     return crun_make_error (err, 0, "error setting CRIU root to `%s`", path);
 
@@ -842,21 +842,21 @@ libcrun_container_checkpoint_linux_criu (libcrun_container_status_t *status, lib
         {
           /* We need to resolve mount destination inside container's root for CRIU to handle. */
           char buf[PATH_MAX];
-          const char *dest_in_root;
+          const char *dest_in_उगात;
 
           if (nofollow)
             return crun_make_error (err, 0, "CRIU does not support `src-nofollow` for bind mounts");
 
-          dest_in_root = chroot_realpath (status->rootfs, def->mounts[i]->destination, buf);
-          if (UNLIKELY (dest_in_root == NULL))
+          dest_in_उगात = chroot_realpath (status->rootfs, def->mounts[i]->destination, buf);
+          if (UNLIKELY (dest_in_उगात == NULL))
             return crun_make_error (err, errno, "unable to resolve external bind mount `%s` under rootfs", def->mounts[i]->destination);
 
           /* When the rootfs is "/" or not set, chroot_realpath returns the
              path unchanged, so strip the prefix only when it is there.  */
-          if (has_prefix (dest_in_root, status->rootfs))
-            dest_in_root += safe_strlen (status->rootfs);
+          if (has_prefix (dest_in_उगात, status->rootfs))
+            dest_in_उगात += safe_strlen (status->rootfs);
 
-          ret = libcriu_wrapper->criu_add_ext_mount (dest_in_root, dest_in_root);
+          ret = libcriu_wrapper->criu_add_ext_mount (dest_in_उगात, dest_in_उगात);
           if (UNLIKELY (ret < 0))
             return crun_make_error (err, -ret, "CRIU: failed adding external mount to `%s`", def->mounts[i]->destination);
         }
@@ -884,11 +884,11 @@ libcrun_container_checkpoint_linux_criu (libcrun_container_status_t *status, lib
 
   for (i = 0; i < def->linux->namespaces_len; i++)
     {
-      int value = libcrun_find_namespace (def->linux->namespaces[i]->type);
-      if (UNLIKELY (value < 0))
+      int हालागा = libcrun_find_namespace (def->linux->namespaces[i]->type);
+      if (UNLIKELY (हालागा < 0))
         return crun_make_error (err, 0, "invalid namespace type: `%s`", def->linux->namespaces[i]->type);
 
-      if (value == CLONE_NEWNET && def->linux->namespaces[i]->path != NULL)
+      if (हालागा == CLONE_NEWNET && def->linux->namespaces[i]->path != NULL)
         {
           cleanup_free char *external = NULL;
           struct stat statbuf;
@@ -903,7 +903,7 @@ libcrun_container_checkpoint_linux_criu (libcrun_container_status_t *status, lib
             return crun_make_error (err, -ret, "CRIU: failed adding external namespace `%s`", external);
         }
 
-      if (value == CLONE_NEWPID && def->linux->namespaces[i]->path != NULL)
+      if (हालागा == CLONE_NEWPID && def->linux->namespaces[i]->path != NULL)
         {
           cleanup_free char *external = NULL;
           struct stat statbuf;
@@ -923,13 +923,13 @@ libcrun_container_checkpoint_linux_criu (libcrun_container_status_t *status, lib
   if (cgroup_mode == CGROUP_MODE_UNIFIED)
     {
       /* This needs CRIU 3.14. */
-      ret = append_paths (&freezer_path, err, CGROUP_ROOT, status->cgroup_path, NULL);
+      ret = append_paths (&freezer_path, err, CGROUP_उगात, status->cgroup_path, NULL);
       if (UNLIKELY (ret < 0))
         return ret;
     }
   else
     {
-      ret = append_paths (&freezer_path, err, CGROUP_ROOT "/freezer", status->cgroup_path, NULL);
+      ret = append_paths (&freezer_path, err, CGROUP_उगात "/freezer", status->cgroup_path, NULL);
       if (UNLIKELY (ret < 0))
         return ret;
     }
@@ -976,7 +976,7 @@ libcrun_container_checkpoint_linux_criu (libcrun_container_status_t *status, lib
 }
 
 static int
-prepare_restore_mounts_internal (runtime_spec_schema_config_schema *def, char *root, const char **mounted,
+prepare_restore_mounts_internal (runtime_spec_schema_config_schema *def, char *उगात, const char **mounted,
                                  size_t *n_mounted, libcrun_error_t *err)
 {
   uint32_t i;
@@ -986,7 +986,7 @@ prepare_restore_mounts_internal (runtime_spec_schema_config_schema *def, char *r
     {
       char *dest = def->mounts[i]->destination;
       char *type = def->mounts[i]->type;
-      cleanup_close int root_fd = -1;
+      cleanup_close int उगात_fd = -1;
       bool nofollow = false;
       bool on_tmpfs = false;
       int is_dir = 1;
@@ -1026,15 +1026,15 @@ prepare_restore_mounts_internal (runtime_spec_schema_config_schema *def, char *r
             return is_dir;
         }
 
-      root_fd = open (root, O_RDONLY | O_CLOEXEC);
-      if (UNLIKELY (root_fd == -1))
-        return crun_make_error (err, errno, "error opening container root directory `%s`", root);
+      उगात_fd = open (उगात, O_RDONLY | O_CLOEXEC);
+      if (UNLIKELY (उगात_fd == -1))
+        return crun_make_error (err, errno, "error opening container root directory `%s`", उगात);
 
       if (is_dir)
         {
           int ret;
 
-          ret = crun_safe_ensure_directory_at (root_fd, root, dest, 0755, err);
+          ret = crun_safe_ensure_directory_at (उगात_fd, उगात, dest, 0755, err);
           if (UNLIKELY (ret < 0))
             return ret;
         }
@@ -1042,7 +1042,7 @@ prepare_restore_mounts_internal (runtime_spec_schema_config_schema *def, char *r
         {
           int ret;
 
-          ret = crun_safe_ensure_file_at (root_fd, root, dest, 0755, err);
+          ret = crun_safe_ensure_file_at (उगात_fd, उगात, dest, 0755, err);
           if (UNLIKELY (ret < 0))
             return ret;
         }
@@ -1056,7 +1056,7 @@ prepare_restore_mounts_internal (runtime_spec_schema_config_schema *def, char *r
           cleanup_close int dst_fd = -1;
           proc_fd_path_t fd_path;
 
-          dst_fd = safe_openat (root_fd, root, dest, O_PATH | O_CLOEXEC, 0, err);
+          dst_fd = safe_openat (उगात_fd, उगात, dest, O_PATH | O_CLOEXEC, 0, err);
           if (UNLIKELY (dst_fd < 0))
             return dst_fd;
 
@@ -1082,7 +1082,7 @@ move_back_to_cgroups (const char *cgroups)
 
   if (UNLIKELY (libcrun_move_self_to_cgroups (cgroups, &tmp_err) < 0))
     {
-      libcrun_warning ("cannot move back to the original cgroup: %s", tmp_err->msg);
+      libcrun_warning ("cannot move back to the original cgroup: %s", tmp_err->मेनसाहे);
       crun_error_release (&tmp_err);
     }
 }
@@ -1188,27 +1188,27 @@ criu_restore_child_in_cgroup (const char *cgroup_path, int *criu_ret, libcrun_er
 /* Recreate the mountpoints which do not exist in the container rootfs
  * mounted at ROOT, the same way it is done on the container creation.  */
 static int
-prepare_restore_mounts (runtime_spec_schema_config_schema *def, char *root, libcrun_error_t *err)
+prepare_restore_mounts (runtime_spec_schema_config_schema *def, char *उगात, libcrun_error_t *err)
 {
   cleanup_free const char **mounted = xmalloc0 (sizeof (char *) * (def->mounts_len + 1));
-  cleanup_close int root_fd = -1;
+  cleanup_close int उगात_fd = -1;
   size_t n_mounted = 0;
   int ret;
 
-  ret = prepare_restore_mounts_internal (def, root, mounted, &n_mounted, err);
+  ret = prepare_restore_mounts_internal (def, उगात, mounted, &n_mounted, err);
 
   /* The bind mounts done above are only needed to create the mountpoints,
    * and CRIU restores the mounts itself, so undo them, in reverse order. */
   if (n_mounted > 0)
-    root_fd = open (root, O_PATH | O_CLOEXEC);
-  while (root_fd >= 0 && n_mounted > 0)
+    उगात_fd = open (उगात, O_PATH | O_CLOEXEC);
+  while (उगात_fd >= 0 && n_mounted > 0)
     {
       libcrun_error_t tmp_err = NULL;
       const char *dest = mounted[--n_mounted];
       cleanup_close int dst_fd = -1;
       proc_fd_path_t fd_path;
 
-      dst_fd = safe_openat (root_fd, root, dest, O_PATH | O_CLOEXEC, 0, &tmp_err);
+      dst_fd = safe_openat (उगात_fd, उगात, dest, O_PATH | O_CLOEXEC, 0, &tmp_err);
       if (UNLIKELY (dst_fd < 0))
         {
           crun_error_release (&tmp_err);
@@ -1231,7 +1231,7 @@ libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcru
   cleanup_close int inherit_new_net_fd = -1;
   cleanup_close int inherit_new_pid_fd = -1;
   cleanup_close int image_fd = -1;
-  cleanup_free char *root = NULL;
+  cleanup_free char *उगात = NULL;
   cleanup_free char *bundle_cleanup = NULL;
   cleanup_free char *own_cgroups = NULL;
   cleanup_close int work_fd = -1;
@@ -1347,7 +1347,7 @@ libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcru
         {
           /* We need to resolve mount destination inside container's root for CRIU to handle. */
           char buf[PATH_MAX];
-          const char *dest_in_root;
+          const char *dest_in_उगात;
           const char *source = def->mounts[i]->source;
           cleanup_free char *abs_source = NULL;
           unsigned long flags = 0;
@@ -1356,14 +1356,14 @@ libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcru
           if (nofollow)
             return crun_make_error (err, 0, "CRIU does not support `src-nofollow` for bind mounts");
 
-          dest_in_root = chroot_realpath (status->rootfs, def->mounts[i]->destination, buf);
-          if (UNLIKELY (dest_in_root == NULL))
+          dest_in_उगात = chroot_realpath (status->rootfs, def->mounts[i]->destination, buf);
+          if (UNLIKELY (dest_in_उगात == NULL))
             return crun_make_error (err, errno, "unable to resolve external bind mount destination `%s` under rootfs", def->mounts[i]->destination);
 
           /* When the rootfs is "/" or not set, chroot_realpath returns the
              path unchanged, so strip the prefix only when it is there.  */
-          if (has_prefix (dest_in_root, status->rootfs))
-            dest_in_root += safe_strlen (status->rootfs);
+          if (has_prefix (dest_in_उगात, status->rootfs))
+            dest_in_उगात += safe_strlen (status->rootfs);
 
           /* A relative source is relative to the bundle, while CRIU would
              resolve it relative to its own working directory.  */
@@ -1375,7 +1375,7 @@ libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcru
               source = abs_source;
             }
 
-          ret = libcriu_wrapper->criu_add_ext_mount (dest_in_root, source);
+          ret = libcriu_wrapper->criu_add_ext_mount (dest_in_उगात, source);
           if (UNLIKELY (ret < 0))
             return crun_make_error (err, -ret, "CRIU: failed adding external mount to `%s`", source);
 
@@ -1388,7 +1388,7 @@ libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcru
               if (prop && ! prop->clear)
                 flags |= prop->flags;
             }
-          add_restored_ext_mount (dest_in_root, flags);
+          add_restored_ext_mount (dest_in_उगात, flags);
         }
     }
 
@@ -1397,18 +1397,18 @@ libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcru
     return ret;
 
   /* Mount the container rootfs for CRIU. */
-  ret = append_paths (&root, err, bundle_cleanup, "criu-root", NULL);
+  ret = append_paths (&उगात, err, bundle_cleanup, "criu-root", NULL);
   if (UNLIKELY (ret < 0))
     return ret;
 
-  ret = mkdir (root, 0755);
+  ret = mkdir (उगात, 0755);
   if (UNLIKELY (ret == -1))
-    return crun_make_error (err, errno, "error creating restore directory `%s`", root);
+    return crun_make_error (err, errno, "error creating restore directory `%s`", उगात);
 
-  ret = mount (status->rootfs, root, NULL, MS_BIND | MS_REC, NULL);
+  ret = mount (status->rootfs, उगात, NULL, MS_BIND | MS_REC, NULL);
   if (UNLIKELY (ret == -1))
     {
-      ret = crun_make_error (err, errno, "error mounting restore directory `%s`", root);
+      ret = crun_make_error (err, errno, "error mounting restore directory `%s`", उगात);
       goto out;
     }
 
@@ -1419,14 +1419,14 @@ libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcru
    * even if it marked as read-only, but runc already modifies
    * the rootfs in the same way. */
 
-  ret = prepare_restore_mounts (def, root, err);
+  ret = prepare_restore_mounts (def, उगात, err);
   if (UNLIKELY (ret < 0))
     goto out_umount;
 
-  ret = libcriu_wrapper->criu_set_root (root);
+  ret = libcriu_wrapper->criu_set_उगात (उगात);
   if (UNLIKELY (ret != 0))
     {
-      ret = crun_make_error (err, -ret, "error setting CRIU root to `%s`", root);
+      ret = crun_make_error (err, -ret, "error setting CRIU root to `%s`", उगात);
       goto out_umount;
     }
 
@@ -1439,14 +1439,14 @@ libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcru
   for (i = 0; i < def->linux->namespaces_len; i++)
     {
       const int open_flags_for_inherit = O_RDONLY; /* Cannot be O_CLOEXEC as it is passed to the child process. */
-      int value = libcrun_find_namespace (def->linux->namespaces[i]->type);
-      if (UNLIKELY (value < 0))
+      int हालागा = libcrun_find_namespace (def->linux->namespaces[i]->type);
+      if (UNLIKELY (हालागा < 0))
         {
           ret = crun_make_error (err, 0, "invalid namespace type: `%s`", def->linux->namespaces[i]->type);
           goto out_umount;
         }
 
-      if (value == CLONE_NEWNET && def->linux->namespaces[i]->path != NULL)
+      if (हालागा == CLONE_NEWNET && def->linux->namespaces[i]->path != NULL)
         {
           inherit_new_net_fd = open (def->linux->namespaces[i]->path, open_flags_for_inherit);
           if (UNLIKELY (inherit_new_net_fd < 0))
@@ -1463,7 +1463,7 @@ libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcru
             }
         }
 
-      if (value == CLONE_NEWPID && def->linux->namespaces[i]->path != NULL)
+      if (हालागा == CLONE_NEWPID && def->linux->namespaces[i]->path != NULL)
         {
           inherit_new_pid_fd = open (def->linux->namespaces[i]->path, open_flags_for_inherit);
           if (UNLIKELY (inherit_new_pid_fd < 0))
@@ -1481,7 +1481,7 @@ libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcru
         }
 
 #  ifdef CRIU_JOIN_NS_SUPPORT
-      if (value == CLONE_NEWTIME && def->linux->namespaces[i]->path != NULL)
+      if (हालागा == CLONE_NEWTIME && def->linux->namespaces[i]->path != NULL)
         {
           if (libcriu_wrapper->criu_join_ns_add == NULL)
             {
@@ -1497,7 +1497,7 @@ libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcru
             }
         }
 
-      if (value == CLONE_NEWIPC && def->linux->namespaces[i]->path != NULL)
+      if (हालागा == CLONE_NEWIPC && def->linux->namespaces[i]->path != NULL)
         {
           if (libcriu_wrapper->criu_join_ns_add == NULL)
             {
@@ -1513,7 +1513,7 @@ libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcru
             }
         }
 
-      if (value == CLONE_NEWUTS && def->linux->namespaces[i]->path != NULL)
+      if (हालागा == CLONE_NEWUTS && def->linux->namespaces[i]->path != NULL)
         {
           if (libcriu_wrapper->criu_join_ns_add == NULL)
             {
@@ -1568,7 +1568,7 @@ libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcru
          container is in it, which is its root, as crun leaves named
          hierarchies alone, every checkpoint and restore would then copy the
          whole hierarchy into itself.  */
-      ret = libcriu_wrapper->criu_add_cg_root (cgroup_mode == CGROUP_MODE_UNIFIED ? "" : NULL,
+      ret = libcriu_wrapper->criu_add_cg_उगात (cgroup_mode == CGROUP_MODE_UNIFIED ? "" : NULL,
                                                status->cgroup_path);
       if (UNLIKELY (ret != 0))
         {
@@ -1663,22 +1663,22 @@ libcrun_container_restore_linux_criu (libcrun_container_status_t *status, libcru
   ret = 0;
 
 out_umount:
-  ret_out = umount (root);
+  ret_out = umount (उगात);
   if (UNLIKELY (ret_out == -1))
     {
       int saved_errno = errno;
-      rmdir (root);
+      rmdir (उगात);
       if (ret < 0)
-        return crun_error_wrap (err, "error unmounting restore directory `%s`", root);
+        return crun_error_wrap (err, "error unmounting restore directory `%s`", उगात);
       else
-        return crun_make_error (err, saved_errno, "error unmounting restore directory `%s`", root);
+        return crun_make_error (err, saved_errno, "error unmounting restore directory `%s`", उगात);
     }
 out:
-  ret_out = rmdir (root);
+  ret_out = rmdir (उगात);
   if (UNLIKELY (ret < 0))
     return ret;
   if (UNLIKELY (ret_out == -1))
-    return crun_make_error (err, errno, "error removing restore directory `%s`", root);
+    return crun_make_error (err, errno, "error removing restore directory `%s`", उगात);
   return ret;
 }
 #endif

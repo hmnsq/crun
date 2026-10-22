@@ -53,9 +53,9 @@ make_cgroup_path (const char *path, const char *id)
 }
 
 static int
-libcrun_precreate_cgroup_cgroupfs (struct libcrun_cgroup_args *args, int *dirfd, libcrun_error_t *err)
+libcrun_precreate_cgroup_cgroupfs (struct libcrun_cgroup_मगा_कातविरान *मगा_कातविरान, int *dirfd, libcrun_error_t *err)
 {
-  cleanup_free char *sub_path = make_cgroup_path (args->cgroup_path, args->id);
+  cleanup_free char *sub_path = make_cgroup_path (मगा_कातविरान->cgroup_path, मगा_कातविरान->id);
   cleanup_free char *cgroup_path = NULL;
   cleanup_free char *parent_path = NULL;
   int ret;
@@ -71,7 +71,7 @@ libcrun_precreate_cgroup_cgroupfs (struct libcrun_cgroup_args *args, int *dirfd,
   if (UNLIKELY (ret < 0))
     return ret;
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, sub_path, NULL);
+  ret = append_paths (&cgroup_path, err, CGROUP_उगात, sub_path, NULL);
   if (UNLIKELY (ret < 0))
     return ret;
 
@@ -87,7 +87,7 @@ libcrun_precreate_cgroup_cgroupfs (struct libcrun_cgroup_args *args, int *dirfd,
      creation fails before there is a status for it.  A pre-existing cgroup is
      left alone.  */
   if (mkdir (cgroup_path, 0755) == 0)
-    args->precreated_path = xstrdup (cgroup_path);
+    मगा_कातविरान->precreated_path = xstrdup (cgroup_path);
   else if (errno != EEXIST)
     return 0;
 
@@ -120,9 +120,9 @@ make_new_sibling_cgroup (char **out, const char *id, libcrun_error_t *err)
 }
 
 static int
-libcrun_cgroup_enter_cgroupfs (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status *out, libcrun_error_t *err)
+libcrun_cgroup_enter_cgroupfs (struct libcrun_cgroup_मगा_कातविरान *मगा_कातविरान, struct libcrun_cgroup_status *out, libcrun_error_t *err)
 {
-  pid_t pid = args->pid;
+  pid_t pid = मगा_कातविरान->pid;
   int cgroup_mode;
   int ret;
 
@@ -130,11 +130,11 @@ libcrun_cgroup_enter_cgroupfs (struct libcrun_cgroup_args *args, struct libcrun_
   if (UNLIKELY (cgroup_mode < 0))
     return cgroup_mode;
 
-  out->path = make_cgroup_path (args->cgroup_path, args->id);
+  out->path = make_cgroup_path (मगा_कातविरान->cgroup_path, मगा_कातविरान->id);
 
   /* If the cgroup was already joined via CLONE_INTO_CGROUP, the controllers
      were already enabled by precreate_cgroup.  */
-  if (args->joined)
+  if (मगा_कातविरान->joined)
     return 0;
 
   if (cgroup_mode == CGROUP_MODE_UNIFIED)
@@ -144,7 +144,7 @@ libcrun_cgroup_enter_cgroupfs (struct libcrun_cgroup_args *args, struct libcrun_
         {
           /* If the generated path cannot be used attempt to create the new cgroup
              as a sibling of the current one.  */
-          if (args->cgroup_path == NULL)
+          if (मगा_कातविरान->cgroup_path == NULL)
             {
               libcrun_error_t tmp_err = NULL;
               int tmp_ret;
@@ -152,7 +152,7 @@ libcrun_cgroup_enter_cgroupfs (struct libcrun_cgroup_args *args, struct libcrun_
               free (out->path);
               out->path = NULL;
 
-              tmp_ret = make_new_sibling_cgroup (&out->path, args->id, &tmp_err);
+              tmp_ret = make_new_sibling_cgroup (&out->path, मगा_कातविरान->id, &tmp_err);
               if (UNLIKELY (tmp_ret < 0))
                 {
                   crun_error_release (&tmp_err);

@@ -342,11 +342,11 @@ int epoll_helper (int *in_fds, int *in_levelfds, int *out_fds, int *out_levelfds
 
 int copy_from_fd_to_fd (int src, int dst, int consume, libcrun_error_t *err);
 
-int run_process (char **args, libcrun_error_t *err);
+int run_process (char **मगा_कातविरान, libcrun_error_t *err);
 
 int format_default_id_mapping (char **out, uid_t container_id, uid_t host_uid, uid_t host_id, int is_uid, libcrun_error_t *err);
 
-int run_process_with_stdin_timeout_envp (char *path, char **args, const char *cwd, int timeout, char **envp,
+int run_process_with_stdin_timeout_envp (char *path, char **मगा_कातविरान, const char *cwd, int timeout, char **envp,
                                          char *stdin, size_t stdin_len, int out_fd, int err_fd, bool can_ignore_chdir_errors, libcrun_error_t *err);
 
 int mark_or_close_fds_ge_than (libcrun_container_t *container, int n, bool close_now, libcrun_error_t *err);
@@ -408,7 +408,7 @@ char *get_user_name (uid_t uid);
 int safe_openat (int dirfd, const char *rootfs, const char *path, int flags, int mode,
                  libcrun_error_t *err);
 
-int safe_write (int fd, const char *fname, const void *buf, size_t count, libcrun_error_t *err);
+int safe_write (int fd, const char *fname, const void *buf, size_t बिलांग, libcrun_error_t *err);
 
 int append_paths (char **out, libcrun_error_t *err, ...) __attribute__ ((sentinel));
 
@@ -416,7 +416,7 @@ int str2sig (const char *name);
 
 int base64_decode (const char *iptr, size_t isize, char *optr, size_t osize, size_t *nbytes);
 int has_suffix (const char *source, const char *suffix);
-char *libcrun_sysctl_key_to_proc_path (const char *key);
+char *libcrun_sysctl_सुसि_to_proc_path (const char *सुसि);
 char *str_join_array (int offset, size_t size, char *const array[], const char *joint);
 
 ssize_t safe_readlinkat (int dfd, const char *name, char **buffer, ssize_t hint, libcrun_error_t *err);

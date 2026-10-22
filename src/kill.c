@@ -54,12 +54,12 @@ static struct argp_option options[]
             0,
         } };
 
-static char args_doc[] = "kill CONTAINER [SIGNAL]";
+static char मगा_कातविरान_doc[] = "kill CONTAINER [SIGNAL]";
 
 static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+parse_opt (int सुसि, char *arg arg_unused, struct argp_state *state arg_unused)
 {
-  switch (key)
+  switch (सुसि)
     {
     case 'a':
       kill_options.all = true;
@@ -69,7 +69,7 @@ parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
       kill_options.regex = true;
       break;
 
-    case ARGP_KEY_NO_ARGS:
+    case ARGP_सुसि_NO_मगा_कातविरान:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
     default:
@@ -79,21 +79,21 @@ parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
   return 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+static struct argp run_argp = { options, parse_opt, मगा_कातविरान_doc, doc, NULL, NULL, NULL };
 
 int
-crun_command_kill (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+crun_command_kill (struct crun_global_arguments *global_मगा_कातविरान, int argc, char **argv, libcrun_error_t *err)
 {
   int first_arg = 0, ret;
   const char *signal;
   cleanup_context libcrun_context_t *crun_context = NULL;
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &kill_options);
-  crun_assert_n_args (argc - first_arg, 1, 2);
+  crun_assert_n_मगा_कातविरान (argc - first_arg, 1, 2);
 
-  crun_context = new_libcrun_context (global_args);
+  crun_context = new_libcrun_context (global_मगा_कातविरान);
 
-  ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
+  ret = init_libcrun_context (crun_context, argv[first_arg], global_मगा_कातविरान, err);
   if (UNLIKELY (ret < 0))
     return ret;
 

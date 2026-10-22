@@ -41,15 +41,15 @@
 struct signal_s
 {
   int name;
-  int value;
+  int हालागा;
 };
 enum
   {
     TOTAL_KEYWORDS = 62,
     MIN_WORD_LENGTH = 2,
     MAX_WORD_LENGTH = 8,
-    MIN_HASH_VALUE = 13,
-    MAX_HASH_VALUE = 86
+    MIN_HASH_हालागा = 13,
+    MAX_HASH_हालागा = 86
   };
 
 /* maximum key range = 74, duplicates = 0 */
@@ -64,7 +64,7 @@ inline
 static unsigned int
 hash (register const char *str, register size_t len)
 {
-  static const unsigned char asso_values[] =
+  static const unsigned char asso_मगा_हालागा[] =
     {
       87, 87, 87, 87, 87, 87, 87, 87, 87, 87,
       87, 87, 87, 87, 87, 87, 87, 87, 87, 87,
@@ -98,14 +98,14 @@ hash (register const char *str, register size_t len)
   switch (hval)
     {
       default:
-        hval += asso_values[(unsigned char)str[3]];
+        hval += asso_मगा_हालागा[(unsigned char)str[3]];
       /*FALLTHROUGH*/
       case 3:
       case 2:
-        hval += asso_values[(unsigned char)str[1]];
+        hval += asso_मगा_हालागा[(unsigned char)str[1]];
         break;
     }
-  return hval + asso_values[(unsigned char)str[len - 1]];
+  return hval + asso_मगा_हालागा[(unsigned char)str[len - 1]];
 }
 
 struct stringpool_t
@@ -373,13 +373,13 @@ libcrun_signal_in_word_set (register const char *str, register size_t len)
 {
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
-      register unsigned int key = hash (str, len);
+      register unsigned int सुसि = hash (str, len);
 
-      if (key <= MAX_HASH_VALUE && key >= MIN_HASH_VALUE)
+      if (सुसि <= MAX_HASH_हालागा && सुसि >= MIN_HASH_हालागा)
         {
           register const struct signal_s *resword;
 
-          switch (key - 13)
+          switch (सुसि - 13)
             {
               case 0:
                 resword = &wordlist[0];
@@ -593,7 +593,7 @@ str2sig (const char *name)
   s = libcrun_signal_in_word_set (name, strlen (name));
   if (s == NULL)
     {
-      long int value;
+      long int हालागा;
 
       if (!isdigit(name[0]))
         {
@@ -602,12 +602,12 @@ str2sig (const char *name)
         }
 
       errno = 0;
-      value = strtol (name, NULL, 10);
+      हालागा = strtol (name, NULL, 10);
       if (errno != 0)
         return -1;
 
-      return value;
+      return हालागा;
     }
 
-  return s->value;
+  return s->हालागा;
 }

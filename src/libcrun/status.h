@@ -49,15 +49,15 @@ struct libcrun_container_status_s
 typedef struct libcrun_container_status_s libcrun_container_status_t;
 
 LIBCRUN_PUBLIC void libcrun_free_container_status (libcrun_container_status_t *status);
-LIBCRUN_PUBLIC int libcrun_write_container_status (const char *state_root, const char *id,
+LIBCRUN_PUBLIC int libcrun_write_container_status (const char *state_उगात, const char *id,
                                                    libcrun_container_status_t *status, libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_read_container_status (libcrun_container_status_t *status, const char *state_root,
+LIBCRUN_PUBLIC int libcrun_read_container_status (libcrun_container_status_t *status, const char *state_उगात,
                                                   const char *id, libcrun_error_t *err);
 LIBCRUN_PUBLIC void libcrun_free_containers_list (libcrun_container_list_t *list);
 LIBCRUN_PUBLIC int libcrun_is_container_running (libcrun_container_status_t *status, libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_get_state_directory (char **out, const char *state_root, const char *id, libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_container_delete_status (const char *state_root, const char *id, libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_get_containers_list (libcrun_container_list_t **ret, const char *state_root,
+LIBCRUN_PUBLIC int libcrun_get_state_directory (char **out, const char *state_उगात, const char *id, libcrun_error_t *err);
+LIBCRUN_PUBLIC int libcrun_container_delete_status (const char *state_उगात, const char *id, libcrun_error_t *err);
+LIBCRUN_PUBLIC int libcrun_get_containers_list (libcrun_container_list_t **ret, const char *state_उगात,
                                                 libcrun_error_t *err);
 
 struct libcrun_container_iter_s
@@ -103,15 +103,15 @@ LIBCRUN_PUBLIC const char *libcrun_status_get_scope (libcrun_status_t *st);
 LIBCRUN_PUBLIC const char *libcrun_status_get_external_descriptors (libcrun_status_t *st);
 LIBCRUN_PUBLIC int libcrun_container_get_state_string (libcrun_context_t *context, const char *id, const char **out,
                                                        int *running, libcrun_error_t *err);
-LIBCRUN_PUBLIC int libcrun_get_state_dir (char **out, const char *state_root, const char *id, libcrun_error_t *err);
+LIBCRUN_PUBLIC int libcrun_get_state_dir (char **out, const char *state_उगात, const char *id, libcrun_error_t *err);
 
-int libcrun_status_check_directories (const char *state_root, const char *id, libcrun_error_t *err);
-int libcrun_status_create_exec_fifo (const char *state_root, const char *id, libcrun_error_t *err);
-int libcrun_status_write_exec_fifo (const char *state_root, const char *id, libcrun_error_t *err);
-int libcrun_status_has_read_exec_fifo (const char *state_root, const char *id, libcrun_error_t *err);
+int libcrun_status_check_directories (const char *state_उगात, const char *id, libcrun_error_t *err);
+int libcrun_status_create_exec_fifo (const char *state_उगात, const char *id, libcrun_error_t *err);
+int libcrun_status_write_exec_fifo (const char *state_उगात, const char *id, libcrun_error_t *err);
+int libcrun_status_has_read_exec_fifo (const char *state_उगात, const char *id, libcrun_error_t *err);
 int libcrun_check_pid_valid (libcrun_container_status_t *status, libcrun_error_t *err);
-int get_run_directory (char **out, const char *state_root, libcrun_error_t *err);
-int get_shared_empty_directory_path (char **out, const char *state_root, libcrun_error_t *err);
+int get_run_directory (char **out, const char *state_उगात, libcrun_error_t *err);
+int get_shared_empty_directory_path (char **out, const char *state_उगात, libcrun_error_t *err);
 
 static inline void
 libcrun_free_container_listp (void *p)

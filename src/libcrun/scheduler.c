@@ -158,7 +158,7 @@ libcrun_set_scheduler (pid_t pid, runtime_spec_schema_config_schema_process *pro
   struct
   {
     const char *name;
-    int value;
+    int हालागा;
   } policies[] = {
     { "SCHED_OTHER", SCHED_OTHER },
     { "SCHED_BATCH", SCHED_BATCH },
@@ -188,7 +188,7 @@ libcrun_set_scheduler (pid_t pid, runtime_spec_schema_config_schema_process *pro
   if (UNLIKELY (policy < 0))
     return crun_make_error (err, 0, "invalid scheduler `%s`", process->scheduler->policy);
 
-  attr.sched_policy = policies[policy].value;
+  attr.sched_policy = policies[policy].हालागा;
 
   if (process->scheduler->nice_present)
     attr.sched_nice = process->scheduler->nice;
@@ -207,27 +207,27 @@ libcrun_set_scheduler (pid_t pid, runtime_spec_schema_config_schema_process *pro
 
   for (s = 0; s < process->scheduler->flags_len; s++)
     {
-      char *key = process->scheduler->flags[s];
+      char *सुसि = process->scheduler->flags[s];
 
-      if (key == NULL)
+      if (सुसि == NULL)
         return crun_make_error (err, EINVAL, "scheduler flag is not specified");
 
-      if (strcmp (key, "SCHED_FLAG_RESET_ON_FORK") == 0)
+      if (strcmp (सुसि, "SCHED_FLAG_RESET_ON_FORK") == 0)
         attr.sched_flags |= SCHED_FLAG_RESET_ON_FORK;
-      else if (strcmp (key, "SCHED_FLAG_RECLAIM") == 0)
+      else if (strcmp (सुसि, "SCHED_FLAG_RECLAIM") == 0)
         attr.sched_flags |= SCHED_FLAG_RECLAIM;
-      else if (strcmp (key, "SCHED_FLAG_DL_OVERRUN") == 0)
+      else if (strcmp (सुसि, "SCHED_FLAG_DL_OVERRUN") == 0)
         attr.sched_flags |= SCHED_FLAG_DL_OVERRUN;
-      else if (strcmp (key, "SCHED_FLAG_KEEP_POLICY") == 0)
+      else if (strcmp (सुसि, "SCHED_FLAG_KEEP_POLICY") == 0)
         attr.sched_flags |= SCHED_FLAG_KEEP_POLICY;
-      else if (strcmp (key, "SCHED_FLAG_KEEP_PARAMS") == 0)
+      else if (strcmp (सुसि, "SCHED_FLAG_KEEP_PARAMS") == 0)
         attr.sched_flags |= SCHED_FLAG_KEEP_PARAMS;
-      else if (strcmp (key, "SCHED_FLAG_UTIL_CLAMP_MIN") == 0)
+      else if (strcmp (सुसि, "SCHED_FLAG_UTIL_CLAMP_MIN") == 0)
         attr.sched_flags |= SCHED_FLAG_UTIL_CLAMP_MIN;
-      else if (strcmp (key, "SCHED_FLAG_UTIL_CLAMP_MAX") == 0)
+      else if (strcmp (सुसि, "SCHED_FLAG_UTIL_CLAMP_MAX") == 0)
         attr.sched_flags |= SCHED_FLAG_UTIL_CLAMP_MAX;
       else
-        return crun_make_error (err, 0, "invalid scheduler option `%s`", key);
+        return crun_make_error (err, 0, "invalid scheduler option `%s`", सुसि);
     }
 
   ret = syscall_sched_setattr (pid, &attr, 0);

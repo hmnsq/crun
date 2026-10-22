@@ -28,7 +28,7 @@
 #include "run_create.h"
 
 int
-crun_run_create_internal (struct crun_global_arguments *global_args, int argc, char **argv,
+crun_run_create_internal (struct crun_global_arguments *global_मगा_कातविरान, int argc, char **argv,
                           container_run_create_func_t container_run_create_func, get_options_func_t get_options_func,
                           libcrun_context_t *crun_context, struct argp *run_argp, const char **config_file_ptr,
                           const char **bundle_ptr, libcrun_error_t *err)
@@ -46,7 +46,7 @@ crun_run_create_internal (struct crun_global_arguments *global_args, int argc, c
   const char *config_file = *config_file_ptr;
   const char *bundle = *bundle_ptr;
 
-  crun_assert_n_args (argc - first_arg, 1, 1);
+  crun_assert_n_मगा_कातविरान (argc - first_arg, 1, 1);
 
   /* Make sure the config is an absolute path before changing the directory.  */
   if ((strcmp ("config.json", config_file) != 0))
@@ -114,7 +114,7 @@ crun_run_create_internal (struct crun_global_arguments *global_args, int argc, c
   if (UNLIKELY (ret < 0))
     return ret;
 
-  ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
+  ret = init_libcrun_context (crun_context, argv[first_arg], global_मगा_कातविरान, err);
   if (UNLIKELY (ret < 0))
     return ret;
 

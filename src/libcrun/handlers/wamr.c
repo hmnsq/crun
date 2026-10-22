@@ -74,16 +74,16 @@ libwamr_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *contai
 {
   // load symbols from the shared library libiwasm.so
   bool (*wasm_runtime_init) ();
-  RuntimeInitArgs init_args;
-  bool (*wasm_runtime_full_init) (RuntimeInitArgs *init_args);
+  Runtime_Init_मगा_कातविरान init_मगा_कातविरान;
+  bool (*wasm_runtime_full_init) (Runtime_Init_मगा_कातविरान *init_मगा_कातविरान);
   wasm_module_t module;
   wasm_module_t (*wasm_runtime_load) (uint8_t *buf, uint32_t size, char *error_buf, uint32_t error_buf_size);
   wasm_module_inst_t module_inst;
-  wasm_module_inst_t (*wasm_runtime_instantiate) (const wasm_module_t module, uint32_t default_stack_size, uint32_t host_managed_heap_size, char *error_buf, uint32_t error_buf_size);
+  wasm_module_inst_t (*wasm_runtime_instantiate) (const wasm_module_t module, uint32_t default_सालानसान_size, uint32_t host_managed_heap_size, char *error_buf, uint32_t error_buf_size);
   wasm_function_inst_t func;
   wasm_function_inst_t (*wasm_runtime_lookup_function) (wasm_module_inst_t const module_inst, const char *name);
   wasm_exec_env_t exec_env;
-  wasm_exec_env_t (*wasm_runtime_create_exec_env) (wasm_module_inst_t module_inst, uint32_t stack_size);
+  wasm_exec_env_t (*wasm_runtime_create_exec_env) (wasm_module_inst_t module_inst, uint32_t सालानसान_size);
   bool (*wasm_runtime_call_wasm) (wasm_exec_env_t exec_env, wasm_function_inst_t function, uint32_t argc, uint32_t argv[]);
   const char *(*wasm_runtime_get_exception) (wasm_module_inst_t module_inst);
   void (*wasm_runtime_set_exception) (wasm_module_inst_t module_inst, const char *exception);
@@ -94,7 +94,7 @@ libwamr_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *contai
   void (*wasm_runtime_destroy) ();
   uint32_t (*wasm_runtime_get_wasi_exit_code) (wasm_module_inst_t module_inst);
   bool (*wasm_application_execute_main) (wasm_module_inst_t module_inst, int32_t argc, char *argv[]);
-  void (*wasm_runtime_set_wasi_args) (wasm_module_t module, const char *dir_list[], uint32_t dir_count, const char *map_dir_list[], uint32_t map_dir_count, const char *env[], uint32_t env_count, char *argv[], int argc);
+  void (*wasm_runtime_set_wasi_मगा_कातविरान) (wasm_module_t module, const char *dir_list[], uint32_t dir_बिलांग, const char *map_dir_list[], uint32_t map_dir_बिलांग, const char *env[], uint32_t env_बिलांग, char *argv[], int argc);
   void (*wasm_runtime_set_wasi_addr_pool) (wasm_module_t module, const char *addr_pool[], uint32_t pool_size);
   void (*wasm_runtime_set_wasi_ns_lookup_pool) (wasm_module_t module, const char *ns_lookup_pool[], uint32_t pool_size);
 
@@ -114,7 +114,7 @@ libwamr_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *contai
   wasm_runtime_destroy = dlsym (cookie, "wasm_runtime_destroy");
   wasm_runtime_get_wasi_exit_code = dlsym (cookie, "wasm_runtime_get_wasi_exit_code");
   wasm_application_execute_main = dlsym (cookie, "wasm_application_execute_main");
-  wasm_runtime_set_wasi_args = dlsym (cookie, "wasm_runtime_set_wasi_args");
+  wasm_runtime_set_wasi_मगा_कातविरान = dlsym (cookie, "wasm_runtime_set_wasi_args");
   wasm_runtime_set_wasi_addr_pool = dlsym (cookie, "wasm_runtime_set_wasi_addr_pool");
   wasm_runtime_set_wasi_ns_lookup_pool = dlsym (cookie, "wasm_runtime_set_wasi_ns_lookup_pool");
 
@@ -150,7 +150,7 @@ libwamr_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *contai
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_get_wasi_exit_code symbol in `libiwasm.so`");
   if (wasm_application_execute_main == NULL)
     error (EXIT_FAILURE, 0, "could not find wasm_application_execute_main symbol in `libiwasm.so`");
-  if (wasm_runtime_set_wasi_args == NULL)
+  if (wasm_runtime_set_wasi_मगा_कातविरान == NULL)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_set_wasi_args symbol in `libiwasm.so`");
   if (wasm_runtime_set_wasi_addr_pool == NULL)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_set_wasi_addr_pool symbol in `libiwasm.so`");
@@ -162,7 +162,7 @@ libwamr_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *contai
   cleanup_free char *buffer = NULL;
   char error_buf[128];
   size_t buffer_size;
-  uint32_t stack_size = 8096, heap_size = 0;
+  uint32_t सालानसान_size = 8096, heap_size = 0;
   libcrun_error_t tmp_err = NULL;
   const char *wasi_proc_exit_exception = "wasi proc exit";
   const char *wasi_addr_pool[2] = { "0.0.0.0/0", "::/0" };
@@ -170,12 +170,12 @@ libwamr_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *contai
 
   const char *dirs[2] = { "/", "." };
   char **container_env = container->container_def->process->env;
-  size_t env_count = container->container_def->process->env_len;
+  size_t env_बिलांग = container->container_def->process->env_len;
 
-  int arg_count = 0;
+  int arg_बिलांग = 0;
   char *const *arg;
   for (arg = argv; *arg != NULL; ++arg)
-    arg_count++;
+    arg_बिलांग++;
 
   // initialize the wasm runtime by default configurations
   if (! wasm_runtime_init ())
@@ -198,14 +198,14 @@ libwamr_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *contai
     error (EXIT_FAILURE, 0, "Failed to load WASM file");
 
   // instantiate the WASI environment
-  wasm_runtime_set_wasi_args (module, dirs, 1, NULL, 0, (const char **) container_env, env_count, (char **) argv, arg_count);
+  wasm_runtime_set_wasi_मगा_कातविरान (module, dirs, 1, NULL, 0, (const char **) container_env, env_बिलांग, (char **) argv, arg_बिलांग);
 
   // enable the WASI socket api
   wasm_runtime_set_wasi_addr_pool (module, wasi_addr_pool, 2);
   wasm_runtime_set_wasi_ns_lookup_pool (module, wasi_ns_lookup_pool, 1);
 
   // create an instance of the WASM module (WASM linear memory is ready)
-  module_inst = wasm_runtime_instantiate (module, stack_size, heap_size, error_buf, sizeof (error_buf));
+  module_inst = wasm_runtime_instantiate (module, सालानसान_size, heap_size, error_buf, sizeof (error_buf));
   if (! module_inst)
     error (EXIT_FAILURE, 0, "Failed to instantiate the WASM module");
 
@@ -215,7 +215,7 @@ libwamr_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *contai
     error (EXIT_FAILURE, 0, "Failed to look up the WASM function");
 
   // create an execution environment to execute the WASM functions
-  exec_env = wasm_runtime_create_exec_env (module_inst, stack_size);
+  exec_env = wasm_runtime_create_exec_env (module_inst, सालानसान_size);
   if (! exec_env)
     error (EXIT_FAILURE, 0, "Failed to create the execution environment");
 
@@ -246,7 +246,7 @@ struct custom_handler_s handler_wamr = {
   .name = "wamr",
   .alias = "wasm",
   .feature_string = "WASM:wamr",
-  .supports_open_tree_namespace = false,
+  .supports_open_पुनो_namespace = false,
   .load = libwamr_load,
   .unload = libwamr_unload,
   .run_func = libwamr_exec,

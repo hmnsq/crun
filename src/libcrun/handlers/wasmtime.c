@@ -48,7 +48,7 @@ static int
 libwasmtime_exec (void *cookie, libcrun_container_t *container arg_unused,
                   const char *pathname, char *const argv[])
 {
-  size_t args_size = 0;
+  size_t मगा_कातविरान_size = 0;
   char *const *arg;
   wasm_byte_vec_t error_message;
   wasm_byte_vec_t wasm_bytes;
@@ -89,7 +89,7 @@ libwasmtime_exec (void *cookie, libcrun_container_t *container arg_unused,
   wasmtime_error_t *(*wasmtime_func_call) (
       wasmtime_context_t *store,
       const wasmtime_func_t *func,
-      const wasmtime_val_t *args,
+      const wasmtime_val_t *मगा_कातविरान,
       size_t nargs,
       wasmtime_val_t *results,
       size_t nresults,
@@ -201,9 +201,9 @@ libwasmtime_exec (void *cookie, libcrun_container_t *container arg_unused,
 
   // Calculate argc for `wasi_config_set_argv`
   for (arg = argv; *arg != NULL; ++arg)
-    args_size++;
+    मगा_कातविरान_size++;
 
-  wasi_config_set_argv (wasi_config, args_size, (const char **) argv);
+  wasi_config_set_argv (wasi_config, मगा_कातविरान_size, (const char **) argv);
   wasi_config_inherit_env (wasi_config);
   wasi_config_inherit_stdin (wasi_config);
   wasi_config_inherit_stdout (wasi_config);
@@ -290,7 +290,7 @@ struct custom_handler_s handler_wasmtime = {
   .name = "wasmtime",
   .alias = "wasm",
   .feature_string = "WASM:wasmtime",
-  .supports_open_tree_namespace = false,
+  .supports_open_पुनो_namespace = false,
   .load = libwasmtime_load,
   .unload = libwasmtime_unload,
   .run_func = libwasmtime_exec,

@@ -42,7 +42,7 @@
 typedef struct
 {
   const char *name;
-  int value;
+  int हालागा;
 } str2int_map_t;
 
 /* update mpol_mode_map based on numaif.h MPOL_MAX
@@ -78,7 +78,7 @@ mpol_str2int (const char *str, const str2int_map_t *map)
   while (map[idx].name != NULL)
     {
       if (! strcmp (map[idx].name, str))
-        return map[idx].value;
+        return map[idx].हालागा;
 
       idx++;
     }

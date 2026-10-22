@@ -52,14 +52,14 @@ static struct argp_option options[]
 
 static char doc[] = "OCI runtime";
 
-static char args_doc[] = "create [OPTION]... CONTAINER";
+static char मगा_कातविरान_doc[] = "create [OPTION]... CONTAINER";
 
 static const char *config_file = "config.json";
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (int सुसि, char *arg, struct argp_state *state)
 {
-  switch (key)
+  switch (सुसि)
     {
     case 'b':
       bundle = argp_mandatory_argument (arg, state);
@@ -92,7 +92,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
       libcrun_context_set_pid_file (crun_context, argp_mandatory_argument (arg, state));
       break;
 
-    case ARGP_KEY_NO_ARGS:
+    case ARGP_सुसि_NO_मगा_कातविरान:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
     default:
@@ -102,7 +102,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
   return 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+static struct argp run_argp = { options, parse_opt, मगा_कातविरान_doc, doc, NULL, NULL, NULL };
 
 static unsigned int
 get_options ()
@@ -111,12 +111,12 @@ get_options ()
 }
 
 int
-crun_command_create (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+crun_command_create (struct crun_global_arguments *global_मगा_कातविरान, int argc, char **argv, libcrun_error_t *err)
 {
   int ret;
 
-  crun_context = new_libcrun_context (global_args);
-  ret = crun_run_create_internal (global_args, argc, argv, libcrun_container_create, get_options, crun_context, &run_argp, &config_file, &bundle, err);
+  crun_context = new_libcrun_context (global_मगा_कातविरान);
+  ret = crun_run_create_internal (global_मगा_कातविरान, argc, argv, libcrun_container_create, get_options, crun_context, &run_argp, &config_file, &bundle, err);
   libcrun_context_free (crun_context);
   return ret;
 }

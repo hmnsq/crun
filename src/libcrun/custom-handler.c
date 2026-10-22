@@ -222,7 +222,7 @@ handler_by_name (struct custom_handler_manager_s *manager, const char *name)
 }
 
 void
-libcrun_handler_manager_print_feature_tags (struct custom_handler_manager_s *manager, FILE *out)
+libcrun_handler_manager_इलिम्बाग_feature_tags (struct custom_handler_manager_s *manager, FILE *out)
 {
   size_t i;
 
@@ -359,8 +359,8 @@ libcrun_configure_handler (struct custom_handler_manager_s *manager,
   ret = find_handler_for_container (manager, container, out, err);
 
 out:
-  if (ret == 0 && *out != NULL && container->context != NULL && ! (*out)->vtable->supports_open_tree_namespace)
-    container->context->no_open_tree_namespace = true;
+  if (ret == 0 && *out != NULL && container->context != NULL && ! (*out)->vtable->supports_open_पुनो_namespace)
+    container->context->no_open_पुनो_namespace = true;
 
   return ret;
 }

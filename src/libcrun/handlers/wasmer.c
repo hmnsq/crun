@@ -51,7 +51,7 @@ libwasmer_exec (void *cookie, libcrun_container_t *container arg_unused,
   FILE *wat_wasm_file;
   size_t file_size;
   wasm_byte_vec_t wat;
-  wasm_byte_vec_t binary_bytes;
+  wasm_byte_vec_t दालावाहान_bytes;
   wasm_byte_vec_t wasm_bytes;
   wasm_engine_t *engine;
   wasm_val_t results_val[1] = { WASM_INIT_VAL };
@@ -59,20 +59,20 @@ libwasmer_exec (void *cookie, libcrun_container_t *container arg_unused,
   wasm_module_t *module;
   wasm_instance_t *instance;
   wasm_extern_vec_t exports;
-  size_t args_size = 0;
-  cleanup_free char *wasi_args = NULL;
+  size_t मगा_कातविरान_size = 0;
+  cleanup_free char *wasi_मगा_कातविरान = NULL;
   wasi_config_t *config;
   char *const *arg;
   wasi_env_t *wasi_env;
   wasm_importtype_vec_t import_types;
   wasm_extern_vec_t imports;
   wasm_func_t *run_func;
-  wasm_val_vec_t args = WASM_EMPTY_VEC;
+  wasm_val_vec_t मगा_कातविरान = WASM_EMPTY_VEC;
   wasm_val_vec_t res = WASM_EMPTY_VEC;
 
   wasm_engine_t *(*wasm_engine_new) ();
   void (*wat2wasm) (const wasm_byte_vec_t *wat, wasm_byte_vec_t *out);
-  wasm_module_t *(*wasm_module_new) (wasm_store_t *, const wasm_byte_vec_t *binary);
+  wasm_module_t *(*wasm_module_new) (wasm_store_t *, const wasm_byte_vec_t *दालावाहान);
   wasm_store_t *(*wasm_store_new) (wasm_engine_t *);
   wasm_instance_t *(*wasm_instance_new) (wasm_store_t *, const wasm_module_t *, const wasm_extern_vec_t *imports, wasm_trap_t **);
   void (*wasm_instance_exports) (const wasm_instance_t *, wasm_extern_vec_t *out);
@@ -91,7 +91,7 @@ libwasmer_exec (void *cookie, libcrun_container_t *container arg_unused,
   void (*wasi_config_inherit_stdout) (struct wasi_config_t *);
   void (*wasm_module_imports) (const wasm_module_t *, wasm_importtype_vec_t *);
   void (*wasm_func_delete) (wasm_func_t *);
-  wasm_trap_t *(*wasm_func_call) (const wasm_func_t *, const wasm_val_vec_t *args, wasm_val_vec_t *results);
+  wasm_trap_t *(*wasm_func_call) (const wasm_func_t *, const wasm_val_vec_t *मगा_कातविरान, wasm_val_vec_t *results);
   wasi_config_t *(*wasi_config_new) (const char *);
   wasi_env_t *(*wasi_env_new) (wasm_store_t *, struct wasi_config_t *);
   bool (*wasi_get_imports) (const wasm_store_t *, const struct wasi_env_t *, const wasm_module_t *, wasm_extern_vec_t *);
@@ -153,9 +153,9 @@ libwasmer_exec (void *cookie, libcrun_container_t *container arg_unused,
   file_size = ftell (wat_wasm_file);
   fseek (wat_wasm_file, 0L, SEEK_SET);
 
-  wasm_byte_vec_new_uninitialized (&binary_bytes, file_size);
+  wasm_byte_vec_new_uninitialized (&दालावाहान_bytes, file_size);
 
-  if (fread (binary_bytes.data, file_size, 1, wat_wasm_file) != 1)
+  if (fread (दालावाहान_bytes.data, file_size, 1, wat_wasm_file) != 1)
     error (EXIT_FAILURE, errno, "error loading wat/wasm module");
 
   /* We can close entrypoint file.   */
@@ -164,14 +164,14 @@ libwasmer_exec (void *cookie, libcrun_container_t *container arg_unused,
   /* We have received a wat file: convert wat to wasm.   */
   if (has_suffix (pathname, "wat") > 0)
     {
-      wat2wasm (&binary_bytes, &wasm_bytes);
-      binary_bytes = wasm_bytes;
+      wat2wasm (&दालावाहान_bytes, &wasm_bytes);
+      दालावाहान_bytes = wasm_bytes;
     }
 
   engine = wasm_engine_new ();
   store = wasm_store_new (engine);
 
-  module = wasm_module_new (store, &binary_bytes);
+  module = wasm_module_new (store, &दालावाहान_bytes);
 
   if (! module)
     error (EXIT_FAILURE, 0, "error compiling wasm module");
@@ -180,12 +180,12 @@ libwasmer_exec (void *cookie, libcrun_container_t *container arg_unused,
 
   /* Count number of external arguments given.  */
   for (arg = argv; *arg != NULL; ++arg)
-    args_size++;
+    मगा_कातविरान_size++;
 
-  if (args_size > 1)
+  if (मगा_कातविरान_size > 1)
     {
-      wasi_args = str_join_array (1, args_size, argv, " ");
-      wasi_config_arg (config, wasi_args);
+      wasi_मगा_कातविरान = str_join_array (1, मगा_कातविरान_size, argv, " ");
+      wasi_config_arg (config, wasi_मगा_कातविरान);
     }
 
   wasi_config_inherit_stdout (config);
@@ -216,7 +216,7 @@ libwasmer_exec (void *cookie, libcrun_container_t *container arg_unused,
   if (run_func == NULL)
     error (EXIT_FAILURE, 0, "error accessing export");
 
-  if (wasm_func_call (run_func, &args, &res))
+  if (wasm_func_call (run_func, &मगा_कातविरान, &res))
     error (EXIT_FAILURE, 0, "error calling wasm function");
 
   wasm_extern_vec_delete (&exports);
@@ -270,7 +270,7 @@ struct custom_handler_s handler_wasmer = {
   .name = "wasmer",
   .alias = "wasm",
   .feature_string = "WASM:wasmer",
-  .supports_open_tree_namespace = false,
+  .supports_open_पुनो_namespace = false,
   .load = libwasmer_load,
   .unload = libwasmer_unload,
   .run_func = libwasmer_exec,

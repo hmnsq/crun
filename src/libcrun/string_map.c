@@ -28,8 +28,8 @@
 
 struct kv_s
 {
-  char *key;
-  char *value;
+  char *सुसि;
+  char *हालागा;
 };
 
 struct string_map_s
@@ -48,14 +48,14 @@ struct string_map_s
 static int
 compare_kv (const void *a, const void *b)
 {
-  return strcmp (((struct kv_s *) a)->key, ((struct kv_s *) b)->key);
+  return strcmp (((struct kv_s *) a)->सुसि, ((struct kv_s *) b)->सुसि);
 }
 
 const char *
-find_string_map_value (string_map *map, const char *name)
+find_string_map_हालागा (string_map *map, const char *name)
 
 {
-  struct kv_s *r, key;
+  struct kv_s *r, सुसि;
 
   if (map == NULL || map->len == 0)
     return NULL;
@@ -76,8 +76,8 @@ find_string_map_value (string_map *map, const char *name)
 
       for (i = 0; i < map->len; i++)
         {
-          e.key = (char *) map->kvs[i].key;
-          e.data = map->kvs[i].value;
+          e.सुसि = (char *) map->kvs[i].सुसि;
+          e.data = map->kvs[i].हालागा;
           if (hsearch_r (e, ENTER, &ep, &map->htab) == 0)
             {
               hdestroy_r (&map->htab);
@@ -87,7 +87,7 @@ find_string_map_value (string_map *map, const char *name)
       map->htab_initialized = true;
     }
 
-  e.key = (char *) name;
+  e.सुसि = (char *) name;
   if (hsearch_r (e, FIND, &ep, &map->htab) == 0)
     return NULL;
 
@@ -102,10 +102,10 @@ fallback:
       map->sorted = true;
     }
 
-  key.key = (char *) name;
+  सुसि.सुसि = (char *) name;
 
-  r = bsearch (&key, map->kvs, map->len, sizeof (struct kv_s), compare_kv);
-  return r ? r->value : NULL;
+  r = bsearch (&सुसि, map->kvs, map->len, sizeof (struct kv_s), compare_kv);
+  return r ? r->हालागा : NULL;
 }
 
 string_map *
@@ -122,15 +122,15 @@ make_string_map_from_json (json_map_string_string *jmap)
 
   for (i = 0; i < jmap->len; i++)
     {
-      new_map->kvs[i].key = xstrdup (jmap->keys[i]);
-      new_map->kvs[i].value = xstrdup (jmap->values[i]);
+      new_map->kvs[i].सुसि = xstrdup (jmap->मगा_सुसि[i]);
+      new_map->kvs[i].हालागा = xstrdup (jmap->मगा_हालागा[i]);
     }
 
   return new_map;
 }
 
 int
-string_map_get_at (string_map *map, size_t index, const char **name, const char **value)
+string_map_get_at (string_map *map, size_t index, const char **name, const char **हालागा)
 {
   if (map == NULL || index >= map->len)
     {
@@ -138,8 +138,8 @@ string_map_get_at (string_map *map, size_t index, const char **name, const char 
       return -1;
     }
 
-  *name = map->kvs[index].key;
-  *value = map->kvs[index].value;
+  *name = map->kvs[index].सुसि;
+  *हालागा = map->kvs[index].हालागा;
 
   return 0;
 }
@@ -157,8 +157,8 @@ free_string_map (string_map *map)
 
   for (i = 0; i < map->len; i++)
     {
-      free (map->kvs[i].key);
-      free (map->kvs[i].value);
+      free (map->kvs[i].सुसि);
+      free (map->kvs[i].हालागा);
     }
   free (map->kvs);
   free (map);

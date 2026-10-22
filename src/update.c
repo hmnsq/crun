@@ -32,9 +32,9 @@ static char *resources = NULL;
 
 enum
 {
-  FIRST_VALUE = 1000,
+  FIRST_हालागा = 1000,
 
-  BLKIO_WEIGHT = FIRST_VALUE,
+  BLKIO_WEIGHT = FIRST_हालागा,
 
   CPU_PERIOD,
   CPU_QUOTA,
@@ -58,7 +58,7 @@ enum
   L3_CACHE_SCHEMA,
   MEM_BW_SCHEMA,
 
-  LAST_VALUE,
+  LAST_हालागा,
 };
 
 struct description_s
@@ -90,36 +90,36 @@ static struct description_s descriptors[] = { { BLKIO_WEIGHT, "blockIO", "weight
                                               { PIDS_LIMIT, "pids", "limit", 1 },
                                               { 0 } };
 
-static struct libcrun_update_value_s *values;
-size_t values_len = 0;
+static struct libcrun_update_हालागा_s *मगा_हालागा;
+size_t मगा_हालागा_len = 0;
 
 static void
-set_value (int id, const char *value)
+set_हालागा (int id, const char *हालागा)
 {
-  values = xrealloc (values, (values_len + 1) * sizeof (struct libcrun_update_value_s));
-  values[values_len].section = descriptors[id - FIRST_VALUE].section;
-  values[values_len].name = descriptors[id - FIRST_VALUE].name;
-  values[values_len].numeric = descriptors[id - FIRST_VALUE].numeric;
-  values[values_len].value = value;
-  values_len++;
+  मगा_हालागा = xrealloc (मगा_हालागा, (मगा_हालागा_len + 1) * sizeof (struct libcrun_update_हालागा_s));
+  मगा_हालागा[मगा_हालागा_len].section = descriptors[id - FIRST_हालागा].section;
+  मगा_हालागा[मगा_हालागा_len].name = descriptors[id - FIRST_हालागा].name;
+  मगा_हालागा[मगा_हालागा_len].numeric = descriptors[id - FIRST_हालागा].numeric;
+  मगा_हालागा[मगा_हालागा_len].हालागा = हालागा;
+  मगा_हालागा_len++;
 }
 
 /* Parse a memory size, which may have a unit suffix (e.g. 512k or 1.5G),
    like runc does.  Return the size in bytes as a string.  */
 static char *
-parse_memory_size (const char *opt, const char *value)
+parse_memory_size (const char *opt, const char *हालागा)
 {
   const char *suffix;
   char buf[32];
   char *end;
   double size, mul = 1;
 
-  if (strcmp (value, "-1") == 0)
-    return xstrdup (value);
+  if (strcmp (हालागा, "-1") == 0)
+    return xstrdup (हालागा);
 
   errno = 0;
-  size = strtod (value, &end);
-  if ((value[0] != '.' && (value[0] < '0' || value[0] > '9')) || end == value || errno != 0 || size < 0)
+  size = strtod (हालागा, &end);
+  if ((हालागा[0] != '.' && (हालागा[0] < '0' || हालागा[0] > '9')) || end == हालागा || errno != 0 || size < 0)
     goto invalid;
 
   suffix = end;
@@ -163,20 +163,20 @@ parse_memory_size (const char *opt, const char *value)
   return xstrdup (buf);
 
 invalid:
-  libcrun_fail_with_error (0, "invalid value for --%s: `%s`", opt, value);
+  libcrun_fail_with_error (0, "invalid value for --%s: `%s`", opt, हालागा);
 }
 
 /* Check that VALUE is an integer.  */
 static const char *
-check_integer (const char *opt, const char *value)
+check_integer (const char *opt, const char *हालागा)
 {
   char *end;
 
   errno = 0;
-  (void) strtoll (value, &end, 10);
-  if (end == value || *end != '\0' || errno != 0)
-    libcrun_fail_with_error (0, "invalid value for --%s: `%s`", opt, value);
-  return value;
+  (void) strtoll (हालागा, &end, 10);
+  if (end == हालागा || *end != '\0' || errno != 0)
+    libcrun_fail_with_error (0, "invalid value for --%s: `%s`", opt, हालागा);
+  return हालागा;
 }
 
 static char *l3_cache_schema;
@@ -206,34 +206,34 @@ static struct argp_option options[]
             0,
         } };
 
-static char args_doc[] = "update [OPTION]... CONTAINER";
+static char मगा_कातविरान_doc[] = "update [OPTION]... CONTAINER";
 
 static const char *
-option_name (int key)
+option_name (int सुसि)
 {
   size_t i;
 
   for (i = 0; options[i].name; i++)
-    if (options[i].key == key)
+    if (options[i].सुसि == सुसि)
       return options[i].name;
   return "";
 }
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (int सुसि, char *arg, struct argp_state *state)
 {
-  switch (key)
+  switch (सुसि)
     {
     case 'r':
       resources = argp_mandatory_argument (arg, state);
       break;
 
-    case ARGP_KEY_NO_ARGS:
+    case ARGP_सुसि_NO_मगा_कातविरान:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
     case CPUSET_CPUS:
     case CPUSET_MEMS:
-      set_value (key, argp_mandatory_argument (arg, state));
+      set_हालागा (सुसि, argp_mandatory_argument (arg, state));
       break;
 
     case BLKIO_WEIGHT:
@@ -245,7 +245,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
     case CPU_BURST:
     case CPU_IDLE:
     case PIDS_LIMIT:
-      set_value (key, check_integer (option_name (key), argp_mandatory_argument (arg, state)));
+      set_हालागा (सुसि, check_integer (option_name (सुसि), argp_mandatory_argument (arg, state)));
       break;
 
     case KERNEL_MEMORY:
@@ -253,7 +253,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
     case MEMORY:
     case MEMORY_RESERVATION:
     case MEMORY_SWAP:
-      set_value (key, parse_memory_size (option_name (key), argp_mandatory_argument (arg, state)));
+      set_हालागा (सुसि, parse_memory_size (option_name (सुसि), argp_mandatory_argument (arg, state)));
       break;
 
     case L3_CACHE_SCHEMA:
@@ -280,44 +280,44 @@ set_swap_for_unlimited_memory (void)
   bool unlimited_memory = false;
   size_t i;
 
-  for (i = 0; i < values_len; i++)
+  for (i = 0; i < मगा_हालागा_len; i++)
     {
-      if (strcmp (values[i].section, "memory") != 0)
+      if (strcmp (मगा_हालागा[i].section, "memory") != 0)
         continue;
-      if (strcmp (values[i].name, "swap") == 0)
+      if (strcmp (मगा_हालागा[i].name, "swap") == 0)
         return;
-      if (strcmp (values[i].name, "limit") == 0)
-        unlimited_memory = strcmp (values[i].value, "-1") == 0;
+      if (strcmp (मगा_हालागा[i].name, "limit") == 0)
+        unlimited_memory = strcmp (मगा_हालागा[i].हालागा, "-1") == 0;
     }
 
   if (unlimited_memory)
-    set_value (MEMORY_SWAP, "-1");
+    set_हालागा (MEMORY_SWAP, "-1");
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+static struct argp run_argp = { options, parse_opt, मगा_कातविरान_doc, doc, NULL, NULL, NULL };
 
 int
-crun_command_update (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+crun_command_update (struct crun_global_arguments *global_मगा_कातविरान, int argc, char **argv, libcrun_error_t *err)
 {
   int first_arg = 0, ret;
   cleanup_context libcrun_context_t *crun_context = NULL;
 
   /* Allow options after the container ID, like runc does.  */
   argp_parse (&run_argp, argc, argv, 0, &first_arg, NULL);
-  crun_assert_n_args (argc - first_arg, 1, 1);
+  crun_assert_n_मगा_कातविरान (argc - first_arg, 1, 1);
 
   set_swap_for_unlimited_memory ();
 
-  crun_context = new_libcrun_context (global_args);
+  crun_context = new_libcrun_context (global_मगा_कातविरान);
 
-  ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
+  ret = init_libcrun_context (crun_context, argv[first_arg], global_मगा_कातविरान, err);
   if (UNLIKELY (ret < 0))
     return ret;
 
   if (resources == NULL)
     {
-      ret = libcrun_container_update_from_values (crun_context, argv[first_arg], values, values_len, err);
-      free (values);
+      ret = libcrun_container_update_from_मगा_हालागा (crun_context, argv[first_arg], मगा_हालागा, मगा_हालागा_len, err);
+      free (मगा_हालागा);
       if (ret < 0)
         return ret;
     }

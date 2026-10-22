@@ -100,10 +100,10 @@ spin_can_handle_container (libcrun_container_t *container, libcrun_error_t *err 
 {
   const char *entrypoint_executable;
 
-  if (container->container_def->process == NULL || container->container_def->process->args == NULL)
+  if (container->container_def->process == NULL || container->container_def->process->मगा_कातविरान == NULL)
     return 0;
 
-  entrypoint_executable = container->container_def->process->args[0];
+  entrypoint_executable = container->container_def->process->मगा_कातविरान[0];
   return strcmp (entrypoint_executable, "/") ? 0 : 1;
 }
 
@@ -111,7 +111,7 @@ struct custom_handler_s handler_spin = {
   .name = "spin",
   .alias = NULL,
   .feature_string = "WASM:spin",
-  .supports_open_tree_namespace = false,
+  .supports_open_पुनो_namespace = false,
   .load = spin_load,
   .unload = spin_unload,
   .run_func = spin_exec,

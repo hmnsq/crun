@@ -21,7 +21,7 @@
 
 struct libcrun_load_seccomp_notify_conf_s
 {
-  const char *runtime_root_path;
+  const char *runtime_उगात_path;
   const char *name;
   const char *bundle_path;
   const char *oci_config_path;

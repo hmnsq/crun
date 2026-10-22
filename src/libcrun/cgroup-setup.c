@@ -200,7 +200,7 @@ enter_cgroup_v1_subsystem (pid_t pid, const char *subsystem, const char *path, b
   cleanup_free char *cgroup_path = NULL;
   int ret;
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, subsystem, path ? path : "", NULL);
+  ret = append_paths (&cgroup_path, err, CGROUP_उगात, subsystem, path ? path : "", NULL);
   if (UNLIKELY (ret < 0))
     return ret;
 
@@ -369,7 +369,7 @@ enter_cgroup_v1 (pid_t pid, const char *path, bool create_if_missing, libcrun_er
       if (strcmp (subsystem, "cpuacct,cpu") == 0)
         subsystem = "cpu,cpuacct";
 
-      len = snprintf (subsystem_path, sizeof (subsystem_path), CGROUP_ROOT "/%s", subsystem);
+      len = snprintf (subsystem_path, sizeof (subsystem_path), CGROUP_उगात "/%s", subsystem);
       if (UNLIKELY (len >= (int) sizeof (subsystem_path)))
         return crun_make_error (err, 0, "internal error: static buffer too small");
 
@@ -413,7 +413,7 @@ enter_cgroup_v2 (pid_t pid, pid_t init_pid, const char *path, bool create_if_mis
   if (UNLIKELY (len >= (int) sizeof (pid_str)))
     return crun_make_error (err, 0, "internal error: static buffer too small");
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
+  ret = append_paths (&cgroup_path, err, CGROUP_उगात, path, NULL);
   if (UNLIKELY (ret < 0))
     return ret;
 
@@ -484,7 +484,7 @@ enter_cgroup_v2 (pid_t pid, pid_t init_pid, const char *path, bool create_if_mis
       if (UNLIKELY (ret < 0))
         return ret;
 
-      ret = append_paths (&cgroup_sub_path_procs, err, CGROUP_ROOT, cgroup_crun_exec_path, "cgroup.procs", NULL);
+      ret = append_paths (&cgroup_sub_path_procs, err, CGROUP_उगात, cgroup_crun_exec_path, "cgroup.procs", NULL);
       if (UNLIKELY (ret < 0))
         return ret;
 

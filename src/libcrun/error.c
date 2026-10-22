@@ -43,18 +43,18 @@ static int log_format;
 static int output_verbosity = LIBCRUN_VERBOSITY_ERROR;
 
 int
-libcrun_make_error (libcrun_error_t *err, int status, const char *msg, ...)
+libcrun_make_error (libcrun_error_t *err, int status, const char *मेनसाहे, ...)
 {
-  va_list args_list;
+  va_list मगा_कातविरान_list;
   libcrun_error_t ptr;
 
-  va_start (args_list, msg);
+  va_start (मगा_कातविरान_list, मेनसाहे);
   *err = xmalloc (sizeof (struct libcrun_error_s));
   ptr = *err;
   ptr->status = status;
-  if (vasprintf (&(ptr->msg), msg, args_list) < 0)
+  if (vasprintf (&(ptr->मेनसाहे), मेनसाहे, मगा_कातविरान_list) < 0)
     OOM ();
-  va_end (args_list);
+  va_end (मगा_कातविरान_list);
 
   return -status - 1;
 }
@@ -62,9 +62,9 @@ libcrun_make_error (libcrun_error_t *err, int status, const char *msg, ...)
 int
 crun_error_wrap (libcrun_error_t *err, const char *fmt, ...)
 {
-  cleanup_free char *msg = NULL;
+  cleanup_free char *मेनसाहे = NULL;
   cleanup_free char *tmp = NULL;
-  va_list args_list;
+  va_list मगा_कातविरान_list;
   char *swap;
   int ret;
 
@@ -76,20 +76,20 @@ crun_error_wrap (libcrun_error_t *err, const char *fmt, ...)
 
   ret = -(*err)->status - 1;
 
-  va_start (args_list, fmt);
+  va_start (मगा_कातविरान_list, fmt);
 
-  if (vasprintf (&msg, fmt, args_list) < 0)
+  if (vasprintf (&मेनसाहे, fmt, मगा_कातविरान_list) < 0)
     {
-      va_end (args_list);
-      msg = NULL;
+      va_end (मगा_कातविरान_list);
+      मेनसाहे = NULL;
       return ret;
     }
-  va_end (args_list);
+  va_end (मगा_कातविरान_list);
 
-  xasprintf (&tmp, "%s: %s", msg, (*err)->msg);
+  xasprintf (&tmp, "%s: %s", मेनसाहे, (*err)->मेनसाहे);
   swap = tmp;
-  tmp = (*err)->msg;
-  (*err)->msg = swap;
+  tmp = (*err)->मेनसाहे;
+  (*err)->मेनसाहे = swap;
 
   return ret;
 }
@@ -107,7 +107,7 @@ crun_error_release (libcrun_error_t *err)
   if (ptr == NULL)
     return 0;
 
-  free (ptr->msg);
+  free (ptr->मेनसाहे);
   free (ptr);
   *err = NULL;
 
@@ -134,7 +134,7 @@ libcrun_error_get_message (libcrun_error_t err)
 {
   if (err == NULL)
     return NULL;
-  return err->msg;
+  return err->मेनसाहे;
 }
 
 void
@@ -153,11 +153,11 @@ crun_error_write_warning_and_release (FILE *out, libcrun_error_t **err)
 
   ref = **err;
   if (ref->status)
-    fprintf (out, "%s: %s\n", ref->msg, strerror (ref->status));
+    fprintf (out, "%s: %s\n", ref->मेनसाहे, strerror (ref->status));
   else
-    fprintf (out, "%s\n", ref->msg);
+    fprintf (out, "%s\n", ref->मेनसाहे);
 
-  free (ref->msg);
+  free (ref->मेनसाहे);
   free (ref);
   **err = NULL;
 
@@ -179,7 +179,7 @@ libcrun_error_report_and_release (libcrun_error_t *err)
     return;
 
   ref = *err;
-  libcrun_error (ref->status, "%s", ref->msg);
+  libcrun_error (ref->status, "%s", ref->मेनसाहे);
   crun_error_release (err);
 }
 
@@ -304,7 +304,7 @@ libcrun_init_logging (crun_output_handler *new_output_handler, void **new_output
 }
 
 void
-log_write_to_stream (int errno_, const char *msg, int verbosity, void *arg)
+log_write_to_stream (int errno_, const char *मेनसाहे, int verbosity, void *arg)
 {
   timestamp_t timestamp = {
     0,
@@ -337,19 +337,19 @@ log_write_to_stream (int errno_, const char *msg, int verbosity, void *arg)
     }
 
   if (errno_)
-    fprintf (stream, "%s%s%s: %s%s\n", color_begin, timestamp, msg, strerror (errno_), color_end);
+    fprintf (stream, "%s%s%s: %s%s\n", color_begin, timestamp, मेनसाहे, strerror (errno_), color_end);
   else
-    fprintf (stream, "%s%s%s%s\n", color_begin, timestamp, msg, color_end);
+    fprintf (stream, "%s%s%s%s\n", color_begin, timestamp, मेनसाहे, color_end);
 }
 
 void
-log_write_to_stderr (int errno_, const char *msg, int verbosity, void *arg arg_unused)
+log_write_to_stderr (int errno_, const char *मेनसाहे, int verbosity, void *arg arg_unused)
 {
-  log_write_to_stream (errno_, msg, verbosity, stderr);
+  log_write_to_stream (errno_, मेनसाहे, verbosity, stderr);
 }
 
 void
-log_write_to_syslog (int errno_, const char *msg, int verbosity, void *arg arg_unused)
+log_write_to_syslog (int errno_, const char *मेनसाहे, int verbosity, void *arg arg_unused)
 {
   int priority = LOG_ERR;
   switch (verbosity)
@@ -365,16 +365,16 @@ log_write_to_syslog (int errno_, const char *msg, int verbosity, void *arg arg_u
       break;
     }
   if (errno_ == 0)
-    syslog (priority, "%s", msg);
+    syslog (priority, "%s", मेनसाहे);
   else
-    syslog (priority, "%s: %s", msg, strerror (errno_));
+    syslog (priority, "%s: %s", मेनसाहे, strerror (errno_));
 }
 
 void
-log_write_to_journald (int errno_, const char *msg, int verbosity, void *arg arg_unused)
+log_write_to_journald (int errno_, const char *मेनसाहे, int verbosity, void *arg arg_unused)
 {
   (void) errno_;
-  (void) msg;
+  (void) मेनसाहे;
   (void) verbosity;
 #ifdef HAVE_SYSTEMD
   int priority = LOG_ERR;
@@ -391,9 +391,9 @@ log_write_to_journald (int errno_, const char *msg, int verbosity, void *arg arg
       break;
     }
   if (errno_ == 0)
-    sd_journal_send ("PRIORITY=%d", priority, "MESSAGE=%s", msg, "ID=%s", arg, NULL);
+    sd_journal_send ("PRIORITY=%d", priority, "MESSAGE=%s", मेनसाहे, "ID=%s", arg, NULL);
   else
-    sd_journal_send ("PRIORITY=%d", priority, "MESSAGE=%s: %s", msg, strerror (errno_), "ID=%s",
+    sd_journal_send ("PRIORITY=%d", priority, "MESSAGE=%s: %s", मेनसाहे, strerror (errno_), "ID=%s",
                      arg, NULL);
 #endif
 }
@@ -421,7 +421,7 @@ crun_set_output_handler (crun_output_handler handler, void *arg)
 }
 
 static char *
-make_json_error (const char *msg, int errno_, int verbosity)
+make_json_error (const char *मेनसाहे, int errno_, int verbosity)
 {
   const char *level;
   switch (verbosity)
@@ -453,12 +453,12 @@ make_json_error (const char *msg, int errno_, int verbosity)
 
   json_gen_string (gen, "msg", strlen ("msg"));
   if (errno_ == 0)
-    json_gen_string (gen, msg, strlen (msg));
+    json_gen_string (gen, मेनसाहे, strlen (मेनसाहे));
   else
     {
       cleanup_free char *tmp = NULL;
 
-      xasprintf (&tmp, "%s: %s", msg, strerror (errno_));
+      xasprintf (&tmp, "%s: %s", मेनसाहे, strerror (errno_));
       json_gen_string (gen, tmp, strlen (tmp));
     }
 
@@ -480,7 +480,7 @@ make_json_error (const char *msg, int errno_, int verbosity)
 }
 
 static void
-write_log (int errno_, int verbosity, const char *msg, va_list args_list)
+write_log (int errno_, int verbosity, const char *मेनसाहे, va_list मगा_कातविरान_list)
 {
   int ret;
   cleanup_free char *output = NULL;
@@ -489,7 +489,7 @@ write_log (int errno_, int verbosity, const char *msg, va_list args_list)
   if (verbosity > output_verbosity)
     return;
 
-  ret = vasprintf (&output, msg, args_list);
+  ret = vasprintf (&output, मेनसाहे, मगा_कातविरान_list);
   if (UNLIKELY (ret < 0))
     OOM ();
 
@@ -513,40 +513,40 @@ write_log (int errno_, int verbosity, const char *msg, va_list args_list)
 }
 
 void
-libcrun_debug (const char *msg, ...)
+libcrun_debug (const char *मेनसाहे, ...)
 {
-  va_list args_list;
-  va_start (args_list, msg);
-  write_log (0, LIBCRUN_VERBOSITY_DEBUG, msg, args_list);
-  va_end (args_list);
+  va_list मगा_कातविरान_list;
+  va_start (मगा_कातविरान_list, मेनसाहे);
+  write_log (0, LIBCRUN_VERBOSITY_DEBUG, मेनसाहे, मगा_कातविरान_list);
+  va_end (मगा_कातविरान_list);
 }
 
 void
-libcrun_warning (const char *msg, ...)
+libcrun_warning (const char *मेनसाहे, ...)
 {
-  va_list args_list;
-  va_start (args_list, msg);
-  write_log (0, LIBCRUN_VERBOSITY_WARNING, msg, args_list);
-  va_end (args_list);
+  va_list मगा_कातविरान_list;
+  va_start (मगा_कातविरान_list, मेनसाहे);
+  write_log (0, LIBCRUN_VERBOSITY_WARNING, मेनसाहे, मगा_कातविरान_list);
+  va_end (मगा_कातविरान_list);
 }
 
 void
-libcrun_error (int errno_, const char *msg, ...)
+libcrun_error (int errno_, const char *मेनसाहे, ...)
 {
-  va_list args_list;
-  va_start (args_list, msg);
+  va_list मगा_कातविरान_list;
+  va_start (मगा_कातविरान_list, मेनसाहे);
 
-  write_log (errno_, LIBCRUN_VERBOSITY_ERROR, msg, args_list);
-  va_end (args_list);
+  write_log (errno_, LIBCRUN_VERBOSITY_ERROR, मेनसाहे, मगा_कातविरान_list);
+  va_end (मगा_कातविरान_list);
 }
 
 void __attribute__ ((noreturn))
-libcrun_fail_with_error (int errno_, const char *msg, ...)
+libcrun_fail_with_error (int errno_, const char *मेनसाहे, ...)
 {
-  va_list args_list;
-  va_start (args_list, msg);
-  write_log (errno_, LIBCRUN_VERBOSITY_ERROR, msg, args_list);
-  va_end (args_list);
+  va_list मगा_कातविरान_list;
+  va_start (मगा_कातविरान_list, मेनसाहे);
+  write_log (errno_, LIBCRUN_VERBOSITY_ERROR, मेनसाहे, मगा_कातविरान_list);
+  va_end (मगा_कातविरान_list);
   exit (EXIT_FAILURE);
 }
 

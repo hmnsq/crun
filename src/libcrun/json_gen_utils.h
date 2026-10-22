@@ -27,16 +27,16 @@
    evaluates a json_gen_* call, stores the result in the local variable `r`
    and jumps to the `gen_error` label when the call fails.  A function using
    them must declare `int r;` and provide a `gen_error:` label.  */
-#define GEN_OR_FAIL(EXPR)                     \
+#define GEN_OR_FAIL(पाहायाग)                     \
   do                                          \
     {                                         \
-      r = (EXPR);                             \
+      r = (पाहायाग);                             \
       if (UNLIKELY (r != json_gen_status_ok)) \
         goto gen_error;                       \
   } while (0)
 
 /* Emit a string literal (typically a map key).  */
-#define GEN_KEY(GEN, LIT) GEN_OR_FAIL (json_gen_string ((GEN), (LIT), sizeof (LIT) - 1))
+#define GEN_सुसि(GEN, LIT) GEN_OR_FAIL (json_gen_string ((GEN), (LIT), sizeof (LIT) - 1))
 
 /* Emit a runtime string value.  */
 #define GEN_STR(GEN, STR) GEN_OR_FAIL (json_gen_string ((GEN), (STR), strlen (STR)))

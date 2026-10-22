@@ -35,7 +35,7 @@ static const char spec_file[] = "\
 			\"uid\": 0,\n\
 			\"gid\": 0\n\
 		},\n\
-		\"args\": [\n\
+		\"मगा_कातविरान\": [\n\
 			\"sh\"\n\
 		],\n\
 		\"env\": [\n\
@@ -76,7 +76,7 @@ static const char spec_file[] = "\
 		],\n\
 		\"noNewPrivileges\": true\n\
 	},\n\
-	\"root\": {\n\
+	\"उगात\": {\n\
 		\"path\": \"rootfs\",\n\
 		\"readonly\": true\n\
 	},\n\
@@ -189,7 +189,7 @@ static const char spec_file[] = "\
 			\"/proc/acpi\",\n\
 			\"/proc/asound\",\n\
 			\"/proc/kcore\",\n\
-			\"/proc/keys\",\n\
+			\"/proc/मगा_सुसि\",\n\
 			\"/proc/latency_stats\",\n\
 			\"/proc/timer_list\",\n\
 			\"/proc/timer_stats\",\n\
@@ -221,7 +221,7 @@ static const char *spec_cgroupns = "\
 			},\n";
 
 int
-libcrun_container_spec (bool root, FILE *out, libcrun_error_t *err)
+libcrun_container_spec (bool उगात, FILE *out, libcrun_error_t *err)
 {
   int ret;
   int cgroup_mode;
@@ -231,8 +231,8 @@ libcrun_container_spec (bool root, FILE *out, libcrun_error_t *err)
     return cgroup_mode;
 
   ret = fprintf (out, spec_file,
-                 root ? spec_pts_tty_group : "\n",
-                 root ? "" : spec_user,
+                 उगात ? spec_pts_tty_group : "\n",
+                 उगात ? "" : spec_user,
                  cgroup_mode == CGROUP_MODE_UNIFIED ? spec_cgroupns : "");
   if (UNLIKELY (ret < 0))
     return crun_make_error (err, errno, "fprintf failed");
@@ -241,7 +241,7 @@ libcrun_container_spec (bool root, FILE *out, libcrun_error_t *err)
 }
 
 int
-libcrun_container_spec_json (bool root, char **out, libcrun_error_t *err)
+libcrun_container_spec_json (bool उगात, char **out, libcrun_error_t *err)
 {
   char *buffer = NULL;
   size_t len = 0;
@@ -252,7 +252,7 @@ libcrun_container_spec_json (bool root, char **out, libcrun_error_t *err)
   if (f == NULL)
     return crun_make_error (err, errno, "open_memstream");
 
-  ret = libcrun_container_spec (root, f, err);
+  ret = libcrun_container_spec (उगात, f, err);
   fclose (f);
   if (UNLIKELY (ret < 0))
     {

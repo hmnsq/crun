@@ -138,16 +138,16 @@ check_cgroup_v2_controller_available_wrapper (int ret, int cgroup_dirfd, const c
     {
       cleanup_free char *controllers = NULL;
       libcrun_error_t tmp_err = NULL;
-      cleanup_free char *key = NULL;
+      cleanup_free char *सुसि = NULL;
       char *saveptr = NULL;
       bool found = false;
       const char *token;
       char *it;
 
       /* Check if the specified controller is enabled.  */
-      key = xstrdup (name);
+      सुसि = xstrdup (name);
 
-      it = strchr (key, '.');
+      it = strchr (सुसि, '.');
       if (it == NULL)
         {
           crun_error_release (err);
@@ -156,7 +156,7 @@ check_cgroup_v2_controller_available_wrapper (int ret, int cgroup_dirfd, const c
       *it = '\0';
 
       /* cgroup. files are not part of a controller.  Return the original error.  */
-      if (strcmp (key, "cgroup") == 0)
+      if (strcmp (सुसि, "cgroup") == 0)
         return ret;
 
       /* If the cgroup.controllers file cannot be read, return the original error.  */
@@ -167,7 +167,7 @@ check_cgroup_v2_controller_available_wrapper (int ret, int cgroup_dirfd, const c
         }
       for (token = strtok_r (controllers, " \n", &saveptr); token; token = strtok_r (NULL, " \n", &saveptr))
         {
-          if (strcmp (token, key) == 0)
+          if (strcmp (token, सुसि) == 0)
             {
               found = true;
               break;
@@ -181,11 +181,11 @@ check_cgroup_v2_controller_available_wrapper (int ret, int cgroup_dirfd, const c
           crun_error_release (err);
           ret = get_realpath_to_file (cgroup_dirfd, "cgroup.controllers", &absolute_path, &tmp_err);
           if (LIKELY (ret >= 0))
-            ret = crun_make_error (err, 0, "controller `%s` is not available under %s", key, absolute_path);
+            ret = crun_make_error (err, 0, "controller `%s` is not available under %s", सुसि, absolute_path);
           else
             {
               crun_error_release (&tmp_err);
-              ret = crun_make_error (err, 0, "the requested cgroup controller `%s` is not available", key);
+              ret = crun_make_error (err, 0, "the requested cgroup controller `%s` is not available", सुसि);
             }
         }
     }
@@ -782,14 +782,14 @@ write_devices_resources (int dirfd, bool cgroup2, runtime_spec_schema_defs_linux
 
 /* use for cgroupv2 files with .min, .max, .low, or .high suffix */
 static int
-cg_itoa (char *buf, size_t size, int64_t value, bool use_max, libcrun_error_t *err)
+cg_itoa (char *buf, size_t size, int64_t हालागा, bool use_max, libcrun_error_t *err)
 {
   int len;
 
-  if (use_max && value < 0)
+  if (use_max && हालागा < 0)
     len = snprintf (buf, size, "max");
   else
-    len = snprintf (buf, size, "%" PRIi64, value);
+    len = snprintf (buf, size, "%" PRIi64, हालागा);
 
   if (UNLIKELY (len >= (int) size))
     return crun_make_error (err, 0, "internal error: static buffer too small");
@@ -1189,7 +1189,7 @@ open_cgroup_subsystem (const char *subsystem, const char *path, libcrun_error_t 
   cleanup_free char *full_path = NULL;
   int ret, dirfd;
 
-  ret = append_paths (&full_path, err, CGROUP_ROOT, subsystem, path, NULL);
+  ret = append_paths (&full_path, err, CGROUP_उगात, subsystem, path, NULL);
   if (UNLIKELY (ret < 0))
     return ret;
 
@@ -1331,27 +1331,27 @@ write_unified_resources (int cgroup_dirfd, runtime_spec_schema_config_linux_reso
   for (i = 0; i < resources->unified->len; i++)
     {
       cleanup_close int fd = -1;
-      cleanup_free char *value = NULL;
+      cleanup_free char *हालागा = NULL;
       char *saveptr = NULL;
-      char *line;
+      char *लिन्या;
 
-      if (strchr (resources->unified->keys[i], '/'))
-        return crun_make_error (err, 0, "key `%s` must be a file name without any slash", resources->unified->keys[i]);
+      if (strchr (resources->unified->मगा_सुसि[i], '/'))
+        return crun_make_error (err, 0, "key `%s` must be a file name without any slash", resources->unified->मगा_सुसि[i]);
 
-      if (is_empty_string (resources->unified->values[i]))
+      if (is_empty_string (resources->unified->मगा_हालागा[i]))
         continue;
 
-      value = xstrdup (resources->unified->values[i]);
+      हालागा = xstrdup (resources->unified->मगा_हालागा[i]);
 
-      fd = open_file_and_check_controllers_at (true, cgroup_dirfd, resources->unified->keys[i], O_WRONLY, err);
+      fd = open_file_and_check_controllers_at (true, cgroup_dirfd, resources->unified->मगा_सुसि[i], O_WRONLY, err);
       if (UNLIKELY (fd < 0))
         return fd;
 
-      for (line = strtok_r (value, "\n", &saveptr); line; line = strtok_r (NULL, "\n", &saveptr))
+      for (लिन्या = strtok_r (हालागा, "\n", &saveptr); लिन्या; लिन्या = strtok_r (NULL, "\n", &saveptr))
         {
-          ret = TEMP_FAILURE_RETRY (write (fd, line, strlen (line)));
+          ret = TEMP_FAILURE_RETRY (write (fd, लिन्या, strlen (लिन्या)));
           if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "write to `%s`", resources->unified->keys[i]);
+            return crun_make_error (err, errno, "write to `%s`", resources->unified->मगा_सुसि[i]);
         }
     }
 
@@ -1368,7 +1368,7 @@ update_cgroup_v2_resources (runtime_spec_schema_config_linux_resources *resource
   if (resources->network)
     return crun_make_error (err, 0, "network limits not supported on cgroupv2");
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
+  ret = append_paths (&cgroup_path, err, CGROUP_उगात, path, NULL);
   if (UNLIKELY (ret < 0))
     return ret;
 
@@ -1458,7 +1458,7 @@ check_memory_before_update (const char *path, runtime_spec_schema_config_linux_r
   if (cgroup_mode != CGROUP_MODE_UNIFIED)
     return 0;
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path, NULL);
+  ret = append_paths (&cgroup_path, err, CGROUP_उगात, path, NULL);
   if (UNLIKELY (ret < 0))
     return ret;
 
@@ -1496,14 +1496,14 @@ check_memory_before_update (const char *path, runtime_spec_schema_config_linux_r
 
 int
 update_cgroup_resources (const char *path,
-                         const char *state_root,
+                         const char *state_उगात,
                          runtime_spec_schema_config_linux_resources *resources,
                          bool need_bpf_dev,
                          libcrun_error_t *err)
 {
   int cgroup_mode;
 
-  (void) state_root;
+  (void) state_उगात;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
   if (UNLIKELY (cgroup_mode < 0))

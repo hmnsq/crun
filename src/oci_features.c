@@ -29,12 +29,12 @@ static char doc[] = "OCI runtime";
 
 static struct argp_option options[] = { { 0 } };
 
-static char args_doc[] = "features";
+static char मगा_कातविरान_doc[] = "features";
 
 static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+parse_opt (int सुसि, char *arg arg_unused, struct argp_state *state arg_unused)
 {
-  if (key != ARGP_KEY_NO_ARGS)
+  if (सुसि != ARGP_सुसि_NO_मगा_कातविरान)
     {
       return ARGP_ERR_UNKNOWN;
     }
@@ -42,10 +42,10 @@ parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
   return 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+static struct argp run_argp = { options, parse_opt, मगा_कातविरान_doc, doc, NULL, NULL, NULL };
 
 int
-crun_command_features (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+crun_command_features (struct crun_global_arguments *global_मगा_कातविरान, int argc, char **argv, libcrun_error_t *err)
 {
   cleanup_free char *json = NULL;
   int first_arg = 0, ret = 0;
@@ -53,9 +53,9 @@ crun_command_features (struct crun_global_arguments *global_args, int argc, char
 
   argp_parse (&run_argp, argc, argv, 0, 0, &options);
 
-  crun_context = new_libcrun_context (global_args);
+  crun_context = new_libcrun_context (global_मगा_कातविरान);
 
-  ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
+  ret = init_libcrun_context (crun_context, argv[first_arg], global_मगा_कातविरान, err);
   if (UNLIKELY (ret < 0))
     return ret;
 

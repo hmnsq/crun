@@ -46,17 +46,17 @@ struct libcrun_cgroup_status
 };
 
 /* Forward declaration for function pointers below.  */
-struct libcrun_cgroup_args;
+struct libcrun_cgroup_मगा_कातविरान;
 
 struct libcrun_cgroup_manager
 {
   /* Create a new cgroup and fill PATH in OUT.  */
-  int (*create_cgroup) (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status *out, libcrun_error_t *err);
-  int (*precreate_cgroup) (struct libcrun_cgroup_args *args, int *dirfd, libcrun_error_t *err);
+  int (*create_cgroup) (struct libcrun_cgroup_मगा_कातविरान *मगा_कातविरान, struct libcrun_cgroup_status *out, libcrun_error_t *err);
+  int (*precreate_cgroup) (struct libcrun_cgroup_मगा_कातविरान *मगा_कातविरान, int *dirfd, libcrun_error_t *err);
   /* Destroy the cgroup and kill any process if needed.  */
   int (*destroy_cgroup) (struct libcrun_cgroup_status *cgroup_status, libcrun_error_t *err);
   /* Additional resources configuration specific to this manager.  */
-  int (*update_resources) (struct libcrun_cgroup_status *cgroup_status, const char *state_root, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err);
+  int (*update_resources) (struct libcrun_cgroup_status *cgroup_status, const char *state_उगात, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err);
   /* Move PID to the cgroup PATH (the container cgroup or its sub-cgroup) by
      other means than writing to cgroup.procs.  Optional.  */
   int (*attach_process) (struct libcrun_cgroup_status *cgroup_status, const char *path, pid_t pid, libcrun_error_t *err);

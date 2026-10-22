@@ -72,10 +72,10 @@ cleanup_seccomp_notify_pluginsp (void *p)
 
 #if HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
 static int
-seccomp_syscall (unsigned int op, unsigned int flags, void *args)
+seccomp_syscall (unsigned int op, unsigned int flags, void *मगा_कातविरान)
 {
   errno = 0;
-  return syscall (__NR_seccomp, op, flags, args);
+  return syscall (__NR_seccomp, op, flags, मगा_कातविरान);
 }
 #endif
 

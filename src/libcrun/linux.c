@@ -90,8 +90,8 @@
 #  define OPEN_TREE_CLOEXEC O_CLOEXEC
 #endif
 
-#ifndef OPEN_TREE_NAMESPACE
-#  define OPEN_TREE_NAMESPACE 2
+#ifndef OPEN_पुनो_NAMESPACE
+#  define OPEN_पुनो_NAMESPACE 2
 #endif
 
 #ifndef MOVE_MOUNT_F_EMPTY_PATH
@@ -187,8 +187,8 @@ struct private_data_s
   const char *rootfs;
   int rootfsfd;
 
-  int notify_socket_tree_fd;
-  int old_root_fd;
+  int notify_socket_पुनो_fd;
+  int old_उगात_fd;
 
   struct libcrun_fd_map *mount_fds;
   struct libcrun_fd_map *dev_fds;
@@ -212,7 +212,7 @@ struct private_data_s
   bool no_pivot;
   /* Set once the process root is the container rootfs and the host root
      can no longer be reached by path.  */
-  bool host_root_switched;
+  bool host_उगात_switched;
   /* The process joining an existing PID namespace is created only once
      the container root is in place.  */
   bool delayed_pidns_fork;
@@ -225,7 +225,7 @@ struct linux_namespace_s
 {
   const char *name;
   const char *ns_file;
-  int value;
+  int हालागा;
 };
 
 static void
@@ -239,8 +239,8 @@ cleanup_private_data (void *private_data)
     TEMP_FAILURE_RETRY (close (p->procfd));
   if (p->maskdir_fd >= 0)
     TEMP_FAILURE_RETRY (close (p->maskdir_fd));
-  if (p->old_root_fd >= 0)
-    TEMP_FAILURE_RETRY (close (p->old_root_fd));
+  if (p->old_उगात_fd >= 0)
+    TEMP_FAILURE_RETRY (close (p->old_उगात_fd));
   if (p->mount_fds)
     cleanup_close_mapp (&(p->mount_fds));
   if (p->dev_fds)
@@ -273,8 +273,8 @@ get_private_data (struct libcrun_container_s *container)
       container->private_data = p;
       p->rootfsfd = -1;
       p->procfd = -1;
-      p->notify_socket_tree_fd = -1;
-      p->old_root_fd = -1;
+      p->notify_socket_पुनो_fd = -1;
+      p->old_उगात_fd = -1;
       p->maskdir_fd = -1;
       container->cleanup_private_data = cleanup_private_data;
     }
@@ -315,7 +315,7 @@ libcrun_find_namespace (const char *name)
   struct linux_namespace_s *it;
   for (it = namespaces; it->name; it++)
     if (strcmp (it->name, name) == 0)
-      return it->value;
+      return it->हालागा;
   return -1;
 }
 
@@ -427,7 +427,7 @@ do_mount_setattr (bool recursive, const char *target, int targetfd, uint64_t cle
 int
 get_bind_mount (int dirfd, const char *src, bool recursive, bool rdonly, bool nofollow, unsigned long propagation, libcrun_error_t *err)
 {
-  cleanup_close int open_tree_fd = -1;
+  cleanup_close int open_पुनो_fd = -1;
   struct mount_attr_s attr = {
     0,
   };
@@ -449,19 +449,19 @@ get_bind_mount (int dirfd, const char *src, bool recursive, bool rdonly, bool no
     dirfd = AT_FDCWD;
 
   errno = 0;
-  open_tree_fd = syscall_open_tree (dirfd, src,
+  open_पुनो_fd = syscall_open_पुनो (dirfd, src,
                                     AT_NO_AUTOMOUNT | OPEN_TREE_CLOEXEC
                                         | OPEN_TREE_CLONE | recursive_flag
                                         | (src[0] == '\0' ? AT_EMPTY_PATH : 0)
                                         | (nofollow ? AT_SYMLINK_NOFOLLOW : 0));
-  if (UNLIKELY (open_tree_fd < 0))
+  if (UNLIKELY (open_पुनो_fd < 0))
     return crun_make_error (err, errno, "open_tree `%s`", src);
 
-  ret = syscall_mount_setattr (open_tree_fd, "", AT_EMPTY_PATH | recursive_flag, &attr);
+  ret = syscall_mount_setattr (open_पुनो_fd, "", AT_EMPTY_PATH | recursive_flag, &attr);
   if (UNLIKELY (ret < 0))
     return crun_make_error (err, errno, "mount_setattr `%s`", src);
 
-  return get_and_reset (&open_tree_fd);
+  return get_and_reset (&open_पुनो_fd);
 }
 
 int
@@ -477,7 +477,7 @@ parse_idmapped_mount_option (runtime_spec_schema_config_schema *def, bool is_uid
   for (it = option; *it;)
     {
       bool relative = false;
-      long value[3];
+      long हालागा[3];
       size_t i;
 
       if (*it == '\0')
@@ -504,7 +504,7 @@ parse_idmapped_mount_option (runtime_spec_schema_config_schema *def, bool is_uid
             return crun_make_error (err, 0, "invalid mapping specified `%s`", option);
 
           errno = 0;
-          value[i] = strtol (it, &endptr, 10);
+          हालागा[i] = strtol (it, &endptr, 10);
           if (errno || endptr == it)
             return crun_make_error (err, errno, "invalid mapping specified `%s`", option);
 
@@ -526,14 +526,14 @@ parse_idmapped_mount_option (runtime_spec_schema_config_schema *def, bool is_uid
           mappings = is_uids ? def->linux->uid_mappings : def->linux->gid_mappings;
 
           for (i = 0; i < mappings_len; i++)
-            if (value[1] >= (int64_t) mappings[i]->container_id
-                && value[1] < (int64_t) mappings[i]->container_id + (int64_t) mappings[i]->size)
+            if (हालागा[1] >= (int64_t) mappings[i]->container_id
+                && हालागा[1] < (int64_t) mappings[i]->container_id + (int64_t) mappings[i]->size)
               break;
 
           if (i == mappings_len)
             return crun_make_error (err, 0, "could not find a user namespace mapping for the relative mapping `%s`", option);
 
-          value[1] += mappings[i]->host_id - mappings[i]->container_id;
+          हालागा[1] += mappings[i]->host_id - mappings[i]->container_id;
         }
       if (written > allocated - 64)
         {
@@ -541,7 +541,7 @@ parse_idmapped_mount_option (runtime_spec_schema_config_schema *def, bool is_uid
           mappings = xrealloc (mappings, allocated);
         }
 
-      ret = snprintf (mappings + written, allocated - written, "%ld %ld %ld\n", value[0], value[1], value[2]);
+      ret = snprintf (mappings + written, allocated - written, "%ld %ld %ld\n", हालागा[0], हालागा[1], हालागा[2]);
       if (UNLIKELY (ret >= (int) (allocated - written)))
         return crun_make_error (err, 0, "internal error: allocated buffer too small");
 
@@ -917,9 +917,9 @@ get_mount_flags_or_option (const char *name, int current_flags, unsigned long *e
 }
 
 int
-pivot_root (const char *new_root, const char *put_old)
+pivot_उगात (const char *new_उगात, const char *put_old)
 {
-  return syscall (__NR_pivot_root, new_root, put_old);
+  return syscall (__NR_pivot_root, new_उगात, put_old);
 }
 
 static void
@@ -1141,13 +1141,13 @@ get_procfd (struct private_data_s *data, libcrun_error_t *err)
 }
 
 static int
-get_old_root_fd (struct private_data_s *data)
+get_old_उगात_fd (struct private_data_s *data)
 {
-  if (data->old_root_fd >= 0)
-    return data->old_root_fd;
+  if (data->old_उगात_fd >= 0)
+    return data->old_उगात_fd;
 
-  data->old_root_fd = open ("/", O_PATH | O_CLOEXEC);
-  return data->old_root_fd;
+  data->old_उगात_fd = open ("/", O_PATH | O_CLOEXEC);
+  return data->old_उगात_fd;
 }
 
 static int
@@ -1245,7 +1245,7 @@ get_shared_empty_dir_cached (libcrun_container_t *container, char **proc_fd_path
     }
 
   /* Slow path: create directory and cache everything once */
-  ret = get_shared_empty_directory_path (&empty_dir_path, container->context->state_root, err);
+  ret = get_shared_empty_directory_path (&empty_dir_path, container->context->state_उगात, err);
   if (UNLIKELY (ret < 0))
     return ret;
 
@@ -1318,7 +1318,7 @@ mount_masked_dir (libcrun_container_t *container, int pathfd, const char *rel_pa
       if (ret < 0)
         {
           private_data->maskdir_bind_failed = true;
-          warn_tmpfs_fallback_once (private_data, tmp_err->msg);
+          warn_tmpfs_fallback_once (private_data, tmp_err->मेनसाहे);
           crun_error_release (&tmp_err);
           goto fallback_to_tmpfs;
         }
@@ -1363,7 +1363,7 @@ mount_masked_dir (libcrun_container_t *container, int pathfd, const char *rel_pa
     }
 
   private_data->maskdir_bind_failed = true;
-  warn_tmpfs_fallback_once (private_data, tmp_err ? tmp_err->msg : "unknown error");
+  warn_tmpfs_fallback_once (private_data, tmp_err ? tmp_err->मेनसाहे : "unknown error");
   crun_error_release (&tmp_err);
 
 fallback_to_tmpfs:
@@ -1591,7 +1591,7 @@ sysfs_userns_fallback (libcrun_container_t *container, const char *target,
   runtime_spec_schema_defs_mount *cgroup_mount;
   cleanup_close int mountfd = -1;
   cleanup_close int sysfd = -1;
-  int sys_old_root_fd = -1;
+  int sys_old_उगात_fd = -1;
   int ret;
 
   if (! ((mountflags & MS_RDONLY) && targetfd > 0 && fstype && strcmp (fstype, "sysfs") == 0))
@@ -1607,12 +1607,12 @@ sysfs_userns_fallback (libcrun_container_t *container, const char *target,
     return 1;
 
   cgroup_mount = find_mount_for (container, "/sys/fs/cgroup");
-  sys_old_root_fd = get_old_root_fd (get_private_data (container));
+  sys_old_उगात_fd = get_old_उगात_fd (get_private_data (container));
 
   /* The bind brings the host mounts below /sys along.  The later do_remount
      only affects the top mount, so make the whole tree read-only here.  */
-  if (sys_old_root_fd >= 0)
-    mountfd = get_bind_mount (sys_old_root_fd, "sys", true, true, false, MS_PRIVATE, err);
+  if (sys_old_उगात_fd >= 0)
+    mountfd = get_bind_mount (sys_old_उगात_fd, "sys", true, true, false, MS_PRIVATE, err);
   if (mountfd < 0)
     {
       crun_error_release (err);
@@ -1630,13 +1630,13 @@ sysfs_userns_fallback (libcrun_container_t *container, const char *target,
       else
         {
           crun_error_release (err);
-          if (sys_old_root_fd >= 0)
+          if (sys_old_उगात_fd >= 0)
             {
               cleanup_free char *sys_path = NULL;
-              proc_fd_path_t sys_root_path;
+              proc_fd_path_t sys_उगात_path;
 
-              get_proc_self_fd_path (sys_root_path, sys_old_root_fd);
-              xasprintf (&sys_path, "%s/sys", sys_root_path);
+              get_proc_self_fd_path (sys_उगात_path, sys_old_उगात_fd);
+              xasprintf (&sys_path, "%s/sys", sys_उगात_path);
               ret = mount (sys_path, real_target, NULL, MS_BIND | MS_REC, NULL);
             }
           else
@@ -1887,12 +1887,12 @@ do_mount (libcrun_container_t *container, const char *source, int targetfd,
                                        false, false, 0, &tmp_err);
               if (bindfd < 0)
                 {
-                  int old_root_fd = get_old_root_fd (get_private_data (container));
+                  int old_उगात_fd = get_old_उगात_fd (get_private_data (container));
 
-                  if (old_root_fd >= 0 && source && source[0] == '/')
+                  if (old_उगात_fd >= 0 && source && source[0] == '/')
                     {
                       crun_error_release (&tmp_err);
-                      bindfd = get_bind_mount (old_root_fd, (source[1] == '\0') ? "." : source + 1,
+                      bindfd = get_bind_mount (old_उगात_fd, (source[1] == '\0') ? "." : source + 1,
                                                (mountflags & MS_REC) != 0,
                                                false, false, 0, &tmp_err);
                     }
@@ -1915,15 +1915,15 @@ do_mount (libcrun_container_t *container, const char *source, int targetfd,
           ret = mount (source, real_target, fstype, flags, data);
           if (ret < 0 && (mountflags & MS_BIND) && source && source[0] == '/')
             {
-              int old_root_fd = get_old_root_fd (get_private_data (container));
+              int old_उगात_fd = get_old_उगात_fd (get_private_data (container));
 
-              if (old_root_fd >= 0)
+              if (old_उगात_fd >= 0)
                 {
                   cleanup_free char *proc_source_buf = NULL;
-                  proc_fd_path_t old_root_path;
+                  proc_fd_path_t old_उगात_path;
 
-                  get_proc_self_fd_path (old_root_path, old_root_fd);
-                  xasprintf (&proc_source_buf, "%s/%s", old_root_path, source + 1);
+                  get_proc_self_fd_path (old_उगात_path, old_उगात_fd);
+                  xasprintf (&proc_source_buf, "%s/%s", old_उगात_path, source + 1);
                   ret = mount (proc_source_buf, real_target, fstype, flags, data);
                 }
             }
@@ -2069,7 +2069,7 @@ do_mount_cgroup_v2 (libcrun_container_t *container, int targetfd, const char *ta
           unified_cgroup_path = get_private_data (container)->unified_cgroup_path;
 
           /* If everything else failed, bind mount from the current cgroup.  */
-          src_cgroup = unified_cgroup_path && container_has_cgroupns (container) ? unified_cgroup_path : CGROUP_ROOT;
+          src_cgroup = unified_cgroup_path && container_has_cgroupns (container) ? unified_cgroup_path : CGROUP_उगात;
           return do_mount (container, src_cgroup, targetfd, target, NULL,
                            MS_BIND | mountflags, NULL, LABEL_NONE, err);
         }
@@ -2177,7 +2177,7 @@ do_mount_cgroup_v1 (libcrun_container_t *container, const char *source, int targ
       if (strcmp (subsystem, "cpuacct,cpu") == 0)
         subsystem = "cpu,cpuacct";
 
-      ret = append_paths (&source_subsystem, err, CGROUP_ROOT, subsystem, NULL);
+      ret = append_paths (&source_subsystem, err, CGROUP_उगात, subsystem, NULL);
       if (UNLIKELY (ret < 0))
         return ret;
 
@@ -2299,7 +2299,7 @@ preopen_needed_devs_and_notify (libcrun_container_t *container)
           if (i < dev_fds->nfds && dev_fds->fds[i] >= 0)
             continue;
 
-          int fd = syscall_open_tree (AT_FDCWD, needed_devs[i].path,
+          int fd = syscall_open_पुनो (AT_FDCWD, needed_devs[i].path,
                                       OPEN_TREE_CLONE | OPEN_TREE_CLOEXEC);
           if (fd >= 0 && i < dev_fds->nfds)
             dev_fds->fds[i] = fd;
@@ -2308,13 +2308,13 @@ preopen_needed_devs_and_notify (libcrun_container_t *container)
         }
     }
 
-  if (private_data->notify_socket_tree_fd < 0
+  if (private_data->notify_socket_पुनो_fd < 0
       && private_data->host_notify_socket_path)
     {
-      int fd = syscall_open_tree (AT_FDCWD, private_data->host_notify_socket_path,
+      int fd = syscall_open_पुनो (AT_FDCWD, private_data->host_notify_socket_path,
                                   OPEN_TREE_CLONE | AT_RECURSIVE | OPEN_TREE_CLOEXEC);
       if (fd >= 0)
-        private_data->notify_socket_tree_fd = fd;
+        private_data->notify_socket_पुनो_fd = fd;
     }
 }
 
@@ -2752,7 +2752,7 @@ do_pivot (libcrun_container_t *container, const char *rootfs, libcrun_error_t *e
   if (UNLIKELY (ret < 0))
     return crun_make_error (err, errno, "fchdir `%s`", rootfs);
 
-  ret = pivot_root (".", ".");
+  ret = pivot_उगात (".", ".");
   if (UNLIKELY (ret < 0))
     return crun_make_error (err, errno, "pivot_root");
 
@@ -2930,12 +2930,12 @@ handle_copy_symlink (libcrun_container_t *container, const char *rootfs,
 
   if (link_target == NULL)
     {
-      int old_root_fd = get_old_root_fd (get_private_data (container));
+      int old_उगात_fd = get_old_उगात_fd (get_private_data (container));
       const char *source = mount->source;
       ssize_t len;
 
-      if (old_root_fd >= 0 && source[0] == '/')
-        len = safe_readlinkat (old_root_fd, source + 1, &target, 0, err);
+      if (old_उगात_fd >= 0 && source[0] == '/')
+        len = safe_readlinkat (old_उगात_fd, source + 1, &target, 0, err);
       else
         len = safe_readlinkat (AT_FDCWD, source, &target, 0, err);
       if (UNLIKELY (len < 0))
@@ -3198,11 +3198,11 @@ process_single_mount (libcrun_container_t *container, const char *rootfs,
         }
       else if (path[0] == '/')
         {
-          int old_root_fd = get_old_root_fd (get_private_data (container));
+          int old_उगात_fd = get_old_उगात_fd (get_private_data (container));
           bool nofollow = (extra_flags & (OPTION_SRC_NOFOLLOW | OPTION_COPY_SYMLINK)) ? true : false;
 
-          if (old_root_fd >= 0)
-            ret = get_file_type_at (old_root_fd, &src_mode, nofollow, (path[1] == '\0') ? NULL : path + 1);
+          if (old_उगात_fd >= 0)
+            ret = get_file_type_at (old_उगात_fd, &src_mode, nofollow, (path[1] == '\0') ? NULL : path + 1);
           else
             ret = get_file_type_at (AT_FDCWD, &src_mode, nofollow, path);
         }
@@ -3215,11 +3215,11 @@ process_single_mount (libcrun_container_t *container, const char *rootfs,
         {
           int bind_dirfd = AT_FDCWD;
           const char *bind_source = mount->source;
-          int old_root_fd = get_old_root_fd (get_private_data (container));
+          int old_उगात_fd = get_old_उगात_fd (get_private_data (container));
 
-          if (old_root_fd >= 0 && mount->source && mount->source[0] == '/')
+          if (old_उगात_fd >= 0 && mount->source && mount->source[0] == '/')
             {
-              bind_dirfd = old_root_fd;
+              bind_dirfd = old_उगात_fd;
               bind_source = (mount->source[1] == '\0') ? "." : mount->source + 1;
             }
           ret = get_bind_mount (bind_dirfd, bind_source, true, true, extra_flags & OPTION_SRC_NOFOLLOW, MS_PRIVATE, err);
@@ -3328,7 +3328,7 @@ process_single_mount (libcrun_container_t *container, const char *rootfs,
              mount(2) would create a proc instance for the wrong one.  */
           return crun_make_error (err, 0, "the proc mount `%s` was not opened in the target PID namespace", target);
         }
-      else if (get_private_data (container)->host_root_switched)
+      else if (get_private_data (container)->host_उगात_switched)
         {
           /* The host root is unreachable now -- even through a fd, since
              mount(2) requires the source to live in the current mount
@@ -3507,7 +3507,7 @@ get_notify_fd (libcrun_context_t *context, libcrun_container_t *container, int *
 
   if (host_path == NULL)
     {
-      ret = libcrun_get_state_directory (&state_dir, context->state_root, context->id, err);
+      ret = libcrun_get_state_directory (&state_dir, context->state_उगात, context->id, err);
       if (UNLIKELY (ret < 0))
         return ret;
 
@@ -3554,15 +3554,15 @@ do_notify_socket (libcrun_container_t *container, libcrun_error_t *err)
   cleanup_free char *host_notify_socket_path = NULL;
   cleanup_free char *container_notify_socket_path = NULL;
   cleanup_free char *state_dir = NULL;
-  uid_t container_root_uid = -1;
-  gid_t container_root_gid = -1;
-  int notify_socket_tree_fd;
+  uid_t container_उगात_uid = -1;
+  gid_t container_उगात_gid = -1;
+  int notify_socket_पुनो_fd;
 
   if (notify_socket == NULL)
     return 0;
 
   ret = libcrun_get_state_directory (&state_dir,
-                                     (container->context ? container->context->state_root : NULL),
+                                     (container->context ? container->context->state_उगात : NULL),
                                      (container->context ? container->context->id : NULL), err);
   if (UNLIKELY (ret < 0))
     return ret;
@@ -3581,19 +3581,19 @@ do_notify_socket (libcrun_container_t *container, libcrun_error_t *err)
 
   if (get_private_data (container)->unshare_flags & CLONE_NEWUSER)
     {
-      get_root_in_the_userns (container->container_def, 0, 0, &container_root_uid, &container_root_gid);
-      if (container_root_uid != ((uid_t) -1) && container_root_gid != ((gid_t) -1))
+      get_उगात_in_the_userns (container->container_def, 0, 0, &container_उगात_uid, &container_उगात_gid);
+      if (container_उगात_uid != ((uid_t) -1) && container_उगात_gid != ((gid_t) -1))
         {
-          ret = chown (host_notify_socket_path, container_root_uid, container_root_gid);
+          ret = chown (host_notify_socket_path, container_उगात_uid, container_उगात_gid);
           if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "chown `%s` to `%d:%d`", host_notify_socket_path, container_root_uid, container_root_gid);
+            return crun_make_error (err, errno, "chown `%s` to `%d:%d`", host_notify_socket_path, container_उगात_uid, container_उगात_gid);
         }
     }
 
-  notify_socket_tree_fd = syscall_open_tree (AT_FDCWD, host_notify_socket_path, OPEN_TREE_CLONE | AT_RECURSIVE | OPEN_TREE_CLOEXEC);
-  if (notify_socket_tree_fd >= 0)
+  notify_socket_पुनो_fd = syscall_open_पुनो (AT_FDCWD, host_notify_socket_path, OPEN_TREE_CLONE | AT_RECURSIVE | OPEN_TREE_CLOEXEC);
+  if (notify_socket_पुनो_fd >= 0)
     /* open_tree worked */
-    get_private_data (container)->notify_socket_tree_fd = notify_socket_tree_fd;
+    get_private_data (container)->notify_socket_पुनो_fd = notify_socket_पुनो_fd;
   else if (errno == EPERM)
     /* this can happen when trying to run a rootless container; this function is called
        in the original namespace where the caller is _not_ CAP_SYS_ADMIN - in that case,
@@ -3626,7 +3626,7 @@ do_finalize_notify_socket (libcrun_container_t *container, const char *rootfs, l
   cleanup_free char *container_notify_socket_path = NULL;
   cleanup_free char *container_notify_socket_path_dir_alloc = NULL;
   const char *container_notify_socket_path_dir = NULL;
-  cleanup_close int notify_socket_tree_fd = -1;
+  cleanup_close int notify_socket_पुनो_fd = -1;
   cleanup_close int targetfd = -1;
   int did_mount_with_move_mount = 0;
 
@@ -3663,13 +3663,13 @@ do_finalize_notify_socket (libcrun_container_t *container, const char *rootfs, l
 
   targetfd = ret;
 
-  notify_socket_tree_fd = get_private_data (container)->notify_socket_tree_fd;
+  notify_socket_पुनो_fd = get_private_data (container)->notify_socket_पुनो_fd;
   /* the FD will be unconditionally closed at the end of this function due to cleanup_close above */
-  get_private_data (container)->notify_socket_tree_fd = -1;
+  get_private_data (container)->notify_socket_पुनो_fd = -1;
 
-  if (notify_socket_tree_fd >= 0)
+  if (notify_socket_पुनो_fd >= 0)
     {
-      ret = fs_move_mount_to (notify_socket_tree_fd, targetfd, NULL);
+      ret = fs_move_mount_to (notify_socket_पुनो_fd, targetfd, NULL);
       if (ret >= 0)
         {
           /* if move_mount(2) worked, make sure we don't try mount(2) */
@@ -3693,7 +3693,7 @@ do_finalize_notify_socket (libcrun_container_t *container, const char *rootfs, l
         /* do nothing; we will try mount(2) next */
         ;
       else
-        return crun_make_error (err, errno, "move_mount `%d` to `%s`", notify_socket_tree_fd,
+        return crun_make_error (err, errno, "move_mount `%d` to `%s`", notify_socket_पुनो_fd,
                                 container_notify_socket_path_dir);
     }
 
@@ -3766,7 +3766,7 @@ make_parent_mount_private (const char *rootfs, libcrun_error_t *err)
 }
 
 int
-libcrun_set_mounts (struct container_entrypoint_s *entrypoint_args, libcrun_container_t *container, const char *rootfs, set_mounts_cb_t cb, void *cb_data, libcrun_error_t *err)
+libcrun_set_mounts (struct container_entrypoint_s *entrypoint_मगा_कातविरान, libcrun_container_t *container, const char *rootfs, set_mounts_cb_t cb, void *cb_data, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
   int is_user_ns = 0;
@@ -3783,11 +3783,11 @@ libcrun_set_mounts (struct container_entrypoint_s *entrypoint_args, libcrun_cont
   get_private_data (container)->rootfs = rootfs;
 
   // configure handler mounts
-  ret = libcrun_container_notify_handler (entrypoint_args, HANDLER_CONFIGURE_MOUNTS, container, rootfs, err);
+  ret = libcrun_container_notify_handler (entrypoint_मगा_कातविरान, HANDLER_CONFIGURE_MOUNTS, container, rootfs, err);
   if (UNLIKELY (ret < 0))
     return crun_error_wrap (err, "failed configuring mounts for handler at phase: HANDLER_CONFIGURE_MOUNTS");
 
-  if (def->root->readonly)
+  if (def->उगात->readonly)
     {
       struct remount_s *r;
       unsigned long remount_flags = MS_REMOUNT | MS_BIND | MS_RDONLY;
@@ -3868,7 +3868,7 @@ umount_or_hide (const char *target, libcrun_error_t *err)
 }
 
 static int
-move_root (const char *rootfs, libcrun_error_t *err)
+move_उगात (const char *rootfs, libcrun_error_t *err)
 {
   int ret;
 
@@ -3900,13 +3900,13 @@ move_root (const char *rootfs, libcrun_error_t *err)
 }
 
 int
-libcrun_finalize_mounts (struct container_entrypoint_s *entrypoint_args, libcrun_container_t *container, const char *rootfs,
+libcrun_finalize_mounts (struct container_entrypoint_s *entrypoint_मगा_कातविरान, libcrun_container_t *container, const char *rootfs,
                          set_mounts_cb_t after_pivot_cb, void *cb_data, libcrun_error_t *err)
 {
   int ret;
 
   // configure handler mounts for phase: HANDLER_CONFIGURE_AFTER_MOUNTS
-  ret = libcrun_container_notify_handler (entrypoint_args, HANDLER_CONFIGURE_AFTER_MOUNTS, container, rootfs, err);
+  ret = libcrun_container_notify_handler (entrypoint_मगा_कातविरान, HANDLER_CONFIGURE_AFTER_MOUNTS, container, rootfs, err);
   if (UNLIKELY (ret < 0))
     return crun_error_wrap (err, "failed configuring mounts for handler at phase: HANDLER_CONFIGURE_AFTER_MOUNTS");
 
@@ -3919,7 +3919,7 @@ libcrun_finalize_mounts (struct container_entrypoint_s *entrypoint_args, libcrun
   /* The host root must not stay reachable through /proc/self/fd once the
      container rootfs becomes the root: every path resolved by name from now
      on is controlled by the container image.  */
-  close_and_reset (&(get_private_data (container)->old_root_fd));
+  close_and_reset (&(get_private_data (container)->old_उगात_fd));
 
   if (get_private_data (container)->needs_pivot)
     {
@@ -3927,7 +3927,7 @@ libcrun_finalize_mounts (struct container_entrypoint_s *entrypoint_args, libcrun
 
       if (get_private_data (container)->no_pivot)
         {
-          ret = move_root (rootfs, err);
+          ret = move_उगात (rootfs, err);
           if (UNLIKELY (ret < 0))
             return ret;
         }
@@ -3964,10 +3964,10 @@ libcrun_finalize_mounts (struct container_entrypoint_s *entrypoint_args, libcrun
 }
 
 static int
-maybe_open_tree_namespace (const char *rootfs, int *out_fd, libcrun_error_t *err)
+maybe_open_पुनो_namespace (const char *rootfs, int *out_fd, libcrun_error_t *err)
 {
   cleanup_close int rootfs_fd = -1;
-  int tree_fd;
+  int पुनो_fd;
 
   *out_fd = -1;
 
@@ -3975,17 +3975,17 @@ maybe_open_tree_namespace (const char *rootfs, int *out_fd, libcrun_error_t *err
   if (UNLIKELY (rootfs_fd < 0))
     return crun_make_error (err, errno, "open `%s`", rootfs);
 
-  tree_fd = syscall_open_tree (rootfs_fd, "",
-                               OPEN_TREE_NAMESPACE | OPEN_TREE_CLOEXEC
+  पुनो_fd = syscall_open_पुनो (rootfs_fd, "",
+                               OPEN_पुनो_NAMESPACE | OPEN_TREE_CLOEXEC
                                    | AT_EMPTY_PATH | AT_RECURSIVE);
-  if (tree_fd < 0)
+  if (पुनो_fd < 0)
     {
       if (errno == EINVAL || errno == ENOSYS || errno == EPERM)
         return 0;
       return crun_make_error (err, errno, "open_tree `%s`", rootfs);
     }
 
-  *out_fd = tree_fd;
+  *out_fd = पुनो_fd;
   return 0;
 }
 
@@ -4210,7 +4210,7 @@ mounts_hit_pinned_mount_namespace (runtime_spec_schema_config_schema *def)
         .mnt_id = ids[i],
         .param = STATMOUNT_FS_TYPE | STATMOUNT_MNT_ROOT | STATMOUNT_MNT_POINT,
       };
-      const char *root, *point;
+      const char *उगात, *point;
       size_t j;
 
       if (syscall_statmount (&req, sm, sizeof (buffer), 0) < 0)
@@ -4220,8 +4220,8 @@ mounts_hit_pinned_mount_namespace (runtime_spec_schema_config_schema *def)
 
       /* The root of a pinned mount namespace reads as "mnt:[...]"; the other
          namespace types cannot create a loop.  */
-      root = sm->str + sm->mnt_root;
-      if (! has_prefix (root, "mnt:["))
+      उगात = sm->str + sm->mnt_root;
+      if (! has_prefix (उगात, "mnt:["))
         continue;
 
       point = sm->str + sm->mnt_point;
@@ -4260,7 +4260,7 @@ mounts_hit_pinned_mount_namespace (runtime_spec_schema_config_schema *def)
 }
 
 static bool
-can_use_open_tree_namespace (libcrun_container_t *container)
+can_use_open_पुनो_namespace (libcrun_container_t *container)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
   struct libcrun_fd_map *mount_fds;
@@ -4276,7 +4276,7 @@ can_use_open_tree_namespace (libcrun_container_t *container)
   if (mounts_hit_pinned_mount_namespace (def))
     return false;
 
-  if (container->context->no_open_tree_namespace)
+  if (container->context->no_open_पुनो_namespace)
     return false;
 
   {
@@ -4329,9 +4329,9 @@ setup_mount_namespace (libcrun_container_t *container, bool no_pivot, char **roo
   runtime_spec_schema_config_schema *def = container->container_def;
   unsigned long rootfs_propagation = 0;
   cleanup_close int rootfsfd = -1;
-  cleanup_close int tree_fd = -1;
+  cleanup_close int पुनो_fd = -1;
   libcrun_error_t tmp_err = NULL;
-  bool use_open_tree = false;
+  bool use_open_पुनो = false;
   size_t i;
   int ret;
 
@@ -4469,12 +4469,12 @@ setup_mount_namespace (libcrun_container_t *container, bool no_pivot, char **roo
     }
 
   if (! get_private_data (container)->joined_mount_ns
-      && can_use_open_tree_namespace (container))
-    use_open_tree = true;
+      && can_use_open_पुनो_namespace (container))
+    use_open_पुनो = true;
 
-  if (use_open_tree)
+  if (use_open_पुनो)
     {
-      ret = maybe_open_tree_namespace (*rootfs, &tree_fd, err);
+      ret = maybe_open_पुनो_namespace (*rootfs, &पुनो_fd, err);
       if (UNLIKELY (ret < 0))
         return ret;
     }
@@ -4485,12 +4485,12 @@ setup_mount_namespace (libcrun_container_t *container, bool no_pivot, char **roo
      OPEN_TREE_NAMESPACE), this is retried after unshare(CLONE_NEWNS)
      below since open_tree needs CAP_SYS_ADMIN in the user namespace
      that owns the mount namespace.  */
-  if (tree_fd >= 0)
+  if (पुनो_fd >= 0)
     preopen_needed_devs_and_notify (container);
 
-  if (tree_fd >= 0)
+  if (पुनो_fd >= 0)
     {
-      ret = setns (tree_fd, CLONE_NEWNS);
+      ret = setns (पुनो_fd, CLONE_NEWNS);
       if (UNLIKELY (ret < 0))
         return crun_make_error (err, errno, "setns `CLONE_NEWNS`");
 
@@ -4510,7 +4510,7 @@ setup_mount_namespace (libcrun_container_t *container, bool no_pivot, char **roo
       get_private_data (container)->no_pivot = no_pivot;
       /* setns() made the container rootfs the process root, so an absolute
          source path no longer refers to the host.  */
-      get_private_data (container)->host_root_switched = true;
+      get_private_data (container)->host_उगात_switched = true;
       free (*rootfs);
       *rootfs = xstrdup ("/");
     }
@@ -4579,7 +4579,7 @@ setup_mount_namespace (libcrun_container_t *container, bool no_pivot, char **roo
   close_and_reset (&get_private_data (container)->rootfsfd);
   get_private_data (container)->rootfs = NULL;
 
-  if (tree_fd < 0)
+  if (पुनो_fd < 0)
     preopen_needed_devs_and_notify (container);
 
   /* After pivot_root, /proc is not yet mounted.  */
@@ -4594,7 +4594,7 @@ setup_mount_namespace (libcrun_container_t *container, bool no_pivot, char **roo
 }
 
 int
-libcrun_do_pivot_root (libcrun_container_t *container, bool no_pivot, char **rootfs, libcrun_error_t *err)
+libcrun_do_pivot_उगात (libcrun_container_t *container, bool no_pivot, char **rootfs, libcrun_error_t *err)
 {
   int ret;
 
@@ -4672,32 +4672,32 @@ libcrun_reopen_dev_null (libcrun_error_t *err)
 static int
 uidgidmap_helper (char *helper, pid_t pid, const char *map_file, libcrun_error_t *err)
 {
-#define MAX_ARGS 20
+#define MAX_मगा_कातविरान 20
   char pid_fmt[16];
-  char *args[MAX_ARGS + 1];
+  char *मगा_कातविरान[MAX_मगा_कातविरान + 1];
   char *next;
   cleanup_free char *map_file_copy = xstrdup (map_file);
   size_t nargs = 0;
   int ret;
 
-  args[nargs++] = helper;
+  मगा_कातविरान[nargs++] = helper;
 
   ret = snprintf (pid_fmt, sizeof (pid_fmt), "%d", pid);
   if (UNLIKELY (ret >= (int) sizeof (pid_fmt)))
     return crun_make_error (err, 0, "internal error: static buffer too small");
 
-  args[nargs++] = pid_fmt;
+  मगा_कातविरान[nargs++] = pid_fmt;
   next = map_file_copy;
-  while (nargs < MAX_ARGS)
+  while (nargs < MAX_मगा_कातविरान)
     {
       char *p = strsep (&next, " \n");
       if (next == NULL)
         break;
-      args[nargs++] = p;
+      मगा_कातविरान[nargs++] = p;
     }
-  args[nargs++] = NULL;
+  मगा_कातविरान[nargs++] = NULL;
 
-  ret = run_process (args, err);
+  ret = run_process (मगा_कातविरान, err);
   if (ret < 0)
     return ret;
   if (ret > 0)
@@ -5124,15 +5124,15 @@ set_required_caps (struct all_caps_s *caps, uid_t uid, gid_t gid, int no_new_pri
 }
 
 static int
-read_caps (unsigned long caps[2], char **values, size_t len, libcrun_error_t *err)
+read_caps (unsigned long caps[2], char **मगा_हालागा, size_t len, libcrun_error_t *err)
 {
 #ifdef HAVE_CAP
   size_t i;
   for (i = 0; i < len; i++)
     {
-      cap_value_t cap;
-      if (cap_from_name (values[i], &cap) < 0)
-        return crun_make_error (err, 0, "unknown capability `%s`", values[i]);
+      cap_हालागा_t cap;
+      if (cap_from_name (मगा_हालागा[i], &cap) < 0)
+        return crun_make_error (err, 0, "unknown capability `%s`", मगा_हालागा[i]);
 
       if (cap < 32)
         caps[0] |= CAP_TO_MASK_0 (cap);
@@ -5198,7 +5198,7 @@ libcrun_set_caps (runtime_spec_schema_config_schema_process_capabilities *capabi
 struct rlimit_s
 {
   const char *name;
-  int value;
+  int हालागा;
 };
 
 struct rlimit_s rlimits[] = { { "RLIMIT_AS", RLIMIT_AS },
@@ -5216,7 +5216,7 @@ struct rlimit_s rlimits[] = { { "RLIMIT_AS", RLIMIT_AS },
                               { "RLIMIT_RTPRIO", RLIMIT_RTPRIO },
                               { "RLIMIT_RTTIME", RLIMIT_RTTIME },
                               { "RLIMIT_SIGPENDING", RLIMIT_SIGPENDING },
-                              { "RLIMIT_STACK", RLIMIT_STACK },
+                              { "RLIMIT_STACK", RLIMIT_सालानसान },
                               { NULL, 0 } };
 
 static int
@@ -5225,7 +5225,7 @@ get_rlimit_resource (const char *name)
   struct rlimit_s *it;
   for (it = rlimits; it->name; it++)
     if (strcmp (it->name, name) == 0)
-      return it->value;
+      return it->हालागा;
   return -1;
 }
 
@@ -5331,7 +5331,7 @@ const char *sysctlRequiringIPC[] = {
 };
 
 static int
-validate_sysctl (const char *original_key, const char *original_value, const char *name, unsigned long namespaces_created, runtime_spec_schema_config_schema *def, libcrun_error_t *err)
+validate_sysctl (const char *original_सुसि, const char *original_हालागा, const char *name, unsigned long namespaces_created, runtime_spec_schema_config_schema *def, libcrun_error_t *err)
 {
   const char *namespace = "";
 
@@ -5339,7 +5339,7 @@ validate_sysctl (const char *original_key, const char *original_value, const cha
      make it escape /proc/sys altogether, and a ".." component could reach a
      sysctl other than the one being validated here.  */
   if (name[0] == '/' || path_has_dot_dot_component (name))
-    return crun_make_error (err, 0, "the sysctl `%s` contains an invalid path", original_key);
+    return crun_make_error (err, 0, "the sysctl `%s` contains an invalid path", original_सुसि);
 
   if (has_prefix (name, "fs/mqueue/"))
     {
@@ -5370,8 +5370,8 @@ validate_sysctl (const char *original_key, const char *original_value, const cha
           // conflict with already set field `domainname` in
           // OCI spec, in such scenario crun will fail to prevent
           // unexpected behaviour for end user.
-          if (! is_empty_string (def->domainname) && (strcmp (original_value, def->domainname) != 0))
-            return crun_make_error (err, 0, "the sysctl `%s` conflicts with OCI field `domainname`", original_key);
+          if (! is_empty_string (def->domainname) && (strcmp (original_हालागा, def->domainname) != 0))
+            return crun_make_error (err, 0, "the sysctl `%s` conflicts with OCI field `domainname`", original_सुसि);
 
           if (namespaces_created & CLONE_NEWUTS)
             return 0;
@@ -5381,7 +5381,7 @@ validate_sysctl (const char *original_key, const char *original_value, const cha
         }
 
       if (strcmp (name, "kernel/hostname") == 0)
-        return crun_make_error (err, 0, "the sysctl `%s` conflicts with OCI field `hostname`", original_key);
+        return crun_make_error (err, 0, "the sysctl `%s` conflicts with OCI field `hostname`", original_सुसि);
     }
   if (has_prefix (name, "net/"))
     {
@@ -5392,10 +5392,10 @@ validate_sysctl (const char *original_key, const char *original_value, const cha
       goto fail;
     }
 
-  return crun_make_error (err, 0, "the sysctl `%s` is not namespaced", original_key);
+  return crun_make_error (err, 0, "the sysctl `%s` is not namespaced", original_सुसि);
 
 fail:
-  return crun_make_error (err, 0, "the sysctl `%s` requires a new %s namespace", original_key, namespace);
+  return crun_make_error (err, 0, "the sysctl `%s` requires a new %s namespace", original_सुसि, namespace);
 }
 
 /* Best-effort attempt to give a better explanation why setting a sysctl could have failed. */
@@ -5422,13 +5422,13 @@ libcrun_set_sysctl (libcrun_container_t *container, libcrun_error_t *err)
 
   for (i = 0; i < def->linux->namespaces_len; i++)
     {
-      int value;
+      int हालागा;
 
-      value = libcrun_find_namespace (def->linux->namespaces[i]->type);
-      if (UNLIKELY (value < 0))
+      हालागा = libcrun_find_namespace (def->linux->namespaces[i]->type);
+      if (UNLIKELY (हालागा < 0))
         return crun_make_error (err, 0, "invalid namespace type: `%s`", def->linux->namespaces[i]->type);
 
-      namespaces_created |= value;
+      namespaces_created |= हालागा;
     }
 
   get_private_data (container);
@@ -5444,12 +5444,12 @@ libcrun_set_sysctl (libcrun_container_t *container, libcrun_error_t *err)
 
       /* A sysctl whose value is null in the document is parsed into a NULL,
          and there is nothing to write to the file.  */
-      if (def->linux->sysctl->keys[i] == NULL || def->linux->sysctl->values[i] == NULL)
+      if (def->linux->sysctl->मगा_सुसि[i] == NULL || def->linux->sysctl->मगा_हालागा[i] == NULL)
         return crun_make_error (err, EINVAL, "sysctl value is not specified");
 
-      name = libcrun_sysctl_key_to_proc_path (def->linux->sysctl->keys[i]);
+      name = libcrun_sysctl_सुसि_to_proc_path (def->linux->sysctl->मगा_सुसि[i]);
 
-      ret = validate_sysctl (def->linux->sysctl->keys[i], def->linux->sysctl->values[i], name, namespaces_created, def, err);
+      ret = validate_sysctl (def->linux->sysctl->मगा_सुसि[i], def->linux->sysctl->मगा_हालागा[i], name, namespaces_created, def, err);
       if (UNLIKELY (ret < 0))
         return ret;
 
@@ -5457,13 +5457,13 @@ libcrun_set_sysctl (libcrun_container_t *container, libcrun_error_t *err)
       if (UNLIKELY (fd < 0))
         return crun_make_error (err, errno, "open `/proc/sys/%s`", name);
 
-      ret = TEMP_FAILURE_RETRY (write (fd, def->linux->sysctl->values[i], strlen (def->linux->sysctl->values[i])));
+      ret = TEMP_FAILURE_RETRY (write (fd, def->linux->sysctl->मगा_हालागा[i], strlen (def->linux->sysctl->मगा_हालागा[i])));
       if (UNLIKELY (ret < 0))
         {
           int saved_errno = errno;
           cleanup_free char *reason = NULL;
 
-          reason = sysctl_error_reason (def->linux->sysctl->keys[i], namespaces_created, saved_errno);
+          reason = sysctl_error_reason (def->linux->sysctl->मगा_सुसि[i], namespaces_created, saved_errno);
           return crun_make_error (err, saved_errno, "write to `/proc/sys/%s`%s%s%s", name, reason ? " (" : "", reason ?: "", reason ? ")" : "");
         }
     }
@@ -5675,7 +5675,7 @@ send_error_to_sync_socket (int sync_socket_fd, bool has_fd, libcrun_error_t *err
   size_t size;
   int ret;
   int code;
-  char *msg;
+  char *मेनसाहे;
 
   if (err == NULL || *err == NULL)
     return false;
@@ -5694,13 +5694,13 @@ send_error_to_sync_socket (int sync_socket_fd, bool has_fd, libcrun_error_t *err
   if (UNLIKELY (ret < 0))
     return false;
 
-  msg = (*err)->msg;
-  size = strlen (msg) + 1;
+  मेनसाहे = (*err)->मेनसाहे;
+  size = strlen (मेनसाहे) + 1;
   ret = TEMP_FAILURE_RETRY (write (sync_socket_fd, &size, sizeof (size)));
   if (UNLIKELY (ret < 0))
     return false;
 
-  ret = TEMP_FAILURE_RETRY (write (sync_socket_fd, msg, size));
+  ret = TEMP_FAILURE_RETRY (write (sync_socket_fd, मेनसाहे, size));
   if (UNLIKELY (ret < 0))
     return false;
 
@@ -5723,7 +5723,7 @@ send_success_to_sync_socket (int sync_socket, libcrun_error_t *err)
 static __attribute__ ((noreturn)) void
 send_error_to_sync_socket_and_die (int sync_socket_fd, bool has_terminal, libcrun_error_t *err)
 {
-  char *msg;
+  char *मेनसाहे;
 
   if (err == NULL || *err == NULL)
     _safe_exit (EXIT_FAILURE);
@@ -5731,8 +5731,8 @@ send_error_to_sync_socket_and_die (int sync_socket_fd, bool has_terminal, libcru
   if (! send_error_to_sync_socket (sync_socket_fd, has_terminal, err))
     {
       errno = crun_error_get_errno (err);
-      msg = (*err)->msg;
-      libcrun_fail_with_error (errno, "%s", msg);
+      मेनसाहे = (*err)->मेनसाहे;
+      libcrun_fail_with_error (errno, "%s", मेनसाहे);
     }
   _safe_exit (EXIT_FAILURE);
 }
@@ -5771,17 +5771,17 @@ join_namespaces (runtime_spec_schema_config_schema *def, int *namespaces_to_join
     {
       cleanup_free char *cwd = NULL;
       int orig_index = namespaces_to_join_index[i];
-      int value;
+      int हालागा;
 
       if (namespaces_to_join[i] < 0)
         continue;
 
       /* Skip the user namespace.  */
-      value = libcrun_find_namespace (def->linux->namespaces[orig_index]->type);
-      if (value == CLONE_NEWUSER)
+      हालागा = libcrun_find_namespace (def->linux->namespaces[orig_index]->type);
+      if (हालागा == CLONE_NEWUSER)
         continue;
 
-      if (value == CLONE_NEWNS)
+      if (हालागा == CLONE_NEWNS)
         {
           cwd = getcwd (NULL, 0);
           if (UNLIKELY (cwd == NULL))
@@ -5789,7 +5789,7 @@ join_namespaces (runtime_spec_schema_config_schema *def, int *namespaces_to_join
         }
 
       libcrun_debug ("Joining `%s` namespace: `%s`", def->linux->namespaces[orig_index]->type, def->linux->namespaces[orig_index]->path);
-      ret = setns (namespaces_to_join[i], value);
+      ret = setns (namespaces_to_join[i], हालागा);
       if (UNLIKELY (ret < 0))
         {
           if (ignore_join_errors)
@@ -5799,7 +5799,7 @@ join_namespaces (runtime_spec_schema_config_schema *def, int *namespaces_to_join
 
       close_and_reset (&namespaces_to_join[i]);
 
-      if (value == CLONE_NEWNS)
+      if (हालागा == CLONE_NEWNS)
         {
           ret = chdir (cwd);
           if (UNLIKELY (ret < 0))
@@ -5818,7 +5818,7 @@ struct init_status_s
   /* Index into def->linux->namespaces.  */
   int index[MAX_NAMESPACES];
   /* CLONE_* value.  */
-  int value[MAX_NAMESPACES];
+  int हालागा[MAX_NAMESPACES];
   /* How many namespaces to join.  */
   size_t fd_len;
 
@@ -5892,19 +5892,19 @@ configure_init_status (struct init_status_s *ns, libcrun_container_t *container,
 
   for (i = 0; i < def->linux->namespaces_len; i++)
     {
-      int value = libcrun_find_namespace (def->linux->namespaces[i]->type);
-      if (UNLIKELY (value < 0))
+      int हालागा = libcrun_find_namespace (def->linux->namespaces[i]->type);
+      if (UNLIKELY (हालागा < 0))
         return crun_make_error (err, 0, "invalid namespace type: `%s`", def->linux->namespaces[i]->type);
 
-      if (ns->all_namespaces & value)
+      if (ns->all_namespaces & हालागा)
         return crun_make_error (err, 0, "duplicate namespace type: `%s`", def->linux->namespaces[i]->type);
 
-      ns->all_namespaces |= value;
+      ns->all_namespaces |= हालागा;
 
       if (def->linux->namespaces[i]->path == NULL)
         {
           libcrun_debug ("Unsharing namespace: `%s`", def->linux->namespaces[i]->type);
-          ns->namespaces_to_unshare |= value;
+          ns->namespaces_to_unshare |= हालागा;
         }
       else
         {
@@ -5919,7 +5919,7 @@ configure_init_status (struct init_status_s *ns, libcrun_container_t *container,
           if (UNLIKELY (fd < 0))
             return crun_make_error (err, errno, "open `%s`", def->linux->namespaces[i]->path);
 
-          if (value == CLONE_NEWUSER)
+          if (हालागा == CLONE_NEWUSER)
             {
               ns->userns_index = ns->fd_len;
               ns->userns_index_origin = i;
@@ -5927,7 +5927,7 @@ configure_init_status (struct init_status_s *ns, libcrun_container_t *container,
 
           ns->fd[ns->fd_len] = fd;
           ns->index[ns->fd_len] = i;
-          ns->value[ns->fd_len] = value;
+          ns->हालागा[ns->fd_len] = हालागा;
           ns->fd_len++;
           ns->fd[ns->fd_len] = -1;
         }
@@ -5945,7 +5945,7 @@ configure_init_status (struct init_status_s *ns, libcrun_container_t *container,
 
 /* Detect if root is available in the container.  */
 static bool
-root_mapped_in_container_p (runtime_spec_schema_defs_id_mapping **mappings, size_t len)
+उगात_mapped_in_container_p (runtime_spec_schema_defs_id_mapping **mappings, size_t len)
 {
   size_t i;
 
@@ -5972,7 +5972,7 @@ get_devices_fd_map (libcrun_container_t *container)
   return dev_fds;
 }
 
-#define NUM_NEEDED_DEVS (sizeof (needed_devs) / sizeof (needed_devs[0]) - 1)
+#define नुमेरो_NEEDED_DEVS (sizeof (needed_devs) / sizeof (needed_devs[0]) - 1)
 
 static struct libcrun_fd_map *
 get_needed_devs_fd_map (libcrun_container_t *container)
@@ -5981,7 +5981,7 @@ get_needed_devs_fd_map (libcrun_container_t *container)
 
   if (fds == NULL)
     {
-      fds = make_libcrun_fd_map (NUM_NEEDED_DEVS);
+      fds = make_libcrun_fd_map (नुमेरो_NEEDED_DEVS);
       get_private_data (container)->needed_devs_fds = fds;
     }
   return fds;
@@ -6091,7 +6091,7 @@ maybe_get_idmapped_mount (libcrun_container_t *container, runtime_spec_schema_co
   const char *options = NULL;
   bool has_mappings;
   int ret;
-  char *extra_msg = "";
+  char *extra_मेनसाहे = "";
   bool nofollow = false;
 
   *out_fd = -1;
@@ -6132,7 +6132,7 @@ maybe_get_idmapped_mount (libcrun_container_t *container, runtime_spec_schema_co
 
   if (is_bind_mount (mnt, &recursive_bind_mount, &nofollow))
     {
-      newfs_fd = syscall_open_tree (AT_FDCWD, mnt->source, (recursive_bind_mount ? AT_RECURSIVE : 0) | AT_NO_AUTOMOUNT | (nofollow ? AT_SYMLINK_NOFOLLOW : 0) | OPEN_TREE_CLOEXEC | OPEN_TREE_CLONE);
+      newfs_fd = syscall_open_पुनो (AT_FDCWD, mnt->source, (recursive_bind_mount ? AT_RECURSIVE : 0) | AT_NO_AUTOMOUNT | (nofollow ? AT_SYMLINK_NOFOLLOW : 0) | OPEN_TREE_CLOEXEC | OPEN_TREE_CLONE);
       if (UNLIKELY (newfs_fd < 0))
         return crun_make_error (err, errno, "open `%s`", mnt->source);
     }
@@ -6151,9 +6151,9 @@ maybe_get_idmapped_mount (libcrun_container_t *container, runtime_spec_schema_co
     {
       if (errno == EINVAL)
         {
-          extra_msg = " (maybe the file system used doesn't support idmap mounts on this kernel?)";
+          extra_मेनसाहे = " (maybe the file system used doesn't support idmap mounts on this kernel?)";
         }
-      return crun_make_error (err, errno, "mount_setattr `%s`%s", mnt->destination, extra_msg);
+      return crun_make_error (err, errno, "mount_setattr `%s`%s", mnt->destination, extra_मेनसाहे);
     }
 
   *out_fd = get_and_reset (&newfs_fd);
@@ -6259,8 +6259,8 @@ prepare_and_send_mount_mounts (libcrun_container_t *container, pid_t pid, int sy
 
   mount_fds = make_libcrun_fd_map (def->mounts_len);
 
-  if (def->root && def->root->path)
-    rootfs = realpath (def->root->path, NULL);
+  if (def->उगात && def->उगात->path)
+    rootfs = realpath (def->उगात->path, NULL);
 
   if (! has_userns)
     {
@@ -6338,7 +6338,7 @@ prepare_and_send_dev_mounts (libcrun_container_t *container, int sync_socket_hos
     return send_mounts (sync_socket_host, dev_fds, how_many, def->linux->devices_len, err);
 
   ret = libcrun_get_state_directory (&state_dir,
-                                     (container->context ? container->context->state_root : NULL),
+                                     (container->context ? container->context->state_उगात : NULL),
                                      (container->context ? container->context->id : NULL), err);
   if (UNLIKELY (ret < 0))
     return ret;
@@ -6448,14 +6448,14 @@ prepare_and_send_needed_dev_mounts (libcrun_container_t *container, int sync_soc
   size_t how_many = 0;
   size_t i;
 
-  fds = make_libcrun_fd_map (NUM_NEEDED_DEVS);
+  fds = make_libcrun_fd_map (नुमेरो_NEEDED_DEVS);
 
   if (! has_userns || geteuid () > 0)
-    return send_mounts (sync_socket_host, fds, 0, NUM_NEEDED_DEVS, err);
+    return send_mounts (sync_socket_host, fds, 0, नुमेरो_NEEDED_DEVS, err);
 
-  for (i = 0; i < NUM_NEEDED_DEVS && needed_devs[i].path; i++)
+  for (i = 0; i < नुमेरो_NEEDED_DEVS && needed_devs[i].path; i++)
     {
-      int fd = syscall_open_tree (AT_FDCWD, needed_devs[i].path,
+      int fd = syscall_open_पुनो (AT_FDCWD, needed_devs[i].path,
                                   OPEN_TREE_CLONE | OPEN_TREE_CLOEXEC);
       if (fd >= 0)
         {
@@ -6464,7 +6464,7 @@ prepare_and_send_needed_dev_mounts (libcrun_container_t *container, int sync_soc
         }
     }
 
-  return send_mounts (sync_socket_host, fds, how_many, NUM_NEEDED_DEVS, err);
+  return send_mounts (sync_socket_host, fds, how_many, नुमेरो_NEEDED_DEVS, err);
 }
 
 static int
@@ -6562,12 +6562,12 @@ set_id_init (libcrun_container_t *container, libcrun_error_t *err)
         If it is running in a user namespace and root is not mapped
         use the UID/GID specified for running the container.
       */
-      bool root_mapped = false;
+      bool उगात_mapped = false;
 
       if (def->linux->uid_mappings_len != 0)
         {
-          root_mapped = root_mapped_in_container_p (def->linux->uid_mappings, def->linux->uid_mappings_len);
-          if (! root_mapped)
+          उगात_mapped = उगात_mapped_in_container_p (def->linux->uid_mappings, def->linux->uid_mappings_len);
+          if (! उगात_mapped)
             uid = def->process->user->uid;
 
           libcrun_debug ("Using mapped UID in container: `%d`", uid);
@@ -6575,8 +6575,8 @@ set_id_init (libcrun_container_t *container, libcrun_error_t *err)
 
       if (def->linux->gid_mappings_len != 0)
         {
-          root_mapped = root_mapped_in_container_p (def->linux->gid_mappings, def->linux->gid_mappings_len);
-          if (! root_mapped)
+          उगात_mapped = उगात_mapped_in_container_p (def->linux->gid_mappings, def->linux->gid_mappings_len);
+          if (! उगात_mapped)
             gid = def->process->user->gid;
 
           libcrun_debug ("Using mapped GID in container: `%d`", gid);
@@ -6622,7 +6622,7 @@ open_proc_mounts_in_pidns (libcrun_container_t *container, libcrun_error_t *err)
   struct libcrun_fd_map *mount_fds = get_fd_map (container);
   cleanup_close int socket_parent = -1;
   cleanup_close int socket_child = -1;
-  cleanup_close int root_fd = -1;
+  cleanup_close int उगात_fd = -1;
   cleanup_close int cwd_fd = -1;
   size_t i, missing = 0;
   int saved_errno;
@@ -6630,7 +6630,7 @@ open_proc_mounts_in_pidns (libcrun_container_t *container, libcrun_error_t *err)
   pid_t pid;
   int ret;
 
-  if (def->root == NULL || def->root->path == NULL)
+  if (def->उगात == NULL || def->उगात->path == NULL)
     return 0;
 
   for (i = 0; i < def->mounts_len; i++)
@@ -6639,8 +6639,8 @@ open_proc_mounts_in_pidns (libcrun_container_t *container, libcrun_error_t *err)
   if (missing == 0)
     return 1;
 
-  root_fd = open ("/", O_DIRECTORY | O_PATH | O_CLOEXEC);
-  if (UNLIKELY (root_fd < 0))
+  उगात_fd = open ("/", O_DIRECTORY | O_PATH | O_CLOEXEC);
+  if (UNLIKELY (उगात_fd < 0))
     return crun_make_error (err, errno, "open `/`");
 
   cwd_fd = open (".", O_DIRECTORY | O_PATH | O_CLOEXEC);
@@ -6653,7 +6653,7 @@ open_proc_mounts_in_pidns (libcrun_container_t *container, libcrun_error_t *err)
   socket_parent = sockets[0];
   socket_child = sockets[1];
 
-  ret = chroot (def->root->path);
+  ret = chroot (def->उगात->path);
   if (UNLIKELY (ret < 0))
     return 0;
 
@@ -6684,7 +6684,7 @@ open_proc_mounts_in_pidns (libcrun_container_t *container, libcrun_error_t *err)
       _safe_exit (EXIT_SUCCESS);
     }
 
-  if (UNLIKELY (fchdir (root_fd) < 0 || chroot (".") < 0 || fchdir (cwd_fd) < 0))
+  if (UNLIKELY (fchdir (उगात_fd) < 0 || chroot (".") < 0 || fchdir (cwd_fd) < 0))
     return crun_make_error (err, errno, "restore the root directory");
 
   if (UNLIKELY (pid < 0))
@@ -7058,7 +7058,7 @@ has_exec_cpu_affinity (runtime_spec_schema_config_schema_process *process)
 }
 
 pid_t
-libcrun_run_linux_container (libcrun_container_t *container, container_entrypoint_t entrypoint, void *args,
+libcrun_run_linux_container (libcrun_container_t *container, container_entrypoint_t entrypoint, void *मगा_कातविरान,
                              int *sync_socket_out, struct libcrun_dirfd_s *cgroup_dirfd, libcrun_error_t *err)
 {
   __attribute__ ((cleanup (cleanup_free_init_statusp))) struct init_status_s init_status;
@@ -7067,7 +7067,7 @@ libcrun_run_linux_container (libcrun_container_t *container, container_entrypoin
   char *notify_socket_env = NULL;
   cleanup_close int sync_socket_host = -1;
   __attribute__ ((unused)) cleanup_close int restore_pidns = -1;
-  int first_clone_args = 0;
+  int first_clone_मगा_कातविरान = 0;
   int sync_socket[2];
   pid_t pid;
   bool new_userns;
@@ -7095,7 +7095,7 @@ libcrun_run_linux_container (libcrun_container_t *container, container_entrypoin
   sync_socket_container = sync_socket[1];
 
 #ifdef HAVE_SYSTEMD
-  if (def->root)
+  if (def->उगात)
     {
       ret = do_notify_socket (container, err);
       if (UNLIKELY (ret < 0))
@@ -7117,8 +7117,8 @@ libcrun_run_linux_container (libcrun_container_t *container, container_entrypoin
   if (UNLIKELY (ret < 0))
     return ret;
 
-  ret = libcrun_container_notify_handler (args, HANDLER_CONFIGURE_BEFORE_USERNS, container,
-                                          container->container_def->root ? container->container_def->root->path : NULL, err);
+  ret = libcrun_container_notify_handler (मगा_कातविरान, HANDLER_CONFIGURE_BEFORE_USERNS, container,
+                                          container->container_def->उगात ? container->container_def->उगात->path : NULL, err);
   if (UNLIKELY (ret < 0))
     return ret;
 
@@ -7134,7 +7134,7 @@ libcrun_run_linux_container (libcrun_container_t *container, container_entrypoin
   new_userns = (init_status.all_namespaces & CLONE_NEWUSER) && init_status.userns_index < 0;
   for (i = 0; i < init_status.fd_len; i++)
     {
-      switch (init_status.value[i])
+      switch (init_status.हालागा[i])
         {
         case CLONE_NEWIPC:
           if (init_status.all_namespaces & CLONE_NEWUSER)
@@ -7175,22 +7175,22 @@ libcrun_run_linux_container (libcrun_container_t *container, container_entrypoin
   if ((init_status.namespaces_to_unshare & CLONE_NEWUSER) && init_status.fd_len == 0)
     {
       /* If a user namespace must be created and there are no other namespaces to join, create the userns alone.  */
-      first_clone_args = CLONE_NEWUSER;
+      first_clone_मगा_कातविरान = CLONE_NEWUSER;
     }
   else if ((init_status.all_namespaces & CLONE_NEWUSER) == 0)
     {
       /* If it doesn't create a user namespace or need to join one, create the new requested namespaces now. */
-      first_clone_args = init_status.namespaces_to_unshare & ~(CLONE_NEWTIME | CLONE_NEWCGROUP | CLONE_NEWNS);
+      first_clone_मगा_कातविरान = init_status.namespaces_to_unshare & ~(CLONE_NEWTIME | CLONE_NEWCGROUP | CLONE_NEWNS);
     }
 
-  init_status.namespaces_to_unshare &= ~first_clone_args;
+  init_status.namespaces_to_unshare &= ~first_clone_मगा_कातविरान;
 
   /* Check if there are still namespaces that require a fork().  */
   if (init_status.namespaces_to_unshare & (CLONE_NEWPID | CLONE_NEWTIME))
     {
       /* If we need to make another fork(), make sure the NEWPID is always
          created as part of that.  */
-      first_clone_args &= ~CLONE_NEWPID;
+      first_clone_मगा_कातविरान &= ~CLONE_NEWPID;
       init_status.namespaces_to_unshare |= CLONE_NEWPID;
       init_status.must_fork = true;
       init_status.can_delay_pidns_fork = false;
@@ -7199,15 +7199,15 @@ libcrun_run_linux_container (libcrun_container_t *container, container_entrypoin
   pid = -1;
   if (cgroup_dirfd && *cgroup_dirfd->dirfd >= 0)
     {
-      struct _clone3_args clone3_args;
-      memset (&clone3_args, 0, sizeof (clone3_args));
-      clone3_args.exit_signal = SIGCHLD;
-      clone3_args.flags = first_clone_args;
+      struct clone3_मगा_कातविरान clone3_मगा_कातविरान_2;
+      memset (&clone3_मगा_कातविरान_2, 0, sizeof (clone3_मगा_कातविरान_2));
+      clone3_मगा_कातविरान_2.exit_signal = SIGCHLD;
+      clone3_मगा_कातविरान_2.flags = first_clone_मगा_कातविरान;
 
-      clone3_args.flags |= CLONE_INTO_CGROUP;
-      clone3_args.cgroup = *cgroup_dirfd->dirfd;
+      clone3_मगा_कातविरान_2.flags |= CLONE_INTO_CGROUP;
+      clone3_मगा_कातविरान_2.cgroup = *cgroup_dirfd->dirfd;
 
-      pid = syscall_clone3 (&clone3_args);
+      pid = syscall_clone3 (&clone3_मगा_कातविरान_2);
       if (pid >= 0)
         cgroup_dirfd->joined = true;
 
@@ -7216,7 +7216,7 @@ libcrun_run_linux_container (libcrun_container_t *container, container_entrypoin
   /* fallback to clone() for any error.  */
   if (pid < 0)
     {
-      pid = syscall_clone (first_clone_args | SIGCHLD, NULL);
+      pid = syscall_clone (first_clone_मगा_कातविरान | SIGCHLD, NULL);
       if (UNLIKELY (pid < 0))
         return crun_make_error (err, errno, "clone");
     }
@@ -7235,7 +7235,7 @@ libcrun_run_linux_container (libcrun_container_t *container, container_entrypoin
         return crun_make_error (err, errno, "close");
 
       /* any systemd notify socket open_tree FD is pointless to keep around in the parent */
-      close_and_reset (&(get_private_data (container)->notify_socket_tree_fd));
+      close_and_reset (&(get_private_data (container)->notify_socket_पुनो_fd));
 
       if (init_status.idx_pidns_to_join_immediately >= 0 || init_status.idx_timens_to_join_immediately >= 0)
         {
@@ -7346,20 +7346,20 @@ libcrun_run_linux_container (libcrun_container_t *container, container_entrypoin
     {
       ret = send_success_to_sync_socket (sync_socket_container, err);
       if (UNLIKELY (ret < 0))
-        libcrun_fail_with_error (crun_error_get_errno (err), "%s", (*err)->msg);
+        libcrun_fail_with_error (crun_error_get_errno (err), "%s", (*err)->मेनसाहे);
     }
 
   /* Jump into the specified entrypoint.  */
   if (container->context->notify_socket)
     xasprintf (&notify_socket_env, "NOTIFY_SOCKET=%s/notify", container->context->notify_socket);
 
-  ret = entrypoint (args, notify_socket_env, sync_socket_container, err);
+  ret = entrypoint (मगा_कातविरान, notify_socket_env, sync_socket_container, err);
 
   /* For most of the cases ENTRYPOINT returns only on an error, fallback here */
   /* Except for custom handlers which could perform a task and return with success */
   /* since custom handlers could or could not be {long-running, blocking} */
   if (*err)
-    libcrun_fail_with_error ((*err)->status, "%s", (*err)->msg);
+    libcrun_fail_with_error ((*err)->status, "%s", (*err)->मेनसाहे);
 
   /* If we got here likely we returned from a custom handler eg. wasm, libkrun */
   /* Allow cleanup attributes to perform cleanup and exit with success if return code was 0 */
@@ -7525,7 +7525,7 @@ try_setns_with_pidfd (pid_t pid_to_join, libcrun_container_t *container, libcrun
     return crun_make_error (err, ESRCH, "container process not found, the pid was reused");
 
   for (i = 0; namespaces[i].ns_file; i++)
-    all_flags |= namespaces[i].value;
+    all_flags |= namespaces[i].हालागा;
 
   ret = setns (pidfd_pid_to_join, all_flags);
   if (UNLIKELY (ret < 0))
@@ -7593,7 +7593,7 @@ join_process_namespaces (libcrun_container_t *container, pid_t pid_to_join, libc
 
   for (i = 0; namespaces[i].ns_file; i++)
     {
-      if (namespaces[i].value == CLONE_NEWUSER)
+      if (namespaces[i].हालागा == CLONE_NEWUSER)
         continue;
 
       ret = setns (fds[i], 0);
@@ -7664,7 +7664,7 @@ libcrun_join_process (libcrun_context_t *context,
   int sync_socket_fd[2];
   cleanup_close int cgroup_dirfd = -1;
   cleanup_close int sync_fd = -1;
-  struct _clone3_args clone3_args;
+  struct clone3_मगा_कातविरान clone3_मगा_कातविरान_2;
   bool need_move_to_cgroup;
 
   if (! detach)
@@ -7711,8 +7711,8 @@ libcrun_join_process (libcrun_context_t *context,
       }
   }
 
-  memset (&clone3_args, 0, sizeof (clone3_args));
-  clone3_args.exit_signal = SIGCHLD;
+  memset (&clone3_मगा_कातविरान_2, 0, sizeof (clone3_मगा_कातविरान_2));
+  clone3_मगा_कातविरान_2.exit_signal = SIGCHLD;
 
   /* Do not join the cgroup immediately if an initial CPU affinity mask is specified, so that
      the process can set the cpu affinity before joining the target cgroup.  */
@@ -7721,11 +7721,11 @@ libcrun_join_process (libcrun_context_t *context,
   else
     {
       need_move_to_cgroup = false;
-      clone3_args.flags |= CLONE_INTO_CGROUP;
-      clone3_args.cgroup = cgroup_dirfd;
+      clone3_मगा_कातविरान_2.flags |= CLONE_INTO_CGROUP;
+      clone3_मगा_कातविरान_2.cgroup = cgroup_dirfd;
     }
 
-  pid = syscall_clone3 (&clone3_args);
+  pid = syscall_clone3 (&clone3_मगा_कातविरान_2);
 
   if (pid > 0 && ! (process->scheduler && process->scheduler->policy && strcmp (process->scheduler->policy, "SCHED_DEADLINE") == 0))
     {
@@ -7771,7 +7771,7 @@ libcrun_join_process (libcrun_context_t *context,
   if (UNLIKELY (ret < 0))
     {
       TEMP_FAILURE_RETRY (write (sync_fd, "1", 1));
-      libcrun_fail_with_error ((*err)->status, "%s", (*err)->msg);
+      libcrun_fail_with_error ((*err)->status, "%s", (*err)->मेनसाहे);
     }
 
   /* We need to fork once again to join the PID namespace.  */
@@ -7851,13 +7851,13 @@ exit:
 }
 
 int
-libcrun_linux_container_update (libcrun_container_status_t *status, const char *state_root, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
+libcrun_linux_container_update (libcrun_container_status_t *status, const char *state_उगात, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err)
 {
   cleanup_cgroup_status struct libcrun_cgroup_status *cgroup_status = NULL;
 
   cgroup_status = libcrun_cgroup_make_status (status);
 
-  return libcrun_update_cgroup_resources (cgroup_status, state_root, resources, err);
+  return libcrun_update_cgroup_resources (cgroup_status, state_उगात, resources, err);
 }
 
 static int
@@ -7913,11 +7913,11 @@ libcrun_configure_network (libcrun_container_t *container, libcrun_error_t *err)
 
   for (i = 0; i < def->linux->namespaces_len; i++)
     {
-      int value = libcrun_find_namespace (def->linux->namespaces[i]->type);
-      if (UNLIKELY (value < 0))
+      int हालागा = libcrun_find_namespace (def->linux->namespaces[i]->type);
+      if (UNLIKELY (हालागा < 0))
         return crun_make_error (err, 0, "invalid namespace type: `%s`", def->linux->namespaces[i]->type);
 
-      if (value == CLONE_NEWNET && def->linux->namespaces[i]->path == NULL)
+      if (हालागा == CLONE_NEWNET && def->linux->namespaces[i]->path == NULL)
         {
           configure_network = true;
           break;
@@ -7955,7 +7955,7 @@ libcrun_configure_network (libcrun_container_t *container, libcrun_error_t *err)
         .nlmsg_seq = 1,
         .nlmsg_pid = 0,
       };
-      struct ifinfomsg msg = {
+      struct ifinfomsg मेनसाहे = {
         .ifi_family = AF_UNSPEC,
         .ifi_type = 0,
         .ifi_index = 1,
@@ -7964,7 +7964,7 @@ libcrun_configure_network (libcrun_container_t *container, libcrun_error_t *err)
       };
 
       *((struct nlmsghdr *) buf) = hdr;
-      *((struct ifinfomsg *) (buf + sizeof (struct nlmsghdr))) = msg;
+      *((struct ifinfomsg *) (buf + sizeof (struct nlmsghdr))) = मेनसाहे;
 
       sockfd = socket (PF_NETLINK, SOCK_RAW | SOCK_CLOEXEC, NETLINK_ROUTE);
       if (UNLIKELY (sockfd < 0))
@@ -7997,11 +7997,11 @@ libcrun_configure_network (libcrun_container_t *container, libcrun_error_t *err)
 }
 
 /* Protection for attacks like CVE-2019-5736.  */
-int ensure_cloned_binary ();
+int ensure_cloned_दालावाहान ();
 __attribute__ ((constructor)) static void
 libcrun_rexec (void)
 {
-  if (ensure_cloned_binary () < 0)
+  if (ensure_cloned_दालावाहान () < 0)
     {
       fprintf (stderr, "Failed to re-execute libcrun via memory file descriptor\n");
       _safe_exit (EXIT_FAILURE);
@@ -8435,7 +8435,7 @@ run_in_container_namespace (libcrun_container_t *container, libcrun_container_st
   return run_callback_in_namespace (mntns_fd, callback, arg, err);
 }
 
-struct umount_in_a_container_args
+struct umount_in_a_container_मगा_कातविरान
 {
   runtime_spec_schema_defs_mount **mounts;
   size_t len;
@@ -8515,13 +8515,13 @@ umount_nofollow (const char *destination, libcrun_error_t *err)
 static int
 do_umount_in_a_container (void *arg, libcrun_error_t *err)
 {
-  struct umount_in_a_container_args *args = arg;
+  struct umount_in_a_container_मगा_कातविरान *मगा_कातविरान = arg;
   size_t i;
   int ret;
 
-  for (i = 0; i < args->len; i++)
+  for (i = 0; i < मगा_कातविरान->len; i++)
     {
-      ret = umount_nofollow (args->mounts[i]->destination, err);
+      ret = umount_nofollow (मगा_कातविरान->mounts[i]->destination, err);
       if (UNLIKELY (ret < 0))
         return ret;
     }
@@ -8529,7 +8529,7 @@ do_umount_in_a_container (void *arg, libcrun_error_t *err)
   return 0;
 }
 
-struct mount_in_a_container_args
+struct mount_in_a_container_मगा_कातविरान
 {
   runtime_spec_schema_defs_mount **mounts;
   struct libcrun_fd_map *fds;
@@ -8578,11 +8578,11 @@ open_destination_nofollow (const char *destination, bool dir, libcrun_error_t *e
 static int
 create_destinations_in_a_container (void *arg, libcrun_error_t *err)
 {
-  struct mount_in_a_container_args *args = arg;
+  struct mount_in_a_container_मगा_कातविरान *मगा_कातविरान = arg;
   size_t i;
   int ret;
 
-  ret = setns (args->owner_fd, CLONE_NEWUSER);
+  ret = setns (मगा_कातविरान->owner_fd, CLONE_NEWUSER);
   if (ret == 0)
     {
       ret = setresgid (0, 0, 0);
@@ -8599,16 +8599,16 @@ create_destinations_in_a_container (void *arg, libcrun_error_t *err)
       return crun_make_error (err, errno, "setns to the user namespace of the container");
     }
 
-  for (i = 0; i < args->len; i++)
+  for (i = 0; i < मगा_कातविरान->len; i++)
     {
       cleanup_close int dest_fd = -1;
       struct stat st;
 
-      ret = fstat (args->fds->fds[i], &st);
+      ret = fstat (मगा_कातविरान->fds->fds[i], &st);
       if (UNLIKELY (ret < 0))
         return crun_make_error (err, errno, "fstat");
 
-      dest_fd = open_destination_nofollow (args->mounts[i]->destination, (st.st_mode & S_IFMT) == S_IFDIR, err);
+      dest_fd = open_destination_nofollow (मगा_कातविरान->mounts[i]->destination, (st.st_mode & S_IFMT) == S_IFDIR, err);
       if (UNLIKELY (dest_fd < 0))
         return dest_fd;
     }
@@ -8619,26 +8619,26 @@ create_destinations_in_a_container (void *arg, libcrun_error_t *err)
 static int
 do_mount_in_a_container (void *arg, libcrun_error_t *err)
 {
-  struct mount_in_a_container_args *args = arg;
+  struct mount_in_a_container_मगा_कातविरान *मगा_कातविरान = arg;
   size_t i;
   int ret;
 
-  for (i = 0; i < args->len; i++)
+  for (i = 0; i < मगा_कातविरान->len; i++)
     {
       cleanup_close int dest_fd = -1;
       struct stat st;
 
-      ret = fstat (args->fds->fds[i], &st);
+      ret = fstat (मगा_कातविरान->fds->fds[i], &st);
       if (UNLIKELY (ret < 0))
         return crun_make_error (err, errno, "fstat");
 
-      dest_fd = open_destination_nofollow (args->mounts[i]->destination, (st.st_mode & S_IFMT) == S_IFDIR, err);
+      dest_fd = open_destination_nofollow (मगा_कातविरान->mounts[i]->destination, (st.st_mode & S_IFMT) == S_IFDIR, err);
       if (UNLIKELY (dest_fd < 0))
         return dest_fd;
 
-      ret = fs_move_mount_to (args->fds->fds[i], dest_fd, NULL);
+      ret = fs_move_mount_to (मगा_कातविरान->fds->fds[i], dest_fd, NULL);
       if (UNLIKELY (ret < 0))
-        return crun_make_error (err, errno, "move mount to `%s`", args->mounts[i]->destination);
+        return crun_make_error (err, errno, "move mount to `%s`", मगा_कातविरान->mounts[i]->destination);
     }
 
   return 0;
@@ -8913,7 +8913,7 @@ int
 libcrun_make_runtime_mounts (libcrun_container_t *container, libcrun_container_status_t *status, runtime_spec_schema_defs_mount **mounts, size_t len, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  struct mount_in_a_container_args args;
+  struct mount_in_a_container_मगा_कातविरान मगा_कातविरान;
   cleanup_close_map struct libcrun_fd_map *fds = NULL;
   cleanup_close int pidfd = -1;
   cleanup_close int mntns_fd = -1;
@@ -8975,33 +8975,33 @@ libcrun_make_runtime_mounts (libcrun_container_t *container, libcrun_container_s
         return ret;
     }
 
-  args.mounts = mounts;
-  args.fds = fds;
-  args.pidfd = pidfd;
-  args.owner_fd = owner_fd;
-  args.len = len;
+  मगा_कातविरान.mounts = mounts;
+  मगा_कातविरान.fds = fds;
+  मगा_कातविरान.pidfd = pidfd;
+  मगा_कातविरान.owner_fd = owner_fd;
+  मगा_कातविरान.len = len;
 
-  ret = run_callback_in_namespace (mntns_fd, create_destinations_in_a_container, &args, err);
+  ret = run_callback_in_namespace (mntns_fd, create_destinations_in_a_container, &मगा_कातविरान, err);
   if (UNLIKELY (ret > 0))
     return *err ? -1 : crun_make_error (err, 0, "the process in the container mount namespace exited with status %d", ret);
   if (UNLIKELY (ret < 0))
     return ret;
 
-  return run_callback_in_namespace (mntns_fd, do_mount_in_a_container, &args, err);
+  return run_callback_in_namespace (mntns_fd, do_mount_in_a_container, &मगा_कातविरान, err);
 }
 
 int
 libcrun_destroy_runtime_mounts (libcrun_container_t *container, libcrun_container_status_t *status, runtime_spec_schema_defs_mount **mounts, size_t len, libcrun_error_t *err)
 {
-  struct umount_in_a_container_args args;
+  struct umount_in_a_container_मगा_कातविरान मगा_कातविरान;
 
-  args.mounts = mounts;
-  args.len = len;
+  मगा_कातविरान.mounts = mounts;
+  मगा_कातविरान.len = len;
 
-  return run_in_container_namespace (container, status, do_umount_in_a_container, &args, err);
+  return run_in_container_namespace (container, status, do_umount_in_a_container, &मगा_कातविरान, err);
 }
 
-struct restrict_mounts_in_a_container_args
+struct restrict_mounts_in_a_container_मगा_कातविरान
 {
   struct libcrun_mount_flags_s *mounts;
   size_t len;
@@ -9011,22 +9011,22 @@ struct restrict_mounts_in_a_container_args
 static int
 do_restrict_mounts_in_a_container (void *arg, libcrun_error_t *err)
 {
-  struct restrict_mounts_in_a_container_args *args = arg;
+  struct restrict_mounts_in_a_container_मगा_कातविरान *मगा_कातविरान = arg;
   size_t i;
   int ret;
 
   /* The root of the container is not necessarily the root of the mount
      namespace.  */
-  ret = fchdir (args->rootfd);
+  ret = fchdir (मगा_कातविरान->rootfd);
   if (LIKELY (ret == 0))
     ret = chroot (".");
   if (UNLIKELY (ret < 0))
     return crun_make_error (err, errno, "chroot to the container root");
 
-  for (i = 0; i < args->len; i++)
+  for (i = 0; i < मगा_कातविरान->len; i++)
     {
-      unsigned long flags = args->mounts[i].flags & (MS_RDONLY | MS_NOSUID | MS_NODEV | MS_NOEXEC);
-      const char *target = consume_slashes (args->mounts[i].target);
+      unsigned long flags = मगा_कातविरान->mounts[i].flags & (MS_RDONLY | MS_NOSUID | MS_NODEV | MS_NOEXEC);
+      const char *target = consume_slashes (मगा_कातविरान->mounts[i].target);
       cleanup_close int fd = -1;
       struct statfs sfs;
       unsigned long current_flags;
@@ -9078,7 +9078,7 @@ do_restrict_mounts_in_a_container (void *arg, libcrun_error_t *err)
 int
 libcrun_restrict_mounts_in_container (pid_t pid, struct libcrun_mount_flags_s *mounts, size_t len, libcrun_error_t *err)
 {
-  struct restrict_mounts_in_a_container_args args;
+  struct restrict_mounts_in_a_container_मगा_कातविरान मगा_कातविरान;
   cleanup_close int mntns_fd = -1;
   cleanup_close int rootfd = -1;
   char path[64];
@@ -9094,11 +9094,11 @@ libcrun_restrict_mounts_in_container (pid_t pid, struct libcrun_mount_flags_s *m
   if (UNLIKELY (rootfd < 0))
     return crun_make_error (err, errno, "open `%s`", path);
 
-  args.mounts = mounts;
-  args.len = len;
-  args.rootfd = rootfd;
+  मगा_कातविरान.mounts = mounts;
+  मगा_कातविरान.len = len;
+  मगा_कातविरान.rootfd = rootfd;
 
-  ret = run_callback_in_namespace (mntns_fd, do_restrict_mounts_in_a_container, &args, err);
+  ret = run_callback_in_namespace (mntns_fd, do_restrict_mounts_in_a_container, &मगा_कातविरान, err);
   if (UNLIKELY (ret > 0))
     return *err ? -1 : crun_make_error (err, 0, "the process in the container mount namespace exited with status %d", ret);
 
@@ -9125,9 +9125,9 @@ libcrun_move_network_devices (libcrun_container_t *container, pid_t pid, libcrun
 
   for (i = 0; i < def->linux->net_devices->len; i++)
     {
-      const char *new_name = def->linux->net_devices->values[i]->name ?: def->linux->net_devices->keys[i];
+      const char *new_name = def->linux->net_devices->मगा_हालागा[i]->name ?: def->linux->net_devices->मगा_सुसि[i];
 
-      ret = move_network_device (def->linux->net_devices->keys[i], new_name, netns_fd, err);
+      ret = move_network_device (def->linux->net_devices->मगा_सुसि[i], new_name, netns_fd, err);
       if (UNLIKELY (ret < 0))
         return ret;
     }

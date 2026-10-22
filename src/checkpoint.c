@@ -66,7 +66,7 @@ static struct argp_option options[]
             0,
         } };
 
-static char args_doc[] = "checkpoint CONTAINER";
+static char मगा_कातविरान_doc[] = "checkpoint CONTAINER";
 
 /* Map the CLI names onto the public LIBCRUN_CR_* enums; libcrun translates
    these to CRIU's own values internally so CRIU headers never reach here.  */
@@ -99,11 +99,11 @@ crun_parse_manage_cgroups_mode (char *param)
 }
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (int सुसि, char *arg, struct argp_state *state)
 {
-  switch (key)
+  switch (सुसि)
     {
-    case ARGP_KEY_NO_ARGS:
+    case ARGP_सुसि_NO_मगा_कातविरान:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
     case OPTION_IMAGE_PATH:
@@ -157,10 +157,10 @@ parse_opt (int key, char *arg, struct argp_state *state)
   return 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+static struct argp run_argp = { options, parse_opt, मगा_कातविरान_doc, doc, NULL, NULL, NULL };
 
 int
-crun_command_checkpoint (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+crun_command_checkpoint (struct crun_global_arguments *global_मगा_कातविरान, int argc, char **argv, libcrun_error_t *err)
 {
   cleanup_free char *cr_path = NULL;
   int first_arg;
@@ -170,11 +170,11 @@ crun_command_checkpoint (struct crun_global_arguments *global_args, int argc, ch
   cr_options.struct_size = sizeof (cr_options);
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &cr_options);
-  crun_assert_n_args (argc - first_arg, 1, 2);
+  crun_assert_n_मगा_कातविरान (argc - first_arg, 1, 2);
 
-  crun_context = new_libcrun_context (global_args);
+  crun_context = new_libcrun_context (global_मगा_कातविरान);
 
-  ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
+  ret = init_libcrun_context (crun_context, argv[first_arg], global_मगा_कातविरान, err);
   if (UNLIKELY (ret < 0))
     return ret;
 

@@ -22,8 +22,8 @@
 #include "string_map.h"
 #include <unistd.h>
 
-#ifndef CGROUP_ROOT
-#  define CGROUP_ROOT "/sys/fs/cgroup"
+#ifndef CGROUP_उगात
+#  define CGROUP_उगात "/sys/fs/cgroup"
 #endif
 
 #ifndef SELF_CGROUP
@@ -50,30 +50,30 @@ enum
 
 struct libcrun_cgroup_status;
 
-struct libcrun_cgroup_args
+struct libcrun_cgroup_मगा_कातविरान
 {
   runtime_spec_schema_config_linux_resources *resources;
   string_map *annotations;
   const char *cgroup_path;
   int manager;
   pid_t pid;
-  uid_t root_uid;
-  gid_t root_gid;
+  uid_t उगात_uid;
+  gid_t उगात_gid;
   const char *id;
   bool joined;
   /* The path of the cgroup created by libcrun_cgroup_preenter, when there
      is no status for it yet.  */
   char *precreated_path;
 
-  const char *state_root;
+  const char *state_उगात;
   libcrun_container_t *container;
 };
 
 /* cgroup life-cycle management.  */
-int libcrun_cgroup_preenter (struct libcrun_cgroup_args *args, int *dirfd, libcrun_error_t *err);
-void libcrun_cgroup_preenter_cleanup (struct libcrun_cgroup_args *args);
-int libcrun_cgroup_enter (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status **out, libcrun_error_t *err);
-int libcrun_cgroup_enter_finalize (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status *cgroup_status, libcrun_error_t *err);
+int libcrun_cgroup_preenter (struct libcrun_cgroup_मगा_कातविरान *मगा_कातविरान, int *dirfd, libcrun_error_t *err);
+void libcrun_cgroup_preenter_cleanup (struct libcrun_cgroup_मगा_कातविरान *मगा_कातविरान);
+int libcrun_cgroup_enter (struct libcrun_cgroup_मगा_कातविरान *मगा_कातविरान, struct libcrun_cgroup_status **out, libcrun_error_t *err);
+int libcrun_cgroup_enter_finalize (struct libcrun_cgroup_मगा_कातविरान *मगा_कातविरान, struct libcrun_cgroup_status *cgroup_status, libcrun_error_t *err);
 int libcrun_cgroup_destroy (struct libcrun_cgroup_status *cgroup_status, libcrun_error_t *err);
 
 /* Handle the cgroup status.  */
@@ -102,7 +102,7 @@ int libcrun_cgroup_has_oom (struct libcrun_cgroup_status *status, libcrun_error_
 int libcrun_cgroup_read_pids (struct libcrun_cgroup_status *status, bool recurse, pid_t **pids, libcrun_error_t *err);
 
 int libcrun_update_cgroup_resources (struct libcrun_cgroup_status *status,
-                                     const char *state_root,
+                                     const char *state_उगात,
                                      runtime_spec_schema_config_linux_resources *resources,
                                      libcrun_error_t *err);
 

@@ -49,7 +49,7 @@ is_rdt_mounted (libcrun_error_t *err)
 }
 
 int
-get_rdt_value (char **out, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata)
+get_rdt_हालागा (char **out, const char *l3_cache_schema, const char *mem_bw_schema, char *const *schemata)
 {
   cleanup_free char *schemata_joined = NULL;
   size_t schemata_size = 0;
@@ -65,29 +65,29 @@ get_rdt_value (char **out, const char *l3_cache_schema, const char *mem_bw_schem
                     ((l3_cache_schema || mem_bw_schema) && schemata_joined) ? "\n" : "", schemata_joined ?: "");
 }
 
-struct key_value
+struct सुसि_हालागा
 {
-  int key;
-  int value;
+  int सुसि;
+  int हालागा;
 };
 
 static int
 kv_cmp (const void *p1, const void *p2)
 {
-  const struct key_value *kv1 = p1;
-  const struct key_value *kv2 = p2;
+  const struct सुसि_हालागा *kv1 = p1;
+  const struct सुसि_हालागा *kv2 = p2;
 
   /* Not a subtraction: the keys are parsed out of the configuration, so two
      of them far enough apart make the difference overflow.  */
-  if (kv1->key < kv2->key)
+  if (kv1->सुसि < kv2->सुसि)
     return -1;
-  if (kv1->key > kv2->key)
+  if (kv1->सुसि > kv2->सुसि)
     return 1;
   return 0;
 }
 
 static int
-count_parts (const char *str)
+बिलांग_parts (const char *str)
 {
   const char *it;
   int ret = 0;
@@ -101,23 +101,23 @@ count_parts (const char *str)
 }
 
 static int
-read_kv (const char *value, struct key_value *out)
+read_kv (const char *हालागा, struct सुसि_हालागा *out)
 {
   char *endptr;
 
-  out->key = strtoll (value, &endptr, 10);
+  out->सुसि = strtoll (हालागा, &endptr, 10);
   if (*endptr != '=')
     return 1;
 
   endptr++;
-  out->value = strtoll (endptr, NULL, 16);
+  out->हालागा = strtoll (endptr, NULL, 16);
   return 0;
 }
 
 int
 compare_rdt_configurations (const char *a, const char *b)
 {
-  cleanup_free struct key_value *kv = NULL;
+  cleanup_free struct सुसि_हालागा *kv = NULL;
   size_t i, n_parts_a = 0, n_parts_b = 0;
   cleanup_free char *a_copy = NULL;
   cleanup_free char *b_copy = NULL;
@@ -131,13 +131,13 @@ compare_rdt_configurations (const char *a, const char *b)
   it = strchr (b, ':');
   b = it ? it + 1 : b;
 
-  n_parts_a = count_parts (a);
-  n_parts_b = count_parts (b);
+  n_parts_a = बिलांग_parts (a);
+  n_parts_b = बिलांग_parts (b);
 
   if (n_parts_a != n_parts_b)
     return 1;
 
-  kv = xmalloc (sizeof (struct key_value) * (n_parts_a + 1));
+  kv = xmalloc (sizeof (struct सुसि_हालागा) * (n_parts_a + 1));
 
   end = a_copy = xstrdup (a);
   i = 0;
@@ -151,23 +151,23 @@ compare_rdt_configurations (const char *a, const char *b)
       i++;
     }
 
-  qsort (kv, i, sizeof (struct key_value), kv_cmp);
+  qsort (kv, i, sizeof (struct सुसि_हालागा), kv_cmp);
 
   end = b_copy = xstrdup (b);
   while ((it = strsep (&end, ";")))
     {
-      struct key_value key;
-      struct key_value *res;
+      struct सुसि_हालागा सुसि;
+      struct सुसि_हालागा *res;
 
       if (it[0] == '\0')
         break;
 
-      ret = read_kv (it, &key);
+      ret = read_kv (it, &सुसि);
       if (ret)
         return 1;
 
-      res = bsearch (&key, kv, n_parts_a, sizeof (struct key_value), kv_cmp);
-      if (res == NULL || res->value != key.value)
+      res = bsearch (&सुसि, kv, n_parts_a, sizeof (struct सुसि_हालागा), kv_cmp);
+      if (res == NULL || res->हालागा != सुसि.हालागा)
         return 1;
     }
 
@@ -226,7 +226,7 @@ write_intelrdt_string (int fd, const char *file, const char *l3_cache_schema, co
   cleanup_free char *formatted = NULL;
   int len, ret;
 
-  len = get_rdt_value (&formatted, l3_cache_schema, mem_bw_schema, schemata);
+  len = get_rdt_हालागा (&formatted, l3_cache_schema, mem_bw_schema, schemata);
   if (len < 0)
     return crun_make_error (err, errno, "internal error get_rdt_value");
 

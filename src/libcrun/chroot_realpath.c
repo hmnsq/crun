@@ -62,7 +62,7 @@ char *chroot_realpath(const char *chroot, const char *path, char resolved_path[]
 	char copy_path[PATH_MAX];
 	char link_path[PATH_MAX];
 	char got_path[PATH_MAX];
-	char *got_path_root = got_path;
+	char *got_path_उगात = got_path;
 	char *new_path = got_path;
 	char *max_path;
 	int readlinks = 0;
@@ -97,7 +97,7 @@ char *chroot_realpath(const char *chroot, const char *path, char resolved_path[]
 	   result is always prefixed by CHROOT and callers can strip it. */
 	strcpy(new_path, chroot);
 	new_path += chroot_len;
-	got_path_root = new_path;
+	got_path_उगात = new_path;
 	*new_path++ = '/';
 
 	/* Expand each slash-separated pathname component. */
@@ -117,7 +117,7 @@ char *chroot_realpath(const char *chroot, const char *path, char resolved_path[]
 				if (path[2] == '\0' || path[2] == '/') {
 					path += 2;
 					/* Ignore ".." at root. */
-					if (new_path == got_path_root + 1)
+					if (new_path == got_path_उगात + 1)
 						continue;
 					/* Handle ".." by backing up. */
 					while ((--new_path)[-1] != '/');
@@ -163,7 +163,7 @@ char *chroot_realpath(const char *chroot, const char *path, char resolved_path[]
 			link_path[n] = '\0';
 			if (*link_path == '/') {
 				/* Start over for an absolute symlink. */
-				new_path = got_path_root;
+				new_path = got_path_उगात;
 				*new_path++ = '/';
 			}
 			else {

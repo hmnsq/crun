@@ -35,7 +35,7 @@ int check_memory_before_update (const char *path, runtime_spec_schema_config_lin
                                 libcrun_error_t *err);
 
 int update_cgroup_resources (const char *path,
-                             const char *state_root,
+                             const char *state_उगात,
                              runtime_spec_schema_config_linux_resources *resources,
                              bool need_devices,
                              libcrun_error_t *err);

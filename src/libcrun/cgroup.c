@@ -44,7 +44,7 @@
 #include <libgen.h>
 
 static int
-libcrun_cgroup_enter_disabled (struct libcrun_cgroup_args *args arg_unused, struct libcrun_cgroup_status *out, libcrun_error_t *err arg_unused)
+libcrun_cgroup_enter_disabled (struct libcrun_cgroup_मगा_कातविरान *मगा_कातविरान arg_unused, struct libcrun_cgroup_status *out, libcrun_error_t *err arg_unused)
 {
   out->path = NULL;
   return 0;
@@ -90,7 +90,7 @@ find_delegate_cgroup (string_map *annotations)
 {
   const char *annotation;
 
-  annotation = find_string_map_value (annotations, "run.oci.delegate-cgroup");
+  annotation = find_string_map_हालागा (annotations, "run.oci.delegate-cgroup");
   if (annotation)
     {
       if (annotation[0] == '\0')
@@ -128,7 +128,7 @@ libcrun_cgroup_is_container_paused (struct libcrun_cgroup_status *status, bool *
     {
       state = "1";
 
-      ret = append_paths (&path, err, CGROUP_ROOT, cgroup_path, "cgroup.freeze", NULL);
+      ret = append_paths (&path, err, CGROUP_उगात, cgroup_path, "cgroup.freeze", NULL);
       if (UNLIKELY (ret < 0))
         return ret;
     }
@@ -136,7 +136,7 @@ libcrun_cgroup_is_container_paused (struct libcrun_cgroup_status *status, bool *
     {
       state = "FROZEN";
 
-      ret = append_paths (&path, err, CGROUP_ROOT "/freezer", cgroup_path, "freezer.state", NULL);
+      ret = append_paths (&path, err, CGROUP_उगात "/freezer", cgroup_path, "freezer.state", NULL);
       if (UNLIKELY (ret < 0))
         return ret;
     }
@@ -159,10 +159,10 @@ libcrun_cgroup_is_container_paused (struct libcrun_cgroup_status *status, bool *
          whether freezer is enabled or not.
       */
       struct statfs freezer_stat;
-      if (statfs (CGROUP_ROOT "/freezer", &freezer_stat))
+      if (statfs (CGROUP_उगात "/freezer", &freezer_stat))
         {
           crun_error_release (err);
-          return crun_make_error (err, errno, "error when using statfs on `%s`", CGROUP_ROOT "/freezer");
+          return crun_make_error (err, errno, "error when using statfs on `%s`", CGROUP_उगात "/freezer");
         }
 
       /* If the freezer is mounted as cgroupfs type, then missing
@@ -214,7 +214,7 @@ libcrun_cgroup_join_process (struct libcrun_cgroup_status *status, const char *p
   if (UNLIKELY (cgroup_manager->attach_process (status, path, pid, &tmp_err) < 0))
     {
       /* Report the original error, as it is more relevant.  */
-      libcrun_debug ("Cannot attach pid %d to cgroup `%s`: %s", pid, path, tmp_err->msg);
+      libcrun_debug ("Cannot attach pid %d to cgroup `%s`: %s", pid, path, tmp_err->मेनसाहे);
       crun_error_release (&tmp_err);
       return ret;
     }
@@ -276,7 +276,7 @@ complete_cpu_max (const char *path, runtime_spec_schema_config_linux_resources *
   if (cgroup_mode != CGROUP_MODE_UNIFIED)
     return 0;
 
-  ret = append_paths (&cpu_max_path, err, CGROUP_ROOT, path, "cpu.max", NULL);
+  ret = append_paths (&cpu_max_path, err, CGROUP_उगात, path, "cpu.max", NULL);
   if (UNLIKELY (ret < 0))
     return ret;
 
@@ -308,7 +308,7 @@ complete_cpu_max (const char *path, runtime_spec_schema_config_linux_resources *
 
 int
 libcrun_update_cgroup_resources (struct libcrun_cgroup_status *cgroup_status,
-                                 const char *state_root,
+                                 const char *state_उगात,
                                  runtime_spec_schema_config_linux_resources *resources,
                                  libcrun_error_t *err)
 {
@@ -329,18 +329,18 @@ libcrun_update_cgroup_resources (struct libcrun_cgroup_status *cgroup_status,
 
   if (cgroup_manager->update_resources)
     {
-      ret = cgroup_manager->update_resources (cgroup_status, state_root, resources, err);
+      ret = cgroup_manager->update_resources (cgroup_status, state_उगात, resources, err);
       if (UNLIKELY (ret < 0))
         return ret;
     }
-  return update_cgroup_resources (cgroup_status->path, state_root, resources, ! cgroup_status->bpf_dev_set, err);
+  return update_cgroup_resources (cgroup_status->path, state_उगात, resources, ! cgroup_status->bpf_dev_set, err);
 }
 
 static int
-can_ignore_cgroup_enter_errors (struct libcrun_cgroup_args *args, int cgroup_mode,
+can_ignore_cgroup_enter_errors (struct libcrun_cgroup_मगा_कातविरान *मगा_कातविरान, int cgroup_mode,
                                 libcrun_error_t *err)
 {
-  int manager = args->manager;
+  int manager = मगा_कातविरान->manager;
   int rootless;
 
   rootless = is_rootless (err);
@@ -356,7 +356,7 @@ can_ignore_cgroup_enter_errors (struct libcrun_cgroup_args *args, int cgroup_mod
   if (! rootless)
     return 0;
 
-  if (! is_empty_string (args->cgroup_path))
+  if (! is_empty_string (मगा_कातविरान->cgroup_path))
     return 0;
 
   if (cgroup_mode == CGROUP_MODE_UNIFIED && manager == CGROUP_MANAGER_SYSTEMD)
@@ -366,7 +366,7 @@ can_ignore_cgroup_enter_errors (struct libcrun_cgroup_args *args, int cgroup_mod
 }
 
 int
-libcrun_cgroup_preenter (struct libcrun_cgroup_args *args, int *dirfd, libcrun_error_t *err)
+libcrun_cgroup_preenter (struct libcrun_cgroup_मगा_कातविरान *मगा_कातविरान, int *dirfd, libcrun_error_t *err)
 {
   struct libcrun_cgroup_manager *cgroup_manager;
   int cgroup_mode;
@@ -381,14 +381,14 @@ libcrun_cgroup_preenter (struct libcrun_cgroup_args *args, int *dirfd, libcrun_e
   if (cgroup_mode != CGROUP_MODE_UNIFIED)
     return 0;
 
-  ret = get_cgroup_manager (args->manager, &cgroup_manager, err);
+  ret = get_cgroup_manager (मगा_कातविरान->manager, &cgroup_manager, err);
   if (UNLIKELY (ret < 0))
     return ret;
 
   if (cgroup_manager->precreate_cgroup == NULL)
     return 0;
 
-  return cgroup_manager->precreate_cgroup (args, dirfd, err);
+  return cgroup_manager->precreate_cgroup (मगा_कातविरान, dirfd, err);
 }
 
 /* Remove the cgroup created by libcrun_cgroup_preenter if libcrun_cgroup_enter
@@ -396,24 +396,24 @@ libcrun_cgroup_preenter (struct libcrun_cgroup_args *args, int *dirfd, libcrun_e
    Being created by us and without any process joining it, it is empty and a
    plain rmdir is enough.  */
 void
-libcrun_cgroup_preenter_cleanup (struct libcrun_cgroup_args *args)
+libcrun_cgroup_preenter_cleanup (struct libcrun_cgroup_मगा_कातविरान *मगा_कातविरान)
 {
-  if (args->precreated_path == NULL)
+  if (मगा_कातविरान->precreated_path == NULL)
     return;
 
-  (void) rmdir (args->precreated_path);
-  free (args->precreated_path);
-  args->precreated_path = NULL;
+  (void) rmdir (मगा_कातविरान->precreated_path);
+  free (मगा_कातविरान->precreated_path);
+  मगा_कातविरान->precreated_path = NULL;
 }
 
 int
-libcrun_cgroup_enter (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status **out, libcrun_error_t *err)
+libcrun_cgroup_enter (struct libcrun_cgroup_मगा_कातविरान *मगा_कातविरान, struct libcrun_cgroup_status **out, libcrun_error_t *err)
 {
   /* status will be filled by the cgroup manager.  */
   cleanup_cgroup_status struct libcrun_cgroup_status *status = xmalloc0 (sizeof *status);
   struct libcrun_cgroup_manager *cgroup_manager;
-  uid_t root_uid = args->root_uid;
-  uid_t root_gid = args->root_gid;
+  uid_t उगात_uid = मगा_कातविरान->उगात_uid;
+  uid_t उगात_gid = मगा_कातविरान->उगात_gid;
   int cgroup_mode;
   int ret;
 
@@ -428,26 +428,26 @@ libcrun_cgroup_enter (struct libcrun_cgroup_args *args, struct libcrun_cgroup_st
       size_t len;
       cleanup_free char *buffer = NULL;
 
-      ret = read_all_file (CGROUP_ROOT "/unified/cgroup.controllers", &buffer, &len, err);
+      ret = read_all_file (CGROUP_उगात "/unified/cgroup.controllers", &buffer, &len, err);
       if (UNLIKELY (ret < 0))
         return ret;
       if (len > 0)
         return crun_make_error (err, 0, "cgroups in hybrid mode not supported, drop all controllers from cgroupv2");
     }
 
-  ret = get_cgroup_manager (args->manager, &cgroup_manager, err);
+  ret = get_cgroup_manager (मगा_कातविरान->manager, &cgroup_manager, err);
   if (UNLIKELY (ret < 0))
     return ret;
 
-  status->manager = args->manager;
+  status->manager = मगा_कातविरान->manager;
 
-  ret = cgroup_manager->create_cgroup (args, status, err);
+  ret = cgroup_manager->create_cgroup (मगा_कातविरान, status, err);
   if (UNLIKELY (ret < 0))
     {
       libcrun_error_t tmp_err = NULL;
       int ignore_cgroup_errors;
 
-      ignore_cgroup_errors = can_ignore_cgroup_enter_errors (args, cgroup_mode, &tmp_err);
+      ignore_cgroup_errors = can_ignore_cgroup_enter_errors (मगा_कातविरान, cgroup_mode, &tmp_err);
       if (UNLIKELY (ignore_cgroup_errors < 0))
         {
           crun_error_release (err);
@@ -472,24 +472,24 @@ libcrun_cgroup_enter (struct libcrun_cgroup_args *args, struct libcrun_cgroup_st
     }
 
   /* From now on the cgroup is destroyed through its status.  */
-  free (args->precreated_path);
-  args->precreated_path = NULL;
+  free (मगा_कातविरान->precreated_path);
+  मगा_कातविरान->precreated_path = NULL;
 
   if (status->path)
     {
       bool need_chown;
 
-      need_chown = root_uid != (uid_t) -1 || root_gid != (gid_t) -1;
+      need_chown = उगात_uid != (uid_t) -1 || उगात_gid != (gid_t) -1;
       if (cgroup_mode == CGROUP_MODE_UNIFIED && need_chown)
         {
-          ret = chown_cgroups (status->path, root_uid, root_gid, err);
+          ret = chown_cgroups (status->path, उगात_uid, उगात_gid, err);
           if (UNLIKELY (ret < 0))
             goto fail_destroy;
         }
 
-      if (args->resources)
+      if (मगा_कातविरान->resources)
         {
-          ret = update_cgroup_resources (status->path, args->state_root, args->resources, ! status->bpf_dev_set, err);
+          ret = update_cgroup_resources (status->path, मगा_कातविरान->state_उगात, मगा_कातविरान->resources, ! status->bpf_dev_set, err);
           if (UNLIKELY (ret < 0))
             goto fail_destroy;
         }
@@ -512,7 +512,7 @@ fail_destroy:
 }
 
 int
-libcrun_cgroup_enter_finalize (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status *cgroup_status arg_unused, libcrun_error_t *err)
+libcrun_cgroup_enter_finalize (struct libcrun_cgroup_मगा_कातविरान *मगा_कातविरान, struct libcrun_cgroup_status *cgroup_status arg_unused, libcrun_error_t *err)
 {
   cleanup_free char *target_cgroup = NULL;
   cleanup_free char *content = NULL;
@@ -522,7 +522,7 @@ libcrun_cgroup_enter_finalize (struct libcrun_cgroup_args *args, struct libcrun_
   int cgroup_mode;
   int ret;
 
-  delegate_cgroup = find_delegate_cgroup (args->annotations);
+  delegate_cgroup = find_delegate_cgroup (मगा_कातविरान->annotations);
   if (delegate_cgroup == NULL)
     return 0;
 
@@ -539,8 +539,8 @@ libcrun_cgroup_enter_finalize (struct libcrun_cgroup_args *args, struct libcrun_
   cleanup_free char *proc_path = NULL;
   cleanup_close int fd = -1;
 
-  xasprintf (&proc_path, "%d/cgroup", args->pid);
-  fd = libcrun_open_proc_file (args->container, proc_path, O_RDONLY, err);
+  xasprintf (&proc_path, "%d/cgroup", मगा_कातविरान->pid);
+  fd = libcrun_open_proc_file (मगा_कातविरान->container, proc_path, O_RDONLY, err);
   if (UNLIKELY (fd < 0))
     return fd;
 
@@ -561,7 +561,7 @@ libcrun_cgroup_enter_finalize (struct libcrun_cgroup_args *args, struct libcrun_
   if (UNLIKELY (ret < 0))
     return ret;
 
-  ret = append_paths (&dir, err, CGROUP_ROOT, target_cgroup, NULL);
+  ret = append_paths (&dir, err, CGROUP_उगात, target_cgroup, NULL);
   if (UNLIKELY (ret < 0))
     return ret;
 
@@ -569,7 +569,7 @@ libcrun_cgroup_enter_finalize (struct libcrun_cgroup_args *args, struct libcrun_
   if (UNLIKELY (ret < 0))
     return ret;
 
-  ret = move_process_to_cgroup (args->pid, NULL, target_cgroup, err);
+  ret = move_process_to_cgroup (मगा_कातविरान->pid, NULL, target_cgroup, err);
   if (UNLIKELY (ret < 0))
     return ret;
 
@@ -577,7 +577,7 @@ libcrun_cgroup_enter_finalize (struct libcrun_cgroup_args *args, struct libcrun_
   if (UNLIKELY (ret < 0))
     return ret;
 
-  ret = chown_cgroups (target_cgroup, args->root_uid, args->root_gid, err);
+  ret = chown_cgroups (target_cgroup, मगा_कातविरान->उगात_uid, मगा_कातविरान->उगात_gid, err);
   if (UNLIKELY (ret < 0))
     return ret;
 
@@ -608,7 +608,7 @@ libcrun_cgroup_has_oom (struct libcrun_cgroup_status *status, libcrun_error_t *e
         cleanup_free char *events_path = NULL;
         int ret;
 
-        ret = append_paths (&events_path, err, CGROUP_ROOT, path, "memory.events", NULL);
+        ret = append_paths (&events_path, err, CGROUP_उगात, path, "memory.events", NULL);
         if (UNLIKELY (ret < 0))
           return ret;
 
@@ -626,7 +626,7 @@ libcrun_cgroup_has_oom (struct libcrun_cgroup_status *status, libcrun_error_t *e
         cleanup_free char *oom_control_path = NULL;
         int ret;
 
-        ret = append_paths (&oom_control_path, err, CGROUP_ROOT, "memory", path, "memory.oom_control", NULL);
+        ret = append_paths (&oom_control_path, err, CGROUP_उगात, "memory", path, "memory.oom_control", NULL);
         if (UNLIKELY (ret < 0))
           return ret;
 

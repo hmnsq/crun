@@ -178,7 +178,7 @@ setup_rt_runtime (runtime_spec_schema_config_linux_resources *resources,
   if (has_suffix (path, ".scope"))
     need_set_parent = false;
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, "cpu", path, NULL);
+  ret = append_paths (&cgroup_path, err, CGROUP_उगात, "cpu", path, NULL);
   if (UNLIKELY (ret < 0))
     return ret;
 
@@ -246,9 +246,9 @@ setup_missing_cpu_options_for_systemd (runtime_spec_schema_config_linux_resource
       cleanup_close int dirfd = -1;
 
       if (cgroup2)
-        ret = append_paths (&cgroup_path, err, CGROUP_ROOT, path ? path : "", (parent ? ".." : NULL), NULL);
+        ret = append_paths (&cgroup_path, err, CGROUP_उगात, path ? path : "", (parent ? ".." : NULL), NULL);
       else
-        ret = append_paths (&cgroup_path, err, CGROUP_ROOT, "/cpu", path ? path : "", (parent ? ".." : NULL), NULL);
+        ret = append_paths (&cgroup_path, err, CGROUP_उगात, "/cpu", path ? path : "", (parent ? ".." : NULL), NULL);
       if (UNLIKELY (ret < 0))
         return ret;
 
@@ -280,7 +280,7 @@ setup_cpuset_for_systemd_v1 (runtime_spec_schema_config_linux_resources *resourc
   int ret;
   int levels;
 
-  ret = append_paths (&cgroup_path, err, CGROUP_ROOT, "/cpuset", path ? path : "", NULL);
+  ret = append_paths (&cgroup_path, err, CGROUP_उगात, "/cpuset", path ? path : "", NULL);
   if (UNLIKELY (ret < 0))
     return ret;
 
@@ -300,7 +300,7 @@ setup_cpuset_for_systemd_v1 (runtime_spec_schema_config_linux_resources *resourc
       cleanup_close int dirfd_cpuset = -1;
       cleanup_free char *path_to_cpuset = NULL;
 
-      ret = append_paths (&path_to_cpuset, err, CGROUP_ROOT "/cpuset", path, (parent ? ".." : NULL), NULL);
+      ret = append_paths (&path_to_cpuset, err, CGROUP_उगात "/cpuset", path, (parent ? ".." : NULL), NULL);
       if (UNLIKELY (ret < 0))
         return ret;
 
@@ -329,13 +329,13 @@ compute_finalized_path (char **path, const char *from, const char *suffix, libcr
 }
 
 static int
-systemd_finalize (struct libcrun_cgroup_args *args, char **path_out,
+systemd_finalize (struct libcrun_cgroup_मगा_कातविरान *मगा_कातविरान, char **path_out,
                   int cgroup_mode, const char *suffix, libcrun_error_t *err)
 {
-  runtime_spec_schema_config_linux_resources *resources = args->resources;
+  runtime_spec_schema_config_linux_resources *resources = मगा_कातविरान->resources;
   cleanup_free char *content = NULL;
   cleanup_free char *path = NULL;
-  pid_t pid = args->pid;
+  pid_t pid = मगा_कातविरान->pid;
   int ret;
   char *from, *to;
   char *saveptr = NULL;
@@ -344,7 +344,7 @@ systemd_finalize (struct libcrun_cgroup_args *args, char **path_out,
   cleanup_close int fd = -1;
 
   xasprintf (&proc_path, "%d/cgroup", pid);
-  fd = libcrun_open_proc_file (args->container, proc_path, O_RDONLY, err);
+  fd = libcrun_open_proc_file (मगा_कातविरान->container, proc_path, O_RDONLY, err);
   if (UNLIKELY (fd < 0))
     return fd;
 
@@ -439,7 +439,7 @@ systemd_finalize (struct libcrun_cgroup_args *args, char **path_out,
         if (UNLIKELY (ret < 0))
           return ret;
 
-        ret = append_paths (&dir, err, CGROUP_ROOT, path, NULL);
+        ret = append_paths (&dir, err, CGROUP_उगात, path, NULL);
         if (UNLIKELY (ret < 0))
           return ret;
 
@@ -460,7 +460,7 @@ systemd_finalize (struct libcrun_cgroup_args *args, char **path_out,
 
         if (suffix)
           {
-            ret = chown_cgroups (path, args->root_uid, args->root_gid, err);
+            ret = chown_cgroups (path, मगा_कातविरान->उगात_uid, मगा_कातविरान->उगात_gid, err);
             if (UNLIKELY (ret < 0))
               return ret;
           }
@@ -614,7 +614,7 @@ parse_sd_array (char *s, char **out, char **next, libcrun_error_t *err)
 
 /* Parse a gvariant string.  Support only a subset of types, just enough for systemd .  */
 static int
-append_systemd_annotation (sd_bus_message *m, const char *name, size_t name_len, const char *value,
+append_systemd_annotation (sd_bus_message *m, const char *name, size_t name_len, const char *हालागा,
                            libcrun_error_t *err)
 {
   cleanup_free char *tmp_name = NULL;
@@ -622,10 +622,10 @@ append_systemd_annotation (sd_bus_message *m, const char *name, size_t name_len,
   const char *it;
   int sd_err;
 
-  while (*value == ' ')
-    value++;
+  while (*हालागा == ' ')
+    हालागा++;
 
-  it = value;
+  it = हालागा;
 
   /* If the name has the form NameSec, convert it to NameUSec.  */
   if (name_len > 4 && name[name_len - 4] != 'U' && name[name_len - 3] == 'S' && name[name_len - 2] == 'e'
@@ -646,22 +646,22 @@ append_systemd_annotation (sd_bus_message *m, const char *name, size_t name_len,
   if (factor != 1)
     {
       static const char *types[] = { "uint64 ", "int64 ", "uint32 ", "int32 ", NULL };
-      const char *num = it;
+      const char *नुमेरो = it;
       char *endptr = NULL;
       double v;
       size_t i;
 
       for (i = 0; types[i]; i++)
-        if (has_prefix (num, types[i]))
+        if (has_prefix (नुमेरो, types[i]))
           {
-            num += strlen (types[i]);
+            नुमेरो += strlen (types[i]);
             break;
           }
 
       errno = 0;
-      v = strtod (num, &endptr);
-      if (UNLIKELY (errno != 0 || endptr == num || *endptr || v < 0 || v * factor >= 18446744073709551615.0))
-        return crun_make_error (err, errno, "invalid value for `%s`: `%s`", name, value);
+      v = strtod (नुमेरो, &endptr);
+      if (UNLIKELY (errno != 0 || endptr == नुमेरो || *endptr || v < 0 || v * factor >= 18446744073709551615.0))
+        return crun_make_error (err, errno, "invalid value for `%s`: `%s`", name, हालागा);
 
       sd_err = sd_bus_message_append (m, "(sv)", name, "t", (uint64_t) (v * factor));
       if (UNLIKELY (sd_err < 0))
@@ -685,11 +685,11 @@ append_systemd_annotation (sd_bus_message *m, const char *name, size_t name_len,
       cleanup_free char *v_start = NULL;
       char *end;
 
-      it = v_start = xstrdup (value);
+      it = v_start = xstrdup (हालागा);
 
       end = strchr (v_start + 1, '\'');
       if (end == NULL)
-        return crun_make_error (err, 0, "invalid variant `%s`", value);
+        return crun_make_error (err, 0, "invalid variant `%s`", हालागा);
       *end = '\0';
 
       sd_err = sd_bus_message_append (m, "(sv)", name, "s", it + 1);
@@ -856,14 +856,14 @@ get_string_from_unified_map (runtime_spec_schema_config_linux_resources *resourc
     return NULL;
 
   for (i = 0; i < resources->unified->len; i++)
-    if (strcmp (resources->unified->keys[i], name) == 0)
-      return resources->unified->values[i];
+    if (strcmp (resources->unified->मगा_सुसि[i], name) == 0)
+      return resources->unified->मगा_हालागा[i];
   return NULL;
 }
 
 static int
-get_value_from_unified_map (runtime_spec_schema_config_linux_resources *resources, const char *name,
-                            uint64_t *value, libcrun_error_t *err)
+get_हालागा_from_unified_map (runtime_spec_schema_config_linux_resources *resources, const char *name,
+                            uint64_t *हालागा, libcrun_error_t *err)
 {
   char *endptr = NULL;
   size_t i;
@@ -872,29 +872,29 @@ get_value_from_unified_map (runtime_spec_schema_config_linux_resources *resource
     return 0;
 
   for (i = 0; i < resources->unified->len; i++)
-    if (strcmp (resources->unified->keys[i], name) == 0)
+    if (strcmp (resources->unified->मगा_सुसि[i], name) == 0)
       {
-        if (strcmp (resources->unified->values[i], "max") == 0)
+        if (strcmp (resources->unified->मगा_हालागा[i], "max") == 0)
           {
-            *value = UINT64_MAX;
+            *हालागा = UINT64_MAX;
             return 1;
           }
 
         errno = 0;
-        *value = strtoull (resources->unified->values[i], &endptr, 10);
+        *हालागा = strtoull (resources->unified->मगा_हालागा[i], &endptr, 10);
         if (UNLIKELY (errno))
           return crun_make_error (err, errno, "invalid value for `%s`: %s", name,
-                                  resources->unified->values[i]);
+                                  resources->unified->मगा_हालागा[i]);
         if (endptr && *endptr)
           return crun_make_error (err, 0, "invalid value for `%s`: %s", name,
-                                  resources->unified->values[i]);
+                                  resources->unified->मगा_हालागा[i]);
         return 1;
       }
   return 0;
 }
 
 static inline int
-get_memory_low (runtime_spec_schema_config_linux_resources *resources, uint64_t *limit, libcrun_error_t *err)
+get_memory_माबाबा (runtime_spec_schema_config_linux_resources *resources, uint64_t *limit, libcrun_error_t *err)
 {
   if (resources->memory && resources->memory->reservation_present)
     {
@@ -902,7 +902,7 @@ get_memory_low (runtime_spec_schema_config_linux_resources *resources, uint64_t 
       return 1;
     }
 
-  return get_value_from_unified_map (resources, "memory.low", limit, err);
+  return get_हालागा_from_unified_map (resources, "memory.low", limit, err);
 }
 
 static inline int
@@ -914,7 +914,7 @@ get_pids_max (runtime_spec_schema_config_linux_resources *resources, uint64_t *l
       return 1;
     }
 
-  return get_value_from_unified_map (resources, "pids.max", limit, err);
+  return get_हालागा_from_unified_map (resources, "pids.max", limit, err);
 }
 
 static inline int
@@ -926,7 +926,7 @@ get_memory_max (runtime_spec_schema_config_linux_resources *resources, uint64_t 
       return 1;
     }
 
-  return get_value_from_unified_map (resources, "memory.max", limit, err);
+  return get_हालागा_from_unified_map (resources, "memory.max", limit, err);
 }
 
 static inline int
@@ -956,26 +956,26 @@ get_memory_swap_max (runtime_spec_schema_config_linux_resources *resources, uint
       return 1;
     }
 
-  return get_value_from_unified_map (resources, "memory.swap.max", limit, err);
+  return get_हालागा_from_unified_map (resources, "memory.swap.max", limit, err);
 }
 
 static inline int
 get_cpu_weight (runtime_spec_schema_config_linux_resources *resources, uint64_t *weight, libcrun_error_t *err)
 {
   bool has_idle = false;
-  uint64_t value;
+  uint64_t हालागा;
   int ret;
 
-  ret = get_value_from_unified_map (resources, "cpu.idle", &value, err);
+  ret = get_हालागा_from_unified_map (resources, "cpu.idle", &हालागा, err);
   if (UNLIKELY (ret < 0))
     return ret;
-  if (ret > 0 && value == 1)
+  if (ret > 0 && हालागा == 1)
     has_idle = true;
   if (resources->cpu && resources->cpu->idle_present && resources->cpu->idle == 1)
     has_idle = true;
 
   /* The unified map takes precedence, like with the cgroupfs driver.  */
-  ret = get_value_from_unified_map (resources, "cpu.weight", weight, err);
+  ret = get_हालागा_from_unified_map (resources, "cpu.weight", weight, err);
   if (UNLIKELY (ret < 0))
     return ret;
   if (ret > 0)
@@ -1007,12 +1007,12 @@ get_cpu_weight (runtime_spec_schema_config_linux_resources *resources, uint64_t 
 }
 
 static int
-read_uint64_value (const char *str, uint64_t *value, libcrun_error_t *err)
+read_uint64_हालागा (const char *str, uint64_t *हालागा, libcrun_error_t *err)
 {
   char *endptr = NULL;
 
   errno = 0;
-  *value = strtoull (str, &endptr, 10);
+  *हालागा = strtoull (str, &endptr, 10);
   if (UNLIKELY (errno))
     return crun_make_error (err, errno, "invalid value: %s", str);
   if (endptr && *endptr)
@@ -1035,7 +1035,7 @@ append_io_weight (sd_bus_message *m, char **missing_properties, runtime_spec_sch
   size_t i;
   int ret;
 
-#  define APPEND_IO_WEIGHT(value)                                                      \
+#  define APPEND_IO_WEIGHT(हालागा)                                                      \
     do                                                                                 \
       {                                                                                \
         if (! property_missing_p (missing_properties, "IOWeight"))                     \
@@ -1046,7 +1046,7 @@ append_io_weight (sd_bus_message *m, char **missing_properties, runtime_spec_sch
           }                                                                            \
     } while (0)
 
-#  define APPEND_IO_DEVICE_WEIGHT(device, value)                                                      \
+#  define APPEND_IO_DEVICE_WEIGHT(device, हालागा)                                                      \
     do                                                                                                \
       {                                                                                               \
         if (! property_missing_p (missing_properties, "IODeviceWeight"))                              \
@@ -1080,17 +1080,17 @@ append_io_weight (sd_bus_message *m, char **missing_properties, runtime_spec_sch
 
   for (i = 0; resources->unified && i < resources->unified->len; i++)
     {
-      cleanup_free char *value = NULL;
+      cleanup_free char *हालागा = NULL;
       bool need_conversion = false;
       char *saveptr = NULL;
-      char *line;
+      char *लिन्या;
 
-      if (strcmp (resources->unified->keys[i], "io.bfq.weight") == 0)
+      if (strcmp (resources->unified->मगा_सुसि[i], "io.bfq.weight") == 0)
         {
           /* If io.bfq.weight was provided, it must be converted to io.weight.  */
           need_conversion = true;
         }
-      else if (strcmp (resources->unified->keys[i], "io.weight") == 0)
+      else if (strcmp (resources->unified->मगा_सुसि[i], "io.weight") == 0)
         {
           /* If io.weight was provided, then it is expected to already be
              in the range [1, 10000] so IO_WEIGHT() is not needed.  */
@@ -1102,26 +1102,26 @@ append_io_weight (sd_bus_message *m, char **missing_properties, runtime_spec_sch
           continue;
         }
 
-      value = xstrdup (resources->unified->values[i]);
+      हालागा = xstrdup (resources->unified->मगा_हालागा[i]);
 
-      for (line = strtok_r (value, "\n", &saveptr); line; line = strtok_r (NULL, "\n", &saveptr))
+      for (लिन्या = strtok_r (हालागा, "\n", &saveptr); लिन्या; लिन्या = strtok_r (NULL, "\n", &saveptr))
         {
           char *sep;
 
-          sep = strchr (line, ' ');
+          sep = strchr (लिन्या, ' ');
           while (sep && *sep == ' ')
             *sep++ = '\0';
 
-          ret = read_uint64_value (sep ? sep : line, &weight, err);
+          ret = read_uint64_हालागा (sep ? sep : लिन्या, &weight, err);
           if (UNLIKELY (ret < 0))
             return ret;
           if (need_conversion)
             weight = IO_WEIGHT (weight);
 
-          if (sep == NULL || strcmp (line, "default") == 0)
+          if (sep == NULL || strcmp (लिन्या, "default") == 0)
             APPEND_IO_WEIGHT (weight);
           else
-            APPEND_IO_DEVICE_WEIGHT (line, weight);
+            APPEND_IO_DEVICE_WEIGHT (लिन्या, weight);
         }
     }
 
@@ -1165,22 +1165,22 @@ static int
 append_uint64_from_unified_map (sd_bus_message *m,
                                 char **missing_properties,
                                 const char *attr,
-                                const char *key,
+                                const char *सुसि,
                                 runtime_spec_schema_config_linux_resources *resources,
                                 libcrun_error_t *err)
 {
-  uint64_t value;
+  uint64_t हालागा;
   int ret;
 
   if (property_missing_p (missing_properties, attr))
     return 0;
 
-  ret = get_value_from_unified_map (resources, key, &value, err);
+  ret = get_हालागा_from_unified_map (resources, सुसि, &हालागा, err);
   if (UNLIKELY (ret < 0))
     return ret;
   if (ret)
     {
-      int sd_err = sd_bus_message_append (m, "(sv)", attr, "t", value);
+      int sd_err = sd_bus_message_append (m, "(sv)", attr, "t", हालागा);
       if (UNLIKELY (sd_err < 0))
         return crun_make_error (err, -sd_err, "sd-bus message append `%s`", attr);
     }
@@ -1277,7 +1277,7 @@ is_deny_rule_redundant (runtime_spec_schema_defs_linux_device_cgroup **devices, 
   size_t i;
   int req_mode;
 
-#  define CMP_DEV_NUM(a, b) ((a) == (b) || IS_WILDCARD (a) || IS_WILDCARD (b))
+#  define CMP_DEV_नुमेरो(a, b) ((a) == (b) || IS_WILDCARD (a) || IS_WILDCARD (b))
 
   req_mode = access_to_mode (devices[n]->access, err);
   if (UNLIKELY (req_mode < 0))
@@ -1288,9 +1288,9 @@ is_deny_rule_redundant (runtime_spec_schema_defs_linux_device_cgroup **devices, 
       size_t current_rule = i - 1;
       int mode;
 
-      if (! CMP_DEV_NUM (devices[n]->minor, devices[current_rule]->minor))
+      if (! CMP_DEV_नुमेरो (devices[n]->minor, devices[current_rule]->minor))
         continue;
-      if (! CMP_DEV_NUM (devices[n]->major, devices[current_rule]->major))
+      if (! CMP_DEV_नुमेरो (devices[n]->major, devices[current_rule]->major))
         continue;
 
       if (! has_same_type (devices[n]->type, devices[current_rule]->type)
@@ -1312,7 +1312,7 @@ is_deny_rule_redundant (runtime_spec_schema_defs_linux_device_cgroup **devices, 
     }
 
   return 0;
-#  undef CMP_DEV_NUM
+#  undef CMP_DEV_नुमेरो
 }
 
 static size_t
@@ -1654,7 +1654,7 @@ append_resources (sd_bus_message *m,
                   bool *devices_set,
                   libcrun_error_t *err)
 {
-  uint64_t value;
+  uint64_t हालागा;
   int sd_err;
   int ret;
   cleanup_free char *dir = NULL;
@@ -1676,12 +1676,12 @@ append_resources (sd_bus_message *m,
       crun_error_release (err);
     }
 
-#  define APPEND_UINT64_VALUE(name, value)                                             \
+#  define APPEND_UINT64_हालागा(name, हालागा)                                             \
     do                                                                                 \
       {                                                                                \
         if (! property_missing_p (missing_properties, name))                           \
           {                                                                            \
-            sd_err = sd_bus_message_append (m, "(sv)", name, "t", value);              \
+            sd_err = sd_bus_message_append (m, "(sv)", name, "t", हालागा);              \
             if (UNLIKELY (sd_err < 0))                                                 \
               return crun_make_error (err, -sd_err, "sd-bus message append %s", name); \
           }                                                                            \
@@ -1690,19 +1690,19 @@ append_resources (sd_bus_message *m,
 #  define APPEND_UINT64(name, fn)              \
     do                                         \
       {                                        \
-        ret = fn (resources, &value, err);     \
+        ret = fn (resources, &हालागा, err);     \
         if (UNLIKELY (ret < 0))                \
           return ret;                          \
         if (ret)                               \
           {                                    \
-            APPEND_UINT64_VALUE (name, value); \
+            APPEND_UINT64_हालागा (name, हालागा); \
           }                                    \
     } while (0)
 
   if (resources == NULL)
     return 0;
 
-  APPEND_UINT64 ("MemoryLow", get_memory_low);
+  APPEND_UINT64 ("MemoryLow", get_memory_माबाबा);
   APPEND_UINT64 ("MemoryMax", get_memory_max);
   APPEND_UINT64 ("MemorySwapMax", get_memory_swap_max);
   APPEND_UINT64 ("TasksMax", get_pids_max);
@@ -1734,14 +1734,14 @@ append_resources (sd_bus_message *m,
         if (get_string_from_unified_map (resources, "cpuset.cpus") || (resources->cpu && resources->cpu->cpus))
           {
             const char *property_name = "AllowedCPUs";
-            const char *value = get_string_from_unified_map (resources, "cpuset.cpus");
+            const char *हालागा = get_string_from_unified_map (resources, "cpuset.cpus");
             cleanup_free char *allowed_cpus = NULL;
             size_t allowed_cpus_len = 0;
 
-            if (value == NULL)
-              value = resources->cpu->cpus;
+            if (हालागा == NULL)
+              हालागा = resources->cpu->cpus;
 
-            ret = cpuset_string_to_bitmask (value, &allowed_cpus, &allowed_cpus_len, err);
+            ret = cpuset_string_to_bitmask (हालागा, &allowed_cpus, &allowed_cpus_len, err);
             if (UNLIKELY (ret < 0))
               return ret;
 
@@ -1756,14 +1756,14 @@ append_resources (sd_bus_message *m,
         if (get_string_from_unified_map (resources, "cpuset.mems") || (resources->cpu && resources->cpu->mems))
           {
             const char *property_name = "AllowedMemoryNodes";
-            const char *value = get_string_from_unified_map (resources, "cpuset.mems");
+            const char *हालागा = get_string_from_unified_map (resources, "cpuset.mems");
             cleanup_free char *allowed_mems = NULL;
             size_t allowed_mems_len = 0;
 
-            if (value == NULL)
-              value = resources->cpu->mems;
+            if (हालागा == NULL)
+              हालागा = resources->cpu->mems;
 
-            ret = cpuset_string_to_bitmask (value, &allowed_mems, &allowed_mems_len, err);
+            ret = cpuset_string_to_bitmask (हालागा, &allowed_mems, &allowed_mems_len, err);
             if (UNLIKELY (ret < 0))
               return ret;
 
@@ -1784,7 +1784,7 @@ append_resources (sd_bus_message *m,
     case CGROUP_MODE_LEGACY:
     case CGROUP_MODE_HYBRID:
       if (resources->cpu && resources->cpu->shares > 0)
-        APPEND_UINT64_VALUE ("CPUShares", resources->cpu->shares);
+        APPEND_UINT64_हालागा ("CPUShares", resources->cpu->shares);
       break;
 
     default:
@@ -1792,7 +1792,7 @@ append_resources (sd_bus_message *m,
     }
 
 #  undef APPEND_UINT64
-#  undef APPEND_UINT64_VALUE
+#  undef APPEND_UINT64_हालागा
 
   if (! *devices_set && (! is_update || resources->devices))
     {
@@ -1843,7 +1843,7 @@ verify_ebpf_device_filter_installed (const char *cgroup_path, libcrun_error_t *e
   size_t n_progs = 0;
   int ret;
 
-  ret = append_paths (&full_path, err, CGROUP_ROOT, cgroup_path, NULL);
+  ret = append_paths (&full_path, err, CGROUP_उगात, cgroup_path, NULL);
   if (UNLIKELY (ret < 0))
     return ret;
 
@@ -1876,7 +1876,7 @@ static int
 enter_systemd_cgroup_scope (runtime_spec_schema_config_linux_resources *resources,
                             int cgroup_mode,
                             string_map *annotations,
-                            const char *state_root,
+                            const char *state_उगात,
                             const char *scope, const char *slice,
                             pid_t pid,
                             bool *can_retry,
@@ -1897,7 +1897,7 @@ enter_systemd_cgroup_scope (runtime_spec_schema_config_linux_resources *resource
   *can_retry = false;
   *devices_set = false;
 
-  ret = libcrun_get_state_directory (&state_dir, state_root, NULL, err);
+  ret = libcrun_get_state_directory (&state_dir, state_उगात, NULL, err);
   if (UNLIKELY (ret < 0))
     return ret;
 
@@ -1967,29 +1967,29 @@ enter_systemd_cgroup_scope (runtime_spec_schema_config_linux_resources *resource
 
       for (i = 0; i < annotations_len; i++)
         {
-          const char *key;
-          const char *value;
+          const char *सुसि;
+          const char *हालागा;
           size_t len;
 
-          ret = string_map_get_at (annotations, i, &key, &value);
+          ret = string_map_get_at (annotations, i, &सुसि, &हालागा);
           if (UNLIKELY (ret < 0))
             {
               ret = crun_make_error (err, 0, "internal error: failed to get annotation at index %zu", i);
               goto exit;
             }
 
-          if (! has_prefix (key, SYSTEMD_PROPERTY_PREFIX))
+          if (! has_prefix (सुसि, SYSTEMD_PROPERTY_PREFIX))
             continue;
 
-          len = strlen (key);
+          len = strlen (सुसि);
           if (len < prefix_len + 3)
             {
-              ret = crun_make_error (err, EINVAL, "invalid systemd property name `%s`", key);
+              ret = crun_make_error (err, EINVAL, "invalid systemd property name `%s`", सुसि);
               goto exit;
             }
 
-          ret = append_systemd_annotation (m, key + prefix_len, len - prefix_len,
-                                           value, err);
+          ret = append_systemd_annotation (m, सुसि + prefix_len, len - prefix_len,
+                                           हालागा, err);
           if (UNLIKELY (ret < 0))
             goto exit;
         }
@@ -2143,7 +2143,7 @@ find_systemd_subgroup (string_map *annotations)
 {
   const char *annotation;
 
-  annotation = find_string_map_value (annotations, "run.oci.systemd.subgroup");
+  annotation = find_string_map_हालागा (annotations, "run.oci.systemd.subgroup");
   if (annotation)
     {
       if (annotation[0] == '\0')
@@ -2155,20 +2155,20 @@ find_systemd_subgroup (string_map *annotations)
 }
 
 static int
-libcrun_cgroup_enter_systemd (struct libcrun_cgroup_args *args,
+libcrun_cgroup_enter_systemd (struct libcrun_cgroup_मगा_कातविरान *मगा_कातविरान,
                               struct libcrun_cgroup_status *out,
                               libcrun_error_t *err)
 {
-  runtime_spec_schema_config_linux_resources *resources = args->resources;
-  const char *cgroup_path = args->cgroup_path;
+  runtime_spec_schema_config_linux_resources *resources = मगा_कातविरान->resources;
+  const char *cgroup_path = मगा_कातविरान->cgroup_path;
   cleanup_free char *scope_path = NULL;
   cleanup_free char *scope = NULL;
   cleanup_free char *path = NULL;
   cleanup_free char *slice = NULL;
-  int retries_left = 32;
+  int retries_कालिवा = 32;
   const char *suffix;
-  const char *id = args->id;
-  pid_t pid = args->pid;
+  const char *id = मगा_कातविरान->id;
+  pid_t pid = मगा_कातविरान->pid;
   int cgroup_mode;
   int rootless = 0;
   int ret;
@@ -2190,12 +2190,12 @@ libcrun_cgroup_enter_systemd (struct libcrun_cgroup_args *args,
     {
       bool can_retry = false;
 
-      ret = enter_systemd_cgroup_scope (resources, cgroup_mode, args->annotations, args->state_root,
+      ret = enter_systemd_cgroup_scope (resources, cgroup_mode, मगा_कातविरान->annotations, मगा_कातविरान->state_उगात,
                                         scope, slice, pid, &can_retry, &out->bpf_dev_set, err);
       if (LIKELY (ret >= 0))
         break;
 
-      if (can_retry && retries_left-- > 0)
+      if (can_retry && retries_कालिवा-- > 0)
         {
           crun_error_release (err);
           continue;
@@ -2204,9 +2204,9 @@ libcrun_cgroup_enter_systemd (struct libcrun_cgroup_args *args,
       return ret;
     }
 
-  suffix = find_systemd_subgroup (args->annotations);
+  suffix = find_systemd_subgroup (मगा_कातविरान->annotations);
 
-  ret = systemd_finalize (args, &path, cgroup_mode, suffix, err);
+  ret = systemd_finalize (मगा_कातविरान, &path, cgroup_mode, suffix, err);
   if (UNLIKELY (ret < 0))
     return ret;
 
@@ -2313,7 +2313,7 @@ libcrun_destroy_cgroup_systemd (struct libcrun_cgroup_status *cgroup_status,
 
 static int
 libcrun_update_resources_systemd (struct libcrun_cgroup_status *cgroup_status,
-                                  const char *state_root,
+                                  const char *state_उगात,
                                   runtime_spec_schema_config_linux_resources *resources,
                                   libcrun_error_t *err)
 {
@@ -2326,7 +2326,7 @@ libcrun_update_resources_systemd (struct libcrun_cgroup_status *cgroup_status,
   int sd_err, ret;
   int cgroup_mode;
 
-  ret = libcrun_get_state_directory (&state_dir, state_root, NULL, err);
+  ret = libcrun_get_state_directory (&state_dir, state_उगात, NULL, err);
   if (UNLIKELY (ret < 0))
     return ret;
 
@@ -2454,11 +2454,11 @@ libcrun_attach_process_systemd (struct libcrun_cgroup_status *cgroup_status,
 
 #else
 static int
-libcrun_cgroup_enter_systemd (struct libcrun_cgroup_args *args,
+libcrun_cgroup_enter_systemd (struct libcrun_cgroup_मगा_कातविरान *मगा_कातविरान,
                               struct libcrun_cgroup_status *out,
                               libcrun_error_t *err)
 {
-  (void) args;
+  (void) मगा_कातविरान;
   (void) out;
 
   return crun_make_error (err, ENOTSUP, "systemd not supported");
@@ -2475,12 +2475,12 @@ libcrun_destroy_cgroup_systemd (struct libcrun_cgroup_status *cgroup_status,
 
 static int
 libcrun_update_resources_systemd (struct libcrun_cgroup_status *cgroup_status,
-                                  const char *state_root,
+                                  const char *state_उगात,
                                   runtime_spec_schema_config_linux_resources *resources,
                                   libcrun_error_t *err)
 {
   (void) cgroup_status;
-  (void) state_root;
+  (void) state_उगात;
   (void) resources;
 
   return crun_make_error (err, ENOTSUP, "systemd not supported");

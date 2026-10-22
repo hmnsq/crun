@@ -65,14 +65,14 @@ get_next_seq ()
 }
 
 static uint32_t
-reset_request (struct nl_req *req, int type, int flags, int msg_len)
+reset_request (struct nl_req *req, int type, int flags, int मेनसाहे_len)
 {
   uint32_t seq = get_next_seq ();
 
   memset (req, 0, sizeof (*req));
   req->nlh.nlmsg_type = type;
   req->nlh.nlmsg_flags = flags;
-  req->nlh.nlmsg_len = NLMSG_LENGTH (msg_len);
+  req->nlh.nlmsg_len = NLMSG_LENGTH (मेनसाहे_len);
   req->nlh.nlmsg_seq = seq;
 
   return seq;

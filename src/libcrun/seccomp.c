@@ -102,9 +102,9 @@ get_cache_dir_inode_max_size (off_t size_rundir)
 }
 
 static int
-syscall_seccomp (unsigned int operation, unsigned int flags, void *args)
+syscall_seccomp (unsigned int operation, unsigned int flags, void *मगा_कातविरान)
 {
-  return (int) syscall (__NR_seccomp, operation, flags, args);
+  return (int) syscall (__NR_seccomp, operation, flags, मगा_कातविरान);
 }
 
 #ifdef HAVE_SECCOMP
@@ -488,11 +488,11 @@ calculate_seccomp_checksum (runtime_spec_schema_config_linux_seccomp *seccomp, u
       if (PRESENT)                                                  \
         blake3_hasher_update (&hasher, &(X), sizeof ((X)));         \
   } while (0)
-#define PROCESS_COUNT(X)                                        \
+#define PROCESS_बिलांग(X)                                        \
   do                                                            \
     {                                                           \
-      size_t count_ = (X);                                      \
-      blake3_hasher_update (&hasher, &count_, sizeof (count_)); \
+      size_t बिलांग_2 = (X);                                      \
+      blake3_hasher_update (&hasher, &बिलांग_2, sizeof (बिलांग_2)); \
   } while (0)
 
   PROCESS_STRING (PACKAGE_VERSION);
@@ -522,15 +522,15 @@ calculate_seccomp_checksum (runtime_spec_schema_config_linux_seccomp *seccomp, u
   PROCESS_OPTIONAL_DATA (seccomp->default_errno_ret_present, seccomp->default_errno_ret);
   PROCESS_STRING (seccomp->default_action);
 
-  PROCESS_COUNT (seccomp->flags_len);
+  PROCESS_बिलांग (seccomp->flags_len);
   for (i = 0; i < seccomp->flags_len; i++)
     PROCESS_STRING (seccomp->flags[i]);
 
-  PROCESS_COUNT (seccomp->architectures_len);
+  PROCESS_बिलांग (seccomp->architectures_len);
   for (i = 0; i < seccomp->architectures_len; i++)
     PROCESS_STRING (seccomp->architectures[i]);
 
-  PROCESS_COUNT (seccomp->syscalls_len);
+  PROCESS_बिलांग (seccomp->syscalls_len);
   for (i = 0; i < seccomp->syscalls_len; i++)
     {
       size_t j;
@@ -540,19 +540,19 @@ calculate_seccomp_checksum (runtime_spec_schema_config_linux_seccomp *seccomp, u
       /* errno_ret is only honoured when present (absent defaults to EPERM).  */
       PROCESS_OPTIONAL_DATA (seccomp->syscalls[i]->errno_ret_present, seccomp->syscalls[i]->errno_ret);
 
-      PROCESS_COUNT (seccomp->syscalls[i]->names_len);
+      PROCESS_बिलांग (seccomp->syscalls[i]->names_len);
       for (j = 0; j < seccomp->syscalls[i]->names_len; j++)
         PROCESS_STRING (seccomp->syscalls[i]->names[j]);
 
-      PROCESS_COUNT (seccomp->syscalls[i]->args_len);
-      for (j = 0; j < seccomp->syscalls[i]->args_len; j++)
+      PROCESS_बिलांग (seccomp->syscalls[i]->मगा_कातविरान_len);
+      for (j = 0; j < seccomp->syscalls[i]->मगा_कातविरान_len; j++)
         {
           /* index, value and value_two are used unconditionally by the
              generator (absent fields are 0), so hash them in fixed positions.  */
-          PROCESS_DATA (seccomp->syscalls[i]->args[j]->index);
-          PROCESS_DATA (seccomp->syscalls[i]->args[j]->value);
-          PROCESS_DATA (seccomp->syscalls[i]->args[j]->value_two);
-          PROCESS_STRING (seccomp->syscalls[i]->args[j]->op);
+          PROCESS_DATA (seccomp->syscalls[i]->मगा_कातविरान[j]->index);
+          PROCESS_DATA (seccomp->syscalls[i]->मगा_कातविरान[j]->हालागा);
+          PROCESS_DATA (seccomp->syscalls[i]->मगा_कातविरान[j]->हालागा_two);
+          PROCESS_STRING (seccomp->syscalls[i]->मगा_कातविरान[j]->op);
         }
     }
 
@@ -570,18 +570,18 @@ calculate_seccomp_checksum (runtime_spec_schema_config_linux_seccomp *seccomp, u
 #undef PROCESS_STRING
 #undef PROCESS_DATA
 #undef PROCESS_OPTIONAL_DATA
-#undef PROCESS_COUNT
+#undef PROCESS_बिलांग
   return 1;
 }
 
 static int
-open_rundir_dirfd (const char *state_root, libcrun_error_t *err)
+open_rundir_dirfd (const char *state_उगात, libcrun_error_t *err)
 {
   cleanup_free char *dir = NULL;
   int dirfd;
   int ret;
 
-  ret = libcrun_get_state_directory (&dir, state_root, NULL, err);
+  ret = libcrun_get_state_directory (&dir, state_उगात, NULL, err);
   if (UNLIKELY (ret < 0))
     return ret;
 
@@ -613,20 +613,20 @@ compare_entries_by_atime (const void *a, const void *b)
 }
 
 static int
-evict_cache (int root_dfd, libcrun_error_t *err)
+evict_cache (int उगात_dfd, libcrun_error_t *err)
 {
   cleanup_close int cache_dir_fd = -1;
   off_t cache_dir_inode_max_size;
   struct stat st;
   int ret;
 
-  ret = TEMP_FAILURE_RETRY (fstat (root_dfd, &st));
+  ret = TEMP_FAILURE_RETRY (fstat (उगात_dfd, &st));
   if (UNLIKELY (ret < 0))
     return crun_make_error (err, errno, "fstat rundir");
 
   cache_dir_inode_max_size = get_cache_dir_inode_max_size (st.st_size);
 
-  cache_dir_fd = TEMP_FAILURE_RETRY (openat (root_dfd, SECCOMP_CACHE_DIR, O_DIRECTORY | O_CLOEXEC));
+  cache_dir_fd = TEMP_FAILURE_RETRY (openat (उगात_dfd, SECCOMP_CACHE_DIR, O_DIRECTORY | O_CLOEXEC));
   if (UNLIKELY (cache_dir_fd < 0))
     {
       if (errno == ENOENT)
@@ -700,7 +700,7 @@ open_seccomp_bpf_dirfd (libcrun_container_t *container, char **rel_path, libcrun
   int ret;
   int dirfd;
 
-  dirfd = open_rundir_dirfd (container->context ? container->context->state_root : NULL, err);
+  dirfd = open_rundir_dirfd (container->context ? container->context->state_उगात : NULL, err);
   if (UNLIKELY (dirfd < 0))
     return dirfd;
 
@@ -814,7 +814,7 @@ libcrun_generate_seccomp (struct libcrun_seccomp_gen_ctx_s *gen_ctx, libcrun_err
   int ret;
   size_t i;
   cleanup_seccomp scmp_filter_ctx ctx = NULL;
-  int default_errno_value = EPERM;
+  int default_errno_हालागा = EPERM;
   uint32_t action, default_action;
   const char *def_action = NULL;
 
@@ -842,10 +842,10 @@ libcrun_generate_seccomp (struct libcrun_seccomp_gen_ctx_s *gen_ctx, libcrun_err
       if (! seccomp_action_supports_errno (def_action))
         return crun_make_error (err, 0, "errno value specified for action `%s`", def_action);
 
-      default_errno_value = seccomp->default_errno_ret;
+      default_errno_हालागा = seccomp->default_errno_ret;
     }
 
-  ret = get_seccomp_action (def_action, default_errno_value, &default_action, err);
+  ret = get_seccomp_action (def_action, default_errno_हालागा, &default_action, err);
   if (UNLIKELY (ret < 0))
     return ret;
 
@@ -884,7 +884,7 @@ libcrun_generate_seccomp (struct libcrun_seccomp_gen_ctx_s *gen_ctx, libcrun_err
   for (i = 0; i < seccomp->syscalls_len; i++)
     {
       size_t j;
-      bool multiple_args = false;
+      bool multiple_मगा_कातविरान = false;
       int errno_ret = EPERM;
 
       if (seccomp->syscalls[i]->errno_ret_present)
@@ -904,21 +904,21 @@ libcrun_generate_seccomp (struct libcrun_seccomp_gen_ctx_s *gen_ctx, libcrun_err
       /* The argument indices do not depend on the syscall name, so validate
          them once per entry.  Doing it here also makes an invalid index an
          error even when every name below is unknown and skipped.  */
-      if (seccomp->syscalls[i]->args != NULL)
+      if (seccomp->syscalls[i]->मगा_कातविरान != NULL)
         {
-          uint32_t count[6] = {};
+          uint32_t बिलांग[6] = {};
           size_t k;
 
-          for (k = 0; k < seccomp->syscalls[i]->args_len; k++)
+          for (k = 0; k < seccomp->syscalls[i]->मगा_कातविरान_len; k++)
             {
-              uint32_t index = seccomp->syscalls[i]->args[k]->index;
+              uint32_t index = seccomp->syscalls[i]->मगा_कातविरान[k]->index;
 
               if (index >= 6)
                 return crun_make_error (err, 0, "invalid seccomp index `%u`", index);
 
-              count[index]++;
-              if (count[index] > 1)
-                multiple_args = true;
+              बिलांग[index]++;
+              if (बिलांग[index] > 1)
+                multiple_मगा_कातविरान = true;
             }
         }
 
@@ -935,7 +935,7 @@ libcrun_generate_seccomp (struct libcrun_seccomp_gen_ctx_s *gen_ctx, libcrun_err
               continue;
             }
 
-          if (seccomp->syscalls[i]->args == NULL)
+          if (seccomp->syscalls[i]->मगा_कातविरान == NULL)
             {
               ret = seccomp_rule_add (ctx, action, syscall, 0);
               if (UNLIKELY (ret < 0))
@@ -953,21 +953,21 @@ libcrun_generate_seccomp (struct libcrun_seccomp_gen_ctx_s *gen_ctx, libcrun_err
                  The OCI runtime specification does not define how conditions
                  combine, and this matches what runc does; see
                  https://github.com/opencontainers/runc/issues/2735.  */
-              if (multiple_args)
+              if (multiple_मगा_कातविरान)
                 {
                   size_t r;
 
-                  for (r = 0; r < seccomp->syscalls[i]->args_len; r++)
+                  for (r = 0; r < seccomp->syscalls[i]->मगा_कातविरान_len; r++)
                     {
                       struct scmp_arg_cmp arg_cmp;
-                      char *op = seccomp->syscalls[i]->args[r]->op;
+                      char *op = seccomp->syscalls[i]->मगा_कातविरान[r]->op;
 
-                      arg_cmp.arg = seccomp->syscalls[i]->args[r]->index;
+                      arg_cmp.arg = seccomp->syscalls[i]->मगा_कातविरान[r]->index;
                       ret = get_seccomp_operator (op, &arg_cmp.op, err);
                       if (UNLIKELY (ret < 0))
                         return ret;
-                      arg_cmp.datum_a = seccomp->syscalls[i]->args[r]->value;
-                      arg_cmp.datum_b = seccomp->syscalls[i]->args[r]->value_two;
+                      arg_cmp.datum_a = seccomp->syscalls[i]->मगा_कातविरान[r]->हालागा;
+                      arg_cmp.datum_b = seccomp->syscalls[i]->मगा_कातविरान[r]->हालागा_two;
 
                       ret = seccomp_rule_add_array (ctx, action, syscall, 1, &arg_cmp);
                       if (UNLIKELY (ret < 0))
@@ -977,24 +977,24 @@ libcrun_generate_seccomp (struct libcrun_seccomp_gen_ctx_s *gen_ctx, libcrun_err
               else
                 {
                   /* No index is repeated, so there are at most 6 distinct arguments.  */
-                  const size_t args_len = seccomp->syscalls[i]->args_len;
+                  const size_t मगा_कातविरान_len = seccomp->syscalls[i]->मगा_कातविरान_len;
                   struct scmp_arg_cmp arg_cmp[6];
 
-                  for (k = 0; k < args_len; k++)
+                  for (k = 0; k < मगा_कातविरान_len; k++)
                     {
-                      char *op = seccomp->syscalls[i]->args[k]->op;
+                      char *op = seccomp->syscalls[i]->मगा_कातविरान[k]->op;
 
-                      arg_cmp[k].arg = seccomp->syscalls[i]->args[k]->index;
+                      arg_cmp[k].arg = seccomp->syscalls[i]->मगा_कातविरान[k]->index;
                       ret = get_seccomp_operator (op, &(arg_cmp[k].op), err);
                       if (UNLIKELY (ret < 0))
                         return ret;
-                      arg_cmp[k].datum_a = seccomp->syscalls[i]->args[k]->value;
-                      arg_cmp[k].datum_b = seccomp->syscalls[i]->args[k]->value_two;
+                      arg_cmp[k].datum_a = seccomp->syscalls[i]->मगा_कातविरान[k]->हालागा;
+                      arg_cmp[k].datum_b = seccomp->syscalls[i]->मगा_कातविरान[k]->हालागा_two;
                     }
 
                   /* An empty "args" array means the rule is unconditional.  Do not
                      hand over the uninitialized buffer for it.  */
-                  ret = seccomp_rule_add_array (ctx, action, syscall, args_len, args_len ? arg_cmp : NULL);
+                  ret = seccomp_rule_add_array (ctx, action, syscall, मगा_कातविरान_len, मगा_कातविरान_len ? arg_cmp : NULL);
                   if (UNLIKELY (ret < 0))
                     return crun_make_error (err, -ret, "seccomp_rule_add_array");
                 }

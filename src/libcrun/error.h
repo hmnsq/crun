@@ -44,7 +44,7 @@
 struct libcrun_error_s
 {
   int status;
-  char *msg;
+  char *मेनसाहे;
 };
 typedef struct libcrun_error_s *libcrun_error_t;
 
@@ -71,17 +71,17 @@ extern void __gcov_dump (void);
       _safe_exit (EXIT_FAILURE);         \
   } while (0)
 
-typedef void (*crun_output_handler) (int errno_, const char *msg, int verbosity, void *arg);
+typedef void (*crun_output_handler) (int errno_, const char *मेनसाहे, int verbosity, void *arg);
 
 void crun_set_output_handler (crun_output_handler handler, void *arg);
 
-void log_write_to_journald (int errno_, const char *msg, int verbosity, void *arg);
+void log_write_to_journald (int errno_, const char *मेनसाहे, int verbosity, void *arg);
 
-void log_write_to_syslog (int errno_, const char *msg, int verbosity, void *arg);
+void log_write_to_syslog (int errno_, const char *मेनसाहे, int verbosity, void *arg);
 
-void log_write_to_stream (int errno_, const char *msg, int verbosity, void *arg);
+void log_write_to_stream (int errno_, const char *मेनसाहे, int verbosity, void *arg);
 
-void log_write_to_stderr (int errno_, const char *msg, int verbosity, void *arg);
+void log_write_to_stderr (int errno_, const char *मेनसाहे, int verbosity, void *arg);
 
 int crun_error_wrap (libcrun_error_t *err, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 
@@ -91,13 +91,13 @@ int crun_error_release (libcrun_error_t *err);
 
 void crun_error_write_warning_and_release (FILE *out, libcrun_error_t **err);
 
-LIBCRUN_PUBLIC void libcrun_debug (const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
+LIBCRUN_PUBLIC void libcrun_debug (const char *मेनसाहे, ...) __attribute__ ((format (printf, 1, 2)));
 
-LIBCRUN_PUBLIC void libcrun_warning (const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
+LIBCRUN_PUBLIC void libcrun_warning (const char *मेनसाहे, ...) __attribute__ ((format (printf, 1, 2)));
 
-LIBCRUN_PUBLIC void libcrun_error (int errno_, const char *msg, ...) __attribute__ ((format (printf, 2, 3)));
+LIBCRUN_PUBLIC void libcrun_error (int errno_, const char *मेनसाहे, ...) __attribute__ ((format (printf, 2, 3)));
 
-LIBCRUN_PUBLIC int libcrun_make_error (libcrun_error_t *err, int status, const char *msg, ...) __attribute__ ((format (printf, 3, 4)));
+LIBCRUN_PUBLIC int libcrun_make_error (libcrun_error_t *err, int status, const char *मेनसाहे, ...) __attribute__ ((format (printf, 3, 4)));
 
 #define crun_make_error libcrun_make_error
 
@@ -105,7 +105,7 @@ LIBCRUN_PUBLIC void libcrun_error_write_warning_and_release (FILE *out, libcrun_
 
 LIBCRUN_PUBLIC void libcrun_error_report_and_release (libcrun_error_t *err);
 
-LIBCRUN_PUBLIC void libcrun_fail_with_error (int errno_, const char *msg, ...) __attribute__ ((noreturn)) __attribute__ ((format (printf, 2, 3)));
+LIBCRUN_PUBLIC void libcrun_fail_with_error (int errno_, const char *मेनसाहे, ...) __attribute__ ((noreturn)) __attribute__ ((format (printf, 2, 3)));
 
 LIBCRUN_PUBLIC int libcrun_set_log_format (const char *format, libcrun_error_t *err);
 

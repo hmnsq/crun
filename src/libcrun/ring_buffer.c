@@ -36,7 +36,7 @@ struct ring_buffer
 static int
 ring_buffer_get_read_iov (struct ring_buffer *rb, struct iovec *iov)
 {
-  int iov_count = 0;
+  int iov_बिलांग = 0;
 
   /* Buffer is empty.  */
   if (rb->head == rb->tail)
@@ -45,26 +45,26 @@ ring_buffer_get_read_iov (struct ring_buffer *rb, struct iovec *iov)
   /* Head before tail.  There is only one region to read from, up to tail.  */
   if (rb->tail > rb->head)
     {
-      iov[iov_count].iov_base = rb->buffer + rb->head;
-      iov[iov_count].iov_len = rb->tail - rb->head;
-      iov_count++;
+      iov[iov_बिलांग].iov_base = rb->buffer + rb->head;
+      iov[iov_बिलांग].iov_len = rb->tail - rb->head;
+      iov_बिलांग++;
     }
   /* Head after tail.  There are two regions to read from, up to the
    * end of the buffer and from the beginning of the buffer to tail.  */
   else
     {
-      iov[iov_count].iov_base = rb->buffer + rb->head;
-      iov[iov_count].iov_len = rb->size - rb->head;
-      iov_count++;
+      iov[iov_बिलांग].iov_base = rb->buffer + rb->head;
+      iov[iov_बिलांग].iov_len = rb->size - rb->head;
+      iov_बिलांग++;
 
       if (rb->tail > 0)
         {
-          iov[iov_count].iov_base = rb->buffer;
-          iov[iov_count].iov_len = rb->tail;
-          iov_count++;
+          iov[iov_बिलांग].iov_base = rb->buffer;
+          iov[iov_बिलांग].iov_len = rb->tail;
+          iov_बिलांग++;
         }
     }
-  return iov_count;
+  return iov_बिलांग;
 }
 
 /*
@@ -74,7 +74,7 @@ ring_buffer_get_read_iov (struct ring_buffer *rb, struct iovec *iov)
 static int
 ring_buffer_get_write_iov (struct ring_buffer *rb, struct iovec *iov)
 {
-  int iov_count = 0;
+  int iov_बिलांग = 0;
 
   /* Buffer is full.  */
   if ((rb->tail + 1) % rb->size == rb->head)
@@ -83,26 +83,26 @@ ring_buffer_get_write_iov (struct ring_buffer *rb, struct iovec *iov)
   /* Tail before head.  There is only one region to write to, up to head.  */
   if (rb->head > rb->tail + 1)
     {
-      iov[iov_count].iov_base = rb->buffer + rb->tail;
-      iov[iov_count].iov_len = rb->head - rb->tail - 1;
-      iov_count++;
+      iov[iov_बिलांग].iov_base = rb->buffer + rb->tail;
+      iov[iov_बिलांग].iov_len = rb->head - rb->tail - 1;
+      iov_बिलांग++;
     }
   /* Tail after or equal to head.  There are two regions to write to, up to the
    * end of the buffer and from the beginning of the buffer to head.  */
   else
     {
-      iov[iov_count].iov_base = rb->buffer + rb->tail;
-      iov[iov_count].iov_len = rb->head == 0 ? rb->size - rb->tail - 1 : rb->size - rb->tail;
-      iov_count++;
+      iov[iov_बिलांग].iov_base = rb->buffer + rb->tail;
+      iov[iov_बिलांग].iov_len = rb->head == 0 ? rb->size - rb->tail - 1 : rb->size - rb->tail;
+      iov_बिलांग++;
 
       if (rb->head > 1)
         {
-          iov[iov_count].iov_base = rb->buffer;
-          iov[iov_count].iov_len = rb->head - 1;
-          iov_count++;
+          iov[iov_बिलांग].iov_base = rb->buffer;
+          iov[iov_बिलांग].iov_len = rb->head - 1;
+          iov_बिलांग++;
         }
     }
-  return iov_count;
+  return iov_बिलांग;
 }
 
 /* manually advance the head after a successful read.  */
@@ -144,19 +144,19 @@ int
 ring_buffer_read (struct ring_buffer *rb, int fd, bool *is_eagain, libcrun_error_t *err)
 {
   struct iovec iov[2];
-  int iov_count = 0;
+  int iov_बिलांग = 0;
   ssize_t ret;
 
   *is_eagain = false;
 
-  iov_count = ring_buffer_get_write_iov (rb, iov);
-  if (iov_count == 0)
+  iov_बिलांग = ring_buffer_get_write_iov (rb, iov);
+  if (iov_बिलांग == 0)
     {
       *is_eagain = true;
       return 0;
     }
 
-  ret = readv (fd, iov, iov_count);
+  ret = readv (fd, iov, iov_बिलांग);
   if (UNLIKELY (ret < 0))
     {
       /* A terminal that was hung up fails with EIO.  As with EAGAIN, there
@@ -180,18 +180,18 @@ ring_buffer_write (struct ring_buffer *rb, int fd, bool *is_eagain, libcrun_erro
 {
   ssize_t ret;
   struct iovec iov[2];
-  int iov_count = 0;
+  int iov_बिलांग = 0;
 
   *is_eagain = false;
 
-  iov_count = ring_buffer_get_read_iov (rb, iov);
-  if (iov_count == 0)
+  iov_बिलांग = ring_buffer_get_read_iov (rb, iov);
+  if (iov_बिलांग == 0)
     {
       *is_eagain = true;
       return 0;
     }
 
-  ret = writev (fd, iov, iov_count);
+  ret = writev (fd, iov, iov_बिलांग);
   if (UNLIKELY (ret < 0))
     {
       /* A terminal that was hung up fails with EIO.  As with EAGAIN, there

@@ -58,12 +58,12 @@ static struct argp_option options[]
             0,
         } };
 
-static char args_doc[] = "list";
+static char मगा_कातविरान_doc[] = "list";
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state arg_unused)
+parse_opt (int सुसि, char *arg, struct argp_state *state arg_unused)
 {
-  switch (key)
+  switch (सुसि)
     {
     case 'q':
       list_options.quiet = true;
@@ -84,10 +84,10 @@ parse_opt (int key, char *arg, struct argp_state *state arg_unused)
   return 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+static struct argp run_argp = { options, parse_opt, मगा_कातविरान_doc, doc, NULL, NULL, NULL };
 
 int
-crun_command_list (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+crun_command_list (struct crun_global_arguments *global_मगा_कातविरान, int argc, char **argv, libcrun_error_t *err)
 {
   int first_arg;
   int ret, max_length = 4;
@@ -99,11 +99,11 @@ crun_command_list (struct crun_global_arguments *global_args, int argc, char **a
   list_options.format = LIST_TABLE;
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &list_options);
-  crun_assert_n_args (argc - first_arg, 0, 0);
+  crun_assert_n_मगा_कातविरान (argc - first_arg, 0, 0);
 
-  crun_context = new_libcrun_context (global_args);
+  crun_context = new_libcrun_context (global_मगा_कातविरान);
 
-  ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
+  ret = init_libcrun_context (crun_context, argv[first_arg], global_मगा_कातविरान, err);
   if (UNLIKELY (ret < 0))
     return ret;
 

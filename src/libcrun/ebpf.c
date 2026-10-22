@@ -159,7 +159,7 @@ bpf_program_append_dev (struct bpf_program *program, const char *access, char ty
   bool has_major = major >= 0;
   bool has_minor = minor >= 0;
   bool has_access = false;
-  int number_instructions = 0;
+  int नुमेरो_instructions = 0;
   struct bpf_insn accept_block[] = {
     BPF_MOV64_IMM (BPF_REG_0, accept ? 1 : 0),
     BPF_EXIT_INSN (),
@@ -208,12 +208,12 @@ bpf_program_append_dev (struct bpf_program *program, const char *access, char ty
   has_access = bpf_access != (BPF_DEVCG_ACC_READ | BPF_DEVCG_ACC_WRITE | BPF_DEVCG_ACC_MKNOD);
 
   /* Number of instructions to skip the ACCEPT BLOCK.  */
-  number_instructions = (has_type ? 1 : 0) + (has_access ? 3 : 0) + (has_major ? 1 : 0) + (has_minor ? 1 : 0) + 1;
+  नुमेरो_instructions = (has_type ? 1 : 0) + (has_access ? 3 : 0) + (has_major ? 1 : 0) + (has_minor ? 1 : 0) + 1;
 
   if (has_type)
     {
-      struct bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_2, bpf_type, number_instructions) };
-      number_instructions--;
+      struct bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_2, bpf_type, नुमेरो_instructions) };
+      नुमेरो_instructions--;
       program = bpf_program_append (program, i, sizeof (i));
     }
   if (has_access)
@@ -221,22 +221,22 @@ bpf_program_append_dev (struct bpf_program *program, const char *access, char ty
       struct bpf_insn i[] = {
         BPF_MOV32_REG (BPF_REG_1, BPF_REG_3),
         BPF_ALU32_IMM (BPF_AND, BPF_REG_1, bpf_access),
-        accept ? BPF_JMP_REG (BPF_JNE, BPF_REG_1, BPF_REG_3, number_instructions - 2)
-               : BPF_JMP_IMM (BPF_JEQ, BPF_REG_1, 0, number_instructions - 2),
+        accept ? BPF_JMP_REG (BPF_JNE, BPF_REG_1, BPF_REG_3, नुमेरो_instructions - 2)
+               : BPF_JMP_IMM (BPF_JEQ, BPF_REG_1, 0, नुमेरो_instructions - 2),
       };
-      number_instructions -= 3;
+      नुमेरो_instructions -= 3;
       program = bpf_program_append (program, i, sizeof (i));
     }
   if (has_major)
     {
-      struct bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_4, major, number_instructions) };
-      number_instructions--;
+      struct bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_4, major, नुमेरो_instructions) };
+      नुमेरो_instructions--;
       program = bpf_program_append (program, i, sizeof (i));
     }
   if (has_minor)
     {
-      struct bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_5, minor, number_instructions) };
-      number_instructions--;
+      struct bpf_insn i[] = { BPF_JMP_IMM (BPF_JNE, BPF_REG_5, minor, नुमेरो_instructions) };
+      नुमेरो_instructions--;
       program = bpf_program_append (program, i, sizeof (i));
     }
 

@@ -99,7 +99,7 @@ struct krun_config
   bool has_awsnitro;
   int passt_fds[2];
   json_object *config_doc;
-  json_object *config_tree;
+  json_object *config_पुनो;
   bool use_passt;
   const char *tap_name;
   int gpu_render_server_fd;
@@ -126,7 +126,7 @@ libkrun_create_context (void *handle, libcrun_error_t *err)
 }
 
 static int
-libkrun_configure_kernel (uint32_t ctx_id, void *handle, json_object *config_tree, libcrun_error_t *err)
+libkrun_configure_kernel (uint32_t ctx_id, void *handle, json_object *config_पुनो, libcrun_error_t *err)
 {
   int32_t (*krun_set_kernel) (uint32_t ctx_id, const char *kernel_path,
                               uint32_t kernel_format, const char *initrd_path, const char *kernel_cmdline);
@@ -139,20 +139,20 @@ libkrun_configure_kernel (uint32_t ctx_id, void *handle, json_object *config_tre
   int ret;
 
   /* kernel_path and kernel_format must be present */
-  kernel_path = json_object_object_get (config_tree, "kernel_path");
+  kernel_path = json_object_object_get (config_पुनो, "kernel_path");
   if (kernel_path == NULL || ! json_object_is_type (kernel_path, json_type_string))
     return 0;
 
-  kernel_format = json_object_object_get (config_tree, "kernel_format");
+  kernel_format = json_object_object_get (config_पुनो, "kernel_format");
   if (kernel_format == NULL || ! json_object_is_type (kernel_format, json_type_int))
     return 0;
 
   /* initrd and kernel_cmdline are optional */
-  val_initrd_path = json_object_object_get (config_tree, "initrd_path");
+  val_initrd_path = json_object_object_get (config_पुनो, "initrd_path");
   if (val_initrd_path != NULL && json_object_is_type (val_initrd_path, json_type_string))
     initrd_path = json_object_get_string (val_initrd_path);
 
-  val_kernel_cmdline = json_object_object_get (config_tree, "kernel_cmdline");
+  val_kernel_cmdline = json_object_object_get (config_पुनो, "kernel_cmdline");
   if (val_kernel_cmdline != NULL && json_object_is_type (val_kernel_cmdline, json_type_string))
     kernel_cmdline = json_object_get_string (val_kernel_cmdline);
 
@@ -217,7 +217,7 @@ libkrun_read_vm_config (struct krun_config *kconf, int rootfsfd, const char *roo
   if (UNLIKELY (ret < 0))
     return ret;
 
-  kconf->config_tree = kconf->config_doc;
+  kconf->config_पुनो = kconf->config_doc;
   return 0;
 }
 
@@ -231,7 +231,7 @@ libkrun_read_vm_config (struct krun_config *kconf, int rootfsfd, const char *roo
  * The config file is only used if "use_config_file" is "true".
  */
 static int
-libkrun_parse_resource_configuration (json_object *config_tree, libcrun_container_t *container, const char *annotation, const char *key, bool use_config_file)
+libkrun_parse_resource_configuration (json_object *config_पुनो, libcrun_container_t *container, const char *annotation, const char *सुसि, bool use_config_file)
 {
   char *val_str, *endptr;
   int val = -1;
@@ -251,13 +251,13 @@ libkrun_parse_resource_configuration (json_object *config_tree, libcrun_containe
 
       return val;
     }
-  else if (use_config_file && config_tree != NULL)
+  else if (use_config_file && config_पुनो != NULL)
     {
-      val_json = json_object_object_get (config_tree, key);
+      val_json = json_object_object_get (config_पुनो, सुसि);
       if (val_json == NULL)
         return val;
       if (! json_object_is_type (val_json, json_type_int))
-        error (EXIT_FAILURE, 0, "krun krun_vm.json %s value is not an integer", key);
+        error (EXIT_FAILURE, 0, "krun krun_vm.json %s value is not an integer", सुसि);
 
       val = (int) json_object_get_int64 (val_json);
     }
@@ -266,33 +266,33 @@ libkrun_parse_resource_configuration (json_object *config_tree, libcrun_containe
 }
 
 static int
-libkrun_parse_string_configuration (json_object *config_tree, libcrun_container_t *container,
-                                    const char *annotation, const char *key,
-                                    const char **value, libcrun_error_t *err, bool use_config_file)
+libkrun_parse_string_configuration (json_object *config_पुनो, libcrun_container_t *container,
+                                    const char *annotation, const char *सुसि,
+                                    const char **हालागा, libcrun_error_t *err, bool use_config_file)
 {
   const char *val;
   json_object *val_json = NULL;
 
-  *value = NULL;
+  *हालागा = NULL;
 
   val = find_annotation (container, annotation);
   if (val != NULL)
     {
-      *value = val;
+      *हालागा = val;
       return 0;
     }
 
-  if (! use_config_file || config_tree == NULL)
+  if (! use_config_file || config_पुनो == NULL)
     return 0;
 
-  val_json = json_object_object_get (config_tree, key);
+  val_json = json_object_object_get (config_पुनो, सुसि);
   if (val_json == NULL)
     return 0;
 
   if (! json_object_is_type (val_json, json_type_string))
-    return crun_make_error (err, 0, ".krun_vm.json %s value is not a string", key);
+    return crun_make_error (err, 0, ".krun_vm.json %s value is not a string", सुसि);
 
-  *value = json_object_get_string (val_json);
+  *हालागा = json_object_get_string (val_json);
   return 0;
 }
 
@@ -318,7 +318,7 @@ static int
 libkrun_configure_vm (uint32_t ctx_id, void *handle, struct krun_config *kconf, libcrun_container_t *container, libcrun_error_t *err)
 {
   runtime_spec_schema_config_schema *def = container->container_def;
-  int32_t (*krun_set_vm_config) (uint32_t ctx_id, uint8_t num_vcpus, uint32_t ram_mib);
+  int32_t (*krun_set_vm_config) (uint32_t ctx_id, uint8_t नुमेरो_vcpus, uint32_t ram_mib);
   int32_t (*krun_add_net_unixstream) (uint32_t ctx_id, const char *c_path, int fd, uint8_t *const c_mac, uint32_t features, uint32_t flags);
   int32_t (*krun_add_net_tap) (uint32_t ctx_id, const char *c_tap_name, const uint8_t *c_mac, uint32_t features, uint32_t flags);
   int32_t (*krun_set_gpu_options) (uint32_t ctx_id, uint32_t virgl_flags);
@@ -327,18 +327,18 @@ libkrun_configure_vm (uint32_t ctx_id, void *handle, struct krun_config *kconf, 
   cpu_set_t set;
 
   /* We let the OCI set the number of vCPUs for the VM, since cgroups CPU restrictions still apply. */
-  cpus = libkrun_parse_resource_configuration (kconf->config_tree, container, "krun.cpus", "cpus", true);
+  cpus = libkrun_parse_resource_configuration (kconf->config_पुनो, container, "krun.cpus", "cpus", true);
   if (cpus <= 0)
     {
       CPU_ZERO (&set);
       if (sched_getaffinity (getpid (), sizeof (set), &set) == 0)
-        cpus = MIN (CPU_COUNT (&set), LIBKRUN_MAX_VCPUS);
+        cpus = MIN (CPU_बिलांग (&set), LIBKRUN_MAX_VCPUS);
       else
         cpus = 1;
     }
 
   /* We let the OCI set the amount of RAM for the VM, since cgroups memory restrictions still apply. */
-  ram_mib = libkrun_parse_resource_configuration (kconf->config_tree, container, "krun.ram_mib", "ram_mib", true);
+  ram_mib = libkrun_parse_resource_configuration (kconf->config_पुनो, container, "krun.ram_mib", "ram_mib", true);
   if (ram_mib <= LIBKRUN_MINIMUM_RAM_MIB)
     {
       if (def && def->linux && def->linux->resources && def->linux->resources->memory
@@ -357,7 +357,7 @@ libkrun_configure_vm (uint32_t ctx_id, void *handle, struct krun_config *kconf, 
   if (UNLIKELY (ret < 0))
     return crun_make_error (err, -ret, "could not set krun vm configuration");
 
-  nested_virt = libkrun_parse_resource_configuration (kconf->config_tree, container, "krun.nested_virt", "nested_virt", false);
+  nested_virt = libkrun_parse_resource_configuration (kconf->config_पुनो, container, "krun.nested_virt", "nested_virt", false);
   if (nested_virt > 0)
     {
       int32_t (*krun_check_nested_virt) (void);
@@ -424,16 +424,16 @@ libkrun_configure_vm (uint32_t ctx_id, void *handle, struct krun_config *kconf, 
         }
     }
 
-  if (kconf->config_tree != NULL)
+  if (kconf->config_पुनो != NULL)
     {
       /* Try to configure an external kernel. If the configuration file doesn't
        * specify a kernel, libkrun automatically fall back to using libkrunfw,
        * if the library is present and was loaded while creating the context.
        */
-      int custom_kernel = libkrun_parse_resource_configuration (kconf->config_tree, container, "krun.custom_kernel", "custom_kernel", false);
+      int custom_kernel = libkrun_parse_resource_configuration (kconf->config_पुनो, container, "krun.custom_kernel", "custom_kernel", false);
       if (custom_kernel > 0)
         {
-          ret = libkrun_configure_kernel (ctx_id, handle, kconf->config_tree, err);
+          ret = libkrun_configure_kernel (ctx_id, handle, kconf->config_पुनो, err);
           if (UNLIKELY (ret))
             return ret;
         }
@@ -515,7 +515,7 @@ libkrun_exec (void *cookie, libcrun_container_t *container, const char *pathname
   int32_t (*krun_set_log_level) (uint32_t level);
   int (*krun_start_enter) (uint32_t ctx_id);
   int32_t (*krun_add_virtiofs2) (uint32_t ctx_id, const char *c_tag, const char *c_path, uint64_t shm_size);
-  int32_t (*krun_set_root_disk) (uint32_t ctx_id, const char *disk_path);
+  int32_t (*krun_set_उगात_disk) (uint32_t ctx_id, const char *disk_path);
   int32_t (*krun_set_tee_config_file) (uint32_t ctx_id, const char *file_path);
   int32_t (*krun_set_console_output) (uint32_t ctx_id, const char *c_filepath);
   int32_t (*krun_set_exec) (uint32_t ctx_id, const char *exec_path,
@@ -561,12 +561,12 @@ libkrun_exec (void *cookie, libcrun_container_t *container, const char *pathname
 
   if (kconf->sev)
     {
-      krun_set_root_disk = dlsym (handle, "krun_set_root_disk");
+      krun_set_उगात_disk = dlsym (handle, "krun_set_root_disk");
       krun_set_tee_config_file = dlsym (handle, "krun_set_tee_config_file");
-      if (krun_set_root_disk == NULL || krun_set_tee_config_file == NULL)
+      if (krun_set_उगात_disk == NULL || krun_set_tee_config_file == NULL)
         error (EXIT_FAILURE, 0, "could not find symbol in `libkrun-sev.so`");
 
-      ret = krun_set_root_disk (ctx_id, "/disk.img");
+      ret = krun_set_उगात_disk (ctx_id, "/disk.img");
       if (UNLIKELY (ret < 0))
         error (EXIT_FAILURE, -ret, "could not set root disk");
 
@@ -582,13 +582,13 @@ libkrun_exec (void *cookie, libcrun_container_t *container, const char *pathname
       // Default to a conservative DAX size of 512MB, just like krun_set_root() does.
       uint64_t virtiofs_shm_size = 512 * 1024 * 1024ULL;
 
-      if (kconf->config_tree != NULL)
+      if (kconf->config_पुनो != NULL)
         {
-          val_virtiofs_tag = json_object_object_get (kconf->config_tree, "virtiofs_tag");
+          val_virtiofs_tag = json_object_object_get (kconf->config_पुनो, "virtiofs_tag");
           if (val_virtiofs_tag != NULL && json_object_is_type (val_virtiofs_tag, json_type_string))
             virtiofs_tag = json_object_get_string (val_virtiofs_tag);
 
-          val_virtiofs_shm_size = json_object_object_get (kconf->config_tree, "virtiofs_shm_size");
+          val_virtiofs_shm_size = json_object_object_get (kconf->config_पुनो, "virtiofs_shm_size");
           if (val_virtiofs_shm_size != NULL && json_object_is_type (val_virtiofs_shm_size, json_type_int))
             virtiofs_shm_size = json_object_get_uint64 (val_virtiofs_shm_size);
         }
@@ -647,7 +647,7 @@ libkrun_start_render_server (struct krun_config *kconf, libcrun_container_t *con
 {
   int ret;
 
-  kconf->gpu_flags = libkrun_parse_resource_configuration (kconf->config_tree, container, "krun.gpu_flags", "gpu_flags", false);
+  kconf->gpu_flags = libkrun_parse_resource_configuration (kconf->config_पुनो, container, "krun.gpu_flags", "gpu_flags", false);
   if (kconf->gpu_flags > 0)
     {
       if (access ("/dev/dri", F_OK) != 0)
@@ -758,7 +758,7 @@ libkrun_configure_network (void *cookie, libcrun_container_t *container, libcrun
   int null;
   int ret;
 
-  ret = libkrun_parse_string_configuration (kconf->config_tree, container,
+  ret = libkrun_parse_string_configuration (kconf->config_पुनो, container,
                                             "krun.tap_name", "tap_name",
                                             &kconf->tap_name, err, false);
   if (UNLIKELY (ret < 0))
@@ -767,7 +767,7 @@ libkrun_configure_network (void *cookie, libcrun_container_t *container, libcrun
   if (kconf->tap_name != NULL && is_empty_string (kconf->tap_name))
     return crun_make_error (err, 0, "krun.tap_name cannot be empty");
 
-  use_passt = libkrun_parse_resource_configuration (kconf->config_tree, container, "krun.use_passt", "use_passt", false);
+  use_passt = libkrun_parse_resource_configuration (kconf->config_पुनो, container, "krun.use_passt", "use_passt", false);
 
   if (use_passt > 0)
     {
@@ -826,9 +826,9 @@ libkrun_configure_network (void *cookie, libcrun_container_t *container, libcrun
        */
       for (i = 0; i < def->linux->namespaces_len; i++)
         {
-          int value = libcrun_find_namespace (def->linux->namespaces[i]->type);
+          int हालागा = libcrun_find_namespace (def->linux->namespaces[i]->type);
 
-          if (value == CLONE_NEWPID)
+          if (हालागा == CLONE_NEWPID)
             {
               if (mount ("", "/proc", "proc", MS_NOSUID | MS_NODEV | MS_NOEXEC, NULL))
                 _exit (EXIT_FAILURE);
@@ -904,7 +904,7 @@ libkrun_configure_container (void *cookie, enum handler_configure_phase phase,
       cleanup_close int fd = -1;
       size_t config_size;
 
-      ret = libcrun_get_state_directory (&state_dir, context->state_root, context->id, err);
+      ret = libcrun_get_state_directory (&state_dir, context->state_उगात, context->id, err);
       if (UNLIKELY (ret < 0))
         return ret;
 
@@ -1204,38 +1204,38 @@ libkrun_close_fds (void *cookie, libcrun_container_t *container, int preserve_fd
 {
   struct krun_config *kconf = (struct krun_config *) cookie;
   int first_fd_to_close = preserve_fds + 3;
-  int low_fd, high_fd;
+  int माबाबा_fd, माताअस_fd;
   int i;
 
-  low_fd = high_fd = -1;
+  माबाबा_fd = माताअस_fd = -1;
 
   if (kconf->use_passt)
-    high_fd = kconf->passt_fds[FD_PAIR_PARENT];
+    माताअस_fd = kconf->passt_fds[FD_PAIR_PARENT];
 
   if (kconf->gpu_render_server_fd != -1)
     {
-      if (kconf->gpu_render_server_fd > high_fd)
+      if (kconf->gpu_render_server_fd > माताअस_fd)
         {
-          low_fd = high_fd;
-          high_fd = kconf->gpu_render_server_fd;
+          माबाबा_fd = माताअस_fd;
+          माताअस_fd = kconf->gpu_render_server_fd;
         }
       else
-        low_fd = kconf->gpu_render_server_fd;
+        माबाबा_fd = kconf->gpu_render_server_fd;
     }
 
-  if (first_fd_to_close <= high_fd)
+  if (first_fd_to_close <= माताअस_fd)
     {
-      for (i = first_fd_to_close; i < high_fd; i++)
+      for (i = first_fd_to_close; i < माताअस_fd; i++)
         {
           // If we're closing proc_fd, make sure to invalidate it.
           if (i == container->proc_fd)
             container->proc_fd = -1;
-          else if (i == low_fd)
+          else if (i == माबाबा_fd)
             continue;
           close (i);
         }
 
-      first_fd_to_close = high_fd + 1;
+      first_fd_to_close = माताअस_fd + 1;
     }
 
   return mark_or_close_fds_ge_than (container, first_fd_to_close, true, err);
@@ -1245,7 +1245,7 @@ struct custom_handler_s handler_libkrun = {
   .name = "krun",
   .alias = NULL,
   .feature_string = "LIBKRUN",
-  .supports_open_tree_namespace = false,
+  .supports_open_पुनो_namespace = false,
   .load = libkrun_load,
   .unload = libkrun_unload,
   .run_func = libkrun_exec,

@@ -55,12 +55,12 @@ static struct argp_option options[] = { { "format", 'f', "FORMAT", 0, "select th
                                             0,
                                         } };
 
-static char args_doc[] = "ps";
+static char मगा_कातविरान_doc[] = "ps";
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state arg_unused)
+parse_opt (int सुसि, char *arg, struct argp_state *state arg_unused)
 {
-  switch (key)
+  switch (सुसि)
     {
     case 'f':
       if (strcmp (arg, "table") == 0)
@@ -78,10 +78,10 @@ parse_opt (int key, char *arg, struct argp_state *state arg_unused)
   return 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+static struct argp run_argp = { options, parse_opt, मगा_कातविरान_doc, doc, NULL, NULL, NULL };
 
 int
-crun_command_ps (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+crun_command_ps (struct crun_global_arguments *global_मगा_कातविरान, int argc, char **argv, libcrun_error_t *err)
 {
   int first_arg;
   int ret;
@@ -92,11 +92,11 @@ crun_command_ps (struct crun_global_arguments *global_args, int argc, char **arg
   ps_options.format = PS_TABLE;
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &ps_options);
-  crun_assert_n_args (argc - first_arg, 1, 1);
+  crun_assert_n_मगा_कातविरान (argc - first_arg, 1, 1);
 
-  crun_context = new_libcrun_context (global_args);
+  crun_context = new_libcrun_context (global_मगा_कातविरान);
 
-  ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
+  ret = init_libcrun_context (crun_context, argv[first_arg], global_मगा_कातविरान, err);
   if (UNLIKELY (ret < 0))
     return ret;
 
