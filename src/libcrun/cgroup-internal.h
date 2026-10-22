@@ -18,13 +18,13 @@
 #ifndef CGROUP_INTERNAL_H
 #define CGROUP_INTERNAL_H
 
-#include "container.h"
-#include "utils.h"
+#ضمن "container.h"
+#ضمن "utils.h"
 
-#include <stdint.h>
-#include <math.h>
+#ضمن <stdint.h>
+#ضمن <math.h>
 
-enum
+تعداد
 {
   CGROUP_MEMORY = 1 << 0,
   CGROUP_CPU = 1 << 1,
@@ -35,88 +35,88 @@ enum
   CGROUP_MISC = 1 << 6,
 };
 
-struct libcrun_cgroup_status
+بنية libcrun_cgroup_status
 {
-  char *path;
-  char *scope;
+  حرف *path;
+  حرف *scope;
 
-  int manager;
+  صحيح manager;
 
   bool bpf_dev_set;
 };
 
 /* Forward declaration for function pointers below.  */
-struct libcrun_cgroup_args;
+بنية libcrun_cgroup_args;
 
-struct libcrun_cgroup_manager
+بنية libcrun_cgroup_manager
 {
   /* Create a new cgroup and fill PATH in OUT.  */
-  int (*create_cgroup) (struct libcrun_cgroup_args *args, struct libcrun_cgroup_status *out, libcrun_error_t *err);
-  int (*precreate_cgroup) (struct libcrun_cgroup_args *args, int *dirfd, libcrun_error_t *err);
+  صحيح (*create_cgroup) (بنية libcrun_cgroup_args *args, بنية libcrun_cgroup_status *out, libcrun_error_t *err);
+  صحيح (*precreate_cgroup) (بنية libcrun_cgroup_args *args, صحيح *dirfd, libcrun_error_t *err);
   /* Destroy the cgroup and kill any process if needed.  */
-  int (*destroy_cgroup) (struct libcrun_cgroup_status *cgroup_status, libcrun_error_t *err);
+  صحيح (*destroy_cgroup) (بنية libcrun_cgroup_status *cgroup_status, libcrun_error_t *err);
   /* Additional resources configuration specific to this manager.  */
-  int (*update_resources) (struct libcrun_cgroup_status *cgroup_status, const char *state_root, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err);
+  صحيح (*update_resources) (بنية libcrun_cgroup_status *cgroup_status, ثابت حرف *state_root, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err);
   /* Move PID to the cgroup PATH (the container cgroup or its sub-cgroup) by
      other means than writing to cgroup.procs.  Optional.  */
-  int (*attach_process) (struct libcrun_cgroup_status *cgroup_status, const char *path, pid_t pid, libcrun_error_t *err);
+  صحيح (*attach_process) (بنية libcrun_cgroup_status *cgroup_status, ثابت حرف *path, pid_t pid, libcrun_error_t *err);
 };
 
-int move_process_to_cgroup (pid_t pid, const char *subsystem, const char *path, libcrun_error_t *err);
-int enter_cgroup_v1_subsystem (pid_t pid, const char *subsystem, const char *path, bool create_if_missing,
+صحيح move_process_to_cgroup (pid_t pid, ثابت حرف *subsystem, ثابت حرف *path, libcrun_error_t *err);
+صحيح enter_cgroup_v1_subsystem (pid_t pid, ثابت حرف *subsystem, ثابت حرف *path, bool create_if_missing,
                                libcrun_error_t *err);
-int enable_controllers (const char *path, libcrun_error_t *err);
-int chown_cgroups (const char *path, uid_t uid, gid_t gid, libcrun_error_t *err);
-int cgroup_killall_path (const char *path, int signal, libcrun_error_t *err);
+صحيح enable_controllers (ثابت حرف *path, libcrun_error_t *err);
+صحيح chown_cgroups (ثابت حرف *path, uid_t uid, gid_t gid, libcrun_error_t *err);
+صحيح cgroup_killall_path (ثابت حرف *path, صحيح إشارة, libcrun_error_t *err);
 
-int libcrun_cgroup_read_pids_from_path (const char *path, bool recurse, pid_t **pids, libcrun_error_t *err);
+صحيح libcrun_cgroup_read_pids_from_path (ثابت حرف *path, bool recurse, pid_t **pids, libcrun_error_t *err);
 
-bool read_proc_cgroup (char *content, char **saveptr, char **id, char **controller_list, char **path);
+bool read_proc_cgroup (حرف *content, حرف **saveptr, حرف **id, حرف **controller_list, حرف **path);
 
-static inline int
+ساكن مضمن صحيح
 is_rootless (libcrun_error_t *err)
 {
-  if (geteuid ())
-    return 1;
+  𐤀𐤌 (geteuid ())
+    أرجع 1;
 
-  return check_running_in_user_namespace (err);
+  أرجع check_running_in_user_namespace (err);
 }
 
-static inline int
-write_cgroup_file (int dirfd, const char *name, const void *data, size_t len, libcrun_error_t *err)
+ساكن مضمن صحيح
+write_cgroup_file (صحيح dirfd, ثابت حرف *name, ثابت فراغ *data, size_t len, libcrun_error_t *err)
 {
-  return write_file_at_with_flags (dirfd, O_WRONLY | O_CLOEXEC, 0, name, data, len, err);
+  أرجع write_file_at_with_flags (dirfd, O_WRONLY | O_CLOEXEC, 0, name, data, len, err);
 }
 
-int libcrun_cgroup_pause_unpause_path (const char *cgroup_path, const bool pause, libcrun_error_t *err);
+صحيح libcrun_cgroup_pause_unpause_path (ثابت حرف *cgroup_path, ثابت bool pause, libcrun_error_t *err);
 
-static inline uint64_t
+ساكن مضمن uint64_t
 convert_shares_to_weight (uint64_t shares)
 {
-  double l, exponent;
+  مزدوج l, exponent;
 
   /* The value of 0 means "unset".  */
-  if (shares == 0)
-    return 0;
-  if (shares <= 2)
-    return 1;
-  if (shares >= 262144)
-    return 10000;
+  𐤀𐤌 (shares == 0)
+    أرجع 0;
+  𐤀𐤌 (shares <= 2)
+    أرجع 1;
+  𐤀𐤌 (shares >= 262144)
+    أرجع 10000;
 
-  l = log2 ((double) shares);
+  l = log2 ((مزدوج) shares);
 
   /* Quadratic function which fits min, max, and default.  */
   exponent = (l * l + 125 * l) / 612.0 - 7.0 / 34.0;
 
-  return (uint64_t) ceil (pow (10, exponent));
+  أرجع (uint64_t) ceil (pow (10, exponent));
 }
 
-int initialize_cpuset_subsystem (const char *path, libcrun_error_t *err);
-int initialize_cpuset_subsystem_resources (const char *path, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err);
+صحيح initialize_cpuset_subsystem (ثابت حرف *path, libcrun_error_t *err);
+صحيح initialize_cpuset_subsystem_resources (ثابت حرف *path, runtime_spec_schema_config_linux_resources *resources, libcrun_error_t *err);
 
-int write_cpuset_resources (int dirfd_cpuset, int cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err);
+صحيح write_cpuset_resources (صحيح dirfd_cpuset, صحيح cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err);
 
-int write_cpu_idle (int cpu_dirfd, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err);
-int write_cpu_burst (int cpu_dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err);
+صحيح write_cpu_idle (صحيح cpu_dirfd, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err);
+صحيح write_cpu_burst (صحيح cpu_dirfd, bool cgroup2, runtime_spec_schema_config_linux_resources_cpu *cpu, libcrun_error_t *err);
 
 #endif

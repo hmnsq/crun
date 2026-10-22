@@ -23,89 +23,89 @@
    non-public headers).  The binary is a pure consumer of the public
    <libcrun.h> API; everything here is either libc or a trivial inline.  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
+#ضمن <stdlib.h>
+#ضمن <stdio.h>
+#ضمن <string.h>
+#ضمن <unistd.h>
 
 #ifdef __GNUC__
 #  define LIKELY(x) __builtin_expect ((x), 1)
 #  define UNLIKELY(x) __builtin_expect ((x), 0)
 #  define arg_unused __attribute__ ((unused))
-#else
+#وإلا
 #  define LIKELY(x) (x)
 #  define UNLIKELY(x) (x)
 #  define arg_unused
 #endif
 
 #define OOM()                            \
-  do                                     \
+  𐤐𐤏𐤋                                     \
     {                                    \
       fprintf (stderr, "out of memory"); \
       _exit (EXIT_FAILURE);              \
-  } while (0)
+  } طالما (0)
 
 #define crun_make_error libcrun_make_error
 
-__attribute__ ((malloc)) static inline void *
+__attribute__ ((malloc)) ساكن مضمن فراغ *
 xmalloc (size_t size)
 {
-  void *res = malloc (size);
-  if (UNLIKELY (res == NULL))
+  فراغ *res = malloc (size);
+  𐤀𐤌 (UNLIKELY (res == عدم))
     OOM ();
-  return res;
+  أرجع res;
 }
 
-__attribute__ ((malloc)) static inline void *
+__attribute__ ((malloc)) ساكن مضمن فراغ *
 xmalloc0 (size_t size)
 {
-  void *res = calloc (1, size);
-  if (UNLIKELY (res == NULL))
+  فراغ *res = calloc (1, size);
+  𐤀𐤌 (UNLIKELY (res == عدم))
     OOM ();
-  return res;
+  أرجع res;
 }
 
-__attribute__ ((malloc)) static inline void *
-xrealloc (void *ptr, size_t size)
+__attribute__ ((malloc)) ساكن مضمن فراغ *
+xrealloc (فراغ *ptr, size_t size)
 {
-  void *res = realloc (ptr, size);
-  if (UNLIKELY (res == NULL))
+  فراغ *res = realloc (ptr, size);
+  𐤀𐤌 (UNLIKELY (res == عدم))
     OOM ();
-  return res;
+  أرجع res;
 }
 
-static inline char *
-xstrdup (const char *str)
+ساكن مضمن حرف *
+xstrdup (ثابت حرف *str)
 {
-  char *ret;
-  if (str == NULL)
-    return NULL;
+  حرف *ret;
+  𐤀𐤌 (str == عدم)
+    أرجع عدم;
   ret = strdup (str);
-  if (UNLIKELY (ret == NULL))
+  𐤀𐤌 (UNLIKELY (ret == عدم))
     OOM ();
-  return ret;
+  أرجع ret;
 }
 
-static inline void
-cleanup_freep (void *p)
+ساكن مضمن فراغ
+cleanup_freep (فراغ *p)
 {
-  void **pp = (void **) p;
-  free (*pp);
+  فراغ **pp = (فراغ **) p;
+  حرر (*pp);
 }
 
-static inline void
+ساكن مضمن فراغ
 cleanup_filep (FILE **f)
 {
   FILE *file = *f;
-  if (file)
-    (void) fclose (file);
+  𐤀𐤌 (file)
+    (فراغ) fclose (file);
 }
 
-static inline void
-cleanup_closep (void *p)
+ساكن مضمن فراغ
+cleanup_closep (فراغ *p)
 {
-  int *pp = (int *) p;
-  if (*pp >= 0)
+  صحيح *pp = (صحيح *) p;
+  𐤀𐤌 (*pp >= 0)
     close (*pp);
 }
 
@@ -115,19 +115,19 @@ cleanup_closep (void *p)
 
 /* Relies on <libcrun.h> (included before this header via crun.h) for the
    opaque libcrun_context_t and libcrun_context_free.  */
-static inline void
+ساكن مضمن فراغ
 cleanup_libcrun_contextp (libcrun_context_t **p)
 {
-  if (*p)
+  𐤀𐤌 (*p)
     libcrun_context_free (*p);
 }
 
 #define cleanup_context __attribute__ ((cleanup (cleanup_libcrun_contextp)))
 
-static inline void
+ساكن مضمن فراغ
 cleanup_libcrun_containerp (libcrun_container_t **p)
 {
-  if (*p)
+  𐤀𐤌 (*p)
     libcrun_container_free (*p);
 }
 

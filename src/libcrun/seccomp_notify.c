@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <config.h>
-#include <errno.h>
+#ضمن <config.h>
+#ضمن <errno.h>
 
-#if HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
+#𐤀𐤌 HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
 #  include <seccomp.h>
 #  include <sys/ioctl.h>
 #  include <linux/seccomp.h>
@@ -29,186 +29,186 @@
 #  include <dlfcn.h>
 #endif
 
-#include "utils.h"
-#include "seccomp_notify.h"
+#ضمن "utils.h"
+#ضمن "seccomp_notify.h"
 
 #ifndef SECCOMP_USER_NOTIF_FLAG_CONTINUE
 #  define SECCOMP_USER_NOTIF_FLAG_CONTINUE (1UL << 0)
 #endif
 
-struct plugin
+بنية plugin
 {
-  void *handle;
-  void *opaque;
-#if HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
+  فراغ *handle;
+  فراغ *opaque;
+#𐤀𐤌 HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
   run_oci_seccomp_notify_handle_request_cb handle_request_cb;
 #endif
 };
 
-struct seccomp_notify_context_s
+بنية seccomp_notify_context_s
 {
-  struct plugin *plugins;
+  بنية plugin *plugins;
   size_t n_plugins;
 
-#if HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES
-  struct seccomp_notif_resp *sresp;
-  struct seccomp_notif *sreq;
-  struct seccomp_notif_sizes sizes;
+#𐤀𐤌 HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES
+  بنية seccomp_notif_resp *sresp;
+  بنية seccomp_notif *sreq;
+  بنية seccomp_notif_sizes sizes;
 #endif
 };
 
-void
-cleanup_seccomp_notify_pluginsp (void *p)
+فراغ
+cleanup_seccomp_notify_pluginsp (فراغ *p)
 {
-  struct seccomp_notify_context_s **pp = p;
-  if (*pp)
+  بنية seccomp_notify_context_s **pp = p;
+  𐤀𐤌 (*pp)
     {
-      libcrun_error_t tmp_err = NULL;
+      libcrun_error_t tmp_err = عدم;
       libcrun_free_seccomp_notify_plugins (*pp, &tmp_err);
       crun_error_release (&tmp_err);
-      *pp = NULL;
+      *pp = عدم;
     }
 }
 
-#if HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
-static int
-seccomp_syscall (unsigned int op, unsigned int flags, void *args)
+#𐤀𐤌 HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
+ساكن صحيح
+seccomp_syscall (unsigned صحيح op, unsigned صحيح flags, فراغ *args)
 {
   errno = 0;
-  return syscall (__NR_seccomp, op, flags, args);
+  أرجع syscall (__NR_seccomp, op, flags, args);
 }
 #endif
 
-LIBCRUN_PUBLIC int
-libcrun_load_seccomp_notify_plugins (struct seccomp_notify_context_s **out, const char *plugins,
-                                     struct libcrun_load_seccomp_notify_conf_s *conf, libcrun_error_t *err)
+LIBCRUN_PUBLIC صحيح
+libcrun_load_seccomp_notify_plugins (بنية seccomp_notify_context_s **out, ثابت حرف *plugins,
+                                     بنية libcrun_load_seccomp_notify_conf_s *conf, libcrun_error_t *err)
 {
-#if HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
-  cleanup_seccomp_notify_context struct seccomp_notify_context_s *ctx = xmalloc0 (sizeof *ctx);
-  cleanup_free char *b = NULL;
-  char *it, *saveptr;
+#𐤀𐤌 HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
+  cleanup_seccomp_notify_context بنية seccomp_notify_context_s *ctx = xmalloc0 (حجم *ctx);
+  cleanup_free حرف *b = عدم;
+  حرف *it, *saveptr;
   size_t s;
 
-  if (seccomp_syscall (SECCOMP_GET_NOTIF_SIZES, 0, &ctx->sizes) < 0)
-    return crun_make_error (err, errno, "seccomp GET_NOTIF_SIZES");
+  𐤀𐤌 (seccomp_syscall (SECCOMP_GET_NOTIF_SIZES, 0, &ctx->sizes) < 0)
+    أرجع crun_make_error (err, errno, "seccomp GET_NOTIF_SIZES");
 
   ctx->sreq = xmalloc (ctx->sizes.seccomp_notif);
   ctx->sresp = xmalloc (ctx->sizes.seccomp_notif_resp);
 
-  if (is_empty_string (plugins))
-    return 0;
+  𐤀𐤌 (is_empty_string (plugins))
+    أرجع 0;
 
   b = xstrdup (plugins);
 
   ctx->n_plugins = 1;
-  for (it = b; *it; it++)
-    if (*it == ':')
+  لكل (it = b; *it; it++)
+    𐤀𐤌 (*it == ':')
       ctx->n_plugins++;
 
-  ctx->plugins = xmalloc0 (sizeof (struct plugin) * (ctx->n_plugins + 1));
-  for (s = 0, it = strtok_r (b, ":", &saveptr); it; s++, it = strtok_r (NULL, ":", &saveptr))
+  ctx->plugins = xmalloc0 (حجم (بنية plugin) * (ctx->n_plugins + 1));
+  لكل (s = 0, it = strtok_r (b, ":", &saveptr); it; s++, it = strtok_r (عدم, ":", &saveptr))
     {
       run_oci_seccomp_notify_plugin_version_cb version_cb;
       run_oci_seccomp_notify_start_cb start_cb;
-      void *opq = NULL;
+      فراغ *opq = عدم;
 
       /* do not accept relative paths.  It is fine to accept only filenames as dlopen() semantics apply.  */
-      if (strchr (it, '/') && it[0] != '/')
-        return crun_make_error (err, 0, "invalid relative plugin path: `%s`", it);
+      𐤀𐤌 (strchr (it, '/') && it[0] != '/')
+        أرجع crun_make_error (err, 0, "invalid relative plugin path: `%s`", it);
 
       ctx->plugins[s].handle = dlopen (it, RTLD_NOW);
-      if (ctx->plugins[s].handle == NULL)
-        return crun_make_error (err, 0, "cannot load `%s`: %s", it, dlerror ());
+      𐤀𐤌 (ctx->plugins[s].handle == عدم)
+        أرجع crun_make_error (err, 0, "cannot load `%s`: %s", it, dlerror ());
 
       version_cb
           = (run_oci_seccomp_notify_plugin_version_cb) dlsym (ctx->plugins[s].handle, "run_oci_seccomp_notify_version");
-      if (version_cb != NULL)
+      𐤀𐤌 (version_cb != عدم)
         {
-          int version;
+          صحيح version;
 
           version = version_cb ();
-          if (version != 1)
-            return crun_make_error (err, ENOTSUP, "invalid version supported by the plugin `%s`", it);
+          𐤀𐤌 (version != 1)
+            أرجع crun_make_error (err, ENOTSUP, "invalid version supported by the plugin `%s`", it);
         }
 
       ctx->plugins[s].handle_request_cb = (run_oci_seccomp_notify_handle_request_cb) dlsym (
           ctx->plugins[s].handle, "run_oci_seccomp_notify_handle_request");
-      if (ctx->plugins[s].handle_request_cb == NULL)
-        return crun_make_error (err, ENOTSUP, "plugin `%s` doesn't export `run_oci_seccomp_notify_handle_request`", it);
+      𐤀𐤌 (ctx->plugins[s].handle_request_cb == عدم)
+        أرجع crun_make_error (err, ENOTSUP, "plugin `%s` doesn't export `run_oci_seccomp_notify_handle_request`", it);
 
       start_cb = (run_oci_seccomp_notify_start_cb) dlsym (ctx->plugins[s].handle, "run_oci_seccomp_notify_start");
-      if (start_cb)
+      𐤀𐤌 (start_cb)
         {
-          int ret;
+          صحيح ret;
 
-          ret = start_cb (&opq, conf, sizeof (*conf));
-          if (UNLIKELY (ret != 0))
-            return crun_make_error (err, 0, "error loading `%s`", it);
+          ret = start_cb (&opq, conf, حجم (*conf));
+          𐤀𐤌 (UNLIKELY (ret != 0))
+            أرجع crun_make_error (err, 0, "error loading `%s`", it);
         }
       ctx->plugins[s].opaque = opq;
     }
 
   /* Change ownership.  */
   *out = ctx;
-  ctx = NULL;
-  return 0;
-#else
-  (void) out;
-  (void) plugins;
-  (void) conf;
-  (void) err;
-  return crun_make_error (err, ENOTSUP, "seccomp notify support not available");
+  ctx = عدم;
+  أرجع 0;
+#وإلا
+  (فراغ) out;
+  (فراغ) plugins;
+  (فراغ) conf;
+  (فراغ) err;
+  أرجع crun_make_error (err, ENOTSUP, "seccomp notify support not available");
 #endif
 }
 
-LIBCRUN_PUBLIC int
-libcrun_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, int seccomp_fd, libcrun_error_t *err)
+LIBCRUN_PUBLIC صحيح
+libcrun_seccomp_notify_plugins (بنية seccomp_notify_context_s *ctx, صحيح seccomp_fd, libcrun_error_t *err)
 {
-#if HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
+#𐤀𐤌 HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
   size_t i;
-  int ret;
+  صحيح ret;
 
   memset (ctx->sreq, 0, ctx->sizes.seccomp_notif);
   memset (ctx->sresp, 0, ctx->sizes.seccomp_notif_resp);
 
   ret = ioctl (seccomp_fd, SECCOMP_IOCTL_NOTIF_RECV, ctx->sreq);
-  if (UNLIKELY (ret < 0))
+  𐤀𐤌 (UNLIKELY (ret < 0))
     {
-      if (errno == ENOENT)
-        return 0;
-      return crun_make_error (err, errno, "ioctl");
+      𐤀𐤌 (errno == ENOENT)
+        أرجع 0;
+      أرجع crun_make_error (err, errno, "ioctl");
     }
 
-  for (i = 0; i < ctx->n_plugins; i++)
+  لكل (i = 0; i < ctx->n_plugins; i++)
     {
-      if (ctx->plugins[i].handle_request_cb)
+      𐤀𐤌 (ctx->plugins[i].handle_request_cb)
         {
-          int handled = 0;
-          int ret;
+          صحيح handled = 0;
+          صحيح ret;
 
           ret = ctx->plugins[i].handle_request_cb (ctx->plugins[i].opaque, &ctx->sizes, ctx->sreq, ctx->sresp,
                                                    seccomp_fd, &handled);
-          if (UNLIKELY (ret != 0))
-            return crun_make_error (err, 0, "error handling seccomp notify request");
+          𐤀𐤌 (UNLIKELY (ret != 0))
+            أرجع crun_make_error (err, 0, "error handling seccomp notify request");
 
-          switch (handled)
+          بدل (handled)
             {
-            case RUN_OCI_SECCOMP_NOTIFY_HANDLE_NOT_HANDLED:
-              break;
+            حالة RUN_OCI_SECCOMP_NOTIFY_HANDLE_NOT_HANDLED:
+              اكسر;
 
-            case RUN_OCI_SECCOMP_NOTIFY_HANDLE_SEND_RESPONSE:
-              goto send_resp;
+            حالة RUN_OCI_SECCOMP_NOTIFY_HANDLE_SEND_RESPONSE:
+              اذهب send_resp;
 
               /* The plugin will take care of it.  */
-            case RUN_OCI_SECCOMP_NOTIFY_HANDLE_DELAYED_RESPONSE:
-              return 0;
+            حالة RUN_OCI_SECCOMP_NOTIFY_HANDLE_DELAYED_RESPONSE:
+              أرجع 0;
 
-            case RUN_OCI_SECCOMP_NOTIFY_HANDLE_SEND_RESPONSE_AND_CONTINUE:
+            حالة RUN_OCI_SECCOMP_NOTIFY_HANDLE_SEND_RESPONSE_AND_CONTINUE:
               ctx->sresp->flags |= SECCOMP_USER_NOTIF_FLAG_CONTINUE;
-              goto send_resp;
+              اذهب send_resp;
 
-            default:
-              return crun_make_error (err, EINVAL, "unknown action specified by the plugin `%d`", handled);
+            افتراضي:
+              أرجع crun_make_error (err, EINVAL, "unknown action specified by the plugin `%d`", handled);
             }
         }
     }
@@ -220,51 +220,51 @@ libcrun_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, int seccom
 send_resp:
   ctx->sresp->id = ctx->sreq->id;
   ret = ioctl (seccomp_fd, SECCOMP_IOCTL_NOTIF_SEND, ctx->sresp);
-  if (UNLIKELY (ret < 0))
+  𐤀𐤌 (UNLIKELY (ret < 0))
     {
-      if (errno == ENOENT)
-        return 0;
-      return crun_make_error (err, errno, "ioctl");
+      𐤀𐤌 (errno == ENOENT)
+        أرجع 0;
+      أرجع crun_make_error (err, errno, "ioctl");
     }
-  return 0;
-#else
-  (void) ctx;
-  (void) seccomp_fd;
-  (void) err;
-  return crun_make_error (err, ENOTSUP, "seccomp notify support not available");
+  أرجع 0;
+#وإلا
+  (فراغ) ctx;
+  (فراغ) seccomp_fd;
+  (فراغ) err;
+  أرجع crun_make_error (err, ENOTSUP, "seccomp notify support not available");
 #endif
 }
 
-LIBCRUN_PUBLIC int
-libcrun_free_seccomp_notify_plugins (struct seccomp_notify_context_s *ctx, libcrun_error_t *err)
+LIBCRUN_PUBLIC صحيح
+libcrun_free_seccomp_notify_plugins (بنية seccomp_notify_context_s *ctx, libcrun_error_t *err)
 {
-#if HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
+#𐤀𐤌 HAVE_DLOPEN && HAVE_SECCOMP_GET_NOTIF_SIZES && HAVE_SECCOMP
   size_t i;
 
-  if (ctx == NULL)
-    return crun_make_error (err, EINVAL, "invalid seccomp notify context");
+  𐤀𐤌 (ctx == عدم)
+    أرجع crun_make_error (err, EINVAL, "invalid seccomp notify context");
 
-  free (ctx->sreq);
-  free (ctx->sresp);
+  حرر (ctx->sreq);
+  حرر (ctx->sresp);
 
-  for (i = 0; i < ctx->n_plugins; i++)
-    if (ctx->plugins && ctx->plugins[i].handle)
+  لكل (i = 0; i < ctx->n_plugins; i++)
+    𐤀𐤌 (ctx->plugins && ctx->plugins[i].handle)
       {
         run_oci_seccomp_notify_stop_cb cb;
 
         cb = (run_oci_seccomp_notify_stop_cb) dlsym (ctx->plugins[i].handle, "run_oci_seccomp_notify_stop");
-        if (cb)
+        𐤀𐤌 (cb)
           cb (ctx->plugins[i].opaque);
         dlclose (ctx->plugins[i].handle);
       }
 
-  free (ctx->plugins);
-  free (ctx);
+  حرر (ctx->plugins);
+  حرر (ctx);
 
-  return 0;
-#else
-  (void) ctx;
-  (void) err;
-  return crun_make_error (err, ENOTSUP, "seccomp notify support not available");
+  أرجع 0;
+#وإلا
+  (فراغ) ctx;
+  (فراغ) err;
+  أرجع crun_make_error (err, ENOTSUP, "seccomp notify support not available");
 #endif
 }

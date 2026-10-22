@@ -18,34 +18,34 @@
 #ifndef RING_BUFFER_H
 #define RING_BUFFER_H
 
-#include <config.h>
+#ضمن <config.h>
 
-#include "error.h"
-#include "utils.h"
+#ضمن "error.h"
+#ضمن "utils.h"
 
-struct ring_buffer;
+بنية ring_buffer;
 
-size_t ring_buffer_get_data_available (struct ring_buffer *rb);
+size_t ring_buffer_get_data_available (بنية ring_buffer *rb);
 
-size_t ring_buffer_get_space_available (struct ring_buffer *rb);
+size_t ring_buffer_get_space_available (بنية ring_buffer *rb);
 
-size_t ring_buffer_get_size (struct ring_buffer *rb);
+size_t ring_buffer_get_size (بنية ring_buffer *rb);
 
-int ring_buffer_read (struct ring_buffer *rb, int fd, bool *is_eagain, libcrun_error_t *err);
+صحيح ring_buffer_read (بنية ring_buffer *rb, صحيح fd, bool *is_eagain, libcrun_error_t *err);
 
-int ring_buffer_write (struct ring_buffer *rb, int fd, bool *is_eagain, libcrun_error_t *err);
+صحيح ring_buffer_write (بنية ring_buffer *rb, صحيح fd, bool *is_eagain, libcrun_error_t *err);
 
-struct ring_buffer *ring_buffer_make (size_t size);
+بنية ring_buffer *ring_buffer_make (size_t size);
 
-void ring_buffer_free (struct ring_buffer *rb);
+فراغ ring_buffer_free (بنية ring_buffer *rb);
 
 #define cleanup_ring_buffer __attribute__ ((cleanup (cleanup_ring_bufferp)))
 
-static inline void
-cleanup_ring_bufferp (struct ring_buffer **p)
+ساكن مضمن فراغ
+cleanup_ring_bufferp (بنية ring_buffer **p)
 {
-  struct ring_buffer *rb = *p;
-  if (rb)
+  بنية ring_buffer *rb = *p;
+  𐤀𐤌 (rb)
     ring_buffer_free (rb);
 }
 

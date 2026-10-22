@@ -18,10 +18,10 @@
 #ifndef CGROUP_SETUP_H
 #define CGROUP_SETUP_H
 
-#include "container.h"
-#include "utils.h"
+#ضمن "container.h"
+#ضمن "utils.h"
 
-int enter_cgroup (int cgroup_mode, pid_t pid, pid_t init_pid, const char *path,
+صحيح enter_cgroup (صحيح cgroup_mode, pid_t pid, pid_t init_pid, ثابت حرف *path,
                   bool create_if_missing, libcrun_error_t *err);
 
 #endif
