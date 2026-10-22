@@ -18,31 +18,31 @@
 #ifndef EBPF_H
 #define EBPF_H
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include "error.h"
-#include <errno.h>
-#include <argp.h>
-#include <ocispec/runtime_spec_schema_config_schema.h>
-#include "container.h"
+#ಅನ್ತರ್ಭಾವ <config.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <stdlib.h>
+#ಅನ್ತರ್ಭಾವ "error.h"
+#ಅನ್ತರ್ಭಾವ <errno.h>
+#ಅನ್ತರ್ಭಾವ <argp.h>
+#ಅನ್ತರ್ಭಾವ <ocispec/runtime_spec_schema_config_schema.h>
+#ಅನ್ತರ್ಭಾವ "container.h"
 
 #define SYS_FS_BPF "/sys/fs/bpf"
 #define CRUN_BPF_DIR SYS_FS_BPF "/crun"
 
-struct bpf_program;
+ಸಂರಚನಾ bpf_program;
 
-struct bpf_program *bpf_program_new (size_t size);
-struct bpf_program *bpf_program_append (struct bpf_program *p, void *data, size_t size);
+ಸಂರಚನಾ bpf_program *bpf_program_new (size_t size);
+ಸಂರಚನಾ bpf_program *bpf_program_append (ಸಂರಚನಾ bpf_program *p, ಶೂನ್ಯ *data, size_t size);
 
-struct bpf_program *bpf_program_init_dev (struct bpf_program *program, libcrun_error_t *err);
-struct bpf_program *bpf_program_append_dev (struct bpf_program *program, const char *access, char type, int major,
-                                            int minor, bool accept, libcrun_error_t *err);
-struct bpf_program *bpf_program_complete_dev (struct bpf_program *program, libcrun_error_t *err);
+ಸಂರಚನಾ bpf_program *bpf_program_init_dev (ಸಂರಚನಾ bpf_program *program, libcrun_error_t *err);
+ಸಂರಚನಾ bpf_program *bpf_program_append_dev (ಸಂರಚನಾ bpf_program *program, ಧ್ರುವ ವರ್ಣ *access, ವರ್ಣ type, ಪೂರ್ಣಾಙ್ಕ major,
+                                            ಪೂರ್ಣಾಙ್ಕ minor, bool accept, libcrun_error_t *err);
+ಸಂರಚನಾ bpf_program *bpf_program_complete_dev (ಸಂರಚನಾ bpf_program *program, libcrun_error_t *err);
 
-int libcrun_ebpf_load (struct bpf_program *program, int dirfd, const char *pin, libcrun_error_t *err);
-int libcrun_ebpf_read_program (struct bpf_program **program, const char *path, libcrun_error_t *err);
-int libcrun_ebpf_query_cgroup_progs (const char *cgroup_path, uint32_t **progs_out, size_t *n_progs_out, libcrun_error_t *err);
-bool libcrun_ebpf_cmp_programs (struct bpf_program *program1, struct bpf_program *program2);
+ಪೂರ್ಣಾಙ್ಕ libcrun_ebpf_load (ಸಂರಚನಾ bpf_program *program, ಪೂರ್ಣಾಙ್ಕ dirfd, ಧ್ರುವ ವರ್ಣ *pin, libcrun_error_t *err);
+ಪೂರ್ಣಾಙ್ಕ libcrun_ebpf_read_program (ಸಂರಚನಾ bpf_program **program, ಧ್ರುವ ವರ್ಣ *path, libcrun_error_t *err);
+ಪೂರ್ಣಾಙ್ಕ libcrun_ebpf_query_cgroup_progs (ಧ್ರುವ ವರ್ಣ *cgroup_path, uint32_t **progs_out, size_t *n_progs_out, libcrun_error_t *err);
+bool libcrun_ebpf_cmp_programs (ಸಂರಚನಾ bpf_program *program1, ಸಂರಚನಾ bpf_program *program2);
 
 #endif

@@ -2,7 +2,7 @@
 /* Command-line: gperf --lookup-function-name libcrun_mount_flag_in_word_set -m 100 -tCEG -S1 src/libcrun/mount_flags.perf  */
 /* Computed positions: -k'1-4' */
 
-#if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
+#ಯದಿ !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
       && ('%' == 37) && ('&' == 38) && ('\'' == 39) && ('(' == 40) \
       && (')' == 41) && ('*' == 42) && ('+' == 43) && (',' == 44) \
       && ('-' == 45) && ('.' == 46) && ('/' == 47) && ('0' == 48) \
@@ -33,41 +33,41 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
-#include <stddef.h>
-#include <stdlib.h>
+#ಅನ್ತರ್ಭಾವ <config.h>
+#ಅನ್ತರ್ಭಾವ <stddef.h>
+#ಅನ್ತರ್ಭಾವ <stdlib.h>
 
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/mount.h>
+#ಅನ್ತರ್ಭಾವ <fcntl.h>
+#ಅನ್ತರ್ಭಾವ <unistd.h>
+#ಅನ್ತರ್ಭಾವ <sys/mount.h>
 
-#include "utils.h"
-#include "mount_flags.h"
+#ಅನ್ತರ್ಭಾವ "utils.h"
+#ಅನ್ತರ್ಭಾವ "mount_flags.h"
 
 #line 34 "src/libcrun/mount_flags.perf"
-struct propagation_flags_s;
-enum
+ಸಂರಚನಾ propagation_flags_s;
+ಗಣನಾ
   {
     TOTAL_KEYWORDS = 63,
     MIN_WORD_LENGTH = 2,
     MAX_WORD_LENGTH = 14,
-    MIN_HASH_VALUE = 2,
-    MAX_HASH_VALUE = 96
+    MIN_HASH_ಮೌಲ್ಯ = 2,
+    MAX_HASH_ಮೌಲ್ಯ = 96
   };
 
 /* maximum key range = 95, duplicates = 0 */
 
 #ifdef __GNUC__
 __inline
-#else
+#ಅನ್ಯಥಾ
 #ifdef __cplusplus
-inline
+ಅನ್ತಃಸ್ಥ
 #endif
 #endif
-static unsigned int
-hash (register const char *str, register size_t len)
+ಸ್ಥಿರ unsigned ಪೂರ್ಣಾಙ್ಕ
+hash (ಪಞ್ಜಿಕಾ ಧ್ರುವ ವರ್ಣ *str, ಪಞ್ಜಿಕಾ size_t len)
 {
-  static const unsigned char asso_values[] =
+  ಸ್ಥಿರ ಧ್ರುವ unsigned ವರ್ಣ asso_ಮೌಲ್ಯಗಳು[] =
     {
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
@@ -96,27 +96,27 @@ hash (register const char *str, register size_t len)
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
       97, 97, 97, 97, 97, 97
     };
-  register unsigned int hval = len;
+  ಪಞ್ಜಿಕಾ unsigned ಪೂರ್ಣಾಙ್ಕ hval = len;
 
-  switch (hval)
+  ವಿಕಲ್ಪ (hval)
     {
-      default:
-        hval += asso_values[(unsigned char)str[3]];
+      ಸ್ವಭಾವ:
+        hval += asso_ಮೌಲ್ಯಗಳು[(unsigned ವರ್ಣ)str[3]];
       /*FALLTHROUGH*/
-      case 3:
-        hval += asso_values[(unsigned char)str[2]];
+      ಪಕ್ಷ 3:
+        hval += asso_ಮೌಲ್ಯಗಳು[(unsigned ವರ್ಣ)str[2]];
       /*FALLTHROUGH*/
-      case 2:
-        hval += asso_values[(unsigned char)str[1]];
+      ಪಕ್ಷ 2:
+        hval += asso_ಮೌಲ್ಯಗಳು[(unsigned ವರ್ಣ)str[1]];
       /*FALLTHROUGH*/
-      case 1:
-        hval += asso_values[(unsigned char)str[0]];
-        break;
+      ಪಕ್ಷ 1:
+        hval += asso_ಮೌಲ್ಯಗಳು[(unsigned ವರ್ಣ)str[0]];
+        ಭಙ್ಗ;
     }
-  return hval;
+  ಪ್ರತ್ಯಾಗಮ hval;
 }
 
-static const struct propagation_flags_s wordlist[] =
+ಸ್ಥಿರ ಧ್ರುವ ಸಂರಚನಾ propagation_flags_s wordlist[] =
   {
 #line 40 "src/libcrun/mount_flags.perf"
     {"rw", 1, MS_RDONLY, 0},
@@ -246,240 +246,240 @@ static const struct propagation_flags_s wordlist[] =
     {"copy-symlink", 0, 0, OPTION_COPY_SYMLINK}
   };
 
-const struct propagation_flags_s *
-libcrun_mount_flag_in_word_set (register const char *str, register size_t len)
+ಧ್ರುವ ಸಂರಚನಾ propagation_flags_s *
+libcrun_mount_flag_in_word_set (ಪಞ್ಜಿಕಾ ಧ್ರುವ ವರ್ಣ *str, ಪಞ್ಜಿಕಾ size_t len)
 {
-  if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
+  ಯದಿ (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
-      register unsigned int key = hash (str, len);
+      ಪಞ್ಜಿಕಾ unsigned ಪೂರ್ಣಾಙ್ಕ ಕೀಲಿ = hash (str, len);
 
-      if (key <= MAX_HASH_VALUE && key >= MIN_HASH_VALUE)
+      ಯದಿ (ಕೀಲಿ <= MAX_HASH_ಮೌಲ್ಯ && ಕೀಲಿ >= MIN_HASH_ಮೌಲ್ಯ)
         {
-          register const struct propagation_flags_s *resword;
+          ಪಞ್ಜಿಕಾ ಧ್ರುವ ಸಂರಚನಾ propagation_flags_s *resword;
 
-          switch (key - 2)
+          ವಿಕಲ್ಪ (ಕೀಲಿ - 2)
             {
-              case 0:
+              ಪಕ್ಷ 0:
                 resword = &wordlist[0];
-                goto compare;
-              case 1:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 1:
                 resword = &wordlist[1];
-                goto compare;
-              case 4:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 4:
                 resword = &wordlist[2];
-                goto compare;
-              case 5:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 5:
                 resword = &wordlist[3];
-                goto compare;
-              case 9:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 9:
                 resword = &wordlist[4];
-                goto compare;
-              case 10:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 10:
                 resword = &wordlist[5];
-                goto compare;
-              case 11:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 11:
                 resword = &wordlist[6];
-                goto compare;
-              case 13:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 13:
                 resword = &wordlist[7];
-                goto compare;
-              case 15:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 15:
                 resword = &wordlist[8];
-                goto compare;
-              case 16:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 16:
                 resword = &wordlist[9];
-                goto compare;
-              case 17:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 17:
                 resword = &wordlist[10];
-                goto compare;
-              case 18:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 18:
                 resword = &wordlist[11];
-                goto compare;
-              case 19:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 19:
                 resword = &wordlist[12];
-                goto compare;
-              case 20:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 20:
                 resword = &wordlist[13];
-                goto compare;
-              case 21:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 21:
                 resword = &wordlist[14];
-                goto compare;
-              case 22:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 22:
                 resword = &wordlist[15];
-                goto compare;
-              case 23:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 23:
                 resword = &wordlist[16];
-                goto compare;
-              case 24:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 24:
                 resword = &wordlist[17];
-                goto compare;
-              case 25:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 25:
                 resword = &wordlist[18];
-                goto compare;
-              case 26:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 26:
                 resword = &wordlist[19];
-                goto compare;
-              case 28:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 28:
                 resword = &wordlist[20];
-                goto compare;
-              case 29:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 29:
                 resword = &wordlist[21];
-                goto compare;
-              case 30:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 30:
                 resword = &wordlist[22];
-                goto compare;
-              case 31:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 31:
                 resword = &wordlist[23];
-                goto compare;
-              case 32:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 32:
                 resword = &wordlist[24];
-                goto compare;
-              case 33:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 33:
                 resword = &wordlist[25];
-                goto compare;
-              case 34:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 34:
                 resword = &wordlist[26];
-                goto compare;
-              case 35:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 35:
                 resword = &wordlist[27];
-                goto compare;
-              case 36:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 36:
                 resword = &wordlist[28];
-                goto compare;
-              case 37:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 37:
                 resword = &wordlist[29];
-                goto compare;
-              case 38:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 38:
                 resword = &wordlist[30];
-                goto compare;
-              case 39:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 39:
                 resword = &wordlist[31];
-                goto compare;
-              case 40:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 40:
                 resword = &wordlist[32];
-                goto compare;
-              case 41:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 41:
                 resword = &wordlist[33];
-                goto compare;
-              case 42:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 42:
                 resword = &wordlist[34];
-                goto compare;
-              case 43:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 43:
                 resword = &wordlist[35];
-                goto compare;
-              case 44:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 44:
                 resword = &wordlist[36];
-                goto compare;
-              case 45:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 45:
                 resword = &wordlist[37];
-                goto compare;
-              case 46:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 46:
                 resword = &wordlist[38];
-                goto compare;
-              case 47:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 47:
                 resword = &wordlist[39];
-                goto compare;
-              case 48:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 48:
                 resword = &wordlist[40];
-                goto compare;
-              case 49:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 49:
                 resword = &wordlist[41];
-                goto compare;
-              case 50:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 50:
                 resword = &wordlist[42];
-                goto compare;
-              case 51:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 51:
                 resword = &wordlist[43];
-                goto compare;
-              case 52:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 52:
                 resword = &wordlist[44];
-                goto compare;
-              case 53:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 53:
                 resword = &wordlist[45];
-                goto compare;
-              case 54:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 54:
                 resword = &wordlist[46];
-                goto compare;
-              case 55:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 55:
                 resword = &wordlist[47];
-                goto compare;
-              case 56:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 56:
                 resword = &wordlist[48];
-                goto compare;
-              case 57:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 57:
                 resword = &wordlist[49];
-                goto compare;
-              case 58:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 58:
                 resword = &wordlist[50];
-                goto compare;
-              case 59:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 59:
                 resword = &wordlist[51];
-                goto compare;
-              case 60:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 60:
                 resword = &wordlist[52];
-                goto compare;
-              case 61:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 61:
                 resword = &wordlist[53];
-                goto compare;
-              case 62:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 62:
                 resword = &wordlist[54];
-                goto compare;
-              case 63:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 63:
                 resword = &wordlist[55];
-                goto compare;
-              case 65:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 65:
                 resword = &wordlist[56];
-                goto compare;
-              case 67:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 67:
                 resword = &wordlist[57];
-                goto compare;
-              case 68:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 68:
                 resword = &wordlist[58];
-                goto compare;
-              case 75:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 75:
                 resword = &wordlist[59];
-                goto compare;
-              case 84:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 84:
                 resword = &wordlist[60];
-                goto compare;
-              case 85:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 85:
                 resword = &wordlist[61];
-                goto compare;
-              case 94:
+                ಗಚ್ಛ compare;
+              ಪಕ್ಷ 94:
                 resword = &wordlist[62];
-                goto compare;
+                ಗಚ್ಛ compare;
             }
-          return 0;
+          ಪ್ರತ್ಯಾಗಮ 0;
         compare:
           {
-            register const char *s = resword->name;
+            ಪಞ್ಜಿಕಾ ಧ್ರುವ ವರ್ಣ *s = resword->name;
 
-            if (*str == *s && !strcmp (str + 1, s + 1))
-              return resword;
+            ಯದಿ (*str == *s && !strcmp (str + 1, s + 1))
+              ಪ್ರತ್ಯಾಗಮ resword;
           }
         }
     }
-  return 0;
+  ಪ್ರತ್ಯಾಗಮ 0;
 }
 #line 99 "src/libcrun/mount_flags.perf"
 
 
-const struct propagation_flags_s *
-libcrun_str2mount_flags (const char *name)
+ಧ್ರುವ ಸಂರಚನಾ propagation_flags_s *
+libcrun_str2mount_flags (ಧ್ರುವ ವರ್ಣ *name)
 {
-  return libcrun_mount_flag_in_word_set (name, strlen (name));
+  ಪ್ರತ್ಯಾಗಮ libcrun_mount_flag_in_word_set (name, strlen (name));
 }
 
-const struct propagation_flags_s *
-get_mount_flags_from_wordlist (void)
+ಧ್ರುವ ಸಂರಚನಾ propagation_flags_s *
+get_mount_flags_from_wordlist (ಶೂನ್ಯ)
 {
-  struct propagation_flags_s *flags;
+  ಸಂರಚನಾ propagation_flags_s *flags;
   size_t i;
-  size_t num_wordlist_flags = sizeof (wordlist) / sizeof (wordlist[0]);
+  size_t ಅಂಕೆ_wordlist_flags = ಪರಿಮಾಣ (wordlist) / ಪರಿಮಾಣ (wordlist[0]);
 
-  flags = xmalloc0 ((sizeof (struct propagation_flags_s) + 1) * num_wordlist_flags);
-  for (i = 0; i < num_wordlist_flags; i++)
+  flags = xmalloc0 ((ಪರಿಮಾಣ (ಸಂರಚನಾ propagation_flags_s) + 1) * ಅಂಕೆ_wordlist_flags);
+  ಪ್ರತಿ (i = 0; i < ಅಂಕೆ_wordlist_flags; i++)
     flags[i].name = wordlist[i].name;
 
-  return flags;
+  ಪ್ರತ್ಯಾಗಮ flags;
 }

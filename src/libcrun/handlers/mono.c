@@ -17,17 +17,17 @@
  */
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "../custom-handler.h"
-#include "../container.h"
-#include "../utils.h"
-#include "../linux.h"
-#include <unistd.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <sched.h>
+#ಅನ್ತರ್ಭಾವ <config.h>
+#ಅನ್ತರ್ಭಾವ "../custom-handler.h"
+#ಅನ್ತರ್ಭಾವ "../container.h"
+#ಅನ್ತರ್ಭಾವ "../utils.h"
+#ಅನ್ತರ್ಭಾವ "../linux.h"
+#ಅನ್ತರ್ಭಾವ <unistd.h>
+#ಅನ್ತರ್ಭಾವ <sys/stat.h>
+#ಅನ್ತರ್ಭಾವ <errno.h>
+#ಅನ್ತರ್ಭಾವ <sys/types.h>
+#ಅನ್ತರ್ಭಾವ <fcntl.h>
+#ಅನ್ತರ್ಭಾವ <sched.h>
 
 #ifdef HAVE_DLOPEN
 #  include <dlfcn.h>
@@ -40,25 +40,25 @@
 #  include <mono/jit/jit.h>
 #endif
 
-#if HAVE_DLOPEN && HAVE_MONO
-static int
-mono_exec (void *cookie arg_unused, libcrun_container_t *container arg_unused,
-           const char *pathname, char *const argv[] arg_unused)
+#ಯದಿ HAVE_DLOPEN && HAVE_MONO
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ
+mono_exec (ಶೂನ್ಯ *cookie arg_unused, libcrun_container_t *container arg_unused,
+           ಧ್ರುವ ವರ್ಣ *pathname, ವರ್ಣ *ಧ್ರುವ argv[] arg_unused)
 {
   MonoDomain *domain;
-  char *path = (char *) pathname;
-  int argc = 2;
-  char *argv_mono[] = {
+  ವರ್ಣ *path = (ವರ್ಣ *) pathname;
+  ಪೂರ್ಣಾಙ್ಕ argc = 2;
+  ವರ್ಣ *argv_mono[] = {
     path,
     path,
-    NULL
+    ರಿಕ್ತ
   };
-  const char *file;
-  int retval;
+  ಧ್ರುವ ವರ್ಣ *file;
+  ಪೂರ್ಣಾಙ್ಕ retval;
 
   file = argv_mono[1];
 
-  MonoAllocatorVTable mem_vtable = { MONO_ALLOCATOR_VTABLE_VERSION, xmalloc, NULL, NULL, NULL };
+  MonoAllocatorVTable mem_vtable = { MONO_ALLOCATOR_VTABLE_VERSION, xmalloc, ರಿಕ್ತ, ರಿಕ್ತ, ರಿಕ್ತ };
   mono_set_allocator_vtable (&mem_vtable);
 
   /*
@@ -66,7 +66,7 @@ mono_exec (void *cookie arg_unused, libcrun_container_t *container arg_unused,
    * if you are planning on using the dllmaps defined on the
    * system configuration
    */
-  mono_config_parse (NULL);
+  mono_config_parse (ರಿಕ್ತ);
   /*
    * mono_jit_init() creates a domain: each assembly is
    * loaded and run in a MonoDomain.
@@ -80,7 +80,7 @@ mono_exec (void *cookie arg_unused, libcrun_container_t *container arg_unused,
 
   MonoAssembly *assembly;
   assembly = mono_domain_assembly_open (domain, file);
-  if (! assembly)
+  ಯದಿ (! assembly)
     exit (EXIT_FAILURE);
   /*
    * mono_jit_exec() will run the Main() method in the assembly.
@@ -90,32 +90,32 @@ mono_exec (void *cookie arg_unused, libcrun_container_t *container arg_unused,
   mono_jit_exec (domain, assembly, argc - 1, argv_mono + 1);
   retval = mono_environment_exitcode_get ();
   mono_jit_cleanup (domain);
-  return 0;
+  ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-static int
-mono_load (void **cookie, libcrun_error_t *err)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ
+mono_load (ಶೂನ್ಯ **cookie, libcrun_error_t *err)
 {
-  void *handle;
+  ಶೂನ್ಯ *handle;
 
   handle = dlopen ("libmono-native.so", RTLD_NOW);
-  if (handle == NULL)
-    return crun_make_error (err, 0, "could not load `libmono-native.so`: `%s`", dlerror ());
+  ಯದಿ (handle == ರಿಕ್ತ)
+    ಪ್ರತ್ಯಾಗಮ crun_make_error (err, 0, "could not load `libmono-native.so`: `%s`", dlerror ());
   *cookie = handle;
 
-  return 0;
+  ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-static int
-mono_configure_container (void *cookie arg_unused, enum handler_configure_phase phase,
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ
+mono_configure_container (ಶೂನ್ಯ *cookie arg_unused, ಗಣನಾ handler_configure_phase phase,
                           libcrun_context_t *context arg_unused, libcrun_container_t *container,
-                          const char *rootfs arg_unused, libcrun_error_t *err)
+                          ಧ್ರುವ ವರ್ಣ *rootfs arg_unused, libcrun_error_t *err)
 {
-  int ret;
-  if (phase != HANDLER_CONFIGURE_MOUNTS)
-    return 0;
+  ಪೂರ್ಣಾಙ್ಕ ret;
+  ಯದಿ (phase != HANDLER_CONFIGURE_MOUNTS)
+    ಪ್ರತ್ಯಾಗಮ 0;
 
-  char *options[] = {
+  ವರ್ಣ *options[] = {
     "ro",
     "rprivate",
     "nosuid",
@@ -124,47 +124,47 @@ mono_configure_container (void *cookie arg_unused, enum handler_configure_phase 
   };
 
   ret = libcrun_container_do_bind_mount (container, "/etc/mono", "/etc/mono", options, 5, err);
-  if (ret != 0)
-    return ret;
+  ಯದಿ (ret != 0)
+    ಪ್ರತ್ಯಾಗಮ ret;
 
   ret = libcrun_container_do_bind_mount (container, "/usr/lib/mono", "/usr/lib/mono", options, 5, err);
-  if (ret != 0)
-    return ret;
+  ಯದಿ (ret != 0)
+    ಪ್ರತ್ಯಾಗಮ ret;
 
-  return 0;
+  ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-static int
-mono_unload (void *cookie, libcrun_error_t *err)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ
+mono_unload (ಶೂನ್ಯ *cookie, libcrun_error_t *err)
 {
-  int r;
+  ಪೂರ್ಣಾಙ್ಕ r;
 
-  if (cookie)
+  ಯದಿ (cookie)
     {
       r = dlclose (cookie);
-      if (UNLIKELY (r < 0))
-        return crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
+      ಯದಿ (UNLIKELY (r < 0))
+        ಪ್ರತ್ಯಾಗಮ crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
     }
-  return 0;
+  ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-static int
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ
 mono_can_handle_container (libcrun_container_t *container, libcrun_error_t *err arg_unused)
 {
-  const char *annotation;
+  ಧ್ರುವ ವರ್ಣ *annotation;
 
   annotation = find_annotation (container, "run.oci.handler");
-  if (annotation)
-    return strcmp (annotation, "dotnet") == 0 ? 1 : 0;
+  ಯದಿ (annotation)
+    ಪ್ರತ್ಯಾಗಮ strcmp (annotation, "dotnet") == 0 ? 1 : 0;
 
-  return 0;
+  ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-struct custom_handler_s handler_mono = {
+ಸಂರಚನಾ custom_handler_s handler_mono = {
   .name = "dotnet",
-  .alias = NULL,
+  .alias = ರಿಕ್ತ,
   .feature_string = ".NET:mono",
-  .supports_open_tree_namespace = false,
+  .supports_open_ವೃಕ್ಷ_namespace = false,
   .load = mono_load,
   .unload = mono_unload,
   .run_func = mono_exec,

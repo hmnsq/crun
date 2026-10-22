@@ -19,12 +19,12 @@
 
 #  include <linux/seccomp.h>
 
-struct libcrun_load_seccomp_notify_conf_s
+ಸಂರಚನಾ libcrun_load_seccomp_notify_conf_s
 {
-  const char *runtime_root_path;
-  const char *name;
-  const char *bundle_path;
-  const char *oci_config_path;
+  ಧ್ರುವ ವರ್ಣ *runtime_ಬೇರು_path;
+  ಧ್ರುವ ವರ್ಣ *name;
+  ಧ್ರುವ ವರ್ಣ *bundle_path;
+  ಧ್ರುವ ವರ್ಣ *oci_config_path;
 };
 
 /* The plugin doesn't know how to handle the request.  */
@@ -39,7 +39,7 @@ struct libcrun_load_seccomp_notify_conf_s
 #  ifndef SECCOMP_NOTIFY_SKIP_TYPEDEF
 
 /* Configure the plugin.  Return an opaque pointer that will be used for successive calls.  */
-typedef int (*run_oci_seccomp_notify_start_cb) (void **opaque, struct libcrun_load_seccomp_notify_conf_s *conf,
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*run_oci_seccomp_notify_start_cb) (ಶೂನ್ಯ **opaque, ಸಂರಚನಾ libcrun_load_seccomp_notify_conf_s *conf,
                                                 size_t size_configuration);
 
 /* Try to handle a single request.  It MUST be defined.
@@ -49,15 +49,15 @@ typedef int (*run_oci_seccomp_notify_start_cb) (void **opaque, struct libcrun_lo
    RUN_OCI_SECCOMP_NOTIFY_HANDLE_DELAYED_RESPONSE: the notification will be handled internally by the plugin and
    forwarded to seccomp_fd. It is useful for asynchronous handling.
 */
-typedef int (*run_oci_seccomp_notify_handle_request_cb) (void *opaque, struct seccomp_notif_sizes *sizes,
-                                                         struct seccomp_notif *sreq, struct seccomp_notif_resp *sresp,
-                                                         int seccomp_fd, int *handled);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*run_oci_seccomp_notify_handle_request_cb) (ಶೂನ್ಯ *opaque, ಸಂರಚನಾ seccomp_notif_sizes *sizes,
+                                                         ಸಂರಚನಾ seccomp_notif *sreq, ಸಂರಚನಾ seccomp_notif_resp *sresp,
+                                                         ಪೂರ್ಣಾಙ್ಕ seccomp_fd, ಪೂರ್ಣಾಙ್ಕ *handled);
 
 /* Stop the plugin.  The opaque value is the return value from run_oci_seccomp_notify_start.  */
-typedef int (*run_oci_seccomp_notify_stop_cb) (void *opaque);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*run_oci_seccomp_notify_stop_cb) (ಶೂನ್ಯ *opaque);
 
 /* Retrieve the API version used by the plugin.  It MUST return 1. */
-typedef int (*run_oci_seccomp_notify_plugin_version_cb) ();
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*run_oci_seccomp_notify_plugin_version_cb) ();
 
 #  endif
 

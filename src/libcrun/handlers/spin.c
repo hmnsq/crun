@@ -17,10 +17,10 @@
  */
 #define _GNU_SOURCE
 
-#include <config.h>
-#include "../custom-handler.h"
-#include "../linux.h"
-#include <sys/stat.h>
+#ಅನ್ತರ್ಭಾವ <config.h>
+#ಅನ್ತರ್ಭಾವ "../custom-handler.h"
+#ಅನ್ತರ್ಭಾವ "../linux.h"
+#ಅನ್ತರ್ಭಾವ <sys/stat.h>
 
 #ifdef HAVE_DLOPEN
 #  include <dlfcn.h>
@@ -30,18 +30,18 @@
 
 #endif
 
-#if HAVE_DLOPEN && HAVE_SPIN
-static int
-spin_exec (void *cookie arg_unused, libcrun_container_t *container arg_unused,
-           const char *pathname arg_unused, char *const argv[] arg_unused)
+#ಯದಿ HAVE_DLOPEN && HAVE_SPIN
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ
+spin_exec (ಶೂನ್ಯ *cookie arg_unused, libcrun_container_t *container arg_unused,
+           ಧ್ರುವ ವರ್ಣ *pathname arg_unused, ವರ್ಣ *ಧ್ರುವ argv[] arg_unused)
 {
   // wasmtime fails to determine default config path if $HOME is not set
-  char *newenviron[] = { "HOME=/root", NULL };
-  char *newargv[] = { "/bin/spin", "up", "--listen", "0.0.0.0:80", NULL };
+  ವರ್ಣ *newenviron[] = { "HOME=/root", ರಿಕ್ತ };
+  ವರ್ಣ *newargv[] = { "/bin/spin", "up", "--listen", "0.0.0.0:80", ರಿಕ್ತ };
 
   // spin up needs a /tmp folder
-  int dir_result = mkdir ("/tmp", 0777);
-  if (dir_result != 0 && errno != EEXIST)
+  ಪೂರ್ಣಾಙ್ಕ dir_result = mkdir ("/tmp", 0777);
+  ಯದಿ (dir_result != 0 && errno != EEXIST)
     {
       error (EXIT_FAILURE, errno, "failed to execute mkdir `/tmp`");
     }
@@ -51,27 +51,27 @@ spin_exec (void *cookie arg_unused, libcrun_container_t *container arg_unused,
   exit (EXIT_FAILURE);
 }
 
-static int
-spin_load (void **cookie arg_unused, libcrun_error_t *err)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ
+spin_load (ಶೂನ್ಯ **cookie arg_unused, libcrun_error_t *err)
 {
-  struct stat st = { 0 };
-  if (stat ("/usr/local/bin/spin", &st) == -1)
+  ಸಂರಚನಾ stat st = { 0 };
+  ಯದಿ (stat ("/usr/local/bin/spin", &st) == -1)
     {
-      return crun_make_error (err, 0, "Could not find statically linked spin cli at `/usr/local/bin/spin` on host file system");
+      ಪ್ರತ್ಯಾಗಮ crun_make_error (err, 0, "Could not find statically linked spin cli at `/usr/local/bin/spin` on host file system");
     }
-  return 0;
+  ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-static int
-spin_configure_container (void *cookie arg_unused, enum handler_configure_phase phase,
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ
+spin_configure_container (ಶೂನ್ಯ *cookie arg_unused, ಗಣನಾ handler_configure_phase phase,
                           libcrun_context_t *context arg_unused, libcrun_container_t *container,
-                          const char *rootfs arg_unused, libcrun_error_t *err)
+                          ಧ್ರುವ ವರ್ಣ *rootfs arg_unused, libcrun_error_t *err)
 {
-  int ret;
-  if (phase != HANDLER_CONFIGURE_MOUNTS)
-    return 0;
+  ಪೂರ್ಣಾಙ್ಕ ret;
+  ಯದಿ (phase != HANDLER_CONFIGURE_MOUNTS)
+    ಪ್ರತ್ಯಾಗಮ 0;
 
-  char *options[] = {
+  ವರ್ಣ *options[] = {
     "ro",
     "rprivate",
     "nosuid",
@@ -80,38 +80,38 @@ spin_configure_container (void *cookie arg_unused, enum handler_configure_phase 
   };
 
   ret = libcrun_container_do_bind_mount (container, "/usr/local/bin/spin", "/bin/spin", options, 5, err);
-  if (ret != 0)
-    return ret;
+  ಯದಿ (ret != 0)
+    ಪ್ರತ್ಯಾಗಮ ret;
 
   /* release any error if set since we are going to be returning from here */
   crun_error_release (err);
 
-  return 0;
+  ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-static int
-spin_unload (void *cookie arg_unused, libcrun_error_t *err arg_unused)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ
+spin_unload (ಶೂನ್ಯ *cookie arg_unused, libcrun_error_t *err arg_unused)
 {
-  return 0;
+  ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-static int
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ
 spin_can_handle_container (libcrun_container_t *container, libcrun_error_t *err arg_unused)
 {
-  const char *entrypoint_executable;
+  ಧ್ರುವ ವರ್ಣ *entrypoint_executable;
 
-  if (container->container_def->process == NULL || container->container_def->process->args == NULL)
-    return 0;
+  ಯದಿ (container->container_def->process == ರಿಕ್ತ || container->container_def->process->args == ರಿಕ್ತ)
+    ಪ್ರತ್ಯಾಗಮ 0;
 
   entrypoint_executable = container->container_def->process->args[0];
-  return strcmp (entrypoint_executable, "/") ? 0 : 1;
+  ಪ್ರತ್ಯಾಗಮ strcmp (entrypoint_executable, "/") ? 0 : 1;
 }
 
-struct custom_handler_s handler_spin = {
+ಸಂರಚನಾ custom_handler_s handler_spin = {
   .name = "spin",
-  .alias = NULL,
+  .alias = ರಿಕ್ತ,
   .feature_string = "WASM:spin",
-  .supports_open_tree_namespace = false,
+  .supports_open_ವೃಕ್ಷ_namespace = false,
   .load = spin_load,
   .unload = spin_unload,
   .run_func = spin_exec,

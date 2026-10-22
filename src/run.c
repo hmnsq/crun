@@ -16,15 +16,15 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <argp.h>
+#ಅನ್ತರ್ಭಾವ <config.h>
+#ಅನ್ತರ್ಭಾವ <argp.h>
 
-#include "crun.h"
-#include "run_create.h"
+#ಅನ್ತರ್ಭಾವ "crun.h"
+#ಅನ್ತರ್ಭಾವ "run_create.h"
 
-static char doc[] = "OCI runtime";
+ಸ್ಥಿರ ವರ್ಣ doc[] = "OCI runtime";
 
-enum
+ಗಣನಾ
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -35,13 +35,13 @@ enum
   OPTION_KEEP,
 };
 
-static const char *bundle = NULL;
+ಸ್ಥಿರ ಧ್ರುವ ವರ್ಣ *bundle = ರಿಕ್ತ;
 
-static bool keep = false;
+ಸ್ಥಿರ bool keep = false;
 
-static libcrun_context_t *crun_context;
+ಸ್ಥಿರ libcrun_context_t *crun_context;
 
-static struct argp_option options[]
+ಸ್ಥಿರ ಸಂರಚನಾ argp_option options[]
     = { { "bundle", 'b', "DIR", 0, "container bundle (default \".\")", 0 },
         { "config", 'f', "FILE", 0, "override the config file name", 0 },
         { "detach", 'd', 0, 0, "detach from the parent", 0 },
@@ -57,79 +57,79 @@ static struct argp_option options[]
             0,
         } };
 
-static char args_doc[] = "run [OPTION]... CONTAINER";
+ಸ್ಥಿರ ವರ್ಣ args_doc[] = "run [OPTION]... CONTAINER";
 
-static const char *config_file = "config.json";
+ಸ್ಥಿರ ಧ್ರುವ ವರ್ಣ *config_file = "config.json";
 
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+ಸ್ಥಿರ error_t
+parse_opt (ಪೂರ್ಣಾಙ್ಕ ಕೀಲಿ, ವರ್ಣ *arg, ಸಂರಚನಾ argp_state *state)
 {
-  switch (key)
+  ವಿಕಲ್ಪ (ಕೀಲಿ)
     {
-    case 'd':
+    ಪಕ್ಷ 'd':
       libcrun_context_set_detach (crun_context, true);
-      break;
+      ಭಙ್ಗ;
 
-    case 'f':
+    ಪಕ್ಷ 'f':
       config_file = argp_mandatory_argument (arg, state);
-      break;
+      ಭಙ್ಗ;
 
-    case 'b':
+    ಪಕ್ಷ 'b':
       bundle = argp_mandatory_argument (arg, state);
-      break;
+      ಭಙ್ಗ;
 
-    case OPTION_KEEP:
+    ಪಕ್ಷ OPTION_KEEP:
       keep = true;
-      break;
+      ಭಙ್ಗ;
 
-    case OPTION_CONSOLE_SOCKET:
+    ಪಕ್ಷ OPTION_CONSOLE_SOCKET:
       libcrun_context_set_console_socket (crun_context, argp_mandatory_argument (arg, state));
-      break;
+      ಭಙ್ಗ;
 
-    case OPTION_PRESERVE_FDS:
-      libcrun_context_set_preserve_fds (crun_context, parse_id_or_fail (argp_mandatory_argument (arg, state), NULL, "preserve-fds"));
-      break;
+    ಪಕ್ಷ OPTION_PRESERVE_FDS:
+      libcrun_context_set_preserve_fds (crun_context, parse_id_or_fail (argp_mandatory_argument (arg, state), ರಿಕ್ತ, "preserve-fds"));
+      ಭಙ್ಗ;
 
-    case OPTION_NO_SUBREAPER:
-      break;
+    ಪಕ್ಷ OPTION_NO_SUBREAPER:
+      ಭಙ್ಗ;
 
-    case OPTION_NO_NEW_KEYRING:
+    ಪಕ್ಷ OPTION_NO_NEW_KEYRING:
       libcrun_context_set_no_new_keyring (crun_context, true);
-      break;
+      ಭಙ್ಗ;
 
-    case OPTION_PID_FILE:
+    ಪಕ್ಷ OPTION_PID_FILE:
       libcrun_context_set_pid_file (crun_context, argp_mandatory_argument (arg, state));
-      break;
+      ಭಙ್ಗ;
 
-    case OPTION_NO_PIVOT:
+    ಪಕ್ಷ OPTION_NO_PIVOT:
       libcrun_context_set_no_pivot (crun_context, true);
-      break;
+      ಭಙ್ಗ;
 
-    case ARGP_KEY_NO_ARGS:
+    ಪಕ್ಷ ARGP_ಕೀಲಿ_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
-    default:
-      return ARGP_ERR_UNKNOWN;
+    ಸ್ವಭಾವ:
+      ಪ್ರತ್ಯಾಗಮ ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+ಸ್ಥಿರ ಸಂರಚನಾ argp run_argp = { options, parse_opt, args_doc, doc, ರಿಕ್ತ, ರಿಕ್ತ, ರಿಕ್ತ };
 
-static unsigned int
+ಸ್ಥಿರ unsigned ಪೂರ್ಣಾಙ್ಕ
 get_options ()
 {
-  return keep ? LIBCRUN_RUN_OPTIONS_KEEP : 0;
+  ಪ್ರತ್ಯಾಗಮ keep ? LIBCRUN_RUN_OPTIONS_KEEP : 0;
 }
 
-int
-crun_command_run (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+ಪೂರ್ಣಾಙ್ಕ
+crun_command_run (ಸಂರಚನಾ crun_global_arguments *global_args, ಪೂರ್ಣಾಙ್ಕ argc, ವರ್ಣ **argv, libcrun_error_t *err)
 {
-  int ret;
+  ಪೂರ್ಣಾಙ್ಕ ret;
 
   crun_context = new_libcrun_context (global_args);
   ret = crun_run_create_internal (global_args, argc, argv, libcrun_container_run, get_options, crun_context, &run_argp, &config_file, &bundle, err);
   libcrun_context_free (crun_context);
-  return ret;
+  ಪ್ರತ್ಯಾಗಮ ret;
 }

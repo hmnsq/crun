@@ -16,57 +16,57 @@
  * along with crun.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
+#ಅನ್ತರ್ಭಾವ <config.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <stdlib.h>
+#ಅನ್ತರ್ಭಾವ <argp.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
+#ಅನ್ತರ್ಭಾವ <unistd.h>
+#ಅನ್ತರ್ಭಾವ <errno.h>
 
-#include "crun.h"
+#ಅನ್ತರ್ಭಾವ "crun.h"
 
-static char doc[] = "OCI runtime";
+ಸ್ಥಿರ ವರ್ಣ doc[] = "OCI runtime";
 
-static struct argp_option options[] = {
+ಸ್ಥಿರ ಸಂರಚನಾ argp_option options[] = {
   0,
 };
 
-static char args_doc[] = "mounts [add|remove] CONTAINER FILE";
+ಸ್ಥಿರ ವರ್ಣ args_doc[] = "mounts [add|remove] CONTAINER FILE";
 
-static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+ಸ್ಥಿರ error_t
+parse_opt (ಪೂರ್ಣಾಙ್ಕ ಕೀಲಿ, ವರ್ಣ *arg arg_unused, ಸಂರಚನಾ argp_state *state arg_unused)
 {
-  switch (key)
+  ವಿಕಲ್ಪ (ಕೀಲಿ)
     {
-    default:
-      return ARGP_ERR_UNKNOWN;
+    ಸ್ವಭಾವ:
+      ಪ್ರತ್ಯಾಗಮ ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+ಸ್ಥಿರ ಸಂರಚನಾ argp run_argp = { options, parse_opt, args_doc, doc, ರಿಕ್ತ, ರಿಕ್ತ, ರಿಕ್ತ };
 
-int
-crun_command_mounts (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+ಪೂರ್ಣಾಙ್ಕ
+crun_command_mounts (ಸಂರಚನಾ crun_global_arguments *global_args, ಪೂರ್ಣಾಙ್ಕ argc, ವರ್ಣ **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
-  cleanup_context libcrun_context_t *crun_context = NULL;
+  ಪೂರ್ಣಾಙ್ಕ first_arg = 0, ret;
+  cleanup_context libcrun_context_t *crun_context = ರಿಕ್ತ;
 
-  argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, NULL);
+  argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, ರಿಕ್ತ);
   crun_assert_n_args (argc - first_arg, 3, 3);
 
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ಯದಿ (UNLIKELY (ret < 0))
+    ಪ್ರತ್ಯಾಗಮ ret;
 
-  if (strcmp (argv[first_arg], "add") == 0)
-    return libcrun_container_add_mounts_from_file (crun_context, argv[first_arg + 1], argv[first_arg + 2], err);
-  else if (strcmp (argv[first_arg], "remove") == 0)
-    return libcrun_container_remove_mounts_from_file (crun_context, argv[first_arg + 1], argv[first_arg + 2], err);
+  ಯದಿ (strcmp (argv[first_arg], "add") == 0)
+    ಪ್ರತ್ಯಾಗಮ libcrun_container_add_mounts_from_file (crun_context, argv[first_arg + 1], argv[first_arg + 2], err);
+  ಅನ್ಯಥಾ ಯದಿ (strcmp (argv[first_arg], "remove") == 0)
+    ಪ್ರತ್ಯಾಗಮ libcrun_container_remove_mounts_from_file (crun_context, argv[first_arg + 1], argv[first_arg + 2], err);
 
-  return crun_make_error (err, 0, "unknown command %s", argv[first_arg]);
+  ಪ್ರತ್ಯಾಗಮ crun_make_error (err, 0, "unknown command %s", argv[first_arg]);
 }

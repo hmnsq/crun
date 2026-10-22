@@ -17,22 +17,22 @@
  */
 #ifndef TERMINAL_H
 #define TERMINAL_H
-#include <config.h>
+#ಅನ್ತರ್ಭಾವ <config.h>
 
-#include "container.h"
-#include <termios.h>
+#ಅನ್ತರ್ಭಾವ "container.h"
+#ಅನ್ತರ್ಭಾವ <termios.h>
 
-void cleanup_terminalp (void *p);
+ಶೂನ್ಯ cleanup_terminalp (ಶೂನ್ಯ *p);
 #define cleanup_terminal __attribute__ ((cleanup (cleanup_terminalp)))
 
-int libcrun_new_terminal (char **pty, libcrun_error_t *err);
+ಪೂರ್ಣಾಙ್ಕ libcrun_new_terminal (ವರ್ಣ **pty, libcrun_error_t *err);
 
-int libcrun_set_stdio (int ptmx_fd, char *pty, libcrun_error_t *err);
+ಪೂರ್ಣಾಙ್ಕ libcrun_set_stdio (ಪೂರ್ಣಾಙ್ಕ ptmx_fd, ವರ್ಣ *pty, libcrun_error_t *err);
 
-int libcrun_set_raw (int fd, void **current_status, libcrun_error_t *err);
+ಪೂರ್ಣಾಙ್ಕ libcrun_set_raw (ಪೂರ್ಣಾಙ್ಕ fd, ಶೂನ್ಯ **current_status, libcrun_error_t *err);
 
-int libcrun_clear_onlcr (int fd, libcrun_error_t *err);
+ಪೂರ್ಣಾಙ್ಕ libcrun_clear_onlcr (ಪೂರ್ಣಾಙ್ಕ fd, libcrun_error_t *err);
 
-int libcrun_terminal_setup_size (int fd, unsigned short rows, unsigned short cols, libcrun_error_t *err);
+ಪೂರ್ಣಾಙ್ಕ libcrun_terminal_setup_size (ಪೂರ್ಣಾಙ್ಕ fd, unsigned short rows, unsigned short cols, libcrun_error_t *err);
 
 #endif
