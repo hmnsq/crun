@@ -18,77 +18,77 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
+#अन्तर्भाव <config.h>
 
 #ifdef HAVE_LINUX_IOPRIO_H
 #  include <linux/ioprio.h>
 #endif
 
-#include "linux.h"
-#include "utils.h"
-#include "io_priority.h"
-#include <sys/sysmacros.h>
+#अन्तर्भाव "linux.h"
+#अन्तर्भाव "utils.h"
+#अन्तर्भाव "io_priority.h"
+#अन्तर्भाव <sys/sysmacros.h>
 
 #ifdef HAVE_LINUX_IOPRIO_H
-static int
-syscall_ioprio_set (int which, int who, int ioprio)
+स्थिर पूर्णाङ्क
+syscall_ioprio_set (पूर्णाङ्क which, पूर्णाङ्क who, पूर्णाङ्क ioprio)
 {
 #  ifdef __NR_ioprio_set
-  return syscall (__NR_ioprio_set, which, who, ioprio);
-#  else
-  (void) which;
-  (void) who;
-  (void) ioprio;
+  प्रत्यागम syscall (__NR_ioprio_set, which, who, ioprio);
+#  अन्यथा
+  (शून्य) which;
+  (शून्य) who;
+  (शून्य) ioprio;
   errno = ENOSYS;
-  return -1;
+  प्रत्यागम -1;
 #  endif
 }
 #endif
 
-int
+पूर्णाङ्क
 libcrun_set_io_priority (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err)
 {
 #ifdef HAVE_LINUX_IOPRIO_H
-  int ret, i, class_value, value;
-  struct
+  पूर्णाङ्क ret, i, class_मूल्य, मूल्य;
+  संरचना
   {
-    const char *name;
-    int value;
+    ध्रुव वर्ण *name;
+    पूर्णाङ्क मूल्य;
   } classes[] = {
     { "IOPRIO_CLASS_RT", IOPRIO_CLASS_RT },
     { "IOPRIO_CLASS_BE", IOPRIO_CLASS_BE },
     { "IOPRIO_CLASS_IDLE", IOPRIO_CLASS_IDLE },
-    { NULL, 0 },
+    { रिक्त, 0 },
   };
 
-  if (process == NULL || process->io_priority == NULL)
-    return 0;
+  यदि (process == रिक्त || process->io_priority == रिक्त)
+    प्रत्यागम 0;
 
-  class_value = -1;
-  for (i = 0; classes[i].name; i++)
-    if (strcmp (process->io_priority->_class, classes[i].name) == 0)
+  class_मूल्य = -1;
+  प्रति (i = 0; classes[i].name; i++)
+    यदि (strcmp (process->io_priority->_class, classes[i].name) == 0)
       {
-        class_value = i;
-        break;
+        class_मूल्य = i;
+        भङ्ग;
       }
-  if (UNLIKELY (class_value < 0))
-    return crun_make_error (err, 0, "invalid io priority `%s`", process->io_priority->_class);
+  यदि (UNLIKELY (class_मूल्य < 0))
+    प्रत्यागम crun_make_error (err, 0, "invalid io priority `%s`", process->io_priority->_class);
 
-  value = IOPRIO_PRIO_VALUE (classes[class_value].value, process->io_priority->priority);
+  मूल्य = IOPRIO_PRIO_मूल्य (classes[class_मूल्य].मूल्य, process->io_priority->priority);
 
-  ret = syscall_ioprio_set (IOPRIO_WHO_PROCESS, pid, value);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "failed to set io priority");
+  ret = syscall_ioprio_set (IOPRIO_WHO_PROCESS, pid, मूल्य);
+  यदि (UNLIKELY (ret < 0))
+    प्रत्यागम crun_make_error (err, errno, "failed to set io priority");
 
-  return 0;
-#else
+  प्रत्यागम 0;
+#अन्यथा
   // If io_priority is not set then return without doing
   // anything.
-  if (process == NULL || process->io_priority == NULL)
-    return 0;
+  यदि (process == रिक्त || process->io_priority == रिक्त)
+    प्रत्यागम 0;
 
-  (void) pid;
-  (void) process;
-  return crun_make_error (err, 0, "io priority not supported");
+  (शून्य) pid;
+  (शून्य) process;
+  प्रत्यागम crun_make_error (err, 0, "io priority not supported");
 #endif
 }
