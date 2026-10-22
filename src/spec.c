@@ -53,7 +53,7 @@ static struct argp_option options[] = { { "bundle", 'b', "DIR", 0, "path to the 
 static char args_doc[] = "spec";
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (整数 key, char *arg, struct argp_state *state)
 {
   switch (key)
     {
@@ -70,25 +70,25 @@ parse_opt (int key, char *arg, struct argp_state *state)
       break;
 
     default:
-      return ARGP_ERR_UNKNOWN;
+      戻る ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  戻る 0;
 }
 
 static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-int
-crun_command_spec (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+整数
+crun_command_spec (struct crun_global_arguments *global_args, 整数 argc, char **argv, libcrun_error_t *err)
 {
-  int first_arg;
+  整数 first_arg;
   cleanup_context libcrun_context_t *crun_context = NULL;
   cleanup_file FILE *f = NULL;
   cleanup_free char *bundle_cleanup = NULL;
   cleanup_free char *spec = NULL;
   const char *where;
-  int ret;
-  int close_ret;
+  整数 ret;
+  整数 close_ret;
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &spec_options);
   crun_assert_n_args (argc - first_arg, 0, 0);
@@ -96,51 +96,51 @@ crun_command_spec (struct crun_global_arguments *global_args, int argc, char **a
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
   /* Change dir only if -b or --bundle is defined and make sure the bundle is an absolute path.  */
-  if (bundle != NULL)
+  もし (bundle != NULL)
     {
-      if (bundle[0] != '/')
+      もし (bundle[0] != '/')
         {
           bundle_cleanup = realpath (bundle, NULL);
-          if (bundle_cleanup == NULL)
+          もし (bundle_cleanup == NULL)
             libcrun_fail_with_error (errno, "realpath `%s` failed", bundle);
           bundle = bundle_cleanup;
         }
 
-      if (chdir (bundle) < 0)
+      もし (chdir (bundle) < 0)
         libcrun_fail_with_error (errno, "chdir `%s` failed", bundle);
     }
 
   where = fname ? fname : "config.json";
 
-  if (fname == NULL)
+  もし (fname == NULL)
     {
       ret = access (where, F_OK);
-      if (ret == 0)
-        return libcrun_make_error (err, 0, "`%s` already exists", where);
+      もし (ret == 0)
+        戻る libcrun_make_error (err, 0, "`%s` already exists", where);
     }
 
   f = fopen (where, "w+e");
-  if (f == NULL)
-    return libcrun_make_error (err, errno, "cannot open `%s`", where);
+  もし (f == NULL)
+    戻る libcrun_make_error (err, errno, "cannot open `%s`", where);
 
   ret = libcrun_container_spec_json (! spec_options.rootless, &spec, err);
-  if (UNLIKELY (ret < 0))
+  もし (UNLIKELY (ret < 0))
     goto out;
 
-  if (fputs (spec, f) == EOF)
+  もし (fputs (spec, f) == EOF)
     ret = libcrun_make_error (err, errno, "cannot write to `%s`", where);
-  else
+  否则
     ret = 0;
 
 out:
   close_ret = fclose (f);
   f = NULL;
-  if (close_ret < 0 && ret >= 0)
-    return libcrun_make_error (err, errno, "cannot close `%s`", where);
+  もし (close_ret < 0 && ret >= 0)
+    戻る libcrun_make_error (err, errno, "cannot close `%s`", where);
 
-  return ret;
+  戻る ret;
 }

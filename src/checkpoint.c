@@ -70,36 +70,36 @@ static char args_doc[] = "checkpoint CONTAINER";
 
 /* Map the CLI names onto the public LIBCRUN_CR_* enums; libcrun translates
    these to CRIU's own values internally so CRIU headers never reach here.  */
-int
+整数
 crun_parse_network_lock_method (char *param)
 {
-  if (strcmp (param, "iptables") == 0)
-    return LIBCRUN_CR_NETWORK_LOCK_IPTABLES;
-  else if (strcmp (param, "nftables") == 0)
-    return LIBCRUN_CR_NETWORK_LOCK_NFTABLES;
-  else if (strcmp (param, "skip") == 0)
-    return LIBCRUN_CR_NETWORK_LOCK_SKIP;
-  else
+  もし (strcmp (param, "iptables") == 0)
+    戻る LIBCRUN_CR_NETWORK_LOCK_IPTABLES;
+  否则 もし (strcmp (param, "nftables") == 0)
+    戻る LIBCRUN_CR_NETWORK_LOCK_NFTABLES;
+  否则 もし (strcmp (param, "skip") == 0)
+    戻る LIBCRUN_CR_NETWORK_LOCK_SKIP;
+  否则
     libcrun_fail_with_error (0, "unknown network lock method specified");
 }
 
-int
+整数
 crun_parse_manage_cgroups_mode (char *param)
 {
-  if (strcmp (param, "soft") == 0)
-    return LIBCRUN_CR_CG_MODE_SOFT;
-  else if (strcmp (param, "ignore") == 0)
-    return LIBCRUN_CR_CG_MODE_IGNORE;
-  else if (strcmp (param, "full") == 0)
-    return LIBCRUN_CR_CG_MODE_FULL;
-  else if (strcmp (param, "strict") == 0)
-    return LIBCRUN_CR_CG_MODE_STRICT;
-  else
+  もし (strcmp (param, "soft") == 0)
+    戻る LIBCRUN_CR_CG_MODE_SOFT;
+  否则 もし (strcmp (param, "ignore") == 0)
+    戻る LIBCRUN_CR_CG_MODE_IGNORE;
+  否则 もし (strcmp (param, "full") == 0)
+    戻る LIBCRUN_CR_CG_MODE_FULL;
+  否则 もし (strcmp (param, "strict") == 0)
+    戻る LIBCRUN_CR_CG_MODE_STRICT;
+  否则
     libcrun_fail_with_error (0, "unknown cgroup mode specified");
 }
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (整数 key, char *arg, struct argp_state *state)
 {
   switch (key)
     {
@@ -151,20 +151,20 @@ parse_opt (int key, char *arg, struct argp_state *state)
       break;
 
     default:
-      return ARGP_ERR_UNKNOWN;
+      戻る ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  戻る 0;
 }
 
 static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-int
-crun_command_checkpoint (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+整数
+crun_command_checkpoint (struct crun_global_arguments *global_args, 整数 argc, char **argv, libcrun_error_t *err)
 {
   cleanup_free char *cr_path = NULL;
-  int first_arg;
-  int ret;
+  整数 first_arg;
+  整数 ret;
   cleanup_context libcrun_context_t *crun_context = NULL;
 
   cr_options.struct_size = sizeof (cr_options);
@@ -175,22 +175,22 @@ crun_command_checkpoint (struct crun_global_arguments *global_args, int argc, ch
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
-  if (cr_options.image_path == NULL)
+  もし (cr_options.image_path == NULL)
     {
       cleanup_free char *path = NULL;
 
       path = getcwd (NULL, 0);
-      if (UNLIKELY (path == NULL))
+      もし (UNLIKELY (path == NULL))
         libcrun_fail_with_error (errno, "getcwd failed");
 
       ret = asprintf (&cr_path, "%s/checkpoint", path);
-      if (UNLIKELY (ret < 0))
+      もし (UNLIKELY (ret < 0))
         OOM ();
       cr_options.image_path = cr_path;
     }
 
-  return libcrun_container_checkpoint (crun_context, argv[first_arg], &cr_options, err);
+  戻る libcrun_container_checkpoint (crun_context, argv[first_arg], &cr_options, err);
 }

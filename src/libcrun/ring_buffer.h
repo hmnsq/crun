@@ -31,9 +31,9 @@ size_t ring_buffer_get_space_available (struct ring_buffer *rb);
 
 size_t ring_buffer_get_size (struct ring_buffer *rb);
 
-int ring_buffer_read (struct ring_buffer *rb, int fd, bool *is_eagain, libcrun_error_t *err);
+整数 ring_buffer_read (struct ring_buffer *rb, 整数 fd, bool *is_eagain, libcrun_error_t *err);
 
-int ring_buffer_write (struct ring_buffer *rb, int fd, bool *is_eagain, libcrun_error_t *err);
+整数 ring_buffer_write (struct ring_buffer *rb, 整数 fd, bool *is_eagain, libcrun_error_t *err);
 
 struct ring_buffer *ring_buffer_make (size_t size);
 
@@ -45,7 +45,7 @@ static inline void
 cleanup_ring_bufferp (struct ring_buffer **p)
 {
   struct ring_buffer *rb = *p;
-  if (rb)
+  もし (rb)
     ring_buffer_free (rb);
 }
 

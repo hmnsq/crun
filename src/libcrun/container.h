@@ -50,15 +50,15 @@ struct libcrun_context_s
   char *owned_pid_file;
   char *owned_notify_socket;
   char *owned_handler;
-  int preserve_fds;
+  整数 preserve_fds;
   // For some use-cases we need differentiation between preserve_fds and listen_fds.
   // Following context variable makes sure we get exact value of listen_fds irrespective of preserve_fds.
-  int listen_fds;
+  整数 listen_fds;
 
   crun_output_handler output_handler;
   void *output_handler_arg;
 
-  int fifo_exec_wait_fd;
+  整数 fifo_exec_wait_fd;
 
   bool systemd_cgroup;
   bool detach;
@@ -68,7 +68,7 @@ struct libcrun_context_s
   bool no_open_tree_namespace;
 
   char **argv;
-  int argc;
+  整数 argc;
 
   struct custom_handler_manager_s *handler_manager;
 };
@@ -103,7 +103,7 @@ struct libcrun_container_s
 
   string_map *annotations;
 
-  int proc_fd;
+  整数 proc_fd;
 
   void *private_data;
   void (*cleanup_private_data) (void *private_data);
@@ -217,8 +217,8 @@ struct libcrun_checkpoint_restore_s
   const char *console_socket;
   char *parent_path;
   bool pre_dump;
-  int manage_cgroups_mode;
-  int network_lock_method;
+  整数 manage_cgroups_mode;
+  整数 network_lock_method;
   char *lsm_profile;
   char *lsm_mount_context;
 };
@@ -263,8 +263,8 @@ struct libcrun_checkpoint_restore_options_s
   bool pre_dump;
   bool detach;
 
-  int manage_cgroups_mode; /* enum libcrun_cr_cgroups_mode */
-  int network_lock_method; /* enum libcrun_cr_network_lock_method */
+  整数 manage_cgroups_mode; /* enum libcrun_cr_cgroups_mode */
+  整数 network_lock_method; /* enum libcrun_cr_network_lock_method */
 };
 
 LIBCRUN_PUBLIC libcrun_container_t *libcrun_container_load_from_file (const char *path, libcrun_error_t *err);
@@ -279,7 +279,7 @@ LIBCRUN_PUBLIC void libcrun_container_free (libcrun_container_t *);
 LIBCRUN_PUBLIC const char *libcrun_container_get_config_json (libcrun_container_t *container, libcrun_error_t *err);
 LIBCRUN_PUBLIC const char *libcrun_container_get_annotation (libcrun_container_t *container, const char *key);
 LIBCRUN_PUBLIC size_t libcrun_container_get_annotations_len (libcrun_container_t *container);
-LIBCRUN_PUBLIC int libcrun_container_get_annotation_at (libcrun_container_t *container, size_t index,
+LIBCRUN_PUBLIC 整数 libcrun_container_get_annotation_at (libcrun_container_t *container, size_t index,
                                                         const char **key, const char **value);
 LIBCRUN_PUBLIC uid_t libcrun_container_get_uid (libcrun_container_t *container);
 LIBCRUN_PUBLIC gid_t libcrun_container_get_gid (libcrun_container_t *container);
@@ -296,10 +296,10 @@ LIBCRUN_PUBLIC void libcrun_context_set_pid_file (libcrun_context_t *ctx, const 
 LIBCRUN_PUBLIC const char *libcrun_context_get_pid_file (libcrun_context_t *ctx);
 LIBCRUN_PUBLIC void libcrun_context_set_notify_socket (libcrun_context_t *ctx, const char *value);
 LIBCRUN_PUBLIC void libcrun_context_set_handler (libcrun_context_t *ctx, const char *value);
-LIBCRUN_PUBLIC void libcrun_context_set_preserve_fds (libcrun_context_t *ctx, int preserve_fds);
-LIBCRUN_PUBLIC int libcrun_context_get_preserve_fds (libcrun_context_t *ctx);
-LIBCRUN_PUBLIC void libcrun_context_set_listen_fds (libcrun_context_t *ctx, int listen_fds);
-LIBCRUN_PUBLIC void libcrun_context_set_args (libcrun_context_t *ctx, int argc, char **argv);
+LIBCRUN_PUBLIC void libcrun_context_set_preserve_fds (libcrun_context_t *ctx, 整数 preserve_fds);
+LIBCRUN_PUBLIC 整数 libcrun_context_get_preserve_fds (libcrun_context_t *ctx);
+LIBCRUN_PUBLIC void libcrun_context_set_listen_fds (libcrun_context_t *ctx, 整数 listen_fds);
+LIBCRUN_PUBLIC void libcrun_context_set_args (libcrun_context_t *ctx, 整数 argc, char **argv);
 LIBCRUN_PUBLIC void libcrun_context_set_systemd_cgroup (libcrun_context_t *ctx, bool value);
 LIBCRUN_PUBLIC void libcrun_context_set_detach (libcrun_context_t *ctx, bool value);
 LIBCRUN_PUBLIC void libcrun_context_set_no_new_keyring (libcrun_context_t *ctx, bool value);
@@ -307,39 +307,39 @@ LIBCRUN_PUBLIC void libcrun_context_set_no_pivot (libcrun_context_t *ctx, bool v
 LIBCRUN_PUBLIC void libcrun_context_set_force_no_cgroup (libcrun_context_t *ctx, bool value);
 LIBCRUN_PUBLIC void libcrun_context_set_output_handler (libcrun_context_t *ctx, crun_output_handler handler, void *arg);
 
-LIBCRUN_PUBLIC int libcrun_context_init_logging (libcrun_context_t *ctx, const char *log, libcrun_error_t *err);
+LIBCRUN_PUBLIC 整数 libcrun_context_init_logging (libcrun_context_t *ctx, const char *log, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_run (libcrun_context_t *context, libcrun_container_t *container,
-                                          unsigned int options, libcrun_error_t *error);
+LIBCRUN_PUBLIC 整数 libcrun_container_run (libcrun_context_t *context, libcrun_container_t *container,
+                                          unsigned 整数 options, libcrun_error_t *error);
 
-LIBCRUN_PUBLIC int libcrun_container_delete (libcrun_context_t *context, const char *id, bool force,
+LIBCRUN_PUBLIC 整数 libcrun_container_delete (libcrun_context_t *context, const char *id, bool force,
                                              libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_kill (libcrun_context_t *context, const char *id, const char *signal,
+LIBCRUN_PUBLIC 整数 libcrun_container_kill (libcrun_context_t *context, const char *id, const char *signal,
                                            libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_killall (libcrun_context_t *context, const char *id, const char *signal,
+LIBCRUN_PUBLIC 整数 libcrun_container_killall (libcrun_context_t *context, const char *id, const char *signal,
                                               libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_create (libcrun_context_t *context, libcrun_container_t *container,
-                                             unsigned int options, libcrun_error_t *err);
+LIBCRUN_PUBLIC 整数 libcrun_container_create (libcrun_context_t *context, libcrun_container_t *container,
+                                             unsigned 整数 options, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_start (libcrun_context_t *context, const char *id, libcrun_error_t *err);
+LIBCRUN_PUBLIC 整数 libcrun_container_start (libcrun_context_t *context, const char *id, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_state (libcrun_context_t *context, const char *id, FILE *out,
+LIBCRUN_PUBLIC 整数 libcrun_container_state (libcrun_context_t *context, const char *id, FILE *out,
                                             libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_state_json (libcrun_context_t *context, const char *id, char **out,
+LIBCRUN_PUBLIC 整数 libcrun_container_state_json (libcrun_context_t *context, const char *id, char **out,
                                                  libcrun_error_t *err);
 
-int libcrun_container_notify_handler (struct container_entrypoint_s *args,
+整数 libcrun_container_notify_handler (struct container_entrypoint_s *args,
                                       enum handler_configure_phase phase,
                                       libcrun_container_t *container, const char *rootfs,
                                       libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_get_container_state_string (const char *id, libcrun_container_status_t *status,
+LIBCRUN_PUBLIC 整数 libcrun_get_container_state_string (const char *id, libcrun_container_status_t *status,
                                                        const char *state_root, const char **container_status,
-                                                       int *running, libcrun_error_t *err);
+                                                       整数 *running, libcrun_error_t *err);
 
 struct libcrun_container_exec_options_s
 {
@@ -350,17 +350,17 @@ struct libcrun_container_exec_options_s
   bool merge_env;
 };
 
-LIBCRUN_PUBLIC int libcrun_close_inherited_fds (libcrun_context_t *context, libcrun_error_t *err);
+LIBCRUN_PUBLIC 整数 libcrun_close_inherited_fds (libcrun_context_t *context, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_load_process_from_file (const char *path,
+LIBCRUN_PUBLIC 整数 libcrun_load_process_from_file (const char *path,
                                                    runtime_spec_schema_config_schema_process **process,
                                                    libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_exec_with_options (libcrun_context_t *context, const char *id,
+LIBCRUN_PUBLIC 整数 libcrun_container_exec_with_options (libcrun_context_t *context, const char *id,
                                                         struct libcrun_container_exec_options_s *opts,
                                                         libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_exec (libcrun_context_t *context, const char *id,
+LIBCRUN_PUBLIC 整数 libcrun_container_exec (libcrun_context_t *context, const char *id,
                                            runtime_spec_schema_config_schema_process *process, libcrun_error_t *err);
 
 struct libcrun_exec_options_s
@@ -371,20 +371,20 @@ struct libcrun_exec_options_s
   bool merge_env;
 };
 
-LIBCRUN_PUBLIC int libcrun_container_exec_json (libcrun_context_t *context, const char *id, const char *process_json,
+LIBCRUN_PUBLIC 整数 libcrun_container_exec_json (libcrun_context_t *context, const char *id, const char *process_json,
                                                 libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_exec_with_options_json (libcrun_context_t *context, const char *id,
+LIBCRUN_PUBLIC 整数 libcrun_container_exec_with_options_json (libcrun_context_t *context, const char *id,
                                                              const struct libcrun_exec_options_s *opts,
                                                              libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_exec_process_file (libcrun_context_t *context, const char *id, const char *path,
+LIBCRUN_PUBLIC 整数 libcrun_container_exec_process_file (libcrun_context_t *context, const char *id, const char *path,
                                                         libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_update (libcrun_context_t *context, const char *id, const char *content,
+LIBCRUN_PUBLIC 整数 libcrun_container_update (libcrun_context_t *context, const char *id, const char *content,
                                              size_t len, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_update_from_file (libcrun_context_t *context, const char *id, const char *file,
+LIBCRUN_PUBLIC 整数 libcrun_container_update_from_file (libcrun_context_t *context, const char *id, const char *file,
                                                        libcrun_error_t *err);
 
 struct libcrun_update_value_s
@@ -395,7 +395,7 @@ struct libcrun_update_value_s
   const char *value;
 };
 
-LIBCRUN_PUBLIC int libcrun_container_update_from_values (libcrun_context_t *context, const char *id,
+LIBCRUN_PUBLIC 整数 libcrun_container_update_from_values (libcrun_context_t *context, const char *id,
                                                          struct libcrun_update_value_s *values, size_t len,
                                                          libcrun_error_t *err);
 
@@ -406,36 +406,36 @@ struct libcrun_intel_rdt_update
   char *const *schemata;
 };
 
-LIBCRUN_PUBLIC int libcrun_container_update_intel_rdt (libcrun_context_t *context, const char *id,
+LIBCRUN_PUBLIC 整数 libcrun_container_update_intel_rdt (libcrun_context_t *context, const char *id,
                                                        struct libcrun_intel_rdt_update *update, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_get_features (libcrun_context_t *context, struct features_info_s **info,
+LIBCRUN_PUBLIC 整数 libcrun_container_get_features (libcrun_context_t *context, struct features_info_s **info,
                                                    libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_get_features_json (libcrun_context_t *context, char **out, libcrun_error_t *err);
+LIBCRUN_PUBLIC 整数 libcrun_container_get_features_json (libcrun_context_t *context, char **out, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_pause (libcrun_context_t *context, const char *id, libcrun_error_t *err);
+LIBCRUN_PUBLIC 整数 libcrun_container_pause (libcrun_context_t *context, const char *id, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_unpause (libcrun_context_t *context, const char *id, libcrun_error_t *err);
+LIBCRUN_PUBLIC 整数 libcrun_container_unpause (libcrun_context_t *context, const char *id, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_checkpoint (libcrun_context_t *context, const char *id,
+LIBCRUN_PUBLIC 整数 libcrun_container_checkpoint (libcrun_context_t *context, const char *id,
                                                  struct libcrun_checkpoint_restore_options_s *cr_options,
                                                  libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_restore (libcrun_context_t *context, const char *id,
+LIBCRUN_PUBLIC 整数 libcrun_container_restore (libcrun_context_t *context, const char *id,
                                               struct libcrun_checkpoint_restore_options_s *cr_options,
                                               libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_read_pids (libcrun_context_t *context, const char *id, bool recurse, pid_t **pids, libcrun_error_t *err);
+LIBCRUN_PUBLIC 整数 libcrun_container_read_pids (libcrun_context_t *context, const char *id, bool recurse, pid_t **pids, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_write_json_containers_list (libcrun_context_t *context, FILE *out, libcrun_error_t *err);
+LIBCRUN_PUBLIC 整数 libcrun_write_json_containers_list (libcrun_context_t *context, FILE *out, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_list_json (libcrun_context_t *context, char **out, libcrun_error_t *err);
+LIBCRUN_PUBLIC 整数 libcrun_container_list_json (libcrun_context_t *context, char **out, libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_add_mounts_from_file (libcrun_context_t *context, const char *id, const char *file,
+LIBCRUN_PUBLIC 整数 libcrun_container_add_mounts_from_file (libcrun_context_t *context, const char *id, const char *file,
                                                            libcrun_error_t *err);
 
-LIBCRUN_PUBLIC int libcrun_container_remove_mounts_from_file (libcrun_context_t *context, const char *id, const char *file,
+LIBCRUN_PUBLIC 整数 libcrun_container_remove_mounts_from_file (libcrun_context_t *context, const char *id, const char *file,
                                                               libcrun_error_t *err);
 
 // Not part of the public API, just a method in container.c we need to access from linux.c
@@ -456,58 +456,58 @@ cleanup_struct_features_free (struct features_info_s **info)
 {
   size_t i;
   struct features_info_s *ptr;
-  if (info == NULL || *info == NULL)
-    return;
+  もし (info == NULL || *info == NULL)
+    戻る;
 
   ptr = *info;
 
   // Free oci_version_min if it is not NULL
-  if (ptr->oci_version_min != NULL)
+  もし (ptr->oci_version_min != NULL)
     {
       free (ptr->oci_version_min);
       ptr->oci_version_min = NULL; // Set to NULL after freeing
     }
 
   // Free oci_version_max if it is not NULL
-  if (ptr->oci_version_max != NULL)
+  もし (ptr->oci_version_max != NULL)
     {
       free (ptr->oci_version_max);
       ptr->oci_version_max = NULL; // Set to NULL after freeing
     }
-  if (ptr->hooks != NULL)
+  もし (ptr->hooks != NULL)
     {
-      for (i = 0; ptr->hooks[i] != NULL; i++)
+      ために (i = 0; ptr->hooks[i] != NULL; i++)
         free (ptr->hooks[i]);
       free (ptr->hooks);
     }
-  if (ptr->mount_options != NULL)
+  もし (ptr->mount_options != NULL)
     {
-      for (i = 0; ptr->mount_options[i] != NULL; i++)
+      ために (i = 0; ptr->mount_options[i] != NULL; i++)
         free (ptr->mount_options[i]);
       free (ptr->mount_options);
     }
-  if (ptr->linux.namespaces != NULL)
+  もし (ptr->linux.namespaces != NULL)
     {
-      for (i = 0; ptr->linux.namespaces[i] != NULL; i++)
+      ために (i = 0; ptr->linux.namespaces[i] != NULL; i++)
         free (ptr->linux.namespaces[i]);
       free (ptr->linux.namespaces);
     }
 
-  if (ptr->linux.capabilities != NULL)
+  もし (ptr->linux.capabilities != NULL)
     {
-      for (size_t i = 0; ptr->linux.capabilities[i] != NULL; i++)
+      ために (size_t i = 0; ptr->linux.capabilities[i] != NULL; i++)
         free (ptr->linux.capabilities[i]);
       free (ptr->linux.capabilities);
     }
-  if (ptr->linux.seccomp.actions != NULL)
+  もし (ptr->linux.seccomp.actions != NULL)
     {
-      for (i = 0; ptr->linux.seccomp.actions[i] != NULL; i++)
+      ために (i = 0; ptr->linux.seccomp.actions[i] != NULL; i++)
         free (ptr->linux.seccomp.actions[i]);
       free (ptr->linux.seccomp.actions);
     }
-  if (ptr->linux.seccomp.operators != NULL)
+  もし (ptr->linux.seccomp.operators != NULL)
     {
-      for (i = 0; ptr->linux.seccomp.operators[i] != NULL; i++)
+      ために (i = 0; ptr->linux.seccomp.operators[i] != NULL; i++)
         free (ptr->linux.seccomp.operators[i]);
       free (ptr->linux.seccomp.operators);
     }

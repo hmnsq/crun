@@ -36,10 +36,10 @@
 #ifndef TEMP_FAILURE_RETRY
 #  define TEMP_FAILURE_RETRY(expression)      \
     (__extension__ ({                         \
-      long int __result;                      \
+      long 整数 __result;                      \
       do                                      \
-        __result = (long int) (expression);   \
-      while (__result < 0 && errno == EINTR); \
+        __result = (long 整数) (expression);   \
+      ながら (__result < 0 && errno == EINTR); \
       __result;                               \
     }))
 #endif
@@ -63,27 +63,27 @@ __attribute__ ((malloc)) static inline void *
 xmalloc (size_t size)
 {
   void *res = malloc (size);
-  if (UNLIKELY (res == NULL))
+  もし (UNLIKELY (res == NULL))
     OOM ();
-  return res;
+  戻る res;
 }
 
 __attribute__ ((malloc)) static inline void *
 xmalloc0 (size_t size)
 {
   void *res = calloc (1, size);
-  if (UNLIKELY (res == NULL))
+  もし (UNLIKELY (res == NULL))
     OOM ();
-  return res;
+  戻る res;
 }
 
 __attribute__ ((malloc)) static inline void *
 xrealloc (void *ptr, size_t size)
 {
   void *res = realloc (ptr, size);
-  if (UNLIKELY (res == NULL))
+  もし (UNLIKELY (res == NULL))
     OOM ();
-  return res;
+  戻る res;
 }
 
 static inline void
@@ -97,15 +97,15 @@ static inline void
 cleanup_filep (FILE **f)
 {
   FILE *file = *f;
-  if (file)
+  もし (file)
     (void) fclose (file);
 }
 
 static inline void
 cleanup_closep (void *p)
 {
-  int *pp = (int *) p;
-  if (*pp >= 0)
+  整数 *pp = (整数 *) p;
+  もし (*pp >= 0)
     TEMP_FAILURE_RETRY (close (*pp));
 }
 
@@ -113,7 +113,7 @@ static inline void
 cleanup_pidp (void *p)
 {
   pid_t *pp = (pid_t *) p;
-  if (*pp > 0)
+  もし (*pp > 0)
     {
       TEMP_FAILURE_RETRY (kill (*pp, SIGKILL));
       TEMP_FAILURE_RETRY (waitpid (*pp, NULL, 0));
@@ -126,32 +126,32 @@ struct libcrun_mmap_s
   size_t length;
 };
 
-int libcrun_mmap (struct libcrun_mmap_s **ret, void *addr, size_t length,
-                  int prot, int flags, int fd, off_t offset,
+整数 libcrun_mmap (struct libcrun_mmap_s **ret, void *addr, size_t length,
+                  整数 prot, 整数 flags, 整数 fd, off_t offset,
                   libcrun_error_t *err);
 
-int libcrun_munmap (struct libcrun_mmap_s *mmap, libcrun_error_t *err);
+整数 libcrun_munmap (struct libcrun_mmap_s *mmap, libcrun_error_t *err);
 
 static inline void
 cleanup_mmapp (void *p)
 {
-  int ret;
+  整数 ret;
   libcrun_error_t tmp_err = NULL;
   struct libcrun_mmap_s **mm;
 
   mm = (struct libcrun_mmap_s **) p;
-  if (*mm == NULL)
-    return;
+  もし (*mm == NULL)
+    戻る;
 
   ret = libcrun_munmap (*mm, &tmp_err);
-  if (UNLIKELY (ret < 0))
+  もし (UNLIKELY (ret < 0))
     crun_error_release (&tmp_err);
 }
 
 struct libcrun_fd_map
 {
   size_t nfds;
-  int fds[];
+  整数 fds[];
 };
 
 static inline struct libcrun_fd_map *
@@ -160,12 +160,12 @@ make_libcrun_fd_map (size_t len)
   struct libcrun_fd_map *ret;
   size_t i;
 
-  ret = (struct libcrun_fd_map *) xmalloc (sizeof (*ret) + sizeof (int) * len);
+  ret = (struct libcrun_fd_map *) xmalloc (sizeof (*ret) + sizeof (整数) * len);
   ret->nfds = len;
-  for (i = 0; i < len; i++)
+  ために (i = 0; i < len; i++)
     ret->fds[i] = -1;
 
-  return ret;
+  戻る ret;
 }
 
 static inline void
@@ -174,26 +174,26 @@ cleanup_close_mapp (struct libcrun_fd_map **p)
   struct libcrun_fd_map *m = *p;
   size_t i;
 
-  if (m == NULL)
-    return;
+  もし (m == NULL)
+    戻る;
 
-  for (i = 0; i < m->nfds; i++)
-    if (m->fds[i] >= 0)
+  ために (i = 0; i < m->nfds; i++)
+    もし (m->fds[i] >= 0)
       TEMP_FAILURE_RETRY (close (m->fds[i]));
 
   free (m);
 }
 
 static inline void
-cleanup_close_vecp (int **p)
+cleanup_close_vecp (整数 **p)
 {
-  int *pp = *p;
-  int i;
+  整数 *pp = *p;
+  整数 i;
 
-  if (pp == NULL)
-    return;
+  もし (pp == NULL)
+    戻る;
 
-  for (i = 0; pp[i] >= 0; i++)
+  ために (i = 0; pp[i] >= 0; i++)
     TEMP_FAILURE_RETRY (close (pp[i]));
 }
 
@@ -201,35 +201,35 @@ static inline void
 cleanup_dirp (DIR **p)
 {
   DIR *dir = *p;
-  if (dir)
+  もし (dir)
     closedir (dir);
 }
 
-static inline int
-close_and_reset (int *fd)
+static inline 整数
+close_and_reset (整数 *fd)
 {
-  int ret = 0;
-  if (*fd >= 0)
+  整数 ret = 0;
+  もし (*fd >= 0)
     {
       ret = TEMP_FAILURE_RETRY (close (*fd));
-      if (LIKELY (ret == 0))
+      もし (LIKELY (ret == 0))
         *fd = -1;
     }
-  return ret;
+  戻る ret;
 }
 
 static inline char *
 xstrdup (const char *str)
 {
   char *ret;
-  if (str == NULL)
-    return NULL;
+  もし (str == NULL)
+    戻る NULL;
 
   ret = strdup (str);
-  if (ret == NULL)
+  もし (ret == NULL)
     OOM ();
 
-  return ret;
+  戻る ret;
 }
 
 void consume_trailing_slashes (char *path);
@@ -237,7 +237,7 @@ void consume_trailing_slashes (char *path);
 #define consume_slashes(t) \
   ({                       \
     typeof (t) _s = (t);   \
-    while (*_s == '/')     \
+    ながら (*_s == '/')     \
       _s++;                \
     _s;                    \
   })
@@ -247,250 +247,250 @@ path_is_slash_dev (const char *path)
 {
   path = consume_slashes (path);
 
-  if (strncmp (path, "dev", 3))
-    return false;
+  もし (strncmp (path, "dev", 3))
+    戻る false;
 
   path += 3;
 
   /* Check there are only '/' left.  */
-  for (; *path; path++)
-    if (*path != '/')
-      return false;
+  ために (; *path; path++)
+    もし (*path != '/')
+      戻る false;
 
-  return true;
+  戻る true;
 }
 
-int xasprintf (char **str, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
+整数 xasprintf (char **str, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 
-int crun_path_exists (const char *path, libcrun_error_t *err);
+整数 crun_path_exists (const char *path, libcrun_error_t *err);
 
-int write_file_at_with_flags (int dirfd, int flags, mode_t mode, const char *name, const void *data, size_t len, libcrun_error_t *err);
+整数 write_file_at_with_flags (整数 dirfd, 整数 flags, mode_t mode, const char *name, const void *data, size_t len, libcrun_error_t *err);
 
-static inline int
+static inline 整数
 write_file (const char *name, const void *data, size_t len, libcrun_error_t *err)
 {
-  return write_file_at_with_flags (AT_FDCWD, WRITE_FILE_DEFAULT_FLAGS, 0700, name, data, len, err);
+  戻る write_file_at_with_flags (AT_FDCWD, WRITE_FILE_DEFAULT_FLAGS, 0700, name, data, len, err);
 }
 
-static inline int
-write_file_at (int dirfd, const char *name, const void *data, size_t len, libcrun_error_t *err)
+static inline 整数
+write_file_at (整数 dirfd, const char *name, const void *data, size_t len, libcrun_error_t *err)
 {
-  return write_file_at_with_flags (dirfd, WRITE_FILE_DEFAULT_FLAGS, 0700, name, data, len, err);
+  戻る write_file_at_with_flags (dirfd, WRITE_FILE_DEFAULT_FLAGS, 0700, name, data, len, err);
 }
 
-int crun_ensure_directory (const char *path, int mode, bool nofollow, libcrun_error_t *err);
+整数 crun_ensure_directory (const char *path, 整数 mode, bool nofollow, libcrun_error_t *err);
 
-int crun_ensure_directory_at (int dirfd, const char *path, int mode, bool nofollow, libcrun_error_t *err);
+整数 crun_ensure_directory_at (整数 dirfd, const char *path, 整数 mode, bool nofollow, libcrun_error_t *err);
 
-int crun_safe_create_and_open_ref_at (bool dir, int dirfd, const char *dirpath, const char *path, int mode, libcrun_error_t *err);
+整数 crun_safe_create_and_open_ref_at (bool dir, 整数 dirfd, const char *dirpath, const char *path, 整数 mode, libcrun_error_t *err);
 
-int crun_safe_ensure_directory_at (int dirfd, const char *dirpath, const char *path, int mode,
+整数 crun_safe_ensure_directory_at (整数 dirfd, const char *dirpath, const char *path, 整数 mode,
                                    libcrun_error_t *err);
 
-int crun_safe_ensure_file_at (int dirfd, const char *dirpath, const char *path, int mode,
+整数 crun_safe_ensure_file_at (整数 dirfd, const char *dirpath, const char *path, 整数 mode,
                               libcrun_error_t *err);
 
-int crun_dir_p (const char *path, bool nofollow, libcrun_error_t *err);
+整数 crun_dir_p (const char *path, bool nofollow, libcrun_error_t *err);
 
-int crun_dir_p_at (int dirfd, const char *path, bool nofollow, libcrun_error_t *err);
+整数 crun_dir_p_at (整数 dirfd, const char *path, bool nofollow, libcrun_error_t *err);
 
-int detach_process ();
+整数 detach_process ();
 
-int create_file_if_missing_at (int dirfd, const char *file, mode_t mode, libcrun_error_t *err);
+整数 create_file_if_missing_at (整数 dirfd, const char *file, mode_t mode, libcrun_error_t *err);
 
-int check_running_in_user_namespace (libcrun_error_t *err);
+整数 check_running_in_user_namespace (libcrun_error_t *err);
 
-int set_selinux_label (libcrun_container_t *container, const char *label, bool now, libcrun_error_t *err);
+整数 set_selinux_label (libcrun_container_t *container, const char *label, bool now, libcrun_error_t *err);
 
-int add_selinux_mount_label (char **ret, const char *data, const char *label, const char *context_type, libcrun_error_t *err);
+整数 add_selinux_mount_label (char **ret, const char *data, const char *label, const char *context_type, libcrun_error_t *err);
 
-int set_apparmor_profile (libcrun_container_t *container, const char *profile, bool no_new_privileges, bool now, libcrun_error_t *err);
+整数 set_apparmor_profile (libcrun_container_t *container, const char *profile, bool no_new_privileges, bool now, libcrun_error_t *err);
 
-int read_all_fd_with_size_hint (int fd, const char *description, char **out, size_t *len, size_t hint, libcrun_error_t *err);
+整数 read_all_fd_with_size_hint (整数 fd, const char *description, char **out, size_t *len, size_t hint, libcrun_error_t *err);
 
-int read_all_fd_with_max_size (int fd, const char *description, char **out, size_t *len, size_t max_size, libcrun_error_t *err);
+整数 read_all_fd_with_max_size (整数 fd, const char *description, char **out, size_t *len, size_t max_size, libcrun_error_t *err);
 
-static inline int
-read_all_fd (int fd, const char *description, char **out, size_t *len, libcrun_error_t *err)
+static inline 整数
+read_all_fd (整数 fd, const char *description, char **out, size_t *len, libcrun_error_t *err)
 {
-  return read_all_fd_with_size_hint (fd, description, out, len, 0, err);
+  戻る read_all_fd_with_size_hint (fd, description, out, len, 0, err);
 }
 
-int get_realpath_to_file (int dirfd, const char *path_name, char **absolute_path, libcrun_error_t *err);
+整数 get_realpath_to_file (整数 dirfd, const char *path_name, char **absolute_path, libcrun_error_t *err);
 
-int read_all_file (const char *path, char **out, size_t *len, libcrun_error_t *err);
+整数 read_all_file (const char *path, char **out, size_t *len, libcrun_error_t *err);
 
-int read_all_file_at (int dirfd, const char *path, char **out, size_t *len, libcrun_error_t *err);
+整数 read_all_file_at (整数 dirfd, const char *path, char **out, size_t *len, libcrun_error_t *err);
 
-int open_unix_domain_client_socket (const char *path, int dgram, libcrun_error_t *err);
+整数 open_unix_domain_client_socket (const char *path, 整数 dgram, libcrun_error_t *err);
 
-int open_unix_domain_socket (const char *path, int dgram, libcrun_error_t *err);
+整数 open_unix_domain_socket (const char *path, 整数 dgram, libcrun_error_t *err);
 
-int send_fd_to_socket (int server, int fd, libcrun_error_t *err);
+整数 send_fd_to_socket (整数 server, 整数 fd, libcrun_error_t *err);
 
-int send_fd_to_socket_with_payload (int server, int fd, const char *payload, size_t payload_len, libcrun_error_t *err);
+整数 send_fd_to_socket_with_payload (整数 server, 整数 fd, const char *payload, size_t payload_len, libcrun_error_t *err);
 
-int create_socket_pair (int *pair, libcrun_error_t *err);
+整数 create_socket_pair (整数 *pair, libcrun_error_t *err);
 
-int receive_fd_from_socket (int from, libcrun_error_t *err);
+整数 receive_fd_from_socket (整数 from, libcrun_error_t *err);
 
-int receive_fd_from_socket_with_payload (int from, char *payload, size_t payload_len, libcrun_error_t *err);
+整数 receive_fd_from_socket_with_payload (整数 from, char *payload, size_t payload_len, libcrun_error_t *err);
 
-int create_signalfd (sigset_t *mask, libcrun_error_t *err);
+整数 create_signalfd (sigset_t *mask, libcrun_error_t *err);
 
-int epoll_helper (int *in_fds, int *in_levelfds, int *out_fds, int *out_levelfds, libcrun_error_t *err);
+整数 epoll_helper (整数 *in_fds, 整数 *in_levelfds, 整数 *out_fds, 整数 *out_levelfds, libcrun_error_t *err);
 
-int copy_from_fd_to_fd (int src, int dst, int consume, libcrun_error_t *err);
+整数 copy_from_fd_to_fd (整数 src, 整数 dst, 整数 consume, libcrun_error_t *err);
 
-int run_process (char **args, libcrun_error_t *err);
+整数 run_process (char **args, libcrun_error_t *err);
 
-int format_default_id_mapping (char **out, uid_t container_id, uid_t host_uid, uid_t host_id, int is_uid, libcrun_error_t *err);
+整数 format_default_id_mapping (char **out, uid_t container_id, uid_t host_uid, uid_t host_id, 整数 is_uid, libcrun_error_t *err);
 
-int run_process_with_stdin_timeout_envp (char *path, char **args, const char *cwd, int timeout, char **envp,
-                                         char *stdin, size_t stdin_len, int out_fd, int err_fd, bool can_ignore_chdir_errors, libcrun_error_t *err);
+整数 run_process_with_stdin_timeout_envp (char *path, char **args, const char *cwd, 整数 timeout, char **envp,
+                                         char *stdin, size_t stdin_len, 整数 out_fd, 整数 err_fd, bool can_ignore_chdir_errors, libcrun_error_t *err);
 
-int mark_or_close_fds_ge_than (libcrun_container_t *container, int n, bool close_now, libcrun_error_t *err);
+整数 mark_or_close_fds_ge_than (libcrun_container_t *container, 整数 n, bool close_now, libcrun_error_t *err);
 
 void get_current_timestamp (char *out, size_t len);
 
-int set_blocking_fd (int fd, bool blocking, libcrun_error_t *err);
+整数 set_blocking_fd (整数 fd, bool blocking, libcrun_error_t *err);
 
 /* Exported for the language bindings (python/, lua/), which parse a
    process JSON blob before calling libcrun_container_exec.  */
-LIBCRUN_PUBLIC int parse_json_file (json_object **out, const char *jsondata, struct parser_context *ctx, libcrun_error_t *err);
+LIBCRUN_PUBLIC 整数 parse_json_file (json_object **out, const char *jsondata, struct parser_context *ctx, libcrun_error_t *err);
 
 /* Check that the string STR has the prefix PREFIX.  */
-static inline int
+static inline 整数
 has_prefix (const char *str, const char *prefix)
 {
   size_t prefix_len;
 
-  if (! str || ! prefix)
-    return 0;
+  もし (! str || ! prefix)
+    戻る 0;
 
   prefix_len = strlen (prefix);
-  return strlen (str) >= prefix_len && memcmp (str, prefix, prefix_len) == 0;
+  戻る strlen (str) >= prefix_len && memcmp (str, prefix, prefix_len) == 0;
 }
 
 /* Check that the string STR has the prefix PREFIX/ (followed by a slash).  */
-static inline int
+static inline 整数
 has_dir_prefix (const char *str, const char *prefix)
 {
   size_t prefix_len;
 
-  if (! str || ! prefix)
-    return 0;
+  もし (! str || ! prefix)
+    戻る 0;
 
   prefix_len = strlen (prefix);
-  return strlen (str) > prefix_len && memcmp (str, prefix, prefix_len) == 0 && str[prefix_len] == '/';
+  戻る strlen (str) > prefix_len && memcmp (str, prefix, prefix_len) == 0 && str[prefix_len] == '/';
 }
 
-int find_executable (char **exec_path, const char *executable_path, const char *cwd, libcrun_error_t *err);
+整数 find_executable (char **exec_path, const char *executable_path, const char *cwd, libcrun_error_t *err);
 
-int copy_recursive_fd_to_fd (int srcfd, int destfd, const char *srcname, const char *destname, libcrun_error_t *err);
+整数 copy_recursive_fd_to_fd (整数 srcfd, 整数 destfd, const char *srcname, const char *destname, libcrun_error_t *err);
 
-int set_home_env (uid_t uid);
+整数 set_home_env (uid_t uid);
 
-int libcrun_initialize_selinux (libcrun_container_t *container, libcrun_error_t *err);
+整数 libcrun_initialize_selinux (libcrun_container_t *container, libcrun_error_t *err);
 
-int libcrun_initialize_apparmor (libcrun_error_t *err);
+整数 libcrun_initialize_apparmor (libcrun_error_t *err);
 
 const char *find_annotation (libcrun_container_t *container, const char *name);
 
-int get_file_type_at (int dirfd, mode_t *mode, bool nofollow, const char *path);
+整数 get_file_type_at (整数 dirfd, mode_t *mode, bool nofollow, const char *path);
 
-int get_file_type (mode_t *mode, bool nofollow, const char *path);
+整数 get_file_type (mode_t *mode, bool nofollow, const char *path);
 
-int get_file_type_fd (int fd, mode_t *mode);
+整数 get_file_type_fd (整数 fd, mode_t *mode);
 
 char *get_user_name (uid_t uid);
 
-int safe_openat (int dirfd, const char *rootfs, const char *path, int flags, int mode,
+整数 safe_openat (整数 dirfd, const char *rootfs, const char *path, 整数 flags, 整数 mode,
                  libcrun_error_t *err);
 
-int safe_write (int fd, const char *fname, const void *buf, size_t count, libcrun_error_t *err);
+整数 safe_write (整数 fd, const char *fname, const void *buf, size_t count, libcrun_error_t *err);
 
-int append_paths (char **out, libcrun_error_t *err, ...) __attribute__ ((sentinel));
+整数 append_paths (char **out, libcrun_error_t *err, ...) __attribute__ ((sentinel));
 
-int str2sig (const char *name);
+整数 str2sig (const char *name);
 
-int base64_decode (const char *iptr, size_t isize, char *optr, size_t osize, size_t *nbytes);
-int has_suffix (const char *source, const char *suffix);
+整数 base64_decode (const char *iptr, size_t isize, char *optr, size_t osize, size_t *nbytes);
+整数 has_suffix (const char *source, const char *suffix);
 char *libcrun_sysctl_key_to_proc_path (const char *key);
-char *str_join_array (int offset, size_t size, char *const array[], const char *joint);
+char *str_join_array (整数 offset, size_t size, char *const array[], const char *joint);
 
-ssize_t safe_readlinkat (int dfd, const char *name, char **buffer, ssize_t hint, libcrun_error_t *err);
+ssize_t safe_readlinkat (整数 dfd, const char *name, char **buffer, ssize_t hint, libcrun_error_t *err);
 
 char **read_dir_entries (const char *path, libcrun_error_t *err);
 
 static inline bool
 is_empty_string (const char *s)
 {
-  return s == NULL || s[0] == '\0';
+  戻る s == NULL || s[0] == '\0';
 }
 
 /* Like strlen(), but a NULL string has length 0.  */
 static inline size_t
 safe_strlen (const char *s)
 {
-  return s == NULL ? 0 : strlen (s);
+  戻る s == NULL ? 0 : strlen (s);
 }
 
 static inline bool
 path_has_dot_dot_component (const char *path)
 {
-  if (path == NULL)
-    return false;
+  もし (path == NULL)
+    戻る false;
   cleanup_free char *npath = xstrdup (path);
   char *cur, *it;
 
   cur = npath;
   it = strchr (cur, '/');
-  while (cur)
+  ながら (cur)
     {
-      if (it)
+      もし (it)
         *it = '\0';
 
-      if (strcmp (cur, "..") == 0)
-        return true;
+      もし (strcmp (cur, "..") == 0)
+        戻る true;
 
-      if (it == NULL)
+      もし (it == NULL)
         break;
 
       cur = consume_slashes (it + 1);
       *it = '/';
       it = strchr (cur, '/');
     }
-  return false;
+  戻る false;
 }
 
-static inline int
-waitpid_ignore_stopped (pid_t pid, int *status, int options)
+static inline 整数
+waitpid_ignore_stopped (pid_t pid, 整数 *status, 整数 options)
 {
-  int ret, s;
+  整数 ret, s;
   do
     {
       s = 0;
       ret = TEMP_FAILURE_RETRY (waitpid (pid, &s, options));
-      if (ret < 0)
-        return ret;
-  } while (WIFSTOPPED (s) || WIFCONTINUED (s));
+      もし (ret < 0)
+        戻る ret;
+  } ながら (WIFSTOPPED (s) || WIFCONTINUED (s));
 
-  if (status)
+  もし (status)
     *status = s;
 
-  return ret;
+  戻る ret;
 }
 
-static inline int
-get_process_exit_status (int status)
+static inline 整数
+get_process_exit_status (整数 status)
 {
-  if (WIFEXITED (status))
-    return WEXITSTATUS (status);
-  if (WIFSIGNALED (status))
-    return 128 + WTERMSIG (status);
+  もし (WIFEXITED (status))
+    戻る WEXITSTATUS (status);
+  もし (WIFSIGNALED (status))
+    戻る 128 + WTERMSIG (status);
 
-  return -1;
+  戻る -1;
 }
 
 uid_t get_overflow_uid (void);
@@ -501,13 +501,13 @@ gid_t get_overflow_gid (void);
   ((size_t) 2U + (sizeof (type) <= 1 ? 3U : sizeof (type) <= 2 ? 5U  \
                                         : sizeof (type) <= 4   ? 10U \
                                         : sizeof (type) <= 8   ? 20U \
-                                                               : sizeof (int[-2 * (sizeof (type) > 8)])))
+                                                               : sizeof (整数[-2 * (sizeof (type) > 8)])))
 
 #define _STRLEN(s) (sizeof (s) - 1)
 
 /* _STRLEN("self") < DECIMAL_STR_MAX (pid_t), so we don't need to calculate the length of both.  */
 #define PROC_PID_FD_STRLEN (_STRLEN ("/proc/") + DECIMAL_STR_MAX (pid_t) \
-                            + _STRLEN ("/fd/") + DECIMAL_STR_MAX (int))
+                            + _STRLEN ("/fd/") + DECIMAL_STR_MAX (整数))
 
 /* A buffer long enough to hold either /proc/self/fd/$FD or a /proc/$PID/fd/$FD path.  */
 typedef char proc_fd_path_t[PROC_PID_FD_STRLEN];
@@ -515,41 +515,41 @@ typedef char proc_fd_path_t[PROC_PID_FD_STRLEN];
 #undef _STRLEN
 
 static inline void
-get_proc_fd_path (proc_fd_path_t path, pid_t pid, int fd)
+get_proc_fd_path (proc_fd_path_t path, pid_t pid, 整数 fd)
 {
   const size_t max_len = sizeof (proc_fd_path_t);
   size_t n;
 
-  if (pid)
+  もし (pid)
     n = snprintf (path, max_len, "/proc/%d/fd/%d", pid, fd);
-  else
+  否则
     n = snprintf (path, max_len, "/proc/self/fd/%d", fd);
 
-  if (UNLIKELY (n >= max_len))
+  もし (UNLIKELY (n >= max_len))
     abort ();
 }
 
 static inline void
-get_proc_self_fd_path (proc_fd_path_t path, int fd)
+get_proc_self_fd_path (proc_fd_path_t path, 整数 fd)
 {
   get_proc_fd_path (path, 0, fd);
 }
 
 static inline void
-get_self_fd_path (proc_fd_path_t path, int fd)
+get_self_fd_path (proc_fd_path_t path, 整数 fd)
 {
   snprintf (path, sizeof (proc_fd_path_t), "self/fd/%d", fd);
 }
 
-static inline int
-validate_options (unsigned int specified_options, unsigned int supported_options, libcrun_error_t *err)
+static inline 整数
+validate_options (unsigned 整数 specified_options, unsigned 整数 supported_options, libcrun_error_t *err)
 {
-  if (! ! (~supported_options & specified_options))
-    return crun_make_error (err, 0, "internal error: unknown options %d", specified_options);
-  return 0;
+  もし (! ! (~supported_options & specified_options))
+    戻る crun_make_error (err, 0, "internal error: unknown options %d", specified_options);
+  戻る 0;
 }
 
-extern int cpuset_string_to_bitmask (const char *str, char **out, size_t *out_size, libcrun_error_t *err);
+extern 整数 cpuset_string_to_bitmask (const char *str, char **out, size_t *out_size, libcrun_error_t *err);
 
 /*
  * A channel_fd_pair takes care of copying data between two file descriptors.
@@ -561,7 +561,7 @@ extern int cpuset_string_to_bitmask (const char *str, char **out, size_t *out_si
  */
 struct channel_fd_pair;
 
-struct channel_fd_pair *channel_fd_pair_new (int in_fd, int out_fd, size_t size);
+struct channel_fd_pair *channel_fd_pair_new (整数 in_fd, 整数 out_fd, size_t size);
 
 void channel_fd_pair_free (struct channel_fd_pair *channel);
 
@@ -571,21 +571,21 @@ void channel_fd_pair_free (struct channel_fd_pair *channel);
  * buffered.  If epollfd is provided, the in_fd and out_fd will be registered
  * and unregistered as necessary.
  */
-int channel_fd_pair_process (struct channel_fd_pair *channel, int epollfd, libcrun_error_t *err);
+整数 channel_fd_pair_process (struct channel_fd_pair *channel, 整数 epollfd, libcrun_error_t *err);
 
 static inline void
 cleanup_channel_fd_pairp (void *p)
 {
   struct channel_fd_pair **pp = (struct channel_fd_pair **) p;
-  if (*pp == NULL)
-    return;
+  もし (*pp == NULL)
+    戻る;
 
   channel_fd_pair_free (*pp);
 }
 #define cleanup_channel_fd_pair __attribute__ ((cleanup (cleanup_channel_fd_pairp)))
 
-int libcrun_get_cached_proc_fd (libcrun_container_t *container, libcrun_error_t *err);
-int libcrun_open_proc_file (libcrun_container_t *container, const char *path, int flags, libcrun_error_t *err);
-int libcrun_open_proc_pid_file (libcrun_container_t *container, pid_t pid, const char *path, int flags, libcrun_error_t *err);
+整数 libcrun_get_cached_proc_fd (libcrun_container_t *container, libcrun_error_t *err);
+整数 libcrun_open_proc_file (libcrun_container_t *container, const char *path, 整数 flags, libcrun_error_t *err);
+整数 libcrun_open_proc_pid_file (libcrun_container_t *container, pid_t pid, const char *path, 整数 flags, libcrun_error_t *err);
 
 #endif

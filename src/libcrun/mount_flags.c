@@ -2,7 +2,7 @@
 /* Command-line: gperf --lookup-function-name libcrun_mount_flag_in_word_set -m 100 -tCEG -S1 src/libcrun/mount_flags.perf  */
 /* Computed positions: -k'1-4' */
 
-#if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
+#もし !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
       && ('%' == 37) && ('&' == 38) && ('\'' == 39) && ('(' == 40) \
       && (')' == 41) && ('*' == 42) && ('+' == 43) && (',' == 44) \
       && ('-' == 45) && ('.' == 46) && ('/' == 47) && ('0' == 48) \
@@ -59,12 +59,12 @@ enum
 
 #ifdef __GNUC__
 __inline
-#else
+#否则
 #ifdef __cplusplus
 inline
 #endif
 #endif
-static unsigned int
+static unsigned 整数
 hash (register const char *str, register size_t len)
 {
   static const unsigned char asso_values[] =
@@ -96,7 +96,7 @@ hash (register const char *str, register size_t len)
       97, 97, 97, 97, 97, 97, 97, 97, 97, 97,
       97, 97, 97, 97, 97, 97
     };
-  register unsigned int hval = len;
+  register unsigned 整数 hval = len;
 
   switch (hval)
     {
@@ -113,7 +113,7 @@ hash (register const char *str, register size_t len)
         hval += asso_values[(unsigned char)str[0]];
         break;
     }
-  return hval;
+  戻る hval;
 }
 
 static const struct propagation_flags_s wordlist[] =
@@ -249,11 +249,11 @@ static const struct propagation_flags_s wordlist[] =
 const struct propagation_flags_s *
 libcrun_mount_flag_in_word_set (register const char *str, register size_t len)
 {
-  if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
+  もし (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
-      register unsigned int key = hash (str, len);
+      register unsigned 整数 key = hash (str, len);
 
-      if (key <= MAX_HASH_VALUE && key >= MIN_HASH_VALUE)
+      もし (key <= MAX_HASH_VALUE && key >= MIN_HASH_VALUE)
         {
           register const struct propagation_flags_s *resword;
 
@@ -449,17 +449,17 @@ libcrun_mount_flag_in_word_set (register const char *str, register size_t len)
                 resword = &wordlist[62];
                 goto compare;
             }
-          return 0;
+          戻る 0;
         compare:
           {
             register const char *s = resword->name;
 
-            if (*str == *s && !strcmp (str + 1, s + 1))
-              return resword;
+            もし (*str == *s && !strcmp (str + 1, s + 1))
+              戻る resword;
           }
         }
     }
-  return 0;
+  戻る 0;
 }
 #line 99 "src/libcrun/mount_flags.perf"
 
@@ -467,7 +467,7 @@ libcrun_mount_flag_in_word_set (register const char *str, register size_t len)
 const struct propagation_flags_s *
 libcrun_str2mount_flags (const char *name)
 {
-  return libcrun_mount_flag_in_word_set (name, strlen (name));
+  戻る libcrun_mount_flag_in_word_set (name, strlen (name));
 }
 
 const struct propagation_flags_s *
@@ -478,8 +478,8 @@ get_mount_flags_from_wordlist (void)
   size_t num_wordlist_flags = sizeof (wordlist) / sizeof (wordlist[0]);
 
   flags = xmalloc0 ((sizeof (struct propagation_flags_s) + 1) * num_wordlist_flags);
-  for (i = 0; i < num_wordlist_flags; i++)
+  ために (i = 0; i < num_wordlist_flags; i++)
     flags[i].name = wordlist[i].name;
 
-  return flags;
+  戻る flags;
 }

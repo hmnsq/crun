@@ -38,7 +38,7 @@
     {                       \
       *x = y;               \
       y = NULL;             \
-  } while (0)
+  } ながら (0)
 
 struct pid_stat
 {
@@ -50,214 +50,214 @@ struct pid_stat
 static inline bool
 is_valid_id_char (char c)
 {
-  if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'))
-    return true;
-  return c == '_' || c == '+' || c == '.' || c == '-';
+  もし ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'))
+    戻る true;
+  戻る c == '_' || c == '+' || c == '.' || c == '-';
 }
 
-static int
+static 整数
 validate_id (const char *id, libcrun_error_t *err)
 {
-  if (id == NULL)
-    return 0;
+  もし (id == NULL)
+    戻る 0;
 
-  if (id[0] == '\0')
-    return crun_make_error (err, 0, "empty container ID");
+  もし (id[0] == '\0')
+    戻る crun_make_error (err, 0, "empty container ID");
 
-  if (id[0] == '.')
-    return crun_make_error (err, 0, "invalid container ID `%s`", id);
+  もし (id[0] == '.')
+    戻る crun_make_error (err, 0, "invalid container ID `%s`", id);
 
-  for (size_t i = 0; id[i]; i++)
+  ために (size_t i = 0; id[i]; i++)
     {
-      if (! is_valid_id_char (id[i]))
-        return crun_make_error (err, 0, "invalid character `%c` in the container ID `%s`", id[i], id);
+      もし (! is_valid_id_char (id[i]))
+        戻る crun_make_error (err, 0, "invalid character `%c` in the container ID `%s`", id[i], id);
     }
 
-  return 0;
+  戻る 0;
 }
 
-int
+整数
 get_run_directory (char **out, const char *state_root, libcrun_error_t *err)
 {
-  int ret;
+  整数 ret;
   cleanup_free char *root = NULL;
 
-  if (state_root)
+  もし (state_root)
     root = xstrdup (state_root);
-  if (root == NULL)
+  もし (root == NULL)
     {
       const char *runtime_dir = getenv ("XDG_RUNTIME_DIR");
-      if (runtime_dir && runtime_dir[0] != '\0')
+      もし (runtime_dir && runtime_dir[0] != '\0')
         {
           ret = append_paths (&root, err, runtime_dir, "crun", NULL);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          もし (UNLIKELY (ret < 0))
+            戻る ret;
         }
     }
-  if (root == NULL)
+  もし (root == NULL)
     root = xstrdup ("/run/crun");
 
   ret = crun_ensure_directory (root, 0700, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
   STEAL_POINTER (out, root);
 
-  return 0;
+  戻る 0;
 }
 
-int
+整数
 get_shared_empty_directory_path (char **out, const char *state_root, libcrun_error_t *err)
 {
   cleanup_free char *run_dir = NULL;
-  int ret;
+  整数 ret;
 
   ret = get_run_directory (&run_dir, state_root, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
   ret = append_paths (out, err, run_dir, ".empty-directory", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
   /* Ensure the empty directory exists */
   ret = crun_ensure_directory (*out, 0555, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
-  return 0;
+  戻る 0;
 }
 
-int
+整数
 libcrun_get_state_directory (char **out, const char *state_root, const char *id, libcrun_error_t *err)
 {
-  int ret;
+  整数 ret;
   cleanup_free char *path = NULL;
   cleanup_free char *root = NULL;
 
   ret = validate_id (id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
   ret = get_run_directory (&root, state_root, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
   ret = append_paths (&path, err, root, id, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
   STEAL_POINTER (out, path);
 
-  return 0;
+  戻る 0;
 }
 
-static int
+static 整数
 get_state_directory_status_file (char **out, const char *state_root, const char *id, libcrun_error_t *err)
 {
   cleanup_free char *dir = NULL;
-  int ret;
+  整数 ret;
 
   ret = libcrun_get_state_directory (&dir, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
-  return append_paths (out, err, dir, "status", NULL);
+  戻る append_paths (out, err, dir, "status", NULL);
 }
 
-static int
+static 整数
 read_pid_stat (pid_t pid, struct pid_stat *st, libcrun_error_t *err)
 {
   cleanup_free char *buffer = NULL;
-  cleanup_close int fd = -1;
+  cleanup_close 整数 fd = -1;
   char pid_stat_file[64];
   char *it, *s;
-  int i, ret;
+  整数 i, ret;
 
   ret = snprintf (pid_stat_file, sizeof (pid_stat_file), "/proc/%d/stat", pid);
-  if (UNLIKELY (ret >= (int) sizeof (pid_stat_file)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  もし (UNLIKELY (ret >= (整数) sizeof (pid_stat_file)))
+    戻る crun_make_error (err, 0, "internal error: static buffer too small");
 
   fd = open (pid_stat_file, O_RDONLY | O_CLOEXEC);
-  if (fd < 0)
+  もし (fd < 0)
     {
       /* The process already exited.  */
-      if (errno == ENOENT || errno == ESRCH)
+      もし (errno == ENOENT || errno == ESRCH)
         {
           memset (st, 0, sizeof (*st));
-          return 0;
+          戻る 0;
         }
-      return crun_make_error (err, errno, "open state file `%s`", pid_stat_file);
+      戻る crun_make_error (err, errno, "open state file `%s`", pid_stat_file);
     }
 
   ret = read_all_fd (fd, pid_stat_file, &buffer, NULL, err);
-  if (ret < 0)
+  もし (ret < 0)
     {
       st->starttime = 0;
       st->num_threads = 0;
       st->state = 'X';
       /* The process already exited.  */
       libcrun_error_release (err);
-      return 0;
+      戻る 0;
     }
 
   s = NULL;
 
   /* Skip the first two arguments.  */
-  for (it = buffer; it; it = strchr (it + 1, ')'))
+  ために (it = buffer; it; it = strchr (it + 1, ')'))
     s = it + 1;
 
-  if (s)
-    while (*s == ' ')
+  もし (s)
+    ながら (*s == ' ')
       s++;
 
-  if (s == NULL || *s == '\0')
-    return crun_make_error (err, 0, "could not read process state");
+  もし (s == NULL || *s == '\0')
+    戻る crun_make_error (err, 0, "could not read process state");
 
   st->state = *s;
 
   /* Seek to the starttime argument.  */
-  for (it = s + 1, i = 0; i < 19; i++)
+  ために (it = s + 1, i = 0; i < 19; i++)
     {
       it = strchr (it, ' ');
-      if (it == NULL)
-        return crun_make_error (err, 0, "could not read process start time");
+      もし (it == NULL)
+        戻る crun_make_error (err, 0, "could not read process start time");
       it++;
 
       /* num_threads is the second argument before starttime.  */
-      if (i == 16)
+      もし (i == 16)
         st->num_threads = strtol (it, NULL, 10);
     }
 
   errno = 0;
   st->starttime = strtoull (it, NULL, 10);
-  if (errno != 0)
-    return crun_make_error (err, errno, "parse process start time");
+  もし (errno != 0)
+    戻る crun_make_error (err, errno, "parse process start time");
 
-  return 0;
+  戻る 0;
 }
 
-int
+整数
 libcrun_write_container_status (const char *state_root, const char *id, libcrun_container_status_t *status,
                                 libcrun_error_t *err)
 {
-  int r, ret;
+  整数 r, ret;
   cleanup_free char *file_tmp = NULL;
   cleanup_free char *file = NULL;
   size_t len;
-  cleanup_close int fd_write = -1;
+  cleanup_close 整数 fd_write = -1;
   const char *buf = NULL;
   struct pid_stat st;
   const char *tmp;
   cleanup_json_gen json_gen_ctx *gen = NULL;
 
   ret = get_state_directory_status_file (&file, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
   ret = read_pid_stat (status->pid, &st, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
   /* read_pid_stat returns a start time of 0 when the process already exited,
      e.g. a restored container that terminated before the status is written.
@@ -269,11 +269,11 @@ libcrun_write_container_status (const char *state_root, const char *id, libcrun_
 
   xasprintf (&file_tmp, "%s.tmp", file);
   fd_write = open (file_tmp, O_CREAT | O_WRONLY | O_CLOEXEC, 0700);
-  if (UNLIKELY (fd_write < 0))
-    return crun_make_error (err, errno, "cannot open status file");
+  もし (UNLIKELY (fd_write < 0))
+    戻る crun_make_error (err, errno, "cannot open status file");
 
-  if (! json_gen_init (&gen, NULL))
-    return crun_make_error (err, 0, "json_gen_init failed");
+  もし (! json_gen_init (&gen, NULL))
+    戻る crun_make_error (err, 0, "json_gen_init failed");
 
   json_gen_config (gen, json_gen_beautify, 1);
 
@@ -305,7 +305,7 @@ libcrun_write_container_status (const char *state_root, const char *id, libcrun_
   GEN_KEY (gen, "created");
   GEN_STR (gen, status->created);
 
-  if (status->owner)
+  もし (status->owner)
     {
       GEN_KEY (gen, "owner");
       GEN_STR (gen, status->owner);
@@ -317,7 +317,7 @@ libcrun_write_container_status (const char *state_root, const char *id, libcrun_
   GEN_KEY (gen, "no-new-keyring");
   GEN_OR_FAIL (json_gen_bool (gen, status->no_new_keyring));
 
-  if (status->external_descriptors)
+  もし (status->external_descriptors)
     {
       GEN_KEY (gen, "external_descriptors");
       GEN_STR (gen, status->external_descriptors);
@@ -328,72 +328,72 @@ libcrun_write_container_status (const char *state_root, const char *id, libcrun_
   GEN_OR_FAIL (json_gen_get_buf (gen, &buf, &len));
 
   ret = safe_write (fd_write, "status file", buf, len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
   close_and_reset (&fd_write);
 
-  if (UNLIKELY (rename (file_tmp, file) < 0))
-    return crun_make_error (err, errno, "cannot rename status file");
+  もし (UNLIKELY (rename (file_tmp, file) < 0))
+    戻る crun_make_error (err, errno, "cannot rename status file");
 
-  return 0;
+  戻る 0;
 
 gen_error:
-  return json_gen_error_to_crun_error (r, err);
+  戻る json_gen_error_to_crun_error (r, err);
 }
 
-int
+整数
 libcrun_read_container_status (libcrun_container_status_t *status, const char *state_root, const char *id,
                                libcrun_error_t *err)
 {
   cleanup_free char *buffer = NULL;
-  int ret;
+  整数 ret;
   cleanup_free char *file = NULL;
   json_object *doc = NULL;
   json_object *tmp;
   const char *val;
 
   ret = get_state_directory_status_file (&file, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
   ret = read_all_file (file, &buffer, NULL, err);
-  if (UNLIKELY (ret < 0))
+  もし (UNLIKELY (ret < 0))
     {
 
-      if (crun_error_get_errno (err) == ENOENT)
+      もし (crun_error_get_errno (err) == ENOENT)
         {
           cleanup_free char *statedir = NULL;
           libcrun_error_t tmp_err;
-          int tmp_ret;
+          整数 tmp_ret;
 
           tmp_ret = libcrun_get_state_directory (&statedir, state_root, id, &tmp_err);
-          if (UNLIKELY (tmp_ret < 0))
+          もし (UNLIKELY (tmp_ret < 0))
             crun_error_release (&tmp_err);
-          else
+          否则
             {
               tmp_ret = crun_path_exists (statedir, &tmp_err);
-              if (UNLIKELY (tmp_ret < 0))
+              もし (UNLIKELY (tmp_ret < 0))
                 crun_error_release (&tmp_err);
-              else if (tmp_ret == 0)
-                return crun_error_wrap (err, "container `%s` does not exist", id);
+              否则 もし (tmp_ret == 0)
+                戻る crun_error_wrap (err, "container `%s` does not exist", id);
             }
         }
-      return ret;
+      戻る ret;
     }
 
   ret = parse_json_file (&doc, buffer, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
   {
     tmp = json_object_object_get (doc, "pid");
-    if (UNLIKELY (tmp == NULL))
+    もし (UNLIKELY (tmp == NULL))
       {
         ret = crun_make_error (err, 0, "`pid` missing in `%s`", file);
         goto exit;
       }
-    if (UNLIKELY (! json_object_is_type (tmp, json_type_int)))
+    もし (UNLIKELY (! json_object_is_type (tmp, json_type_int)))
       {
         ret = crun_make_error (err, 0, "`pid` is not a numeric value in `%s`", file);
         goto exit;
@@ -402,25 +402,25 @@ libcrun_read_container_status (libcrun_container_status_t *status, const char *s
   }
   {
     tmp = json_object_object_get (doc, "process-start-time");
-    if (UNLIKELY (tmp == NULL))
+    もし (UNLIKELY (tmp == NULL))
       status->process_start_time = 0; /* backwards compatibility */
-    else if (UNLIKELY (! json_object_is_type (tmp, json_type_int)))
+    否则 もし (UNLIKELY (! json_object_is_type (tmp, json_type_int)))
       {
         ret = crun_make_error (err, 0, "`process-start-time` is not a numeric value in `%s`", file);
         goto exit;
       }
-    else
+    否则
       status->process_start_time = json_object_get_uint64 (tmp);
   }
   {
     tmp = json_object_object_get (doc, "cgroup-path");
-    if (UNLIKELY (tmp == NULL))
+    もし (UNLIKELY (tmp == NULL))
       {
         ret = crun_make_error (err, 0, "`cgroup-path` missing in `%s`", file);
         goto exit;
       }
     val = json_object_get_string (tmp);
-    if (UNLIKELY (val == NULL))
+    もし (UNLIKELY (val == NULL))
       {
         ret = crun_make_error (err, 0, "`cgroup-path` is not a string in `%s`", file);
         goto exit;
@@ -434,13 +434,13 @@ libcrun_read_container_status (libcrun_container_status_t *status, const char *s
   }
   {
     tmp = json_object_object_get (doc, "rootfs");
-    if (UNLIKELY (tmp == NULL))
+    もし (UNLIKELY (tmp == NULL))
       {
         ret = crun_make_error (err, 0, "`rootfs` missing in `%s`", file);
         goto exit;
       }
     val = json_object_get_string (tmp);
-    if (UNLIKELY (val == NULL))
+    もし (UNLIKELY (val == NULL))
       {
         ret = crun_make_error (err, 0, "`rootfs` is not a string in `%s`", file);
         goto exit;
@@ -453,13 +453,13 @@ libcrun_read_container_status (libcrun_container_status_t *status, const char *s
   }
   {
     tmp = json_object_object_get (doc, "bundle");
-    if (UNLIKELY (tmp == NULL))
+    もし (UNLIKELY (tmp == NULL))
       {
         ret = crun_make_error (err, 0, "`bundle` missing in `%s`", file);
         goto exit;
       }
     val = json_object_get_string (tmp);
-    if (UNLIKELY (val == NULL))
+    もし (UNLIKELY (val == NULL))
       {
         ret = crun_make_error (err, 0, "`bundle` is not a string in `%s`", file);
         goto exit;
@@ -468,13 +468,13 @@ libcrun_read_container_status (libcrun_container_status_t *status, const char *s
   }
   {
     tmp = json_object_object_get (doc, "created");
-    if (UNLIKELY (tmp == NULL))
+    もし (UNLIKELY (tmp == NULL))
       {
         ret = crun_make_error (err, 0, "`created` missing in `%s`", file);
         goto exit;
       }
     val = json_object_get_string (tmp);
-    if (UNLIKELY (val == NULL))
+    もし (UNLIKELY (val == NULL))
       {
         ret = crun_make_error (err, 0, "`created` is not a string in `%s`", file);
         goto exit;
@@ -503,196 +503,196 @@ libcrun_read_container_status (libcrun_container_status_t *status, const char *s
 
 exit:
   json_object_put (doc);
-  return ret;
+  戻る ret;
 }
 
-int
+整数
 libcrun_status_check_directories (const char *state_root, const char *id, libcrun_error_t *err)
 {
   cleanup_free char *dir = NULL;
-  int ret;
+  整数 ret;
 
   ret = libcrun_get_state_directory (&dir, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
   ret = crun_path_exists (dir, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
-  if (ret)
-    return crun_make_error (err, 0, "container `%s` already exists", id);
+  もし (ret)
+    戻る crun_make_error (err, 0, "container `%s` already exists", id);
 
-  if (UNLIKELY (mkdir (dir, 0700) < 0))
-    return crun_make_error (err, 0, "cannot create state directory for `%s`", id);
+  もし (UNLIKELY (mkdir (dir, 0700) < 0))
+    戻る crun_make_error (err, 0, "cannot create state directory for `%s`", id);
 
-  return 0;
+  戻る 0;
 }
 
 /* Upper bound on the directories visited while removing a tree, so that an
    attacker constantly creating new ones cannot keep the walk going forever.  */
 #define RMDIRFD_MAX_MOVES (1U << 20)
 
-static int
+static 整数
 rmdirfd_move_to (DIR **d, const char *name, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
+  cleanup_close 整数 fd = -1;
   DIR *new_d;
 
   fd = openat (dirfd (*d), name, O_DIRECTORY | O_RDONLY | O_NOFOLLOW | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "cannot open directory `%s`", name);
+  もし (UNLIKELY (fd < 0))
+    戻る crun_make_error (err, errno, "cannot open directory `%s`", name);
 
   new_d = fdopendir (fd);
-  if (UNLIKELY (new_d == NULL))
-    return crun_make_error (err, errno, "cannot open directory `%s`", name);
+  もし (UNLIKELY (new_d == NULL))
+    戻る crun_make_error (err, errno, "cannot open directory `%s`", name);
 
   fd = -1;
 
   closedir (*d);
   *d = new_d;
-  return 0;
+  戻る 0;
 }
 
-static int
-rmdirfd (const char *namedir, int fd, libcrun_error_t *err)
+static 整数
+rmdirfd (const char *namedir, 整数 fd, libcrun_error_t *err)
 {
-  int ret;
+  整数 ret;
   cleanup_dir DIR *d = NULL;
   struct dirent *de;
   struct stat root_st;
   bool is_root = true;
-  unsigned int budget = RMDIRFD_MAX_MOVES;
-  __attribute__ ((unused)) cleanup_close int fd_cleanup = fd;
+  unsigned 整数 budget = RMDIRFD_MAX_MOVES;
+  __attribute__ ((unused)) cleanup_close 整数 fd_cleanup = fd;
 
   ret = fstat (fd, &root_st);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "stat `%s`", namedir);
+  もし (UNLIKELY (ret < 0))
+    戻る crun_make_error (err, errno, "stat `%s`", namedir);
 
   d = fdopendir (fd);
-  if (d == NULL)
-    return crun_make_error (err, errno, "cannot open directory `%s`", namedir);
+  もし (d == NULL)
+    戻る crun_make_error (err, errno, "cannot open directory `%s`", namedir);
 
   /* Now D owns FD. */
   fd_cleanup = -1;
 
-  for (;;)
+  ために (;;)
     {
       errno = 0;
       de = readdir (d);
-      if (de == NULL)
+      もし (de == NULL)
         {
           struct stat st;
 
-          if (UNLIKELY (errno != 0))
-            return crun_make_error (err, errno, "cannot read directory");
+          もし (UNLIKELY (errno != 0))
+            戻る crun_make_error (err, errno, "cannot read directory");
 
-          if (is_root)
+          もし (is_root)
             break;
 
-          if (UNLIKELY (--budget == 0))
-            return crun_make_error (err, ELOOP, "the directory tree keeps changing while removing `%s`", namedir);
+          もし (UNLIKELY (--budget == 0))
+            戻る crun_make_error (err, ELOOP, "the directory tree keeps changing while removing `%s`", namedir);
 
           ret = rmdirfd_move_to (&d, "..", err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          もし (UNLIKELY (ret < 0))
+            戻る ret;
 
           ret = fstat (dirfd (d), &st);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "stat `..`");
+          もし (UNLIKELY (ret < 0))
+            戻る crun_make_error (err, errno, "stat `..`");
 
           is_root = st.st_dev == root_st.st_dev && st.st_ino == root_st.st_ino;
           continue;
         }
 
-      if ((strcmp (de->d_name, ".") == 0) || (strcmp (de->d_name, "..") == 0))
+      もし ((strcmp (de->d_name, ".") == 0) || (strcmp (de->d_name, "..") == 0))
         continue;
 
       /* Ignore errors here and keep deleting, the final unlinkat (AT_REMOVEDIR) will fail anyway.  */
       ret = unlinkat (dirfd (d), de->d_name, 0);
-      if (ret < 0)
+      もし (ret < 0)
         {
         retry_unlink:
           ret = unlinkat (dirfd (d), de->d_name, AT_REMOVEDIR);
-          if (ret < 0 && errno == EBUSY)
+          もし (ret < 0 && errno == EBUSY)
             {
-              cleanup_close int tfd = openat (dirfd (d), de->d_name, O_CLOEXEC | O_PATH | O_NOFOLLOW);
-              if (tfd >= 0)
+              cleanup_close 整数 tfd = openat (dirfd (d), de->d_name, O_CLOEXEC | O_PATH | O_NOFOLLOW);
+              もし (tfd >= 0)
                 {
                   proc_fd_path_t procpath;
 
                   get_proc_self_fd_path (procpath, tfd);
-                  if (umount2 (procpath, MNT_DETACH) == 0)
+                  もし (umount2 (procpath, MNT_DETACH) == 0)
                     goto retry_unlink;
                 }
-              if (! is_root)
-                return crun_make_error (err, EBUSY, "cannot rm directory `%s`", de->d_name);
+              もし (! is_root)
+                戻る crun_make_error (err, EBUSY, "cannot rm directory `%s`", de->d_name);
             }
-          else if (ret < 0 && errno == ENOTEMPTY)
+          否则 もし (ret < 0 && errno == ENOTEMPTY)
             {
-              if (UNLIKELY (--budget == 0))
-                return crun_make_error (err, ELOOP, "the directory tree keeps changing while removing `%s`", namedir);
+              もし (UNLIKELY (--budget == 0))
+                戻る crun_make_error (err, ELOOP, "the directory tree keeps changing while removing `%s`", namedir);
 
               ret = rmdirfd_move_to (&d, de->d_name, err);
-              if (UNLIKELY (ret < 0))
-                return ret;
+              もし (UNLIKELY (ret < 0))
+                戻る ret;
 
               is_root = false;
             }
-          else if (ret < 0 && errno != ENOENT && ! is_root)
+          否则 もし (ret < 0 && errno != ENOENT && ! is_root)
             {
-              return crun_make_error (err, errno, "cannot rm `%s`", de->d_name);
+              戻る crun_make_error (err, errno, "cannot rm `%s`", de->d_name);
             }
         }
     }
 
-  return 0;
+  戻る 0;
 }
 
-int
+整数
 libcrun_container_delete_status (const char *state_root, const char *id, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_close int rundir_dfd = -1;
-  cleanup_close int dfd = -1;
+  整数 ret;
+  cleanup_close 整数 rundir_dfd = -1;
+  cleanup_close 整数 dfd = -1;
   cleanup_free char *dir = NULL;
 
   ret = validate_id (id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
   ret = get_run_directory (&dir, state_root, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
   rundir_dfd = TEMP_FAILURE_RETRY (open (dir, O_DIRECTORY | O_PATH | O_CLOEXEC));
-  if (UNLIKELY (rundir_dfd < 0))
-    return crun_make_error (err, errno, "cannot open run directory `%s`", dir);
+  もし (UNLIKELY (rundir_dfd < 0))
+    戻る crun_make_error (err, errno, "cannot open run directory `%s`", dir);
 
   dfd = openat (rundir_dfd, id, O_DIRECTORY | O_RDONLY | O_CLOEXEC);
-  if (UNLIKELY (dfd < 0))
-    return crun_make_error (err, errno, "cannot open directory `%s/%s`", dir, id);
+  もし (UNLIKELY (dfd < 0))
+    戻る crun_make_error (err, errno, "cannot open directory `%s/%s`", dir, id);
 
   ret = rmdirfd (dir, dfd, err);
 
   /* rmdirfd owns DFD.  */
   dfd = -1;
 
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
   ret = unlinkat (rundir_dfd, id, AT_REMOVEDIR);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "cannot rm state directory `%s/%s`", dir, id);
+  もし (UNLIKELY (ret < 0))
+    戻る crun_make_error (err, errno, "cannot rm state directory `%s/%s`", dir, id);
 
-  return 0;
+  戻る 0;
 }
 
 void
 libcrun_free_container_status (libcrun_container_status_t *status)
 {
-  if (status == NULL)
-    return;
+  もし (status == NULL)
+    戻る;
   free (status->cgroup_path);
   free (status->bundle);
   free (status->rootfs);
@@ -702,46 +702,46 @@ libcrun_free_container_status (libcrun_container_status_t *status)
   free (status->owner);
 }
 
-int
+整数
 libcrun_get_containers_list (libcrun_container_list_t **out, const char *state_root, libcrun_error_t *err)
 {
   struct dirent *next;
   cleanup_container_list libcrun_container_list_t *tmp = NULL;
   cleanup_free char *root = NULL;
   cleanup_dir DIR *dir = NULL;
-  int ret;
+  整数 ret;
 
   *out = NULL;
 
   ret = get_run_directory (&root, state_root, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
   dir = opendir (root);
-  if (UNLIKELY (dir == NULL))
-    return crun_make_error (err, errno, "cannot opendir `%s`", root);
+  もし (UNLIKELY (dir == NULL))
+    戻る crun_make_error (err, errno, "cannot opendir `%s`", root);
 
-  for (next = readdir (dir); next; next = readdir (dir))
+  ために (next = readdir (dir); next; next = readdir (dir))
     {
-      int exists;
+      整数 exists;
       cleanup_free char *status_file = NULL;
 
       libcrun_container_list_t *next_container;
 
-      if (next->d_name[0] == '.')
+      もし (next->d_name[0] == '.')
         continue;
 
       ret = append_paths (&status_file, err, root, next->d_name, "status", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      もし (UNLIKELY (ret < 0))
+        戻る ret;
 
       exists = crun_path_exists (status_file, err);
-      if (exists < 0)
+      もし (exists < 0)
         {
-          return exists;
+          戻る exists;
         }
 
-      if (! exists)
+      もし (! exists)
         {
           libcrun_error (errno, "error opening file `%s`", status_file);
           continue;
@@ -755,14 +755,14 @@ libcrun_get_containers_list (libcrun_container_list_t **out, const char *state_r
 
   STEAL_POINTER (out, tmp);
 
-  return 0;
+  戻る 0;
 }
 
 void
 libcrun_free_containers_list (libcrun_container_list_t *list)
 {
   libcrun_container_list_t *next;
-  while (list)
+  ながら (list)
     {
       next = list->next;
       free (list->name);
@@ -777,122 +777,122 @@ libcrun_free_containers_list (libcrun_container_list_t *list)
     0: pid not valid
     1: pid valid and container in the running/created/paused state
 */
-int
+整数
 libcrun_check_pid_valid (libcrun_container_status_t *status, libcrun_error_t *err)
 {
   struct pid_stat st;
-  int ret;
+  整数 ret;
 
   /* For backwards compatibility, check start time only if available. */
-  if (! status->process_start_time)
-    return 1;
+  もし (! status->process_start_time)
+    戻る 1;
 
   ret = read_pid_stat (status->pid, &st, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
-  if (status->process_start_time != st.starttime || st.state == 'X')
-    return 0; /* stopped */
+  もし (status->process_start_time != st.starttime || st.state == 'X')
+    戻る 0; /* stopped */
 
   /* /proc/PID/stat describes only the thread group leader.  If it exited on
      its own, it stays a zombie while other threads of the process are still
      running.  */
-  if (st.state == 'Z' && st.num_threads <= 1)
-    return 0; /* stopped */
+  もし (st.state == 'Z' && st.num_threads <= 1)
+    戻る 0; /* stopped */
 
-  return 1; /* running, created, or paused */
+  戻る 1; /* running, created, or paused */
 }
 
-int
+整数
 libcrun_is_container_running (libcrun_container_status_t *status, libcrun_error_t *err)
 {
-  int ret;
+  整数 ret;
 
   ret = kill (status->pid, 0);
-  if (UNLIKELY (ret < 0) && errno != ESRCH)
-    return crun_make_error (err, errno, "kill");
+  もし (UNLIKELY (ret < 0) && errno != ESRCH)
+    戻る crun_make_error (err, errno, "kill");
 
-  if (ret == 0)
-    return libcrun_check_pid_valid (status, err);
+  もし (ret == 0)
+    戻る libcrun_check_pid_valid (status, err);
 
-  return 0; /* stopped */
+  戻る 0; /* stopped */
 }
 
-static int
+static 整数
 get_exec_fifo_path (char **out, const char *state_root, const char *id, libcrun_error_t *err)
 {
   cleanup_free char *state_dir = NULL;
-  int ret;
+  整数 ret;
 
   ret = libcrun_get_state_directory (&state_dir, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
-  return append_paths (out, err, state_dir, "exec.fifo", NULL);
+  戻る append_paths (out, err, state_dir, "exec.fifo", NULL);
 }
 
-int
+整数
 libcrun_status_create_exec_fifo (const char *state_root, const char *id, libcrun_error_t *err)
 {
   cleanup_free char *fifo_path = NULL;
-  int ret, fd = -1;
+  整数 ret, fd = -1;
 
   ret = get_exec_fifo_path (&fifo_path, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
   libcrun_debug ("Creating exec fifo: %s", fifo_path);
   ret = mkfifo (fifo_path, 0600);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "mkfifo");
+  もし (UNLIKELY (ret < 0))
+    戻る crun_make_error (err, errno, "mkfifo");
 
   fd = open (fifo_path, O_NONBLOCK | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "cannot open pipe `%s`", fifo_path);
+  もし (UNLIKELY (fd < 0))
+    戻る crun_make_error (err, errno, "cannot open pipe `%s`", fifo_path);
 
-  return fd;
+  戻る fd;
 }
 
-int
+整数
 libcrun_status_write_exec_fifo (const char *state_root, const char *id, libcrun_error_t *err)
 {
   cleanup_free char *fifo_path = NULL;
   char buffer[1] = {
     0,
   };
-  cleanup_close int fd = -1;
-  int ret;
+  cleanup_close 整数 fd = -1;
+  整数 ret;
 
   ret = get_exec_fifo_path (&fifo_path, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
   fd = open (fifo_path, O_WRONLY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "cannot open `%s`", fifo_path);
+  もし (UNLIKELY (fd < 0))
+    戻る crun_make_error (err, errno, "cannot open `%s`", fifo_path);
 
   ret = unlink (fifo_path);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "unlink `%s`", fifo_path);
+  もし (UNLIKELY (ret < 0))
+    戻る crun_make_error (err, errno, "unlink `%s`", fifo_path);
 
   ret = TEMP_FAILURE_RETRY (write (fd, buffer, 1));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "write to exec.fifo");
+  もし (UNLIKELY (ret < 0))
+    戻る crun_make_error (err, errno, "write to exec.fifo");
 
-  return 0;
+  戻る 0;
 }
 
-int
+整数
 libcrun_status_has_read_exec_fifo (const char *state_root, const char *id, libcrun_error_t *err)
 {
   cleanup_free char *fifo_path = NULL;
-  int ret;
+  整数 ret;
 
   ret = get_exec_fifo_path (&fifo_path, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
-  return crun_path_exists (fifo_path, err);
+  戻る crun_path_exists (fifo_path, err);
 }
 
 struct libcrun_status_s
@@ -905,75 +905,75 @@ struct libcrun_status_s
      resolved on demand and cached here.  */
   bool state_resolved;
   libcrun_container_state_t state;
-  int running;
+  整数 running;
 };
 
-int
+整数
 libcrun_container_status_load (libcrun_context_t *context, const char *id, libcrun_status_t **out, libcrun_error_t *err)
 {
   libcrun_status_t *st;
-  int ret;
+  整数 ret;
 
   st = xmalloc0 (sizeof (*st));
 
   ret = libcrun_read_container_status (&st->status, context->state_root, id, err);
-  if (UNLIKELY (ret < 0))
+  もし (UNLIKELY (ret < 0))
     {
       free (st);
-      return ret;
+      戻る ret;
     }
 
   st->id = xstrdup (id);
   st->state_root = xstrdup (context->state_root);
 
   *out = st;
-  return 0;
+  戻る 0;
 }
 
 void
 libcrun_container_status_free (libcrun_status_t *st)
 {
-  if (st == NULL)
-    return;
+  もし (st == NULL)
+    戻る;
   libcrun_free_container_status (&st->status);
   free (st->state_root);
   free (st->id);
   free (st);
 }
 
-int
-libcrun_status_get_state (libcrun_status_t *st, libcrun_container_state_t *state, int *running, libcrun_error_t *err)
+整数
+libcrun_status_get_state (libcrun_status_t *st, libcrun_container_state_t *state, 整数 *running, libcrun_error_t *err)
 {
-  if (! st->state_resolved)
+  もし (! st->state_resolved)
     {
       const char *state_string = NULL;
-      int ret;
+      整数 ret;
 
       ret = libcrun_get_container_state_string (st->id, &st->status, st->state_root, &state_string, &st->running, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      もし (UNLIKELY (ret < 0))
+        戻る ret;
 
-      if (state_string == NULL)
+      もし (state_string == NULL)
         st->state = LIBCRUN_CONTAINER_STATUS_STOPPED;
-      else if (strcmp (state_string, "creating") == 0)
+      否则 もし (strcmp (state_string, "creating") == 0)
         st->state = LIBCRUN_CONTAINER_STATUS_CREATING;
-      else if (strcmp (state_string, "created") == 0)
+      否则 もし (strcmp (state_string, "created") == 0)
         st->state = LIBCRUN_CONTAINER_STATUS_CREATED;
-      else if (strcmp (state_string, "running") == 0)
+      否则 もし (strcmp (state_string, "running") == 0)
         st->state = LIBCRUN_CONTAINER_STATUS_RUNNING;
-      else if (strcmp (state_string, "paused") == 0)
+      否则 もし (strcmp (state_string, "paused") == 0)
         st->state = LIBCRUN_CONTAINER_STATUS_PAUSED;
-      else
+      否则
         st->state = LIBCRUN_CONTAINER_STATUS_STOPPED;
 
       st->state_resolved = true;
     }
 
-  if (state)
+  もし (state)
     *state = st->state;
-  if (running)
+  もし (running)
     *running = st->running;
-  return 0;
+  戻る 0;
 }
 
 const char *
@@ -982,92 +982,92 @@ libcrun_container_state_to_string (libcrun_container_state_t state)
   switch (state)
     {
     case LIBCRUN_CONTAINER_STATUS_CREATING:
-      return "creating";
+      戻る "creating";
     case LIBCRUN_CONTAINER_STATUS_CREATED:
-      return "created";
+      戻る "created";
     case LIBCRUN_CONTAINER_STATUS_RUNNING:
-      return "running";
+      戻る "running";
     case LIBCRUN_CONTAINER_STATUS_PAUSED:
-      return "paused";
+      戻る "paused";
     case LIBCRUN_CONTAINER_STATUS_STOPPED:
-      return "stopped";
+      戻る "stopped";
     }
-  return "unknown";
+  戻る "unknown";
 }
 
 pid_t
 libcrun_status_get_pid (libcrun_status_t *st)
 {
-  return st->status.pid;
+  戻る st->status.pid;
 }
 
 const char *
 libcrun_status_get_bundle (libcrun_status_t *st)
 {
-  return st->status.bundle;
+  戻る st->status.bundle;
 }
 
 const char *
 libcrun_status_get_rootfs (libcrun_status_t *st)
 {
-  return st->status.rootfs;
+  戻る st->status.rootfs;
 }
 
 const char *
 libcrun_status_get_created (libcrun_status_t *st)
 {
-  return st->status.created;
+  戻る st->status.created;
 }
 
 const char *
 libcrun_status_get_owner (libcrun_status_t *st)
 {
-  return st->status.owner;
+  戻る st->status.owner;
 }
 
 const char *
 libcrun_status_get_scope (libcrun_status_t *st)
 {
-  return st->status.scope;
+  戻る st->status.scope;
 }
 
 const char *
 libcrun_status_get_external_descriptors (libcrun_status_t *st)
 {
-  return st->status.external_descriptors;
+  戻る st->status.external_descriptors;
 }
 
-int
-libcrun_container_get_state_string (libcrun_context_t *context, const char *id, const char **out, int *running,
+整数
+libcrun_container_get_state_string (libcrun_context_t *context, const char *id, const char **out, 整数 *running,
                                     libcrun_error_t *err)
 {
   cleanup_container_status libcrun_container_status_t status = {};
-  int local_running;
-  int ret;
+  整数 local_running;
+  整数 ret;
 
   ret = libcrun_read_container_status (&status, context->state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
   ret = libcrun_get_container_state_string (id, &status, context->state_root, out, &local_running, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
-  if (running)
+  もし (running)
     *running = local_running;
-  return 0;
+  戻る 0;
 }
 
-int
+整数
 libcrun_get_state_dir (char **out, const char *state_root, const char *id, libcrun_error_t *err)
 {
-  return libcrun_get_state_directory (out, state_root, id, err);
+  戻る libcrun_get_state_directory (out, state_root, id, err);
 }
 
-int
+整数
 libcrun_container_list (libcrun_context_t *context, libcrun_container_list_t **out, libcrun_error_t *err)
 {
-  return libcrun_get_containers_list (out, context->state_root, err);
+  戻る libcrun_get_containers_list (out, context->state_root, err);
 }
 
 libcrun_container_iter_t *
@@ -1075,19 +1075,19 @@ libcrun_container_list_iter (libcrun_container_list_t *l)
 {
   libcrun_container_iter_t *it = xmalloc0 (sizeof (*it));
   it->cur = l;
-  return it;
+  戻る it;
 }
 
 bool
 libcrun_container_iter_next (libcrun_container_iter_t *it, const char **id)
 {
-  if (it == NULL || it->cur == NULL)
-    return false;
+  もし (it == NULL || it->cur == NULL)
+    戻る false;
 
-  if (id)
+  もし (id)
     *id = it->cur->name;
   it->cur = it->cur->next;
-  return true;
+  戻る true;
 }
 
 void

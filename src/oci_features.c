@@ -32,23 +32,23 @@ static struct argp_option options[] = { { 0 } };
 static char args_doc[] = "features";
 
 static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+parse_opt (整数 key, char *arg arg_unused, struct argp_state *state arg_unused)
 {
-  if (key != ARGP_KEY_NO_ARGS)
+  もし (key != ARGP_KEY_NO_ARGS)
     {
-      return ARGP_ERR_UNKNOWN;
+      戻る ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  戻る 0;
 }
 
 static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-int
-crun_command_features (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+整数
+crun_command_features (struct crun_global_arguments *global_args, 整数 argc, char **argv, libcrun_error_t *err)
 {
   cleanup_free char *json = NULL;
-  int first_arg = 0, ret = 0;
+  整数 first_arg = 0, ret = 0;
   cleanup_context libcrun_context_t *crun_context = NULL;
 
   argp_parse (&run_argp, argc, argv, 0, 0, &options);
@@ -56,14 +56,14 @@ crun_command_features (struct crun_global_arguments *global_args, int argc, char
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
   ret = libcrun_container_get_features_json (crun_context, &json, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
   printf ("%s", json);
 
-  return 0;
+  戻る 0;
 }

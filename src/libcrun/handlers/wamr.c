@@ -40,36 +40,36 @@
 #  include <wasm_export.h>
 #endif
 
-#if HAVE_DLOPEN && HAVE_WAMR
+#もし HAVE_DLOPEN && HAVE_WAMR
 
-static int
+static 整数
 libwamr_load (void **cookie, libcrun_error_t *err)
 {
   void *handle;
 
   handle = dlopen ("libiwasm.so", RTLD_NOW);
-  if (handle == NULL)
-    return crun_make_error (err, 0, "could not load `libiwasm.so`: `%s`", dlerror ());
+  もし (handle == NULL)
+    戻る crun_make_error (err, 0, "could not load `libiwasm.so`: `%s`", dlerror ());
   *cookie = handle;
 
-  return 0;
+  戻る 0;
 }
 
-static int
+static 整数
 libwamr_unload (void *cookie, libcrun_error_t *err)
 {
-  int r;
+  整数 r;
 
-  if (cookie)
+  もし (cookie)
     {
       r = dlclose (cookie);
-      if (UNLIKELY (r < 0))
-        return crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
+      もし (UNLIKELY (r < 0))
+        戻る crun_make_error (err, 0, "could not unload handle: `%s`", dlerror ());
     }
-  return 0;
+  戻る 0;
 }
 
-static int
+static 整数
 libwamr_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *container, const char *pathname, char *const argv[])
 {
   // load symbols from the shared library libiwasm.so
@@ -94,7 +94,7 @@ libwamr_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *contai
   void (*wasm_runtime_destroy) ();
   uint32_t (*wasm_runtime_get_wasi_exit_code) (wasm_module_inst_t module_inst);
   bool (*wasm_application_execute_main) (wasm_module_inst_t module_inst, int32_t argc, char *argv[]);
-  void (*wasm_runtime_set_wasi_args) (wasm_module_t module, const char *dir_list[], uint32_t dir_count, const char *map_dir_list[], uint32_t map_dir_count, const char *env[], uint32_t env_count, char *argv[], int argc);
+  void (*wasm_runtime_set_wasi_args) (wasm_module_t module, const char *dir_list[], uint32_t dir_count, const char *map_dir_list[], uint32_t map_dir_count, const char *env[], uint32_t env_count, char *argv[], 整数 argc);
   void (*wasm_runtime_set_wasi_addr_pool) (wasm_module_t module, const char *addr_pool[], uint32_t pool_size);
   void (*wasm_runtime_set_wasi_ns_lookup_pool) (wasm_module_t module, const char *ns_lookup_pool[], uint32_t pool_size);
 
@@ -118,46 +118,46 @@ libwamr_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *contai
   wasm_runtime_set_wasi_addr_pool = dlsym (cookie, "wasm_runtime_set_wasi_addr_pool");
   wasm_runtime_set_wasi_ns_lookup_pool = dlsym (cookie, "wasm_runtime_set_wasi_ns_lookup_pool");
 
-  if (wasm_runtime_init == NULL)
+  もし (wasm_runtime_init == NULL)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_init symbol in `libiwasm.so`");
-  if (wasm_runtime_full_init == NULL)
+  もし (wasm_runtime_full_init == NULL)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_full_init symbol in `libiwasm.so`");
-  if (wasm_runtime_load == NULL)
+  もし (wasm_runtime_load == NULL)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_load symbol in `libiwasm.so`");
-  if (wasm_runtime_instantiate == NULL)
+  もし (wasm_runtime_instantiate == NULL)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_instantiate symbol in `libiwasm.so`");
-  if (wasm_runtime_lookup_function == NULL)
+  もし (wasm_runtime_lookup_function == NULL)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_lookup_function symbol in `libiwasm.so`");
-  if (wasm_runtime_create_exec_env == NULL)
+  もし (wasm_runtime_create_exec_env == NULL)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_create_exec_env symbol in `libiwasm.so`");
-  if (wasm_runtime_call_wasm == NULL)
+  もし (wasm_runtime_call_wasm == NULL)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_call_wasm symbol in `libiwasm.so`");
-  if (wasm_runtime_get_exception == NULL)
+  もし (wasm_runtime_get_exception == NULL)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_get_exception symbol in `libiwasm.so`");
-  if (wasm_runtime_set_exception == NULL)
+  もし (wasm_runtime_set_exception == NULL)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_set_exception symbol in `libiwasm.so`");
-  if (wasm_runtime_clear_exception == NULL)
+  もし (wasm_runtime_clear_exception == NULL)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_clear_exception symbol in `libiwasm.so`");
-  if (wasm_runtime_destroy_exec_env == NULL)
+  もし (wasm_runtime_destroy_exec_env == NULL)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_destroy_exec_env symbol in `libiwasm.so`");
-  if (wasm_runtime_deinstantiate == NULL)
+  もし (wasm_runtime_deinstantiate == NULL)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_deinstantiate symbol in `libiwasm.so`");
-  if (wasm_runtime_unload == NULL)
+  もし (wasm_runtime_unload == NULL)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_unload symbol in `libiwasm.so`");
-  if (wasm_runtime_destroy == NULL)
+  もし (wasm_runtime_destroy == NULL)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_destroy symbol in `libiwasm.so`");
-  if (wasm_runtime_get_wasi_exit_code == NULL)
+  もし (wasm_runtime_get_wasi_exit_code == NULL)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_get_wasi_exit_code symbol in `libiwasm.so`");
-  if (wasm_application_execute_main == NULL)
+  もし (wasm_application_execute_main == NULL)
     error (EXIT_FAILURE, 0, "could not find wasm_application_execute_main symbol in `libiwasm.so`");
-  if (wasm_runtime_set_wasi_args == NULL)
+  もし (wasm_runtime_set_wasi_args == NULL)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_set_wasi_args symbol in `libiwasm.so`");
-  if (wasm_runtime_set_wasi_addr_pool == NULL)
+  もし (wasm_runtime_set_wasi_addr_pool == NULL)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_set_wasi_addr_pool symbol in `libiwasm.so`");
-  if (wasm_runtime_set_wasi_ns_lookup_pool == NULL)
+  もし (wasm_runtime_set_wasi_ns_lookup_pool == NULL)
     error (EXIT_FAILURE, 0, "could not find wasm_runtime_set_wasi_ns_lookup_pool symbol in `libiwasm.so`");
 
-  int ret;
+  整数 ret;
   const char *exception;
   cleanup_free char *buffer = NULL;
   char error_buf[128];
@@ -172,29 +172,29 @@ libwamr_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *contai
   char **container_env = container->container_def->process->env;
   size_t env_count = container->container_def->process->env_len;
 
-  int arg_count = 0;
+  整数 arg_count = 0;
   char *const *arg;
-  for (arg = argv; *arg != NULL; ++arg)
+  ために (arg = argv; *arg != NULL; ++arg)
     arg_count++;
 
   // initialize the wasm runtime by default configurations
-  if (! wasm_runtime_init ())
+  もし (! wasm_runtime_init ())
     error (EXIT_FAILURE, 0, "Failed to initialize the wasm runtime");
 
   // read WASM file into a memory buffer
   ret = read_all_file (pathname, &buffer, &buffer_size, &tmp_err);
-  if (UNLIKELY (ret < 0))
+  もし (UNLIKELY (ret < 0))
     {
       crun_error_release (&tmp_err);
       error (EXIT_FAILURE, 0, "Failed to read file");
     }
 
-  if (UNLIKELY (buffer_size > UINT32_MAX))
+  もし (UNLIKELY (buffer_size > UINT32_MAX))
     error (EXIT_FAILURE, 0, "File size is too large");
 
   // parse the WASM file from buffer and create a WASM module
   module = wasm_runtime_load (buffer, buffer_size, error_buf, sizeof (error_buf));
-  if (! module)
+  もし (! module)
     error (EXIT_FAILURE, 0, "Failed to load WASM file");
 
   // instantiate the WASI environment
@@ -206,25 +206,25 @@ libwamr_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *contai
 
   // create an instance of the WASM module (WASM linear memory is ready)
   module_inst = wasm_runtime_instantiate (module, stack_size, heap_size, error_buf, sizeof (error_buf));
-  if (! module_inst)
+  もし (! module_inst)
     error (EXIT_FAILURE, 0, "Failed to instantiate the WASM module");
 
   // look up a WASM function by its name (The function signature can NULL here)
   func = wasm_runtime_lookup_function (module_inst, "_start");
-  if (! func)
+  もし (! func)
     error (EXIT_FAILURE, 0, "Failed to look up the WASM function");
 
   // create an execution environment to execute the WASM functions
   exec_env = wasm_runtime_create_exec_env (module_inst, stack_size);
-  if (! exec_env)
+  もし (! exec_env)
     error (EXIT_FAILURE, 0, "Failed to create the execution environment");
 
   // call the WASM function
   ret = wasm_runtime_call_wasm (exec_env, func, 0, NULL);
-  if (ret)
+  もし (ret)
     wasm_runtime_set_exception (module_inst, wasi_proc_exit_exception);
   exception = wasm_runtime_get_exception (module_inst);
-  if (! strstr (exception, wasi_proc_exit_exception))
+  もし (! strstr (exception, wasi_proc_exit_exception))
     error (EXIT_FAILURE, 0, "Failed to call the WASM function");
   wasm_runtime_clear_exception (module_inst);
 
@@ -236,10 +236,10 @@ libwamr_exec (void *cookie, __attribute__ ((unused)) libcrun_container_t *contai
   exit (EXIT_SUCCESS);
 }
 
-static int
+static 整数
 libwamr_can_handle_container (libcrun_container_t *container, libcrun_error_t *err)
 {
-  return wasm_can_handle_container (container, err);
+  戻る wasm_can_handle_container (container, err);
 }
 
 struct custom_handler_s handler_wamr = {

@@ -35,23 +35,23 @@ static struct argp_option options[] = {
 static char args_doc[] = "mounts [add|remove] CONTAINER FILE";
 
 static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+parse_opt (整数 key, char *arg arg_unused, struct argp_state *state arg_unused)
 {
   switch (key)
     {
     default:
-      return ARGP_ERR_UNKNOWN;
+      戻る ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  戻る 0;
 }
 
 static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-int
-crun_command_mounts (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+整数
+crun_command_mounts (struct crun_global_arguments *global_args, 整数 argc, char **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
+  整数 first_arg = 0, ret;
   cleanup_context libcrun_context_t *crun_context = NULL;
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, NULL);
@@ -60,13 +60,13 @@ crun_command_mounts (struct crun_global_arguments *global_args, int argc, char *
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  もし (UNLIKELY (ret < 0))
+    戻る ret;
 
-  if (strcmp (argv[first_arg], "add") == 0)
-    return libcrun_container_add_mounts_from_file (crun_context, argv[first_arg + 1], argv[first_arg + 2], err);
-  else if (strcmp (argv[first_arg], "remove") == 0)
-    return libcrun_container_remove_mounts_from_file (crun_context, argv[first_arg + 1], argv[first_arg + 2], err);
+  もし (strcmp (argv[first_arg], "add") == 0)
+    戻る libcrun_container_add_mounts_from_file (crun_context, argv[first_arg + 1], argv[first_arg + 2], err);
+  否则 もし (strcmp (argv[first_arg], "remove") == 0)
+    戻る libcrun_container_remove_mounts_from_file (crun_context, argv[first_arg + 1], argv[first_arg + 2], err);
 
-  return crun_make_error (err, 0, "unknown command %s", argv[first_arg]);
+  戻る crun_make_error (err, 0, "unknown command %s", argv[first_arg]);
 }
