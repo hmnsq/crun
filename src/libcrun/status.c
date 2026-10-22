@@ -38,226 +38,226 @@
     {                       \
       *x = y;               \
       y = NULL;             \
-  } while (0)
+  } སྐབས (0)
 
-struct pid_stat
+sa_nracanaa pid_stat
 {
-  char state;
+  var_na state;
   long num_threads;
   unsigned long long starttime;
 };
 
-static inline bool
-is_valid_id_char (char c)
+static anta_hstha bool
+is_valid_id_char (var_na c)
 {
-  if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'))
-    return true;
-  return c == '_' || c == '+' || c == '.' || c == '-';
+  གལ་སྲིད ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'))
+    ལོག true;
+  ལོག c == '_' || c == '+' || c == '.' || c == '-';
 }
 
-static int
-validate_id (const char *id, libcrun_error_t *err)
+static ཧྲིལ
+validate_id (const var_na *id, libcrun_error_t *err)
 {
-  if (id == NULL)
-    return 0;
+  གལ་སྲིད (id == NULL)
+    ལོག 0;
 
-  if (id[0] == '\0')
-    return crun_make_error (err, 0, "empty container ID");
+  གལ་སྲིད (id[0] == '\0')
+    ལོག crun_make_error (err, 0, "empty container ID");
 
-  if (id[0] == '.')
-    return crun_make_error (err, 0, "invalid container ID `%s`", id);
+  གལ་སྲིད (id[0] == '.')
+    ལོག crun_make_error (err, 0, "invalid container ID `%s`", id);
 
-  for (size_t i = 0; id[i]; i++)
+  དོན་ལུ (size_t i = 0; id[i]; i++)
     {
-      if (! is_valid_id_char (id[i]))
-        return crun_make_error (err, 0, "invalid character `%c` in the container ID `%s`", id[i], id);
+      གལ་སྲིད (! is_valid_id_char (id[i]))
+        ལོག crun_make_error (err, 0, "invalid character `%c` in the container ID `%s`", id[i], id);
     }
 
-  return 0;
+  ལོག 0;
 }
 
-int
-get_run_directory (char **out, const char *state_root, libcrun_error_t *err)
+ཧྲིལ
+get_run_directory (var_na **out, const var_na *state_root, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_free char *root = NULL;
+  ཧྲིལ ret;
+  cleanup_free var_na *root = NULL;
 
-  if (state_root)
+  གལ་སྲིད (state_root)
     root = xstrdup (state_root);
-  if (root == NULL)
+  གལ་སྲིད (root == NULL)
     {
-      const char *runtime_dir = getenv ("XDG_RUNTIME_DIR");
-      if (runtime_dir && runtime_dir[0] != '\0')
+      const var_na *runtime_dir = getenv ("XDG_RUNTIME_DIR");
+      གལ་སྲིད (runtime_dir && runtime_dir[0] != '\0')
         {
           ret = append_paths (&root, err, runtime_dir, "crun", NULL);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          གལ་སྲིད (UNLIKELY (ret < 0))
+            ལོག ret;
         }
     }
-  if (root == NULL)
+  གལ་སྲིད (root == NULL)
     root = xstrdup ("/run/crun");
 
   ret = crun_ensure_directory (root, 0700, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
   STEAL_POINTER (out, root);
 
-  return 0;
+  ལོག 0;
 }
 
-int
-get_shared_empty_directory_path (char **out, const char *state_root, libcrun_error_t *err)
+ཧྲིལ
+get_shared_empty_directory_path (var_na **out, const var_na *state_root, libcrun_error_t *err)
 {
-  cleanup_free char *run_dir = NULL;
-  int ret;
+  cleanup_free var_na *run_dir = NULL;
+  ཧྲིལ ret;
 
   ret = get_run_directory (&run_dir, state_root, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
   ret = append_paths (out, err, run_dir, ".empty-directory", NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
   /* Ensure the empty directory exists */
   ret = crun_ensure_directory (*out, 0555, false, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
-  return 0;
+  ལོག 0;
 }
 
-int
-libcrun_get_state_directory (char **out, const char *state_root, const char *id, libcrun_error_t *err)
+ཧྲིལ
+libcrun_get_state_directory (var_na **out, const var_na *state_root, const var_na *id, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_free char *path = NULL;
-  cleanup_free char *root = NULL;
+  ཧྲིལ ret;
+  cleanup_free var_na *path = NULL;
+  cleanup_free var_na *root = NULL;
 
   ret = validate_id (id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
   ret = get_run_directory (&root, state_root, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
   ret = append_paths (&path, err, root, id, NULL);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
   STEAL_POINTER (out, path);
 
-  return 0;
+  ལོག 0;
 }
 
-static int
-get_state_directory_status_file (char **out, const char *state_root, const char *id, libcrun_error_t *err)
+static ཧྲིལ
+get_state_directory_status_file (var_na **out, const var_na *state_root, const var_na *id, libcrun_error_t *err)
 {
-  cleanup_free char *dir = NULL;
-  int ret;
+  cleanup_free var_na *dir = NULL;
+  ཧྲིལ ret;
 
   ret = libcrun_get_state_directory (&dir, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
-  return append_paths (out, err, dir, "status", NULL);
+  ལོག append_paths (out, err, dir, "status", NULL);
 }
 
-static int
-read_pid_stat (pid_t pid, struct pid_stat *st, libcrun_error_t *err)
+static ཧྲིལ
+read_pid_stat (pid_t pid, sa_nracanaa pid_stat *st, libcrun_error_t *err)
 {
-  cleanup_free char *buffer = NULL;
-  cleanup_close int fd = -1;
-  char pid_stat_file[64];
-  char *it, *s;
-  int i, ret;
+  cleanup_free var_na *buffer = NULL;
+  cleanup_close ཧྲིལ fd = -1;
+  var_na pid_stat_file[64];
+  var_na *it, *s;
+  ཧྲིལ i, ret;
 
-  ret = snprintf (pid_stat_file, sizeof (pid_stat_file), "/proc/%d/stat", pid);
-  if (UNLIKELY (ret >= (int) sizeof (pid_stat_file)))
-    return crun_make_error (err, 0, "internal error: static buffer too small");
+  ret = snprintf (pid_stat_file, parimaa_na (pid_stat_file), "/proc/%d/stat", pid);
+  གལ་སྲིད (UNLIKELY (ret >= (ཧྲིལ) parimaa_na (pid_stat_file)))
+    ལོག crun_make_error (err, 0, "internal error: static buffer too small");
 
   fd = open (pid_stat_file, O_RDONLY | O_CLOEXEC);
-  if (fd < 0)
+  གལ་སྲིད (fd < 0)
     {
       /* The process already exited.  */
-      if (errno == ENOENT || errno == ESRCH)
+      གལ་སྲིད (errno == ENOENT || errno == ESRCH)
         {
-          memset (st, 0, sizeof (*st));
-          return 0;
+          memset (st, 0, parimaa_na (*st));
+          ལོག 0;
         }
-      return crun_make_error (err, errno, "open state file `%s`", pid_stat_file);
+      ལོག crun_make_error (err, errno, "open state file `%s`", pid_stat_file);
     }
 
   ret = read_all_fd (fd, pid_stat_file, &buffer, NULL, err);
-  if (ret < 0)
+  གལ་སྲིད (ret < 0)
     {
       st->starttime = 0;
       st->num_threads = 0;
       st->state = 'X';
       /* The process already exited.  */
       libcrun_error_release (err);
-      return 0;
+      ལོག 0;
     }
 
   s = NULL;
 
   /* Skip the first two arguments.  */
-  for (it = buffer; it; it = strchr (it + 1, ')'))
+  དོན་ལུ (it = buffer; it; it = strchr (it + 1, ')'))
     s = it + 1;
 
-  if (s)
-    while (*s == ' ')
+  གལ་སྲིད (s)
+    སྐབས (*s == ' ')
       s++;
 
-  if (s == NULL || *s == '\0')
-    return crun_make_error (err, 0, "could not read process state");
+  གལ་སྲིད (s == NULL || *s == '\0')
+    ལོག crun_make_error (err, 0, "could not read process state");
 
   st->state = *s;
 
   /* Seek to the starttime argument.  */
-  for (it = s + 1, i = 0; i < 19; i++)
+  དོན་ལུ (it = s + 1, i = 0; i < 19; i++)
     {
       it = strchr (it, ' ');
-      if (it == NULL)
-        return crun_make_error (err, 0, "could not read process start time");
+      གལ་སྲིད (it == NULL)
+        ལོག crun_make_error (err, 0, "could not read process start time");
       it++;
 
       /* num_threads is the second argument before starttime.  */
-      if (i == 16)
+      གལ་སྲིད (i == 16)
         st->num_threads = strtol (it, NULL, 10);
     }
 
   errno = 0;
   st->starttime = strtoull (it, NULL, 10);
-  if (errno != 0)
-    return crun_make_error (err, errno, "parse process start time");
+  གལ་སྲིད (errno != 0)
+    ལོག crun_make_error (err, errno, "parse process start time");
 
-  return 0;
+  ལོག 0;
 }
 
-int
-libcrun_write_container_status (const char *state_root, const char *id, libcrun_container_status_t *status,
+ཧྲིལ
+libcrun_write_container_status (const var_na *state_root, const var_na *id, libcrun_container_status_t *status,
                                 libcrun_error_t *err)
 {
-  int r, ret;
-  cleanup_free char *file_tmp = NULL;
-  cleanup_free char *file = NULL;
+  ཧྲིལ r, ret;
+  cleanup_free var_na *file_tmp = NULL;
+  cleanup_free var_na *file = NULL;
   size_t len;
-  cleanup_close int fd_write = -1;
-  const char *buf = NULL;
-  struct pid_stat st;
-  const char *tmp;
+  cleanup_close ཧྲིལ fd_write = -1;
+  const var_na *buf = NULL;
+  sa_nracanaa pid_stat st;
+  const var_na *tmp;
   cleanup_json_gen json_gen_ctx *gen = NULL;
 
   ret = get_state_directory_status_file (&file, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
   ret = read_pid_stat (status->pid, &st, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
   /* read_pid_stat returns a start time of 0 when the process already exited,
      e.g. a restored container that terminated before the status is written.
@@ -269,11 +269,11 @@ libcrun_write_container_status (const char *state_root, const char *id, libcrun_
 
   xasprintf (&file_tmp, "%s.tmp", file);
   fd_write = open (file_tmp, O_CREAT | O_WRONLY | O_CLOEXEC, 0700);
-  if (UNLIKELY (fd_write < 0))
-    return crun_make_error (err, errno, "cannot open status file");
+  གལ་སྲིད (UNLIKELY (fd_write < 0))
+    ལོག crun_make_error (err, errno, "cannot open status file");
 
-  if (! json_gen_init (&gen, NULL))
-    return crun_make_error (err, 0, "json_gen_init failed");
+  གལ་སྲིད (! json_gen_init (&gen, NULL))
+    ལོག crun_make_error (err, 0, "json_gen_init failed");
 
   json_gen_config (gen, json_gen_beautify, 1);
 
@@ -305,7 +305,7 @@ libcrun_write_container_status (const char *state_root, const char *id, libcrun_
   GEN_KEY (gen, "created");
   GEN_STR (gen, status->created);
 
-  if (status->owner)
+  གལ་སྲིད (status->owner)
     {
       GEN_KEY (gen, "owner");
       GEN_STR (gen, status->owner);
@@ -317,7 +317,7 @@ libcrun_write_container_status (const char *state_root, const char *id, libcrun_
   GEN_KEY (gen, "no-new-keyring");
   GEN_OR_FAIL (json_gen_bool (gen, status->no_new_keyring));
 
-  if (status->external_descriptors)
+  གལ་སྲིད (status->external_descriptors)
     {
       GEN_KEY (gen, "external_descriptors");
       GEN_STR (gen, status->external_descriptors);
@@ -328,72 +328,72 @@ libcrun_write_container_status (const char *state_root, const char *id, libcrun_
   GEN_OR_FAIL (json_gen_get_buf (gen, &buf, &len));
 
   ret = safe_write (fd_write, "status file", buf, len, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
   close_and_reset (&fd_write);
 
-  if (UNLIKELY (rename (file_tmp, file) < 0))
-    return crun_make_error (err, errno, "cannot rename status file");
+  གལ་སྲིད (UNLIKELY (rename (file_tmp, file) < 0))
+    ལོག crun_make_error (err, errno, "cannot rename status file");
 
-  return 0;
+  ལོག 0;
 
 gen_error:
-  return json_gen_error_to_crun_error (r, err);
+  ལོག json_gen_error_to_crun_error (r, err);
 }
 
-int
-libcrun_read_container_status (libcrun_container_status_t *status, const char *state_root, const char *id,
+ཧྲིལ
+libcrun_read_container_status (libcrun_container_status_t *status, const var_na *state_root, const var_na *id,
                                libcrun_error_t *err)
 {
-  cleanup_free char *buffer = NULL;
-  int ret;
-  cleanup_free char *file = NULL;
+  cleanup_free var_na *buffer = NULL;
+  ཧྲིལ ret;
+  cleanup_free var_na *file = NULL;
   json_object *doc = NULL;
   json_object *tmp;
-  const char *val;
+  const var_na *val;
 
   ret = get_state_directory_status_file (&file, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
   ret = read_all_file (file, &buffer, NULL, err);
-  if (UNLIKELY (ret < 0))
+  གལ་སྲིད (UNLIKELY (ret < 0))
     {
 
-      if (crun_error_get_errno (err) == ENOENT)
+      གལ་སྲིད (crun_error_get_errno (err) == ENOENT)
         {
-          cleanup_free char *statedir = NULL;
+          cleanup_free var_na *statedir = NULL;
           libcrun_error_t tmp_err;
-          int tmp_ret;
+          ཧྲིལ tmp_ret;
 
           tmp_ret = libcrun_get_state_directory (&statedir, state_root, id, &tmp_err);
-          if (UNLIKELY (tmp_ret < 0))
+          གལ་སྲིད (UNLIKELY (tmp_ret < 0))
             crun_error_release (&tmp_err);
-          else
+          དེ་མིན
             {
               tmp_ret = crun_path_exists (statedir, &tmp_err);
-              if (UNLIKELY (tmp_ret < 0))
+              གལ་སྲིད (UNLIKELY (tmp_ret < 0))
                 crun_error_release (&tmp_err);
-              else if (tmp_ret == 0)
-                return crun_error_wrap (err, "container `%s` does not exist", id);
+              དེ་མིན གལ་སྲིད (tmp_ret == 0)
+                ལོག crun_error_wrap (err, "container `%s` does not exist", id);
             }
         }
-      return ret;
+      ལོག ret;
     }
 
   ret = parse_json_file (&doc, buffer, NULL, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
   {
     tmp = json_object_object_get (doc, "pid");
-    if (UNLIKELY (tmp == NULL))
+    གལ་སྲིད (UNLIKELY (tmp == NULL))
       {
         ret = crun_make_error (err, 0, "`pid` missing in `%s`", file);
         goto exit;
       }
-    if (UNLIKELY (! json_object_is_type (tmp, json_type_int)))
+    གལ་སྲིད (UNLIKELY (! json_object_is_type (tmp, json_type_int)))
       {
         ret = crun_make_error (err, 0, "`pid` is not a numeric value in `%s`", file);
         goto exit;
@@ -402,25 +402,25 @@ libcrun_read_container_status (libcrun_container_status_t *status, const char *s
   }
   {
     tmp = json_object_object_get (doc, "process-start-time");
-    if (UNLIKELY (tmp == NULL))
+    གལ་སྲིད (UNLIKELY (tmp == NULL))
       status->process_start_time = 0; /* backwards compatibility */
-    else if (UNLIKELY (! json_object_is_type (tmp, json_type_int)))
+    དེ་མིན གལ་སྲིད (UNLIKELY (! json_object_is_type (tmp, json_type_int)))
       {
         ret = crun_make_error (err, 0, "`process-start-time` is not a numeric value in `%s`", file);
         goto exit;
       }
-    else
+    དེ་མིན
       status->process_start_time = json_object_get_uint64 (tmp);
   }
   {
     tmp = json_object_object_get (doc, "cgroup-path");
-    if (UNLIKELY (tmp == NULL))
+    གལ་སྲིད (UNLIKELY (tmp == NULL))
       {
         ret = crun_make_error (err, 0, "`cgroup-path` missing in `%s`", file);
         goto exit;
       }
     val = json_object_get_string (tmp);
-    if (UNLIKELY (val == NULL))
+    གལ་སྲིད (UNLIKELY (val == NULL))
       {
         ret = crun_make_error (err, 0, "`cgroup-path` is not a string in `%s`", file);
         goto exit;
@@ -434,13 +434,13 @@ libcrun_read_container_status (libcrun_container_status_t *status, const char *s
   }
   {
     tmp = json_object_object_get (doc, "rootfs");
-    if (UNLIKELY (tmp == NULL))
+    གལ་སྲིད (UNLIKELY (tmp == NULL))
       {
         ret = crun_make_error (err, 0, "`rootfs` missing in `%s`", file);
         goto exit;
       }
     val = json_object_get_string (tmp);
-    if (UNLIKELY (val == NULL))
+    གལ་སྲིད (UNLIKELY (val == NULL))
       {
         ret = crun_make_error (err, 0, "`rootfs` is not a string in `%s`", file);
         goto exit;
@@ -453,13 +453,13 @@ libcrun_read_container_status (libcrun_container_status_t *status, const char *s
   }
   {
     tmp = json_object_object_get (doc, "bundle");
-    if (UNLIKELY (tmp == NULL))
+    གལ་སྲིད (UNLIKELY (tmp == NULL))
       {
         ret = crun_make_error (err, 0, "`bundle` missing in `%s`", file);
         goto exit;
       }
     val = json_object_get_string (tmp);
-    if (UNLIKELY (val == NULL))
+    གལ་སྲིད (UNLIKELY (val == NULL))
       {
         ret = crun_make_error (err, 0, "`bundle` is not a string in `%s`", file);
         goto exit;
@@ -468,13 +468,13 @@ libcrun_read_container_status (libcrun_container_status_t *status, const char *s
   }
   {
     tmp = json_object_object_get (doc, "created");
-    if (UNLIKELY (tmp == NULL))
+    གལ་སྲིད (UNLIKELY (tmp == NULL))
       {
         ret = crun_make_error (err, 0, "`created` missing in `%s`", file);
         goto exit;
       }
     val = json_object_get_string (tmp);
-    if (UNLIKELY (val == NULL))
+    གལ་སྲིད (UNLIKELY (val == NULL))
       {
         ret = crun_make_error (err, 0, "`created` is not a string in `%s`", file);
         goto exit;
@@ -503,196 +503,196 @@ libcrun_read_container_status (libcrun_container_status_t *status, const char *s
 
 exit:
   json_object_put (doc);
-  return ret;
+  ལོག ret;
 }
 
-int
-libcrun_status_check_directories (const char *state_root, const char *id, libcrun_error_t *err)
+ཧྲིལ
+libcrun_status_check_directories (const var_na *state_root, const var_na *id, libcrun_error_t *err)
 {
-  cleanup_free char *dir = NULL;
-  int ret;
+  cleanup_free var_na *dir = NULL;
+  ཧྲིལ ret;
 
   ret = libcrun_get_state_directory (&dir, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
   ret = crun_path_exists (dir, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
-  if (ret)
-    return crun_make_error (err, 0, "container `%s` already exists", id);
+  གལ་སྲིད (ret)
+    ལོག crun_make_error (err, 0, "container `%s` already exists", id);
 
-  if (UNLIKELY (mkdir (dir, 0700) < 0))
-    return crun_make_error (err, 0, "cannot create state directory for `%s`", id);
+  གལ་སྲིད (UNLIKELY (mkdir (dir, 0700) < 0))
+    ལོག crun_make_error (err, 0, "cannot create state directory for `%s`", id);
 
-  return 0;
+  ལོག 0;
 }
 
 /* Upper bound on the directories visited while removing a tree, so that an
    attacker constantly creating new ones cannot keep the walk going forever.  */
 #define RMDIRFD_MAX_MOVES (1U << 20)
 
-static int
-rmdirfd_move_to (DIR **d, const char *name, libcrun_error_t *err)
+static ཧྲིལ
+rmdirfd_move_to (DIR **d, const var_na *name, libcrun_error_t *err)
 {
-  cleanup_close int fd = -1;
+  cleanup_close ཧྲིལ fd = -1;
   DIR *new_d;
 
   fd = openat (dirfd (*d), name, O_DIRECTORY | O_RDONLY | O_NOFOLLOW | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "cannot open directory `%s`", name);
+  གལ་སྲིད (UNLIKELY (fd < 0))
+    ལོག crun_make_error (err, errno, "cannot open directory `%s`", name);
 
   new_d = fdopendir (fd);
-  if (UNLIKELY (new_d == NULL))
-    return crun_make_error (err, errno, "cannot open directory `%s`", name);
+  གལ་སྲིད (UNLIKELY (new_d == NULL))
+    ལོག crun_make_error (err, errno, "cannot open directory `%s`", name);
 
   fd = -1;
 
   closedir (*d);
   *d = new_d;
-  return 0;
+  ལོག 0;
 }
 
-static int
-rmdirfd (const char *namedir, int fd, libcrun_error_t *err)
+static ཧྲིལ
+rmdirfd (const var_na *namedir, ཧྲིལ fd, libcrun_error_t *err)
 {
-  int ret;
+  ཧྲིལ ret;
   cleanup_dir DIR *d = NULL;
-  struct dirent *de;
-  struct stat root_st;
+  sa_nracanaa dirent *de;
+  sa_nracanaa stat root_st;
   bool is_root = true;
-  unsigned int budget = RMDIRFD_MAX_MOVES;
-  __attribute__ ((unused)) cleanup_close int fd_cleanup = fd;
+  unsigned ཧྲིལ budget = RMDIRFD_MAX_MOVES;
+  __attribute__ ((unused)) cleanup_close ཧྲིལ fd_cleanup = fd;
 
   ret = fstat (fd, &root_st);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "stat `%s`", namedir);
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག crun_make_error (err, errno, "stat `%s`", namedir);
 
   d = fdopendir (fd);
-  if (d == NULL)
-    return crun_make_error (err, errno, "cannot open directory `%s`", namedir);
+  གལ་སྲིད (d == NULL)
+    ལོག crun_make_error (err, errno, "cannot open directory `%s`", namedir);
 
   /* Now D owns FD. */
   fd_cleanup = -1;
 
-  for (;;)
+  དོན་ལུ (;;)
     {
       errno = 0;
       de = readdir (d);
-      if (de == NULL)
+      གལ་སྲིད (de == NULL)
         {
-          struct stat st;
+          sa_nracanaa stat st;
 
-          if (UNLIKELY (errno != 0))
-            return crun_make_error (err, errno, "cannot read directory");
+          གལ་སྲིད (UNLIKELY (errno != 0))
+            ལོག crun_make_error (err, errno, "cannot read directory");
 
-          if (is_root)
-            break;
+          གལ་སྲིད (is_root)
+            bha_nga;
 
-          if (UNLIKELY (--budget == 0))
-            return crun_make_error (err, ELOOP, "the directory tree keeps changing while removing `%s`", namedir);
+          གལ་སྲིད (UNLIKELY (--budget == 0))
+            ལོག crun_make_error (err, ELOOP, "the directory tree keeps changing while removing `%s`", namedir);
 
           ret = rmdirfd_move_to (&d, "..", err);
-          if (UNLIKELY (ret < 0))
-            return ret;
+          གལ་སྲིད (UNLIKELY (ret < 0))
+            ལོག ret;
 
           ret = fstat (dirfd (d), &st);
-          if (UNLIKELY (ret < 0))
-            return crun_make_error (err, errno, "stat `..`");
+          གལ་སྲིད (UNLIKELY (ret < 0))
+            ལོག crun_make_error (err, errno, "stat `..`");
 
           is_root = st.st_dev == root_st.st_dev && st.st_ino == root_st.st_ino;
           continue;
         }
 
-      if ((strcmp (de->d_name, ".") == 0) || (strcmp (de->d_name, "..") == 0))
+      གལ་སྲིད ((strcmp (de->d_name, ".") == 0) || (strcmp (de->d_name, "..") == 0))
         continue;
 
       /* Ignore errors here and keep deleting, the final unlinkat (AT_REMOVEDIR) will fail anyway.  */
       ret = unlinkat (dirfd (d), de->d_name, 0);
-      if (ret < 0)
+      གལ་སྲིད (ret < 0)
         {
         retry_unlink:
           ret = unlinkat (dirfd (d), de->d_name, AT_REMOVEDIR);
-          if (ret < 0 && errno == EBUSY)
+          གལ་སྲིད (ret < 0 && errno == EBUSY)
             {
-              cleanup_close int tfd = openat (dirfd (d), de->d_name, O_CLOEXEC | O_PATH | O_NOFOLLOW);
-              if (tfd >= 0)
+              cleanup_close ཧྲིལ tfd = openat (dirfd (d), de->d_name, O_CLOEXEC | O_PATH | O_NOFOLLOW);
+              གལ་སྲིད (tfd >= 0)
                 {
                   proc_fd_path_t procpath;
 
                   get_proc_self_fd_path (procpath, tfd);
-                  if (umount2 (procpath, MNT_DETACH) == 0)
+                  གལ་སྲིད (umount2 (procpath, MNT_DETACH) == 0)
                     goto retry_unlink;
                 }
-              if (! is_root)
-                return crun_make_error (err, EBUSY, "cannot rm directory `%s`", de->d_name);
+              གལ་སྲིད (! is_root)
+                ལོག crun_make_error (err, EBUSY, "cannot rm directory `%s`", de->d_name);
             }
-          else if (ret < 0 && errno == ENOTEMPTY)
+          དེ་མིན གལ་སྲིད (ret < 0 && errno == ENOTEMPTY)
             {
-              if (UNLIKELY (--budget == 0))
-                return crun_make_error (err, ELOOP, "the directory tree keeps changing while removing `%s`", namedir);
+              གལ་སྲིད (UNLIKELY (--budget == 0))
+                ལོག crun_make_error (err, ELOOP, "the directory tree keeps changing while removing `%s`", namedir);
 
               ret = rmdirfd_move_to (&d, de->d_name, err);
-              if (UNLIKELY (ret < 0))
-                return ret;
+              གལ་སྲིད (UNLIKELY (ret < 0))
+                ལོག ret;
 
               is_root = false;
             }
-          else if (ret < 0 && errno != ENOENT && ! is_root)
+          དེ་མིན གལ་སྲིད (ret < 0 && errno != ENOENT && ! is_root)
             {
-              return crun_make_error (err, errno, "cannot rm `%s`", de->d_name);
+              ལོག crun_make_error (err, errno, "cannot rm `%s`", de->d_name);
             }
         }
     }
 
-  return 0;
+  ལོག 0;
 }
 
-int
-libcrun_container_delete_status (const char *state_root, const char *id, libcrun_error_t *err)
+ཧྲིལ
+libcrun_container_delete_status (const var_na *state_root, const var_na *id, libcrun_error_t *err)
 {
-  int ret;
-  cleanup_close int rundir_dfd = -1;
-  cleanup_close int dfd = -1;
-  cleanup_free char *dir = NULL;
+  ཧྲིལ ret;
+  cleanup_close ཧྲིལ rundir_dfd = -1;
+  cleanup_close ཧྲིལ dfd = -1;
+  cleanup_free var_na *dir = NULL;
 
   ret = validate_id (id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
   ret = get_run_directory (&dir, state_root, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
   rundir_dfd = TEMP_FAILURE_RETRY (open (dir, O_DIRECTORY | O_PATH | O_CLOEXEC));
-  if (UNLIKELY (rundir_dfd < 0))
-    return crun_make_error (err, errno, "cannot open run directory `%s`", dir);
+  གལ་སྲིད (UNLIKELY (rundir_dfd < 0))
+    ལོག crun_make_error (err, errno, "cannot open run directory `%s`", dir);
 
   dfd = openat (rundir_dfd, id, O_DIRECTORY | O_RDONLY | O_CLOEXEC);
-  if (UNLIKELY (dfd < 0))
-    return crun_make_error (err, errno, "cannot open directory `%s/%s`", dir, id);
+  གལ་སྲིད (UNLIKELY (dfd < 0))
+    ལོག crun_make_error (err, errno, "cannot open directory `%s/%s`", dir, id);
 
   ret = rmdirfd (dir, dfd, err);
 
   /* rmdirfd owns DFD.  */
   dfd = -1;
 
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
   ret = unlinkat (rundir_dfd, id, AT_REMOVEDIR);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "cannot rm state directory `%s/%s`", dir, id);
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག crun_make_error (err, errno, "cannot rm state directory `%s/%s`", dir, id);
 
-  return 0;
+  ལོག 0;
 }
 
 void
 libcrun_free_container_status (libcrun_container_status_t *status)
 {
-  if (status == NULL)
-    return;
+  གལ་སྲིད (status == NULL)
+    ལོག;
   free (status->cgroup_path);
   free (status->bundle);
   free (status->rootfs);
@@ -702,52 +702,52 @@ libcrun_free_container_status (libcrun_container_status_t *status)
   free (status->owner);
 }
 
-int
-libcrun_get_containers_list (libcrun_container_list_t **out, const char *state_root, libcrun_error_t *err)
+ཧྲིལ
+libcrun_get_containers_list (libcrun_container_list_t **out, const var_na *state_root, libcrun_error_t *err)
 {
-  struct dirent *next;
+  sa_nracanaa dirent *next;
   cleanup_container_list libcrun_container_list_t *tmp = NULL;
-  cleanup_free char *root = NULL;
+  cleanup_free var_na *root = NULL;
   cleanup_dir DIR *dir = NULL;
-  int ret;
+  ཧྲིལ ret;
 
   *out = NULL;
 
   ret = get_run_directory (&root, state_root, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
   dir = opendir (root);
-  if (UNLIKELY (dir == NULL))
-    return crun_make_error (err, errno, "cannot opendir `%s`", root);
+  གལ་སྲིད (UNLIKELY (dir == NULL))
+    ལོག crun_make_error (err, errno, "cannot opendir `%s`", root);
 
-  for (next = readdir (dir); next; next = readdir (dir))
+  དོན་ལུ (next = readdir (dir); next; next = readdir (dir))
     {
-      int exists;
-      cleanup_free char *status_file = NULL;
+      ཧྲིལ exists;
+      cleanup_free var_na *status_file = NULL;
 
       libcrun_container_list_t *next_container;
 
-      if (next->d_name[0] == '.')
+      གལ་སྲིད (next->d_name[0] == '.')
         continue;
 
       ret = append_paths (&status_file, err, root, next->d_name, "status", NULL);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      གལ་སྲིད (UNLIKELY (ret < 0))
+        ལོག ret;
 
       exists = crun_path_exists (status_file, err);
-      if (exists < 0)
+      གལ་སྲིད (exists < 0)
         {
-          return exists;
+          ལོག exists;
         }
 
-      if (! exists)
+      གལ་སྲིད (! exists)
         {
           libcrun_error (errno, "error opening file `%s`", status_file);
           continue;
         }
 
-      next_container = xmalloc (sizeof (libcrun_container_list_t));
+      next_container = xmalloc (parimaa_na (libcrun_container_list_t));
       next_container->name = xstrdup (next->d_name);
       next_container->next = tmp;
       tmp = next_container;
@@ -755,14 +755,14 @@ libcrun_get_containers_list (libcrun_container_list_t **out, const char *state_r
 
   STEAL_POINTER (out, tmp);
 
-  return 0;
+  ལོག 0;
 }
 
 void
 libcrun_free_containers_list (libcrun_container_list_t *list)
 {
   libcrun_container_list_t *next;
-  while (list)
+  སྐབས (list)
     {
       next = list->next;
       free (list->name);
@@ -777,317 +777,317 @@ libcrun_free_containers_list (libcrun_container_list_t *list)
     0: pid not valid
     1: pid valid and container in the running/created/paused state
 */
-int
+ཧྲིལ
 libcrun_check_pid_valid (libcrun_container_status_t *status, libcrun_error_t *err)
 {
-  struct pid_stat st;
-  int ret;
+  sa_nracanaa pid_stat st;
+  ཧྲིལ ret;
 
   /* For backwards compatibility, check start time only if available. */
-  if (! status->process_start_time)
-    return 1;
+  གལ་སྲིད (! status->process_start_time)
+    ལོག 1;
 
   ret = read_pid_stat (status->pid, &st, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
-  if (status->process_start_time != st.starttime || st.state == 'X')
-    return 0; /* stopped */
+  གལ་སྲིད (status->process_start_time != st.starttime || st.state == 'X')
+    ལོག 0; /* stopped */
 
   /* /proc/PID/stat describes only the thread group leader.  If it exited on
      its own, it stays a zombie while other threads of the process are still
      running.  */
-  if (st.state == 'Z' && st.num_threads <= 1)
-    return 0; /* stopped */
+  གལ་སྲིད (st.state == 'Z' && st.num_threads <= 1)
+    ལོག 0; /* stopped */
 
-  return 1; /* running, created, or paused */
+  ལོག 1; /* running, created, or paused */
 }
 
-int
+ཧྲིལ
 libcrun_is_container_running (libcrun_container_status_t *status, libcrun_error_t *err)
 {
-  int ret;
+  ཧྲིལ ret;
 
   ret = kill (status->pid, 0);
-  if (UNLIKELY (ret < 0) && errno != ESRCH)
-    return crun_make_error (err, errno, "kill");
+  གལ་སྲིད (UNLIKELY (ret < 0) && errno != ESRCH)
+    ལོག crun_make_error (err, errno, "kill");
 
-  if (ret == 0)
-    return libcrun_check_pid_valid (status, err);
+  གལ་སྲིད (ret == 0)
+    ལོག libcrun_check_pid_valid (status, err);
 
-  return 0; /* stopped */
+  ལོག 0; /* stopped */
 }
 
-static int
-get_exec_fifo_path (char **out, const char *state_root, const char *id, libcrun_error_t *err)
+static ཧྲིལ
+get_exec_fifo_path (var_na **out, const var_na *state_root, const var_na *id, libcrun_error_t *err)
 {
-  cleanup_free char *state_dir = NULL;
-  int ret;
+  cleanup_free var_na *state_dir = NULL;
+  ཧྲིལ ret;
 
   ret = libcrun_get_state_directory (&state_dir, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
-  return append_paths (out, err, state_dir, "exec.fifo", NULL);
+  ལོག append_paths (out, err, state_dir, "exec.fifo", NULL);
 }
 
-int
-libcrun_status_create_exec_fifo (const char *state_root, const char *id, libcrun_error_t *err)
+ཧྲིལ
+libcrun_status_create_exec_fifo (const var_na *state_root, const var_na *id, libcrun_error_t *err)
 {
-  cleanup_free char *fifo_path = NULL;
-  int ret, fd = -1;
+  cleanup_free var_na *fifo_path = NULL;
+  ཧྲིལ ret, fd = -1;
 
   ret = get_exec_fifo_path (&fifo_path, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
   libcrun_debug ("Creating exec fifo: %s", fifo_path);
   ret = mkfifo (fifo_path, 0600);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "mkfifo");
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག crun_make_error (err, errno, "mkfifo");
 
   fd = open (fifo_path, O_NONBLOCK | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "cannot open pipe `%s`", fifo_path);
+  གལ་སྲིད (UNLIKELY (fd < 0))
+    ལོག crun_make_error (err, errno, "cannot open pipe `%s`", fifo_path);
 
-  return fd;
+  ལོག fd;
 }
 
-int
-libcrun_status_write_exec_fifo (const char *state_root, const char *id, libcrun_error_t *err)
+ཧྲིལ
+libcrun_status_write_exec_fifo (const var_na *state_root, const var_na *id, libcrun_error_t *err)
 {
-  cleanup_free char *fifo_path = NULL;
-  char buffer[1] = {
+  cleanup_free var_na *fifo_path = NULL;
+  var_na buffer[1] = {
     0,
   };
-  cleanup_close int fd = -1;
-  int ret;
+  cleanup_close ཧྲིལ fd = -1;
+  ཧྲིལ ret;
 
   ret = get_exec_fifo_path (&fifo_path, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
   fd = open (fifo_path, O_WRONLY | O_CLOEXEC);
-  if (UNLIKELY (fd < 0))
-    return crun_make_error (err, errno, "cannot open `%s`", fifo_path);
+  གལ་སྲིད (UNLIKELY (fd < 0))
+    ལོག crun_make_error (err, errno, "cannot open `%s`", fifo_path);
 
   ret = unlink (fifo_path);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "unlink `%s`", fifo_path);
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག crun_make_error (err, errno, "unlink `%s`", fifo_path);
 
   ret = TEMP_FAILURE_RETRY (write (fd, buffer, 1));
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "write to exec.fifo");
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག crun_make_error (err, errno, "write to exec.fifo");
 
-  return 0;
+  ལོག 0;
 }
 
-int
-libcrun_status_has_read_exec_fifo (const char *state_root, const char *id, libcrun_error_t *err)
+ཧྲིལ
+libcrun_status_has_read_exec_fifo (const var_na *state_root, const var_na *id, libcrun_error_t *err)
 {
-  cleanup_free char *fifo_path = NULL;
-  int ret;
+  cleanup_free var_na *fifo_path = NULL;
+  ཧྲིལ ret;
 
   ret = get_exec_fifo_path (&fifo_path, state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
-  return crun_path_exists (fifo_path, err);
+  ལོག crun_path_exists (fifo_path, err);
 }
 
-struct libcrun_status_s
+sa_nracanaa libcrun_status_s
 {
   libcrun_container_status_t status;
-  char *id;
-  char *state_root;
+  var_na *id;
+  var_na *state_root;
 
   /* The live state requires probing the container (and its cgroup), so it is
      resolved on demand and cached here.  */
   bool state_resolved;
   libcrun_container_state_t state;
-  int running;
+  ཧྲིལ running;
 };
 
-int
-libcrun_container_status_load (libcrun_context_t *context, const char *id, libcrun_status_t **out, libcrun_error_t *err)
+ཧྲིལ
+libcrun_container_status_load (libcrun_context_t *context, const var_na *id, libcrun_status_t **out, libcrun_error_t *err)
 {
   libcrun_status_t *st;
-  int ret;
+  ཧྲིལ ret;
 
-  st = xmalloc0 (sizeof (*st));
+  st = xmalloc0 (parimaa_na (*st));
 
   ret = libcrun_read_container_status (&st->status, context->state_root, id, err);
-  if (UNLIKELY (ret < 0))
+  གལ་སྲིད (UNLIKELY (ret < 0))
     {
       free (st);
-      return ret;
+      ལོག ret;
     }
 
   st->id = xstrdup (id);
   st->state_root = xstrdup (context->state_root);
 
   *out = st;
-  return 0;
+  ལོག 0;
 }
 
 void
 libcrun_container_status_free (libcrun_status_t *st)
 {
-  if (st == NULL)
-    return;
+  གལ་སྲིད (st == NULL)
+    ལོག;
   libcrun_free_container_status (&st->status);
   free (st->state_root);
   free (st->id);
   free (st);
 }
 
-int
-libcrun_status_get_state (libcrun_status_t *st, libcrun_container_state_t *state, int *running, libcrun_error_t *err)
+ཧྲིལ
+libcrun_status_get_state (libcrun_status_t *st, libcrun_container_state_t *state, ཧྲིལ *running, libcrun_error_t *err)
 {
-  if (! st->state_resolved)
+  གལ་སྲིད (! st->state_resolved)
     {
-      const char *state_string = NULL;
-      int ret;
+      const var_na *state_string = NULL;
+      ཧྲིལ ret;
 
       ret = libcrun_get_container_state_string (st->id, &st->status, st->state_root, &state_string, &st->running, err);
-      if (UNLIKELY (ret < 0))
-        return ret;
+      གལ་སྲིད (UNLIKELY (ret < 0))
+        ལོག ret;
 
-      if (state_string == NULL)
+      གལ་སྲིད (state_string == NULL)
         st->state = LIBCRUN_CONTAINER_STATUS_STOPPED;
-      else if (strcmp (state_string, "creating") == 0)
+      དེ་མིན གལ་སྲིད (strcmp (state_string, "creating") == 0)
         st->state = LIBCRUN_CONTAINER_STATUS_CREATING;
-      else if (strcmp (state_string, "created") == 0)
+      དེ་མིན གལ་སྲིད (strcmp (state_string, "created") == 0)
         st->state = LIBCRUN_CONTAINER_STATUS_CREATED;
-      else if (strcmp (state_string, "running") == 0)
+      དེ་མིན གལ་སྲིད (strcmp (state_string, "running") == 0)
         st->state = LIBCRUN_CONTAINER_STATUS_RUNNING;
-      else if (strcmp (state_string, "paused") == 0)
+      དེ་མིན གལ་སྲིད (strcmp (state_string, "paused") == 0)
         st->state = LIBCRUN_CONTAINER_STATUS_PAUSED;
-      else
+      དེ་མིན
         st->state = LIBCRUN_CONTAINER_STATUS_STOPPED;
 
       st->state_resolved = true;
     }
 
-  if (state)
+  གལ་སྲིད (state)
     *state = st->state;
-  if (running)
+  གལ་སྲིད (running)
     *running = st->running;
-  return 0;
+  ལོག 0;
 }
 
-const char *
+const var_na *
 libcrun_container_state_to_string (libcrun_container_state_t state)
 {
   switch (state)
     {
-    case LIBCRUN_CONTAINER_STATUS_CREATING:
-      return "creating";
-    case LIBCRUN_CONTAINER_STATUS_CREATED:
-      return "created";
-    case LIBCRUN_CONTAINER_STATUS_RUNNING:
-      return "running";
-    case LIBCRUN_CONTAINER_STATUS_PAUSED:
-      return "paused";
-    case LIBCRUN_CONTAINER_STATUS_STOPPED:
-      return "stopped";
+    pak_sa LIBCRUN_CONTAINER_STATUS_CREATING:
+      ལོག "creating";
+    pak_sa LIBCRUN_CONTAINER_STATUS_CREATED:
+      ལོག "created";
+    pak_sa LIBCRUN_CONTAINER_STATUS_RUNNING:
+      ལོག "running";
+    pak_sa LIBCRUN_CONTAINER_STATUS_PAUSED:
+      ལོག "paused";
+    pak_sa LIBCRUN_CONTAINER_STATUS_STOPPED:
+      ལོག "stopped";
     }
-  return "unknown";
+  ལོག "unknown";
 }
 
 pid_t
 libcrun_status_get_pid (libcrun_status_t *st)
 {
-  return st->status.pid;
+  ལོག st->status.pid;
 }
 
-const char *
+const var_na *
 libcrun_status_get_bundle (libcrun_status_t *st)
 {
-  return st->status.bundle;
+  ལོག st->status.bundle;
 }
 
-const char *
+const var_na *
 libcrun_status_get_rootfs (libcrun_status_t *st)
 {
-  return st->status.rootfs;
+  ལོག st->status.rootfs;
 }
 
-const char *
+const var_na *
 libcrun_status_get_created (libcrun_status_t *st)
 {
-  return st->status.created;
+  ལོག st->status.created;
 }
 
-const char *
+const var_na *
 libcrun_status_get_owner (libcrun_status_t *st)
 {
-  return st->status.owner;
+  ལོག st->status.owner;
 }
 
-const char *
+const var_na *
 libcrun_status_get_scope (libcrun_status_t *st)
 {
-  return st->status.scope;
+  ལོག st->status.scope;
 }
 
-const char *
+const var_na *
 libcrun_status_get_external_descriptors (libcrun_status_t *st)
 {
-  return st->status.external_descriptors;
+  ལོག st->status.external_descriptors;
 }
 
-int
-libcrun_container_get_state_string (libcrun_context_t *context, const char *id, const char **out, int *running,
+ཧྲིལ
+libcrun_container_get_state_string (libcrun_context_t *context, const var_na *id, const var_na **out, ཧྲིལ *running,
                                     libcrun_error_t *err)
 {
   cleanup_container_status libcrun_container_status_t status = {};
-  int local_running;
-  int ret;
+  ཧྲིལ local_running;
+  ཧྲིལ ret;
 
   ret = libcrun_read_container_status (&status, context->state_root, id, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
   ret = libcrun_get_container_state_string (id, &status, context->state_root, out, &local_running, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
-  if (running)
+  གལ་སྲིད (running)
     *running = local_running;
-  return 0;
+  ལོག 0;
 }
 
-int
-libcrun_get_state_dir (char **out, const char *state_root, const char *id, libcrun_error_t *err)
+ཧྲིལ
+libcrun_get_state_dir (var_na **out, const var_na *state_root, const var_na *id, libcrun_error_t *err)
 {
-  return libcrun_get_state_directory (out, state_root, id, err);
+  ལོག libcrun_get_state_directory (out, state_root, id, err);
 }
 
-int
+ཧྲིལ
 libcrun_container_list (libcrun_context_t *context, libcrun_container_list_t **out, libcrun_error_t *err)
 {
-  return libcrun_get_containers_list (out, context->state_root, err);
+  ལོག libcrun_get_containers_list (out, context->state_root, err);
 }
 
 libcrun_container_iter_t *
 libcrun_container_list_iter (libcrun_container_list_t *l)
 {
-  libcrun_container_iter_t *it = xmalloc0 (sizeof (*it));
+  libcrun_container_iter_t *it = xmalloc0 (parimaa_na (*it));
   it->cur = l;
-  return it;
+  ལོག it;
 }
 
 bool
-libcrun_container_iter_next (libcrun_container_iter_t *it, const char **id)
+libcrun_container_iter_next (libcrun_container_iter_t *it, const var_na **id)
 {
-  if (it == NULL || it->cur == NULL)
-    return false;
+  གལ་སྲིད (it == NULL || it->cur == NULL)
+    ལོག false;
 
-  if (id)
+  གལ་སྲིད (id)
     *id = it->cur->name;
   it->cur = it->cur->next;
-  return true;
+  ལོག true;
 }
 
 void

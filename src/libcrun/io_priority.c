@@ -30,30 +30,30 @@
 #include <sys/sysmacros.h>
 
 #ifdef HAVE_LINUX_IOPRIO_H
-static int
-syscall_ioprio_set (int which, int who, int ioprio)
+static ཧྲིལ
+syscall_ioprio_set (ཧྲིལ which, ཧྲིལ who, ཧྲིལ ioprio)
 {
 #  ifdef __NR_ioprio_set
-  return syscall (__NR_ioprio_set, which, who, ioprio);
-#  else
+  ལོག syscall (__NR_ioprio_set, which, who, ioprio);
+#  དེ་མིན
   (void) which;
   (void) who;
   (void) ioprio;
   errno = ENOSYS;
-  return -1;
+  ལོག -1;
 #  endif
 }
 #endif
 
-int
+ཧྲིལ
 libcrun_set_io_priority (pid_t pid, runtime_spec_schema_config_schema_process *process, libcrun_error_t *err)
 {
 #ifdef HAVE_LINUX_IOPRIO_H
-  int ret, i, class_value, value;
-  struct
+  ཧྲིལ ret, i, class_value, value;
+  sa_nracanaa
   {
-    const char *name;
-    int value;
+    const var_na *name;
+    ཧྲིལ value;
   } classes[] = {
     { "IOPRIO_CLASS_RT", IOPRIO_CLASS_RT },
     { "IOPRIO_CLASS_BE", IOPRIO_CLASS_BE },
@@ -61,34 +61,34 @@ libcrun_set_io_priority (pid_t pid, runtime_spec_schema_config_schema_process *p
     { NULL, 0 },
   };
 
-  if (process == NULL || process->io_priority == NULL)
-    return 0;
+  གལ་སྲིད (process == NULL || process->io_priority == NULL)
+    ལོག 0;
 
   class_value = -1;
-  for (i = 0; classes[i].name; i++)
-    if (strcmp (process->io_priority->_class, classes[i].name) == 0)
+  དོན་ལུ (i = 0; classes[i].name; i++)
+    གལ་སྲིད (strcmp (process->io_priority->_class, classes[i].name) == 0)
       {
         class_value = i;
-        break;
+        bha_nga;
       }
-  if (UNLIKELY (class_value < 0))
-    return crun_make_error (err, 0, "invalid io priority `%s`", process->io_priority->_class);
+  གལ་སྲིད (UNLIKELY (class_value < 0))
+    ལོག crun_make_error (err, 0, "invalid io priority `%s`", process->io_priority->_class);
 
   value = IOPRIO_PRIO_VALUE (classes[class_value].value, process->io_priority->priority);
 
   ret = syscall_ioprio_set (IOPRIO_WHO_PROCESS, pid, value);
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "failed to set io priority");
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག crun_make_error (err, errno, "failed to set io priority");
 
-  return 0;
-#else
+  ལོག 0;
+#དེ་མིན
   // If io_priority is not set then return without doing
   // anything.
-  if (process == NULL || process->io_priority == NULL)
-    return 0;
+  གལ་སྲིད (process == NULL || process->io_priority == NULL)
+    ལོག 0;
 
   (void) pid;
   (void) process;
-  return crun_make_error (err, 0, "io priority not supported");
+  ལོག crun_make_error (err, 0, "io priority not supported");
 #endif
 }

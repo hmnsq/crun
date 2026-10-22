@@ -27,34 +27,34 @@
 #include "crun.h"
 #include "run_create.h"
 
-int
-crun_run_create_internal (struct crun_global_arguments *global_args, int argc, char **argv,
+ཧྲིལ
+crun_run_create_internal (sa_nracanaa crun_global_arguments *global_args, ཧྲིལ argc, var_na **argv,
                           container_run_create_func_t container_run_create_func, get_options_func_t get_options_func,
-                          libcrun_context_t *crun_context, struct argp *run_argp, const char **config_file_ptr,
-                          const char **bundle_ptr, libcrun_error_t *err)
+                          libcrun_context_t *crun_context, sa_nracanaa argp *run_argp, const var_na **config_file_ptr,
+                          const var_na **bundle_ptr, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
+  ཧྲིལ first_arg = 0, ret;
   cleanup_container libcrun_container_t *container = NULL;
-  cleanup_free char *bundle_cleanup = NULL;
-  cleanup_free char *config_file_cleanup = NULL;
-  cleanup_free char *pid_file_cleanup = NULL;
-  const char *pid_file;
+  cleanup_free var_na *bundle_cleanup = NULL;
+  cleanup_free var_na *config_file_cleanup = NULL;
+  cleanup_free var_na *pid_file_cleanup = NULL;
+  const var_na *pid_file;
 
   argp_parse (run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, crun_context);
   /* Get options after parsing the arguments.  */
-  unsigned int options = get_options_func ();
-  const char *config_file = *config_file_ptr;
-  const char *bundle = *bundle_ptr;
+  unsigned ཧྲིལ options = get_options_func ();
+  const var_na *config_file = *config_file_ptr;
+  const var_na *bundle = *bundle_ptr;
 
   crun_assert_n_args (argc - first_arg, 1, 1);
 
   /* Make sure the config is an absolute path before changing the directory.  */
-  if ((strcmp ("config.json", config_file) != 0))
+  གལ་སྲིད ((strcmp ("config.json", config_file) != 0))
     {
-      if (config_file[0] != '/')
+      གལ་སྲིད (config_file[0] != '/')
         {
           config_file_cleanup = realpath (config_file, NULL);
-          if (config_file_cleanup == NULL)
+          གལ་སྲིད (config_file_cleanup == NULL)
             libcrun_fail_with_error (errno, "realpath `%s` failed", config_file);
           config_file = config_file_cleanup;
         }
@@ -62,10 +62,10 @@ crun_run_create_internal (struct crun_global_arguments *global_args, int argc, c
 
   /* Make sure the pid file is an absolute path before changing the directory.  */
   pid_file = libcrun_context_get_pid_file (crun_context);
-  if (pid_file && pid_file[0] != '/')
+  གལ་སྲིད (pid_file && pid_file[0] != '/')
     {
-      cleanup_free char *cwd = getcwd (NULL, 0);
-      if (UNLIKELY (cwd == NULL))
+      cleanup_free var_na *cwd = getcwd (NULL, 0);
+      གལ་སྲིད (UNLIKELY (cwd == NULL))
         libcrun_fail_with_error (errno, "getcwd failed");
       size_t len = strlen (cwd) + strlen (pid_file) + 2;
 
@@ -75,29 +75,29 @@ crun_run_create_internal (struct crun_global_arguments *global_args, int argc, c
     }
 
   /* Make sure the bundle is an absolute path.  */
-  if (bundle == NULL)
+  གལ་སྲིད (bundle == NULL)
     {
       bundle = bundle_cleanup = getcwd (NULL, 0);
-      if (UNLIKELY (bundle == NULL))
+      གལ་སྲིད (UNLIKELY (bundle == NULL))
         libcrun_fail_with_error (errno, "getcwd failed");
     }
-  else
+  དེ་མིན
     {
-      if (bundle[0] != '/')
+      གལ་སྲིད (bundle[0] != '/')
         {
           bundle_cleanup = realpath (bundle, NULL);
-          if (bundle_cleanup == NULL)
+          གལ་སྲིད (bundle_cleanup == NULL)
             libcrun_fail_with_error (errno, "realpath `%s` failed", bundle);
           bundle = bundle_cleanup;
         }
 
-      if (chdir (bundle) < 0)
+      གལ་སྲིད (chdir (bundle) < 0)
         libcrun_fail_with_error (errno, "chdir `%s` failed", bundle);
     }
 
-  if (getenv ("LISTEN_FDS"))
+  གལ་སྲིད (getenv ("LISTEN_FDS"))
     {
-      int listen_fds = parse_id_or_fail (getenv ("LISTEN_FDS"), NULL, "LISTEN_FDS");
+      ཧྲིལ listen_fds = parse_id_or_fail (getenv ("LISTEN_FDS"), NULL, "LISTEN_FDS");
       libcrun_context_set_listen_fds (crun_context, listen_fds);
       libcrun_context_set_preserve_fds (crun_context, libcrun_context_get_preserve_fds (crun_context) + listen_fds);
     }
@@ -105,20 +105,20 @@ crun_run_create_internal (struct crun_global_arguments *global_args, int argc, c
   /* The config file may be passed as /dev/fd/N, so read it before
      closing the file descriptors.  */
   container = libcrun_container_load_from_file (config_file, err);
-  if (container == NULL)
-    return -1;
+  གལ་སྲིད (container == NULL)
+    ལོག -1;
 
   /* Close the file descriptors inherited from the caller, so they do
      not leak into the container.  */
   ret = libcrun_close_inherited_fds (crun_context, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  གལ་སྲིད (UNLIKELY (ret < 0))
+    ལོག ret;
 
   libcrun_debug ("Using bundle: %s", bundle);
   libcrun_context_set_bundle (crun_context, bundle);
-  return container_run_create_func (crun_context, container, options, err);
+  ལོག container_run_create_func (crun_context, container, options, err);
 }

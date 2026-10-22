@@ -20,6 +20,6 @@
 
 #include "crun.h"
 
-int crun_command_list (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *error);
+ཧྲིལ crun_command_list (sa_nracanaa crun_global_arguments *global_args, ཧྲིལ argc, var_na **argv, libcrun_error_t *error);
 
 #endif

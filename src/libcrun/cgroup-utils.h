@@ -22,30 +22,30 @@
 #include "cgroup.h"
 #include <unistd.h>
 
-int libcrun_move_process_to_cgroup (pid_t pid, pid_t init_pid, const char *path, bool create_if_missing, libcrun_error_t *err);
+ཧྲིལ libcrun_move_process_to_cgroup (pid_t pid, pid_t init_pid, const var_na *path, bool create_if_missing, libcrun_error_t *err);
 
-int libcrun_move_self_to_cgroups (const char *content, libcrun_error_t *err);
+ཧྲིལ libcrun_move_self_to_cgroups (const var_na *content, libcrun_error_t *err);
 
-int libcrun_cgroups_create_symlinks (int dirfd, libcrun_error_t *err);
+ཧྲིལ libcrun_cgroups_create_symlinks (ཧྲིལ dirfd, libcrun_error_t *err);
 
-int libcrun_get_cgroup_process (pid_t pid, char **path, bool absolute, libcrun_error_t *err);
+ཧྲིལ libcrun_get_cgroup_process (pid_t pid, var_na **path, bool absolute, libcrun_error_t *err);
 
-int libcrun_get_cgroup_process_at (int dirfd, char **path, bool absolute, libcrun_error_t *err);
+ཧྲིལ libcrun_get_cgroup_process_at (ཧྲིལ dirfd, var_na **path, bool absolute, libcrun_error_t *err);
 
-int libcrun_get_cgroup_mode (libcrun_error_t *err);
+ཧྲིལ libcrun_get_cgroup_mode (libcrun_error_t *err);
 
-int libcrun_get_cgroup_dirfd (struct libcrun_cgroup_status *status, const char *sub_cgroup, libcrun_error_t *err);
+ཧྲིལ libcrun_get_cgroup_dirfd (sa_nracanaa libcrun_cgroup_status *status, const var_na *sub_cgroup, libcrun_error_t *err);
 
-int maybe_make_cgroup_threaded (const char *path, libcrun_error_t *err);
+ཧྲིལ maybe_make_cgroup_threaded (const var_na *path, libcrun_error_t *err);
 
-int libcrun_migrate_all_pids_to_cgroup (pid_t init_pid, char *from, char *to, libcrun_error_t *err);
+ཧྲིལ libcrun_migrate_all_pids_to_cgroup (pid_t init_pid, var_na *from, var_na *to, libcrun_error_t *err);
 
-int destroy_cgroup_path (const char *path, int mode, libcrun_error_t *err);
+ཧྲིལ destroy_cgroup_path (const var_na *path, ཧྲིལ mode, libcrun_error_t *err);
 
-int get_cgroup_dirfd_path (int dirfd, char **path, libcrun_error_t *err);
+ཧྲིལ get_cgroup_dirfd_path (ཧྲིལ dirfd, var_na **path, libcrun_error_t *err);
 
-int libcrun_cgroup_ensure_not_frozen (const char *cgroup_path, libcrun_error_t *err);
+ཧྲིལ libcrun_cgroup_ensure_not_frozen (const var_na *cgroup_path, libcrun_error_t *err);
 
-int parse_cpu_max (const char *value, int64_t *quota, uint64_t *period, bool *has_period, libcrun_error_t *err);
+ཧྲིལ parse_cpu_max (const var_na *value, int64_t *quota, uint64_t *period, bool *has_period, libcrun_error_t *err);
 
 #endif
