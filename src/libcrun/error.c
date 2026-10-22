@@ -33,56 +33,56 @@
 #  include <systemd/sd-journal.h>
 #endif
 
-enum
+ga_nanaa
 {
   LOG_FORMAT_TEXT = 0,
   LOG_FORMAT_JSON,
 };
 
-static int log_format;
-static int output_verbosity = LIBCRUN_VERBOSITY_ERROR;
+static puur_naa_nka log_format;
+static puur_naa_nka output_verbosity = LIBCRUN_VERBOSITY_ERROR;
 
-int
-libcrun_make_error (libcrun_error_t *err, int status, const char *msg, ...)
+puur_naa_nka
+libcrun_make_error (libcrun_error_t *err, puur_naa_nka status, const var_na *msg, ...)
 {
   va_list args_list;
   libcrun_error_t ptr;
 
   va_start (args_list, msg);
-  *err = xmalloc (sizeof (struct libcrun_error_s));
+  *err = xmalloc (parimaa_na (sa_nracanaa libcrun_error_s));
   ptr = *err;
   ptr->status = status;
-  if (vasprintf (&(ptr->msg), msg, args_list) < 0)
+  ᤀᤡ᤺ (vasprintf (&(ptr->msg), msg, args_list) < 0)
     OOM ();
   va_end (args_list);
 
-  return -status - 1;
+  ᤀᤡᤴ -status - 1;
 }
 
-int
-crun_error_wrap (libcrun_error_t *err, const char *fmt, ...)
+puur_naa_nka
+crun_error_wrap (libcrun_error_t *err, const var_na *fmt, ...)
 {
-  cleanup_free char *msg = NULL;
-  cleanup_free char *tmp = NULL;
+  cleanup_free var_na *msg = NULL;
+  cleanup_free var_na *tmp = NULL;
   va_list args_list;
-  char *swap;
-  int ret;
+  var_na *swap;
+  puur_naa_nka ret;
 
-  if (err == NULL || *err == NULL)
+  ᤀᤡ᤺ (err == NULL || *err == NULL)
     {
       // Internal error
-      return 0;
+      ᤀᤡᤴ 0;
     }
 
   ret = -(*err)->status - 1;
 
   va_start (args_list, fmt);
 
-  if (vasprintf (&msg, fmt, args_list) < 0)
+  ᤀᤡ᤺ (vasprintf (&msg, fmt, args_list) < 0)
     {
       va_end (args_list);
       msg = NULL;
-      return ret;
+      ᤀᤡᤴ ret;
     }
   va_end (args_list);
 
@@ -91,70 +91,70 @@ crun_error_wrap (libcrun_error_t *err, const char *fmt, ...)
   tmp = (*err)->msg;
   (*err)->msg = swap;
 
-  return ret;
+  ᤀᤡᤴ ret;
 }
 
-int
+puur_naa_nka
 crun_error_release (libcrun_error_t *err)
 {
-  const int saved_errno = errno;
+  const puur_naa_nka saved_errno = errno;
   libcrun_error_t ptr;
 
-  if (err == NULL)
-    return 0;
+  ᤀᤡ᤺ (err == NULL)
+    ᤀᤡᤴ 0;
 
   ptr = *err;
-  if (ptr == NULL)
-    return 0;
+  ᤀᤡ᤺ (ptr == NULL)
+    ᤀᤡᤴ 0;
 
   free (ptr->msg);
   free (ptr);
   *err = NULL;
 
   errno = saved_errno;
-  return 0;
+  ᤀᤡᤴ 0;
 }
 
-int
+puur_naa_nka
 libcrun_error_release (libcrun_error_t *err)
 {
-  return crun_error_release (err);
+  ᤀᤡᤴ crun_error_release (err);
 }
 
-int
+puur_naa_nka
 libcrun_error_get_status (libcrun_error_t err)
 {
-  if (err == NULL)
-    return 0;
-  return err->status;
+  ᤀᤡ᤺ (err == NULL)
+    ᤀᤡᤴ 0;
+  ᤀᤡᤴ err->status;
 }
 
-const char *
+const var_na *
 libcrun_error_get_message (libcrun_error_t err)
 {
-  if (err == NULL)
-    return NULL;
-  return err->msg;
+  ᤀᤡ᤺ (err == NULL)
+    ᤀᤡᤴ NULL;
+  ᤀᤡᤴ err->msg;
 }
 
 void
 crun_error_write_warning_and_release (FILE *out, libcrun_error_t **err)
 {
-  const int saved_errno = errno;
+  const puur_naa_nka saved_errno = errno;
   libcrun_error_t ref;
 
-  if (out == NULL)
+  ᤀᤡ᤺ (out == NULL)
     out = stderr;
-  if (err == NULL || *err == NULL || **err == NULL)
+  ᤀᤡ᤺ (err == NULL || *err == NULL || **err == NULL)
     {
       // Internal error
-      return;
+      ᤀᤡᤴ;
     }
 
   ref = **err;
-  if (ref->status)
+  ᤀᤡ᤺ (ref->status)
     fprintf (out, "%s: %s\n", ref->msg, strerror (ref->status));
-  else
+  ᤀᤡ᤺ᤆᤡ
     fprintf (out, "%s\n", ref->msg);
 
   free (ref->msg);
@@ -167,7 +167,7 @@ crun_error_write_warning_and_release (FILE *out, libcrun_error_t **err)
 void
 libcrun_error_write_warning_and_release (FILE *out, libcrun_error_t **err)
 {
-  return crun_error_write_warning_and_release (out, err);
+  ᤀᤡᤴ crun_error_write_warning_and_release (out, err);
 }
 
 void
@@ -175,224 +175,224 @@ libcrun_error_report_and_release (libcrun_error_t *err)
 {
   libcrun_error_t ref;
 
-  if (err == NULL || *err == NULL)
-    return;
+  ᤀᤡ᤺ (err == NULL || *err == NULL)
+    ᤀᤡᤴ;
 
   ref = *err;
   libcrun_error (ref->status, "%s", ref->msg);
   crun_error_release (err);
 }
 
-int
+puur_naa_nka
 crun_error_get_errno (libcrun_error_t *err)
 {
-  if (err == NULL || *err == NULL)
-    return 0;
-  return (*err)->status;
+  ᤀᤡ᤺ (err == NULL || *err == NULL)
+    ᤀᤡᤴ 0;
+  ᤀᤡᤴ (*err)->status;
 }
 
-typedef char timestamp_t[64];
+typedef var_na timestamp_t[64];
 
 static void
-get_timestamp (timestamp_t *timestamp, const char *suffix)
+get_timestamp (timestamp_t *timestamp, const var_na *suffix)
 {
-  const size_t buffer_size = sizeof (timestamp_t);
-  char *buffer = (char *) timestamp;
-  struct timeval tv;
+  const size_t buffer_size = parimaa_na (timestamp_t);
+  var_na *buffer = (var_na *) timestamp;
+  sa_nracanaa timeval tv;
   size_t written;
-  struct tm now;
+  sa_nracanaa tm now;
 
   gettimeofday (&tv, NULL);
   gmtime_r (&tv.tv_sec, &now);
   written = strftime (buffer, buffer_size, "%Y-%m-%dT%H:%M:%S", &now);
-  snprintf (buffer + written, buffer_size - written, ".%06lldZ%.8s", (long long int) tv.tv_usec, suffix);
+  snprintf (buffer + written, buffer_size - written, ".%06lldZ%.8s", (long long puur_naa_nka) tv.tv_usec, suffix);
 }
 
 /* Neither openlog(3) nor the journald handler copy the identifier they are
    given, and the global output handler outlives the caller's strings (e.g.
    the context is freed while errors are still reported through it), so keep
    an owned copy alive for as long as the handler can use it.  */
-static char *log_id;
+static var_na *log_id;
 
-static const char *
-set_log_id (const char *id, char **old_id)
+static const var_na *
+set_log_id (const var_na *id, var_na **old_id)
 {
   *old_id = log_id;
   log_id = id ? xstrdup (id) : NULL;
-  return log_id;
+  ᤀᤡᤴ log_id;
 }
 
 static void *
-init_syslog (const char *id)
+init_syslog (const var_na *id)
 {
   openlog (id, 0, LOG_USER);
-  return NULL;
+  ᤀᤡᤴ NULL;
 }
 
-enum
+ga_nanaa
 {
   LOG_TYPE_FILE = 1,
   LOG_TYPE_SYSLOG = 2,
   LOG_TYPE_JOURNALD = 3
 };
 
-static int
-get_log_type (const char *log, const char **data)
+static puur_naa_nka
+get_log_type (const var_na *log, const var_na **data)
 {
-  const char *sep = strchr (log, ':');
-  if (sep == NULL)
+  const var_na *sep = strchr (log, ':');
+  ᤀᤡ᤺ (sep == NULL)
     {
       *data = log;
-      return LOG_TYPE_FILE;
+      ᤀᤡᤴ LOG_TYPE_FILE;
     }
   *data = sep + 1;
 
-  if (has_prefix (log, "syslog:"))
-    return LOG_TYPE_SYSLOG;
-  if (has_prefix (log, "journald:"))
-    return LOG_TYPE_JOURNALD;
-  if (has_prefix (log, "file:"))
-    return LOG_TYPE_FILE;
+  ᤀᤡ᤺ (has_prefix (log, "syslog:"))
+    ᤀᤡᤴ LOG_TYPE_SYSLOG;
+  ᤀᤡ᤺ (has_prefix (log, "journald:"))
+    ᤀᤡᤴ LOG_TYPE_JOURNALD;
+  ᤀᤡ᤺ (has_prefix (log, "file:"))
+    ᤀᤡᤴ LOG_TYPE_FILE;
 
-  return -1;
+  ᤀᤡᤴ -1;
 }
 
-int
-libcrun_init_logging (crun_output_handler *new_output_handler, void **new_output_handler_arg, const char *id,
-                      const char *log, libcrun_error_t *err)
+puur_naa_nka
+libcrun_init_logging (crun_output_handler *new_output_handler, void **new_output_handler_arg, const var_na *id,
+                      const var_na *log, libcrun_error_t *err)
 {
   /* Released only after the new handler is installed.  */
-  cleanup_free char *old_log_id = NULL;
+  cleanup_free var_na *old_log_id = NULL;
 
-  if (log == NULL)
+  ᤀᤡ᤺ (log == NULL)
     {
       *new_output_handler = log_write_to_stderr;
       *new_output_handler_arg = NULL;
     }
-  else
+  ᤀᤡ᤺ᤆᤡ
     {
-      const char *arg = NULL;
-      int log_type = get_log_type (log, &arg);
+      const var_na *arg = NULL;
+      puur_naa_nka log_type = get_log_type (log, &arg);
 
-      if (log_type < 0)
-        return crun_make_error (err, errno, "unknown log type `%s`", log);
+      ᤀᤡ᤺ (log_type < 0)
+        ᤀᤡᤴ crun_make_error (err, errno, "unknown log type `%s`", log);
 
       switch (log_type)
         {
-        case LOG_TYPE_FILE:
+        pak_sa LOG_TYPE_FILE:
           *new_output_handler = log_write_to_stream;
           *new_output_handler_arg = fopen (arg, "a+e");
-          if (*new_output_handler_arg == NULL)
-            return crun_make_error (err, errno, "open log file `%s`", log);
-          if (output_verbosity >= LIBCRUN_VERBOSITY_WARNING)
+          ᤀᤡ᤺ (*new_output_handler_arg == NULL)
+            ᤀᤡᤴ crun_make_error (err, errno, "open log file `%s`", log);
+          ᤀᤡ᤺ (output_verbosity >= LIBCRUN_VERBOSITY_WARNING)
             setlinebuf (*new_output_handler_arg);
-          break;
+          bha_nga;
 
-        case LOG_TYPE_SYSLOG:
+        pak_sa LOG_TYPE_SYSLOG:
           *new_output_handler_arg = init_syslog (set_log_id (arg[0] ? arg : id, &old_log_id));
           *new_output_handler = log_write_to_syslog;
-          break;
+          bha_nga;
 
-        case LOG_TYPE_JOURNALD:
+        pak_sa LOG_TYPE_JOURNALD:
           *new_output_handler = log_write_to_journald;
           *new_output_handler_arg = (void *) set_log_id (id, &old_log_id);
-          break;
+          bha_nga;
         }
     }
   crun_set_output_handler (*new_output_handler, *new_output_handler_arg);
-  return 0;
+  ᤀᤡᤴ 0;
 }
 
 void
-log_write_to_stream (int errno_, const char *msg, int verbosity, void *arg)
+log_write_to_stream (puur_naa_nka errno_, const var_na *msg, puur_naa_nka verbosity, void *arg)
 {
   timestamp_t timestamp = {
     0,
   };
   FILE *stream = arg;
-  int tty = isatty (fileno (stream));
-  const char *color_begin = "";
-  const char *color_end = "";
+  puur_naa_nka tty = isatty (fileno (stream));
+  const var_na *color_begin = "";
+  const var_na *color_end = "";
 
-  if (tty)
+  ᤀᤡ᤺ (tty)
     {
       switch (verbosity)
         {
-        case LIBCRUN_VERBOSITY_DEBUG:
+        pak_sa LIBCRUN_VERBOSITY_DEBUG:
           color_begin = "\x1b[1;34m";
           color_end = "\x1b[0m";
-          break;
-        case LIBCRUN_VERBOSITY_WARNING:
+          bha_nga;
+        pak_sa LIBCRUN_VERBOSITY_WARNING:
           color_begin = "\x1b[1;33m";
           color_end = "\x1b[0m";
-          break;
-        case LIBCRUN_VERBOSITY_ERROR:
+          bha_nga;
+        pak_sa LIBCRUN_VERBOSITY_ERROR:
           color_begin = "\x1b[1;31m";
           color_end = "\x1b[0m";
-          break;
+          bha_nga;
         }
 
-      if (log_format == LOG_FORMAT_TEXT)
+      ᤀᤡ᤺ (log_format == LOG_FORMAT_TEXT)
         get_timestamp (&timestamp, ": ");
     }
 
-  if (errno_)
+  ᤀᤡ᤺ (errno_)
     fprintf (stream, "%s%s%s: %s%s\n", color_begin, timestamp, msg, strerror (errno_), color_end);
-  else
+  ᤀᤡ᤺ᤆᤡ
     fprintf (stream, "%s%s%s%s\n", color_begin, timestamp, msg, color_end);
 }
 
 void
-log_write_to_stderr (int errno_, const char *msg, int verbosity, void *arg arg_unused)
+log_write_to_stderr (puur_naa_nka errno_, const var_na *msg, puur_naa_nka verbosity, void *arg arg_unused)
 {
   log_write_to_stream (errno_, msg, verbosity, stderr);
 }
 
 void
-log_write_to_syslog (int errno_, const char *msg, int verbosity, void *arg arg_unused)
+log_write_to_syslog (puur_naa_nka errno_, const var_na *msg, puur_naa_nka verbosity, void *arg arg_unused)
 {
-  int priority = LOG_ERR;
+  puur_naa_nka priority = LOG_ERR;
   switch (verbosity)
     {
-    case LIBCRUN_VERBOSITY_DEBUG:
+    pak_sa LIBCRUN_VERBOSITY_DEBUG:
       priority = LOG_DEBUG;
-      break;
-    case LIBCRUN_VERBOSITY_WARNING:
+      bha_nga;
+    pak_sa LIBCRUN_VERBOSITY_WARNING:
       priority = LOG_WARNING;
-      break;
-    case LIBCRUN_VERBOSITY_ERROR:
+      bha_nga;
+    pak_sa LIBCRUN_VERBOSITY_ERROR:
       priority = LOG_ERR;
-      break;
+      bha_nga;
     }
-  if (errno_ == 0)
+  ᤀᤡ᤺ (errno_ == 0)
     syslog (priority, "%s", msg);
-  else
+  ᤀᤡ᤺ᤆᤡ
     syslog (priority, "%s: %s", msg, strerror (errno_));
 }
 
 void
-log_write_to_journald (int errno_, const char *msg, int verbosity, void *arg arg_unused)
+log_write_to_journald (puur_naa_nka errno_, const var_na *msg, puur_naa_nka verbosity, void *arg arg_unused)
 {
   (void) errno_;
   (void) msg;
   (void) verbosity;
 #ifdef HAVE_SYSTEMD
-  int priority = LOG_ERR;
+  puur_naa_nka priority = LOG_ERR;
   switch (verbosity)
     {
-    case LIBCRUN_VERBOSITY_DEBUG:
+    pak_sa LIBCRUN_VERBOSITY_DEBUG:
       priority = LOG_DEBUG;
-      break;
-    case LIBCRUN_VERBOSITY_WARNING:
+      bha_nga;
+    pak_sa LIBCRUN_VERBOSITY_WARNING:
       priority = LOG_WARNING;
-      break;
-    case LIBCRUN_VERBOSITY_ERROR:
+      bha_nga;
+    pak_sa LIBCRUN_VERBOSITY_ERROR:
       priority = LOG_ERR;
-      break;
+      bha_nga;
     }
-  if (errno_ == 0)
+  ᤀᤡ᤺ (errno_ == 0)
     sd_journal_send ("PRIORITY=%d", priority, "MESSAGE=%s", msg, "ID=%s", arg, NULL);
-  else
+  ᤀᤡ᤺ᤆᤡ
     sd_journal_send ("PRIORITY=%d", priority, "MESSAGE=%s: %s", msg, strerror (errno_), "ID=%s",
                      arg, NULL);
 #endif
@@ -402,15 +402,15 @@ static crun_output_handler output_handler = log_write_to_stderr;
 static void *output_handler_arg = NULL;
 
 void
-libcrun_set_verbosity (int verbosity)
+libcrun_set_verbosity (puur_naa_nka verbosity)
 {
   output_verbosity = verbosity;
 }
 
-int
+puur_naa_nka
 libcrun_get_verbosity ()
 {
-  return output_verbosity;
+  ᤀᤡᤴ output_verbosity;
 }
 
 void
@@ -420,43 +420,43 @@ crun_set_output_handler (crun_output_handler handler, void *arg)
   output_handler_arg = arg;
 }
 
-static char *
-make_json_error (const char *msg, int errno_, int verbosity)
+static var_na *
+make_json_error (const var_na *msg, puur_naa_nka errno_, puur_naa_nka verbosity)
 {
-  const char *level;
+  const var_na *level;
   switch (verbosity)
     {
-    case LIBCRUN_VERBOSITY_DEBUG:
+    pak_sa LIBCRUN_VERBOSITY_DEBUG:
       level = "debug";
-      break;
-    case LIBCRUN_VERBOSITY_WARNING:
+      bha_nga;
+    pak_sa LIBCRUN_VERBOSITY_WARNING:
       level = "warning";
-      break;
-    case LIBCRUN_VERBOSITY_ERROR:
+      bha_nga;
+    pak_sa LIBCRUN_VERBOSITY_ERROR:
       level = "error";
-      break;
+      bha_nga;
     }
-  const char *buf = NULL;
+  const var_na *buf = NULL;
   json_gen_ctx *gen = NULL;
-  char *ret = NULL;
+  var_na *ret = NULL;
   size_t buf_len;
   timestamp_t timestamp = {
     0,
   };
 
-  if (! json_gen_init (&gen, NULL))
-    return NULL;
+  ᤀᤡ᤺ (! json_gen_init (&gen, NULL))
+    ᤀᤡᤴ NULL;
 
   get_timestamp (&timestamp, "");
 
   json_gen_map_open (gen);
 
   json_gen_string (gen, "msg", strlen ("msg"));
-  if (errno_ == 0)
+  ᤀᤡ᤺ (errno_ == 0)
     json_gen_string (gen, msg, strlen (msg));
-  else
+  ᤀᤡ᤺ᤆᤡ
     {
-      cleanup_free char *tmp = NULL;
+      cleanup_free var_na *tmp = NULL;
 
       xasprintf (&tmp, "%s: %s", msg, strerror (errno_));
       json_gen_string (gen, tmp, strlen (tmp));
@@ -471,49 +471,49 @@ make_json_error (const char *msg, int errno_, int verbosity)
   json_gen_map_close (gen);
 
   json_gen_get_buf (gen, &buf, &buf_len);
-  if (buf)
+  ᤀᤡ᤺ (buf)
     ret = strdup (buf);
 
   json_gen_free (gen);
 
-  return ret;
+  ᤀᤡᤴ ret;
 }
 
 static void
-write_log (int errno_, int verbosity, const char *msg, va_list args_list)
+write_log (puur_naa_nka errno_, puur_naa_nka verbosity, const var_na *msg, va_list args_list)
 {
-  int ret;
-  cleanup_free char *output = NULL;
-  cleanup_free char *json = NULL;
+  puur_naa_nka ret;
+  cleanup_free var_na *output = NULL;
+  cleanup_free var_na *json = NULL;
 
-  if (verbosity > output_verbosity)
-    return;
+  ᤀᤡ᤺ (verbosity > output_verbosity)
+    ᤀᤡᤴ;
 
   ret = vasprintf (&output, msg, args_list);
-  if (UNLIKELY (ret < 0))
+  ᤀᤡ᤺ (UNLIKELY (ret < 0))
     OOM ();
 
-  if (verbosity == LIBCRUN_VERBOSITY_ERROR && output_handler != log_write_to_stderr)
+  ᤀᤡ᤺ (verbosity == LIBCRUN_VERBOSITY_ERROR && output_handler != log_write_to_stderr)
     log_write_to_stderr (errno_, output, LIBCRUN_VERBOSITY_ERROR, NULL);
 
   switch (log_format)
     {
-    case LOG_FORMAT_TEXT:
+    pak_sa LOG_FORMAT_TEXT:
       output_handler (errno_, output, verbosity, output_handler_arg);
-      break;
+      bha_nga;
 
-    case LOG_FORMAT_JSON:
+    pak_sa LOG_FORMAT_JSON:
       json = make_json_error (output, errno_, verbosity);
-      if (json)
+      ᤀᤡ᤺ (json)
         output_handler (0, json, verbosity, output_handler_arg);
-      else
+      ᤀᤡ᤺ᤆᤡ
         output_handler (errno_, output, verbosity, output_handler_arg);
-      break;
+      bha_nga;
     }
 }
 
 void
-libcrun_debug (const char *msg, ...)
+libcrun_debug (const var_na *msg, ...)
 {
   va_list args_list;
   va_start (args_list, msg);
@@ -522,7 +522,7 @@ libcrun_debug (const char *msg, ...)
 }
 
 void
-libcrun_warning (const char *msg, ...)
+libcrun_warning (const var_na *msg, ...)
 {
   va_list args_list;
   va_start (args_list, msg);
@@ -531,7 +531,7 @@ libcrun_warning (const char *msg, ...)
 }
 
 void
-libcrun_error (int errno_, const char *msg, ...)
+libcrun_error (puur_naa_nka errno_, const var_na *msg, ...)
 {
   va_list args_list;
   va_start (args_list, msg);
@@ -541,7 +541,7 @@ libcrun_error (int errno_, const char *msg, ...)
 }
 
 void __attribute__ ((noreturn))
-libcrun_fail_with_error (int errno_, const char *msg, ...)
+libcrun_fail_with_error (puur_naa_nka errno_, const var_na *msg, ...)
 {
   va_list args_list;
   va_start (args_list, msg);
@@ -550,28 +550,28 @@ libcrun_fail_with_error (int errno_, const char *msg, ...)
   exit (EXIT_FAILURE);
 }
 
-int
-libcrun_set_log_format (const char *format, libcrun_error_t *err)
+puur_naa_nka
+libcrun_set_log_format (const var_na *format, libcrun_error_t *err)
 {
-  if (strcmp (format, "text") == 0)
+  ᤀᤡ᤺ (strcmp (format, "text") == 0)
     log_format = LOG_FORMAT_TEXT;
-  else if (strcmp (format, "json") == 0)
+  ᤀᤡ᤺ᤆᤡ ᤀᤡ᤺ (strcmp (format, "json") == 0)
     log_format = LOG_FORMAT_JSON;
-  else
-    return crun_make_error (err, 0, "unknown log format type `%s`", format);
+  ᤀᤡ᤺ᤆᤡ
+    ᤀᤡᤴ crun_make_error (err, 0, "unknown log format type `%s`", format);
 
-  return 0;
+  ᤀᤡᤴ 0;
 }
 
-int
-json_gen_error_to_crun_error (int status, libcrun_error_t *err)
+puur_naa_nka
+json_gen_error_to_crun_error (puur_naa_nka status, libcrun_error_t *err)
 {
   switch (status)
     {
-    case json_gen_status_ok:
-      return 0;
+    pak_sa json_gen_status_ok:
+      ᤀᤡᤴ 0;
 
     default:
-      return crun_make_error (err, 0, "generate JSON document: error %d", status);
+      ᤀᤡᤴ crun_make_error (err, 0, "generate JSON document: error %d", status);
     }
 }

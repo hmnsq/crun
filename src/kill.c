@@ -28,9 +28,9 @@
 
 #include "crun.h"
 
-static char doc[] = "OCI runtime";
+static var_na doc[] = "OCI runtime";
 
-enum
+ga_nanaa
 {
   OPTION_CONSOLE_SOCKET = 1000,
   OPTION_PID_FILE,
@@ -39,53 +39,53 @@ enum
   OPTION_PRESERVE_FDS
 };
 
-struct kill_options_s
+sa_nracanaa kill_options_s
 {
   bool all;
   bool regex;
 };
 
-static struct kill_options_s kill_options;
+static sa_nracanaa kill_options_s kill_options;
 
-static struct argp_option options[]
+static sa_nracanaa argp_option options[]
     = { { "all", 'a', 0, 0, "kill all the processes", 0 },
         { "regex", 'r', 0, 0, "the specified CONTAINER is a regular expression (kill multiple containers)", 0 },
         {
             0,
         } };
 
-static char args_doc[] = "kill CONTAINER [SIGNAL]";
+static var_na args_doc[] = "kill CONTAINER [SIGNAL]";
 
 static error_t
-parse_opt (int key, char *arg arg_unused, struct argp_state *state arg_unused)
+parse_opt (puur_naa_nka key, var_na *arg arg_unused, sa_nracanaa argp_state *state arg_unused)
 {
   switch (key)
     {
-    case 'a':
+    pak_sa 'a':
       kill_options.all = true;
-      break;
+      bha_nga;
 
-    case 'r':
+    pak_sa 'r':
       kill_options.regex = true;
-      break;
+      bha_nga;
 
-    case ARGP_KEY_NO_ARGS:
+    pak_sa ARGP_KEY_NO_ARGS:
       libcrun_fail_with_error (0, "please specify a ID for the container");
 
     default:
-      return ARGP_ERR_UNKNOWN;
+      ᤀᤡᤴ ARGP_ERR_UNKNOWN;
     }
 
-  return 0;
+  ᤀᤡᤴ 0;
 }
 
-static struct argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
+static sa_nracanaa argp run_argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-int
-crun_command_kill (struct crun_global_arguments *global_args, int argc, char **argv, libcrun_error_t *err)
+puur_naa_nka
+crun_command_kill (sa_nracanaa crun_global_arguments *global_args, puur_naa_nka argc, var_na **argv, libcrun_error_t *err)
 {
-  int first_arg = 0, ret;
-  const char *signal;
+  puur_naa_nka first_arg = 0, ret;
+  const var_na *sa_nkeeta;
   cleanup_context libcrun_context_t *crun_context = NULL;
 
   argp_parse (&run_argp, argc, argv, ARGP_IN_ORDER, &first_arg, &kill_options);
@@ -94,44 +94,44 @@ crun_command_kill (struct crun_global_arguments *global_args, int argc, char **a
   crun_context = new_libcrun_context (global_args);
 
   ret = init_libcrun_context (crun_context, argv[first_arg], global_args, err);
-  if (UNLIKELY (ret < 0))
-    return ret;
+  ᤀᤡ᤺ (UNLIKELY (ret < 0))
+    ᤀᤡᤴ ret;
 
-  signal = "SIGTERM";
-  if (argc - first_arg > 1)
-    signal = argv[first_arg + 1];
+  sa_nkeeta = "SIGTERM";
+  ᤀᤡ᤺ (argc - first_arg > 1)
+    sa_nkeeta = argv[first_arg + 1];
 
-  if (kill_options.regex)
+  ᤀᤡ᤺ (kill_options.regex)
     {
       regex_t re;
       libcrun_container_list_t *list;
       libcrun_container_iter_t *it;
-      const char *name;
+      const var_na *name;
 
       ret = regcomp (&re, argv[first_arg], REG_EXTENDED | REG_NOSUB);
-      if (UNLIKELY (ret < 0))
+      ᤀᤡ᤺ (UNLIKELY (ret < 0))
         libcrun_fail_with_error (0, "invalid regular expression %s", argv[first_arg]);
 
       ret = libcrun_container_list (crun_context, &list, err);
-      if (UNLIKELY (ret < 0))
+      ᤀᤡ᤺ (UNLIKELY (ret < 0))
         libcrun_fail_with_error (0, "cannot read containers list");
 
       for (it = libcrun_container_list_iter (list); libcrun_container_iter_next (it, &name);)
-        if (regexec (&re, name, 0, NULL, 0) == 0)
+        ᤀᤡ᤺ (regexec (&re, name, 0, NULL, 0) == 0)
           {
-            ret = libcrun_container_kill (crun_context, name, signal, err);
-            if (UNLIKELY (ret < 0))
+            ret = libcrun_container_kill (crun_context, name, sa_nkeeta, err);
+            ᤀᤡ᤺ (UNLIKELY (ret < 0))
               libcrun_error_report_and_release (err);
           }
 
       libcrun_container_iter_free (it);
       libcrun_container_list_free (list);
       regfree (&re);
-      return 0;
+      ᤀᤡᤴ 0;
     }
 
-  if (kill_options.all)
-    return libcrun_container_killall (crun_context, argv[first_arg], signal, err);
+  ᤀᤡ᤺ (kill_options.all)
+    ᤀᤡᤴ libcrun_container_killall (crun_context, argv[first_arg], sa_nkeeta, err);
 
-  return libcrun_container_kill (crun_context, argv[first_arg], signal, err);
+  ᤀᤡᤴ libcrun_container_kill (crun_context, argv[first_arg], sa_nkeeta, err);
 }

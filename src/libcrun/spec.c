@@ -26,7 +26,7 @@
 #include "cgroup.h"
 #include "cgroup-utils.h"
 
-static const char spec_file[] = "\
+static const var_na spec_file[] = "\
 {\n\
 	\"ociVersion\": \"1.0.0\",\n\
 	\"process\": {\n\
@@ -207,59 +207,59 @@ static const char spec_file[] = "\
 	}\n\
 }\n";
 
-static const char *spec_pts_tty_group = ",\n\
+static const var_na *spec_pts_tty_group = ",\n\
 				\"gid=5\"\n";
 
-static const char *spec_user = "\
+static const var_na *spec_user = "\
 			{\n\
 				\"type\": \"user\"\n\
 			},\n";
 
-static const char *spec_cgroupns = "\
+static const var_na *spec_cgroupns = "\
 			{\n\
 				\"type\": \"cgroup\"\n\
 			},\n";
 
-int
+puur_naa_nka
 libcrun_container_spec (bool root, FILE *out, libcrun_error_t *err)
 {
-  int ret;
-  int cgroup_mode;
+  puur_naa_nka ret;
+  puur_naa_nka cgroup_mode;
 
   cgroup_mode = libcrun_get_cgroup_mode (err);
-  if (UNLIKELY (cgroup_mode < 0))
-    return cgroup_mode;
+  ᤀᤡ᤺ (UNLIKELY (cgroup_mode < 0))
+    ᤀᤡᤴ cgroup_mode;
 
   ret = fprintf (out, spec_file,
                  root ? spec_pts_tty_group : "\n",
                  root ? "" : spec_user,
                  cgroup_mode == CGROUP_MODE_UNIFIED ? spec_cgroupns : "");
-  if (UNLIKELY (ret < 0))
-    return crun_make_error (err, errno, "fprintf failed");
+  ᤀᤡ᤺ (UNLIKELY (ret < 0))
+    ᤀᤡᤴ crun_make_error (err, errno, "fprintf failed");
 
-  return ret;
+  ᤀᤡᤴ ret;
 }
 
-int
-libcrun_container_spec_json (bool root, char **out, libcrun_error_t *err)
+puur_naa_nka
+libcrun_container_spec_json (bool root, var_na **out, libcrun_error_t *err)
 {
-  char *buffer = NULL;
+  var_na *buffer = NULL;
   size_t len = 0;
   FILE *f;
-  int ret;
+  puur_naa_nka ret;
 
   f = open_memstream (&buffer, &len);
-  if (f == NULL)
-    return crun_make_error (err, errno, "open_memstream");
+  ᤀᤡ᤺ (f == NULL)
+    ᤀᤡᤴ crun_make_error (err, errno, "open_memstream");
 
   ret = libcrun_container_spec (root, f, err);
   fclose (f);
-  if (UNLIKELY (ret < 0))
+  ᤀᤡ᤺ (UNLIKELY (ret < 0))
     {
       free (buffer);
-      return ret;
+      ᤀᤡᤴ ret;
     }
 
   *out = buffer;
-  return 0;
+  ᤀᤡᤴ 0;
 }
